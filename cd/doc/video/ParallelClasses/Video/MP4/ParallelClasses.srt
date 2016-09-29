@@ -1,0 +1,78 @@
+1
+00:00:00,000 --> 00:00:03,000
+Planowanie zajęć równoległych, Dowolna liczba wykładowców, grup, sal, przedmiotów i form zajęć
+
+2
+00:00:12,220 --> 00:00:15,220
+Wybieramy jeden przedmiot lub tyle przedmiotów, ile wykładowców. 
+
+3
+00:00:31,620 --> 00:00:34,620
+Podsumowanie godzin jest wyświetlane w legendzie na bieżąco
+
+
+4
+00:00:34,960 --> 00:00:37,960
+Wybieranie zestawu kilku przedmiotów oraz weryfikacja poprawności danych
+
+
+5
+00:00:44,060 --> 00:00:47,060
+Wybieramy zestaw przedmiotów
+
+6
+00:00:54,020 --> 00:00:57,020
+Wybramy jedną formę zajęć lub tyle form, ilu jest wykładowców
+
+7
+00:01:05,740 --> 00:01:08,740
+Weryfikacja poprawności danych
+
+8
+00:01:16,180 --> 00:01:19,180
+Legenda- podsumowanie godzin online
+
+9
+00:01:39,480 --> 00:01:42,480
+Zawartość legendy można filtrować wg dowolnych słów kluczowych np. nazwiko lub nazwa przedmiotu
+
+10
+00:01:46,360 --> 00:01:49,360
+Zawartość legendy można otworzyć w Excelu lub w przeglądarce
+
+11
+00:01:53,380 --> 00:01:56,380
+Podsumowania możemy filtrować również w przeglądarce
+
+
+12
+00:01:59,880 --> 00:02:02,880
+Analiza danych
+
+13
+00:02:05,020 --> 00:02:08,020
+Dane mogą być przedstawiane w rozbiuciu na wykładowców lub zbiorczo
+
+14
+00:02:16,680 --> 00:02:19,680
+<span style="font-size: 36px;">Możliwość dowolnego filtrowania danych, 
+grupowania danych, sortowania danych</span>
+
+15
+00:02:35,780 --> 00:02:38,780
+Eksport danych do Excela lub do przeglądarki
+
+
+16
+00:03:00,580 --> 00:03:03,580
+Analiza danych za pomocą Tabel Przestawnych
+
+
+17
+00:03:56,940 --> 00:03:59,940
+Wydruku
+
+18
+00:04:18,200 --> 00:04:21,200
+Dziękuję za uwagę
+

@@ -1,0 +1,65 @@
+@startuml
+
+title Planowanie zajêæ\n\n 
+
+|Publikacja rozk³adów|
+|Planowanie|
+start
+
+partition "Przygotowanie do planowania" {
+:Zapoznanie siê z materia³ami wideo;
+:Zapoznanie siê z podrêcznikiem;
+:Szkolenie wstêpne;
+:Zdefiniowanie semestru;
+:Zdefiniowanie siatki godzinowej;
+:Zaimportowanie wyk³adowów, grup, sal i przedmiotów z plików excel;
+}
+
+
+Repeat
+
+:Wprowadzanie i aktualizacja \n planów studiów;
+
+:Aktualizacja danych\n o wyk³adowcach, grupach,\n salach, zasobach;
+
+:Wprowadzanie zapotrzebowañ wyk³adowców;
+
+:Rezerwowanie sal \n ewidencjonowanie urlopów;
+
+:Planowanie zajêæ;
+
+|Publikacja rozk³adów|
+fork
+:Generowanie rozk³adów\n w formie stron www;
+fork again
+:Generowanie rozk³adów\n w formie tabel przestawnych;
+fork again
+:__Kalendarze Google__;
+:__Mapy Google__;
+end fork
+
+|Planowanie|
+:Automatycznne informowanie\n o zmianach emailem;
+:Analiza historii zmian;
+
+Repeat while (Prawid³owy plan zajêæ?)
+
+|Analiza danych|
+
+partition "Rozliczenia" {
+:Liczenie pensum;
+:Generowanie dokumentów rozliczeniowych;
+:Wysy³anie raportów do systemu Polon;
+}
+
+partition "Analiza danych" {
+:Eksport w formie tabel www-szczegó³ówo;
+:Eksport do Excela-szczegó³owo;
+:Tabele przestawne;
+:Grupowanie danych;
+:Ocena efektywnoœci\n na wykresach Google;
+}
+
+stop
+
+@enduml

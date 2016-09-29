@@ -1,0 +1,1 @@
+SQLeverywhere.exe ALIAS=OLD_PLA EXPORT="SELECT Numer, Stopien, Nazwisko, Imie, Kolor, KrotkaNazwa, Zespol, IdWykladowca FROM WYKLADOWCY;LECTURERS.CFG"

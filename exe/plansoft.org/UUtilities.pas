@@ -1,0 +1,1593 @@
+unit UUtilities;
+
+{$R-}
+
+interface
+
+Uses SysUtils, UFMain, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls;
+
+Const convOutOfRange   = 0;
+      ConvHeader       = 1;
+      ConvClass        = 2;
+      ConvDayOfWeek    = 3;
+      ConvNumeryZajec  = 4;
+
+      crossTableViewObjNames    = 5;
+      crossTableViewDayOfWeek   = 6;
+
+Type TConvertSingleObject = object
+      Len                : Integer;
+      Date,Day,_Row,_Col : Integer;
+      TimeStamp          : TTimeStamp;
+      DateTime           : TDateTime;
+      MaxIloscGodzin     : Integer;
+      ColRowDate : Array Of Record
+               Col, Row, Date : Integer;
+             End;
+      public
+      Procedure Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
+      //Function  DateToColRow(_Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
+      Function  ColRowToDate(var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+     End;
+
+Type TConvertManyObjects = class
+      Len              : Integer;
+      Date,Day,_Col    : Integer;
+      TimeStamp        : TTimeStamp;
+      DateTime         : TDateTime;
+      MaxIloscGodzin   : Integer;
+      currentObjName   : string;
+      ObjectIds : Array Of Record
+                               id : Integer;
+                               name  : string[100];
+                              End;
+      ColDate : Array Of Record
+                       Col
+                      ,Date : Integer;
+                      End;
+      public
+      Procedure init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
+      //Function  dateObjToColRow(_Date, _Hour, _objId : Integer; var Col, Row : Integer) : Boolean;
+      Function  colRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+     End;
+
+Const ConvSingleObject     = 1;
+      ConvManyObjects      = 2;
+
+type TConvertGrid = class
+       convertMode          : integer;
+       convertSingleObject  : TConvertSingleObject;
+       convertManyObjects   : TConvertManyObjects;
+       Procedure init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string); overload;
+       Procedure Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean); overload;
+       Function  ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+     end;
+
+     TOpisujKolumneZajec = class
+      no        : Array[1..dm.maxHours] Of String[20];
+      hour_from : Array[1..dm.maxHours] Of String[20];
+      hour_to   : Array[1..dm.maxHours] Of String[20];
+      Procedure internalCreate;
+      Function Str(i : Integer) : String;
+      function hourNumberToHourFromTo( hour, fill : integer; var hh1, mm1, hh2, mm2 : integer) : boolean;
+     End;
+
+Type TPointers = Array[1..maxInClass] of Integer;
+// Not used positions should be set to value 0 !
+
+Type TSingleClass = Record
+                      Day        : TTimeStamp;
+                      Hour       : integer;
+                      fill       : integer;
+                      colour     : integer;
+                      Lecturers  : TPointers;
+                      Groups     : TPointers;
+                      Rooms      : TPointers;
+                      Sub_id     : integer;
+                      For_id     : integer;
+                      Created_by : String[30];
+                      _Owner     : String[30];
+                      desc1      : string[255];
+                      desc2      : string[255];
+                      desc3      : string[255];
+                      desc4      : string[255];
+                    End;
+
+Type TCheckConflicts = Class
+           NewClass         : TSingleClass;
+           ConflictsClasses : Array[1..40] Of TSingleClass;
+           Count            : Integer;
+           Completion       : Boolean;
+           CanDelete        : Boolean;
+           CurrentUser      : String[30];
+
+           private
+             procedure internalCreate(Day : TTimeStamp; Hour, fill, colour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
+             procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner : String);
+             function  deleteConflictClasses : Boolean;
+           public
+             function  conflictsReport(aCurrentUser : String; Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
+             procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
+             function  empty : Boolean;
+             function  insert ( ttCombIds        : string ) : Boolean;
+         End;
+
+Var
+    CheckConflicts : TCheckConflicts;
+    convertGrid           : tConvertGrid;
+    OpisujKolumneZajec       : tOpisujKolumneZajec;
+
+
+
+Function GetCLASSESforL  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforG  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforR  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforPLA(ID : ShortString ) : String;
+
+Function NumToDayOfWeek(L : Integer) : String;
+Function GetDate(Date : integer) : String;
+Function GetDay(Date : integer) : String;
+Function GetLongMonthName(Date : integer) : String;
+
+// API do wstawiania, usuwania zajecia, oraz sprawdzenia, czy mozna zajecie wstawic nie powodujac konfliktow
+// Nie przejmuj sie tym, ze pomiedzy sprawdzeniem, czy mozna wstawic zajecie, a wstawieniem inny uzytkownik wstawi zajecie
+// Wowczas wiezy integralnosci bazy danych nie pozwola na wstawienie zajecia
+// pamietaj, ze po wykonaniu wstawienia lub usuniecia zajecia, aby zmiany byly widoczne nalezy
+// wykonac polecenie grid.refresh, a dodatkowo, zeby odswiezyc legende wykonaj RefreshClassCounterInLegend
+// funkcja canInsertClass jest uproszczona wersja procedury standardowej, uzywanej podczas planowania za pomoca myszy.
+// dzieki uproszczeniom dziala ona znacznie szybciej, ale nie uwzglednia ona doplanowania (pojecie doplanowania wyjasniono w podreczniku uzytkowniku w rozdziale definicje)
+// nie wyswietla ona rowniez szczegolowego komunikatu
+ // cla_id to id biezacego zajecia ( chodzi o to, zeby nie sprawdzac konfliku z samym soba )
+function canInsertClass (
+             myClass : TClass_;
+             cla_id : integer;
+             var resultMessage : string;
+             const fastCheck : boolean = false //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
+         ) : boolean;
+function insertClass ( myClass : TClass_; pttCombIds : string ) : boolean;
+function deleteClass(Class_ : TClass_) : Boolean;
+Procedure DeleteOrphanedClasses;
+
+procedure importPreviousGridSettings;
+
+
+implementation
+
+Uses UFProgramSettings;
+
+procedure importPreviousGridSettings;
+var pnos, phours_from, phours_to : array of string;
+    t : integer;
+begin
+  t := 0;
+  SetLength(pnos,60);
+  pnos[t] := GetSystemParam('LESSON_NO1'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO2'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO3'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO4'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO5'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO6'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO7'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO8'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_NO9'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N10'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N11'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N12'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N13'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N14'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N15'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N16'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N17'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N18'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N19'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N20'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N21'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N22'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N23'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N24'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N25'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N26'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N27'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N28'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N29'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N30'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N31'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N32'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N33'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N34'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N35'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N36'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N37'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N38'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N39'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N40'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N41'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N42'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N43'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N44'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N45'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N46'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N47'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N48'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N49'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N50'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N51'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N52'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N53'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N54'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N55'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N56'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N57'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N58'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N59'); inc(t);
+  pnos[t] := GetSystemParam('LESSON_N60'); 
+
+ SetLength(phours_from,60);
+ phours_from[0] :=getSystemParam('LESSON_HFROM1');
+ phours_from[1] :=getSystemParam('LESSON_HFROM2');
+ phours_from[2] :=getSystemParam('LESSON_HFROM3');
+ phours_from[3] :=getSystemParam('LESSON_HFROM4');
+ phours_from[4] :=getSystemParam('LESSON_HFROM5');
+ phours_from[5] :=getSystemParam('LESSON_HFROM6');
+ phours_from[6] :=getSystemParam('LESSON_HFROM7');
+ phours_from[7] :=getSystemParam('LESSON_HFROM8');
+ phours_from[8] :=getSystemParam('LESSON_HFROM9');
+ phours_from[9] :=getSystemParam('LESSON_HFROM10');
+ phours_from[10] :=getSystemParam('LESSON_HFROM11');
+ phours_from[11] :=getSystemParam('LESSON_HFROM12');
+ phours_from[12] :=getSystemParam('LESSON_HFROM13');
+ phours_from[13] :=getSystemParam('LESSON_HFROM14');
+ phours_from[14] :=getSystemParam('LESSON_HFROM15');
+ phours_from[15] :=getSystemParam('LESSON_HFROM16');
+ phours_from[16] :=getSystemParam('LESSON_HFROM17');
+ phours_from[17] :=getSystemParam('LESSON_HFROM18');
+ phours_from[18] :=getSystemParam('LESSON_HFROM19');
+ phours_from[19] :=getSystemParam('LESSON_HFROM20');
+ phours_from[20] :=getSystemParam('LESSON_HFROM21');
+ phours_from[21] :=getSystemParam('LESSON_HFROM22');
+ phours_from[22] :=getSystemParam('LESSON_HFROM23');
+ phours_from[23] :=getSystemParam('LESSON_HFROM24');
+ phours_from[24] :=getSystemParam('LESSON_HFROM25');
+ phours_from[25] :=getSystemParam('LESSON_HFROM26');
+ phours_from[26] :=getSystemParam('LESSON_HFROM27');
+ phours_from[27] :=getSystemParam('LESSON_HFROM28');
+ phours_from[28] :=getSystemParam('LESSON_HFROM29');
+ phours_from[29] :=getSystemParam('LESSON_HFROM30');
+ phours_from[30] :=getSystemParam('LESSON_HFROM31');
+ phours_from[31] :=getSystemParam('LESSON_HFROM32');
+ phours_from[32] :=getSystemParam('LESSON_HFROM33');
+ phours_from[33] :=getSystemParam('LESSON_HFROM34');
+ phours_from[34] :=getSystemParam('LESSON_HFROM35');
+ phours_from[35] :=getSystemParam('LESSON_HFROM36');
+ phours_from[36] :=getSystemParam('LESSON_HFROM37');
+ phours_from[37] :=getSystemParam('LESSON_HFROM38');
+ phours_from[38] :=getSystemParam('LESSON_HFROM39');
+ phours_from[39] :=getSystemParam('LESSON_HFROM40');
+ phours_from[40] :=getSystemParam('LESSON_HFROM41');
+ phours_from[41] :=getSystemParam('LESSON_HFROM42');
+ phours_from[42] :=getSystemParam('LESSON_HFROM43');
+ phours_from[43] :=getSystemParam('LESSON_HFROM44');
+ phours_from[44] :=getSystemParam('LESSON_HFROM45');
+ phours_from[45] :=getSystemParam('LESSON_HFROM46');
+ phours_from[46] :=getSystemParam('LESSON_HFROM47');
+ phours_from[47] :=getSystemParam('LESSON_HFROM48');
+ phours_from[48] :=getSystemParam('LESSON_HFROM49');
+ phours_from[49] :=getSystemParam('LESSON_HFROM50');
+ phours_from[50] :=getSystemParam('LESSON_HFROM51');
+ phours_from[51] :=getSystemParam('LESSON_HFROM52');
+ phours_from[52] :=getSystemParam('LESSON_HFROM53');
+ phours_from[53] :=getSystemParam('LESSON_HFROM54');
+ phours_from[54] :=getSystemParam('LESSON_HFROM55');
+ phours_from[55] :=getSystemParam('LESSON_HFROM56');
+ phours_from[56] :=getSystemParam('LESSON_HFROM57');
+ phours_from[57] :=getSystemParam('LESSON_HFROM58');
+ phours_from[58] :=getSystemParam('LESSON_HFROM59');
+ phours_from[59] :=getSystemParam('LESSON_HFROM60');
+
+ SetLength(phours_to,60);
+ phours_to[0] :=getSystemParam('LESSON_HTO1');
+ phours_to[1] :=getSystemParam('LESSON_HTO2');
+ phours_to[2] :=getSystemParam('LESSON_HTO3');
+ phours_to[3] :=getSystemParam('LESSON_HTO4');
+ phours_to[4] :=getSystemParam('LESSON_HTO5');
+ phours_to[5] :=getSystemParam('LESSON_HTO6');
+ phours_to[6] :=getSystemParam('LESSON_HTO7');
+ phours_to[7] :=getSystemParam('LESSON_HTO8');
+ phours_to[8] :=getSystemParam('LESSON_HTO9');
+ phours_to[9] :=getSystemParam('LESSON_HTO10');
+ phours_to[10] :=getSystemParam('LESSON_HTO11');
+ phours_to[11] :=getSystemParam('LESSON_HTO12');
+ phours_to[12] :=getSystemParam('LESSON_HTO13');
+ phours_to[13] :=getSystemParam('LESSON_HTO14');
+ phours_to[14] :=getSystemParam('LESSON_HTO15');
+ phours_to[15] :=getSystemParam('LESSON_HTO16');
+ phours_to[16] :=getSystemParam('LESSON_HTO17');
+ phours_to[17] :=getSystemParam('LESSON_HTO18');
+ phours_to[18] :=getSystemParam('LESSON_HTO19');
+ phours_to[19] :=getSystemParam('LESSON_HTO20');
+ phours_to[20] :=getSystemParam('LESSON_HTO21');
+ phours_to[21] :=getSystemParam('LESSON_HTO22');
+ phours_to[22] :=getSystemParam('LESSON_HTO23');
+ phours_to[23] :=getSystemParam('LESSON_HTO24');
+ phours_to[24] :=getSystemParam('LESSON_HTO25');
+ phours_to[25] :=getSystemParam('LESSON_HTO26');
+ phours_to[26] :=getSystemParam('LESSON_HTO27');
+ phours_to[27] :=getSystemParam('LESSON_HTO28');
+ phours_to[28] :=getSystemParam('LESSON_HTO29');
+ phours_to[29] :=getSystemParam('LESSON_HTO30');
+ phours_to[30] :=getSystemParam('LESSON_HTO31');
+ phours_to[31] :=getSystemParam('LESSON_HTO32');
+ phours_to[32] :=getSystemParam('LESSON_HTO33');
+ phours_to[33] :=getSystemParam('LESSON_HTO34');
+ phours_to[34] :=getSystemParam('LESSON_HTO35');
+ phours_to[35] :=getSystemParam('LESSON_HTO36');
+ phours_to[36] :=getSystemParam('LESSON_HTO37');
+ phours_to[37] :=getSystemParam('LESSON_HTO38');
+ phours_to[38] :=getSystemParam('LESSON_HTO39');
+ phours_to[39] :=getSystemParam('LESSON_HTO40');
+ phours_to[40] :=getSystemParam('LESSON_HTO41');
+ phours_to[41] :=getSystemParam('LESSON_HTO42');
+ phours_to[42] :=getSystemParam('LESSON_HTO43');
+ phours_to[43] :=getSystemParam('LESSON_HTO44');
+ phours_to[44] :=getSystemParam('LESSON_HTO45');
+ phours_to[45] :=getSystemParam('LESSON_HTO46');
+ phours_to[46] :=getSystemParam('LESSON_HTO47');
+ phours_to[47] :=getSystemParam('LESSON_HTO48');
+ phours_to[48] :=getSystemParam('LESSON_HTO49');
+ phours_to[49] :=getSystemParam('LESSON_HTO50');
+ phours_to[50] :=getSystemParam('LESSON_HTO51');
+ phours_to[51] :=getSystemParam('LESSON_HTO52');
+ phours_to[52] :=getSystemParam('LESSON_HTO53');
+ phours_to[53] :=getSystemParam('LESSON_HTO54');
+ phours_to[54] :=getSystemParam('LESSON_HTO55');
+ phours_to[55] :=getSystemParam('LESSON_HTO56');
+ phours_to[56] :=getSystemParam('LESSON_HTO57');
+ phours_to[57] :=getSystemParam('LESSON_HTO58');
+ phours_to[58] :=getSystemParam('LESSON_HTO59');
+ phours_to[59] :=getSystemParam('LESSON_HTO60');
+ dmodule.generateGrid ( pnos, phours_from, phours_to );
+end;
+
+Procedure TOpisujKolumneZajec.internalCreate;
+var t : integer;
+Begin
+ for t:= 1 to dm.maxHours do
+   no[ t] := '';
+
+ dmodule.openSQL('select no, caption, hour_from, hour_to from grids order by 1');
+ with dmodule.QWork do begin
+  while not eof do begin
+    if (fields[0].AsInteger <= dm.maxHours) and (fields[0].AsInteger >= 1) then begin
+      no       [ fields[0].AsInteger] :=  fields[1].AsString;
+      hour_from[ fields[0].AsInteger] :=  fields[2].AsString;
+      hour_to  [ fields[0].AsInteger] :=  fields[3].AsString;
+    end;
+    next;
+  end;
+ end;
+
+End;
+
+Function TOpisujKolumneZajec.Str(i : Integer) : String;
+Begin
+ Result := no[i];
+End;
+
+function TOpisujKolumneZajec.hourNumberToHourFromTo(hour, fill: integer; var hh1, mm1, hh2, mm2: integer) : boolean;
+var interval : integer;
+  //--
+  procedure addMinutes(hh1,mm1,interval : integer; var hh2,mm2 : integer);
+  begin
+    hh2 := (mm1 + interval + hh1*60) div 60;
+    mm2 := (mm1 + interval + hh1*60) - hh2*60;
+    hh2 := hh2 mod 24;
+  end;
+  //--
+begin
+  try
+    hh1 := strtoint( copy(hour_from[hour],1,2) );
+    mm1 := strtoint( copy(hour_from[hour],4,2) );
+    hh2 := strtoint( copy(hour_to[hour],1,2) );
+    mm2 := strtoint( copy(hour_to[hour],4,2) );
+    interval := round((hh2*60+mm2-hh1*60-mm1)*fill/100);
+    addMinutes(hh1,mm1,interval,hh2,mm2);
+    result := true;
+  except
+    result := false;
+  end;
+end;
+
+
+Const Modulo = 2;
+
+Procedure TConvertSingleObject.Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
+
+  Procedure OmitDays(Var Date : Integer);
+   Var Changed : Boolean;
+       fuse    : Integer;
+  Begin
+    //If DayOfWeek(Date) = 1 Then Date := Date + 1;
+    fuse := 0;
+
+    Repeat
+     inc(fuse);
+     Changed := False;
+     TimeStamp.Date := Date;
+     TimeStamp.Time := 0;
+     DateTime := TimeStampToDateTime(TimeStamp);
+     day := DayOfWeek(DateTime);
+
+     If day = 2 Then If Not SHOW_MON Then Begin Date := Date + 1; Changed := True; End;
+     If day = 3 Then If Not SHOW_TUE Then Begin Date := Date + 1; Changed := True; End;
+     If day = 4 Then If Not SHOW_WED Then Begin Date := Date + 1; Changed := True; End;
+     If day = 5 Then If Not SHOW_THU Then Begin Date := Date + 1; Changed := True; End;
+     If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
+     If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
+     If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
+     If fuse = 8 Then Begin SError('Semestr musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection; Halt; End;
+    Until Changed = False;
+  End;
+
+Var StartRows : Array[1..7] Of Integer;
+    StartRow  : Integer;
+
+Begin
+ SetLength(ColRowDate, EndDate - StartDate + 2 );       // inicjuje dlugosc tabeli dynamicznej ...
+ // +2 poniewaz: +1 - bo uzywam elementow poczawszy od pierwszego a nie zerowego
+ //              +1 - bo dla enddate = start date powinienem uzyskac 1
+ // gdy niektore dni tygodnia nie sa uzywane ( np. zajecia w soboty i niedziele ), do liczba elementow tabeli jest za duza, mniejsza z tym
+
+ MaxIloscGodzin := aMaxIloscGodzin;
+ Len := 0;
+
+ Date := StartDate;
+ OmitDays(Date);
+
+ TimeStamp.Date := Date;
+ TimeStamp.Time := 0;
+ DateTime := TimeStampToDateTime(TimeStamp);
+ day := DayOfWeek(DateTime);
+
+ StartRow := 0;
+ If SHOW_MON Then Begin StartRows[2] := StartRow; Inc(StartRow); End;
+ If SHOW_TUE Then Begin StartRows[3] := StartRow; Inc(StartRow); End;
+ If SHOW_WED Then Begin StartRows[4] := StartRow; Inc(StartRow); End;
+ If SHOW_THU Then Begin StartRows[5] := StartRow; Inc(StartRow); End;
+ If SHOW_FRI Then Begin StartRows[6] := StartRow; Inc(StartRow); End;
+ If SHOW_SAT Then Begin StartRows[7] := StartRow; Inc(StartRow); End;
+ If SHOW_SUN Then Begin StartRows[1] := StartRow; Inc(StartRow); End;
+ _Row := StartRows[Day];
+
+ {Case day Of
+  2:_Row := 0; //Mon
+  3:_Row := 1; //Tue
+  4:_Row := 2; //Wed
+  5:_Row := 3; //Thu
+  6:_Row := 4; //Fri
+  7:_Row := 5; //Sat
+  1:_Row := 6; //Sun
+ End;}
+  _Col := 0;
+ Repeat
+  Len := Len + 1;
+
+  //info(inttostr(len) + ' ' +  intToStr( Date ) + ' ' + intToStr( startDate ) + ' ' + intToStr( endDate ) + ' ' + intToStr( startDate - endDate ) + ' ' + intToStr(Date - EndDate));
+
+  if Len > high(ColRowDate) then begin
+    SError('1.Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len) + ' high(data)=' + intToStr(high(ColRowDate)) );
+    dmodule.CloseDBConnection;
+    halt;
+  end;
+
+  ColRowDate[Len].Col  := _Col;
+  ColRowDate[Len].Row  := _Row * (MaxIloscGodzin+1);
+  ColRowDate[Len].Date := Date;
+
+  Date := Date + 1;
+  OmitDays(Date);
+
+  _Row := _Row + 1;
+
+  LiczbaKolumn := _Col+1+Modulo;
+
+  If _Row=StartRow Then
+   Begin
+    _Row := 0;
+    _Col := _Col +1;
+   End;
+ Until Date > EndDate;
+
+  //DateToColRow(EndDate, MaxIloscGodzin,Col,Row);
+
+  LiczbaWierszy := StartRow * (MaxIloscGodzin + 1 );
+  {If SobotyiNiedziele Then LiczbaWierszy := 7 * (MaxIloscGodzin + 1 )
+                      Else LiczbaWierszy := 5 * (MaxIloscGodzin + 1 );}
+End;
+
+{Function  TConvertDateColRow.DateToColRow;
+Var i : Integer;
+Begin
+ i := 1;
+ While (i<=Len) And (Data[i].Date<>_Date) Do
+  Begin
+   i := i + 1;
+  End;
+ If i>Len Then DateToColRow := False
+ Else
+  If Data[i].Date=_Date Then
+   Begin
+    Col := Data[i].Col;
+    Row := Data[i].Row + _Hour;
+    DateToColRow := True;
+   End;
+   Col := Col + modulo;
+End;
+ }
+Function  TConvertSingleObject.ColRowToDate;
+Var i : Integer;
+    _D : Integer;
+Begin
+
+ Col := Col - Modulo;
+ _Hour := Row mod (MaxIloscGodzin+1);
+ Row := (Row Div (MaxIloscGodzin+1))*(MaxIloscGodzin+1);
+ i := 1;
+ While (i<=Len) And  (Not((ColRowDate[i].Col=Col) And (ColRowDate[i].Row=Row))) Do i := i + 1;
+ If i>Len Then
+  Begin
+   Case Col+2 OF
+    0:Begin
+       Result := ConvDayOfWeek;
+       i := 1;
+       While (i<=Len) And  (Not((ColRowDate[i].Row=Row))) Do i := i + 1;
+       If i > Len Then Begin
+        _Date.Date := -1;
+        _Date.Time := 0;
+       End
+       Else Begin
+        _D := ColRowDate[i].Date;
+        _Date.Date := _D;
+        _Date.Time := 0;
+       End;
+      End;
+    1:Result := ConvNumeryZajec;
+    Else Result := convOutOfRange;
+   End;
+   Exit;
+  End
+ Else
+  If (ColRowDate[i].Col=Col) And (ColRowDate[i].Row=Row) Then
+   Begin
+    _D := ColRowDate[i].Date;
+    _Date.Date := _D;
+    _Date.Time := 0;
+   End;
+ If _Hour = 0 Then Result := ConvHeader
+              Else Result := ConvClass;
+End;
+
+Function NumToDayOfWeek(L : Integer) : String;
+//funkcja zwraca krótk¹ nazwê dnia w zal. od 0..6 = Pon..Niedz
+Begin
+ L := L + 2;
+ If L=8 Then L := 1;
+ NumToDayOfWeek := ShortDayNames[L];
+End;
+
+function IntToRoman(Value: LongInt): String;
+const
+Arabics: Array[1..13] of Integer = (1,4,5,9,10,40,50,90,100,400,500,900,1000) ;
+Romans: Array[1..13] of String = ('I','IV','V','IX','X','XL','L','XC','C','CD','D','CM','M') ;
+var
+   j: Integer;
+begin
+  for j := 13 downto 1 do
+  while (Value >= Arabics[j]) do begin
+   Value := Value - Arabics[j];
+   Result := Result + Romans[j];
+  end;
+end;
+
+Function GetDate(Date : integer) : String;
+Var TimeStamp : TTimeStamp;
+    Year, Month, Day : Word;
+Begin
+ TimeStamp.Time := 0;
+ TimeStamp.Date := Date;
+ try
+ DecodeDate(TimeStampToDateTime(TimeStamp),Year, Month, Day);
+ except
+ end;
+ //GetDate := rxStrUtils.AddChar('0',IntToStr(Day),2) + '.' + rxStrUtils.AddChar('0',IntToStr(Month),2);
+ GetDate := rxStrUtils.AddChar('0',IntToStr(Day),2) + '.' + intToRoman ( Month );
+End;
+
+Function getDay(Date : integer) : String;
+Var TimeStamp : TTimeStamp;
+    Year, Month, Day : Word;
+Begin
+ TimeStamp.Time := 0;
+ TimeStamp.Date := Date;
+ try
+ DecodeDate(TimeStampToDateTime(TimeStamp),Year, Month, Day);
+ except
+ end;
+ Result := rxStrUtils.AddChar('0',IntToStr(Day),2);
+End;
+
+Function GetLongMonthName(Date : integer) : String;
+Var TimeStamp : TTimeStamp;
+    Year, Month, Day : Word;
+Begin
+ TimeStamp.Time := 0;
+ TimeStamp.Date := Date;
+ try
+ DecodeDate(TimeStampToDateTime(TimeStamp),Year, Month, Day);
+ except
+ end;
+ Result := LongMonthNames[Month];
+End;
+
+Procedure SortDesc(Var Pointers : TPointers);
+
+  Function Max(I : Integer) : Integer;
+  Var CurrentMin : Integer;
+      CurrentW   : Integer;
+      T          : Integer;
+  Begin
+   CurrentMin := I;
+   CurrentW   := -1;
+   For T:=I To maxInClass Do
+   Begin
+    If  Pointers[t]>CurrentW Then
+     Begin
+      CurrentW   := Pointers[T];
+      CurrentMin := T;
+     End;
+   End;
+   Result := CurrentMin;
+  End;
+
+  Procedure Zamien(I, J : Integer);
+  Var Item : Integer;
+  Begin
+   Item := Pointers[I];
+   Pointers[I] := Pointers[J];
+   Pointers[J] := Item;
+  End;
+
+Var Minimum : Integer;
+    T       : Integer;
+Begin
+ For T:=1 To maxInClass Do
+  Begin
+   Minimum := Max(T);
+   Zamien(T, Minimum);
+  End;
+End;
+
+Procedure TCheckConflicts.internalCreate(Day : TTimeStamp; Hour, fill, colour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
+Begin
+ NewClass.day     := Day;
+ NewClass.hour    := Hour;
+ NewClass.fill    := fill;
+ NewClass.colour  := colour;
+ NewClass.desc1   := desc1;
+ NewClass.desc2   := desc2;
+ NewClass.desc3   := desc3;
+ NewClass.desc4   := desc4;
+ NewClass.lecturers := Lecturers;
+ NewClass.groups  := Groups;
+ NewClass.rooms   := Rooms;
+ NewClass.sub_id  := Sub_id;
+ NewClass.for_id  := For_id;
+ NewClass.created_by := Created_by;
+ NewClass._Owner  := _Owner;
+
+ CanDelete := True;
+ Completion := False;
+ Count := 0;
+End;
+
+Procedure TCheckConflicts.Add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner : String );
+{--------------------------------------------------}
+Function P1IncludesP2(P1, P2 : TPointers) : Boolean;
+ Var t1, t2 : Integer;
+     R : Boolean;
+     Found : Boolean;
+ Begin
+  R := True;
+  t1 := 1;
+  Repeat
+    If P2[t1] <> 0 Then Begin
+
+      Found := False;
+      t2 := 1;
+      Repeat
+       If P1[t2]=P2[t1] Then
+         Begin Found := True; Break; End;
+      Inc(t2);
+      Until t2 > maxInClass;
+
+      R := R And Found;
+      If Not R Then Break;
+    End Else Break;
+    Inc(t1);
+  Until t1 > maxInClass;
+  Result := R;
+ End;
+{--------------------------------------------------}
+ Function ComparePointers(P1, P2 : TPointers) : Boolean;
+ Var t : Integer;
+     R : Boolean;
+ Begin
+  SortDesc(p1);
+  SortDesc(p2);
+
+  R := True;
+  For t := 1 To maxInClass Do Begin
+    R := R And ( (P1[t] = P2[t]) );
+  End;
+  Result := R;
+ End;
+{--------------------------------------------------}
+Var t : Integer;
+Begin
+   If CurrentUser <> NVL(_Owner,CurrentUser) Then CanDelete := False;
+
+ // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
+ If (NewClass.Day.Date = Day.Date) And (NewClass.Hour = Hour)
+     And P1IncludesP2(NewClass.Lecturers, Lecturers)
+     And P1IncludesP2(NewClass.Groups, Groups)
+     And P1IncludesP2(NewClass.Rooms, Rooms)
+     And  (NewClass.Sub_id = Sub_id)
+     And (NewClass.For_id = For_id) And (NewClass.Created_by = Created_by) And (NewClass._Owner = _Owner) Then Begin
+       If CurrentUser = NVL(_Owner,CurrentUser) Then Begin
+         Completion := True;
+         Exit;
+       End;
+     End;
+     //!!! NewClass.res = 0 ?...
+
+ // nie dopisuj do listy identycznych rekordow:
+ For t:=1 To Count Do
+  If (ConflictsClasses[t].Day.Date = Day.Date) And
+     (ConflictsClasses[t].Hour = Hour) And
+     (ComparePointers(ConflictsClasses[t].Lecturers,Lecturers)) And
+     (ComparePointers(ConflictsClasses[t].Groups,Groups)) And
+     (ComparePointers(ConflictsClasses[t].Rooms,Rooms)) And
+     (ConflictsClasses[t].Sub_id       = Sub_id) And
+     (ConflictsClasses[t].For_id      = For_id) And
+     (ConflictsClasses[t].Created_By  = Created_By) And
+     (ConflictsClasses[t]._Owner      = _Owner)
+  Then Exit;
+
+ Count := Count + 1;
+ ConflictsClasses[Count].Day      := Day;
+ ConflictsClasses[Count].Hour     := Hour;
+ ConflictsClasses[Count].Lecturers:= Lecturers;
+ ConflictsClasses[Count].Groups   := Groups;
+ ConflictsClasses[Count].Rooms    := Rooms;
+ ConflictsClasses[Count].Sub_id   := Sub_id;
+ ConflictsClasses[Count].For_id   := For_id;
+ ConflictsClasses[Count].Created_By:= Created_By;
+ ConflictsClasses[Count]._Owner   := _Owner;
+End;
+
+Function  TCheckConflicts.empty;
+Begin
+ If Count = 0 Then Result := True
+              Else Result := False;
+End;
+
+Function TCheckConflicts.ConflictsReport(aCurrentUser : String; Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
+Var L      : Integer;
+    Status : Integer;
+    Class_ : TClass_;
+
+Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
+
+ Procedure AddSingleClass;
+ Var  L     : Integer;
+      Len   : Integer;
+  Begin
+   {DBGetLecturers(Class_.ID, Lecturers);
+   DBGetGroups(Class_.ID, Groups);
+   DBGetRooms(Class_.ID, Rooms);}
+
+   For L := 1 To maxInClass Do Begin
+     PLecturers[L] :=0;
+     PGroups[L]    :=0;
+     PRooms[L]     :=0;
+   End;
+
+   Len := WordCount(Class_.CALC_LEC_IDS, [';']);
+   For L := 1 To Len Do PLecturers[L] := StrToInt(ExtractWord(L,Class_.CALC_LEC_IDS, [';']));
+
+   Len := WordCount(Class_.CALC_GRO_IDS, [';']);
+   For L := 1 To Len Do PGroups[L] := StrToInt(ExtractWord(L,Class_.CALC_GRO_IDS, [';']));
+
+   Len := WordCount(Class_.CALC_ROM_IDS, [';']);
+   For L := 1 To Len Do PRooms[L] := StrToInt(ExtractWord(L,Class_.CALC_ROM_IDS, [';']));
+
+   {For L := 1 To Lecturers.Count Do PLecturers[L] := Lecturers.CommonAttrs[L-1].ID;
+   For L := 1 To Groups.Count    Do PGroups[L]    := Groups.CommonAttrs[L-1].ID;
+   For L := 1 To Rooms.Count     Do PRooms[L]     := Rooms.CommonAttrs[L-1].ID;}
+
+   Add(Day, Hour,
+       PLecturers,
+       PGroups,
+       PRooms,
+       Class_.SUB_ID,
+       Class_.FOR_ID, Class_.Created_by, Class_.Owner
+       );
+  End;
+Begin
+  CurrentUser   := aCurrentUser;
+  internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
+
+  For L := 1 To maxInClass Do
+    If Groups[L] <> 0 Then
+    Begin
+      DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Groups[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : AddSingleClass;
+      ClassError    : AddSingleClass;
+      End;
+    End Else Break;
+
+ //Analogicznie postêpujê w przypadku wyk³adowców i zasobow
+  For L := 1 To maxInClass Do
+    If Lecturers[L] <> 0 Then
+    Begin
+      DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Lecturers[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : AddSingleClass;
+       ClassError    : AddSingleClass;
+      End;
+    End Else Break;
+
+  For L := 1 To maxInClass Do
+    If Rooms[L] <> 0 Then
+    Begin
+      DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Rooms[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : AddSingleClass;
+       ClassError    : AddSingleClass;
+      End;
+    End Else Break;
+
+  If Empty And (Not Completion) Then Result := True Else Result := False;
+End;
+
+Function TCheckConflicts.DeleteConflictClasses : Boolean;
+Var L : Integer;
+    Status : Integer;
+    Class_ : TClass_;
+Begin
+ Result := True;
+ If Not CanDelete Then Begin
+  Info('Nie mo¿esz usun¹æ rekordów, poniewa¿ nie jesteœ ich w³aœcicielem');
+  Result := False;
+  Exit;
+ End;
+ Result := True;
+
+ For L := 1 To maxInClass Do
+    If NewClass.Groups[L] <> 0 Then
+    Begin
+      DBGetClassByGroup(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Groups[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+      End;
+    End;
+
+ //The same for lecturers, rooms and so on
+ For L := 1 To maxInClass Do
+    If NewClass.Lecturers[L] <> 0 Then
+    Begin
+      DBGetClassByLecturer(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Lecturers[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+      End;
+    End;
+
+ For L := 1 To maxInClass Do
+    If NewClass.Rooms[L] <> 0 Then
+    Begin
+      DBGetClassByRoom(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Rooms[L]),Status,Class_);
+      Case Status Of
+       ClassNotFound : Begin End;
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+      End;
+    End;
+End;
+
+Function TCheckConflicts.Insert ( ttCombIds : string ): Boolean;
+ Var t            : Integer;
+  	 calc_lec_ids : string;
+		 calc_gro_ids : string;
+		 calc_rom_ids : string;
+
+     myClass : TClass_;
+Begin
+ Result := True;
+ If (Not CheckConflicts.empty) Or (CheckConflicts.Completion) Then
+   If Not CheckConflicts.deleteConflictClasses Then Begin Result := False; Exit; End;
+
+  if NewClass.Hour = -1 Then
+    Info('Wyst¹pi³ problem IntToStr(NewClass.Hour) = -1. Zg³oœ problem serwisowi');
+
+ With DModule Do Begin
+  calc_lec_ids := '';
+	calc_gro_ids := '';
+	calc_rom_ids := '';
+
+  For t:=1 To maxInClass Do Begin
+   If NewClass.Lecturers[t] <> 0 Then calc_lec_ids := merge( calc_lec_ids, intToStr(NewClass.Lecturers[t]), ';');
+   If NewClass.Groups[t]    <> 0 Then calc_gro_ids := merge( calc_gro_ids, intToStr(NewClass.Groups[t])   , ';');
+   If NewClass.Rooms[t]     <> 0 Then calc_rom_ids := merge( calc_rom_ids, intToStr(NewClass.Rooms[t])    , ';');
+  End;
+
+  myClass.hour          := newClass.hour;
+  myClass.day           := newClass.day;
+  myClass.fill          := newClass.fill;
+  myClass.class_colour  := newClass.colour;
+  myClass.sub_id        := newClass.sub_id;
+  myClass.for_id        := newClass.for_id;
+  myClass.owner         := newClass._Owner;
+  myClass.calc_lec_ids  := calc_lec_ids;
+  myClass.calc_gro_ids  := calc_gro_ids;
+  myClass.calc_rom_ids  := calc_rom_ids;
+  myClass.desc1         := newClass.desc1;
+  myClass.desc2         := newClass.desc2;
+  myClass.desc3         := newClass.desc3;
+  myClass.desc4         := newClass.desc4;
+
+  result := insertClass (myClass, ttCombIds);
+ End;
+End;
+
+Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
+ Function GetLecturers(Pointers : TPointers) : String;
+ Var t : Integer;
+ Begin
+  Result := '';
+  For t := 1 To maxInClass Do
+    If Pointers[t]<>0 Then Result := Merge(Result,DModule.SingleValue(sql_LECDESC+IntToStr(Pointers[t])), ',');
+ End;
+ Function GetGroups(Pointers : TPointers) : String;
+ Var t : Integer;
+ Begin
+  Result := '';
+  For t := 1 To maxInClass Do
+    If Pointers[t]<>0 Then Result := Merge(Result,DModule.SingleValue(sql_GRODESC+IntToStr(Pointers[t])), ',');
+ End;
+ Function GetRooms(Pointers : TPointers) : String;
+ Var t : Integer;
+ Begin
+  Result := '';
+  For t := 1 To maxInClass Do
+    If Pointers[t]<>0 Then Result := Merge(Result,DModule.SingleValue(sql_ResCat0DESC+IntToStr(Pointers[t])), ',');
+ End;
+ Function GetSubject(ID : integer) : String;
+ Begin
+    Result := DModule.SingleValue(sql_SUBDESC+IntToStr(ID));
+ End;
+ Function GetForm(ID : Integer) : String;
+ Begin
+    Result := DModule.SingleValue(sql_FORDESC+IntToStr(ID));
+ End;
+
+Var t : Integer;
+Begin
+ L.Visible := Not CanDelete;
+
+ SGNewClass.Cells[0,1] := GetDate(NewClass.Day.Date);
+ SGNewClass.Cells[1,1] := IntToStr(NewClass.Hour);
+ SGNewClass.Cells[2,1] := GetLecturers(NewClass.Lecturers);
+ SGNewClass.Cells[3,1] := GetGroups(NewClass.Groups);
+ SGNewClass.Cells[4,1] := GetRooms(NewClass.Rooms);
+ SGNewClass.Cells[5,1] := GetSubject(NewClass.Sub_id);
+ SGNewClass.Cells[6,1] := GetForm(NewClass.For_id);
+ SGNewClass.Cells[7,1] := NewClass._Owner;
+
+ With SGConflicts Do Begin
+ RowCount := Count + 1; //+1 for header
+ For t := 1 To Count Do Begin
+  Cells[0,t] := GetDate(ConflictsClasses[t].Day.Date);
+  Cells[1,t] := IntToStr(ConflictsClasses[t].Hour);
+  Cells[2,t] := GetLecturers(ConflictsClasses[t].Lecturers);
+  Cells[3,t] := GetGroups(ConflictsClasses[t].Groups);
+  Cells[4,t] := GetRooms(ConflictsClasses[t].Rooms);
+  Cells[5,t] := GetSubject(ConflictsClasses[t].Sub_id);
+  Cells[6,t] := GetForm(ConflictsClasses[t].For_id);
+  Cells[7,1] := ConflictsClasses[t]._Owner;
+ End;
+ End;
+End;
+
+Function GetCLASSESforL(condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
+var lmode : shortString;
+begin
+    lmode := nvl(mode, 'e');
+    if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
+    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID ='+condition+')';
+    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID IN (SELECT ID FROM LECTURERS WHERE '+condition+'))';
+end;
+
+Function GetCLASSESforG(condition : String; const postfix : String = ''; const mode : shortstring='e') : String;
+var lmode : shortString;
+begin
+    lmode := nvl(mode, 'e');
+    if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
+    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID ='+condition+')';
+    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID IN (SELECT ID FROM GROUPS WHERE '+condition+'))';
+end;
+
+Function GetCLASSESforR(      condition : String;
+                        const postfix   : String = '';
+                        const mode      : shortstring='e') : String;
+var lmode : shortString;
+begin
+    lmode := nvl(mode, 'e');
+    if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
+    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID ='+condition+')';
+                                 //CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA            WHERE ROM_ID =UPPER((select name from org_units where org_units.id = orguni_id)) LIKE UPPER('instytut budow%'))
+    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID IN (SELECT ID FROM ROOMS WHERE '+condition+'))';
+end;
+
+Function GetCLASSESforPLA(ID : ShortString ) : String;
+begin
+  Result := 'CLASSES.OWNER = (SELECT NAME FROM PLANNERS WHERE ID ='+ID+')';
+end;
+
+
+{
+Var IDs : String;
+Begin
+ IDs := '';
+ With DModule Do Begin
+ OPENSQL(
+  'SELECT CLA_ID '+
+  'FROM   ROM_CLA '+
+  'WHERE  ROM_ID ='+ID);
+
+  IDs := '';
+  QWork.First;
+  While Not QWOrk.EOF Do Begin
+   If IDs <> '' Then IDs := IDs + ', ';
+   IDs := IDs + QWork.Fields[0].AsString;
+   QWork.Next;
+  End;
+ End;
+ If IDs = '' Then IDs := 'CLASSES.ID = -1'
+                   Else IDs := 'CLASSES.ID in ('+IDs+')';
+ Result := IDs;
+End;
+}
+Procedure DeleteOrphanedClasses;
+Var I1, I2 : String;
+    lClasses : shortString;
+begin
+  I1 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER='''+User+'''');
+  I2 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+User+'''');
+  lClasses := fprogramSettings.profileObjectNameClasses.text;
+
+  If I1 <> '0' Then Begin
+   If Question('Znaleziono '+lClasses +' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I1+'. Czy chcesz je teraz usun¹æ ?')=ID_YES Then Begin
+     dmodule.sql('begin api.delete_orphaned (:user ); end;'
+                ,'user='+user
+                );
+     dmodule.CommitTrans;
+     Info(lClasses + ' zosta³y usuniête');
+   End;
+  End Else Info('Nie ma ' +fprogramSettings.profileObjectNameClassgen.text+ ' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text );
+
+  If I2 <> '0' Then Begin
+   If Question('Znaleziono ' +lClasses+ ' innych u¿ytkowników bez  okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I2+'. ' +lClasses+ ' te mog¹ usun¹æ tylko u¿ytkownicy, którzy je utworzyli. Czy chcesz zobaczyæ listê u¿ytkowników, którzy maj¹ nie powi¹zane ' +lClasses+ ' ?')=ID_YES Then Begin
+     DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+User+'''');
+     Info('U¿ytkownicy, którzy maj¹ nie powi¹zane ' +lClasses+ ': '+GetResultByComma(DModule.QWork));
+   End;
+  End Else Info('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
+end;
+
+procedure TConvertManyObjects.init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
+
+  Procedure OmitDays(Var Date : Integer);
+   Var Changed : Boolean;
+       fuse    : Integer;
+  Begin
+    //If DayOfWeek(Date) = 1 Then Date := Date + 1;
+    fuse := 0;
+
+    Repeat
+     inc(fuse);
+     Changed := False;
+     TimeStamp.Date := Date;
+     TimeStamp.Time := 0;
+     DateTime := TimeStampToDateTime(TimeStamp);
+     day := DayOfWeek(DateTime);
+
+     If day = 2 Then If Not SHOW_MON Then Begin Date := Date + 1; Changed := True; End;
+     If day = 3 Then If Not SHOW_TUE Then Begin Date := Date + 1; Changed := True; End;
+     If day = 4 Then If Not SHOW_WED Then Begin Date := Date + 1; Changed := True; End;
+     If day = 5 Then If Not SHOW_THU Then Begin Date := Date + 1; Changed := True; End;
+     If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
+     If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
+     If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
+     If fuse = 8 Then Begin SError(fprogramSettings.profileObjectNamePeriod.text+' musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection; Halt; End;
+    Until Changed = False;
+  End;
+
+  var t : integer;
+
+Begin
+ SetLength(ColDate, EndDate - StartDate + 3);       // inicjuje dlugosc tabeli dynamicznej
+
+ MaxIloscGodzin := aMaxIloscGodzin;
+ Len := 1;
+
+ //_row := 2; // row 0 -> name of day
+              // row 1 -> day
+ if High(ObjIds) > MaxAllLecturers then
+      info('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
+ SetLength(ObjectIds, High(ObjIds) + 3);
+ For t:= 0 To High(ObjIds)  do begin
+  ObjectIds[t+1].id   := ObjIds[t];
+  ObjectIds[t+1].name := ObjNames[t];
+ end;
+  _Col := 1; // col 0 -> object name
+  Date := StartDate;
+  if dmodule.dateRange='' then  OmitDays(Date);
+  if Date<= EndDate then
+  repeat
+    ColDate[Len].Col  := 1 + ( (_Col- 1) * aMaxIloscGodzin );
+   // Data[Len].Row  := _Row;
+    ColDate[Len].Date := Date;
+    Date := Date + 1;
+    OmitDays(Date);
+
+    Len := Len + 1;
+
+    if Len > high ( ColDate ) then begin
+      SError('2.Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len)+' hdata='+ intToStr( high(ColDate) ));
+      dmodule.CloseDBConnection;
+      halt;
+    end;
+
+    inc ( _col );
+  until Date > EndDate;
+  //inc ( _row );
+  LiczbaKolumn  := 1 + (_col-1) * aMaxIloscGodzin ;
+  LiczbaWierszy := High(ObjIds) + 3;
+End;
+
+{function  TConvertDateObjColRow.dateObjToColRow(_Date, _Hour, _objId : Integer; var Col, Row : Integer) : Boolean;
+Var i : Integer;
+Begin
+ i := 1;
+ While (i<=Len) And (Data[i].Date<>_Date) and (Data[i].objId<>_objId ) Do
+  Begin
+   i := i + 1;
+  End;
+
+ If i>Len Then DateObjToColRow := false
+ Else
+  If (Data[i].Date = _Date) and (Data[i].objId = _objId) Then
+   Begin
+    Col := Data[i].Col + _Hour - 1;
+    Row := Data[i].Row;
+    result := True;
+   End;
+End;
+}
+function  TConvertManyObjects.colRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+Var i : Integer;
+    _D : Integer;
+Begin
+
+ result := -1;
+ _Hour := ((Col-1) mod MaxIloscGodzin) + 1;
+
+ if ((col = 0) and ((row = 0) or (row = 1))) or
+    ((col = -1) and (row = -1)) then begin
+  result := convOutOfRange;
+  exit;
+ end;
+
+ if row = 0 then begin
+  result := crossTableViewDayOfWeek;
+  row := 2;
+ end;
+
+ if col = 0 then begin
+  result := crossTableViewObjNames;
+  objId := ObjectIds[Row-1].id;
+  currentObjName :=  ObjectIds[Row-1].name;
+  exit;
+ end;
+
+ if row = 1 then begin
+  result := ConvNumeryZajec;
+  exit;
+ end;
+
+ Col   := ((Col-1) Div MaxIloscGodzin)*MaxIloscGodzin+1;
+ i := 1;
+ While (i<=Len) And  (Not(ColDate[i].Col=Col)) Do i := i + 1;
+ If i>Len Then Begin
+   result := convOutOfRange;
+   exit;
+ End
+ Else
+  If ColDate[i].Col=Col Then
+   Begin
+     if result = -1 then result := ConvClass;
+    _D := ColDate[i].Date;
+    _Date.Date := _D;
+    _Date.Time := 0;
+    objId := ObjectIds[Row-1].id;
+    currentObjName :=  ObjectIds[Row-1].name;
+   End;
+End;
+
+Procedure TConvertGrid.init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
+begin
+  convertManyObjects  := TconvertManyObjects.Create;
+  //ConvertSingleObject := TConvertSingleObject.create;
+  convertMode         := ConvManyObjects;
+  convertManyObjects.init(StartDate, EndDate, LiczbaKolumn, LiczbaWierszy, aMaxIloscGodzin, SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN, ObjIds, ObjNames);
+end;
+
+Procedure TConvertGrid.Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
+begin
+  convertMode := ConvSingleObject;
+  convertSingleObject.init(StartDate, EndDate, LiczbaKolumn, LiczbaWierszy, aMaxIloscGodzin, SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN);
+end;
+
+Function  TConvertGrid.ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+begin
+ case convertMode of
+   ConvSingleObject :  begin result := convertSingleObject.ColRowToDate(_Date,_Hour,Col, Row); objId := -1; end;
+   ConvManyObjects  :  result := convertManyObjects.ColRowToDate(objId, _Date,_Hour,Col, Row);
+   else result := -1;
+ end;
+end;
+
+Function DeleteClass(Class_ : TClass_) : Boolean;
+Var _Owner : String[30];
+Begin
+ Result := True;
+ _Owner := Class_.owner;
+
+ If _Owner<>'' Then
+  If User <> _Owner Then Begin
+   Info('Nie mo¿esz usun¹æ zajêcia u¿ytkownika '+_Owner);
+   Result := False;
+   Exit;
+  End;
+
+  If (confineCalendarId<>'') then
+    If fmain.confineCalendar.getRatio(Class_.day, Class_.hour)<>calConfineOk then begin
+       Info('Nie mo¿esz usun¹æ zajêcia poza obszarem planowania, który zosta³ przypisany');
+       Result := False;
+       Exit;
+    End;
+
+  dmodule.sql('begin api.delete_class (:id ); end;'
+             ,'id='+intToStr(Class_.ID)
+             );
+
+ with fmain do begin
+ ClassByLecturerCaches.ResetByCLA_ID(Class_.ID,Class_.day, Class_.hour);
+ ClassByGroupCaches.ResetByCLA_ID   (Class_.ID,Class_.day, Class_.hour);
+ ClassByRoomCaches.ResetByCLA_ID    (Class_.ID,Class_.day, Class_.hour);
+ ClassByResCat1Caches.ResetByCLA_ID (Class_.ID,Class_.day, Class_.hour);
+ BusyClassesCache.ClearCache;
+ end;
+End;
+
+function canInsertClass ( myClass : TClass_; cla_id : integer;  var resultMessage : string; const fastCheck : boolean = false ) : boolean;
+var sql_text, select_clause, from_clause : string;
+    t : integer;
+    free_capacity : integer;
+    trace : string;
+    instances : integer;
+    idsp      : shortString;
+    cl, cd1, cd2, cd3, cd4 : integer;
+    serror, ferror : shortString;
+    var stringTokenizer : TStringTokenizer;
+    //
+    function countTokens (s : string) : integer;
+    begin
+      with stringTokenizer do begin
+        s := searchAndReplace(s, ';', ',');
+        init(s);
+        result := count;
+        close;
+      end;
+    end;
+    //
+    function classDesc : string;
+    begin
+
+      result := 'Zajêcie '+DateToYYYYMMDD(TimeStampToDateTime(myClass.day))+':'+intToStr(myClass.hour)+': ';
+    end;
+begin
+  // functional checks
+  resultMessage := '';
+
+  //if upperCase(myClass.owner) <> upperCase(user) then begin
+  //   resultMessage := 'Nie mo¿na wykonaæ tej operacji. Planista nie mo¿e zmieniaæ zajêæ innych planistów';
+  //   Result := False;
+  //   exit;
+  //end;
+
+  sql_text :=
+      'select nvl(group_capacity - resource_capacity,0) ' + cr +
+      '  from (    select sum(nvl(number_of_peoples,0   )) group_capacity from groups where id in ( '+nvl(replace(myClass.calc_gro_ids, ';',','),'0')+' )    )  ' + cr +
+      '     , (    select sum(nvl(attribn_01,9999)) resource_capacity from rooms  where id in ( '+nvl(replace(myClass.calc_rom_ids, ';',','),'0')+' )    )  ';
+
+  free_capacity :=
+    strToInt(
+    dmodule.SingleValue(
+    sql_text
+    ));
+  if free_capacity > 0 then begin
+     resultMessage := classDesc+'Nie mo¿na wykonaæ tej operacji. Licznoœæ grup/y przekracza pojemnoœæ sal/i o ' + intToStr(free_capacity);
+     Result := true;
+     exit;
+  end;
+
+  if myClass.sub_id<>0 then begin
+    stringTokenizer := TStringTokenizer.Create;
+    cl := wordCount(myClass.calc_lec_ids,[';']);
+    if (cl <> 0) then begin
+      cd1 := countTokens(myClass.desc1);
+      cd2 := countTokens(myClass.desc2);
+      cd3 := countTokens(myClass.desc3);
+      cd4 := countTokens(myClass.desc4);
+      serror := 'Liczba wyk³adowców('+intToStr(cl)+') nie zgadza siê z liczb¹ przedmiotów';
+      ferror := 'Liczba wyk³adowców('+intToStr(cl)+') nie zgadza siê z liczb¹ form zajêæ';
+      if fprogramSettings.CopyField1.ItemIndex = 2 then if (cl <> cd1) and (cd1<>1) then resultMessage := classDesc+serror+'('+intToStr(cd1)+')';
+      if fprogramSettings.CopyField2.ItemIndex = 2 then if (cl <> cd2) and (cd2<>1) then resultMessage := classDesc+serror+'('+intToStr(cd2)+')';
+      if fprogramSettings.CopyField3.ItemIndex = 2 then if (cl <> cd3) and (cd3<>1) then resultMessage := classDesc+serror+'('+intToStr(cd3)+')';
+      if fprogramSettings.CopyField4.ItemIndex = 2 then if (cl <> cd4) and (cd4<>1) then resultMessage := classDesc+serror+'('+intToStr(cd4)+')';
+      //
+      if fprogramSettings.CopyField1.ItemIndex = 3 then if (cl <> cd1) and (cd1<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd1)+')';
+      if fprogramSettings.CopyField2.ItemIndex = 3 then if (cl <> cd2) and (cd2<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd2)+')';
+      if fprogramSettings.CopyField3.ItemIndex = 3 then if (cl <> cd3) and (cd3<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd3)+')';
+      if fprogramSettings.CopyField4.ItemIndex = 3 then if (cl <> cd4) and (cd4<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd4)+')';
+      if resultMessage<>'' then begin
+        result := false;
+        exit;
+      end;
+    end;
+    stringTokenizer.free;
+  end;
+
+
+
+  //check better room in condition of capacity
+  //GetEnabledLGR(myClass.day,myClass.hour,myClass.calc_lec_ids, myClass.calc_gro_ids, myClass.calc_rom_ids, intToStr( myClass.sub_id ) , intToStr( myClass.for_id ) , User , true, CONDL, CONDG, CONDR, 'R');
+  //'SELECT ROM.ID, '  || sql_ROMNAME
+  //'  FROM ROOMS ROM, ROM_PLA '
+  //' WHERE CONDR+' AND ROM_PLA.ROM_ID = ROM.ID AND PLA_ID = '+FMain.getUserOrRoleID
+  //'   AND ROWNUM < 5000
+  //'   and attribn_01 > ..
+  //'ORDER BY attribn_01
+  // i pomiesci studentow i ma free_capa < poprzedniego
+
+  if fastCheck then begin
+    result := true;
+    exit;
+  end;
+
+  { procedura konstruuje zapytanie SQL o postaci
+  select 0 + lec.c + gro.c + rom.c
+  from dual
+   ,(select count( * ) c from lec_cla lec where  cla_id <> :cla_id and lec_id in () and lec.day = :day and lec.hour = :hour) lec
+   ,(select count( * ) c from gro_cla gro where  cla_id <> :cla_id and gro_id in () and gro.day = :day and gro.hour = :hour) gro
+   ,(select count( * ) c from rom_cla rom where  cla_id <> :cla_id and rom_id in () and rom.day = :day and rom.hour = :hour) rom
+  }
+
+  instances := 0;
+
+  // bugfix: passing owner by parameter does not work, so value is set directly!
+  For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
+   inc ( instances ); idsp := inttostr(instances);
+   from_clause := from_clause + cr + ',(select count(1) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
+   select_clause := select_clause + '+lec'+inttostr(t)+'.c';
+  End;
+
+  For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
+   inc ( instances ); idsp := inttostr(instances);
+   from_clause := from_clause + cr + ',(select count(1) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
+   select_clause := select_clause + '+gro'+inttostr(t)+'.c';
+  End;
+
+  For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
+   inc ( instances ); idsp := inttostr(instances);
+   from_clause := from_clause + cr + ',(select count(1) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
+   select_clause := select_clause+ '+rom'+inttostr(t)+'.c';
+  End;
+
+  sql_text := 'select 0'+select_clause+cr+
+       'from dual'+from_clause;
+
+  trace :=
+    sql_text + cr + cr +
+    'hour:' + inttostr(myClass.hour) +cr+
+    'day:'  + uutilityparent.dateToYYYYMMDD(timeStampTodateTime(myClass.day)) +cr+
+    'cla_id:'+ inttostr(cla_id) +cr+
+   ' owner:' + upperCase(user);
+
+  with dmodule.QWork do begin
+   SQL.Clear;
+   SQL.Add(SQL_TEXT);
+   //parameters.paramByName('DAY').DataType := ftDateTime;
+
+   //param names must be unique. As I use many times the same parameter, I must assign new number to each instance in order to keep param name unique
+   for t := 1 to instances do begin
+    idsp := inttostr(t);
+    parameters.paramByName('HOUR'+idsp).value   := myClass.hour;
+    parameters.paramByName('DAY'+idsp).value    := timeStampTodateTime(myClass.day);
+    parameters.paramByName('cla_id'+idsp).value := cla_id;
+   end;
+
+   For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
+    parameters.paramByName('lec'+inttostr(t)).value := ExtractWord(t, myClass.calc_lec_ids, [';']);
+    trace := trace + cr + 'lec'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_lec_ids, [';']);
+   End;
+
+   For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
+    parameters.paramByName('gro'+inttostr(t)).value := ExtractWord(t, myClass.calc_gro_ids, [';']);
+    trace := trace + cr + 'gro'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_gro_ids, [';']);
+   End;
+
+   For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
+    parameters.paramByName('rom'+inttostr(t)).value := ExtractWord(t, myClass.calc_rom_ids, [';']);
+    trace := trace + cr + 'rom'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_rom_ids, [';']);
+   End;
+
+   //for t := 0 to dmodule.QWork.Parameters.Count -1 do begin
+   // info( dmodule.QWork.Parameters[t].Name   );
+   // info( dmodule.QWork.Parameters[t].value );
+   //end;
+
+   open;
+   Result := Fields[0].AsInteger = 0;
+   if not result then
+   begin
+     resultMessage := classDesc+'Zaplanowanie tego '+fprogramSettings.profileObjectNameClassgen.Text+' spodowa³oby konflikt z innymi';
+   end
+   else
+   begin
+   end;
+
+   //trace := trace + cr + '0 = ' + Fields[0].AsString;
+   //trace := trace + cr + '1 = ' + Fields[1].AsString;
+   //trace := trace + cr + '2 = ' + Fields[2].AsString;
+   //trace := trace + cr + '3 = ' + Fields[3].AsString;
+   //trace := trace + cr + '4 = ' + Fields[4].AsString;
+   //trace := trace + cr + '5 = ' + Fields[5].AsString;
+   //info(trace);
+   //copyToClipboard (trace); //tests
+  end;
+end;
+
+
+
+function insertClass ( myClass : TClass_; pttCombIds : string ) : boolean;
+ var  resultMessage   : string;
+begin
+  myClass.created_by := upperCase(user);
+
+  // te kontrole przenies na poziom BD
+
+  if  (myClass.calc_lec_ids = '') and (myClass.calc_gro_ids = '') and  (myClass.calc_rom_ids = '') then
+  begin
+     //info('Nie mo¿na zapisaæ zajêcia bez wyk³adowcy, grupy i zasobu');
+     //result := false;
+     // zajêcie bez LGS nie ma sensu, wyjscie z procedury.
+     // @@@przydaloby sie ostrzezenie dla usera
+     result := true;
+     exit;
+  end;
+
+  if not canInsertClass ( myClass , -1, resultMessage, true ) then
+  begin
+    info (resultMessage);
+    Result := False;
+    exit;
+  end;
+
+
+  try
+    with dmodule.QWork do begin
+      SQL.Clear;
+
+      SQL.Add(
+		   'begin '+ cr+
+		   ' planner_utils.insert_classes(:DAY,:HOUR,:FILL,:SUBJECT,:FORM,:OWNER,:LEC,:GRO,:RES,:COL,:DESC1,:DESC2,:DESC3,:DESC4,:ptt_comb_ids); '+ cr+
+		   ' Upsert_Recently_Used_class (:ppla_id, :RUL, :RUG, :RUR, :RUS, :RUF); '+ cr+
+		   'end;'
+		   );
+
+      parameters.ParamByName('HOUR').value    := myClass.hour;
+      parameters.ParamByName('DAY').value     := timeStampTodateTime(myClass.day);
+      parameters.ParamByName('FILL').value    := myClass.fill;
+      if myClass.sub_id = 0 then parameters.ParamByName('SUBJECT').value := ''
+                            else parameters.ParamByName('SUBJECT').value := myClass.sub_id;
+      parameters.ParamByName('FORM').value    := myClass.for_id;
+      parameters.ParamByName('OWNER').value   := myClass.owner;
+      parameters.ParamByName('LEC').value     := myClass.calc_lec_ids;
+      parameters.ParamByName('GRO').value     := myClass.calc_gro_ids;
+      parameters.ParamByName('RES').value     := myClass.calc_rom_ids;
+      parameters.ParamByName('COL').value     := myClass.class_colour;
+      parameters.ParamByName('DESC1').value   := myClass.desc1;
+      parameters.ParamByName('DESC2').value   := myClass.desc2;
+      parameters.ParamByName('DESC3').value   := myClass.desc3;
+      parameters.ParamByName('DESC4').value   := myClass.desc4;
+      parameters.ParamByName('ptt_comb_ids').value := pttCombIds;
+
+      parameters.ParamByName('PPLA_ID').value   := fmain.getUserOrRoleID;
+      parameters.ParamByName('RUL').value     := myClass.calc_lec_ids;
+      parameters.ParamByName('RUG').value     := myClass.calc_gro_ids;
+      parameters.ParamByName('RUR').value     := myClass.calc_rom_ids;
+      if myClass.sub_id = 0 then parameters.ParamByName('RUS').value := ''
+                            else parameters.ParamByName('RUS').value := myClass.sub_id;
+      parameters.ParamByName('RUF').value    := myClass.for_id;
+      logSQLStart('insert_classes', dmodule.QWork.SQL.CommaText);
+      execSQL;
+      logSQLStop;
+    end;
+  except
+    on E:exception do Begin
+      Result := False;
+      Dmodule.RollbackTrans;
+
+      if Pos(sKeyViolation, E.Message)<>0 then
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na konflikt z innymi zaplanowanymi'+cr+cr+
+              'Mo¿liwe przyczyny :' + cr +
+              '   1. inny u¿ytkownik systemu ju¿ zarejestrowa³ ten termin'+cr+
+              '   2. w tym terminie ju¿ s¹ zaplanowane '+fprogramsettings.profileObjectNameClasses.text +' powoduj¹ce konflikt'+cr+
+              'Odœwie¿ zawartoœæ siatki aby zobaczyæ zmiany wprowadzone przez innych u¿ytkowników'+cr+cr+cr+'------------------------------'+cr+
+              'Komunikat dla administratora: ' + cr+ e.message)
+      else if Pos('ORA-20000', E.Message)<>0 then
+        //show user message only
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr
+              + Copy(e.message, Pos('ORA-20000', E.Message)+10, Pos(chr(10), E.Message)-10 ) )
+      else
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na nieoczekiwany b³¹d w bazie danych'+cr+cr+cr+
+              'Komunikat, który zwróci³a baza danych jest nastêpuj¹cy: ' + cr+ e.message);
+
+    end;
+  end;
+
+  with fmain do begin
+    classByLecturerCaches.ResetByDay(myClass.day, myClass.hour);
+    classByGroupCaches.ResetByDay(myClass.day, myClass.hour);
+    classByRoomCaches.ResetByDay(myClass.day, myClass.hour);
+    classByResCat1Caches.ResetByDay(myClass.day, myClass.hour);
+    busyClassesCache.ClearCache;
+  end;
+
+  result := true;
+end;
+
+initialization
+  CheckConflicts     := tCheckConflicts.create;
+  convertGrid        := tConvertGrid.create;
+  OpisujKolumneZajec := tOpisujKolumneZajec.create;
+end.
+

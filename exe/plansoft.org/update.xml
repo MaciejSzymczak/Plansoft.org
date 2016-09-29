@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<xml>
+  <version>1.0</version>
+  <question>Witamy w serwisie aktualizacji oprogramowania !
+Możesz pobierać aktualizacje oprogramowania Plansoft.org przez rok od dnia zakupu programu lub jeżeli posiadasz aktywną umowę serwisową. 
+Czy chcesz teraz pobrać aktualizację ?</question>
+  <files>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/dotacje_xe.ini"                                      to="$(currentDir)\TrickSQL\dotacje_xe.ini"/>
+	  <file from="http://soft.home.pl/plansoft/planowanie.exe"                                               to="$(currentDir)\planowanie.exe"/>
+	  <file from="http://soft.home.pl/plansoft/update.exe.manifest"                                          to="$(currentDir)\update.exe.manifest"/>
+	  <file from="http://soft.home.pl/plansoft/libeay32.dll"                                                 to="$(currentDir)\libeay32.dll"/>
+	  <file from="http://soft.home.pl/plansoft/ssleay32.dll"                                                 to="$(currentDir)\ssleay32.dll"/>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/TrickSQL.exe"                                        to="$(currentDir)\TrickSQL\TrickSQL.exe"/>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/Launch_trick_sql.lnk"                                to="$(currentDir)\TrickSQL\Launch_trick_sql.lnk"/>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/Encrypt.dll"                                         to="$(currentDir)\TrickSQL\Encrypt.dll"/>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/dotacje_plansoft.ini"                                to="$(currentDir)\TrickSQL\dotacje_plansoft.ini"/>
+	  <file from="http://soft.home.pl/plansoft/TrickSQL/ConfigFiles/untitled.sql"                            to="$(currentDir)\TrickSQL\ConfigFiles\untitled.sql"/>
+	  <file from="http://soft.home.pl/plansoft/libgcc_s_sjlj-1.dll"                                          to="$(currentDir)\libgcc_s_sjlj-1.dll"/>
+	  <file from="http://soft.home.pl/plansoft/libstdc++-6.dll"                                              to="$(currentDir)\libstdc++-6.dll"/>
+	  <file from="http://soft.home.pl/plansoft/libwinpthread-1.dll"                                          to="$(currentDir)\libwinpthread-1.dll"/>
+	  <file from="http://soft.home.pl/plansoft/wkhtmltoimage.exe"                                            to="$(currentDir)\wkhtmltoimage.exe"/>
+	  <file from="http://soft.home.pl/plansoft/wkhtmltopdf.exe"                                              to="$(currentDir)\wkhtmltopdf.exe"/>
+	  <file from="http://soft.home.pl/plansoft/wkhtmltox.dll"                                                to="$(currentDir)\wkhtmltox.dll"/>
+  </files>
+</xml>
