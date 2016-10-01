@@ -54,7 +54,7 @@ var LCID : Integer;
     procedure addPermission( pObjectAlias : string );
     begin
       //LEC_PLA
-      DModule.SQL('INSERT INTO '+pObjectAlias+'_PLA (ID, PLA_ID, '+pObjectAlias+'_ID) VALUES ('+pObjectAlias+'PLA_SEQ.NEXTVAL, '+IntToStr(UserID)+',main_seq.currval)');
+      DModule.SQL('INSERT INTO '+pObjectAlias+'_PLA (ID, PLA_ID, '+pObjectAlias+'_ID) VALUES ('+pObjectAlias+'PLA_SEQ.NEXTVAL, '+UserID+',main_seq.currval)');
       if not strIsEmpty(FMain.conrole.Text) then begin
         DModule.SQL('INSERT INTO '+pObjectAlias+'_PLA (ID, PLA_ID, '+pObjectAlias+'_ID) VALUES ('+pObjectAlias+'PLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+',main_seq.currval)');
       end;

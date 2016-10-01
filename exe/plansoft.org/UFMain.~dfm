@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 11
-  Top = 73
+  Left = 417
+  Top = 199
   Width = 1239
   Height = 725
   Caption = 'Plansoft.org'
@@ -6396,8 +6396,22 @@ inherited FMain: TFMain
         '### EXTENTION END'
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:edit_sharing'
+        '### DATE:2016.09.19'
+        'begin'
+        
+          '  execute immediate '#39'alter table planners add (edit_sharing varc' +
+          'har2(1) default '#39#39'-'#39#39')'#39';'
+        
+          '  execute immediate '#39'update planners set edit_sharing = '#39#39'+'#39#39' wh' +
+          'ere is_admin='#39#39'+'#39#39#39';'
+        '  commit;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2016.09.18'
+        '### DATE:2016.09.20'
         'begin'
         ' --your next extention here'
         ' --notes:'

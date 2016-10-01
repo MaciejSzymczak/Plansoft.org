@@ -3,16 +3,17 @@ inherited FMassImport: TFMassImport
   Top = 251
   Height = 319
   Caption = 'Pobieranie danych z programu Excel'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 268
+    Top = 273
+    Width = 605
   end
   object importType: TRadioGroup
-    Left = 8
-    Top = 88
-    Width = 185
-    Height = 105
+    Left = 9
+    Top = 101
+    Width = 212
+    Height = 120
     Caption = 'Wybierz jakie dane chcesz pobra'#263
     Items.Strings = (
       'Wyk'#322'adowcy'
@@ -23,10 +24,10 @@ inherited FMassImport: TFMassImport
     TabOrder = 1
   end
   object Memo1: TMemo
-    Left = 8
-    Top = 8
-    Width = 521
-    Height = 65
+    Left = 9
+    Top = 9
+    Width = 596
+    Height = 74
     BorderStyle = bsNone
     Color = clBtnFace
     Lines.Strings = (
@@ -41,34 +42,34 @@ inherited FMassImport: TFMassImport
     WordWrap = False
   end
   object chbTest: TCheckBox
-    Left = 8
-    Top = 200
-    Width = 249
-    Height = 17
+    Left = 9
+    Top = 229
+    Width = 285
+    Height = 19
     Caption = 'Uruchomienie testowe ( nie zapisuj danych )'
     TabOrder = 3
   end
   object Panel1: TPanel
     Left = 0
-    Top = 227
-    Width = 532
-    Height = 41
+    Top = 226
+    Width = 605
+    Height = 47
     Align = alBottom
     TabOrder = 4
     object BitBtn1: TBitBtn
-      Left = 368
-      Top = 8
-      Width = 81
-      Height = 25
+      Left = 421
+      Top = 9
+      Width = 92
+      Height = 29
       Caption = 'Pobierz dane'
       TabOrder = 0
       OnClick = BitBtn1Click
     end
     object BitBtn2: TBitBtn
-      Left = 456
-      Top = 8
-      Width = 75
-      Height = 25
+      Left = 521
+      Top = 9
+      Width = 86
+      Height = 29
       Cancel = True
       Caption = 'Zamknij'
       Default = True

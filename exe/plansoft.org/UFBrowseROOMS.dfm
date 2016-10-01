@@ -4,21 +4,21 @@ inherited FBrowseROOMS: TFBrowseROOMS
   Width = 1135
   Height = 690
   Caption = 'Zasoby'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 639
+    Top = 631
     Width = 1127
   end
   inherited MainPage: TPageControl
     Width = 1127
-    Height = 639
+    Height = 631
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1091
         Top = 145
         Width = 4
-        Height = 407
+        Height = 397
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -27,7 +27,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       inherited Grid: TRxDBGrid
         Top = 145
         Width = 1091
-        Height = 407
+        Height = 397
         Columns = <
           item
             Expanded = False
@@ -305,11 +305,11 @@ inherited FBrowseROOMS: TFBrowseROOMS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 571
+        Top = 561
         Width = 1119
       end
       inherited Panel: TPanel
-        Top = 552
+        Top = 542
         Width = 1119
         inherited StatusBar: TStatusBar
           Width = 1050
@@ -362,7 +362,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 64
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -372,7 +372,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 72
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 1
           OnClick = CON_RESCAT_ID_VALUEClick
@@ -508,7 +508,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 64
           Top = 28
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 6
           Visible = False
@@ -518,7 +518,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 72
           Top = 28
           Width = 121
-          Height = 22
+          Height = 24
           ReadOnly = True
           TabOrder = 7
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -620,7 +620,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 1095
         Top = 145
         Width = 24
-        Height = 407
+        Height = 397
         ActivePage = Hierarchy
         Align = alRight
         MultiLine = True
@@ -633,7 +633,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             Left = 0
             Top = 0
             Width = 0
-            Height = 399
+            Height = 389
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
@@ -853,7 +853,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               Left = 1
               Top = 194
               Width = 526
-              Height = 204
+              Height = 194
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 1
@@ -868,7 +868,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 162
+                Top = 152
                 Width = 524
                 Height = 41
                 Align = alBottom
@@ -1018,7 +1018,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Left = 1
                 Top = 17
                 Width = 524
-                Height = 145
+                Height = 135
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -1065,17 +1065,17 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Label5: TLabel
                 Left = 8
                 Top = 8
-                Width = 83
-                Height = 14
+                Width = 109
+                Height = 16
                 Caption = 'Rodzaj hierarchii:'
               end
               object str_name_lov: TComboBox
                 Left = 96
                 Top = 0
                 Width = 145
-                Height = 22
+                Height = 24
                 Style = csDropDownList
-                ItemHeight = 14
+                ItemHeight = 16
                 ItemIndex = 0
                 TabOrder = 0
                 Text = 'Potok'
@@ -1094,8 +1094,8 @@ inherited FBrowseROOMS: TFBrowseROOMS
       object LabelID: TLabel [0]
         Left = 400
         Top = 552
-        Width = 167
-        Height = 14
+        Width = 217
+        Height = 16
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID_
         Visible = False
@@ -1116,10 +1116,10 @@ inherited FBrowseROOMS: TFBrowseROOMS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [2]
-        Left = 104
+        Left = 96
         Top = 88
-        Width = 25
-        Height = 14
+        Width = 33
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -1131,18 +1131,18 @@ inherited FBrowseROOMS: TFBrowseROOMS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [4]
-        Left = 42
+        Left = 18
         Top = 112
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [5]
-        Left = 42
+        Left = 18
         Top = 136
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
@@ -1177,7 +1177,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 575
+        Top = 565
         Width = 1119
         TabOrder = 6
         inherited BUpdChild1: TBitBtn

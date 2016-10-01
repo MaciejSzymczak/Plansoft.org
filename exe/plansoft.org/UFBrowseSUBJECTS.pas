@@ -140,7 +140,7 @@ End;
 Procedure TFBrowseSUBJECTS.AfterPost;
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO SUB_PLA (ID, PLA_ID, SUB_ID) VALUES (SUBPLA_SEQ.NEXTVAL, '+IntToStr(UserID)+','+ID.Text+')');
+   DModule.SQL('INSERT INTO SUB_PLA (ID, PLA_ID, SUB_ID) VALUES (SUBPLA_SEQ.NEXTVAL, '+UserID+','+ID.Text+')');
 
    if not strIsEmpty(FMain.CONROLE.Text) then begin
      DModule.SQL('INSERT INTO SUB_PLA (ID, PLA_ID, SUB_ID) VALUES (SUBPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID.Text+')');

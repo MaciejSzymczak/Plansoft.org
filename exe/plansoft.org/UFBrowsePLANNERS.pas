@@ -33,6 +33,7 @@ type
     BClearS: TSpeedButton;
     SpeedButton2: TSpeedButton;
     EDIT_RESERVATIONS: TDBCheckBox;
+    edit_sharing: TDBCheckBox;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;

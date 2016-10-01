@@ -101,7 +101,8 @@ uses
   UFBrowseRES_HINTS in 'UFBrowseRES_HINTS.pas' {FBrowseRES_HINTS},
   UFActionTree in 'UFActionTree.pas' {FActionTree},
   UFCellLayout in 'UFCellLayout.pas' {FCellLayout},
-  UFSalectDaysOfWeek in 'UFSalectDaysOfWeek.pas' {FSelectDaysOfWeek};
+  UFSalectDaysOfWeek in 'UFSalectDaysOfWeek.pas' {FSelectDaysOfWeek},
+  UFSharing in 'UFSharing.pas' {FSharing};
 
 {$R *.RES}
 
@@ -245,5 +246,6 @@ begin
   Application.CreateForm(TFActionTree, FActionTree);
   Application.CreateForm(TFCellLayout, FCellLayout);
   Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
+  Application.CreateForm(TFSharing, FSharing);
   Application.Run;
 end.

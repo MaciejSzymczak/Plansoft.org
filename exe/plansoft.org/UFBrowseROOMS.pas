@@ -230,7 +230,7 @@ End;
 Procedure TFBrowseROOMS.AfterPost;
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO ROM_PLA (ID, PLA_ID, ROM_ID) VALUES (ROMPLA_SEQ.NEXTVAL, '+IntToStr(UserID)+','+ID_.Text+')');
+   DModule.SQL('INSERT INTO ROM_PLA (ID, PLA_ID, ROM_ID) VALUES (ROMPLA_SEQ.NEXTVAL, '+UserID+','+ID_.Text+')');
 
    if not strIsEmpty(FMain.CONROLE.Text) then begin
      DModule.SQL('INSERT INTO ROM_PLA (ID, PLA_ID, ROM_ID) VALUES (ROMPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID_.Text+')');

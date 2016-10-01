@@ -4,15 +4,15 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   Width = 839
   Height = 700
   Caption = 'Przedmioty'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 649
+    Top = 641
     Width = 831
   end
   inherited MainPage: TPageControl
     Width = 831
-    Height = 649
+    Height = 641
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 823
@@ -20,7 +20,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 823
-        Height = 441
+        Height = 431
         Columns = <
           item
             Expanded = False
@@ -288,11 +288,11 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 581
+        Top = 571
         Width = 823
       end
       inherited Panel: TPanel
-        Top = 562
+        Top = 552
         Width = 823
         inherited StatusBar: TStatusBar
           Width = 754
@@ -340,7 +340,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Left = 72
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 2
           Visible = False
@@ -350,7 +350,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Left = 80
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           ReadOnly = True
           TabOrder = 3
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -453,8 +453,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       object LabelID: TLabel [0]
         Left = 536
         Top = 8
-        Width = 164
-        Height = 14
+        Width = 213
+        Height = 16
         Caption = 'Kol.wpr.:........................................'
         FocusControl = ID
         Visible = False
@@ -490,10 +490,10 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [3]
-        Left = 88
+        Left = 80
         Top = 64
-        Width = 25
-        Height = 14
+        Width = 33
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -505,18 +505,18 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [5]
-        Left = 26
+        Left = 2
         Top = 112
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [6]
-        Left = 26
+        Left = 2
         Top = 136
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
@@ -536,7 +536,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 585
+        Top = 575
         Width = 823
         TabOrder = 3
         inherited BUpdChild1: TBitBtn

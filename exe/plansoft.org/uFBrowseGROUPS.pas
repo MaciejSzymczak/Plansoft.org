@@ -235,7 +235,7 @@ End;
 Procedure TFBrowseGROUPS.AfterPost;
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO GRO_PLA (ID, PLA_ID, GRO_ID) VALUES (GROPLA_SEQ.NEXTVAL, '+IntToStr(UserID)+','+ID_.Text+')');
+   DModule.SQL('INSERT INTO GRO_PLA (ID, PLA_ID, GRO_ID) VALUES (GROPLA_SEQ.NEXTVAL, '+UserID+','+ID_.Text+')');
 
    if not strIsEmpty(FMain.CONROLE.Text) then begin
      DModule.SQL('INSERT INTO GRO_PLA (ID, PLA_ID, GRO_ID) VALUES (GROPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID_.Text+')');
@@ -565,7 +565,7 @@ procedure TFBrowseGROUPS.BSelectROL_IDClick(Sender: TObject);
 Var id : ShortString;
 begin
   id := ROL_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+IntToStr(UserID)+'))','',id) = mrOK Then
+  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
     Query.FieldByName('ROL_ID').AsString := id;
 end;
 

@@ -99,7 +99,7 @@ End;
 Procedure TFBrowseFORMS.AfterPost;
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO FOR_PLA (ID, PLA_ID, FOR_ID) VALUES (FORPLA_SEQ.NEXTVAL, '+IntToStr(UserID)+','+ID.Text+')');
+   DModule.SQL('INSERT INTO FOR_PLA (ID, PLA_ID, FOR_ID) VALUES (FORPLA_SEQ.NEXTVAL, '+UserID+','+ID.Text+')');
 
    if not strIsEmpty(FMain.CONROLE.Text) then begin
      DModule.SQL('INSERT INTO FOR_PLA (ID, PLA_ID, FOR_ID) VALUES (FORPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID.Text+')');

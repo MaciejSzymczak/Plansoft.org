@@ -2852,7 +2852,7 @@ Procedure TFMain.insertClasses;
         iif(R='','',R+',')+
         iif(S=0,'',intToStr(S)+',')+
         intToStr(FormId)+','+
-        intToStr(UserID) // =in this context user=owner.
+        UserID // =in this context user=owner.
                         // Not "getUserOrRoleID" - class belongs to user, but not to his role
      ,';',','
      );
@@ -4111,8 +4111,8 @@ begin
   if loginParamsDelivered then
   Begin
    if upperCase(aDBName) = 'WAT'  then aDBName := 'planner.wat.edu.pl:1522/planner';
+   if upperCase(aDBName) = 'DOK'  then aDBName := 'prddokplanner.wat.edu.pl:1521/xe';
    if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
-   if upperCase(aDBName) = 'PWWA' then aDBName := 'EVOLVER.ARCH.PW.EDU.PL:1521/XE';
 
    DM.UserName  := aUserName;
    DM.Password  := aPassword;
@@ -4172,7 +4172,7 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    User             := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS FROM PLANNERS WHERE NAME=USER');
+    User             := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing FROM PLANNERS WHERE NAME=USER');
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
     EditOrgUnits     := DModule.QWork.Fields[3].AsString = '+';
     EditFlex         := DModule.QWork.Fields[4].AsString = '+';
@@ -4180,7 +4180,8 @@ begin
     manySubjectsFlag := DModule.QWork.Fields[6].AsString = '+';
     confineCalendarId:= DModule.QWork.Fields[7].AsString;
     editReservations := DModule.QWork.Fields[8].AsString = '+';
-    UserID  := DModule.QWork.Fields[1].AsInteger;
+    editSharing      := DModule.QWork.Fields[9].AsString = '+';
+    UserID  := DModule.QWork.Fields[1].AsString;
   Except User := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
 
   dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors);
@@ -4188,7 +4189,7 @@ begin
   dmodule.loadMap('select id,NVL(COLOUR,0) from rooms', MapRomColors);
   //
   dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames);
-  dmodule.loadMap('select id,name from planners', MapPlanners);
+  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rom_id from ROM_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+user+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners);
 
   if not strIsEmpty(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
@@ -5392,7 +5393,7 @@ end;
 
 function TFMain.getUserOrRoleID : string;
 begin
- result := NVL(conRole.text, IntToStr(UserID))
+ result := NVL(conRole.text, UserID)
 end;
 
 procedure TFMain.MORG_UNITSClick(Sender: TObject);
@@ -7282,7 +7283,7 @@ begin
     Dmodule.SingleValue('SELECT ROL_ID FROM PERIODS WHERE ID='+conPeriod.Text);
     roleId := QWork.Fields[0].AsString;
     if not strIsEmpty(roleId) then begin
-     roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+IntToStr(UserID)+' AND ROL_ID = ' +roleId);
+     roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+' AND ROL_ID = ' +roleId);
      if strIsEmpty(roleID) then info('Nie powiod³o siê aktywowanie autoryzacji, poniewa¿ nie masz uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
                         else conRole.Text := roleID;
     end;
@@ -7294,7 +7295,7 @@ Var KeyValue : ShortString;
 begin
   KeyValue := conRole.Text;
   //If FORMSShowModalAsSelect(KeyValue) = mrOK Then F1.Text := KeyValue;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+IntToStr(UserID)+'))','',KeyValue) = mrOK Then begin
+  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',KeyValue) = mrOK Then begin
     conRole.Text := KeyValue;
     setPeriod;
   end;

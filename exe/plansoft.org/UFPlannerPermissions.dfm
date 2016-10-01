@@ -1,18 +1,18 @@
 inherited FPlannerPermissions: TFPlannerPermissions
   Left = 234
   Top = 117
-  Width = 1056
+  Width = 1214
   Height = 665
   Caption = 'Uprawnienia do obiekt'#243'w'
   KeyPreview = True
   WindowState = wsMaximized
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   object Label7: TLabel [0]
-    Left = 208
-    Top = 56
-    Width = 509
-    Height = 56
+    Left = 238
+    Top = 64
+    Width = 624
+    Height = 64
     Caption = 
       'Naci'#347'nij przycisk Od'#347'wie'#380', aby od'#347'wie'#380'y'#263' zawarto'#347#263' okna.'#13#10#13#10'Zani' +
       'm naci'#347'niesz przycisk Od'#347'wie'#380', w panelu Znajd'#378' mo'#380'esz wpisa'#263' naz' +
@@ -20,30 +20,30 @@ inherited FPlannerPermissions: TFPlannerPermissions
       'zawarto'#347'ci okna.'
   end
   object Label8: TLabel [1]
-    Left = 208
-    Top = 128
-    Width = 609
-    Height = 14
+    Left = 238
+    Top = 146
+    Width = 748
+    Height = 16
     Caption = 
       'Mo'#380'esz te'#380' zaznaczy'#263' pole wyboru Od'#347'wie'#380' automatycznie, w'#243'wczas ' +
       'zawarto'#347#263' okna b'#281'dzie od'#347'wie'#380'ana automatycznie.'
   end
   inherited Status: TPanel
-    Top = 614
-    Width = 1048
+    Top = 606
+    Width = 1206
   end
   object Panel1: TPanel
     Left = 0
-    Top = 573
-    Width = 1048
-    Height = 41
+    Top = 559
+    Width = 1206
+    Height = 47
     Align = alBottom
     TabOrder = 1
     object DeleteClass: TSpeedButton
-      Left = 40
-      Top = 8
-      Width = 28
-      Height = 28
+      Left = 46
+      Top = 9
+      Width = 32
+      Height = 32
       Hint = 'Usu'#324
       AllowAllUp = True
       Flat = True
@@ -79,10 +79,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       OnClick = DeleteClassClick
     end
     object AddClass: TSpeedButton
-      Left = 8
-      Top = 8
-      Width = 28
-      Height = 28
+      Left = 9
+      Top = 9
+      Width = 32
+      Height = 32
       Hint = 'Dodaj'
       AllowAllUp = True
       Flat = True
@@ -126,10 +126,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       OnClick = AddClassClick
     end
     object invertClass: TSpeedButton
-      Left = 71
-      Top = 8
-      Width = 28
-      Height = 28
+      Left = 81
+      Top = 9
+      Width = 32
+      Height = 32
       Hint = 'Zmie'#324' na przeciwne'
       AllowAllUp = True
       Flat = True
@@ -167,10 +167,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       OnClick = invertClassClick
     end
     object BOK: TBitBtn
-      Left = 103
-      Top = 8
-      Width = 75
-      Height = 25
+      Left = 118
+      Top = 9
+      Width = 85
+      Height = 29
       Cancel = True
       Caption = 'Zamknij'
       ModalResult = 1
@@ -195,10 +195,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       NumGlyphs = 2
     end
     object MarkSymbol: TRadioGroup
-      Left = 182
+      Left = 208
       Top = 2
-      Width = 147
-      Height = 33
+      Width = 168
+      Height = 38
       Caption = 'Symbol zaznaczania'
       Columns = 2
       ItemIndex = 0
@@ -209,10 +209,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       OnClick = MarkSymbolClick
     end
     object DescLen: TRadioGroup
-      Left = 329
+      Left = 376
       Top = 2
-      Width = 136
-      Height = 33
+      Width = 155
+      Height = 38
       Caption = 'D'#322'ugo'#347#263' opis'#243'w'
       Columns = 2
       ItemIndex = 0
@@ -223,10 +223,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
       OnClick = DescLenClick
     end
     object btransfer: TBitBtn
-      Left = 472
-      Top = 8
-      Width = 113
-      Height = 25
+      Left = 539
+      Top = 9
+      Width = 130
+      Height = 29
       Caption = 'Transfer uprawnie'#324
       TabOrder = 3
       OnClick = btransferClick
@@ -235,8 +235,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
   object mainPage: TPageControl
     Left = 0
     Top = 0
-    Width = 875
-    Height = 573
+    Width = 1008
+    Height = 559
     ActivePage = TabSheetL
     Align = alClient
     TabOrder = 2
@@ -246,8 +246,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object LGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 544
+        Width = 1000
+        Height = 528
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -265,8 +265,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object GGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 544
+        Width = 991
+        Height = 622
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -284,8 +284,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object RGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 544
+        Width = 991
+        Height = 622
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -303,8 +303,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object SUBGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 544
+        Width = 991
+        Height = 622
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -322,8 +322,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object FORGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 544
+        Width = 991
+        Height = 622
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -341,8 +341,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object ROLGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 542
+        Width = 991
+        Height = 619
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -356,67 +356,67 @@ inherited FPlannerPermissions: TFPlannerPermissions
     end
   end
   object Panel2: TPanel
-    Left = 875
+    Left = 1008
     Top = 0
-    Width = 173
-    Height = 573
+    Width = 198
+    Height = 559
     Align = alRight
     TabOrder = 3
     object FindPane: TGroupBox
       Left = 1
       Top = 1
-      Width = 171
-      Height = 571
+      Width = 196
+      Height = 557
       Align = alClient
       Caption = 'Znajd'#378
       Enabled = False
       TabOrder = 0
       object Szukaj: TLabel
-        Left = 14
-        Top = 56
-        Width = 54
-        Height = 14
-        Caption = 'W kolumnie'
+        Left = 16
+        Top = 64
+        Width = 93
+        Height = 16
+        Caption = 'Szukaj planisty'
       end
       object Label1: TLabel
-        Left = 12
-        Top = 16
-        Width = 53
-        Height = 14
-        Caption = 'W wierszu'
+        Left = 14
+        Top = 18
+        Width = 90
+        Height = 16
+        Caption = 'Szukaj zasobu'
       end
       object Psearch: TEdit
-        Left = 10
-        Top = 72
-        Width = 143
-        Height = 22
+        Left = 11
+        Top = 82
+        Width = 164
+        Height = 24
         TabOrder = 1
         OnChange = PsearchChange
         OnKeyDown = RowSearchKeyDown
       end
       object RowSearch: TEdit
-        Left = 10
-        Top = 32
-        Width = 143
-        Height = 22
+        Left = 11
+        Top = 37
+        Width = 164
+        Height = 24
         TabOrder = 0
         OnChange = PsearchChange
         OnKeyDown = RowSearchKeyDown
       end
       object chRefresh: TCheckBox
-        Left = 8
-        Top = 104
-        Width = 145
-        Height = 17
+        Left = 9
+        Top = 119
+        Width = 184
+        Height = 19
         Caption = 'Od'#347'wie'#380'aj automatycznie'
         TabOrder = 2
         OnClick = chRefreshClick
       end
       object brefresh: TBitBtn
-        Left = 8
-        Top = 128
-        Width = 75
-        Height = 25
+        Left = 9
+        Top = 146
+        Width = 86
+        Height = 29
         Caption = 'Od'#347'wie'#380
         TabOrder = 3
         Visible = False
@@ -425,10 +425,10 @@ inherited FPlannerPermissions: TFPlannerPermissions
     end
   end
   object Brefresh2: TBitBtn
-    Left = 424
-    Top = 168
-    Width = 145
-    Height = 49
+    Left = 485
+    Top = 192
+    Width = 165
+    Height = 56
     Caption = 'Od'#347'wie'#380
     TabOrder = 4
     OnClick = brefreshClick

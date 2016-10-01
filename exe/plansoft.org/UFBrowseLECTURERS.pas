@@ -135,7 +135,7 @@ var
 implementation
 
 uses DM, UUtilityParent, UFMain, AutoCreate, ufLookupWindow,
-  UFProgramSettings, UFMassImport;
+  UFProgramSettings, UFMassImport, UFSharing;
 
 {$R *.DFM}
 
@@ -199,11 +199,31 @@ Begin
 End;
 
 Procedure TFBrowseLECTURERS.AfterPost;
+
+ var t : integer;
+
+ procedure executeSQL;
+ var t : integer;
+ var sqlStatement : string;
+ begin
+   sqlStatement := 'begin';
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do
+     if FSharing.CheckListBox.Checked[t] then
+         sqlStatement := sqlStatement + 'INSERT INTO LEC_PLA (ID, PLA_ID, LEC_ID) VALUES (LECPLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+ID_.Text+')'+cr;
+   sqlStatement := sqlStatement + 'commit;'+cr+'end';
+   DModule.SQL(sqlStatement);
+ end;
+
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO LEC_PLA (ID, PLA_ID, LEC_ID) VALUES (LECPLA_SEQ.NEXTVAL, '+IntToStr(UserID)+','+ID_.Text+')');
-   if not strIsEmpty(FMain.CONROLE.Text) then begin
-     DModule.SQL('INSERT INTO LEC_PLA (ID, PLA_ID, LEC_ID) VALUES (LECPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID_.Text+')');
+   FSharing.CheckListBox.Clear;
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
+     FSharing.CheckListBox.Items.Add(Fmain.MapPlanners.map[t].value);
+     FSharing.CheckListBox.Checked[t] := true;
+   end;
+   FSharing.Caption :='Wspó³dzielenie dla: '+ QUERY.FieldByName('TITLE').AsString +' '+ QUERY.FieldByName('FIRST_NAME').AsString +' '+ QUERY.FieldByName('LAST_NAME').AsString;
+   if (Fmain.MapPlanners.cnt=1) or (FSharing.showModal = mrOK) then begin
+     executeSQL;
    end;
 
    dmodule.CommitTrans;
@@ -452,7 +472,7 @@ procedure TFBrowseLECTURERS.BSelectROL_IDClick(Sender: TObject);
 Var id : ShortString;
 begin
   id := ROL_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+IntToStr(UserID)+'))','',id) = mrOK Then
+  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
     Query.FieldByName('ROL_ID').AsString := id;
 end;
 

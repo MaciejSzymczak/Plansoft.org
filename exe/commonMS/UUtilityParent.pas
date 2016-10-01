@@ -184,8 +184,9 @@ Var
     LogChanges   : boolean;
     manySubjectsFlag : boolean;
     editReservations : boolean;
+    editSharing      : boolean;
     confineCalendarId : ShortString;
-    UserID    : Integer;
+    UserID    : ShortString;
     MASKA     : String;
     SygnaturaUzytkownika : ShortString;
     VersionOfApplication : ShortString;
