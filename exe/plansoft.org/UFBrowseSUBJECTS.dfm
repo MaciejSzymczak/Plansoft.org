@@ -315,9 +315,9 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           ParentFont = False
         end
         object ttEnabled: TCheckBox
-          Left = 550
+          Left = 494
           Top = 9
-          Width = 161
+          Width = 203
           Height = 17
           Anchors = [akRight, akBottom]
           Caption = 'Tylko dozwolone kombinacje'
@@ -327,9 +327,9 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 724
+          Left = 704
           Top = 4
-          Width = 91
+          Width = 111
           Height = 25
           Anchors = [akRight, akBottom]
           Caption = 'Pobierz z Excel'
@@ -447,6 +447,20 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       inherited SecondRatePanel: TPanel
         Width = 823
+        inherited BChild3: TBitBtn
+          Glyph.Data = {
+            4E010000424D4E01000000000000760000002800000012000000120000000100
+            040000000000D800000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFF888FFFFF
+            FFFFFF000000FFF88888FFFFFFFFFF000000FFF7FFF7FFFFFFFFFF000000FFF8
+            8F88FFFFFFFFFF000000FFFF7778FFFFFFFFFF000000FFFF8777788FFFFFFF00
+            0000FFFF877777778FFFFF000000FFFF878F88777FFFFF000000FFFF878FFFF7
+            77FFFF000000FFFF878FFFF877FFFF000000FFFF878FFFF8778FFF000000FFFF
+            878FFFF7887FFF000000FFFF878FFF88FF88FF000000FFFF7778FF87FF78FF00
+            0000FFF88FF7FFF8778FFF000000FFF7FFF7FFFFFFFFFF000000FFF87888FFFF
+            FFFFFF000000FFFF888FFFFFFFFFFF000000}
+        end
       end
     end
     inherited Update: TTabSheet
@@ -547,17 +561,123 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Caption = 'Zaj'#281'cia'
           Visible = True
         end
+        inherited BUpdChild3: TBitBtn
+          Caption = 'Dost'#281'p'
+          Visible = True
+          Glyph.Data = {
+            4E010000424D4E01000000000000760000002800000012000000120000000100
+            040000000000D800000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFF888FFFFF
+            FFFFFF000000FFF88888FFFFFFFFFF000000FFF7FFF7FFFFFFFFFF000000FFF8
+            8F88FFFFFFFFFF000000FFFF7778FFFFFFFFFF000000FFFF8777788FFFFFFF00
+            0000FFFF877777778FFFFF000000FFFF878F88777FFFFF000000FFFF878FFFF7
+            77FFFF000000FFFF878FFFF877FFFF000000FFFF878FFFF8778FFF000000FFFF
+            878FFFF7887FFF000000FFFF878FFF88FF88FF000000FFFF7778FF87FF78FF00
+            0000FFF88FF7FFF8778FFF000000FFF7FFF7FFFFFFFFFF000000FFF87888FFFF
+            FFFFFF000000FFFF888FFFFFFFFFFF000000}
+        end
       end
       inherited FlexPanel: TPanel
         Left = 32
         Top = 176
         TabOrder = 6
+        inherited ATTRIBS_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_15: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_15: TDBEdit
+          Height = 24
+        end
       end
       object ID: TDBEdit
         Left = 649
         Top = 0
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'ID'
         Color = clMenu
         DataField = 'ID'
@@ -571,7 +691,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 121
         Top = 32
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'ABBREVIATION'
         DataField = 'ABBREVIATION'
         DataSource = Source
@@ -581,7 +701,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 121
         Top = 80
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'NAME'
         DataField = 'NAME'
         DataSource = Source
@@ -591,7 +711,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 120
         Top = 104
         Width = 617
-        Height = 22
+        Height = 24
         DataField = 'DESC1'
         DataSource = Source
         TabOrder = 4
@@ -600,7 +720,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 120
         Top = 128
         Width = 617
-        Height = 22
+        Height = 24
         DataField = 'DESC2'
         DataSource = Source
         TabOrder = 5
@@ -609,7 +729,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 113
         Top = 152
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -622,7 +742,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 120
         Top = 152
         Width = 257
-        Height = 22
+        Height = 24
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 8

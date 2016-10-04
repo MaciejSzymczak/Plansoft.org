@@ -120,6 +120,7 @@ type
     procedure BSelOUClick(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure CON_RESCAT_ID_VALUEClick(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -152,7 +153,7 @@ implementation
 
 
 uses DM, UUtilityParent, autoCreate, UFMain, uflookupWindow, UFMassImport,
-  UFProgramSettings;
+  UFProgramSettings, UFSharing;
 
 procedure TFBrowseROOMS.FormCreate(Sender: TObject);
 begin
@@ -226,20 +227,6 @@ Begin
                             Else DM.macros.setMacro( Query, 'CON_ORGUNI_ID', 'ORGUNI_ID IN ( SELECT ID FROM ORG_UNITS WHERE STRUCT_CODE LIKE '''+dmodule.singleValue('SELECT STRUCT_CODE FROM ORG_UNITS WHERE ID = '+CON_ORGUNI_ID.Text)+'%'')');
 
 End;
-
-Procedure TFBrowseROOMS.AfterPost;
-Begin
- If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO ROM_PLA (ID, PLA_ID, ROM_ID) VALUES (ROMPLA_SEQ.NEXTVAL, '+UserID+','+ID_.Text+')');
-
-   if not strIsEmpty(FMain.CONROLE.Text) then begin
-     DModule.SQL('INSERT INTO ROM_PLA (ID, PLA_ID, ROM_ID) VALUES (ROMPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID_.Text+')');
-   end;
-
-   dmodule.CommitTrans;
- end;
-End;
-
 
 procedure TFBrowseROOMS.CON_RESCAT_IDChange(Sender: TObject);
 begin
@@ -652,6 +639,20 @@ end;
 function TFBrowseROOMS.canInsert: Boolean;
 begin
  result := strIsEmpty(confineCalendarId);
+end;
+
+Procedure TFBrowseROOMS.AfterPost;
+Begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','ROM',ID_.Text, QUERY.FieldByName('NAME').AsString);
+    dmodule.CommitTrans;
+ end;
+End;
+
+procedure TFBrowseROOMS.BUpdChild3Click(Sender: TObject);
+begin
+   FSharing.init('U','ROM',ID_.Text, QUERY.FieldByName('NAME').AsString);
+   dmodule.CommitTrans;
 end;
 
 end.

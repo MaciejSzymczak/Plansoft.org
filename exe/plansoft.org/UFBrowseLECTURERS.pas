@@ -106,6 +106,7 @@ type
     procedure BClearROL_IDClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -196,38 +197,6 @@ Begin
  If CON_ORGUNI_ID.Text = '' Then DM.macros.setMacro( Query, 'CON_ORGUNI_ID', '0=0')
                             Else DM.macros.setMacro( Query, 'CON_ORGUNI_ID', 'ORGUNI_ID IN ( SELECT ID FROM ORG_UNITS WHERE STRUCT_CODE LIKE '''+dmodule.singleValue('SELECT STRUCT_CODE FROM ORG_UNITS WHERE ID = '+CON_ORGUNI_ID.Text)+'%'')');
 
-End;
-
-Procedure TFBrowseLECTURERS.AfterPost;
-
- var t : integer;
-
- procedure executeSQL;
- var t : integer;
- var sqlStatement : string;
- begin
-   sqlStatement := 'begin';
-   for t := 0 to Fmain.MapPlanners.cnt - 1 do
-     if FSharing.CheckListBox.Checked[t] then
-         sqlStatement := sqlStatement + 'INSERT INTO LEC_PLA (ID, PLA_ID, LEC_ID) VALUES (LECPLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+ID_.Text+')'+cr;
-   sqlStatement := sqlStatement + 'commit;'+cr+'end';
-   DModule.SQL(sqlStatement);
- end;
-
-Begin
- If CurrOperation in [AInsert,ACopy] Then begin
-   FSharing.CheckListBox.Clear;
-   for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
-     FSharing.CheckListBox.Items.Add(Fmain.MapPlanners.map[t].value);
-     FSharing.CheckListBox.Checked[t] := true;
-   end;
-   FSharing.Caption :='Wspó³dzielenie dla: '+ QUERY.FieldByName('TITLE').AsString +' '+ QUERY.FieldByName('FIRST_NAME').AsString +' '+ QUERY.FieldByName('LAST_NAME').AsString;
-   if (Fmain.MapPlanners.cnt=1) or (FSharing.showModal = mrOK) then begin
-     executeSQL;
-   end;
-
-   dmodule.CommitTrans;
- end;
 End;
 
 
@@ -516,6 +485,20 @@ end;
 function TFBrowseLECTURERS.canInsert: Boolean;
 begin
  result := strIsEmpty(confineCalendarId);
+end;
+
+Procedure TFBrowseLECTURERS.AfterPost;
+Begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','LEC',ID_.Text, QUERY.FieldByName('TITLE').AsString +' '+ QUERY.FieldByName('FIRST_NAME').AsString +' '+ QUERY.FieldByName('LAST_NAME').AsString);
+    dmodule.CommitTrans;
+ end;
+End;
+
+procedure TFBrowseLECTURERS.BUpdChild3Click(Sender: TObject);
+begin
+   FSharing.init('U','LEC',ID_.Text, QUERY.FieldByName('TITLE').AsString +' '+ QUERY.FieldByName('FIRST_NAME').AsString +' '+ QUERY.FieldByName('LAST_NAME').AsString);
+   dmodule.CommitTrans;
 end;
 
 end.

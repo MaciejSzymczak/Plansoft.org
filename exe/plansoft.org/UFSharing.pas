@@ -4,21 +4,26 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormConfig, StdCtrls, CheckLst, Buttons, ExtCtrls;
-
+  Dialogs, UFormConfig, StdCtrls, CheckLst, Buttons, ExtCtrls, UUtilityParent,UFPlannerPermissions;
+                                                                              
 type
   TFSharing = class(TFormConfig)
     CheckListBox: TCheckListBox;
     Panel1: TPanel;
-    BUpdOK: TBitBtn;
-    BUpdCancel: TBitBtn;
+    BOK: TBitBtn;
+    BCancel: TBitBtn;
     Panel2: TPanel;
     ChangeAll: TCheckBox;
+    BitBtn1: TBitBtn;
+    BAdv: TBitBtn;
     procedure ChangeAllClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure BAdvClick(Sender: TObject);
   private
-    { Private declarations }
+    presourceType, presourceId : string;
   public
-    { Public declarations }
+    procedure init(cruid, resourceType, resourceId, resourceDsp : string);
+    procedure executeSQL(resourceType, resourceId : string);
   end;
 
 var
@@ -26,14 +31,88 @@ var
 
 implementation
 
+uses UFMain, DM;
+
 {$R *.dfm}
 
 procedure TFSharing.ChangeAllClick(Sender: TObject);
 var t : integer;
 begin
  for t := 0 to FSharing.CheckListBox.Count - 1 do begin
-   FSharing.CheckListBox.Checked[t] := ChangeAll.Checked;
+   if FSharing.CheckListBox.ItemEnabled[t] then
+       FSharing.CheckListBox.Checked[t] := ChangeAll.Checked;
  end;
+end;
+
+procedure TFSharing.BitBtn1Click(Sender: TObject);
+var t : integer;
+    key : shortString;
+begin
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
+     key := Fmain.MapPlanners.map[t].key;
+     FSharing.CheckListBox.Checked[t] := (key=UUtilityParent.UserID) or (key=FMain.CONROLE.Text);
+   end;
+end;
+
+procedure TFSharing.executeSQL(resourceType, resourceId : string);
+ var t : integer;
+ var sqlStatement : string;
+ begin
+   sqlStatement := 'begin'+cr;
+   sqlStatement := sqlStatement + 'delete from '+resourceType+'_PLA where '+resourceType+'_ID='+resourceId +';'+ cr;
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do
+     if FSharing.CheckListBox.Checked[t] then
+         sqlStatement := sqlStatement + 'INSERT INTO '+resourceType+'_PLA (ID, PLA_ID, '+resourceType+'_ID) VALUES ('+resourceType+'PLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+resourceId+');'+cr;
+   sqlStatement := sqlStatement + 'commit;'+cr+'end;';
+   copytoclipboard(sqlStatement);
+   DModule.SQL(sqlStatement);
+ end;
+
+procedure TFSharing.init(cruid, resourceType, resourceId, resourceDsp : string);
+
+ var t : integer;
+     tmp : tmap;
+
+begin
+   if cruid = 'U' then begin
+       if not elementEnabled('"Dostêp do rekordów"','2016.10.05', false) then begin exit; end;
+       if (Fmain.MapPlanners.cnt=1) then begin info('Najpierw utwórz autoryzacje lub u¿ytkownika, którym chcesz udostêpniæ rekordy'); exit; end;
+   end;
+
+   presourceType := resourceType;
+   presourceId := resourceId;
+   FSharing.Caption :='Wspó³dzielenie dla: '+ resourceDsp;
+   BCancel.Enabled := cruid = 'U';
+
+   if cruid = 'U' then begin
+       tmp := Tmap.Create;
+       dmodule.loadMap('select pla_id,''FOUND'' from '+resourceType+'_PLA where '+resourceType+'_ID='+resourceId ,tmp, false);
+   end;
+
+   FSharing.CheckListBox.Clear;
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
+     FSharing.CheckListBox.Items.Add(Fmain.MapPlanners.map[t].value);
+     if cruid = 'I' then FSharing.CheckListBox.Checked[t] := true;
+     if cruid = 'U' then FSharing.CheckListBox.Checked[t] := tmp.getValue(Fmain.MapPlanners.map[t].key)='FOUND';
+     if Fmain.MapPlanners.map[t].key = fmain.getUserOrRoleID then begin
+         FSharing.CheckListBox.ItemEnabled[t] := false;
+         FSharing.CheckListBox.Checked[t] := true;
+     end;
+   end;
+   if cruid = 'U' then
+       tmp.Free;
+
+   if (Fmain.MapPlanners.cnt=1) or (FSharing.showModal = mrOK) then begin
+     executeSQL(resourceType, resourceId);
+   end;
+
+end;
+
+procedure TFSharing.BAdvClick(Sender: TObject);
+begin
+  executeSQL(presourceType, presourceId);
+  UFPlannerPermissions.ShowModal;
+  Close;
 end;
 
 end.

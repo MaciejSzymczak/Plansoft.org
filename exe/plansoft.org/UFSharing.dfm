@@ -1,19 +1,19 @@
 inherited FSharing: TFSharing
   Left = 738
   Top = 168
-  Width = 646
+  Width = 535
   Height = 632
   Caption = 'Wsp'#243#322'dzielenie'
   PixelsPerInch = 120
   TextHeight = 16
   inherited Status: TPanel
     Top = 573
-    Width = 638
+    Width = 527
   end
   object CheckListBox: TCheckListBox
     Left = 0
     Top = 33
-    Width = 638
+    Width = 527
     Height = 499
     Align = alClient
     ItemHeight = 16
@@ -26,21 +26,22 @@ inherited FSharing: TFSharing
   object Panel1: TPanel
     Left = 0
     Top = 532
-    Width = 638
+    Width = 527
     Height = 41
     Align = alBottom
     TabOrder = 2
     DesignSize = (
-      638
+      527
       41)
-    object BUpdOK: TBitBtn
-      Left = 478
+    object BOK: TBitBtn
+      Left = 367
       Top = 8
       Width = 72
       Height = 25
       Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
       Anchors = [akRight]
       Caption = '&OK'
+      Default = True
       ModalResult = 1
       ParentShowHint = False
       ShowHint = True
@@ -64,12 +65,13 @@ inherited FSharing: TFSharing
         0000}
       NumGlyphs = 2
     end
-    object BUpdCancel: TBitBtn
-      Left = 559
+    object BCancel: TBitBtn
+      Left = 448
       Top = 8
       Width = 76
       Height = 25
       Anchors = [akRight, akBottom]
+      Cancel = True
       Caption = '&Anuluj'
       ModalResult = 2
       ParentShowHint = False
@@ -94,11 +96,39 @@ inherited FSharing: TFSharing
         0000}
       NumGlyphs = 2
     end
+    object BitBtn1: TBitBtn
+      Left = 7
+      Top = 8
+      Width = 170
+      Height = 25
+      Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
+      Anchors = [akLeft]
+      Caption = 'Widoczne tylko dla mnie'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+      OnClick = BitBtn1Click
+      NumGlyphs = 2
+    end
+    object BAdv: TBitBtn
+      Left = 183
+      Top = 8
+      Width = 114
+      Height = 25
+      Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
+      Anchors = [akLeft]
+      Caption = 'Wi'#281'cej opcji'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      OnClick = BAdvClick
+      NumGlyphs = 2
+    end
   end
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 638
+    Width = 527
     Height = 33
     Align = alTop
     TabOrder = 3

@@ -49,6 +49,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -66,7 +67,7 @@ var
 implementation
 
 uses DM, UUtilityParent, UCommon, UFMain, ufLookupWindow, UFMassImport,
-  UFProgramSettings, AutoCreate;
+  UFProgramSettings, AutoCreate, UFSharing;
 
 {$R *.DFM}
 
@@ -96,18 +97,6 @@ Begin
                           Else DM.macros.setMacro(query, 'CON_TYPE', 'KIND = ''' + CON_TYPE_ID.Text + '''');
 End;
 
-Procedure TFBrowseFORMS.AfterPost;
-Begin
- If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO FOR_PLA (ID, PLA_ID, FOR_ID) VALUES (FORPLA_SEQ.NEXTVAL, '+UserID+','+ID.Text+')');
-
-   if not strIsEmpty(FMain.CONROLE.Text) then begin
-     DModule.SQL('INSERT INTO FOR_PLA (ID, PLA_ID, FOR_ID) VALUES (FORPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID.Text+')');
-   end;
-
-   dmodule.CommitTrans;
- end;
-End;
 
 procedure TFBrowseFORMS.CON_TYPE_IDChange(Sender: TObject);
 begin
@@ -226,6 +215,21 @@ end;
 function TFBrowseFORMS.canInsert: Boolean;
 begin
  result := strIsEmpty(confineCalendarId);
+end;
+
+Procedure TFBrowseFORMS.AfterPost;
+Begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','FOR',ID.Text, QUERY.FieldByName('NAME').AsString);
+    dmodule.CommitTrans;
+ end;
+End;
+
+
+procedure TFBrowseFORMS.BUpdChild3Click(Sender: TObject);
+begin
+   FSharing.init('U','FOR',ID.Text, QUERY.FieldByName('NAME').AsString);
+   dmodule.CommitTrans;
 end;
 
 end.

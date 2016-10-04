@@ -411,9 +411,9 @@ type
    Function  checkRecord  : Boolean;        Virtual;
    Procedure defaultValues;                 virtual;
 
-   Procedure beforeDelete;                  Virtual; // Zmienna ID zawiera aktualny klucz unikalny rekordu - mo¿na jej u¿ywaæ
-   Procedure afterDelete;                   Virtual; // Zmienna ID zawiera aktualny klucz unikalny rekordu - mo¿na jej u¿ywaæ
-   Procedure beforeEdit;                    virtual; // CurrOperation mo¿e przyjmowaæ wartoœci {AINSERT, ACOPY, AEDIT}
+   Procedure beforeDelete;                  Virtual; // variable ID is valid and can be used
+   Procedure afterDelete;                   Virtual; // variable ID is valid and can be used
+   Procedure beforeEdit;                    virtual; // CurrOperation in [AINSERT, ACOPY, AEDIT]
    Procedure beforePost;                    virtual;
    Procedure afterPost;                     virtual;
    Procedure afterCloseDetails;             virtual;

@@ -89,7 +89,7 @@ Begin
        IDs        := Merge(IDs,ID, separator);
        TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
      End Else Begin
-       Info('Nie odnaleziono elementu "'+Token+'". Element zostanie usuniêty');
+       //Info('Nie odnaleziono elementu "'+Token+'". Element zostanie usuniêty');
      End;
    End;
  End;

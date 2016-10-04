@@ -81,7 +81,7 @@ type
     dateRange    : string[50];
 
     pAbolitionTime: string[30];
-    procedure loadMap(sqlString : string; map : tmap);
+    procedure loadMap(sqlString : string; map : tmap; lpadKey : boolean);
     Function LecturerGetColour(ID : string) : integer;
     Function GroupGetColour(ID : string) : Integer;
     Function RoomGetColour(ID : string) : Integer;
@@ -853,9 +853,9 @@ begin
   end;
 end;
 
-procedure tdmodule.loadMap(sqlString : string; map : tmap);
+procedure tdmodule.loadMap(sqlString : string; map : tmap; lpadKey : boolean);
 begin
-  map.init(true);
+  map.init(lpadKey);
   with dmodule do begin
     DModule.openSQL(sqlString);
     while not QWork.Eof do begin
@@ -872,7 +872,7 @@ Var resString : string;
 Begin
   resString := FMain.MapLecColors.getValue(id);
   if resString='' then begin
-    dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers order by id', Fmain.MapLecColors);
+    dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers order by id', Fmain.MapLecColors, true);
     resString := FMain.MapLecColors.getValue(id);
   end;
   result := strtoInt (nvl(resString,'0'));
@@ -884,7 +884,7 @@ Var resString : string;
 Begin
   resString := FMain.MapGroColors.getValue(id);
   if resString='' then begin
-    dmodule.loadMap('select id,NVL(COLOUR,0) from groups order by id', Fmain.MapGroColors);
+    dmodule.loadMap('select id,NVL(COLOUR,0) from groups order by id', Fmain.MapGroColors, true);
     resString := FMain.MapGroColors.getValue(id);
   end;
   result := strtoInt (nvl(resString,'0'));
@@ -896,7 +896,7 @@ Var resString : string;
 Begin
   resString := FMain.MapRomColors.getValue(id);
   if resString='' then begin
-    dmodule.loadMap('select id,NVL(COLOUR,0) from rooms order by id', Fmain.MapRomColors);
+    dmodule.loadMap('select id,NVL(COLOUR,0) from rooms order by id', Fmain.MapRomColors, true);
     resString := FMain.MapRomColors.getValue(id);
   end;
   result := strtoInt (nvl(resString,'0'));

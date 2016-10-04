@@ -13,7 +13,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 665
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 849
@@ -484,9 +483,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           OnClick = BKonsolidateClick
         end
         object ttEnabled: TCheckBox
-          Left = 530
+          Left = 472
           Top = 10
-          Width = 161
+          Width = 203
           Height = 17
           Anchors = [akRight, akBottom]
           Caption = 'Tylko dozwolone kombinacje'
@@ -496,9 +495,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 697
+          Left = 681
           Top = 4
-          Width = 91
+          Width = 104
           Height = 25
           Anchors = [akRight, akBottom]
           Caption = 'Pobierz z Excel'
@@ -508,6 +507,20 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited SecondRatePanel: TPanel
         Width = 878
+        inherited BChild3: TBitBtn
+          Glyph.Data = {
+            4E010000424D4E01000000000000760000002800000012000000120000000100
+            040000000000D800000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFF888FFFFF
+            FFFFFF000000FFF88888FFFFFFFFFF000000FFF7FFF7FFFFFFFFFF000000FFF8
+            8F88FFFFFFFFFF000000FFFF7778FFFFFFFFFF000000FFFF8777788FFFFFFF00
+            0000FFFF877777778FFFFF000000FFFF878F88777FFFFF000000FFFF878FFFF7
+            77FFFF000000FFFF878FFFF877FFFF000000FFFF878FFFF8778FFF000000FFFF
+            878FFFF7887FFF000000FFFF878FFF88FF88FF000000FFFF7778FF87FF78FF00
+            0000FFF88FF7FFF8778FFF000000FFF7FFF7FFFFFFFFFF000000FFF87888FFFF
+            FFFFFF000000FFFF888FFFFFFFFFFF000000}
+        end
       end
       object RightPage: TPageControl
         Left = 857
@@ -1162,12 +1175,31 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Width = 878
         TabOrder = 8
         inherited BUpdChild1: TBitBtn
+          Left = 88
           Caption = 'Zaj'#281'cia'
           Visible = True
         end
         inherited BUpdChild2: TBitBtn
+          Left = 168
           Caption = 'Finanse'
           Visible = True
+        end
+        inherited BUpdChild3: TBitBtn
+          Left = 248
+          Caption = 'Dost'#281'p'
+          Visible = True
+          Glyph.Data = {
+            4E010000424D4E01000000000000760000002800000012000000120000000100
+            040000000000D800000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFF888FFFFF
+            FFFFFF000000FFF88888FFFFFFFFFF000000FFF7FFF7FFFFFFFFFF000000FFF8
+            8F88FFFFFFFFFF000000FFFF7778FFFFFFFFFF000000FFFF8777788FFFFFFF00
+            0000FFFF877777778FFFFF000000FFFF878F88777FFFFF000000FFFF878FFFF7
+            77FFFF000000FFFF878FFFF877FFFF000000FFFF878FFFF8778FFF000000FFFF
+            878FFFF7887FFF000000FFFF878FFF88FF88FF000000FFFF7778FF87FF78FF00
+            0000FFF88FF7FFF8778FFF000000FFF7FFF7FFFFFFFFFF000000FFF87888FFFF
+            FFFFFF000000FFFF888FFFFFFFFFFF000000}
         end
       end
       object ID_: TDBEdit [15]

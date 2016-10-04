@@ -4184,12 +4184,12 @@ begin
     UserID  := DModule.QWork.Fields[1].AsString;
   Except User := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
 
-  dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors);
-  dmodule.loadMap('select id,NVL(COLOUR,0) from groups', MapGroColors);
-  dmodule.loadMap('select id,NVL(COLOUR,0) from rooms', MapRomColors);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors, true);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from groups', MapGroColors, true);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from rooms', MapRomColors, true);
   //
-  dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames);
-  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rom_id from ROM_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+user+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners);
+  dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
+  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+user+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
 
   if not strIsEmpty(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
@@ -4905,6 +4905,7 @@ begin
     end;
    end;
 
+   BitBtnCLEARROLE.Visible := not strIsEmpty(conRole.Text);
    loadFormSettings;
 
    Self.Menu := MM;

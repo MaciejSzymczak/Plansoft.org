@@ -53,6 +53,7 @@ type
     procedure BitBtn6Click(Sender: TObject);
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -73,7 +74,8 @@ implementation
 
 {$R *.DFM}
 
-uses DM, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFMassImport, AutoCreate;
+uses DM, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFMassImport, AutoCreate,
+  UFSharing;
 
 Function  TFBrowseSUBJECTS.CheckRecord : Boolean;
 Begin
@@ -136,20 +138,6 @@ Begin
                             Else DM.macros.setMacro( Query, 'CON_ORGUNI_ID', 'ORGUNI_ID IN ( SELECT ID FROM ORG_UNITS WHERE STRUCT_CODE LIKE '''+dmodule.singleValue('SELECT STRUCT_CODE FROM ORG_UNITS WHERE ID = '+CON_ORGUNI_ID.Text)+'%'')');
 
 End;
-
-Procedure TFBrowseSUBJECTS.AfterPost;
-Begin
- If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO SUB_PLA (ID, PLA_ID, SUB_ID) VALUES (SUBPLA_SEQ.NEXTVAL, '+UserID+','+ID.Text+')');
-
-   if not strIsEmpty(FMain.CONROLE.Text) then begin
-     DModule.SQL('INSERT INTO SUB_PLA (ID, PLA_ID, SUB_ID) VALUES (SUBPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID.Text+')');
-   end;
-
-   dmodule.CommitTrans;
- end;
-End;
-
 
 procedure TFBrowseSUBJECTS.ttEnabledClick(Sender: TObject);
 begin
@@ -260,6 +248,21 @@ end;
 function TFBrowseSUBJECTS.canInsert: Boolean;
 begin
  result := strIsEmpty(confineCalendarId);
+end;
+
+Procedure TFBrowseSUBJECTS.AfterPost;
+Begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','SUB',ID.Text, QUERY.FieldByName('NAME').AsString);
+    dmodule.CommitTrans;
+ end;
+End;
+
+
+procedure TFBrowseSUBJECTS.BUpdChild3Click(Sender: TObject);
+begin
+   FSharing.init('U','SUB',ID.Text, QUERY.FieldByName('NAME').AsString);
+   dmodule.CommitTrans;
 end;
 
 end.

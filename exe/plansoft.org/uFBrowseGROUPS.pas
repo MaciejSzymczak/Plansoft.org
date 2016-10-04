@@ -135,6 +135,7 @@ type
     procedure BitBtn6Click(Sender: TObject);
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -164,7 +165,7 @@ implementation
 
 
 uses DM, UUtilityParent, UFMain, UFLookupWindow, autocreate,
-  UFProgramSettings, UFMassImport;
+  UFProgramSettings, UFMassImport, UFSharing;
 
 {$R *.DFM}
 
@@ -231,20 +232,6 @@ Begin
                             Else DM.macros.setMacro( Query, 'CON_ORGUNI_ID', 'ORGUNI_ID IN ( SELECT ID FROM ORG_UNITS WHERE STRUCT_CODE LIKE '''+dmodule.singleValue('SELECT STRUCT_CODE FROM ORG_UNITS WHERE ID = '+CON_ORGUNI_ID.Text)+'%'')');
 
 End;
-
-Procedure TFBrowseGROUPS.AfterPost;
-Begin
- If CurrOperation in [AInsert,ACopy] Then begin
-   DModule.SQL('INSERT INTO GRO_PLA (ID, PLA_ID, GRO_ID) VALUES (GROPLA_SEQ.NEXTVAL, '+UserID+','+ID_.Text+')');
-
-   if not strIsEmpty(FMain.CONROLE.Text) then begin
-     DModule.SQL('INSERT INTO GRO_PLA (ID, PLA_ID, GRO_ID) VALUES (GROPLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+','+ID_.Text+')');
-   end;
-
-   dmodule.CommitTrans;
- end;
-End;
-
 
 
 procedure TFBrowseGROUPS.CON_GT_IDChange(Sender: TObject);
@@ -642,6 +629,21 @@ end;
 function TFBrowseGROUPS.canInsert: Boolean;
 begin
  result := strIsEmpty(confineCalendarId);
+end;
+
+Procedure TFBrowseGROUPS.AfterPost;
+Begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','GRO',ID_.Text, QUERY.FieldByName('NAME').AsString);
+    dmodule.CommitTrans;
+ end;
+End;
+
+
+procedure TFBrowseGROUPS.BUpdChild3Click(Sender: TObject);
+begin
+   FSharing.init('U','GRO',ID_.Text, QUERY.FieldByName('NAME').AsString);
+   dmodule.CommitTrans;
 end;
 
 end.

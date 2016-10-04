@@ -1,7 +1,7 @@
 inherited FMain: TFMain
-  Left = 417
-  Top = 199
-  Width = 1239
+  Left = 119
+  Top = 177
+  Width = 1617
   Height = 725
   Caption = 'Plansoft.org'
   KeyPreview = True
@@ -18,13 +18,13 @@ inherited FMain: TFMain
   end
   inherited Status: TPanel
     Top = 641
-    Width = 1231
+    Width = 1609
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
     Top = 600
-    Width = 1231
+    Width = 1609
     Height = 41
     Align = alBottom
     TabOrder = 0
@@ -60,7 +60,7 @@ inherited FMain: TFMain
     object StatusBar: TStatusBar
       Left = 1
       Top = 21
-      Width = 1229
+      Width = 1607
       Height = 19
       Panels = <
         item
@@ -96,7 +96,7 @@ inherited FMain: TFMain
   object MainPanel: TPanel
     Left = 346
     Top = 0
-    Width = 885
+    Width = 1263
     Height = 600
     Align = alClient
     BorderWidth = 1
@@ -104,7 +104,7 @@ inherited FMain: TFMain
     ParentCtl3D = False
     TabOrder = 1
     object VSplitter: TSplitter
-      Left = 879
+      Left = 1257
       Top = 211
       Height = 387
       Align = alRight
@@ -184,7 +184,7 @@ inherited FMain: TFMain
     object TopPanel: TPanel
       Left = 2
       Top = 2
-      Width = 881
+      Width = 1259
       Height = 54
       Align = alTop
       TabOrder = 0
@@ -3262,7 +3262,7 @@ inherited FMain: TFMain
     object LeftPanel: TPanel
       Left = 2
       Top = 56
-      Width = 881
+      Width = 1259
       Height = 155
       Align = alTop
       TabOrder = 1
@@ -4798,7 +4798,7 @@ inherited FMain: TFMain
     end
     object pRightDockPanel: TPanel
       Tag = 1
-      Left = 882
+      Left = 1260
       Top = 211
       Width = 1
       Height = 387
@@ -6484,7 +6484,7 @@ inherited FMain: TFMain
     object gridPanel: TPanel
       Left = 7
       Top = 211
-      Width = 872
+      Width = 1250
       Height = 387
       Align = alClient
       Caption = 'gridPanel'
@@ -6492,7 +6492,7 @@ inherited FMain: TFMain
       object filterPanel: TPanel
         Left = 1
         Top = 1
-        Width = 870
+        Width = 1248
         Height = 28
         Align = alTop
         TabOrder = 0
@@ -6534,7 +6534,7 @@ inherited FMain: TFMain
       object Grid: TDrawGrid
         Left = 1
         Top = 29
-        Width = 870
+        Width = 1248
         Height = 357
         Align = alClient
         ColCount = 50
