@@ -433,8 +433,6 @@ Begin
      paramValue := extractWord(2,wholeString,['=']);
      parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
    end;
-   //copyToClipboard(S);
-   //info (S);
   ExecSQL;
   //revert original settings
   ParamCheck := true;

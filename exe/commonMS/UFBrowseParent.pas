@@ -3802,8 +3802,6 @@ begin
   'Zaktualizowa³:'+#9+#9  + s4;
 
   info(s5);
-  copyToClipboard(s5);
-
 end;
 
 End.

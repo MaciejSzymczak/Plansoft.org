@@ -277,7 +277,6 @@ begin
   with adoQuery do begin
    close;
    sql.clear;
-   copytoclipboard ( 'select * from (' + currentSQL + ') where description like ''' + find.Text + '%'' order by description' );
    sql.Add('select * from (' + currentSQL + ') where upper(description) like upper(''' + find.Text + '%'') order by description');
    open;
    dbgrid.Columns[0].Width := 0;

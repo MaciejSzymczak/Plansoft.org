@@ -64,7 +64,6 @@ procedure TFSharing.executeSQL(resourceType, resourceId : string);
      if FSharing.CheckListBox.Checked[t] then
          sqlStatement := sqlStatement + 'INSERT INTO '+resourceType+'_PLA (ID, PLA_ID, '+resourceType+'_ID) VALUES ('+resourceType+'PLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+resourceId+');'+cr;
    sqlStatement := sqlStatement + 'commit;'+cr+'end;';
-   copytoclipboard(sqlStatement);
    DModule.SQL(sqlStatement);
  end;
 

@@ -1132,7 +1132,6 @@ begin
         UpdStatus('Pobieranie danych (1/4 Nag³ówki kolumn)');
         setSQL(colColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
         resetConnection ( lookupQuery );
-        //copytoclipboard(lookupQuery.sql.Text);
         lookupQuery.Open;
         while not lookupQuery.Eof do begin
             //if lookupQuery.fields[0].AsString <> '' then begin
@@ -1151,7 +1150,6 @@ begin
             setSQL(colsubColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
             resetConnection ( lookupQuery );
             lookupQuery.Open;
-            //copyToClipboard(  lookupQuery.SQL.Text  );
             while not lookupQuery.Eof do begin
                 //if lookupQuery.fields[0].AsString <> '' then begin
                     setLength(subcolumnValues, length(subcolumnValues)+1);
@@ -1267,9 +1265,6 @@ begin
                 bgcolor := 'BGCOLOR="'+DelphiColourToHTML(strToInt(nvl(mainQuery.FieldByName(colColor).asString,'0')))+'" border="5" style="border:solid white;"'
             else
                 bgcolor := '';
-                //if mainQuery.FieldByName(colColumn).asstring = 'WTOREK' then begin
-                //    copyToClipboard(  mainQuery.SQL.Text  );
-                //end;
 
             colColumnValue    := nvl(mainQuery.FieldByName(colColumn).asstring   ,'*brak*');
             colSubColumnValue := nvl(mainQuery.FieldByName(colSubColumn).asstring,'*brak*');

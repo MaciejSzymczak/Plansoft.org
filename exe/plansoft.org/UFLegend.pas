@@ -396,7 +396,6 @@ begin
     //for i := 0 to gridCounter.FieldCount-1 do begin
     //  s := s + ','+gridCounter.columns[i].FieldName;
     //end;
-    //copyToClipboard(s);
     //info ( s );
 
   if fileExists( getFileName(gridCounter) ) then
@@ -541,7 +540,6 @@ begin
     dmodule.resetConnection ( QueryL );
     QueryL.SQL.Clear;
     QueryL.SQL.Add('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filter.text, 'LECTURERS')+' ORDER BY LAST_NAME');
-    //copytoclipboard('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' ORDER BY LAST_NAME');
     QueryL.Open;
   end;
 

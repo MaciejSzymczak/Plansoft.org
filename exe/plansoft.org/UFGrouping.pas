@@ -563,9 +563,7 @@ begin
    //       '  AND G.ORGUNI_ID = gou.ID(+)'+cr+
    //       'GROUP BY C.CLA_ID
 
-  //copyToClipboard(s); info(S);
   S := fprogramSettings.translateMessages(S);
-  //copyToClipboard(s); info(S);
 
   sortOrder := '';
   UpdStatus('Oczekiwanie na odpowiedŸ serwera');
@@ -589,8 +587,6 @@ begin
      if pos('ORA-00904', E.Message) <> 0 then info('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
      if pos('ORA-01785', E.Message) <> 0 then info('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
        SError('Wyst¹pi³ b³¹d podczas wykonywania zapytania:' + E.Message);
-       //CopyToClipboard(S);
-       //raise;
       exit;
     end;
    End;

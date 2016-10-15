@@ -1477,7 +1477,6 @@ var q : string;
              try
               if I <= GCalendars.CalendarCount - 1 then begin
                 setStatus('Usuwanie kalendarza:' + GCalendars[I].Name);
-                //copyToClipBoard(GCalendars[I].XML);
                 //info(GCalendars[I].Name + '::::' + GCalendars[I].XML);
                 GCalendars.DeleteCalendar(I);
               end;
@@ -1775,7 +1774,6 @@ var F                : TextFile;
                      logSQLStop;
 
                      Store(true);
-                     copytoClipboard('Store done');
 
                      inc (counter);
                      if counter = 20 then begin

@@ -608,7 +608,6 @@ begin
 
   If Question('Zostan¹ przywrócone ustawienia fabryczne formularza. Czy kontynuowaæ ?') = ID_YES Then Begin
    SetSystemParam(GetFormName(Self),'Restore');
-   copyToClipboard(GetFormName(Self));
    DeleteFile( GetFileNameWithExtension(Self,'cfg') );
    Info('Operacja powiod³a siê. Zamknij program i uruchom go ponownie');
   End;

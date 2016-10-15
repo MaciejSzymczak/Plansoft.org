@@ -1235,7 +1235,6 @@ begin
    comment2+cr
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
 
-   //copyToClipboard ( SQLstmt );
    openSQL ( SQLstmt );
 
     While Not QWork.EOF Do Begin
@@ -7796,7 +7795,6 @@ Begin
     sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
     sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','10'), []);
-    //copyToClipboard(sqlString);
     dmodule.openSQL(sqlString,'s='+afilter);
     with dmodule.QWork do begin
         first;
@@ -8687,7 +8685,6 @@ Begin
         sqlString := stringreplace(sqlString, '%DATE_FROM',  DateToOracle(periodDateFrom), [rfReplaceAll]);
         sqlString := stringreplace(sqlString, '%DATE_TO', DateToOracle(periodDateTo), [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
-        copytoclipboard(sqlstring);
     end;
 
     with fastQuery do begin

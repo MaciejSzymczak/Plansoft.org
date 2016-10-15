@@ -1474,14 +1474,6 @@ begin
    begin
    end;
 
-   //trace := trace + cr + '0 = ' + Fields[0].AsString;
-   //trace := trace + cr + '1 = ' + Fields[1].AsString;
-   //trace := trace + cr + '2 = ' + Fields[2].AsString;
-   //trace := trace + cr + '3 = ' + Fields[3].AsString;
-   //trace := trace + cr + '4 = ' + Fields[4].AsString;
-   //trace := trace + cr + '5 = ' + Fields[5].AsString;
-   //info(trace);
-   //copyToClipboard (trace); //tests
   end;
 end;
 

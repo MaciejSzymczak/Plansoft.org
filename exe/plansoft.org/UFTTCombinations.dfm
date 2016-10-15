@@ -4,24 +4,24 @@ inherited FTTCombinations: TFTTCombinations
   Width = 1126
   Height = 614
   Caption = 'Przegl'#261'danie kombinacji'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 561
+    Top = 555
     Width = 1118
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 1118
-    Height = 161
+    Height = 184
     Align = alTop
     TabOrder = 1
     object chbShowL: TCheckBox
-      Left = 8
-      Top = 16
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 18
+      Width = 157
+      Height = 20
       Caption = 'Poka'#380' wyk'#322'adowc'#243'w'
       Checked = True
       State = cbChecked
@@ -29,10 +29,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowLClick
     end
     object chbShowG: TCheckBox
-      Left = 8
-      Top = 40
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 46
+      Width = 157
+      Height = 19
       Caption = 'Poka'#380' grupy'
       Checked = True
       State = cbChecked
@@ -40,10 +40,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowGClick
     end
     object chbShowResCat0: TCheckBox
-      Left = 8
-      Top = 64
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 73
+      Width = 157
+      Height = 20
       Caption = 'Poka'#380' sale'
       Checked = True
       State = cbChecked
@@ -51,10 +51,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowResCat0Click
     end
     object chbShowRESCAT1: TCheckBox
-      Left = 8
-      Top = 88
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 101
+      Width = 157
+      Height = 19
       Caption = 'Poka'#380' zas'#243'b'
       Checked = True
       State = cbChecked
@@ -62,10 +62,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowRESCAT1Click
     end
     object chbShowS: TCheckBox
-      Left = 8
-      Top = 112
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 128
+      Width = 157
+      Height = 19
       Caption = 'Poka'#380' przedmioty'
       Checked = True
       State = cbChecked
@@ -73,10 +73,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowSClick
     end
     object chbShowF: TCheckBox
-      Left = 8
-      Top = 136
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 155
+      Width = 157
+      Height = 20
       Caption = 'Poka'#380' formy zaj'#281#263
       Checked = True
       State = cbChecked
@@ -84,10 +84,10 @@ inherited FTTCombinations: TFTTCombinations
       OnClick = chbShowFClick
     end
     object BRefresh: TBitBtn
-      Left = 1077
-      Top = 8
-      Width = 33
-      Height = 33
+      Left = 1231
+      Top = 9
+      Width = 38
+      Height = 38
       Hint = 'Od'#347'wie'#380' zawarto'#347#263' siatki'
       ParentShowHint = False
       ShowHint = True
@@ -143,28 +143,28 @@ inherited FTTCombinations: TFTTCombinations
         0000010101010101010101010101010F0F0F0F000000}
     end
     object CONL: TEdit
-      Left = 136
-      Top = 10
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 11
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 7
       Visible = False
       OnChange = CONLChange
     end
     object CONL_VALUE: TEdit
-      Left = 144
-      Top = 10
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 11
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 8
     end
     object bSelL: TBitBtn
-      Left = 312
-      Top = 8
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 9
+      Width = 28
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 9
@@ -206,10 +206,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearL: TBitBtn
-      Left = 336
-      Top = 8
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 9
+      Width = 29
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 10
@@ -249,28 +249,28 @@ inherited FTTCombinations: TFTTCombinations
         0000}
     end
     object conResCat0: TEdit
-      Left = 136
-      Top = 58
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 66
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 11
       Visible = False
       OnChange = conResCat0Change
     end
     object CONRESCAT0_VALUE: TEdit
-      Left = 144
-      Top = 58
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 66
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 12
     end
     object bSelRes0: TBitBtn
-      Left = 312
-      Top = 56
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 64
+      Width = 28
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 13
@@ -312,10 +312,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearRes0: TBitBtn
-      Left = 336
-      Top = 56
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 64
+      Width = 29
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 14
@@ -355,28 +355,28 @@ inherited FTTCombinations: TFTTCombinations
         0000}
     end
     object CONG: TEdit
-      Left = 136
-      Top = 34
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 39
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 15
       Visible = False
       OnChange = CONGChange
     end
     object CONG_VALUE: TEdit
-      Left = 144
-      Top = 34
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 39
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 16
     end
     object bSelG: TBitBtn
-      Left = 312
-      Top = 32
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 37
+      Width = 28
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 17
@@ -418,10 +418,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearG: TBitBtn
-      Left = 336
-      Top = 32
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 37
+      Width = 29
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 18
@@ -461,28 +461,28 @@ inherited FTTCombinations: TFTTCombinations
         0000}
     end
     object conResCat1: TEdit
-      Left = 136
-      Top = 82
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 94
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 19
       Visible = False
       OnChange = conResCat1Change
     end
     object CONRESCAT1_VALUE: TEdit
-      Left = 144
-      Top = 82
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 94
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 20
     end
     object bSelRESCAT1: TBitBtn
-      Left = 312
-      Top = 80
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 91
+      Width = 28
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 21
@@ -524,10 +524,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearRESCAT1: TBitBtn
-      Left = 336
-      Top = 80
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 91
+      Width = 29
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 22
@@ -567,28 +567,28 @@ inherited FTTCombinations: TFTTCombinations
         0000}
     end
     object CONS: TEdit
-      Left = 136
-      Top = 106
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 121
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 23
       Visible = False
       OnChange = CONSChange
     end
     object CONS_VALUE: TEdit
-      Left = 144
-      Top = 106
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 121
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 24
     end
     object bSelS: TBitBtn
-      Left = 312
-      Top = 104
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 119
+      Width = 28
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 25
@@ -630,10 +630,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearS: TBitBtn
-      Left = 336
-      Top = 104
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 119
+      Width = 29
+      Height = 27
       ParentShowHint = False
       ShowHint = True
       TabOrder = 26
@@ -673,28 +673,28 @@ inherited FTTCombinations: TFTTCombinations
         0000}
     end
     object CONF: TEdit
-      Left = 136
-      Top = 130
-      Width = 73
-      Height = 22
+      Left = 155
+      Top = 149
+      Width = 84
+      Height = 24
       ReadOnly = True
       TabOrder = 27
       Visible = False
       OnChange = CONFChange
     end
     object CONF_VALUE: TEdit
-      Left = 144
-      Top = 130
-      Width = 169
-      Height = 22
+      Left = 165
+      Top = 149
+      Width = 193
+      Height = 24
       ReadOnly = True
       TabOrder = 28
     end
     object bSelF: TBitBtn
-      Left = 312
-      Top = 128
-      Width = 25
-      Height = 24
+      Left = 357
+      Top = 146
+      Width = 28
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 29
@@ -736,10 +736,10 @@ inherited FTTCombinations: TFTTCombinations
         0000000000000000000000000000000000000000000000000000}
     end
     object bClearF: TBitBtn
-      Left = 336
-      Top = 128
-      Width = 25
-      Height = 24
+      Left = 384
+      Top = 146
+      Width = 29
+      Height = 28
       ParentShowHint = False
       ShowHint = True
       TabOrder = 30
@@ -781,19 +781,19 @@ inherited FTTCombinations: TFTTCombinations
   end
   object Panel2: TPanel
     Left = 0
-    Top = 520
+    Top = 508
     Width = 1118
-    Height = 41
+    Height = 47
     Align = alBottom
     TabOrder = 2
     DesignSize = (
       1118
-      41)
+      47)
     object BClose: TBitBtn
-      Left = 1040
-      Top = 8
-      Width = 75
-      Height = 28
+      Left = 1189
+      Top = 9
+      Width = 85
+      Height = 32
       Hint = 'Zamknij bie'#380#261'ce okno'
       Anchors = [akRight, akBottom]
       Cancel = True
@@ -822,10 +822,10 @@ inherited FTTCombinations: TFTTCombinations
       NumGlyphs = 2
     end
     object BAdd: TBitBtn
-      Left = 880
-      Top = 8
-      Width = 75
-      Height = 28
+      Left = 1006
+      Top = 9
+      Width = 85
+      Height = 32
       Hint = 'Dodaj now'#261' dan'#261
       Anchors = [akRight, akBottom]
       Caption = 'Dodaj'
@@ -867,10 +867,10 @@ inherited FTTCombinations: TFTTCombinations
         C600}
     end
     object BEdit: TBitBtn
-      Left = 800
-      Top = 8
-      Width = 75
-      Height = 28
+      Left = 914
+      Top = 9
+      Width = 86
+      Height = 32
       Hint = 'Edytuj wskazan'#261' dan'#261
       Anchors = [akRight, akBottom]
       Caption = 'Edytuj'
@@ -925,10 +925,10 @@ inherited FTTCombinations: TFTTCombinations
         0F0F0F0F0F0F0F0F0F0F0F0F0F81}
     end
     object BDelete: TBitBtn
-      Left = 960
-      Top = 8
-      Width = 75
-      Height = 28
+      Left = 1097
+      Top = 9
+      Width = 86
+      Height = 32
       Hint = 'Usu'#324' wskazan'#261' dan'#261
       Anchors = [akRight, akBottom]
       Caption = 'Usu'#324
@@ -986,40 +986,40 @@ inherited FTTCombinations: TFTTCombinations
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 161
+    Top = 184
     Width = 1118
-    Height = 359
+    Height = 324
     Align = alClient
     Caption = 'Rezultat wyszukiwania'
     TabOrder = 3
     object DBGrid: TDBGrid
       Left = 2
-      Top = 41
+      Top = 46
       Width = 1114
-      Height = 316
+      Height = 276
       Align = alClient
       DataSource = DataSource
       Options = [dgEditing, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
       TabOrder = 0
       TitleFont.Charset = EASTEUROPE_CHARSET
       TitleFont.Color = clWindowText
-      TitleFont.Height = -11
+      TitleFont.Height = -14
       TitleFont.Name = 'Arial'
       TitleFont.Style = []
     end
     object Panel3: TPanel
       Left = 2
-      Top = 16
+      Top = 18
       Width = 1114
-      Height = 25
+      Height = 28
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
       object find: TEdit
-        Left = 8
+        Left = 9
         Top = 0
-        Width = 353
-        Height = 22
+        Width = 404
+        Height = 24
         TabOrder = 0
         OnChange = findChange
       end

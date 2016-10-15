@@ -34,7 +34,7 @@ inherited FSharing: TFSharing
       527
       41)
     object BOK: TBitBtn
-      Left = 367
+      Left = 359
       Top = 8
       Width = 72
       Height = 25
@@ -66,7 +66,7 @@ inherited FSharing: TFSharing
       NumGlyphs = 2
     end
     object BCancel: TBitBtn
-      Left = 448
+      Left = 440
       Top = 8
       Width = 76
       Height = 25
