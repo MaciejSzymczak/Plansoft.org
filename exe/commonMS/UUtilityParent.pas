@@ -249,6 +249,7 @@ function SearchAndReplace( sSrc, sLookFor, sReplaceWith : string; const replace 
 
 procedure writelog ( m : string; const pworkPath: string = '');
 Function GetNowMarker: String;
+Function GetNowGMT(offset: integer): String;
 
 procedure loadFromIni(iniFileName : string; sectionName : string; controls : Array of TObject );  overload;
 procedure saveToIni(iniFileName : string; sectionName : string; controls : Array of TObject );   overload;
@@ -1696,9 +1697,19 @@ var Year, Month, Day: Word;
     Hour, Min, Sec, MSec: Word;
 Begin
  decodedate(Now, Year, Month, Day);
- decodetime(now,Hour, Min, Sec, MSec);
+ decodetime(Now,Hour, Min, Sec, MSec);
  Result := FormatFloat('0000',Year)+'.'+FormatFloat('00',Month)+'.'+FormatFloat('00',Day)+'_'+FormatFloat('00',Hour)+'.'+FormatFloat('00',Min)+'.'+FormatFloat('00',Sec);
 End;
+
+Function GetNowGMT(offset: integer): String;
+var Year, Month, Day: Word;
+    Hour, Min, Sec, MSec: Word;
+Begin
+ decodedate(Now+offset/24, Year, Month, Day);
+ decodetime(Now+offset/24,Hour, Min, Sec, MSec);
+ Result := FormatFloat('0000',Year)+FormatFloat('00',Month)+FormatFloat('00',Day)+'T'+FormatFloat('00',Hour)+FormatFloat('00',Min)+FormatFloat('00',Sec)+'Z';
+End;
+
 
 procedure writelog ( m : string; const pworkPath: string = '');
  var f : textFile;

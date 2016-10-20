@@ -101,7 +101,6 @@ type
     procedure ComboSortOrderChange(Sender: TObject);
     procedure genTypeChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure BGoogleDeleteAllClick(Sender: TObject);
     procedure BCreateClick(Sender: TObject);
     procedure bcreatepopupClick(Sender: TObject);
     procedure Utwrzrozk1Click(Sender: TObject);
@@ -1457,80 +1456,18 @@ begin
   if GoogleSavePassword.Checked then encsetSystemParam('GooglePassword', GooglePassword.Text);
 end;
 
-procedure TFWWWGenerator.BGoogleDeleteAllClick(Sender: TObject);
-var q : string;
-    gcalendars : tgcalendars;
-
-        // ------------------------------------------------------
-        procedure setStatus(i : shortString);
-        begin
-          Status.Caption := i;
-          Status.refresh;
-        end;
-
-        // ------------------------------------------------------
-        procedure deleteAllCalendars;
-        var I : integer;
-        begin
-            I := 0;
-            repeat
-             try
-              if I <= GCalendars.CalendarCount - 1 then begin
-                setStatus('Usuwanie kalendarza:' + GCalendars[I].Name);
-                //info(GCalendars[I].Name + '::::' + GCalendars[I].XML);
-                GCalendars.DeleteCalendar(I);
-              end;
-             except
-              //unable to delete public celendars
-              I := I +  1;
-             end;
-            until I > GCalendars.CalendarCount - 1;
-        end;
-
-begin
-  q := 'Czy na pewno chcesz usun¹æ wszystkie kalendarze u¿ytkownika ?'+cr+
-       ''+cr+
-       ''+cr+
-       ''+cr+
-       'Co zostanie usuniête:'+cr+
-       '- wszystkie kalendarze tego u¿ytkownika. Upewnij siê, czy inni u¿ytkownicy Plansoft.org nie korzystaj¹ przypadkiem z tego samego konta Google.'+cr+
-       ''+cr+
-       'Nawet je¿eli utworzysz kalendarze i nadasz im takie same nazwy, to przestan¹ byæ one widoczne przez innych u¿ytkowników, poniewa¿ bêd¹ mia³y inne identyfikatory'+cr+
-       '(systemy u¿ytkowników wyszukuj¹ kalendarze wg identyfikatorów a nie wg nazw wyœwietlanych)'+cr+
-       ''+cr+
-       'Co nie zostanie usuniête:'+cr+
-       '- podstawowy kalendarz u¿ytkownika'+cr+
-       '- kalendarze publiczne innych u¿ytkowników';
-
-  if question(q) = id_yes then begin
-      setStatus('£¹czenie...');
-      GCalendars := TGCalendars.Create;
-      try
-        GCalendars.Connect(GoogleUser.Text, GooglePassword.Text );
-      except
-        on E:exception do begin
-             SError('B³¹d podczas ³¹czenia z Google Kalendarz. SprawdŸ poprawnoœæ nazwy u¿ytkownika, has³a oraz po³¹czenie z Internetem i spróbuj ponownie.'+CR+CR+CR+E.Message);
-             exit;
-           end;
-      end;
-      GCalendars.LoadCalendars;
-
-      deleteAllCalendars;
-      GCalendars.free;
-      setStatus('');
-      info ('Czynnoœæ usuwania kalendarzy zakoñczy³a siê pomyœlnie');
-  end;
-
-end;
-
 procedure TFWWWGenerator.BCreateClick(Sender: TObject);
 var F                : TextFile;
     t                : integer;
     ColoringIndex    : shortString;
 
+    procedure tmpLog(m : string);
+    begin
+      debugMemo.Lines.Add(m);
+    end;
+
     procedure generateGoogleCalendars;
-    var GCalendars : TGCalendars;
-        q          : tadoquery;
+    var q          : tadoquery;
 
         // ------------------------------------------------------
         procedure setStatus(i : shortString);
@@ -1540,60 +1477,36 @@ var F                : TextFile;
         end;
 
         // ------------------------------------------------------
-        procedure deleteCalendar( calendarName : string);
-        var I : integer;
-        begin
-          for I := 0 to GCalendars.CalendarCount - 1 do begin
-            //memo1.lines.Add(GCalendars.Calendars[I].Name);
-            if GCalendars.Calendars[I].Name = calendarName then begin GCalendars.DeleteCalendar(I); exit; end;
-          end;
-        end;
-
-        // ------------------------------------------------------
-        procedure clearCalendar( calendarName : string);
-        var I : integer;
-            gcal : TGCalendar;
-            progress : integer;
-        begin
-          progress := 0;
-          gcal := GCalendars.FindCalendar(calendarName);
-          if assigned(gcal) then begin
-            gcal.LoadEvents;
-            I := 0;
-            repeat
-             inc(progress);
-             try
-              if I <= gcal.EventCount - 1 then begin
-                setStatus('Usuwanie Zdarzenia:' + intToStr(progress));
-                gcal.DeleteEvent(I);
-                //gcal.Events[I].Store(true);
-              end;
-             except
-              //unable to delete event ?
-              I := I +  1;
-             end;
-            until I > gcal.EventCount - 1;
-            gcal.Store;
-          end;
-        end;
-
-
-        // ------------------------------------------------------
-        function recreateCalendar( calendarName : string) : TGCalendar;
-        var gcal  : TGCalendar;
+        procedure recreateCalendar( calendarName : string);
         begin
           setStatus('Tworzenie kalendarza: ' + calendarName);
-          clearCalendar ( calendarName );
-          gcal:= GCalendars.findCalendar( calendarName );
-          if not assigned(gcal) then begin
-            gcal:= GCalendars.NewCalendar;
-            gcal.Name := calendarName;
-            gcal.Description := 'Kalendarz zosta³ utworzony za pomoc¹ programu www.Plansoft.org'+#13#10+'Calendar has been created by www.Plansoft.org';
-            //c.CalColor := '#0D7813';
-            //info ( c.XML );
-            gcal.Store;
-          end;
-          result := gcal;
+          tmpLog('BEGIN:VCALENDAR');
+
+          tmpLog('PRODID:-//Google Inc//Google Calendar 70.9054//EN');
+          tmpLog('VERSION:2.0');
+          tmpLog('CALSCALE:GREGORIAN');
+          tmpLog('METHOD:PUBLISH');
+          tmpLog('X-WR-CALNAME:'+ calendarName);
+          tmpLog('X-WR-TIMEZONE:Europe/Warsaw');
+          tmpLog('X-WR-CALDESC:'+'Kalendarz zosta³ utworzony za pomoc¹ programu www.Plansoft.org\nCalendar has been created by www.Plansoft.org');
+          tmpLog('BEGIN:VTIMEZONE');
+          tmpLog('TZID:Europe/Warsaw');
+          tmpLog('X-LIC-LOCATION:Europe/Warsaw');
+          tmpLog('BEGIN:DAYLIGHT');
+          tmpLog('TZOFFSETFROM:+0100');
+          tmpLog('TZOFFSETTO:+0200');
+          tmpLog('TZNAME:CEST');
+          tmpLog('DTSTART:19700329T020000');
+          tmpLog('RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU');
+          tmpLog('END:DAYLIGHT');
+          tmpLog('BEGIN:STANDARD');
+          tmpLog('TZOFFSETFROM:+0200');
+          tmpLog('TZOFFSETTO:+0100');
+          tmpLog('TZNAME:CET');
+          tmpLog('DTSTART:19701025T030000');
+          tmpLog('RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU');
+          tmpLog('END:STANDARD');
+          tmpLog('END:VTIMEZONE');
         end;
 
         // ------------------------------------------------------
@@ -1635,7 +1548,7 @@ var F                : TextFile;
            if  codes[t]= 'ALL_RES'    then Token := combovalues[t] + ': ' + presources
            else token := TextOutResource ( codes[t], combovalues[t], Class_, presources);
 
-           S := Merge(S, Token, CR);
+           S := Merge(S, Token, '\n');
          End;
          result := s;
         end;
@@ -1690,22 +1603,15 @@ var F                : TextFile;
             presources : string;
             pGoogleLocations : string;
             debugString : string;
-            counter     : integer;
+            title, description, location: string;
+            timeZone : integer;
 
         begin
-          counter := 1;
+          timeZone := -2;
           If pExportChecked Then Begin
             for t := 0 to presourceList.Count - 1 do begin
               if presourceList.Checked[t] then begin
-
-
-                setStatus('Resetowanie po³¹czenia...');
-                GCalendars.Free;
-                GCalendars := TGCalendars.Create;
-                GCalendars.Connect(GoogleUser.Text, GooglePassword.Text );
-                GCalendars.LoadCalendars;
-
-                gcal := recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
+                recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
 
                 with q do begin
                   dmodule.openSQL(q, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id)'
@@ -1719,7 +1625,6 @@ var F                : TextFile;
                   First;
                   while not Eof do begin
                     //add event
-                    With gcal.NewEvent do begin
 
                      yyyy       := fieldByName('day_yyyy').AsInteger;
                      mm         := fieldByName('day_mm').AsInteger;
@@ -1731,15 +1636,11 @@ var F                : TextFile;
                      pgoogleLocations := nvl(fieldByName('google_locations').AsString,'nie dotyczy');
 
                      if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
-                       info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'PrzejdŸ do S³owniki -> Siatka godzinowa i uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
+                       info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
                        q.Free;
-                       GCalendars.Free;
                        autocreate.GRIDSShowModalAsBrowser;
                        exit;
                      end;
-
-                     StartTime := EncodeDate(yyyy, mm, dd) + EncodeTime(hh1, mm1, 0, 0);
-                     EndTime   := EncodeDate(yyyy, mm, dd) + EncodeTime(hh2, mm2, 0, 0);
 
                      if  presAlias = 'LEC' then begin
                        FMain.TabViewType.TabIndex := 0;
@@ -1761,80 +1662,33 @@ var F                : TextFile;
                                                        ,day, fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
                      location    := pgoogleLocations;
 
-                     setStatus('Dodawanie zajêcia:' +inttostr(yyyy)+'-'+ inttostr(mm)+'-'+ inttostr(dd)+' '+ inttostr(hh1)+':'+ inttostr(mm1) +' '+ title +' d:'+ description + 'l:'+ location +' ('+fieldByName('id').AsString+')');
+                     tmpLog ('BEGIN:VEVENT');
+                     tmpLog ('DTSTART:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
+                     tmpLog ('DTEND:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)+'Z');
+                     tmpLog ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
+                     tmpLog ('UID:'+fieldByName('id').AsString);
+                     tmpLog ('CLASS:PUBLIC');
+                     tmpLog ('CREATED:'+GetNowGMT(-timeZone));
+                     tmpLog ('DESCRIPTION:'+description);
+                     tmpLog ('LAST-MODIFIED:'+GetNowGMT(-timeZone));
+                     tmpLog ('LOCATION:'+location);
+                     tmpLog ('SEQUENCE:0');
+                     tmpLog ('STATUS:CONFIRMED');
+                     tmpLog ('SUMMARY:'+title);
+                     tmpLog ('TRANSP:OPAQUE');
+                     tmpLog ('END:VEVENT');
 
-                     debugString :=
-                       'StartTime=' + inttostr(yyyy)+'-'+ inttostr(mm)+'-'+ inttostr(dd)+' '+ inttostr(hh1)+':'+ inttostr(mm1)+' ' + cr+
-                       'EndTime='   + inttostr(yyyy)+'-'+ inttostr(mm)+'-'+ inttostr(dd)+' '+ inttostr(hh2)+':'+ inttostr(mm2)+' ' + cr+
-                       'title='+title+cr+
-                       'description='+description+cr+
-                       'location='+location+cr+
-                       'id='+fieldByName('id').AsString;
-                     logSQLStart ('Google Event', debugString);
-                     logSQLStop;
-
-                     Store(true);
-
-                     inc (counter);
-                     if counter = 20 then begin
-                         logSQLStart('Google Event','Before gcal.Store'); logSQLStop;
-                         gcal.Store;
-                         logSQLStart('Google Event','After gcal.Store'); logSQLStop;
-                         counter := 1;
-                     end;
-
-                    end;
-                    //--
                     Next;
                   end;
                 end;
-
-                logSQLStart('Google Event','Before gcal.Store'); logSQLStop;
-                gcal.Store;
-                logSQLStart('Google Event','After gcal.Store'); logSQLStop;
               end;
             end;
+            tmpLog ('END:VCALENDAR');
           end;
         end;
 
-        procedure test;
-        var gcal : tgcalendar;
-        begin
-          TabSheetDebug.TabVisible := true;
-          gcal := GCalendars.FindCalendar('Grupa C11');
-          debugMemo.Lines.Add(gcal.Name);
-          debugMemo.Lines.Add(gcal.href);
-          debugMemo.Lines.Add('-----------------------------------------------------------');
-          //gcal.LoadEvents;
-          //for i := 0 to gcal.EventCount -1 do begin
-          //  gevt := gcal.Events[i];
-          //  debugMemo.Lines.Add(gevt.Title);
-          //  debugMemo.Lines.Add(gevt.XML);
-          //  debugMemo.Lines.Add('-----------------------------------------------------------');
-          //end;
-        end;
-
     begin
-      {to do
-         class - colour
-         umiesc informacje na stronie !
-         calendar - color
-         class - reminders. Do reminders from shared calendar affect on me ?
-         export to csv
-         rezerwacje ! , preferencje, pobieranie preferencji z kalendarzy wykladowcow !
-      }
-
-      setStatus('£¹czenie...');
-      GCalendars := TGCalendars.Create;
-      try
-        GCalendars.Connect(GoogleUser.Text, GooglePassword.Text );
-      except
-        on E:exception do begin
-             SError('B³¹d podczas ³¹czenia z Google Kalendarz. SprawdŸ poprawnoœæ nazwy u¿ytkownika, has³a oraz po³¹czenie z Internetem i spróbuj ponownie.'+CR+CR+CR+E.Message);
-             exit;
-           end;
-      end;
-      GCalendars.LoadCalendars;
+      debugMemo.Lines.clear;
 
       q := tadoquery.Create(self);
 
@@ -1851,7 +1705,6 @@ var F                : TextFile;
 
       setStatus('');
       q.Free;
-      GCalendars.Free;
     end;
 
     Var fileExt : string;
@@ -1865,7 +1718,7 @@ begin
       end;
 
   if genType.ItemIndex =1 then begin
-    if not elementEnabled('"Eksport do Google Kalendarz"','2012.09.22', false) then exit;
+    if not elementEnabled('"Eksport do Google Kalendarz"','2016.10.20', false) then exit;
     if (GoogleUser.Text='') or (GooglePassword.Text='') then begin
       info('Podanie nazwy u¿ytkownika oraz has³a jest wymagane. Je¿eli nie masz u¿ytkownika, to wejdŸ na stronê https://www.google.pl/ i zarejestruj siê');
       exit;

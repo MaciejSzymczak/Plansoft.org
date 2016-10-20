@@ -5,3 +5,5 @@ exe/plansoft.org/UFMain.~dfm
 exe/plansoft.org/UFMain.~pas
 *.~dpr
 *.exe
+*.exe
+*.dcu
