@@ -61,8 +61,6 @@ type
     DoNotGenerateTableOfCon: TCheckBox;
     sqlHolder: TMemo;
     GoogleSavePassword: TCheckBox;
-    TabSheetDebug: TTabSheet;
-    debugMemo: TMemo;
     BGoogleDeleteAll: TBitBtn;
     SaveDialog: TSaveDialog;
     bcreatepopup: TSpeedButton;
@@ -597,22 +595,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
       exeName := ApplicationDir+'\wkhtmltopdf.exe';
       pdfFileName := searchAndreplace(filename,'.htm','.pdf');
 
-      {
-      //!!!tests.delete this code
-      if fsettings.Debug.Checked then begin
-        if fileExists(pdfFileName) then begin
-          info('Plik "'+pdfFileName+'" istnieje i zostanie skasowany');
-          deletefile(pdfFileName);
-        end else
-          info('OK. Plik "'+pdfFileName+'" NIE istnieje i zostanie zaraz utworzony');
-        if fileExists(pdfFileName) then begin
-          info('Plik NADAL "'+pdfFileName+'" istnieje i zostanie skasowany');
-          deletefile(pdfFileName);
-        end else
-        info('OK. Plik "'+pdfFileName+'" NIE istnieje i zostanie zaraz utworzony');
-      End;
-      }
-
       parameters := '"'+filename+'" "'+ pdfFileName +'"';
       if pdfg then parameters := '-g ' + parameters;
       if pdfl then parameters := '-l ' + parameters;
@@ -622,32 +604,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
       {if not fsettings.Debug.Checked then}
       //ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
       executeFileAndWait(exeName+' '+parameters);
-      {
-      //!!!tests.delete this code
-      if fsettings.Debug.Checked then begin
-        i := ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_MAXIMIZE);
-        info('Rezultat: ' + inttostr(i));
-        //!!!tests.delete this code
-        if fileExists(pdfFileName) then begin
-          info('Plik "'+pdfFileName+'" zosta³ utworzony');
-        end else begin
-          info('Plik "'+pdfFileName+'" nie zosta³ utworzony (!), próbujê ponownie');
-          ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
-          if fileExists(pdfFileName) then begin
-            info('Plik "'+pdfFileName+'" zosta³ utworzony');
-          end else begin
-            info('Plik "'+pdfFileName+'" nie zosta³ utworzony (!), próbujê ponownie');
-            ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
-            if fileExists(pdfFileName) then begin
-              info('Plik "'+pdfFileName+'" zosta³ utworzony');
-            end else begin
-              info('Plik "'+pdfFileName+'" nie zosta³ utworzony (!), próbujê ponownie');
-              ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
-            end;
-          end;
-        end;
-      End;
-      }
 
     end;
 
@@ -1433,18 +1389,18 @@ end;
 
 procedure TFWWWGenerator.genTypeChange(Sender: TObject);
 begin
+  tsWWW.TabVisible := true;
+  tsGoogle.TabVisible := false;
+
   case genType.ItemIndex of
    0: begin
-        tsWWW.TabVisible := true;
-        tsGoogle.TabVisible := false;
         FWWWGenerator.Caption := 'Tworzenie witryny www';
       end;
    1: begin
-        tsWWW.TabVisible := false;
-        tsGoogle.TabVisible := true;
-        FWWWGenerator.Caption := 'Eksport do Google Kalendarz';
+        FWWWGenerator.Caption := 'Eksport do iKalendarz';
       end;
   end;
+
   tabsheet2.TabVisible  := genType.ItemIndex =0;
   tabsheet3.TabVisible  := genType.ItemIndex =0;
 end;
@@ -1457,17 +1413,19 @@ begin
 end;
 
 procedure TFWWWGenerator.BCreateClick(Sender: TObject);
-var F                : TextFile;
-    t                : integer;
+var t                : integer;
     ColoringIndex    : shortString;
 
-    procedure tmpLog(m : string);
-    begin
-      debugMemo.Lines.Add(m);
-    end;
 
-    procedure generateGoogleCalendars;
-    var q          : tadoquery;
+    procedure generateIcsCalendars;
+    var q : tadoquery;
+        outf : textFile;
+
+        // ------------------------------------------------------
+       procedure write(m : string);
+       begin
+          WriteLn(outf, m);
+        end;
 
         // ------------------------------------------------------
         procedure setStatus(i : shortString);
@@ -1476,37 +1434,105 @@ var F                : TextFile;
           Status.refresh;
         end;
 
+        procedure tableOfContens;
+        var t : integer;
+            f : textFile;
+        begin
+          AssignFile(F, Folder.Text+'\layout.xslt');
+          Rewrite(F);
+          WriteLn(f,
+             replace(
+               replace(xslt.Lines.Text
+                 ,'%R1.', fprogramsettings.profileObjectNameLs.Text)
+               ,'%R2.', fprogramsettings.profileObjectNameGs.Text)
+          );
+          CloseFile(F);
+
+          assignFile(F, Folder.Text+'\menu.css');
+          Rewrite(F);
+          WriteLn(f, css.Lines.Text);
+          CloseFile(F);
+
+          if DoNotGenerateTableOfCon.Checked then   AssignFile(F, Folder.Text+'\eraseme.htm')
+                                             else   AssignFile(F, Folder.Text+'\index.xml');
+          Rewrite(F);
+          WriteLn(f, '<?xml version="1.0" encoding="windows-1250"?>');
+          WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
+          WriteLn(f, '<xml>');
+          WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
+          WriteLn(f, '<period name="'+XMLescapeChars(fmain.CONPERIOD_VALUE.Text)+'"></period>');
+          WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
+          WriteLn(f, '<data>');
+             If Groups.Checked Then Begin
+               for t := 0 to GList.Count - 1 do begin
+                 if GList.Checked[t] then begin
+                   WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
+                 end;
+               end;
+             end;
+             If lecturers.Checked Then Begin
+               for t := 0 to LList.Count - 1 do begin
+                 if LList.Checked[t] then begin
+                   WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
+                 end;
+               end;
+             end;
+              If Resources.Checked Then Begin
+               for t := 0 to RList.Count - 1 do begin
+                 if RList.Checked[t] then begin
+                   WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
+                 end;
+               end;
+              end;
+          WriteLn(f, '</data>');
+          WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
+          WriteLn(f, '<extraText text="Plik iKalendarza mog¹ byæ otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar"></extraText>');
+          WriteLn(f, '<href1 href="https://support.google.com/calendar/answer/37118?hl=pl" text="Kliknij w ten link aby dowiedzieæ siê jak zaimportowaæ rozk³ad zajêæ do Google Kalendarza"  ></href1>');
+          WriteLn(f, '<href2 href="http://calendar.zoznam.sk/icalendar/ical-pl.php" text="Kliknij w ten link aby dowiedzieæ siê jeszcze wiêcej na temat iKalendarzy"  ></href2>');
+
+
+          WriteLn(f, '</xml>');
+
+          flush(f);
+          CloseFile(F);
+          if not fmain.silentMode then begin
+              if defaultBrowserIsChrome then
+                  info('Je¿eli u¿ywasz przegl¹darki Chrome, to zobaczysz bia³y ekran zamiast spisu treœci. Aby wyœwietliæ spis treœci otwórz plik w innej przegl¹darce lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+              uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
+          end;
+        end;
+
         // ------------------------------------------------------
         procedure recreateCalendar( calendarName : string);
         begin
           setStatus('Tworzenie kalendarza: ' + calendarName);
-          tmpLog('BEGIN:VCALENDAR');
+          write('BEGIN:VCALENDAR');
 
-          tmpLog('PRODID:-//Google Inc//Google Calendar 70.9054//EN');
-          tmpLog('VERSION:2.0');
-          tmpLog('CALSCALE:GREGORIAN');
-          tmpLog('METHOD:PUBLISH');
-          tmpLog('X-WR-CALNAME:'+ calendarName);
-          tmpLog('X-WR-TIMEZONE:Europe/Warsaw');
-          tmpLog('X-WR-CALDESC:'+'Kalendarz zosta³ utworzony za pomoc¹ programu www.Plansoft.org\nCalendar has been created by www.Plansoft.org');
-          tmpLog('BEGIN:VTIMEZONE');
-          tmpLog('TZID:Europe/Warsaw');
-          tmpLog('X-LIC-LOCATION:Europe/Warsaw');
-          tmpLog('BEGIN:DAYLIGHT');
-          tmpLog('TZOFFSETFROM:+0100');
-          tmpLog('TZOFFSETTO:+0200');
-          tmpLog('TZNAME:CEST');
-          tmpLog('DTSTART:19700329T020000');
-          tmpLog('RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU');
-          tmpLog('END:DAYLIGHT');
-          tmpLog('BEGIN:STANDARD');
-          tmpLog('TZOFFSETFROM:+0200');
-          tmpLog('TZOFFSETTO:+0100');
-          tmpLog('TZNAME:CET');
-          tmpLog('DTSTART:19701025T030000');
-          tmpLog('RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU');
-          tmpLog('END:STANDARD');
-          tmpLog('END:VTIMEZONE');
+          write('PRODID:-//Google Inc//Google Calendar 70.9054//EN');
+          write('VERSION:2.0');
+          write('CALSCALE:GREGORIAN');
+          write('METHOD:PUBLISH');
+          write('X-WR-CALNAME:'+ calendarName);
+          write('X-WR-TIMEZONE:Europe/Warsaw');
+          write('X-WR-CALDESC:'+'Kalendarz zosta³ utworzony za pomoc¹ programu www.Plansoft.org\nCalendar has been created by www.Plansoft.org');
+          write('BEGIN:VTIMEZONE');
+          write('TZID:Europe/Warsaw');
+          write('X-LIC-LOCATION:Europe/Warsaw');
+          write('BEGIN:DAYLIGHT');
+          write('TZOFFSETFROM:+0100');
+          write('TZOFFSETTO:+0200');
+          write('TZNAME:CEST');
+          write('DTSTART:19700329T020000');
+          write('RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU');
+          write('END:DAYLIGHT');
+          write('BEGIN:STANDARD');
+          write('TZOFFSETFROM:+0200');
+          write('TZOFFSETTO:+0100');
+          write('TZNAME:CET');
+          write('DTSTART:19701025T030000');
+          write('RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU');
+          write('END:STANDARD');
+          write('END:VTIMEZONE');
         end;
 
         // ------------------------------------------------------
@@ -1588,9 +1614,40 @@ var F                : TextFile;
         end;
 
         // ------------------------------------------------------
+        function getEventColor(pcolor : shortString; pTS : TTimeStamp; pZajecia: Integer; lcolor, gcolor, rcolor : integer) : string;
+        var Token  : integer;
+            Status : Integer;
+            Class_ : TClass_;
+        begin
+          Case fmain.TabViewType.TabIndex Of
+           0: Begin fmain.ClassByLecturerCaches.GetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
+           1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
+           2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
+           3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
+          End;
+
+           token := 0;
+           if  pcolor= 'L'          then Token := lcolor        else
+           if  pcolor= 'G'          then Token := gcolor           else
+           if  pcolor= 'S'          then Token := class_.sub_colour  else
+           if  pcolor= 'F'          then Token := class_.for_colour   else
+           if  pcolor= 'OWNER'      then Token := class_.owner_colour      else
+           if  pcolor= 'CREATED_BY' then Token := class_.creator_colour else
+           if  pcolor= 'NONE'       then {}                         else
+           if  pcolor= 'DESC1'      then Token := iif(strIsEmpty(Class_.desc1),clRed,clSilver)      else
+           if  pcolor= 'DESC2'      then Token := iif(strIsEmpty(Class_.desc2),clRed,clSilver)      else
+           if  pcolor= 'DESC3'      then Token := iif(strIsEmpty(Class_.desc3),clRed,clSilver)      else
+           if  pcolor= 'DESC4'      then Token := iif(strIsEmpty(Class_.desc4),clRed,clSilver)      else
+           if  pcolor= 'ALL_RES'    then Token := rcolor;
+
+         result := DelphiColourToHTML(token);
+        end;
+
+        // ------------------------------------------------------
         procedure GoogleExport ( pExportChecked : boolean;
                                  presourceList : TCheckListBox;
                                  presourceName, presAlias : shortString;
+                                 pcolor: shortstring;
                                  pcode: shortstring;
                                  pcodes, pcombovalues : array of shortString);
         var t          : integer;
@@ -1603,14 +1660,18 @@ var F                : TextFile;
             presources : string;
             pGoogleLocations : string;
             debugString : string;
-            title, description, location: string;
+            title, description, location, ecolor: string;
             timeZone : integer;
+            lcolor, gcolor, rcolor : integer;
 
         begin
           timeZone := -2;
           If pExportChecked Then Begin
             for t := 0 to presourceList.Count - 1 do begin
               if presourceList.Checked[t] then begin
+
+                AssignFile(outf, Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
+                Rewrite(outf);
                 recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
 
                 with q do begin
@@ -1633,7 +1694,10 @@ var F                : TextFile;
                      plecturers := fieldByName('lecturers').AsString;
                      pgroups    := fieldByName('groups').AsString;
                      presources := fieldByName('resources').AsString;
-                     pgoogleLocations := nvl(fieldByName('google_locations').AsString,'nie dotyczy');
+                     lcolor     := fieldByName('lcolor').AsInteger;
+                     gcolor     := fieldByName('gcolor').AsInteger;
+                     rcolor     := fieldByName('rcolor').AsInteger;
+                     pgoogleLocations := fieldByName('google_locations').AsString;
 
                      if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
                        info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
@@ -1654,52 +1718,54 @@ var F                : TextFile;
                        FMain.TabViewType.TabIndex := 2;
                        FMain.conResCat0.Text        := inttostr(integer( presourceList.Items.Objects[t]));
                      end;
-                     FMain.Refresh;
 
+                     ecolor       := getEventColor     (pcolor, day , fieldByName('Hour').AsInteger, lcolor, gcolor, rcolor);
                      title       := getEventTitle      (pcode, day , fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
                      description := getEventDescription(pcodes
                                                        ,pcomboValues
                                                        ,day, fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
                      location    := pgoogleLocations;
 
-                     tmpLog ('BEGIN:VEVENT');
-                     tmpLog ('DTSTART:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
-                     tmpLog ('DTEND:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)+'Z');
-                     tmpLog ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
-                     tmpLog ('UID:'+fieldByName('id').AsString);
-                     tmpLog ('CLASS:PUBLIC');
-                     tmpLog ('CREATED:'+GetNowGMT(-timeZone));
-                     tmpLog ('DESCRIPTION:'+description);
-                     tmpLog ('LAST-MODIFIED:'+GetNowGMT(-timeZone));
-                     tmpLog ('LOCATION:'+location);
-                     tmpLog ('SEQUENCE:0');
-                     tmpLog ('STATUS:CONFIRMED');
-                     tmpLog ('SUMMARY:'+title);
-                     tmpLog ('TRANSP:OPAQUE');
-                     tmpLog ('END:VEVENT');
+                     write ('BEGIN:VEVENT');
+                     write ('DTSTART:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
+                     write ('DTEND:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)+'Z');
+                     write ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
+                     write ('UID:'+fieldByName('id').AsString);
+                     write ('CLASS:PUBLIC');
+                     write ('CREATED:'+GetNowGMT(-timeZone));
+                     write ('DESCRIPTION:'+description);
+                     write ('LAST-MODIFIED:'+GetNowGMT(-timeZone));
+                     write ('LOCATION:'+location);
+                     write ('SEQUENCE:0');
+                     write ('STATUS:CONFIRMED');
+                     write ('SUMMARY:'+title);
+                     write ('TRANSP:OPAQUE');
+                     //write ('CATEGORIES:Kategoria czerwona');
+                     write ('COLOR:'+ecolor);
+                     write ('END:VEVENT');
 
                     Next;
                   end;
                 end;
+                write ('END:VCALENDAR');
+                flush(outf);
+                CloseFile(outf);
               end;
             end;
-            tmpLog ('END:VCALENDAR');
           end;
         end;
 
     begin
-      debugMemo.Lines.clear;
-
       q := tadoquery.Create(self);
 
       if (getCode (FSettings.GD1)='NONE') or (getCode (FSettings.RD1)='NONE') or (getCode (FSettings.LD1)='NONE') then
-          info ('Przed uruchomieniem eksportu danych uruchom Ustawienia i zdefiniuj jakie dane powinny zostaæ wys³ane do Google Kalendarz')
+          info ('Przed uruchomieniem eksportu danych uruchom Ustawienia i zdefiniuj jakie dane powinny zostaæ wys³ane do iKalendarz')
       else begin
           with FSettings Do begin
-            googleExport ( Groups.Checked    , GList , fprogramsettings.profileObjectNameG.Text  , 'GRO', getCode (GD1),  [ getCode (GD2),getCode (GD3),getCode (GD4),getCode (GD5) ], [ getValue(GD2),getValue(GD3),getValue(GD4),getValue(GD5) ] );
-            googleExport ( Resources.Checked , RList , 'Zasób'                                   , 'ROM', getCode (RD1),  [ getCode (RD2),getCode (RD3),getCode (RD4),getCode (RD5) ], [ getValue(RD2),getValue(RD3),getValue(RD4),getValue(RD5) ] );
-            googleExport ( Lecturers.Checked , LList , fprogramsettings.profileObjectNameL.Text  , 'LEC', getCode (LD1),  [ getCode (LD2),getCode (LD3),getCode (LD4),getCode (LD5) ], [ getValue(LD2),getValue(LD3),getValue(LD4),getValue(LD5) ] );
-            info('Zrobione');
+            googleExport ( Groups.Checked    , GList , fprogramsettings.profileObjectNameG.Text  , 'GRO', getCode(GViewType), getCode (GD1),  [ getCode (GD2),getCode (GD3),getCode (GD4),getCode (GD5) ], [ getValue(GD2),getValue(GD3),getValue(GD4),getValue(GD5) ] );
+            googleExport ( Resources.Checked , RList , 'Zasób'                                   , 'ROM', getCode(RViewType), getCode (RD1),  [ getCode (RD2),getCode (RD3),getCode (RD4),getCode (RD5) ], [ getValue(RD2),getValue(RD3),getValue(RD4),getValue(RD5) ] );
+            googleExport ( Lecturers.Checked , LList , fprogramsettings.profileObjectNameL.Text  , 'LEC', getCode(LViewType), getCode (LD1),  [ getCode (LD2),getCode (LD3),getCode (LD4),getCode (LD5) ], [ getValue(LD2),getValue(LD3),getValue(LD4),getValue(LD5) ] );
+            tableOfContens;
           end;
       end;
 
@@ -1707,43 +1773,26 @@ var F                : TextFile;
       q.Free;
     end;
 
-    Var fileExt : string;
-
-begin
-  if not settingsLoaded then
-      with fsettings do begin
-          Show;
-          BOKClick(nil);
-          Close;
-      end;
-
-  if genType.ItemIndex =1 then begin
-    if not elementEnabled('"Eksport do Google Kalendarz"','2016.10.20', false) then exit;
-    if (GoogleUser.Text='') or (GooglePassword.Text='') then begin
-      info('Podanie nazwy u¿ytkownika oraz has³a jest wymagane. Je¿eli nie masz u¿ytkownika, to wejdŸ na stronê https://www.google.pl/ i zarejestruj siê');
-      exit;
-    end;
-  end;
-
-  case genType.ItemIndex of
-   // www web page
-   0:begin
-      ForceDirectories(Folder.Text);
-
-      AssignFile(F, Folder.Text+'\layout.xslt');
-      Rewrite(F);
+    // ------------------------------------------------------
+    procedure generateWebPage;
+      Var fileExt : string;
+          f : textFile;
+          t : integer;
+    begin
+      AssignFile(f, Folder.Text+'\layout.xslt');
+      Rewrite(f);
       WriteLn(f,
          replace(
            replace(xslt.Lines.Text
              ,'%R1.', fprogramsettings.profileObjectNameLs.Text)
            ,'%R2.', fprogramsettings.profileObjectNameGs.Text)
       );
-      CloseFile(F);
+      CloseFile(f);
 
-      assignFile(F, Folder.Text+'\menu.css');
-      Rewrite(F);
+      assignFile(f, Folder.Text+'\menu.css');
+      Rewrite(f);
       WriteLn(f, css.Lines.Text);
-      CloseFile(F);
+      CloseFile(f);
 
       if DoNotGenerateTableOfCon.Checked then   AssignFile(F, Folder.Text+'\eraseme.htm')
                                          else   AssignFile(F, Folder.Text+'\index.xml');
@@ -1752,14 +1801,14 @@ begin
       WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
       WriteLn(f, '<xml>');
       WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-      WriteLn(f, '<period name="'+replaceXMLchars(fmain.CONPERIOD_VALUE.Text)+'"></period>');
-      WriteLn(f, '<description text="'+replaceXMLchars(AddText.Text)+'"></description>');
+      WriteLn(f, '<period name="'+XMLescapeChars(fmain.CONPERIOD_VALUE.Text)+'"></period>');
+      WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
       WriteLn(f, '<data>');
          If Groups.Checked Then Begin
            fileExt := iif(FSettings.GPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
-               WriteLn(F, '  <gro href="'+replaceXMLchars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+replaceXMLchars(GList.Items[t])+'"/>');
+               WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
                FMain.TabViewType.TabIndex := 1;
                FMain.ConGroup.Text    := inttostr(integer(GList.Items.Objects[t]));
                FMain.BRefreshClick(nil);
@@ -1772,7 +1821,7 @@ begin
            fileExt := iif(FSettings.LPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
-               WriteLn(F, '  <lec href="'+replaceXMLchars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+replaceXMLchars(LList.Items[t])+'"/>');
+               WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                FMain.TabViewType.TabIndex := 0;
                FMain.ConLecturer.Text    := inttostr(integer(LList.Items.Objects[t]));
                FMain.BRefreshClick(nil);
@@ -1785,7 +1834,7 @@ begin
            fileExt := iif(FSettings.RPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
-               WriteLn(F, '  <res href="'+replaceXMLchars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+replaceXMLchars(RList.Items[t])+'"/>');
+               WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
                FMain.TabViewType.TabIndex := 2;
                FMain.conResCat0.Text    := inttostr(integer(RList.Items.Objects[t]));
                FMain.BRefreshClick(nil);
@@ -1809,10 +1858,26 @@ begin
               info('Je¿eli u¿ywasz przegl¹darki Chrome, to zobaczysz bia³y ekran zamiast spisu treœci. Aby wyœwietliæ spis treœci otwórz plik w innej przegl¹darce lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
           uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
       end;
+    End;
+
+begin
+  if not settingsLoaded then
+      with fsettings do begin
+          Show;
+          BOKClick(nil);
+          Close;
+      end;
+
+  ForceDirectories(Folder.Text);
+  case genType.ItemIndex of
+   0:generateWebPage;
+   1:begin
+       //if (GoogleUser.Text='') or (GooglePassword.Text='') then begin
+       //  info('Podanie nazwy u¿ytkownika oraz has³a jest wymagane. Je¿eli nie masz u¿ytkownika, to wejdŸ na stronê https://www.google.pl/ i zarejestruj siê');
+       //  exit;
+       //end;
+       generateIcsCalendars;
      end;
-   //------------------------------------------------------------------------------------------------
-   // google calendar
-   1:generateGoogleCalendars;
   end;
 end;
 
@@ -1902,6 +1967,9 @@ begin
     LAddCreationDate.Visible   := genType.ItemIndex =0;
     LRepeatMonthNames.Visible  := genType.ItemIndex =0;
     LHideEmptyRows.Visible     := genType.ItemIndex =0;
+    LHideEmptyRowsB.Visible     := genType.ItemIndex =0;
+    GHideEmptyRowsB.Visible     := genType.ItemIndex =0;
+    RHideEmptyRowsB.Visible     := genType.ItemIndex =0;
     Ltransposition.Visible       := genType.ItemIndex =0;
     lVerticalLines.visible     := genType.ItemIndex =0;
     lspanEmptyCells.Visible    := genType.ItemIndex =0;
@@ -1986,9 +2054,9 @@ begin
     RB4.Visible     := genType.ItemIndex =0;
     RB5.Visible     := genType.ItemIndex =0;
 
-    LViewTypeGroup.Visible     := genType.ItemIndex =0;
-    GViewTypeGroup.Visible     := genType.ItemIndex =0;
-    RViewTypeGroup.Visible     := genType.ItemIndex =0;
+    //LViewTypeGroup.Visible     := genType.ItemIndex =0;
+    //GViewTypeGroup.Visible     := genType.ItemIndex =0;
+    //RViewTypeGroup.Visible     := genType.ItemIndex =0;
 
     label12.Caption := iif(genType.ItemIndex =0, 'Zawartoœæ             Wielk.  Pogr.','Zawartoœæ');
     label13.Caption := iif(genType.ItemIndex =0, 'Zawartoœæ             Wielk.  Pogr.','Zawartoœæ');
@@ -2015,6 +2083,10 @@ begin
     LDescGroup.Left := iif(genType.ItemIndex =0, 1, 290);
     GDescGroup.Left := iif(genType.ItemIndex =0, 1, 290);
     RDescGroup.Left := iif(genType.ItemIndex =0, 1, 290);
+
+    LViewTypeGroup.Left := iif(genType.ItemIndex =0, 1, 290);
+    GViewTypeGroup.Left := iif(genType.ItemIndex =0, 1, 290);
+    RViewTypeGroup.Left := iif(genType.ItemIndex =0, 1, 290);
 
     ShowModal;
 
@@ -2062,24 +2134,6 @@ begin
     gnotes_after.Visible       := true;
     rnotes_before.Visible      := true;
     rnotes_after.Visible       := true;
-    LPdfPrintOut.Visible       := true;
-    gPdfPrintOut.Visible       := true;
-    rPdfPrintOut.Visible       := true;
-
-    lpdfg.visible      := (LPdfPrintOut.Checked);
-    lpdfl.visible      := (LPdfPrintOut.Checked);
-    lpdfo.visible      := (LPdfPrintOut.Checked);
-    lpdfs.visible      := (LPdfPrintOut.Checked);
-
-    gpdfg.visible      := (gPdfPrintOut.Checked);
-    gpdfl.visible      := (gPdfPrintOut.Checked);
-    gpdfo.visible      := (GPdfPrintOut.Checked);
-    gpdfs.visible      := (gPdfPrintOut.Checked);
-
-    rpdfg.visible      := (rPdfPrintOut.Checked);
-    rpdfl.visible      := (rPdfPrintOut.Checked);
-    rpdfo.visible      := (rPdfPrintOut.Checked);
-    rpdfs.visible      := (rPdfPrintOut.Checked);
 
     ghelp.Visible              := true;
     rhelp.Visible              := true;

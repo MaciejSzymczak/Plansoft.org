@@ -2721,11 +2721,6 @@ begin
       Exit;
    End;
 
-   //if CheckBox1.Checked then begin
-   //Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top, inttostr(ACol) + ' ' + inttostr(ARow) );
-   //exit;
-   //end;
-
    Case convertGrid.ColRowToDate(AObjectId, TS, Zajecia, ACol, ARow) Of
     //ConvDayOfWeek:   If Zajecia=0 Then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,NumToDayOfWeek(ARow div (ConvertDateColRow.MaxIloscGodzin+1))+DateTimeToStr(TimeStampToDateTime(TS)));
     ConvDayOfWeek   :if TS.Date<>-1 then if Zajecia=0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);

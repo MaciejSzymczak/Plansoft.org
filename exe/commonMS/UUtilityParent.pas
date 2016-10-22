@@ -43,7 +43,7 @@ function defaultBrowserIsChrome : boolean;
 
 //zmienia niedozwolone znaki XML na kody
 //wiêcej na ten temat w Wikipedii i http://www.kurshtml.boo.pl/generatory/unicode.html
-function replaceXMLchars (buffer : string) : string;
+function XMLescapeChars (buffer : string) : string;
 
 function UnixExtractFileName ( s : string) : string;
 function UnixExtractFileDir ( s : string) : string;
@@ -1728,7 +1728,7 @@ begin
  CloseFile(f);
 end;
 
-function replaceXMLchars (buffer : string) : string;
+function XMLescapeChars (buffer : string) : string;
 begin
  result := replace(replace(replace(replace(replace(buffer , '&', '&amp;'), '>', '&gt;'), '<', '&lt;'), '''', '&apos;'), '"', '&quot;');
 end;

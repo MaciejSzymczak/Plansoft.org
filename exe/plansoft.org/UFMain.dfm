@@ -7752,7 +7752,7 @@ inherited FMain: TFMain
         OnClick = UtwrzwitrynWWW1Click
       end
       object EksportujdoGoogleKalendarz1: TMenuItem
-        Caption = 'Eksportuj do Google Kalendarz'
+        Caption = 'Eksportuj do iKalendarz'
         OnClick = EksportujdoGoogleKalendarz1Click
       end
       object MapaGooglezzasobami1: TMenuItem
@@ -10145,8 +10145,8 @@ inherited FMain: TFMain
     end
   end
   object wwwPopup: TPopupMenu
-    Left = 888
-    Top = 16
+    Left = 1360
+    Top = 24
     object Szybkipodgld1: TMenuItem
       Caption = 'Szybki podgl'#261'd'
       OnClick = Szybkipodgld1Click
@@ -10156,7 +10156,7 @@ inherited FMain: TFMain
       OnClick = Utwrzwitrynwww2Click
     end
     object EksportujdoGoogleKalendarz2: TMenuItem
-      Caption = 'Eksportuj do Google Kalendarz'
+      Caption = 'Eksportuj do iKalendarz'
       OnClick = EksportujdoGoogleKalendarz2Click
     end
     object MapaGooglezzasobami3: TMenuItem

@@ -491,8 +491,7 @@ begin
   //  'Warto zaznaczyæ, ¿e je¿eli podamy miejsce prowadzenia zajêæ w sposób naturalny ( miejscowoœæ, ulica ), to miejsce'+cr+
   //  'równie¿ zostanie pokazane na mapie po wyeksportowaniu danych do Google Kalendarz');
 
-  copyToClipboard('http://gmaps-samples-v3.googlecode.com/svn/trunk/geocoder/getlatlng.html');
-  //http://www.latlong.net/
+  copyToClipboard('http://www.latlong.net/');
 end;
 
 procedure TFBrowseROOMS.google_locationEnter(Sender: TObject);
