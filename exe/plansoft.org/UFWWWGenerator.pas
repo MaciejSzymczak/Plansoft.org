@@ -590,7 +590,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
     Var parameters : String;
         exeName : String;
         pdfFileName : String;
-        i : integer;
     begin
       exeName := ApplicationDir+'\wkhtmltopdf.exe';
       pdfFileName := searchAndreplace(filename,'.htm','.pdf');
@@ -1424,7 +1423,7 @@ var t                : integer;
         // ------------------------------------------------------
        procedure write(m : string);
        begin
-          WriteLn(outf, m);
+          WriteLn(outf, UTF8Encode(m));
         end;
 
         // ------------------------------------------------------
@@ -1660,12 +1659,12 @@ var t                : integer;
             presources : string;
             pGoogleLocations : string;
             debugString : string;
-            title, description, location, ecolor: string;
+            id, title, description, location, ecolor: string;
             timeZone : integer;
             lcolor, gcolor, rcolor : integer;
 
         begin
-          timeZone := -2;
+          timeZone := 0;
           If pExportChecked Then Begin
             for t := 0 to presourceList.Count - 1 do begin
               if presourceList.Checked[t] then begin
@@ -1698,6 +1697,7 @@ var t                : integer;
                      gcolor     := fieldByName('gcolor').AsInteger;
                      rcolor     := fieldByName('rcolor').AsInteger;
                      pgoogleLocations := fieldByName('google_locations').AsString;
+                     id         := fieldByName('Id').AsString;
 
                      if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
                        info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
@@ -1727,9 +1727,9 @@ var t                : integer;
                      location    := pgoogleLocations;
 
                      write ('BEGIN:VEVENT');
-                     write ('DTSTART:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
-                     write ('DTEND:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)+'Z');
-                     write ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)+'Z');
+                     write ('DTSTART:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)); //+'Z' local time, no GMT
+                     write ('DTEND:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)); //+'Z'
+                     write ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)); //+'Z'
                      write ('UID:'+fieldByName('id').AsString);
                      write ('CLASS:PUBLIC');
                      write ('CREATED:'+GetNowGMT(-timeZone));
@@ -1742,6 +1742,7 @@ var t                : integer;
                      write ('TRANSP:OPAQUE');
                      //write ('CATEGORIES:Kategoria czerwona');
                      write ('COLOR:'+ecolor);
+                     write ('INTERNALID:'+Id);
                      write ('END:VEVENT');
 
                     Next;
