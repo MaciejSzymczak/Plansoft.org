@@ -5,7 +5,6 @@ exe/plansoft.org/UFMain.~dfm
 exe/plansoft.org/UFMain.~pas
 *.~dpr
 *.exe
-*.exe
 *.dcu
 exe/plansoft.org/planowanie.exe
 *.exe

@@ -1573,7 +1573,7 @@ var t                : integer;
            if  codes[t]= 'ALL_RES'    then Token := combovalues[t] + ': ' + presources
            else token := TextOutResource ( codes[t], combovalues[t], Class_, presources);
 
-           S := Merge(S, Token, '\n');
+           S := Merge(S, Token, '\r\n');
          End;
          result := s;
         end;
