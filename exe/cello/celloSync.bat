@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar cello.jar C:\\Users\\Maciek\\client_secrets.json uploadIcs C:\\Users\\Maciek\\planowanie\\documents\\Semestry

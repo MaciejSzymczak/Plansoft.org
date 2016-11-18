@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar cello.jar C:\\Users\\Maciek\\Desktop\\tests\\client_secrets.json deleteCalendars
