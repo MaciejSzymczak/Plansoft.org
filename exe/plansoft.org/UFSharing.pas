@@ -74,7 +74,7 @@ procedure TFSharing.init(cruid, resourceType, resourceId, resourceDsp : string);
 
 begin
    if cruid = 'U' then begin
-       if not elementEnabled('"Dostêp do rekordów"','2016.10.05', false) then begin exit; end;
+       if not elementEnabled('"Dostêp do rekordów"','2016.12.05', false) then begin exit; end;
        if (Fmain.MapPlanners.cnt=1) then begin info('Najpierw utwórz autoryzacje lub u¿ytkownika, którym chcesz udostêpniæ rekordy'); exit; end;
    end;
 

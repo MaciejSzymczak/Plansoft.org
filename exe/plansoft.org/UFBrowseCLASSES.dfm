@@ -3,8 +3,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
   Top = 152
   Width = 1134
   Caption = 'Zaj'#281'cia'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
     Width = 1126
   end
@@ -16,8 +16,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         object Label1: TLabel [5]
           Left = 806
           Top = 8
-          Width = 181
-          Height = 14
+          Width = 222
+          Height = 16
           Caption = 'Czy zaplanowane w dniach wolnych'
         end
         object DelOrph: TBitBtn
@@ -51,7 +51,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       inherited Grid: TRxDBGrid
         Top = 225
         Width = 1118
-        Height = 276
+        Height = 266
         Columns = <
           item
             Expanded = False
@@ -280,75 +280,59 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end
           inherited conl: TEdit
             Top = 14
-            Height = 22
             OnChange = FGenericFilter1conlChange
           end
           inherited conl_value: TEdit
             Top = 14
-            Height = 22
           end
           inherited cong: TEdit
             Top = 14
-            Height = 22
             OnChange = GenericFiltercongChange
           end
           inherited cong_value: TEdit
             Top = 14
-            Height = 22
           end
           inherited conResCat0: TEdit
             Top = 14
-            Height = 22
             OnChange = GenericFilterconResCat0Change
           end
           inherited conrescat0_value: TEdit
             Top = 14
-            Height = 22
           end
           inherited conResCat1: TEdit
             Top = 14
-            Height = 22
             OnChange = GenericFilterconResCat1Change
           end
           inherited conrescat1_value: TEdit
             Top = 14
-            Height = 22
           end
           inherited cons: TEdit
             Top = 54
-            Height = 22
             OnChange = GenericFilterconsChange
           end
           inherited cons_value: TEdit
             Top = 54
-            Height = 22
           end
           inherited conf: TEdit
             Top = 54
-            Height = 22
             OnChange = GenericFilterconfChange
           end
           inherited conf_value: TEdit
             Top = 54
-            Height = 22
           end
           inherited conPeriod: TEdit
             Top = 54
-            Height = 22
             OnChange = GenericFilterconPerChange
           end
           inherited conperiod_value: TEdit
             Top = 54
-            Height = 22
           end
           inherited conPla: TEdit
             Top = 54
-            Height = 22
             OnChange = GenericFilterconPlaChange
           end
           inherited conPla_value: TEdit
             Top = 54
-            Height = 22
           end
           inherited ShowS: TEdit
             Top = 40
@@ -361,27 +345,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end
           inherited ShowPlanner: TEdit
             Top = 40
-          end
-          inherited PERFilterType: TEdit
-            Height = 22
-          end
-          inherited LFilterType: TEdit
-            Height = 22
-          end
-          inherited GFilterType: TEdit
-            Height = 22
-          end
-          inherited R0FilterType: TEdit
-            Height = 22
-          end
-          inherited SFilterType: TEdit
-            Height = 22
-          end
-          inherited FFilterType: TEdit
-            Height = 22
-          end
-          inherited R1FilterType: TEdit
-            Height = 22
           end
           inherited PERPopup: TPopupMenu
             Top = 52
@@ -454,21 +417,21 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           Align = alTop
           TabOrder = 0
           object historyLabel: TLabel
-            Left = 403
+            Left = 427
             Top = 6
-            Width = 12
-            Height = 14
+            Width = 16
+            Height = 16
             Caption = 'do'
           end
           object Label2: TLabel
             Left = 8
             Top = 6
-            Width = 73
-            Height = 14
+            Width = 95
+            Height = 16
             Caption = 'Historia zmian: '
           end
           object historyFrom: TDateEdit
-            Left = 272
+            Left = 296
             Top = 6
             Width = 121
             Height = 21
@@ -477,7 +440,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             OnChange = historyFromChange
           end
           object historyTo: TDateEdit
-            Left = 424
+            Left = 448
             Top = 6
             Width = 121
             Height = 21
@@ -486,7 +449,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             OnChange = historyToChange
           end
           object HistoryMode: TComboBox
-            Left = 85
+            Left = 109
             Top = 6
             Width = 173
             Height = 22
@@ -689,8 +652,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       object LabelID: TLabel [0]
         Left = 832
         Top = 16
-        Width = 167
-        Height = 14
+        Width = 217
+        Height = 16
         Caption = 'Kol. wpr.:........................................'
         FocusControl = _ID
         Visible = False
@@ -698,80 +661,80 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       object LabelDAY: TLabel [1]
         Left = 8
         Top = 40
-        Width = 27
-        Height = 14
+        Width = 35
+        Height = 16
         Caption = 'Dzie'#324
         FocusControl = DAY
       end
       object LabelHOUR: TLabel [2]
         Left = 8
         Top = 64
-        Width = 40
-        Height = 14
+        Width = 52
+        Height = 16
         Caption = 'Godzina'
         FocusControl = HOUR
       end
       object LabelCALC_LECTURERS: TLabel [3]
         Left = 8
         Top = 88
-        Width = 63
-        Height = 14
+        Width = 77
+        Height = 16
         Caption = 'Wyk'#322'adowcy'
         FocusControl = CALC_LECTURERS
       end
       object LabelCALC_GROUPS: TLabel [4]
         Left = 8
         Top = 112
-        Width = 30
-        Height = 14
+        Width = 39
+        Height = 16
         Caption = 'Grupy'
         FocusControl = CALC_GROUPS
       end
       object LabelCALC_ROOMS: TLabel [5]
         Left = 8
         Top = 136
-        Width = 66
-        Height = 14
+        Width = 84
+        Height = 16
         Caption = 'Sale / zasoby'
         FocusControl = CALC_ROOMS
       end
       object LabelSUB_ID: TLabel [6]
         Left = 8
         Top = 160
-        Width = 170
-        Height = 14
+        Width = 226
+        Height = 16
         Caption = 'Przedmiot:........................................'
         FocusControl = SUB_ID
       end
       object LabelFOR_ID: TLabel [7]
         Left = 8
         Top = 184
-        Width = 153
-        Height = 14
+        Width = 205
+        Height = 16
         Caption = 'Forma:........................................'
         FocusControl = FOR_ID
       end
       object LabelFILL: TLabel [8]
         Left = 8
         Top = 208
-        Width = 181
-        Height = 14
+        Width = 241
+        Height = 16
         Caption = 'Wype'#322'nienie:........................................'
         FocusControl = FILL
       end
       object LabelDESC1: TLabel [9]
         Left = 8
         Top = 232
-        Width = 154
-        Height = 14
+        Width = 205
+        Height = 16
         Caption = 'Opis 1:........................................'
         FocusControl = DESC1
       end
       object LabelDESC2: TLabel [10]
         Left = 8
         Top = 256
-        Width = 154
-        Height = 14
+        Width = 205
+        Height = 16
         Caption = 'Opis 2:........................................'
         FocusControl = DESC2
       end

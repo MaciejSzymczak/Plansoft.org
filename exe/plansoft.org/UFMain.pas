@@ -3953,6 +3953,7 @@ Function TFMain.Logon : Boolean;
 Var aUserName, aPassword, aDBName : ShortString;
     loginParamsDelivered : boolean;
     gProvider : string;
+
       procedure commandLineProcessing;
          var
             paramString : string;
@@ -4068,7 +4069,7 @@ Var aUserName, aPassword, aDBName : ShortString;
 
 begin
   inherited;
-  //configuration must be loaded before login otherwise on unseccussfull login configuration would be lost
+  //configuration must be loaded before login otherwise on unsecceussful login configuration would be lost
   LoadFormConfiguration(FCellLayout);
 
   gProvider         := GetSystemParam('Provider', 'OraOLEDB.Oracle.1');
@@ -4130,6 +4131,14 @@ begin
 
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
+
+  try
+  if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
+     info('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
+  except
+    on E:exception  do
+      info('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
+  End;
 
   If Not Assigned(FLegend) Then FLegend := TFLegend.Create(Application);
   dmodule.pResCatId0 := nvl( getSystemParam('RESOURCE_CATEGORY_ID0')  , dmodule.dbgetSystemParam('RESOURCE_CATEGORY_ID0'));

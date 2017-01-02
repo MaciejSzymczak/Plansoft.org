@@ -4390,7 +4390,7 @@ inherited FMain: TFMain
       object ShowAllAnyL: TComboBox
         Left = 650
         Top = 34
-        Width = 139
+        Width = 151
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4437,7 +4437,7 @@ inherited FMain: TFMain
       object ShowAllAnyG: TComboBox
         Left = 650
         Top = 62
-        Width = 139
+        Width = 151
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4462,7 +4462,7 @@ inherited FMain: TFMain
       object ShowAllAnyResCat0: TComboBox
         Left = 650
         Top = 89
-        Width = 139
+        Width = 151
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4722,7 +4722,7 @@ inherited FMain: TFMain
       object ShowAllAnyResCat1: TComboBox
         Left = 650
         Top = 117
-        Width = 139
+        Width = 151
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16

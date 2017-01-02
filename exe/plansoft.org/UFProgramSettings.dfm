@@ -1,28 +1,28 @@
 inherited FProgramSettings: TFProgramSettings
   Left = 297
   Top = 226
-  Width = 860
-  Height = 605
+  Width = 929
+  Height = 696
   Caption = 'Ustawienia konfiguracyjne'
   OnCloseQuery = FormCloseQuery
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 554
-    Width = 852
+    Top = 637
+    Width = 921
   end
   object Panel1: TPanel
     Left = 0
-    Top = 513
-    Width = 852
-    Height = 41
+    Top = 590
+    Width = 921
+    Height = 47
     Align = alBottom
     TabOrder = 1
     object BZamknij: TBitBtn
-      Left = 769
-      Top = 5
-      Width = 75
-      Height = 28
+      Left = 879
+      Top = 6
+      Width = 86
+      Height = 32
       Hint = 'Zamknij bie'#380#261'ce okno'
       Cancel = True
       Caption = 'Zamknij'
@@ -54,8 +54,8 @@ inherited FProgramSettings: TFProgramSettings
   object Pages: TPageControl
     Left = 0
     Top = 0
-    Width = 852
-    Height = 513
+    Width = 921
+    Height = 590
     ActivePage = SAdvanced
     Align = alClient
     TabOrder = 2
@@ -63,43 +63,43 @@ inherited FProgramSettings: TFProgramSettings
     object TabSheet1: TTabSheet
       Caption = 'Ustawienia pami'#281'ci'
       object Label1: TLabel
-        Left = 16
-        Top = 384
-        Width = 438
-        Height = 14
+        Left = 18
+        Top = 439
+        Width = 562
+        Height = 16
         Caption = 
           'Rozmiar pami'#281'ci potrzebny do przechowania pojedynczego zaj'#281'cia:.' +
           '..........            [Bajt'#243'w]'
       end
       object Label2: TLabel
-        Left = 16
-        Top = 408
-        Width = 336
-        Height = 14
+        Left = 18
+        Top = 466
+        Width = 433
+        Height = 16
         Caption = 
           'Maksymalna liczba buforowanych arkuszy:.........................' +
           '.................'
       end
       object Example: TLabel
-        Left = 16
-        Top = 432
-        Width = 642
-        Height = 14
+        Left = 18
+        Top = 494
+        Width = 751
+        Height = 16
         Caption = 
           'Przybli'#380'ony rozmiar bufora: 180 dni * 8 godz. * ... * 80 * 3 ( t' +
           'rzy osobne zestawy arkuszy dla wyk'#322'adowcy, grupy i sali) = '
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
         ParentFont = False
       end
       object Memo1: TMemo
-        Left = 8
-        Top = 8
-        Width = 785
-        Height = 353
+        Left = 9
+        Top = 9
+        Width = 897
+        Height = 404
         BorderStyle = bsNone
         Color = clBtnFace
         Lines.Strings = (
@@ -120,7 +120,8 @@ inherited FProgramSettings: TFProgramSettings
           
             'Rozmiar bufora powinien by'#263' ustawiony optymalnie w zale'#380'no'#347'ci od' +
             ': liczby dost'#281'pnej pami'#281'ci operacyjnej, liczby dni w semestrze, ' +
-            'liczby godzin w ci'#261'gu dnia, '
+            'liczby '
+          'godzin w ci'#261'gu dnia, '
           'liczby danych wy'#347'wietlanych na ekranie jednocze'#347'nie.'
           
             'Ustawienie zbyt ma'#322'ego bufora danych spowoduje, '#380'e uk'#322'ad tabeli ' +
@@ -132,7 +133,8 @@ inherited FProgramSettings: TFProgramSettings
           
             'Liczb'#281' bajt'#243'w potrzebnych dla przechowania informacji na temat z' +
             'aj'#281#263' okre'#347'lonego wyk'#322'adowcy, grupy lub sali (tzw. rozmiar arkusz' +
-            'a) mo'#380'na wyliczy'#263' za '
+            'a) mo'#380'na '
+          'wyliczy'#263' za '
           'pomoc'#261' wzoru:'
           ''
           
@@ -143,7 +145,8 @@ inherited FProgramSettings: TFProgramSettings
           
             'W celu p'#322'ynnego dzia'#322'ania widoku tabeli krzy'#380'owej liczba arkuszy' +
             ' powinna wynosi'#263' co najmniej tyle, ile  jednocze'#347'nie wy'#347'wietlany' +
-            'ch b'#281'dzie wierszy na '
+            'ch b'#281'dzie '
+          'wierszy na '
           'ekranie.'
           ''
           
@@ -155,7 +158,8 @@ inherited FProgramSettings: TFProgramSettings
           
             'Je'#380'eli po wykonaniu tej czynno'#347'ci liczba wolnych zasob'#243'w nadal j' +
             'est mniejsza, ni'#380' 10%, rekomenduje si'#281' rozszerzenie pami'#281'ci oper' +
-            'acyjnej komputera.'
+            'acyjnej '
+          'komputera.'
           ''
           
             'Program nie zarezwuje od razu ca'#322'ego zadeklarowanego obszaru pam' +
@@ -167,29 +171,29 @@ inherited FProgramSettings: TFProgramSettings
         TabOrder = 0
       end
       object info: TEdit
-        Left = 352
-        Top = 376
-        Width = 57
-        Height = 22
+        Left = 402
+        Top = 430
+        Width = 65
+        Height = 24
         Color = clBtnFace
         ReadOnly = True
         TabOrder = 1
         Text = 'info'
       end
       object MaxNumberOfSheets: TEdit
-        Left = 352
-        Top = 400
-        Width = 57
-        Height = 22
+        Left = 402
+        Top = 457
+        Width = 65
+        Height = 24
         TabOrder = 2
         Text = '80'
         OnChange = MaxNumberOfSheetsChange
       end
       object BRunMonitor: TButton
-        Left = 16
-        Top = 451
-        Width = 171
-        Height = 28
+        Left = 18
+        Top = 515
+        Width = 196
+        Height = 32
         Caption = 'Uruchom monitor pami'#281'ci'
         TabOrder = 3
         OnClick = BRunMonitorClick
@@ -199,19 +203,19 @@ inherited FProgramSettings: TFProgramSettings
       Caption = 'Godziny zaj'#281#263
       ImageIndex = 1
       object Label21: TLabel
-        Left = 216
-        Top = 136
-        Width = 381
-        Height = 14
+        Left = 247
+        Top = 155
+        Width = 491
+        Height = 16
         Caption = 
           'Funkcjonalnosc definiowania siatki godzinowej przeniesiono do me' +
           'nu Slowniki.'
       end
       object BGrid: TBitBtn
-        Left = 304
-        Top = 168
-        Width = 185
-        Height = 129
+        Left = 347
+        Top = 192
+        Width = 212
+        Height = 147
         Caption = 'Siatka godzinowa'
         TabOrder = 0
         OnClick = BGridClick
@@ -221,93 +225,93 @@ inherited FProgramSettings: TFProgramSettings
       Caption = 'Profil Klienta'
       ImageIndex = 3
       object Label3: TLabel
-        Left = 48
-        Top = 16
-        Width = 270
-        Height = 14
+        Left = 55
+        Top = 18
+        Width = 341
+        Height = 16
         Caption = 'Wybierz profil odpowiadaj'#261'cy prowadzonej dzia'#322'alno'#347'ci'
       end
       object Label4: TLabel
-        Left = 168
-        Top = 48
-        Width = 91
-        Height = 14
+        Left = 192
+        Top = 55
+        Width = 115
+        Height = 16
         Caption = 'Liczba pojedyncza'
       end
       object Label5: TLabel
-        Left = 296
-        Top = 48
-        Width = 67
-        Height = 14
+        Left = 338
+        Top = 55
+        Width = 87
+        Height = 16
         Caption = 'Liczba mnoga'
       end
       object Label6: TLabel
-        Left = 80
-        Top = 72
-        Width = 29
-        Height = 14
+        Left = 91
+        Top = 82
+        Width = 38
+        Height = 16
         Caption = 'Okres'
       end
       object Label7: TLabel
-        Left = 80
-        Top = 160
-        Width = 40
-        Height = 14
+        Left = 91
+        Top = 183
+        Width = 51
+        Height = 16
         Caption = 'Zas'#243'b 1'
       end
       object Label8: TLabel
-        Left = 80
-        Top = 184
-        Width = 40
-        Height = 14
+        Left = 91
+        Top = 210
+        Width = 51
+        Height = 16
         Caption = 'Zas'#243'b 2'
       end
       object Label10: TLabel
-        Left = 80
-        Top = 240
-        Width = 55
-        Height = 14
+        Left = 91
+        Top = 274
+        Width = 73
+        Height = 16
         Caption = 'Kategoria 1'
       end
       object Label11: TLabel
-        Left = 80
-        Top = 264
-        Width = 55
-        Height = 14
+        Left = 91
+        Top = 302
+        Width = 73
+        Height = 16
         Caption = 'Kategoria 2'
       end
       object Label12: TLabel
-        Left = 80
-        Top = 96
-        Width = 35
-        Height = 14
+        Left = 91
+        Top = 110
+        Width = 45
+        Height = 16
         Caption = 'Zaj'#281'cie'
       end
       object Label13: TLabel
-        Left = 80
-        Top = 120
-        Width = 37
-        Height = 14
+        Left = 91
+        Top = 137
+        Width = 50
+        Height = 16
         Caption = 'Planista'
       end
       object Label9: TLabel
-        Left = 424
-        Top = 48
-        Width = 86
-        Height = 14
+        Left = 485
+        Top = 55
+        Width = 109
+        Height = 16
         Caption = 'Kogo? Co? widz'#281
       end
       object Label14: TLabel
-        Left = 552
-        Top = 48
-        Width = 105
-        Height = 14
+        Left = 631
+        Top = 55
+        Width = 139
+        Height = 16
         Caption = 'Kogo? Czego? nie ma'
       end
       object profileType: TComboBox
-        Left = 328
-        Top = 8
-        Width = 249
+        Left = 375
+        Top = 9
+        Width = 284
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -322,206 +326,206 @@ inherited FProgramSettings: TFProgramSettings
           'Inny')
       end
       object profileObjectNamePeriod: TEdit
-        Left = 168
-        Top = 64
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 73
+        Width = 138
+        Height = 24
         TabOrder = 1
       end
       object profileObjectNamePeriods: TEdit
-        Left = 296
-        Top = 64
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 73
+        Width = 139
+        Height = 24
         TabOrder = 2
       end
       object profileObjectNameL: TEdit
-        Left = 168
-        Top = 152
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 174
+        Width = 138
+        Height = 24
         TabOrder = 5
       end
       object profileObjectNameLs: TEdit
-        Left = 296
-        Top = 152
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 174
+        Width = 139
+        Height = 24
         TabOrder = 6
       end
       object profileObjectNameG: TEdit
-        Left = 168
-        Top = 176
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 201
+        Width = 138
+        Height = 24
         TabOrder = 9
       end
       object profileObjectNameGs: TEdit
-        Left = 296
-        Top = 176
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 201
+        Width = 139
+        Height = 24
         TabOrder = 10
       end
       object profileObjectNameC1s: TEdit
-        Left = 296
-        Top = 232
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 265
+        Width = 139
+        Height = 24
         TabOrder = 14
       end
       object profileObjectNameC1: TEdit
-        Left = 168
-        Top = 232
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 265
+        Width = 138
+        Height = 24
         TabOrder = 13
       end
       object profileObjectNameC2s: TEdit
-        Left = 296
-        Top = 256
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 293
+        Width = 139
+        Height = 24
         TabOrder = 18
       end
       object profileObjectNameC2: TEdit
-        Left = 168
-        Top = 256
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 293
+        Width = 138
+        Height = 24
         TabOrder = 17
       end
       object profileObjectNameClasses: TEdit
-        Left = 296
-        Top = 88
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 101
+        Width = 139
+        Height = 24
         TabOrder = 22
       end
       object profileObjectNameClass: TEdit
-        Left = 168
-        Top = 88
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 101
+        Width = 138
+        Height = 24
         TabOrder = 21
       end
       object profileObjectNamePlanner: TEdit
-        Left = 168
-        Top = 112
-        Width = 121
-        Height = 22
+        Left = 192
+        Top = 128
+        Width = 138
+        Height = 24
         TabOrder = 25
       end
       object profileObjectNamePlanners: TEdit
-        Left = 296
-        Top = 112
-        Width = 121
-        Height = 22
+        Left = 338
+        Top = 128
+        Width = 139
+        Height = 24
         TabOrder = 26
       end
       object profileObjectNamePeriodacc: TEdit
-        Left = 424
-        Top = 64
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 73
+        Width = 138
+        Height = 24
         TabOrder = 4
       end
       object profileObjectNameClassacc: TEdit
-        Left = 424
-        Top = 88
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 101
+        Width = 138
+        Height = 24
         TabOrder = 23
       end
       object profileObjectNamePlanneracc: TEdit
-        Left = 424
-        Top = 112
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 128
+        Width = 138
+        Height = 24
         TabOrder = 28
       end
       object profileObjectNameLacc: TEdit
-        Left = 424
-        Top = 152
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 174
+        Width = 138
+        Height = 24
         TabOrder = 7
       end
       object profileObjectNameGacc: TEdit
-        Left = 424
-        Top = 176
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 201
+        Width = 138
+        Height = 24
         TabOrder = 11
       end
       object profileObjectNameC1acc: TEdit
-        Left = 424
-        Top = 232
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 265
+        Width = 138
+        Height = 24
         TabOrder = 15
       end
       object profileObjectNameC2acc: TEdit
-        Left = 424
-        Top = 256
-        Width = 121
-        Height = 22
+        Left = 485
+        Top = 293
+        Width = 138
+        Height = 24
         TabOrder = 19
       end
       object profileObjectNamePeriodgen: TEdit
-        Left = 552
-        Top = 64
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 73
+        Width = 138
+        Height = 24
         TabOrder = 3
       end
       object profileObjectNameClassgen: TEdit
-        Left = 552
-        Top = 88
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 101
+        Width = 138
+        Height = 24
         TabOrder = 24
       end
       object profileObjectNamePlannergen: TEdit
-        Left = 552
-        Top = 112
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 128
+        Width = 138
+        Height = 24
         TabOrder = 27
       end
       object profileObjectNameLgen: TEdit
-        Left = 552
-        Top = 152
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 174
+        Width = 138
+        Height = 24
         TabOrder = 8
       end
       object profileObjectNameGgen: TEdit
-        Left = 552
-        Top = 176
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 201
+        Width = 138
+        Height = 24
         TabOrder = 12
       end
       object profileObjectNameC1gen: TEdit
-        Left = 552
-        Top = 232
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 265
+        Width = 138
+        Height = 24
         TabOrder = 16
       end
       object profileObjectNameC2gen: TEdit
-        Left = 552
-        Top = 256
-        Width = 121
-        Height = 22
+        Left = 631
+        Top = 293
+        Width = 138
+        Height = 24
         TabOrder = 20
       end
       object Button1: TButton
-        Left = 600
-        Top = 288
-        Width = 75
-        Height = 25
+        Left = 686
+        Top = 329
+        Width = 85
+        Height = 29
         Caption = 'Zatwierd'#378
         TabOrder = 29
         OnClick = Button1Click
@@ -531,52 +535,52 @@ inherited FProgramSettings: TFProgramSettings
       Caption = 'Opis dla zaj'#281'cia'
       ImageIndex = 4
       object Label15: TLabel
-        Left = 16
-        Top = 48
-        Width = 31
-        Height = 14
+        Left = 18
+        Top = 55
+        Width = 41
+        Height = 16
         Caption = 'Opis 1'
       end
       object Label16: TLabel
-        Left = 16
-        Top = 72
-        Width = 31
-        Height = 14
+        Left = 18
+        Top = 82
+        Width = 41
+        Height = 16
         Caption = 'Opis 2'
       end
       object Label17: TLabel
-        Left = 16
-        Top = 96
-        Width = 31
-        Height = 14
+        Left = 18
+        Top = 110
+        Width = 41
+        Height = 16
         Caption = 'Opis 3'
       end
       object Label18: TLabel
-        Left = 16
-        Top = 120
-        Width = 31
-        Height = 14
+        Left = 18
+        Top = 137
+        Width = 41
+        Height = 16
         Caption = 'Opis 4'
       end
       object Label20: TLabel
-        Left = 112
-        Top = 24
-        Width = 35
-        Height = 14
+        Left = 128
+        Top = 27
+        Width = 40
+        Height = 16
         Caption = 'Nazwa'
       end
       object Label19: TLabel
-        Left = 304
-        Top = 24
-        Width = 107
-        Height = 14
+        Left = 347
+        Top = 27
+        Width = 126
+        Height = 16
         Caption = 'Nazwa / wyk'#322'adowca'
       end
       object SpeedButton1: TSpeedButton
-        Left = 278
-        Top = 16
-        Width = 23
-        Height = 22
+        Left = 318
+        Top = 18
+        Width = 26
+        Height = 25
         Flat = True
         Glyph.Data = {
           76060000424D7606000000000000360000002800000014000000140000000100
@@ -634,82 +638,82 @@ inherited FProgramSettings: TFProgramSettings
         OnClick = SpeedButton1Click
       end
       object Label31: TLabel
-        Left = 480
-        Top = 24
-        Width = 82
-        Height = 14
+        Left = 549
+        Top = 27
+        Width = 96
+        Height = 16
         Caption = 'Kopiuj warto'#347#263' z'
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
       end
       object pClassDesc4GlobalPlural: TEdit
-        Left = 56
-        Top = 112
-        Width = 193
-        Height = 22
+        Left = 64
+        Top = 128
+        Width = 221
+        Height = 24
         TabOrder = 3
       end
       object pClassDesc3GlobalPlural: TEdit
-        Left = 56
-        Top = 88
-        Width = 193
-        Height = 22
+        Left = 64
+        Top = 101
+        Width = 221
+        Height = 24
         TabOrder = 2
       end
       object pClassDesc2GlobalPlural: TEdit
-        Left = 56
-        Top = 64
-        Width = 193
-        Height = 22
+        Left = 64
+        Top = 73
+        Width = 221
+        Height = 24
         TabOrder = 1
       end
       object pClassDesc1GlobalPlural: TEdit
-        Left = 56
-        Top = 40
-        Width = 193
-        Height = 22
+        Left = 64
+        Top = 46
+        Width = 221
+        Height = 24
         TabOrder = 0
       end
       object pClassDesc1GlobalSingular: TEdit
-        Left = 256
-        Top = 40
-        Width = 193
-        Height = 22
+        Left = 293
+        Top = 46
+        Width = 220
+        Height = 24
         TabOrder = 4
         OnChange = pClassDesc1GlobalSingularChange
       end
       object pClassDesc2GlobalSingular: TEdit
-        Left = 256
-        Top = 64
-        Width = 193
-        Height = 22
+        Left = 293
+        Top = 73
+        Width = 220
+        Height = 24
         TabOrder = 5
         OnChange = pClassDesc1GlobalSingularChange
       end
       object pClassDesc3GlobalSingular: TEdit
-        Left = 256
-        Top = 88
-        Width = 193
-        Height = 22
+        Left = 293
+        Top = 101
+        Width = 220
+        Height = 24
         TabOrder = 6
         OnChange = pClassDesc1GlobalSingularChange
       end
       object pClassDesc4GlobalSingular: TEdit
-        Left = 256
-        Top = 112
-        Width = 193
-        Height = 22
+        Left = 293
+        Top = 128
+        Width = 220
+        Height = 24
         TabOrder = 7
         OnChange = pClassDesc1GlobalSingularChange
       end
       object CopyField1: TComboBox
-        Left = 450
-        Top = 40
-        Width = 143
+        Left = 514
+        Top = 46
+        Width = 164
         Height = 22
         Style = csOwnerDrawFixed
         DropDownCount = 25
@@ -723,9 +727,9 @@ inherited FProgramSettings: TFProgramSettings
           'Forma')
       end
       object CopyField2: TComboBox
-        Left = 450
-        Top = 64
-        Width = 143
+        Left = 514
+        Top = 73
+        Width = 164
         Height = 22
         Style = csOwnerDrawFixed
         DropDownCount = 25
@@ -739,9 +743,9 @@ inherited FProgramSettings: TFProgramSettings
           'Forma')
       end
       object CopyField3: TComboBox
-        Left = 450
-        Top = 88
-        Width = 143
+        Left = 514
+        Top = 101
+        Width = 164
         Height = 22
         Style = csOwnerDrawFixed
         DropDownCount = 25
@@ -755,9 +759,9 @@ inherited FProgramSettings: TFProgramSettings
           'Forma')
       end
       object CopyField4: TComboBox
-        Left = 450
-        Top = 112
-        Width = 143
+        Left = 514
+        Top = 128
+        Width = 164
         Height = 22
         Style = csOwnerDrawFixed
         DropDownCount = 25
@@ -775,124 +779,124 @@ inherited FProgramSettings: TFProgramSettings
       Caption = 'Zaawansowane'
       ImageIndex = 2
       object GroupBox1: TGroupBox
-        Left = 8
-        Top = 8
-        Width = 329
-        Height = 41
+        Left = 9
+        Top = 9
+        Width = 376
+        Height = 47
         Caption = 'Diagnostyka'
         TabOrder = 0
         object SQLLog: TCheckBox
-          Left = 8
-          Top = 16
-          Width = 145
-          Height = 17
+          Left = 9
+          Top = 18
+          Width = 166
+          Height = 20
           Caption = 'Rejestruj zapytania SQL'
           TabOrder = 0
           OnClick = SQLLogClick
         end
       end
       object GroupBox2: TGroupBox
-        Left = 8
-        Top = 56
-        Width = 489
-        Height = 209
+        Left = 9
+        Top = 64
+        Width = 632
+        Height = 239
         Caption = 'Rozmiar czcionki'
         TabOrder = 1
         object Label22: TLabel
-          Left = 16
-          Top = 24
-          Width = 67
-          Height = 14
+          Left = 18
+          Top = 27
+          Width = 88
+          Height = 16
           Caption = 'Pola edycyjne'
         end
         object Label23: TLabel
-          Left = 16
-          Top = 48
-          Width = 70
-          Height = 14
+          Left = 18
+          Top = 55
+          Width = 92
+          Height = 16
           Caption = 'Pozosta'#322'e pola'
         end
         object Label24: TLabel
-          Left = 16
-          Top = 172
-          Width = 305
-          Height = 14
+          Left = 18
+          Top = 197
+          Width = 389
+          Height = 16
           Caption = 'Aby zobaczy'#263' zmiany zamknij program i uruchom go ponownie'
           OnClick = BGridClick
         end
         object Label25: TLabel
-          Left = 16
-          Top = 92
-          Width = 207
-          Height = 14
+          Left = 18
+          Top = 105
+          Width = 262
+          Height = 16
           Caption = 'Rozmiar czcionki mo'#380'na r'#243'wnie'#380' zmienia'#263':'
           OnClick = BGridClick
         end
         object Label26: TLabel
-          Left = 32
-          Top = 108
-          Width = 265
-          Height = 14
+          Left = 37
+          Top = 123
+          Width = 330
+          Height = 16
           Caption = 'Zmieniaj'#261'c systemow'#261' czcionk'#281' w systemie Windows'
           OnClick = BGridClick
         end
         object Label27: TLabel
-          Left = 32
-          Top = 124
-          Width = 356
-          Height = 14
+          Left = 37
+          Top = 142
+          Width = 445
+          Height = 16
           Caption = 
             'Ustawiaj'#261'c domy'#347'ln'#261' czcionk'#281' dla siatki rekord'#243'w w okna s'#322'owniko' +
             'wych'
           OnClick = BGridClick
         end
         object Label28: TLabel
-          Left = 32
-          Top = 140
-          Width = 247
-          Height = 14
+          Left = 37
+          Top = 160
+          Width = 316
+          Height = 16
           Caption = 'Zmieniaj'#261'c rozmiar siatki w oknie g'#322#243'wnym Aplikacji'
           OnClick = BGridClick
         end
         object Label29: TLabel
-          Left = 16
-          Top = 188
-          Width = 469
-          Height = 14
+          Left = 18
+          Top = 215
+          Width = 603
+          Height = 16
           Caption = 
             'Pami'#281'taj, '#380'e ustawienie zbyt du'#380'ej czcionki spowoduje, '#380'e tekst ' +
             'nie b'#281'dzie mie'#347'ci'#322' si'#281' na ekranie.'
           OnClick = BGridClick
         end
         object Label30: TLabel
-          Left = 224
-          Top = 24
-          Width = 229
-          Height = 14
+          Left = 256
+          Top = 27
+          Width = 294
+          Height = 16
           Caption = '8-czcionka normalna, 11-du'#380'a, 13-bardzo du'#380'a'
         end
         object EditFontSize: TEdit
-          Left = 136
-          Top = 16
-          Width = 81
-          Height = 22
+          Left = 155
+          Top = 18
+          Width = 93
+          Height = 24
           TabOrder = 0
           Text = 'EditFontSize'
         end
         object FontSize: TEdit
-          Left = 136
-          Top = 40
-          Width = 81
-          Height = 22
+          Left = 155
+          Top = 46
+          Width = 93
+          Height = 24
           TabOrder = 1
           Text = 'FontSize'
         end
       end
       object tablefilterjs: TMemo
-        Left = 560
-        Top = 176
-        Width = 89
-        Height = 73
+        Left = 648
+        Top = 201
+        Width = 102
+        Height = 84
         Lines.Strings = (
           '/*===================================================='
           #9'- HTML Table Filter Generator v1.6'
@@ -2262,10 +2266,10 @@ inherited FProgramSettings: TFProgramSettings
         WordWrap = False
       end
       object filtergridcss: TMemo
-        Left = 560
-        Top = 96
-        Width = 89
-        Height = 73
+        Left = 648
+        Top = 110
+        Width = 102
+        Height = 83
         Lines.Strings = (
           '/*===================================================='
           #9'- HTML Table Filter Generator v1.6 '
@@ -2328,10 +2332,10 @@ inherited FProgramSettings: TFProgramSettings
         WordWrap = False
       end
       object actbjs: TMemo
-        Left = 560
-        Top = 16
-        Width = 89
-        Height = 73
+        Left = 648
+        Top = 18
+        Width = 102
+        Height = 84
         Lines.Strings = (
           'function addEvent(obj,event_name,func_name){'
           #9'if (obj.attachEvent){'
@@ -3052,6 +3056,16 @@ inherited FProgramSettings: TFProgramSettings
         TabOrder = 4
         Visible = False
         WordWrap = False
+      end
+      object KillSessions: TCheckBox
+        Left = 8
+        Top = 312
+        Width = 561
+        Height = 17
+        Caption = 'Kasuj poprzednie sesje'
+        Checked = True
+        State = cbChecked
+        TabOrder = 5
       end
     end
   end

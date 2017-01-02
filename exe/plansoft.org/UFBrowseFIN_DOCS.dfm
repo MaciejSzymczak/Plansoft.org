@@ -4,16 +4,15 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
   Width = 1127
   Height = 646
   Caption = 'Faktury, rachunki, p'#322'atno'#347'ci'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 595
+    Top = 587
     Width = 1119
   end
   inherited MainPage: TPageControl
     Width = 1119
-    Height = 595
-    ActivePage = Update
+    Height = 587
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 1111
@@ -21,7 +20,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
       inherited Grid: TRxDBGrid
         Top = 129
         Width = 1111
-        Height = 379
+        Height = 369
         Columns = <
           item
             Expanded = False
@@ -434,11 +433,11 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 527
+        Top = 517
         Width = 1111
       end
       inherited Panel: TPanel
-        Top = 508
+        Top = 498
         Width = 1111
         inherited StatusBar: TStatusBar
           Width = 1042
@@ -491,7 +490,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 768
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 11
           Visible = False
@@ -501,7 +500,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 64
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           TabOrder = 0
           Visible = False
           OnChange = CON_BATCH_IDChange
@@ -510,7 +509,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 72
           Top = 4
           Width = 249
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 1
           OnDblClick = CON_BATCH_ID_VALUEDblClick
@@ -607,7 +606,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 448
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 4
           Visible = False
@@ -617,7 +616,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 456
           Top = 4
           Width = 185
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 5
           OnDblClick = CON_PARTY_FROM_ID_VALUEDblClick
@@ -802,7 +801,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
           Left = 776
           Top = 4
           Width = 185
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 10
           OnDblClick = CON_PARTY_TO_ID_VALUEDblClick
@@ -901,10 +900,10 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
     end
     inherited Update: TTabSheet
       object LabelBATCH_ID: TLabel [0]
-        Left = 86
+        Left = 76
         Top = 8
-        Width = 27
-        Height = 14
+        Width = 37
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Partia'
         FocusControl = BATCH_ID
@@ -940,9 +939,9 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         ParentFont = False
       end
       object LabelDOC_TYPE_ID: TLabel [3]
-        Left = 40
+        Left = 41
         Top = 80
-        Width = 73
+        Width = 72
         Height = 14
         Alignment = taRightJustify
         Caption = 'Typ dokumentu'
@@ -987,59 +986,59 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
       object LabelSALES_DATE: TLabel [6]
         Left = 248
         Top = 128
-        Width = 65
-        Height = 14
+        Width = 81
+        Height = 16
         Hint = 'DATA DOKUMENTU'
         Caption = 'D. sprzeda'#380'y'
         FocusControl = SALES_DATE
       end
       object LabelSTR_KEY: TLabel [7]
-        Left = 534
+        Left = 528
         Top = 8
-        Width = 27
-        Height = 14
+        Width = 33
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Klucz'
         FocusControl = STR_KEY
       end
       object LabelFEEDER_SYSTEM_REF: TLabel [8]
-        Left = 508
+        Left = 492
         Top = 32
-        Width = 53
-        Height = 14
+        Width = 69
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Referencja'
         FocusControl = FEEDER_SYSTEM_REF
       end
       object LabelAUX_DESC1: TLabel [9]
-        Left = 530
+        Left = 520
         Top = 56
-        Width = 31
-        Height = 14
+        Width = 41
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis 1'
         FocusControl = AUX_DESC1
       end
       object LabelAUX_DESC2: TLabel [10]
-        Left = 530
+        Left = 520
         Top = 80
-        Width = 31
-        Height = 14
+        Width = 41
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis 2'
         FocusControl = AUX_DESC2
       end
       object LabelID: TLabel [11]
-        Left = 760
+        Left = 751
         Top = 104
-        Width = 44
-        Height = 14
+        Width = 53
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Kol. wpr.'
         FocusControl = ID
       end
       inherited UpdPanel: TPanel
-        Top = 531
+        Top = 521
         Width = 1111
         TabOrder = 21
         inherited BUpdChild1: TBitBtn
@@ -1049,12 +1048,102 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
       end
       inherited FlexPanel: TPanel
         TabOrder = 22
+        inherited ATTRIBS_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_15: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_15: TDBEdit
+          Height = 24
+        end
       end
       object BATCH_ID: TDBEdit
         Left = 113
         Top = 0
         Width = 64
-        Height = 22
+        Height = 24
         Hint = 'PARTIA'
         DataField = 'BATCH_ID'
         DataSource = Source
@@ -1067,7 +1156,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 113
         Top = 24
         Width = 96
-        Height = 22
+        Height = 24
         Hint = 'WYSTAWCA'
         DataField = 'PARTY_FROM_ID'
         DataSource = Source
@@ -1080,7 +1169,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 113
         Top = 48
         Width = 96
-        Height = 22
+        Height = 24
         Hint = 'ODBIORCA'
         DataField = 'PARTY_TO_ID'
         DataSource = Source
@@ -1093,7 +1182,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 113
         Top = 72
         Width = 96
-        Height = 22
+        Height = 24
         Hint = 'TYP DOKUMENTU'
         DataField = 'DOC_TYPE_ID'
         DataSource = Source
@@ -1106,7 +1195,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 121
         Top = 96
         Width = 320
-        Height = 22
+        Height = 24
         Hint = 'NUMER'
         DataField = 'NUM'
         DataSource = Source
@@ -1138,7 +1227,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 569
         Top = 0
         Width = 320
-        Height = 22
+        Height = 24
         Hint = 'KLUCZ'
         DataField = 'STR_KEY'
         DataSource = Source
@@ -1148,7 +1237,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 569
         Top = 24
         Width = 320
-        Height = 22
+        Height = 24
         Hint = 'REFERENCJA'
         DataField = 'FEEDER_SYSTEM_REF'
         DataSource = Source
@@ -1158,7 +1247,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 569
         Top = 48
         Width = 320
-        Height = 22
+        Height = 24
         Hint = 'OPIS 1'
         DataField = 'AUX_DESC1'
         DataSource = Source
@@ -1168,7 +1257,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 569
         Top = 72
         Width = 320
-        Height = 22
+        Height = 24
         Hint = 'OPIS 1'
         DataField = 'AUX_DESC2'
         DataSource = Source
@@ -1178,7 +1267,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 809
         Top = 96
         Width = 80
-        Height = 22
+        Height = 24
         Color = clBtnFace
         DataField = 'ID'
         DataSource = Source
@@ -1203,7 +1292,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 120
         Top = 0
         Width = 273
-        Height = 22
+        Height = 24
         ReadOnly = True
         TabOrder = 1
         OnDblClick = BATCH_ID_VALUEDblClick
@@ -1300,7 +1389,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 120
         Top = 24
         Width = 273
-        Height = 22
+        Height = 24
         ReadOnly = True
         TabOrder = 5
         OnDblClick = BATCH_ID_VALUEDblClick
@@ -1309,7 +1398,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 120
         Top = 48
         Width = 273
-        Height = 22
+        Height = 24
         ReadOnly = True
         TabOrder = 8
         OnDblClick = BATCH_ID_VALUEDblClick
@@ -1318,7 +1407,7 @@ inherited FBrowseFIN_DOCS: TFBrowseFIN_DOCS
         Left = 120
         Top = 72
         Width = 273
-        Height = 22
+        Height = 24
         ReadOnly = True
         TabOrder = 11
         OnDblClick = BATCH_ID_VALUEDblClick

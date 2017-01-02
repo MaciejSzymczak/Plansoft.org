@@ -708,7 +708,7 @@ begin
       End;
       If not notG.Checked Then Begin
         If strIsEmpty(G_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[g_value1.Hint, fprogramsettings.profileObjectNameGgen.Text, fprogramsettings.profileObjectNameGgen.Text]));
-        If Not strIsEmpty(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
+        If Not strIsEmpty(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
       End;
       If not notResCat0_1.Checked Then If strIsEmpty(rescat0_1_value.TEXT) Then Begin
         addError(rescat0_1_value.Hint + ' musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ sal zaznacz pole wyboru "Bez tego zasobu"');

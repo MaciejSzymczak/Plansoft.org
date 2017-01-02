@@ -4,23 +4,22 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
   Width = 808
   Height = 634
   Caption = 'Partie dokument'#243'w'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 583
+    Top = 575
     Width = 800
   end
   inherited MainPage: TPageControl
     Width = 800
-    Height = 583
-    ActivePage = Update
+    Height = 575
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 792
       end
       inherited Grid: TRxDBGrid
         Width = 792
-        Height = 401
+        Height = 391
         Columns = <
           item
             Expanded = False
@@ -364,11 +363,11 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 515
+        Top = 505
         Width = 792
       end
       inherited Panel: TPanel
-        Top = 496
+        Top = 486
         Width = 792
         inherited StatusBar: TStatusBar
           Width = 723
@@ -398,37 +397,37 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         ParentFont = False
       end
       object LabelSTR_KEY: TLabel [1]
-        Left = 77
+        Left = 71
         Top = 32
-        Width = 27
-        Height = 14
+        Width = 33
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Klucz'
         FocusControl = STR_KEY
       end
       object LabelFEEDER_SYSTEM_REF: TLabel [2]
-        Left = 51
+        Left = 35
         Top = 56
-        Width = 53
-        Height = 14
+        Width = 69
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Referencja'
         FocusControl = FEEDER_SYSTEM_REF
       end
       object LabelAUX_DESC1: TLabel [3]
-        Left = 73
+        Left = 63
         Top = 80
-        Width = 31
-        Height = 14
+        Width = 41
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis 1'
         FocusControl = AUX_DESC1
       end
       object LabelAUX_DESC2: TLabel [4]
-        Left = 73
+        Left = 63
         Top = 104
-        Width = 31
-        Height = 14
+        Width = 41
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis 2'
         FocusControl = AUX_DESC2
@@ -436,13 +435,13 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
       object LabelID: TLabel [5]
         Left = 432
         Top = 16
-        Width = 44
-        Height = 14
+        Width = 53
+        Height = 16
         Caption = 'Kol. wpr.'
         FocusControl = ID
       end
       inherited UpdPanel: TPanel
-        Top = 519
+        Top = 509
         Width = 792
         inherited BUpdChild1: TBitBtn
           Caption = 'Dokumenty'
@@ -451,12 +450,102 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
       end
       inherited FlexPanel: TPanel
         Top = 136
+        inherited ATTRIBS_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_15: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_15: TDBEdit
+          Height = 24
+        end
       end
       object DESCRIPTION: TDBEdit
         Left = 113
         Top = 8
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'Nazwa'
         DataField = 'DESCRIPTION'
         DataSource = Source
@@ -466,7 +555,7 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         Left = 113
         Top = 32
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'Klucz'
         DataField = 'STR_KEY'
         DataSource = Source
@@ -476,7 +565,7 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         Left = 113
         Top = 56
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'Referencja'
         DataField = 'FEEDER_SYSTEM_REF'
         DataSource = Source
@@ -486,7 +575,7 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         Left = 113
         Top = 80
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'Opis 1'
         DataField = 'AUX_DESC1'
         DataSource = Source
@@ -496,7 +585,7 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         Left = 113
         Top = 104
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'Opis 2'
         DataField = 'AUX_DESC2'
         DataSource = Source
@@ -506,7 +595,7 @@ inherited FBrowseFIN_BATCHES: TFBrowseFIN_BATCHES
         Left = 481
         Top = 8
         Width = 72
-        Height = 22
+        Height = 24
         Color = clBtnFace
         DataField = 'ID'
         DataSource = Source
