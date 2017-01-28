@@ -11,7 +11,6 @@ uses
 type
   TFBrowsePLANNERS = class(TFBrowseParent)
     ID_: TDBEdit;
-    LabelID: TLabel;
     NAME: TDBEdit;
     LabelNAME: TLabel;
     BCheckDatabase: TBitBtn;
@@ -34,6 +33,11 @@ type
     SpeedButton2: TSpeedButton;
     EDIT_RESERVATIONS: TDBCheckBox;
     edit_sharing: TDBCheckBox;
+    Label1: TLabel;
+    PARENT_ID: TDBEdit;
+    PARENT_ID_VALUE: TEdit;
+    SpeedButton3: TSpeedButton;
+    SpeedButton4: TSpeedButton;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -50,6 +54,11 @@ type
     procedure CAL_ID_VALUEClick(Sender: TObject);
     procedure BClearSClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure PARENT_IDChange(Sender: TObject);
+    procedure PARENT_ID_VALUEClick(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
   public
     Function  CheckRecord : Boolean; override;
@@ -70,11 +79,11 @@ implementation
 
 {$R *.DFM}
 
-Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions;
+Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UFLookupWindow;
 
 function TFBrowsePLANNERS.CanDelete: Boolean;
 begin
-  if Query.fieldByName('name').AsString = user then begin
+  if Query.fieldByName('name').AsString = CurrentUserName then begin
     info('Nie mo¿na usun¹æ konta zalogowanego u¿ytkownika');
   end
   else
@@ -82,7 +91,7 @@ begin
     info('Nie mo¿na usun¹æ konta u¿ytkownika o nazwie planner');
   end;
 
-  Result := IsAdmin and (Query.fieldByName('name').AsString <> user) and (Query.fieldByName('name').AsString <> 'PLANNER');
+  Result := IsAdmin and (Query.fieldByName('name').AsString <> CurrentUserName) and (Query.fieldByName('name').AsString <> 'PLANNER');
 end;
 
 function TFBrowsePLANNERS.CanEditIntegrity: Boolean;
@@ -158,22 +167,9 @@ begin
      End;
     QWork.Next;
    End;
-
-  // niepotrzebne a nawet szkodliwe, poniewaz moze byc wiele schematow w bazie danych, nie tylko PLANNER
-  // sprawdzenie czy sa inni userzy z rola. -> ew. usuniêcie im ról
-  //DModule.OPENSQL('SELECT * FROM  SYS.ALL_USERS WHERE USERNAME<>''PLANNER'' AND USERNAME NOT IN (SELECT NAME FROM PLANNERS WHERE TYPE =''USER'' AND USERNAME = NAME) AND EXISTS (select * from SYS.DBA_ROLE_PRIVS WHERE GRANTEE=USERNAME AND GRANTED_ROLE=''PLA_PERMISSION'')');
-  //QWork.First;
-  //While Not QWork.Eof Do Begin
-  //  //Info('U¿ytkownik '+QWork.FieldByName('USERNAME').AsString+' nie jest zarejestrowany w programie jako planista. U¿ytkownikowi zostan¹ zabrane uprawnienia');
-  //  SQL2('REVOKE PLA_PERMISSION FROM "'+QWork.FieldByName('USERNAME').AsString+'"');
-  //  Info('Sukces');
-  //  QWork.Next;
-  //End;
-
   End;
 
   // +podczepienie funkcji do add/delete/update user
-
   // +okno logowania
   // +uaktywanie roli
   // +spr. czy user ma role i w tabeli planners
@@ -270,6 +266,52 @@ begin
 end;
 
 procedure TFBrowsePLANNERS.SpeedButton1Click(Sender: TObject);
+var s1,s2,s3,s4,s5 : string;
+begin
+  try s1 := query.FieldByName('creation_date').AsString;    except s1:=''; end;
+  try s2 := query.FieldByName('created_by').AsString;       except s2:=''; end;
+  try s3 := query.FieldByName('last_update_date').AsString; except s3:=''; end;
+  try s4 := query.FieldByName('last_updated_by').AsString;  except s4:=''; end;
+  s5 :=   'Utworzono:'+#9+#9  +  s1  +#13+#10+
+  'Utworzy³:'+#9+#9+ s2 +#13+#10+
+  'Zaktualizowano:'+#9+#9 +s3 +#13+#10+
+  'Zaktualizowa³:'+#9+#9  + s4;
+
+  info(s5);
+end;
+
+procedure TFBrowsePLANNERS.PARENT_IDChange(Sender: TObject);
+begin
+  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
+end;
+
+procedure TFBrowsePLANNERS.PARENT_ID_VALUEClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  KeyValue := PARENT_ID.Text;
+  //If AutoCreate.PLANNERSShowModalAsSelect(KeyValue) = mrOK Then PARENT_ID.Text := KeyValue;
+  If LookupWindow(DModule.ADOConnection, 'PLANNERS',KeyValue,'NAME','Nazwa','NAME','0=0','',ID) = mrOK Then PARENT_ID.Text := ID;
+end;
+
+procedure TFBrowsePLANNERS.SpeedButton3Click(Sender: TObject);
+begin
+  PARENT_ID.text := '';
+end;
+
+procedure TFBrowsePLANNERS.SpeedButton4Click(Sender: TObject);
+begin
+ info(
+'Osoba nadzoruj¹ca mo¿e wprowadzaæ zmiany w zajêciach zaplanowanych przez tê osobê.'+cr+
+''+cr+
+'Osob¹ nadzoruj¹c¹ jest etatowy planista.'+cr+
+'Osobê nadzoruj¹c¹ nale¿y wskazaæ, kiedy osoba planuj¹ca zajmuje siê planowaniem w ograniczonym zakresie, np.:'+cr+
+'- Pracownik portierni zajmuj¹cy siê rezerwacjami sal.'+cr+
+'- Pracownik sekretariatu planuj¹cy sesje poprawkowe.'
+);
+end;
+
+procedure TFBrowsePLANNERS.SpeedButton2Click(Sender: TObject);
+begin
 begin
  info(
 'Mo¿esz ograniczyæ mo¿liwoœæ planowania tego planisty tylko do wybranych terminów. W tym celu wybierz kalendarz dni dostêpnych w tym polu'+cr+
@@ -282,8 +324,7 @@ begin
 '- Nie bêdzie móg³ ustawiaæ preferencji poza okreœlonym oknem czasowym;'+cr+
 '- Nie bêdzie móg³ u¿ywaæ funkcji kopiowania rozk³adów zajêæ.'
 );
-
-
+end;
 end;
 
 end.

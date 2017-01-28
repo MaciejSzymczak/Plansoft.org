@@ -99,14 +99,13 @@ Type TCheckConflicts = Class
            Count            : Integer;
            Completion       : Boolean;
            CanDelete        : Boolean;
-           CurrentUser      : String[30];
 
            private
              procedure internalCreate(Day : TTimeStamp; Hour, fill, colour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
              procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner : String);
              function  deleteConflictClasses : Boolean;
            public
-             function  conflictsReport(aCurrentUser : String; Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
+             function  conflictsReport(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
              function  empty : Boolean;
              function  insert ( ttCombIds        : string ) : Boolean;
@@ -733,7 +732,7 @@ Function P1IncludesP2(P1, P2 : TPointers) : Boolean;
 {--------------------------------------------------}
 Var t : Integer;
 Begin
-   If CurrentUser <> NVL(_Owner,CurrentUser) Then CanDelete := False;
+   If (CurrentUserName <> _Owner) and (CurrentUserName <> Fmain.MapPlannerSupervisors.getValue(_Owner)) Then CanDelete := False;
 
  // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
  If (NewClass.Day.Date = Day.Date) And (NewClass.Hour = Hour)
@@ -742,7 +741,7 @@ Begin
      And P1IncludesP2(NewClass.Rooms, Rooms)
      And  (NewClass.Sub_id = Sub_id)
      And (NewClass.For_id = For_id) And (NewClass.Created_by = Created_by) And (NewClass._Owner = _Owner) Then Begin
-       If CurrentUser = NVL(_Owner,CurrentUser) Then Begin
+       If (CurrentUserName = _Owner) or (CurrentUserName = Fmain.MapPlannerSupervisors.getValue(_Owner))  Then Begin
          Completion := True;
          Exit;
        End;
@@ -780,7 +779,7 @@ Begin
               Else Result := False;
 End;
 
-Function TCheckConflicts.ConflictsReport(aCurrentUser : String; Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
+Function TCheckConflicts.ConflictsReport(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
 Var L      : Integer;
     Status : Integer;
     Class_ : TClass_;
@@ -823,7 +822,6 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
        );
   End;
 Begin
-  CurrentUser   := aCurrentUser;
   internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
 
   For L := 1 To maxInClass Do
@@ -1078,14 +1076,14 @@ Procedure DeleteOrphanedClasses;
 Var I1, I2 : String;
     lClasses : shortString;
 begin
-  I1 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER='''+User+'''');
-  I2 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+User+'''');
+  I1 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER='''+CurrentUserName+'''');
+  I2 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+CurrentUserName+'''');
   lClasses := fprogramSettings.profileObjectNameClasses.text;
 
   If I1 <> '0' Then Begin
    If Question('Znaleziono '+lClasses +' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I1+'. Czy chcesz je teraz usun¹æ ?')=ID_YES Then Begin
      dmodule.sql('begin api.delete_orphaned (:user ); end;'
-                ,'user='+user
+                ,'user='+CurrentUserName
                 );
      dmodule.CommitTrans;
      Info(lClasses + ' zosta³y usuniête');
@@ -1094,7 +1092,7 @@ begin
 
   If I2 <> '0' Then Begin
    If Question('Znaleziono ' +lClasses+ ' innych u¿ytkowników bez  okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I2+'. ' +lClasses+ ' te mog¹ usun¹æ tylko u¿ytkownicy, którzy je utworzyli. Czy chcesz zobaczyæ listê u¿ytkowników, którzy maj¹ nie powi¹zane ' +lClasses+ ' ?')=ID_YES Then Begin
-     DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+User+'''');
+     DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+CurrentUserName+'''');
      Info('U¿ytkownicy, którzy maj¹ nie powi¹zane ' +lClasses+ ': '+GetResultByComma(DModule.QWork));
    End;
   End Else Info('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
@@ -1270,7 +1268,7 @@ Begin
  _Owner := Class_.owner;
 
  If _Owner<>'' Then
-  If User <> _Owner Then Begin
+  If (CurrentUserName <> _Owner) and (CurrentUserName <> Fmain.MapPlannerSupervisors.getValue(_Owner)) Then Begin
    Info('Nie mo¿esz usun¹æ zajêcia u¿ytkownika '+_Owner);
    Result := False;
    Exit;
@@ -1405,19 +1403,19 @@ begin
   // bugfix: passing owner by parameter does not work, so value is set directly!
   For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
+   from_clause := from_clause + cr + ',(select count(1) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
    select_clause := select_clause + '+lec'+inttostr(t)+'.c';
   End;
 
   For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
+   from_clause := from_clause + cr + ',(select count(1) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
    select_clause := select_clause + '+gro'+inttostr(t)+'.c';
   End;
 
   For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(user)+''' or (upper(c.owner)='''+ upperCase(user)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
+   from_clause := from_clause + cr + ',(select count(1) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
    select_clause := select_clause+ '+rom'+inttostr(t)+'.c';
   End;
 
@@ -1429,7 +1427,7 @@ begin
     'hour:' + inttostr(myClass.hour) +cr+
     'day:'  + uutilityparent.dateToYYYYMMDD(timeStampTodateTime(myClass.day)) +cr+
     'cla_id:'+ inttostr(cla_id) +cr+
-   ' owner:' + upperCase(user);
+   ' owner:' + upperCase(CurrentUserName);
 
   with dmodule.QWork do begin
    SQL.Clear;
@@ -1482,7 +1480,7 @@ end;
 function insertClass ( myClass : TClass_; pttCombIds : string ) : boolean;
  var  resultMessage   : string;
 begin
-  myClass.created_by := upperCase(user);
+  myClass.created_by := upperCase(CurrentUserName);
 
   // te kontrole przenies na poziom BD
 

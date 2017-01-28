@@ -66,7 +66,7 @@ Begin
    SQL.Lines.Text := B.Query.SQL.Text;
    Zalecenia.Lines.Clear;
    Zalecenia.Lines.Add(_ZALECENIA);
-   DModule.InsertIntoEventLog(user,ActionNames[aAction]+'_ERROR',Application.Title + '.' + B.Name,'',_MEMO,ErrorMessage,_ZALECENIA,B.Query.SQL.Text,User);
+   DModule.InsertIntoEventLog(CurrentUserName,ActionNames[aAction]+'_ERROR',Application.Title + '.' + B.Name,'',_MEMO,ErrorMessage,_ZALECENIA,B.Query.SQL.Text,CurrentUserName);
    ShowModal;
    Free;
   End;

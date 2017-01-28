@@ -4,15 +4,16 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
   Width = 954
   Height = 745
   Caption = 'Jednostki organizacyjne'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 694
+    Top = 686
     Width = 946
   end
   inherited MainPage: TPageControl
     Width = 946
-    Height = 694
+    Height = 686
+    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938
@@ -20,7 +21,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 938
-        Height = 486
+        Height = 476
         Columns = <
           item
             Expanded = False
@@ -308,11 +309,11 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 626
+        Top = 616
         Width = 938
       end
       inherited Panel: TPanel
-        Top = 607
+        Top = 597
         Width = 938
         inherited StatusBar: TStatusBar
           Width = 869
@@ -338,7 +339,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           Left = 72
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -348,7 +349,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           Left = 80
           Top = 4
           Width = 121
-          Height = 22
+          Height = 24
           Hint = 'RODZAJ'
           TabOrder = 1
           OnDblClick = CON_PARENT_ID_VALUEDblClick
@@ -459,8 +460,8 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       object LabelID: TLabel [0]
         Left = 744
         Top = 8
-        Width = 167
-        Height = 14
+        Width = 217
+        Height = 16
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID
         Visible = False
@@ -496,43 +497,43 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         ParentFont = False
       end
       object LabelPARENT_ID: TLabel [3]
-        Left = 32
+        Left = 8
         Top = 88
-        Width = 81
-        Height = 14
+        Width = 105
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Jedn. nadrz'#281'dna'
         FocusControl = PARENT_ID
       end
       object LabelSTRUCT_CODE: TLabel [4]
-        Left = 48
+        Left = 29
         Top = 112
-        Width = 65
-        Height = 14
+        Width = 84
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Kod struktury'
         FocusControl = STRUCT_CODE
       end
       object Label3: TLabel [5]
-        Left = 26
+        Left = 2
         Top = 164
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
       object Label2: TLabel [6]
-        Left = 26
+        Left = 2
         Top = 140
-        Width = 87
-        Height = 14
+        Width = 111
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       inherited UpdPanel: TPanel
-        Top = 630
+        Top = 620
         Width = 938
-        TabOrder = 9
+        TabOrder = 8
         inherited BUpdChild1: TBitBtn
           Caption = 'Wyk'#322'adowcy'
           Visible = True
@@ -557,27 +558,117 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       inherited FlexPanel: TPanel
         Left = 32
         Top = 176
-        TabOrder = 11
+        TabOrder = 10
+        inherited ATTRIBS_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBS_15: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_01: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_02: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_03: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_04: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_05: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_06: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_07: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_08: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_09: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_10: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_11: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_12: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_13: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_14: TDBEdit
+          Height = 24
+        end
+        inherited ATTRIBN_15: TDBEdit
+          Height = 24
+        end
       end
       object ID: TDBEdit
         Left = 857
         Top = 0
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'ID'
         Color = clBtnFace
         DataField = 'ID'
         DataSource = Source
         MaxLength = 10
         ReadOnly = True
-        TabOrder = 10
+        TabOrder = 9
         Visible = False
       end
       object NAME: TDBEdit
         Left = 121
         Top = 32
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'NAZWA'
         DataField = 'NAME'
         DataSource = Source
@@ -587,7 +678,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 121
         Top = 56
         Width = 75
-        Height = 22
+        Height = 24
         Hint = 'KOD'
         DataField = 'CODE'
         DataSource = Source
@@ -597,7 +688,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 113
         Top = 80
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'PARENT_ID'
         DataField = 'PARENT_ID'
         DataSource = Source
@@ -616,80 +707,35 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         DataField = 'STRUCT_CODE'
         DataSource = Source
         ReadOnly = True
-        TabOrder = 6
+        TabOrder = 5
       end
       object DESC1: TDBEdit
         Left = 120
         Top = 132
         Width = 617
-        Height = 22
+        Height = 24
         DataField = 'DESC1'
         DataSource = Source
-        TabOrder = 7
+        TabOrder = 6
       end
       object DESC2: TDBEdit
         Left = 120
         Top = 156
         Width = 617
-        Height = 22
+        Height = 24
         DataField = 'DESC2'
         DataSource = Source
-        TabOrder = 8
+        TabOrder = 7
       end
       object PARENT_ID_VALUE: TEdit
         Left = 120
         Top = 80
-        Width = 257
-        Height = 22
+        Width = 281
+        Height = 24
         Hint = 'NADRZ'#280'DNA JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 3
-        OnDblClick = PARENT_ID_VALUEDblClick
-      end
-      object BSelectPARENT_ID: TBitBtn
-        Left = 376
-        Top = 80
-        Width = 24
-        Height = 24
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 4
-        OnClick = BSelectPARENT_IDClick
-        Glyph.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000FF018B8A7AC385827DA26B6B6B3F00000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          00000000FF01094FFF974392F6FFEEE9DFFF86827FA700000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          FF020D51FF9B439AFFFF6ADAFFFF5DADF5FF998F7ED900000000000000000000
-          00000000000000000000000000000000000000000000000000006B7E690F0041
-          FC9F469FFFFF6FDAFFFF50ACFFFF1357FFB9002AFF0A00000000000000000000
-          000000000000000000006164682E515459524C4E523F1617180698928B9E7091
-          B2FF61D3FFFF4EAAFFFF1657FFB4001FFF070000000000000000000000000000
-          000076777A257B7E80C8B3A081FED2B588FDC3AA83FD83817AE566686CEAFFF7
-          F0FF6B93BDFF084AFEAF0028FF06000000000000000000000000000000007B7D
-          7F188D8A82E6F5CB84FEF5CB84FFF1C885FFF5CE8EFFFCD08CFFAE9E85FE7071
-          75F3A9A193BB3956B20A0000000000000000000000000000000000000000767A
-          7F95ECCB8EFFF3D192FFEECE92FFEDCC8EFFECC784FFEDC687FFFDD28FFF8783
-          7CDB000000010000000000000000000000000000000000000000000000009894
-          8BE1FEDFA1FFF2DAA5FFF2DBA7FFF1D79FFFEFD097FFECC886FFF6D298FFC1A9
-          87FF5254592A000000000000000000000000000000000000000000000000A7A1
-          91F4FFEBB9FFF8ECC6FFF7EBC0FFF5E3B2FFF2DAA3FFEECF94FFF4D093FFCFB6
-          8DFF5153583D0000000000000000000000000000000000000000000000009996
-          92D0FFF7CBFFFDFAE6FFFDF9E7FFF8EDC5FFF4E0B0FFF0D49BFFFAD594FFAF9F
-          85FE6264671A000000000000000000000000000000000000000000000000A0A1
-          A56FD5CCB1FFFFFFF2FFFFFFF2FFFBF3D2FFF6E2B4FFF7D99EFFF6D393FF7D7D
-          81B800000000000000000000000000000000000000000000000000000000D9D9
-          DA04A1A1A2B8D6CFB6FFFFFFDCFFFFF6CAFFFFEBB1FFEDD49CFE8C8983E47677
-          7A20000000000000000000000000000000000000000000000000000000000000
-          0000EBECED059C9CA07B979893E0A8A397FE97948CF07679809E7C7D7F1A0000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000}
+        OnClick = PARENT_ID_VALUEClick
       end
       object BClearPARENT_ID: TBitBtn
         Left = 400
@@ -698,7 +744,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Height = 24
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 5
+        TabOrder = 4
         OnClick = BClearPARENT_IDClick
         Glyph.Data = {
           DE030000424DDE03000000000000420000002800000015000000150000000100

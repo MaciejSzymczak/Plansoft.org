@@ -1,68 +1,68 @@
 inherited FKPI: TFKPI
   Left = 261
   Top = 230
-  Width = 214
-  Height = 319
+  Width = 624
+  Height = 371
   Caption = 'KPI - Wska'#378'niki efektywno'#347'ci'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 266
-    Width = 206
+    Top = 312
+    Width = 616
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 206
-    Height = 225
+    Width = 616
+    Height = 265
     Align = alClient
     TabOrder = 1
     object Label1: TLabel
-      Left = 311
-      Top = 16
-      Width = 69
-      Height = 14
+      Left = 355
+      Top = 18
+      Width = 90
+      Height = 16
       Caption = 'Rodzaj okresu'
     end
     object Label2: TLabel
-      Left = 264
-      Top = 40
-      Width = 118
-      Height = 14
+      Left = 302
+      Top = 46
+      Width = 141
+      Height = 16
       Caption = 'Liczba okres'#243'w wstecz'
     end
     object Label4: TLabel
-      Left = 317
-      Top = 88
-      Width = 66
-      Height = 14
+      Left = 362
+      Top = 101
+      Width = 86
+      Height = 16
       Caption = 'Stan na dzie'#324
     end
     object Label3: TLabel
-      Left = 304
-      Top = 112
-      Width = 79
-      Height = 14
+      Left = 347
+      Top = 128
+      Width = 98
+      Height = 16
       Caption = 'Rodzaj wykresu'
     end
     object Label5: TLabel
-      Left = 227
-      Top = 136
-      Width = 157
-      Height = 14
+      Left = 259
+      Top = 155
+      Width = 191
+      Height = 16
       Caption = 'Szeroko'#347#263' i wysoko'#347#263' wykresu'
     end
     object Label6: TLabel
-      Left = 224
-      Top = 160
-      Width = 162
-      Height = 14
+      Left = 256
+      Top = 183
+      Width = 203
+      Height = 16
       Caption = 'Roz'#322'o'#380'enie wykres'#243'w na ekranie'
     end
     object periodType: TComboBox
-      Left = 389
-      Top = 8
-      Width = 132
+      Left = 445
+      Top = 9
+      Width = 150
       Height = 22
       Style = csOwnerDrawFixed
       ItemHeight = 16
@@ -76,24 +76,24 @@ inherited FKPI: TFKPI
         'Tydzie'#324)
     end
     object periodCount: TEdit
-      Left = 389
-      Top = 32
-      Width = 49
-      Height = 22
+      Left = 445
+      Top = 37
+      Width = 56
+      Height = 24
       TabOrder = 4
       Text = '1'
     end
     object GroupBox1: TGroupBox
-      Left = 8
-      Top = 8
-      Width = 193
-      Height = 193
+      Left = 9
+      Top = 9
+      Width = 221
+      Height = 221
       Caption = 'Wylicz wska'#378'niki efektywno'#347'ci dla...'
       TabOrder = 1
       object Selector1: TComboBox
-        Left = 8
-        Top = 20
-        Width = 177
+        Left = 9
+        Top = 23
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -112,9 +112,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector2: TComboBox
-        Left = 8
-        Top = 44
-        Width = 177
+        Left = 9
+        Top = 50
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -133,9 +133,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector3: TComboBox
-        Left = 8
-        Top = 68
-        Width = 177
+        Left = 9
+        Top = 78
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -154,9 +154,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector4: TComboBox
-        Left = 8
-        Top = 92
-        Width = 177
+        Left = 9
+        Top = 105
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -175,9 +175,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector5: TComboBox
-        Left = 8
-        Top = 116
-        Width = 177
+        Left = 9
+        Top = 133
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -196,9 +196,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector6: TComboBox
-        Left = 8
-        Top = 140
-        Width = 177
+        Left = 9
+        Top = 160
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -217,9 +217,9 @@ inherited FKPI: TFKPI
           'Przedmioty + formy zaje'#263)
       end
       object Selector7: TComboBox
-        Left = 8
-        Top = 164
-        Width = 177
+        Left = 9
+        Top = 187
+        Width = 202
         Height = 19
         Style = csOwnerDrawFixed
         ItemHeight = 13
@@ -239,18 +239,18 @@ inherited FKPI: TFKPI
       end
     end
     object TopValues: TEdit
-      Left = 389
-      Top = 56
-      Width = 73
-      Height = 22
+      Left = 445
+      Top = 64
+      Width = 83
+      Height = 24
       TabOrder = 6
       Text = '20'
     end
     object map: TMemo
-      Left = 576
-      Top = 8
-      Width = 81
-      Height = 65
+      Left = 658
+      Top = 9
+      Width = 93
+      Height = 74
       Lines.Strings = (
         'Rok=yyyy'
         'Kwarta'#322'=q'
@@ -270,35 +270,35 @@ inherited FKPI: TFKPI
       WordWrap = False
     end
     object asOfDate: TDateTimePicker
-      Left = 389
-      Top = 80
-      Width = 97
+      Left = 445
+      Top = 91
+      Width = 110
       Height = 21
       Date = 41487.349999363420000000
       Time = 41487.349999363420000000
       TabOrder = 7
     end
     object showAll: TCheckBox
-      Left = 208
-      Top = 184
-      Width = 321
-      Height = 17
+      Left = 238
+      Top = 210
+      Width = 367
+      Height = 20
       Caption = 'Uwzgl'#281'dniaj wszystkie zaj'#281'cia (ignoruj uprawnienia dost'#281'pu)'
       TabOrder = 12
     end
     object adv: TCheckBox
-      Left = 8
-      Top = 203
-      Width = 137
-      Height = 17
+      Left = 9
+      Top = 232
+      Width = 157
+      Height = 19
       Caption = 'Tryb zaawansowany'
       TabOrder = 2
       OnClick = advClick
     end
     object rank_rownum: TComboBox
-      Left = 209
-      Top = 59
-      Width = 177
+      Left = 239
+      Top = 67
+      Width = 202
       Height = 19
       Style = csOwnerDrawFixed
       ItemHeight = 13
@@ -310,9 +310,9 @@ inherited FKPI: TFKPI
         'Pierwszych warto'#347'ci- ranking')
     end
     object pie_or_column: TComboBox
-      Left = 389
-      Top = 104
-      Width = 132
+      Left = 445
+      Top = 119
+      Width = 150
       Height = 19
       Style = csOwnerDrawFixed
       ItemHeight = 13
@@ -324,25 +324,25 @@ inherited FKPI: TFKPI
         'Wykres kolumnowy')
     end
     object graph_width: TEdit
-      Left = 389
-      Top = 128
-      Width = 49
-      Height = 22
+      Left = 445
+      Top = 146
+      Width = 56
+      Height = 24
       TabOrder = 9
       Text = '800'
     end
     object graph_height: TEdit
-      Left = 469
-      Top = 128
-      Width = 49
-      Height = 22
+      Left = 536
+      Top = 146
+      Width = 56
+      Height = 24
       TabOrder = 10
       Text = '600'
     end
     object matrix_or_column: TComboBox
-      Left = 389
-      Top = 152
-      Width = 132
+      Left = 445
+      Top = 174
+      Width = 150
       Height = 19
       Style = csOwnerDrawFixed
       ItemHeight = 13
@@ -356,29 +356,29 @@ inherited FKPI: TFKPI
   end
   object topPanel: TPanel
     Left = 0
-    Top = 225
-    Width = 206
-    Height = 41
+    Top = 265
+    Width = 616
+    Height = 47
     Align = alBottom
     TabOrder = 2
     DesignSize = (
-      206
-      41)
+      616
+      47)
     object BCreate: TSpeedButton
-      Left = 4
-      Top = 11
-      Width = 111
-      Height = 22
+      Left = 391
+      Top = 13
+      Width = 126
+      Height = 25
       Anchors = [akRight, akBottom]
       Caption = 'Tw'#243'rz zestawienie'
       Flat = True
       OnClick = BCreateClick
     end
     object BClose: TSpeedButton
-      Left = 123
-      Top = 11
-      Width = 75
-      Height = 22
+      Left = 527
+      Top = 13
+      Width = 85
+      Height = 25
       Anchors = [akRight, akBottom]
       Caption = 'Zamknij'
       Flat = True

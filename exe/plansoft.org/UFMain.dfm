@@ -4834,28 +4834,31 @@ inherited FMain: TFMain
         'declare'
         ' c number;'
         'begin'
-        '  select count(1) into c from FLEX_COL_USAGE where id = -1;'
-        '  if c=0 then'
+        '  null;'
+        '  --select count(1) into c from FLEX_COL_USAGE where id = -1;'
+        '  --if c=0 then'
         
-          '      insert into flex_col_usage (id, form_name, context_name, a' +
-          'ttr_name, custom_name, caption, width, sql_default_value, sql_ch' +
-          'eck_procedure, sql_check_message, required, label_pos_x, label_p' +
-          'os_y, field_pos_x,'
+          '  --    insert into flex_col_usage (id, form_name, context_name,' +
+          ' attr_name, custom_name, caption, width, sql_default_value, sql_' +
+          'check_procedure, sql_check_message, required, label_pos_x, label' +
+          '_pos_y, field_pos_x,'
         
-          '      field_pos_y, show_in_list, show_in_order_by, system_flag, ' +
-          'show_in_where, creation_date, created_by, last_update_date, last' +
-          '_updated_by)'
+          '  --    field_pos_y, show_in_list, show_in_order_by, system_flag' +
+          ', show_in_where, creation_date, created_by, last_update_date, la' +
+          'st_updated_by)'
         
-          '      values (-1, '#39'FBrowsePLANNERS'#39', '#39'DEFAULT'#39', '#39'ATTRIBS_01'#39', '#39'C' +
-          'HANGE_ME_ATTRIBS_01'#39', '#39'Administrator'#39', 100, '#39'select '#39#39'-'#39#39' from d' +
-          'ual'#39', '#39'select case when :current in ('#39#39'-'#39#39','#39#39'+'#39#39') then'
+          '  --    values (-1, '#39'FBrowsePLANNERS'#39', '#39'DEFAULT'#39', '#39'ATTRIBS_01'#39', ' +
+          #39'CHANGE_ME_ATTRIBS_01'#39', '#39'Administrator'#39', 100, '#39'select '#39#39'-'#39#39' from' +
+          ' dual'#39', '#39'select case when :current in ('#39#39'-'#39#39','#39#39'+'#39#39') then'
         
-          '      null else '#39#39'ERROR'#39#39' end from dual'#39', '#39'Dozwolone znaki w tym' +
-          ' polu to "-" oraz "+"'#39', '#39'+'#39', 50, 8, 119, 0, '#39'+'#39', '#39'+'#39', '#39'+'#39', '#39'+'#39', ' +
-          'sysdate, user, sysdate, user);'
-        '      update planners set ATTRIBS_01='#39'+'#39' where name = '#39'PLANNER'#39';'
-        '      commit;'
-        '  end if;'
+          '  --    null else '#39#39'ERROR'#39#39' end from dual'#39', '#39'Dozwolone znaki w t' +
+          'ym polu to "-" oraz "+"'#39', '#39'+'#39', 50, 8, 119, 0, '#39'+'#39', '#39'+'#39', '#39'+'#39', '#39'+'#39 +
+          ', sysdate, user, sysdate, user);'
+        
+          '  --    update planners set ATTRIBS_01='#39'+'#39' where name = '#39'PLANNER' +
+          #39';'
+        '  --    commit;'
+        '  --end if;'
         'End;'
         '### EXTENTION END'
         ''
@@ -6410,8 +6413,26 @@ inherited FMain: TFMain
         '### EXTENTION END'
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:planners.parent_id'
+        '### DATE:2017.01.28'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'PERIODS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.planners add (' +
+          'parent_id number)'#39';'
+        '  exception when others then raise;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2016.09.20'
+        '### DATE:2017.01.29'
         'begin'
         ' --your next extention here'
         ' --notes:'
@@ -7099,8 +7120,8 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object mostlyUsedQuery: TMemo
-      Left = 27
-      Top = 411
+      Left = 115
+      Top = 603
       Width = 212
       Height = 102
       Lines.Strings = (
@@ -7151,8 +7172,8 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object TopCntQuery: TMemo
-      Left = 37
-      Top = 421
+      Left = 93
+      Top = 581
       Width = 211
       Height = 101
       Lines.Strings = (
@@ -7187,64 +7208,76 @@ inherited FMain: TFMain
         '       end name'
         '     , type'
         '     , res_id id'
-        '     , cnt '
+        '     , cnt'
         ' from'
         '('
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select lec_id res_id, '#39'L'#39' type, count(*) cnt'
         #9'  from lec_cla'
         '          where (%PERMISSIONS_L)'
         #9'  group by lec_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select gro_id, '#39'G'#39', count(*) cnt'
         #9'  from gro_cla'
         '          where (%PERMISSIONS_G)'
         #9'  group by gro_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select rom_id, '#39'R'#39', count(*) cnt'
         #9'  from rom_cla'
         '          where (%PERMISSIONS_R)'
         #9'  group by rom_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select sub_id, '#39'S'#39', count(*) cnt'
         #9'  from classes'
         #9'  where sub_id is not null'
         '          and (%PERMISSIONS_S)'
         #9'  group by sub_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select for_id, '#39'F'#39', count(*) cnt'
         #9'  from classes'
         '          where (%PERMISSIONS_F)'
         #9'  group by for_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         
           #9'select (select id from planners where name = classes.created_by' +
           '), '#39'B'#39', count(*) cnt'
         #9'  from classes'
         #9'  group by created_by'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         ')'
         'order by type, cnt desc, name')
       TabOrder = 7
@@ -7252,8 +7285,8 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object TopCntPeriodQuery: TMemo
-      Left = 46
-      Top = 430
+      Left = 102
+      Top = 590
       Width = 211
       Height = 101
       Lines.Strings = (
@@ -7288,40 +7321,48 @@ inherited FMain: TFMain
         '       end name'
         '     , type'
         '     , res_id id'
-        '     , cnt '
+        '     , cnt'
         ' from'
         '('
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select lec_id res_id, '#39'L'#39' type, count(*) cnt'
         #9'  from lec_cla'
         '          where (%PERMISSIONS_L)'
         '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by lec_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select gro_id, '#39'G'#39', count(*) cnt'
         #9'  from gro_cla'
         '          where (%PERMISSIONS_G)'
         '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by gro_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select rom_id, '#39'R'#39', count(*) cnt'
         #9'  from rom_cla'
         '          where (%PERMISSIONS_R)'
         '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by rom_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select sub_id, '#39'S'#39', count(*) cnt'
         #9'  from classes'
@@ -7329,20 +7370,24 @@ inherited FMain: TFMain
         '          and (%PERMISSIONS_S)'
         '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by sub_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         #9'select for_id, '#39'F'#39', count(*) cnt'
         #9'  from classes'
         '          where (%PERMISSIONS_F)'
         '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by for_id'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         #9'union all'
-        #9'select * from'
+        
+          #9'select * from (select x.*, (row_number() over (partition by nul' +
+          'l order by cnt desc)) rownumber from'
         #9'('
         
           #9'select (select id from planners where name = classes.created_by' +
@@ -7350,8 +7395,8 @@ inherited FMain: TFMain
         #9'  from classes'
         '          where DAY BETWEEN %DATE_FROM and %DATE_TO'
         #9'  group by created_by'
-        #9')'
-        #9'where rownum <= %LIMIT'
+        #9') x'
+        #9') where rownumber <= %LIMIT'
         ')'
         'order by type, cnt desc, name')
       TabOrder = 8

@@ -283,7 +283,7 @@ begin
                  + dateToStr( date_from.DateTime)
                  + ' do ' + dateToStr( date_to.DateTime) );
     writeLn(f, '    Data uruchomienia :' + dateToStr(now) );
-    writeLn(f, '    Uruchomi³: ' + nvl( fmain.conrole_value.text, user) );
+    writeLn(f, '    Uruchomi³: ' + nvl( fmain.conrole_value.text, CurrentUserName) );
     writeLn(f, '');
     writeLn(f, 'Dane do usuniêcia');
     writeLn(f, '');

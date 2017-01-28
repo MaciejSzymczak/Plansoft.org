@@ -58,7 +58,7 @@ var
 
 implementation
 
-uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate;
+uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain;
 
 {$R *.DFM}
 
@@ -98,8 +98,8 @@ End;
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
 begin
  result := true;
- If Query.FieldByName('CREATED_BY').AsString <> User Then Begin
-  Info('Edycji lub usuniêcia danych mo¿e dokonaæ tylko u¿ytkownik, który utworzy³ dan¹');
+ If (Query.FieldByName('CREATED_BY').AsString <> CurrentUserName) and (Fmain.MapPlannerSupervisors.getValue(Query.FieldByName('CREATED_BY').AsString) <> CurrentUserName) Then Begin
+  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;
 end;
@@ -107,8 +107,8 @@ end;
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
  result := true;
- If Query.FieldByName('CREATED_BY').AsString <> User Then Begin
-  Info('Edycji lub usuniêcia danych mo¿e dokonaæ tylko u¿ytkownik, który utworzy³ dan¹');
+ If (Query.FieldByName('CREATED_BY').AsString <> CurrentUserName) and (Fmain.MapPlannerSupervisors.getValue(Query.FieldByName('CREATED_BY').AsString) <> CurrentUserName) Then Begin
+  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;
 end;

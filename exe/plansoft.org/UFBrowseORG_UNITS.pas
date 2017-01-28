@@ -25,7 +25,6 @@ type
     Label3: TLabel;
     Label2: TLabel;
     PARENT_ID_VALUE: TEdit;
-    BSelectPARENT_ID: TBitBtn;
     BClearPARENT_ID: TBitBtn;
     Label4: TLabel;
     CON_PARENT_ID: TEdit;
@@ -40,8 +39,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure QueryBeforePost(DataSet: TDataSet);
     procedure PARENT_IDChange(Sender: TObject);
-    procedure BSelectPARENT_IDClick(Sender: TObject);
-    procedure PARENT_ID_VALUEDblClick(Sender: TObject);
     procedure BClearPARENT_IDClick(Sender: TObject);
     procedure CON_PARENT_IDChange(Sender: TObject);
     procedure BSelOUClick(Sender: TObject);
@@ -55,6 +52,7 @@ type
     procedure BOrgChartClick(Sender: TObject);
     procedure Wywietl1Click(Sender: TObject);
     procedure Wicejopcji1Click(Sender: TObject);
+    procedure PARENT_ID_VALUEClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -107,7 +105,7 @@ End;
 procedure TFBrowseORG_UNITS.FormCreate(Sender: TObject);
 begin
   inherited;
-  SetNotUpdatable([CODE, PARENT_ID, PARENT_ID_VALUE, BSelectPARENT_ID, BClearPARENT_ID], [LabelCODE, LabelPARENT_ID]);
+  SetNotUpdatable([CODE, PARENT_ID, PARENT_ID_VALUE, BClearPARENT_ID], [LabelCODE, LabelPARENT_ID]);
 end;
 
 procedure TFBrowseORG_UNITS.QueryBeforePost(DataSet: TDataSet);
@@ -119,20 +117,6 @@ end;
 procedure TFBrowseORG_UNITS.PARENT_IDChange(Sender: TObject);
 begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ORG_UNITS','');
-end;
-
-procedure TFBrowseORG_UNITS.BSelectPARENT_IDClick(Sender: TObject);
-Var ID : ShortString;
-begin
-  ID := PARENT_ID.Text;
-  //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
-end;
-
-procedure TFBrowseORG_UNITS.PARENT_ID_VALUEDblClick(Sender: TObject);
-begin
-  inherited;
-  if BSelectPARENT_ID.Enabled then BSelectPARENT_IDClick(nil);
 end;
 
 procedure TFBrowseORG_UNITS.BClearPARENT_IDClick(Sender: TObject);
@@ -270,6 +254,14 @@ begin
       ,nvl(dmodule.SingleValue('select struct_code from org_units where id='+nvl(ORGID.Text,'-1')),'%')
       );
   end;
+end;
+
+procedure TFBrowseORG_UNITS.PARENT_ID_VALUEClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := PARENT_ID.Text;
+  //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
+  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
 end;
 
 end.

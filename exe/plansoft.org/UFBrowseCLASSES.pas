@@ -272,7 +272,7 @@ end;
 
 function TFBrowseCLASSES.CanDelete: Boolean;
 begin
- if Query.FieldByName('OWNER').AsString <> User Then Begin
+ if (Query.FieldByName('OWNER').AsString <> CurrentUserName) and (Fmain.MapPlannerSupervisors.getValue(Query.FieldByName('OWNER').AsString) <> CurrentUserName) Then Begin
   Info( format ( 'Nie mo¿esz usun¹æ tego %s, poniewa¿ w³aœcicielem %s jest ', [fprogramsettings.profileObjectNameClassgen.text, fprogramsettings.profileObjectNameClassgen.text] )+Query.FieldByName('OWNER').AsString);
   Result := False;
  End

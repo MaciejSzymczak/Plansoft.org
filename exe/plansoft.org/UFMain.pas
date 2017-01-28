@@ -979,6 +979,7 @@ type
     MapGroColors : TMap;
     MapRomColors : TMap;
     MapPlanners  : TMap;
+    MapPlannerSupervisors : TMap;
     silentMode : boolean;
     AObjectId : integer;
 
@@ -1227,7 +1228,7 @@ begin
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
-   'select id from classes where day between '+DateFrom+' and '+DateTo+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+User+''')'+cr+
+   'select id from classes where day between '+DateFrom+' and '+DateTo+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
    iif(NotLec='','','union select cla_id from lec_cla where day between '+DateFrom+' and '+DateTo+' and '+NotLec+cr)+
    iif(NotGro='','','union select cla_id from gro_cla where day between '+DateFrom+' and '+DateTo+' and '+NotGro+cr)+
    iif(NotRom='','','union select cla_id from rom_cla where day between '+DateFrom+' and '+DateTo+' and '+NotRom+cr)+
@@ -1879,6 +1880,7 @@ begin
   MapGroColors:= Tmap.Create;
   MapRomColors:= Tmap.Create;
   MapPlanners := Tmap.Create;
+  MapPlannerSupervisors := Tmap.Create;
 
   ignoreEvents := false;
   userLogged := false;
@@ -2085,7 +2087,7 @@ Begin
              'FROM LECTURERS ' + CR +
              'WHERE ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+getUserOrRoleID+') ' + CR +
              'AND '+getWhereFastFilter(filter.Text,'LECTURERS')+CR+
-             'ORDER BY ABBREVIATION ');
+             'ORDER BY ABBREVIATION');
      1:With DModule do
            OPENSQL2(
              'SELECT   ID, '+sql_GRONAME+' NAME' + CR +
@@ -2884,7 +2886,7 @@ Procedure TFMain.insertClasses;
      // passing parameters sometimes failed !
      TS      := UFmain.dummyTS;
      Zajecia := UFmain.dummyHour;
-     checkConflicts.ConflictsReport( User, TS, Zajecia, PLecturers, PGroups, PRooms, S, FormId, 0, fill, colour, Created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4);
+     checkConflicts.ConflictsReport(TS, Zajecia, PLecturers, PGroups, PRooms, S, FormId, 0, fill, colour, Created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4);
     End;
 
     result := false;
@@ -3028,8 +3030,8 @@ begin
    , 0
    , dmodule.SingleValue('select kind from forms where id='+nvl(ConForm.Text,'-1'))
    , TabViewType.TabIndex
-   , User
-   , User
+   , CurrentUserName
+   , CurrentUserName
    , '','','',''
    );
 
@@ -4175,7 +4177,8 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    User             := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing FROM PLANNERS WHERE NAME=USER');
+    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing FROM PLANNERS WHERE NAME=USER');
+    UserID           := DModule.QWork.Fields[1].AsString;
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
     EditOrgUnits     := DModule.QWork.Fields[3].AsString = '+';
     EditFlex         := DModule.QWork.Fields[4].AsString = '+';
@@ -4184,15 +4187,15 @@ begin
     confineCalendarId:= DModule.QWork.Fields[7].AsString;
     editReservations := DModule.QWork.Fields[8].AsString = '+';
     editSharing      := DModule.QWork.Fields[9].AsString = '+';
-    UserID  := DModule.QWork.Fields[1].AsString;
-  Except User := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
+  Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
 
   dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors, true);
   dmodule.loadMap('select id,NVL(COLOUR,0) from groups', MapGroColors, true);
   dmodule.loadMap('select id,NVL(COLOUR,0) from rooms', MapRomColors, true);
   //
   dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
-  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+user+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
+  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
+  dmodule.loadMap('select name,(select name from planners x where id=planners.parent_id) from planners', MapPlannerSupervisors, true);
 
   if not strIsEmpty(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
@@ -4209,7 +4212,7 @@ begin
   end;
 
 
-  If strIsEmpty(User) Then Begin
+  If strIsEmpty(CurrentUserName) Then Begin
     Info('Nie masz uprawnieñ do korzystania z aplikacji - brak informacji w tabeli PLANNERS');
     Result := False;
     Exit;
@@ -4542,7 +4545,7 @@ begin
  if FLegend.PageControl.ActivePage <> FLegend.TabSheetCOUNTER then
  if (FLegend.FindMode.ItemIndex > 0 ) and FLegend.Visible then begin
    //if convertGrid.ColRowToDate(AObjectId, TS,Zajecia,aCol,aRow) = ConvClass then begin
-     GetEnabledLGR(ConLecturer.Text, ConGroup.Text, conResCat0.Text, ConSubject.Text, ConForm.Text, User , FLegend.FindMode.ItemIndex = 2, CONDL, CONDG, CONDR, '1');
+     GetEnabledLGR(ConLecturer.Text, ConGroup.Text, conResCat0.Text, ConSubject.Text, ConForm.Text, CurrentUserName , FLegend.FindMode.ItemIndex = 2, CONDL, CONDG, CONDR, '1');
      FLegend.SetWheres(CONDL, CONDG, CONDR);
    //end else begin
    //  FLegend.SetWheres('LECTURERS.ID IN (-1)','GROUPS.ID IN (-1)','ROOMS.ID IN (-1)');
@@ -5535,7 +5538,7 @@ begin
    clMove: begin
              newClass.hour := newZajecia;
              newClass.day  := newTS;
-             newClass.owner := upperCase(user);
+             newClass.owner := upperCase(CurrentUserName);
              if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
              if not insertClass ( newClass, pttCombIds ) then exit;
              if not deleteClass ( oldClass ) then exit;
@@ -5543,7 +5546,7 @@ begin
    clCopy: begin
              newClass.hour := newZajecia;
              newClass.day  := newTS;
-             newClass.owner := upperCase(user);
+             newClass.owner := upperCase(CurrentUserName);
              if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
              if not insertClass ( newClass, pttCombIds ) then exit;
            end;
@@ -6844,24 +6847,24 @@ procedure TFMain.BRescat1Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := dmodule.pResCatId1;
-  setSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+user, conResCat1.Text);
+  setSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+CurrentUserName, conResCat1.Text);
   If AutoCreate.RESOURCE_CATEGORIESShowModalAsSelect(ID) = mrOK Then begin
     dmodule.pResCatId1 := ID;
     onpResCatId1Change;
   end;
-  conResCat1.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+user);
+  conResCat1.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+CurrentUserName);
 end;
 
 procedure TFMain.BRescat0Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := dmodule.pResCatId0;
-  setSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+user, conResCat0.Text);
+  setSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+CurrentUserName, conResCat0.Text);
   If AutoCreate.RESOURCE_CATEGORIESShowModalAsSelect(ID) = mrOK Then begin
     dmodule.pResCatId0 := ID;
     onpResCatId0Change;
   end;
-  conResCat0.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+user);
+  conResCat0.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+CurrentUserName);
 end;
 
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -8689,6 +8692,7 @@ Begin
         sqlString := stringreplace(sqlString, '%DATE_FROM',  DateToOracle(periodDateFrom), [rfReplaceAll]);
         sqlString := stringreplace(sqlString, '%DATE_TO', DateToOracle(periodDateTo), [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
+        //copytoclipboard(  sqlString); info ('debug');
     end;
 
     with fastQuery do begin

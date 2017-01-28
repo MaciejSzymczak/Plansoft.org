@@ -177,7 +177,7 @@ procedure webBrowser( purl : string);
 
 
 Var
-    User      : ShortString;
+    CurrentUserName : ShortString;
     IsAdmin      : boolean;
     EditOrgUnits : boolean;
     EditFlex     : boolean;
@@ -188,7 +188,6 @@ Var
     confineCalendarId : ShortString;
     UserID    : ShortString;
     MASKA     : String;
-    SygnaturaUzytkownika : ShortString;
     VersionOfApplication : ShortString;
     NazwaAplikacji : ShortString;
     Uprawnienia    : String[200];
@@ -1969,7 +1968,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2016-04-05';
+ VersionOfApplication := '2017-01-28';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

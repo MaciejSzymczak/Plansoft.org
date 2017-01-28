@@ -1425,7 +1425,7 @@ begin
    If TotalTime > 7 Then Begin
     If GetSystemParam('DISPL_KOM001') <> DateToStr(Date) Then Begin
 
-      DModule.InsertIntoEventLog('KON','KOM-001',Application.Title + '.' + Self.Name,TT,'','','','',User);
+      DModule.InsertIntoEventLog('KON','KOM-001',Application.Title + '.' + Self.Name,TT,'','','','',CurrentUserName);
       Warning(
       'Komunikat KOM-001'+CR+
       'Czas odpowiedzi systemu wynosi '+TT+' [sekundy]. Powoduje to dyskomfort pracy.'+CR+

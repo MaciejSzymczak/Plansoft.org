@@ -89,8 +89,6 @@ var tmpFile : textfile;
     kpis    : string;
     sqlstmt : string;
 begin
-  if not elementEnabled('"Wskaüniki efektywnoúci"','2013.08.19', false) then exit;
-
   kpis :=
        map.Lines.Values[Selector1.Text]
       +map.Lines.Values[Selector2.Text]
@@ -141,7 +139,7 @@ end;
 
 procedure TFKPI.advClick(Sender: TObject);
 begin
- if adv.Checked then self.width := 536 else self.width := 216;
+ if adv.Checked then self.width := 616 else self.width := 371;
 end;
 
 procedure TFKPI.FormShow(Sender: TObject);

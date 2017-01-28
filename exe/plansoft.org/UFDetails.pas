@@ -492,7 +492,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR(L1.Text, '', '', '', '', User , true, CONDL, CONDG, CONDR, pctAvailable, 'L');
+  GetEnabledLGR(L1.Text, '', '', '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'L');
   KeyValues := '';
   setResLimitation(g_lecturer);
   If LECTURERSShowModalAsMultiSelect(KeyValues,'',CONDL, getText(pctAvailable) ) = mrOK then begin
@@ -511,7 +511,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', G1.Text, '', '', '', User , true, CONDL, CONDG, CONDR, pctAvailable, 'G');
+  GetEnabledLGR('', G1.Text, '', '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'G');
   KeyValue := '';
   setResLimitation(g_group);
   If GROUPSShowModalAsMultiselect(KeyValues,'',CONDG, getText(pctAvailable) ) = mrOK Then Begin
@@ -530,7 +530,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', '', ResCat0_1.Text, '', '', User , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
+  GetEnabledLGR('', '', ResCat0_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
   setResLimitation( strToInt(dmodule.pResCatId0) );
   if ROOMSShowModalAsMultiselect(dmodule.pResCatId0,'',KeyValues,CONDR, getText(pctAvailable) ) = mrOK Then  Begin
@@ -549,7 +549,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', '', ResCat1_1.Text, '', '', User , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
+  GetEnabledLGR('', '', ResCat1_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
   setResLimitation( strToInt(dmodule.pResCatId1) );
   if ROOMSShowModalAsMultiselect(dmodule.pResCatId1,'',KeyValues,CONDR, getText(pctAvailable) ) = mrOK Then  Begin
@@ -815,7 +815,7 @@ begin
   rescat1_2_value.Hint:= ansiUpperCase( dmodule.pResCatName1 );
   LRescat1_2.Caption := dmodule.pResCatName1;
 
-  If nvl(Owner_.Text, User) = User Then Begin
+  If (Owner_.Text = CurrentUserName) or (Fmain.MapPlannerSupervisors.getValue(Owner_.Text) = CurrentUserName) Then Begin
     Owner_.Color        := ClWindow;
     SelectOwner.Enabled := True;
     //pc.Enabled          := True;

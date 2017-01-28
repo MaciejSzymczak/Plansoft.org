@@ -4,21 +4,20 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
   Width = 876
   Height = 638
   Caption = 'Zestawy warto'#347'ci'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 587
+    Top = 579
     Width = 868
   end
   inherited MainPage: TPageControl
     Width = 868
-    Height = 587
-    ActivePage = Update
+    Height = 579
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 459
         Top = 95
-        Height = 405
+        Height = 395
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -26,7 +25,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
       end
       inherited Grid: TRxDBGrid
         Width = 459
-        Height = 405
+        Height = 395
         Columns = <
           item
             Expanded = False
@@ -102,11 +101,11 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 519
+        Top = 509
         Width = 860
       end
       inherited Panel: TPanel
-        Top = 500
+        Top = 490
         Width = 860
         inherited StatusBar: TStatusBar
           Width = 791
@@ -122,7 +121,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 462
         Top = 95
         Width = 398
-        Height = 405
+        Height = 395
         Align = alRight
         Caption = 'PanelDetailsBackground'
         TabOrder = 6
@@ -214,10 +213,10 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         ParentFont = False
       end
       object LabelDESCRIPTION: TLabel [2]
-        Left = 91
+        Left = 84
         Top = 64
-        Width = 22
-        Height = 14
+        Width = 29
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis'
         FocusControl = DESCRIPTION
@@ -253,28 +252,28 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         ParentFont = False
       end
       object LabelCHECK_PROCEDURE: TLabel [5]
-        Left = 8
+        Left = -19
         Top = 272
-        Width = 104
-        Height = 14
+        Width = 131
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowa walidacja'
         FocusControl = CHECK_PROCEDURE
       end
       object LabelMIN_LENGTH: TLabel [6]
-        Left = 21
+        Left = -8
         Top = 296
-        Width = 92
-        Height = 14
+        Width = 121
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Min.-maks. d'#322'ugo'#347#263
         FocusControl = MIN_LENGTH
       end
       object LabelWHO_CREATION_DATE: TLabel [7]
-        Left = 33
+        Left = 12
         Top = 320
-        Width = 80
-        Height = 14
+        Width = 101
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Data utworzenia'
         FocusControl = WHO_CREATION_DATE
@@ -282,16 +281,16 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
       object LabelWHO_LAST_UPDATE_DATE: TLabel [8]
         Left = 280
         Top = 320
-        Width = 212
-        Height = 14
+        Width = 280
+        Height = 16
         Caption = 'Data ostat. zmiany:........................................'
         FocusControl = WHO_LAST_UPDATE_DATE
       end
       object LabelWHO_CREATED_BY: TLabel [9]
-        Left = 69
+        Left = 62
         Top = 344
-        Width = 44
-        Height = 14
+        Width = 51
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Utworzy'#322
         FocusControl = WHO_CREATED_BY
@@ -299,16 +298,16 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
       object LabelWHO_LAST_UPDATED_BY: TLabel [10]
         Left = 280
         Top = 344
-        Width = 232
-        Height = 14
+        Width = 302
+        Height = 16
         Caption = 'Ostatnio zaktualizowa'#322':........................................'
         FocusControl = WHO_LAST_UPDATED_BY
       end
       object LabelWHO_LAST_UPDATE_LOGIN: TLabel [11]
-        Left = 79
+        Left = 68
         Top = 368
-        Width = 34
-        Height = 14
+        Width = 45
+        Height = 16
         Alignment = taRightJustify
         Caption = 'ID sesji'
         FocusControl = WHO_LAST_UPDATE_LOGIN
@@ -316,19 +315,19 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
       object Label2: TLabel [12]
         Left = 424
         Top = 272
-        Width = 306
-        Height = 14
+        Width = 398
+        Height = 16
         Caption = 'Funkcja PL/SQL ( function NAME ( s varchar2 ) return varchar2'
       end
       object Label3: TLabel [13]
         Left = 424
         Top = 32
-        Width = 188
-        Height = 14
+        Width = 234
+        Height = 16
         Caption = 'Zaleca si'#281' u'#380'ywanie nazw angielskich'
       end
       inherited UpdPanel: TPanel
-        Top = 523
+        Top = 513
         Width = 860
         TabOrder = 13
         inherited BUpdChild1: TBitBtn
@@ -345,7 +344,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 777
         Top = 8
         Width = 80
-        Height = 22
+        Height = 24
         Hint = 'ID'
         Color = cl3DLight
         DataField = 'ID'
@@ -359,7 +358,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 32
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'NAZWA ZESTAWU'
         DataField = 'NAME'
         DataSource = Source
@@ -379,7 +378,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 100
         Width = 88
-        Height = 22
+        Height = 24
         Hint = 'TYP ZESTAWU'
         Color = cl3DLight
         DataField = 'SET_TYPE'
@@ -402,7 +401,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 264
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'DODATKOWA WALIDACJA'
         DataField = 'CHECK_PROCEDURE'
         DataSource = Source
@@ -412,7 +411,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 288
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'MIN_LENGTH'
         DataField = 'MIN_LENGTH'
         DataSource = Source
@@ -423,7 +422,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 273
         Top = 288
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'MAX_LENGTH'
         DataField = 'MAX_LENGTH'
         DataSource = Source
@@ -460,7 +459,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 336
         Width = 152
-        Height = 22
+        Height = 24
         Hint = 'WHO_CREATED_BY'
         Color = cl3DLight
         DataField = 'WHO_CREATED_BY'
@@ -472,7 +471,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 393
         Top = 336
         Width = 152
-        Height = 22
+        Height = 24
         Hint = 'WHO_LAST_UPDATED_BY'
         Color = cl3DLight
         DataField = 'WHO_LAST_UPDATED_BY'
@@ -484,7 +483,7 @@ inherited FBrowseVALUE_SETS: TFBrowseVALUE_SETS
         Left = 121
         Top = 360
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'WHO_LAST_UPDATE_LOGIN'
         Color = cl3DLight
         DataField = 'WHO_LAST_UPDATE_LOGIN'

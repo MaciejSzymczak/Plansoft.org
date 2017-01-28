@@ -4,23 +4,23 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
   Width = 834
   Height = 651
   Caption = 'Warto'#347'ci'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   inherited Status: TPanel
-    Top = 598
+    Top = 592
     Width = 826
   end
   inherited MainPage: TPageControl
     Width = 826
-    Height = 598
+    Height = 592
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 818
       end
       inherited Grid: TRxDBGrid
-        Top = 161
+        Top = 121
         Width = 818
-        Height = 350
+        Height = 382
         Columns = <
           item
             Expanded = False
@@ -317,11 +317,11 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 530
+        Top = 522
         Width = 818
       end
       inherited Panel: TPanel
-        Top = 511
+        Top = 503
         Width = 818
         inherited StatusBar: TStatusBar
           Width = 749
@@ -333,7 +333,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         object Label5: TLabel
           Left = 8
           Top = 12
-          Width = 111
+          Width = 110
           Height = 14
           Caption = 'Nazwa listy.:................'
           Font.Charset = EASTEUROPE_CHARSET
@@ -517,10 +517,10 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         ParentFont = False
       end
       object LabelDESCRIPTION: TLabel [4]
-        Left = 91
+        Left = 84
         Top = 112
-        Width = 22
-        Height = 14
+        Width = 29
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Opis'
         FocusControl = DESCRIPTION
@@ -542,40 +542,40 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
       object LabelWHO_CREATION_DATE: TLabel [6]
         Left = 160
         Top = 252
-        Width = 134
-        Height = 14
+        Width = 173
+        Height = 16
         Caption = 'Data utworzenia:.................'
         FocusControl = WHO_CREATION_DATE
       end
       object LabelWHO_LAST_UPDATE_DATE: TLabel [7]
         Left = 160
         Top = 324
-        Width = 212
-        Height = 14
+        Width = 280
+        Height = 16
         Caption = 'Data ostat. zmiany:........................................'
         FocusControl = WHO_LAST_UPDATE_DATE
       end
       object LabelWHO_CREATED_BY: TLabel [8]
         Left = 160
         Top = 276
-        Width = 131
-        Height = 14
+        Width = 167
+        Height = 16
         Caption = 'Utworzy'#322':............................'
         FocusControl = WHO_CREATED_BY
       end
       object LabelWHO_LAST_UPDATED_BY: TLabel [9]
         Left = 160
         Top = 348
-        Width = 142
-        Height = 14
+        Width = 182
+        Height = 16
         Caption = 'Ostatnio zaktualizowa'#322':..........'
         FocusControl = WHO_LAST_UPDATED_BY
       end
       object LabelWHO_LAST_UPDATE_LOGIN: TLabel [10]
         Left = 160
         Top = 300
-        Width = 157
-        Height = 14
+        Width = 209
+        Height = 16
         Caption = 'ID sesji:........................................'
         FocusControl = WHO_LAST_UPDATE_LOGIN
       end
@@ -583,14 +583,14 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 112
         Top = 32
         Width = 121
-        Height = 22
+        Height = 24
         DataField = 'VALUE_SET_ID'
         DataSource = Source
         TabOrder = 13
         Visible = False
       end
       inherited UpdPanel: TPanel
-        Top = 534
+        Top = 526
         Width = 818
         TabOrder = 11
       end
@@ -603,7 +603,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 745
         Top = 0
         Width = 72
-        Height = 22
+        Height = 24
         Hint = 'KOL.WPR.'
         Color = cl3DLight
         DataField = 'ID'
@@ -617,7 +617,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 121
         Top = 32
         Width = 296
-        Height = 22
+        Height = 24
         Hint = 'NAZWA LISTY'
         DataField = 'LOOKUP_TYPE'
         DataSource = Source
@@ -628,7 +628,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 121
         Top = 56
         Width = 296
-        Height = 22
+        Height = 24
         Hint = 'KOD WEWN.'
         DataField = 'CODE'
         DataSource = Source
@@ -638,7 +638,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 121
         Top = 80
         Width = 296
-        Height = 22
+        Height = 24
         Hint = 'ZNACZENIE'
         DataField = 'MEANING'
         DataSource = Source
@@ -732,7 +732,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 273
         Top = 268
         Width = 152
-        Height = 22
+        Height = 24
         Hint = 'WHO_CREATED_BY'
         Color = cl3DLight
         DataField = 'WHO_CREATED_BY'
@@ -745,7 +745,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 273
         Top = 340
         Width = 152
-        Height = 22
+        Height = 24
         Hint = 'WHO_LAST_UPDATED_BY'
         Color = cl3DLight
         DataField = 'WHO_LAST_UPDATED_BY'
@@ -758,7 +758,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Left = 273
         Top = 292
         Width = 146
-        Height = 22
+        Height = 24
         Hint = 'WHO_LAST_UPDATE_LOGIN'
         Color = cl3DLight
         DataField = 'WHO_LAST_UPDATE_LOGIN'

@@ -619,7 +619,7 @@ end;
 
 Procedure TFormConfig.RefreshStatusPanel;
 Begin
-  Status.Caption := NazwaAplikacji + ' ('+self.Name+ ')     ' +User+ '    ';
+  Status.Caption := NazwaAplikacji + ' ('+self.Name+ ')     ' +CurrentUserName+ '    ';
 End;
 
 function TFormConfig.FormHelp(Command: Word; Data: Integer;
