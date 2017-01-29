@@ -13,7 +13,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 665
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 849
@@ -635,7 +634,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
-                    DA090000424DDA0D000000000000360800002800000013000000130000000100
+                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -845,7 +844,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
-                    DA090000424DDA0D000000000000360800002800000013000000130000000100
+                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -1082,7 +1081,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       object Shape1: TShape [6]
         Left = 120
-        Top = 57
+        Top = 56
         Width = 41
         Height = 21
         OnMouseUp = Shape1MouseUp
@@ -1127,7 +1126,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       object LEmail: TLabel [11]
-        Left = 497
+        Left = 529
         Top = 40
         Width = 24
         Height = 14
@@ -1142,7 +1141,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       object LabelROL_ID: TLabel [12]
-        Left = 466
+        Left = 498
         Top = 59
         Width = 55
         Height = 13
@@ -1157,7 +1156,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       object Label1: TLabel [13]
-        Left = 432
+        Left = 464
         Top = 75
         Width = 89
         Height = 13
@@ -1218,7 +1217,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Visible = False
       end
       object TITLE: TDBEdit [16]
-        Left = 121
+        Left = 120
         Top = 80
         Width = 300
         Height = 24
@@ -1228,7 +1227,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 2
       end
       object ABBREVIATION: TDBEdit [17]
-        Left = 121
+        Left = 120
         Top = 32
         Width = 300
         Height = 24
@@ -1238,7 +1237,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 0
       end
       object FIRST_NAME: TDBEdit [18]
-        Left = 121
+        Left = 120
         Top = 104
         Width = 300
         Height = 24
@@ -1248,7 +1247,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 3
       end
       object LAST_NAME: TDBEdit [19]
-        Left = 121
+        Left = 120
         Top = 128
         Width = 300
         Height = 24
@@ -1330,104 +1329,15 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           186318631863}
       end
       inherited FlexPanel: TPanel
-        Left = 32
+        Left = 4
         Top = 232
+        Width = 861
         TabOrder = 12
-        inherited ATTRIBS_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_15: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_15: TDBEdit
-          Height = 24
-        end
       end
       object EMAIL: TDBEdit
-        Left = 537
+        Left = 560
         Top = 40
-        Width = 300
+        Width = 277
         Height = 24
         Hint = 'EMAIL'
         DataField = 'EMAIL'
@@ -1435,7 +1345,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 1
       end
       object ROL_ID: TDBEdit
-        Left = 529
+        Left = 553
         Top = 64
         Width = 150
         Height = 24
@@ -1448,9 +1358,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         OnChange = ROL_IDChange
       end
       object ROL_ID_VALUE: TEdit
-        Left = 536
+        Left = 560
         Top = 64
-        Width = 257
+        Width = 233
         Height = 24
         Hint = 'RODZAJ'
         ReadOnly = True

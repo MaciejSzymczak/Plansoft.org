@@ -662,9 +662,6 @@ var t : integer;
 begin
    flexEnabled     := getFlexEnabled;
 
-   //if flexEnabled then
-   //  if not elementEnabled('"Atrybuty"','2011.01.01') then begin flexEnabled := false; end;
-
    BFlexDesignMode.Visible := flexEnabled;
    flexContextName := 'DEFAULT';
    flexModified    := false;
@@ -2279,6 +2276,7 @@ Begin
  SingleMode := True;
  // to aviod "obiect was open"
  dmodule.resetConnection(Query);
+ flexRefreshFormView;
  Execute(Action, id);
 
  // to aviod "Nie mo¿na zmieniæ w³aœciwoœci ActiveConnection obiektu Recordset, którego Ÿród³em jest obiekt Command"

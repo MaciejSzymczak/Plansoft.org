@@ -5538,7 +5538,9 @@ begin
    clMove: begin
              newClass.hour := newZajecia;
              newClass.day  := newTS;
-             newClass.owner := upperCase(CurrentUserName);
+             if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
+                 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
+                 else newClass.owner := upperCase(CurrentUserName);
              if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
              if not insertClass ( newClass, pttCombIds ) then exit;
              if not deleteClass ( oldClass ) then exit;
@@ -5546,7 +5548,9 @@ begin
    clCopy: begin
              newClass.hour := newZajecia;
              newClass.day  := newTS;
-             newClass.owner := upperCase(CurrentUserName);
+             if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
+                 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
+                 else newClass.owner := upperCase(CurrentUserName);
              if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
              if not insertClass ( newClass, pttCombIds ) then exit;
            end;
@@ -5967,8 +5971,6 @@ procedure TFMain.bmoverightClick(Sender: TObject);
 begin
   modifyClasses ( +1, 0, clMove,'','' );
 end;
-
-
 
 procedure TFMain.Zestawywarto1Click(Sender: TObject);
 begin
