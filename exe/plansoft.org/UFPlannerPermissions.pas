@@ -42,8 +42,8 @@ type
     brefresh: TBitBtn;
     Label7: TLabel;
     Brefresh2: TBitBtn;
-    Label8: TLabel;
     btransfer: TBitBtn;
+    tmp: TEdit;
     procedure FormShow(Sender: TObject);
     procedure AddClassClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
@@ -359,6 +359,7 @@ begin
  //FindPane.Enabled := elementEnabled('"Panel ZnajdŸ w oknie Uprawnienia"','2011.01.01');
  FindPane.Enabled := true;
  brefresh.Visible := not chRefresh.Checked;
+ Psearch.Text := CurrentUserName;
  LoadGrid;
 end;
 
@@ -553,20 +554,17 @@ begin
   inherited;
   if chRefresh.Checked
   then LoadGrid
-  else info('Automatyczne odœwie¿anie zawartoœci okna zosta³o wy³¹czone. Naciœnij przycisk Odœwie¿ aby odœwie¿yæ zawartoœæ okna rêcznie. Aby w³¹czyæ automatyczne odœwie¿anie zawartoœci okna naciœnij przycisk Odœwie¿aj automatycznie.', showMonthly, 'Odœwie¿anie zawartoœci okna');
 end;
 
 procedure TFPlannerPermissions.brefreshClick(Sender: TObject);
 begin
   inherited;
-  
-  if (not chRefresh.Checked) and (RowSearch.Text='') then
-  begin
-    info ('W trybie rêcznego odœwie¿ania nale¿y wpisaæ nazwy lub fragmenty nazw poszukiwanych obiektów w panelu ZnajdŸ. Je¿eli nie chcesz podawaæ fragmentów nazw obiektów, zaznacz pole wyboru Odœwie¿ automatycznie');
-    exit;
+  if tmp.text<>'' then begin
+      RowSearch.Text := tmp.text;
+      tmp.text := '';
   end;
-
   Brefresh2.Visible := false;
+  tmp.Visible := false;
   mainPage.Visible := true;
   LoadGrid;
 end;

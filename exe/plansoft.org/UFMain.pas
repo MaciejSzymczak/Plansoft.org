@@ -985,6 +985,8 @@ type
 
     PeriodDateFrom : TDateTime;
     PeriodDateTo   : TDateTime;
+    PeriodDateFromSQL : string;
+    PeriodDateToSQL : string;
 
     diableFurtherActivities : boolean;
     currSelectedArea : string[50]; //user by procedure set_tmp_selected_dates
@@ -1547,7 +1549,7 @@ Begin
  End
 End;
 
-Procedure TClassByChildCache._GetClassBy(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
+Procedure TClassByChildCache._GetClassBy(ts : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
 Var t1, t2, X, Y, L1 : Integer;
     DAY1, DAY2 : String;
     Day  : TTimeStamp;
@@ -1873,6 +1875,12 @@ procedure TFMain.FormCreate(Sender: TObject);
    otherCalendar.count :=0;
    confineCalendar.Count :=0;
    BusyClassesCache      := tBusyClassesCache.create;
+
+   ClassByLecturerCaches.init;
+   ClassByGroupCaches.init;
+   ClassByRoomCaches.init;
+   ClassByResCat1Caches.init;
+
   end;
 begin
   MapLecNames := Tmap.Create;
@@ -2071,6 +2079,8 @@ Begin
     DateTo := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
     PeriodDateFrom := DateFrom;
     PeriodDateto := DateTo;
+    PeriodDateFromSQL := DateToOracle(periodDateFrom);
+    PeriodDateToSQL   := DateToOracle(periodDateTo);
   End;
   HOURS_PER_DAY := DModule.QWork.FieldByName('HOURS_PER_DAY').AsInteger;
 
@@ -2307,7 +2317,6 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	End;
 
 	Procedure HighLight(Var Rect : TRect);
-  var orig : tPenMode;
 	Begin
 	 grid.Canvas.Pen.Color := clGray;
    grid.Canvas.Brush.Color := clGray;

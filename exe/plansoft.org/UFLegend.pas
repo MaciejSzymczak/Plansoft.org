@@ -255,8 +255,7 @@ begin
     if not strIsEmpty(fmain.CONPERIOD.Text) then begin
       days := '';
       whereClause :=
-        'CLA.DAY BETWEEN (SELECT DATE_FROM FROM PERIODS WHERE ID = '+nvl(fmain.CONPERIOD.Text,'-1')+') AND ' + CR +
-        '            (SELECT DATE_TO   FROM PERIODS WHERE ID = '  +nvl(fmain.CONPERIOD.Text,'-1')+')     ' + CR;
+        'CLA.DAY BETWEEN ' + fmain.PeriodDateFromSQL + ' AND ' + fmain.PeriodDateToSQL + CR;
 
       with DModule do Begin
         OPENSQL('SELECT SHOW_MON,SHOW_TUE,SHOW_WED,SHOW_THU,SHOW_FRI,SHOW_SAT,SHOW_SUN, hours_per_day  FROM PERIODS WHERE ID = ' + fmain.CONPERIOD.Text);

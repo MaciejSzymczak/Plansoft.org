@@ -68,6 +68,8 @@ Begin
     Init(Self);
     RestrictEmpty([NAME, DATE_FROM, DATE_TO]);
 
+    if DATE_FROM.Date >= DATE_TO.Date  then addError('Data rozpoczêcia musi byæ mniejsza od daty zakoñczenia');
+
     Try
       StrToInt(HOURS_PER_DAY.Text);
     Except

@@ -11,22 +11,9 @@ inherited FPlannerPermissions: TFPlannerPermissions
   object Label7: TLabel [0]
     Left = 238
     Top = 64
-    Width = 624
-    Height = 64
-    Caption = 
-      'Naci'#347'nij przycisk Od'#347'wie'#380', aby od'#347'wie'#380'y'#263' zawarto'#347#263' okna.'#13#10#13#10'Zani' +
-      'm naci'#347'niesz przycisk Od'#347'wie'#380', w panelu Znajd'#378' mo'#380'esz wpisa'#263' naz' +
-      'wy poszukiwanych obiekt'#243'w.'#13#10'Skr'#243'ci to znacznie czas od'#347'wie'#380'ania ' +
-      'zawarto'#347'ci okna.'
-  end
-  object Label8: TLabel [1]
-    Left = 238
-    Top = 146
-    Width = 748
+    Width = 337
     Height = 16
-    Caption = 
-      'Mo'#380'esz te'#380' zaznaczy'#263' pole wyboru Od'#347'wie'#380' automatycznie, w'#243'wczas ' +
-      'zawarto'#347#263' okna b'#281'dzie od'#347'wie'#380'ana automatycznie.'
+    Caption = 'Wpisz w polu poni'#380'ej czego szukasz i naci'#347'nij Od'#347'wie'#380
   end
   inherited Status: TPanel
     Top = 606
@@ -425,13 +412,22 @@ inherited FPlannerPermissions: TFPlannerPermissions
     end
   end
   object Brefresh2: TBitBtn
-    Left = 485
-    Top = 192
+    Left = 549
+    Top = 88
     Width = 165
-    Height = 56
+    Height = 57
     Caption = 'Od'#347'wie'#380
     TabOrder = 4
     OnClick = brefreshClick
+  end
+  object tmp: TEdit
+    Left = 235
+    Top = 101
+    Width = 302
+    Height = 24
+    TabOrder = 5
+    OnChange = PsearchChange
+    OnKeyDown = RowSearchKeyDown
   end
   object PopupMenu: TPopupMenu
     Left = 300
