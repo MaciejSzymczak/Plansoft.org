@@ -37,7 +37,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, menus, ToolEdit, dbgrids,
-     Tabs, DBChart, Chart, dm;
+     Tabs, DBChart, Chart;
 
 Function GetFileNameWithExtension(Form : TForm; Extension : ShortString) : ShortString;
 Begin
@@ -604,8 +604,6 @@ end;
 
 procedure TFormConfig.BUstawieniaFormularzaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Tabela przestawna"','2015.05.08', false) then exit;
-
   If Question('Zostan¹ przywrócone ustawienia fabryczne formularza. Czy kontynuowaæ ?') = ID_YES Then Begin
    SetSystemParam(GetFormName(Self),'Restore');
    DeleteFile( GetFileNameWithExtension(Self,'cfg') );

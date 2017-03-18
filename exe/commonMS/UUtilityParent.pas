@@ -261,7 +261,7 @@ function Decode64(S: string): string;
 
 implementation
 
-Uses Dialogs, registry, messages, commCtrl, ufdetails, inifiles, ToolEdit;
+Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls;
 
 const
   Codes64 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/';
@@ -1752,8 +1752,11 @@ begin
       if (controls[t] is tcheckbox)  then (controls[t] as tcheckbox).Checked := readBool  (sectionName, (controls[t] as tcheckbox).name , (controls[t] as tcheckbox).Checked);
       if (controls[t] is tdateedit)  then (controls[t] as tdateedit).text    := readString(sectionName, (controls[t] as tdateedit).name , (controls[t] as tdateedit).text);
       if (controls[t] is tedit)      then (controls[t] as     tedit).text    := readString(sectionName, (controls[t] as     tedit).name , (controls[t] as     tedit).text);
+      if (controls[t] is tfilenameedit)      then (controls[t] as     tfilenameedit).text    := readString(sectionName, (controls[t] as     tfilenameedit).name , (controls[t] as     tfilenameedit).text);
       if (controls[t] is tmenuitem)  then (controls[t] as tmenuitem).Checked := readBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
+      if (controls[t] is tPageControl)  then (controls[t] as tPageControl).ActivePageIndex := readInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.CommaText);
+      if (controls[t] is tradiogroup)  then (controls[t] as tradiogroup).itemIndex := readInteger  (sectionName, (controls[t] as tradiogroup).name , (controls[t] as tradiogroup).itemIndex);
       if (controls[t] is tcombobox)  then (controls[t] as tcombobox).itemIndex := readInteger  (sectionName, (controls[t] as tcombobox).name , (controls[t] as tcombobox).itemIndex);
     end;
   end;
@@ -1767,13 +1770,16 @@ begin
   iniFile := TIniFile.Create( iniFileName );
   with iniFile do begin
     for t:= 0 To High(controls) do begin
-      if (controls[t] is tcheckbox) then   writeBool  (sectionName, (controls[t] as tcheckbox).name , (controls[t] as tcheckbox).Checked);
-      if (controls[t] is tdateedit) then   writeString(sectionName, (controls[t] as tdateedit).name , (controls[t] as tdateedit).text);
-      if (controls[t] is tedit)     then   writeString(sectionName, (controls[t] as     tedit).name , (controls[t] as     tedit).text);
-      if (controls[t] is tmenuitem) then   writeBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
+      if (controls[t] is tcheckbox)     then   writeBool  (sectionName, (controls[t] as tcheckbox).name , (controls[t] as tcheckbox).Checked);
+      if (controls[t] is tdateedit)     then   writeString(sectionName, (controls[t] as tdateedit).name , (controls[t] as tdateedit).text);
+      if (controls[t] is tedit)         then   writeString(sectionName, (controls[t] as     tedit).name , (controls[t] as     tedit).text);
+      if (controls[t] is tfilenameedit) then   writeString(sectionName, (controls[t] as     tfilenameedit).name , (controls[t] as     tfilenameedit).text);
+      if (controls[t] is tmenuitem)     then   writeBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
+      if (controls[t] is tPageControl)  then   writeInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       //encode to aviod issues with special chars
-      if (controls[t] is tstrholder) then  writeString(sectionName, (controls[t] as tstrholder).name, encode64((controls[t] as tstrholder).Strings.CommaText));
-      if (controls[t] is tcombobox) then   writeInteger(sectionName, (controls[t] as tcombobox).name, (controls[t] as tcombobox).ItemIndex);
+      if (controls[t] is tstrholder)    then  writeString(sectionName, (controls[t] as tstrholder).name, encode64((controls[t] as tstrholder).Strings.CommaText));
+      if (controls[t] is tcombobox)     then   writeInteger(sectionName, (controls[t] as tcombobox).name, (controls[t] as tcombobox).ItemIndex);
+      if (controls[t] is tradiogroup)     then   writeInteger(sectionName, (controls[t] as tradiogroup).name, (controls[t] as tradiogroup).ItemIndex);
     end;
   end;
   iniFile.Free;
