@@ -3,12 +3,11 @@ unit DM;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  DBTables, Db, StrHlder, UUtilityParent, dbctrls, stdctrls, ADODB, DateUtils,
-  OleServer, ExcelXP,
-  UFormConfig, Buttons, ExtCtrls,  Grids, DBGrids,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  DBTables, Db, StrHlder, UUtilityParent, dbctrls, stdctrls, ADODB, DateUtils, Buttons, ExtCtrls,  Grids, DBGrids,
   ComCtrls,  Menus,
-  {used by export to excel} ActiveX, TlHelp32,  Variants;
+  {used by export to excel} ActiveX,  TlHelp32, Variants, OleServer,
+  ExcelXP;
 
 Const MaxAllLecturers     =   5000;
       MaxAllGroups        =   5000;
@@ -213,33 +212,6 @@ begin
     end;
 end;
 
-{
-function elementEnabled(elementName : string; daysLimit : integer) : boolean;
- var installMarker : string;
-     installDate   : integer;
-     daysRemaining : integer;
-     todayMarker   : integer;
-begin
-    result := true;
-    installMarker := encGetSystemParam('installMarker');
-
-    if getTerminalName <> extractWord(2,installMarker,[';']) then begin
-      serror('Wykryto próbê ominiêcia zabezpieczeñ programu (4). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia getTerminalName='+getTerminalName+' installMarker=' + installMarker);
-      dmodule.CloseDBConnection;
-      halt;
-    end;
-
-    installDate := strToInt ( nvl( extractWord(1,installMarker,[';']), '0') );
-    todayMarker := datetimeToTimeStamp ( DateUtils.Today ).Date;
-    daysRemaining := installDate + daysLimit - todayMarker;
-    if daysRemaining > 0 then begin
-      info(elementName + ' to demonstracyjny element programu, który jest dostêpny przez '+intToStr(daysLimit)+' dni od czasu uruchomienia programu. Mo¿esz korzystaæ z tej funkcji jeszcze przez nastêpuj¹c¹ liczbê dni: ' + intToStr(daysRemaining), showOneTimeaDay, elementName);
-    end else begin
-      warning('Uruchomiono demonstracyjn¹ wersjê elementu: '+elementName+'. Nie mo¿esz ju¿ korzystaæ z tej funkcji, poniewa¿ minê³o '+intToStr(daysLimit)+' dni od dnia, kiedy program zosta³ zainstalowany. Skontaktuj siê z dostawc¹ oprogramowania');
-      result := false;
-    end;
-end;
-}
 
 // macro implementation
 ////////////////////////////////////////////////////////

@@ -16,20 +16,10 @@ uses
   UFDatabaseError in '..\CommonMS\UFDatabaseError.pas' {FDatabaseError},
   UCommon in 'UCommon.pas',
   UFInfoParent in '..\CommonMS\UFInfoParent.pas' {FInfoParent},
-  UFToolSelectColumns in '..\CommonMS\UFToolSelectColumns.pas' {FToolSelectColumns},
   UFInfo in 'UFInfo.pas' {FInfo},
-  UFModuleOleExport in '..\CommonMS\UFModuleOleExport.pas' {FModuleOleExport},
-  UFModuleSummarySQL in '..\CommonMS\UFModuleSummarySQL.pas' {FModuleSummarySQL},
   UFModuleConfigure in '..\CommonMS\UFModuleConfigure.pas' {FModuleConfigure},
   UFModuleCrossCombination in '..\CommonMS\UFModuleCrossCombination.pas' {FModuleCrossCombination},
   UFModuleFilter in '..\CommonMS\UFModuleFilter.pas' {FModuleFilter},
-  UFModulePrint in '..\CommonMS\UFModulePrint.pas' {FModulePrint},
-  UFModulePrintAdvanced in '..\CommonMS\UFModulePrintAdvanced.pas' {FModulePrintAdvanced},
-  UFModuleSummary in '..\CommonMS\UFModuleSummary.pas' {FModuleSummary},
-  UFModuleSummaryConfig in '..\CommonMS\UFModuleSummaryConfig.pas' {FModuleSummaryConfig},
-  UFModuleSummaryDlgOptions in '..\CommonMS\UFModuleSummaryDlgOptions.pas' {FModuleSummaryDlgOptions},
-  UFModuleSummaryFields in '..\CommonMS\UFModuleSummaryFields.pas' {FModuleSummaryFields},
-  UFModuleChart in '..\CommonMS\UFModuleChart.pas' {FModuleChart},
   UFBrowseLECTURERS in 'UFBrowseLECTURERS.pas' {FBrowseLECTURERS},
   uFBrowseGROUPS in 'uFBrowseGROUPS.pas' {FBrowseGROUPS},
   UFBrowseROOMS in 'UFBrowseROOMS.pas' {FBrowseROOMS},
@@ -49,12 +39,7 @@ uses
   UFWWWGenerator in 'UFWWWGenerator.pas' {FWWWGenerator},
   UFMatrix in 'UFMatrix.pas' {FMatrix},
   textnum in '..\CommonMS\textnum.pas',
-  UFEksport in '..\CommonMS\UFEksport.pas' {FEksport},
   UFIntro in '..\CommonMS\UFIntro.pas' {FIntro},
-  UFCharASCI in '..\CommonMS\UFCharASCI.pas' {FCharASCI},
-  UFLogFileSettings in '..\CommonMS\UFLogFileSettings.pas' {FLogFileSettings},
-  UFMemoryStatus in '..\CommonMS\UFMemoryStatus.pas' {FMemoryStatus},
-  UFPackManyFiles in '..\CommonMS\UFPackManyFiles.pas' {FPackManyFiles},
   UFExp in 'UFExp.pas' {FExp},
   UFImp in 'UFImp.pas' {FImp},
   UFProgramSettings in 'UFProgramSettings.pas' {FProgramSettings},
@@ -73,7 +58,6 @@ uses
   UFlex in 'UFlex.pas' {Flex: TFrame},
   UFFlexNewAttribute in '..\CommonMS\UFFlexNewAttribute.pas' {FFlexNewAttribute},
   UFBrowseFLEX_COL_USAGE in 'UFBrowseFLEX_COL_USAGE.pas' {FBrowseFLEX_COL_USAGE},
-  UFprogressBar in 'UFprogressBar.pas' {FprogressBar},
   UFTTCheckResults in 'UFTTCheckResults.pas' {FTTCheckResults},
   UFTTCombinations in 'UFTTCombinations.pas' {FTTCombinations},
   UFBrowseTT_RESCAT_COMBINATIONS in 'UFBrowseTT_RESCAT_COMBINATIONS.pas' {FBrowseTT_RESCAT_COMBINATIONS},
@@ -87,7 +71,6 @@ uses
   UFBrowseFIN_LINES in 'UFBrowseFIN_LINES.pas' {FBrowseFIN_LINES},
   UFBrowseFIN_LOOKUP_VALUES in 'UFBrowseFIN_LOOKUP_VALUES.pas' {FBrowseFIN_LOOKUP_VALUES},
   UFIN_LINESGenerator in 'UFIN_LINESGenerator.pas' {FFIN_LINESGenerator},
-  GoogleCal in 'GoogleCal.pas',
   UFBrowseGRIDS in 'UFBrowseGRIDS.pas' {FBrowseGRIDS},
   UWeeklyTable in 'UWeeklyTable.pas',
   UFGrouping in 'UFGrouping.pas' {FGrouping},
@@ -137,8 +120,6 @@ begin
      encSetSystemParam('installMarker', intToStr(todayMarker) + ';' + UUtilityParent.GetTerminalName, 'Planowanie');
      encSetSystemParam('licenseType', '120DAYS' + ';' + UUtilityParent.GetTerminalName, 'Planowanie');
      licenseType := encGetSystemParam('licenseType');
-     //serror('Aby korzystaæ z programu, musisz najpier uruchomiæ program aktywuj¹cy, za pomoc¹ którego wybierzesz rodzaj licencji. Skontaktuj siê z dostawc¹ oprogramowania.');
-     //halt;
     end;
 
     if getTerminalName <> extractWord(2,licenseType,[';']) then begin
@@ -173,46 +154,7 @@ begin
 end;
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-{
-    procedure PatchINT3;
-    var
-      NOP : Byte;
-      NTDLL: THandle;
-      BytesWritten: DWORD;
-      Address: Pointer;
-    begin
-      if Win32Platform <> VER_PLATFORM_WIN32_NT then Exit;
-      NTDLL := GetModuleHandle('NTDLL.DLL');
-      if NTDLL = 0 then Exit;
-      Address := GetProcAddress(NTDLL, 'DbgBreakPoint');
-      if Address = nil then Exit;
-      try
-        if Char(Address^) <> #$CC then Exit;
-        NOP := $90;
-        if WriteProcessMemory(GetCurrentProcess, Address, @NOP, 1, BytesWritten) and
-          (BytesWritten = 1) then
-          FlushInstructionCache(GetCurrentProcess, Address, 1);
-    except
-        //Do not panic if you see an EAccessViolation here, it is perfectly harmless!
-        on EAccessViolation do ;
-        else raise;
-      end;
-    end;
-}
 begin
-  {
-  problem occured when debugging a application without breakpoints and stops the program. Below information displayed on CPU window:
-  And runing the App with windows XP & delphi 7.Anybody got any idea and what is going on? Please share the solution for this problem.
-  ntdll.DbgBreakPoint:
-  7C90120E CC int 3
-  7C90120F C3 ret  <-----------stops here
-  7C901210 8BFF mov,edi,edi
-  workaround:
-  http://www.howtodothings.com/computers/a898-ntdlldbguserbreakpoint.html
-  }
-  //PatchINT3;
-
   checkLicence;
   Application.Initialize;
   Application.CreateForm(TDModule, DModule);
@@ -222,30 +164,23 @@ begin
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFProgramSettings, FProgramSettings);
   Application.CreateForm(TFMatrix, FMatrix);
-  Application.CreateForm(TFEksport, FEksport);
-  Application.CreateForm(TFCharASCI, FCharASCI);
-  Application.CreateForm(TFLogFileSettings, FLogFileSettings);
-  Application.CreateForm(TFExp, FExp);
-  Application.CreateForm(TFImp, FImp);
-  Application.CreateForm(TFDatabaseLogin, FDatabaseLogin);
-  Application.CreateForm(TFChangePassword, FChangePassword);
+  //Application.CreateForm(TFCharASCI, FCharASCI);
+  FExp := nil;
+  FImp := nil;
   Application.CreateForm(TFToolWindow, FToolWindow);
-  Application.CreateForm(TFCopyClasses, FCopyClasses);
-  Application.CreateForm(TFPurgeData, FPurgeData);
-  Application.CreateForm(TFFlexNewAttribute, FFlexNewAttribute);
-  Application.CreateForm(TFprogressBar, FprogressBar);
+  FCopyClasses := nil;
+  FPurgeData := nil;
+  FFlexNewAttribute := nil;
+  //Application.CreateForm(TFprogressBar, FprogressBar);
   Application.CreateForm(TFTTCheckResults, FTTCheckResults);
-  Application.CreateForm(TFMassImport, FMassImport);
-  Application.CreateForm(TFAbolitionTime, FAbolitionTime);
-  Application.CreateForm(TFFIN_LINESGenerator, FFIN_LINESGenerator);
+  FMassImport := nil;
+  FAbolitionTime := nil;
   Application.CreateForm(TFGrouping, FGrouping);
-  Application.CreateForm(TFDatesSelector, FDatesSelector);
-  Application.CreateForm(TFGoogleOrgChart, FGoogleOrgChart);
-  Application.CreateForm(TFSlideshowGenerator, FSlideshowGenerator);
-  Application.CreateForm(TFPattern, FPattern);
+  FDatesSelector := nil;
+  FPattern := nil;
   Application.CreateForm(TFActionTree, FActionTree);
   Application.CreateForm(TFCellLayout, FCellLayout);
-  Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
+  FSelectDaysOfWeek := nil;
   Application.CreateForm(TFSharing, FSharing);
   Application.Run;
 end.

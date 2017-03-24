@@ -56,12 +56,15 @@ Function Login(var aDataBaseName, aUserName, aPassword : ShortString) : TModalRe
 
 implementation
 
+uses UFChangePassword;
+
 {$R *.DFM}
 
 
 Function Login(var aDataBaseName, aUserName, aPassword : ShortString) : TModalResult;
 Begin
- FDatabaseLogin :=  TFDatabaseLogin.Create(Application);
+ Application.CreateForm(TFDatabaseLogin, FDatabaseLogin);
+ //FDatabaseLogin :=  TFDatabaseLogin.Create(Application);
 
  With FDatabaseLogin Do Begin
 
@@ -209,7 +212,6 @@ begin
     5:setRgb(t,0,255,255);
    end;
  end;
-
 
 //biezace okno staje sie oknem OpenGL
 uchwytDC:=GetDC(glPanel.Handle);
@@ -402,7 +404,7 @@ begin
   canClose := true;
   if self.ModalResult = mrOK then
     if (DatabaseName.text = '') or (UserName.Text = '') or (Password.Text = '') then begin
-      info ('WprowadŸ nazwê bazy danych (np. wat), nazwê u¿ytkownika oraz has³o');
+      info ('WprowadŸ nazwê bazy danych (np. dok), nazwê u¿ytkownika oraz has³o');
       canClose := false;
     end;
 end;

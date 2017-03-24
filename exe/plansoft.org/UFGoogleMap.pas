@@ -38,8 +38,6 @@ procedure TFGoogleMap.BCreateClick(Sender: TObject);
 var tmpFile : textfile;
     sqlstmt : string;
 begin
-  if not elementEnabled('"Tworzenie mapy"','2014.01.15', false) then exit;
-
   AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'markerwithlabel.js');
   rewrite(tmpFile);
   writeln(tmpFile, markerwithlabeljs.lines.Text );

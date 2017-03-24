@@ -2241,7 +2241,6 @@ end;
 
 procedure TFWWWGenerator.BShowAllClick(Sender: TObject);
 begin
-  if not elementEnabled('"Zmiany w spisie treœci"','2014.05.18', false) then exit;
   xslt.Lines.Assign(mdefault.Lines);
 end;
 

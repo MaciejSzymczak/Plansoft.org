@@ -844,7 +844,6 @@ end;
 
 procedure TFMatrix.Filtrzaawansowany1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.PERIODSCreate;
 
   If UFModuleFilter.ShowModal( PerSettings.Strings, fBrowsePERIODS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
@@ -856,7 +855,6 @@ end;
 
 procedure TFMatrix.MenuItem6Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.LECTURERSCreate;
   If UFModuleFilter.ShowModal( LSettings.Strings, fBrowseLECTURERS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONL.Text := '';
@@ -867,7 +865,6 @@ end;
 
 procedure TFMatrix.MenuItem8Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.GROUPSCreate;
   If UFModuleFilter.ShowModal( GSettings.Strings, fBrowseGROUPS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONG.Text := '';
@@ -880,7 +877,6 @@ end;
 
 procedure TFMatrix.MenuItem10Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.ROOMSInit(dmodule.pResCatId0,'','0=0','');
   If UFModuleFilter.ShowModal( RSettings.Strings, fBrowseROOMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONR.Text := '';
@@ -891,7 +887,6 @@ end;
 
 procedure TFMatrix.MenuItem12Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.SUBJECTSCreate;
   If UFModuleFilter.ShowModal( SSettings.Strings, fBrowseSUBJECTS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
     CONS.Text := '';
@@ -902,7 +897,6 @@ end;
 
 procedure TFMatrix.MenuItem14Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.FORMSCreate;
   If UFModuleFilter.ShowModal( FSettings.Strings, fBrowseFORMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONF.Text := '';
@@ -1037,9 +1031,6 @@ var
     end;
 
 begin
-    if not elementEnabled('"Tabela przestawna"','2013.07.19', false) then exit;
-
-
     try
     assignFile(f,uutilityParent.ApplicationDocumentsPath + 'temp.htm');
     rewrite(f);

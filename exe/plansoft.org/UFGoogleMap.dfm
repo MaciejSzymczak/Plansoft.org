@@ -3,53 +3,53 @@ inherited FGoogleMap: TFGoogleMap
   Top = 243
   Height = 183
   Caption = 'Mapa Google z zasobami'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   object Label3: TLabel [0]
-    Left = 8
-    Top = 40
-    Width = 62
-    Height = 14
+    Left = 9
+    Top = 46
+    Width = 81
+    Height = 16
     Caption = 'Rodzaj mapy'
   end
   inherited Status: TPanel
-    Top = 130
+    Top = 124
   end
   object topPanel: TPanel
     Left = 0
-    Top = 89
+    Top = 77
     Width = 532
-    Height = 41
+    Height = 47
     Align = alBottom
     TabOrder = 1
     DesignSize = (
       532
-      41)
+      47)
     object BCreate: TSpeedButton
-      Left = 330
-      Top = 11
-      Width = 111
-      Height = 22
+      Left = 377
+      Top = 13
+      Width = 127
+      Height = 25
       Anchors = [akRight, akBottom]
       Caption = 'Tw'#243'rz map'#281
       Flat = True
       OnClick = BCreateClick
     end
     object BClose: TSpeedButton
-      Left = 449
-      Top = 11
-      Width = 75
-      Height = 22
+      Left = 513
+      Top = 13
+      Width = 86
+      Height = 25
       Anchors = [akRight, akBottom]
       Caption = 'Zamknij'
       Flat = True
       OnClick = BCloseClick
     end
     object markerwithlabeljs: TMemo
-      Left = 40
-      Top = 8
-      Width = 33
-      Height = 25
+      Left = 46
+      Top = 9
+      Width = 37
+      Height = 29
       Lines.Strings = (
         '/**'
         ' * @name MarkerWithLabel for V3'
@@ -704,18 +704,18 @@ inherited FGoogleMap: TFGoogleMap
     end
   end
   object showAll: TCheckBox
-    Left = 8
-    Top = 7
-    Width = 321
-    Height = 17
+    Left = 9
+    Top = 8
+    Width = 367
+    Height = 19
     Caption = 'Uwzgl'#281'dniaj wszystkie zasoby (ignoruj uprawnienia dost'#281'pu)'
     TabOrder = 2
   end
   object map: TMemo
-    Left = 443
-    Top = 8
-    Width = 81
-    Height = 65
+    Left = 506
+    Top = 9
+    Width = 93
+    Height = 74
     Lines.Strings = (
       'Drogowa=google.maps.MapTypeId.ROADMAP'
       'Satelita=google.maps.MapTypeId.SATELLITE'
@@ -729,9 +729,9 @@ inherited FGoogleMap: TFGoogleMap
     WordWrap = False
   end
   object pmapTypeId: TComboBox
-    Left = 77
-    Top = 32
-    Width = 132
+    Left = 88
+    Top = 37
+    Width = 151
     Height = 22
     Style = csOwnerDrawFixed
     ItemHeight = 16

@@ -907,7 +907,6 @@ End;
 procedure TFLegend.ExportEasyClick(Sender: TObject);
 var aGrid : TDBGrid;
 begin
- if not elementEnabled('"Prosty eksport do Excela"','2015.08.06', false) then exit;
  if PageControl.ActivePage = TabsheetCounter then aGrid := gridCounter;
  if PageControl.ActivePage = TabsheetL then aGrid := gridL;
  if PageControl.ActivePage = TabsheetG then aGrid := gridG;
@@ -919,7 +918,6 @@ end;
 procedure TFLegend.ExportHtmlClick(Sender: TObject);
 var aGrid : TDBGrid;
 begin
- if not elementEnabled('"Prosty eksport do Excela"','2015.08.06', false) then exit;
  if PageControl.ActivePage = TabsheetCounter then aGrid := gridCounter;
  if PageControl.ActivePage = TabsheetL then aGrid := gridL;
  if PageControl.ActivePage = TabsheetG then aGrid := gridG;

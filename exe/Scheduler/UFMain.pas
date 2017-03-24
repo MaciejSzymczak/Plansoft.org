@@ -37,7 +37,6 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
     procedure FormHide(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormPaint(Sender: TObject);
   private
     FirstOnPaint : Boolean;
@@ -311,14 +310,6 @@ begin
  end;
   SetAlarm(GetAlarm);
   ShowWindow(Application.Handle, SW_HIDE);
-end;
-
-procedure TFMain.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
- With Fconfiguration  do begin
-   UUtilityParent.saveToIni(ApplicationDocumentsPath+'Settings.ini','Main',[Pages, FProgram, Interval, G0000,G0030,G0100,G0130,G0200,G0230,G0300,G0330,G0400,G0430,G0500,G0530,G0600,G0630,G0700,G0730,G0800,G0830,G0900,G0930,G1000,G1030,G1100,G1130,G1200,G1230,G1300,G1330,G1400,G1430,G1500,G1530,G1600,G1630,G1700,G1730,G1800,G1830,G1900,G1930,G2000,G2030,G2100,G2130,G2200,G2230,G2300,G2330]);
- end;
-
 end;
 
 procedure TFMain.FormPaint(Sender: TObject);

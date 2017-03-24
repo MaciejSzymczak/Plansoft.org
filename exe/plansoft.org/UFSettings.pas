@@ -859,19 +859,21 @@ end;
 
 procedure TFSettings.LHideEmptyRowsBClick(Sender: TObject);
 begin
-  inherited;
+  if FSelectDaysOfWeek = nil then Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
   FSelectDaysOfWeek.showModalWithDefaults(LHideDows);
   LHideEmptyRows.Checked := LHideDows <> '-------';
 end;
 
 procedure TFSettings.GHideEmptyRowsBClick(Sender: TObject);
 begin
+  if FSelectDaysOfWeek = nil then Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
   FSelectDaysOfWeek.showModalWithDefaults(GHideDows);
   GHideEmptyRows.Checked := GHideDows <> '-------';
 end;
 
 procedure TFSettings.RHideEmptyRowsBClick(Sender: TObject);
 begin
+  if FSelectDaysOfWeek = nil then Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
   FSelectDaysOfWeek.showModalWithDefaults(RHideDows);
   RHideEmptyRows.Checked := RHideDows <> '-------';
 end;

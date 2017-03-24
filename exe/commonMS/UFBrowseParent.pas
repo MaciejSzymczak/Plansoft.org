@@ -8,10 +8,10 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Grids, DBGrids, RXDBCtrl, StdCtrls, Buttons, DBCtrls, ExtCtrls, Menus, dbTables,
-  Placemnt, Db, RxQuery, UFormConfig, StrHlder, UFModuleOleExport,
-  RxDBComb, UFReadString, ComCtrls, UFDatabaseError, MaxMin,UFModulePrint, UFModuleChart, UFModuleSummary,
-  UFlex, ToolEdit, ImgList, adodb, Mask, OleServer, ExcelXP,
-  TlHelp32, variants, ActiveX;
+  Placemnt, Db, RxQuery, UFormConfig, StrHlder,
+  RxDBComb, UFReadString, ComCtrls, UFDatabaseError, MaxMin,
+  UFlex, ToolEdit, ImgList, adodb, Mask, OleServer,
+  TlHelp32, variants, ActiveX, ExcelXP;
 
   const maxFlexs = 15;
 
@@ -327,7 +327,6 @@ type
     procedure QueryBeforeClose(DataSet: TDataSet);
     procedure TopPanelDblClick(Sender: TObject);
     procedure bexportpopupClick(Sender: TObject);
-    procedure ExportAdvClick(Sender: TObject);
     procedure ExportEasyClick(Sender: TObject);
     procedure ExportHtmlClick(Sender: TObject);
     procedure EksportujdoExcela1Click(Sender: TObject);
@@ -1475,9 +1474,6 @@ end;
 //------------------------------------------------------------------
 procedure TFBrowseParent.bPrintModuleClick(Sender: TObject);
 begin
- //Wersja bez dll
- UFModulePrint.Exportuj(Query, Grid, Self.Caption, GetFileNameWithExtension(Self, 'rap'));
- // @@@Wersja z DLL UModuleMainDll.MainExportuj(Query, Grid, Self.Caption, GetFileNameWithExtension(Self, 'rap'));
 end;
 
 //------------------------------------------------------------------
@@ -3009,16 +3005,11 @@ End;
 //------------------------------------------------------------------
 procedure TFBrowseParent.bGraphModuleClick(Sender: TObject);
 begin
-  //Wersja bez dll
-  UFModuleChart.MyShowChart(Query, Grid, Self.Caption, GetFileNameWithExtension(Self, 'wyk'),'Numeryczne');
-  //Wersja z DLL UModuleMainDll.MainMyShowChart(Query, Grid, Self.Caption, GetFileNameWithExtension(Self, 'wyk'));
 end;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.bSummariesModuleClick(Sender: TObject);
 begin
-  inherited;
-  UFModuleSummary.MyShowTotal(Self,Query, Grid, GetFileNameWithExtension(Self, 'tot'));
 end;
 
 
@@ -3296,6 +3287,7 @@ var fieldNo              : shortString;
 
 
 begin
+  if FFlexNewAttribute = nil then Application.CreateForm(TFFlexNewAttribute, FFlexNewAttribute);
   if FFlexNewAttribute.showModal = mrOK then begin
     with FFlexNewAttribute do begin
      fieldCaption := eFieldCaption.Text;
@@ -3756,25 +3748,6 @@ begin
  if not elementEnabled('"Prosty eksport do pliku"','2014.03.15', false) then exit;
  ExportToHTML(grid);
 end;
-
-procedure TFBrowseParent.ExportAdvClick(Sender: TObject);
-Var S : String;
-    DefinitionOfColumns : TStrings;
-Begin
-
- S := Others.Strings.Values['OLEEXPORTCOLUMNS.Category:'+flexContextName];
- // Struktura: 0,12,11,9|1,2,3,4,5,6,7,8,10,13,14
- //            eksportowane, po znaku | nieeksportowane
-
- DefinitionOfColumns := TStringList.Create;
- PrepareColumnsForExports(DefinitionOfColumns);
-
- UFModuleOleExport.ShowModal(S, DefinitionOfColumns, Query,Grid, False);
- Others.Strings.Values['OLEEXPORTCOLUMNS.Category:'+flexContextName] := S;
- DefinitionOfColumns.Free;
-
-End;
-
 
 procedure TFBrowseParent.EksportujdoExcela1Click(Sender: TObject);
 begin

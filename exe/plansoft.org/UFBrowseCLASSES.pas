@@ -206,7 +206,6 @@ Procedure TFBrowseCLASSES.ShowModalAsBrowser(Filter : String);
     End;
 begin
   if classesTableName = 'CLASSES_HISTORY' then
-    if not elementEnabled('"Historia zmian"','2013.12.31', false) then begin exit; end;
 
   with fprogramSettings do begin
     grid.Columns[ColNo('SUB_NAME')].Title.caption := profileObjectNameC1.Text;

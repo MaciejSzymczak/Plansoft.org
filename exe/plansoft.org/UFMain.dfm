@@ -7921,17 +7921,20 @@ inherited FMain: TFMain
     end
   end
   object AutoSaver: TTimer
+    Enabled = False
     OnTimer = AutoSaverTimer
     Left = 208
     Top = 104
   end
   object TimerShapesEngine: TTimer
+    Enabled = False
     Interval = 500
     OnTimer = TimerShapesEngineTimer
     Left = 240
     Top = 104
   end
   object Timer1: TTimer
+    Enabled = False
     Interval = 500
     OnTimer = Timer1Timer
     Left = 272

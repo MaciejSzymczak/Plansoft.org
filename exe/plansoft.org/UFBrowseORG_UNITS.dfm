@@ -13,7 +13,6 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
   inherited MainPage: TPageControl
     Width = 946
     Height = 686
-    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938
@@ -559,96 +558,6 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 32
         Top = 176
         TabOrder = 10
-        inherited ATTRIBS_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_15: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_15: TDBEdit
-          Height = 24
-        end
       end
       object ID: TDBEdit
         Left = 857

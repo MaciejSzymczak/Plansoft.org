@@ -356,7 +356,6 @@ begin
   TabSheetFor.caption := profileObjectNameC2.Text;
  end;
 
- //FindPane.Enabled := elementEnabled('"Panel Znajdü w oknie Uprawnienia"','2011.01.01');
  FindPane.Enabled := true;
  brefresh.Visible := not chRefresh.Checked;
  Psearch.Text := CurrentUserName;
@@ -585,7 +584,6 @@ end;
 
 procedure TFPlannerPermissions.btransferClick(Sender: TObject);
 begin
-  if not elementEnabled('"Transfer danych"','2014.02.11', false) then exit;
   UFTransfer.showmodal;
 end;
 

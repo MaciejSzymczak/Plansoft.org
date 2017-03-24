@@ -56,8 +56,6 @@ Var
   token, divGroup : string;
 
 begin
-  if not elementEnabled('"Pokaz slajdów"','2015.05.31', false) then exit;
-
   if OpenPictureDialog1.Execute then
   begin
     Path:=ExtractFileDir(OpenPictureDialog1.FileName)+'\'; //Get the path of the selected file

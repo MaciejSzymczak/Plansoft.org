@@ -103,7 +103,8 @@ Begin
   Info('Eksport jest ju¿ uruchomiony');
  End;
  Visibled := True;
- //Application.CreateForm(TFEksport, FEksport);
+ if FEksport = nil then
+     Application.CreateForm(TFEksport, FEksport);
  FEksport.Query := aQuery;
  FEksport.Grid := aGrid;
 

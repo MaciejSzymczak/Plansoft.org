@@ -207,8 +207,6 @@ var
     tmpFile : textfile;
     htmlContent : string;
 begin
-  if not elementEnabled('"Diagram organizacji"','2015.03.29', false) then exit;
-
   dmodule.CommitTrans;
   dmodule.resetConnection(googleChart);
   try
@@ -242,6 +240,7 @@ end;
 
 procedure TFBrowseORG_UNITS.Wicejopcji1Click(Sender: TObject);
 begin
+  Application.CreateForm(TFGoogleOrgChart, FGoogleOrgChart);
   With FGoogleOrgChart do
   if showModal = mrOK then begin
      generateOrgChart(
@@ -254,6 +253,8 @@ begin
       ,nvl(dmodule.SingleValue('select struct_code from org_units where id='+nvl(ORGID.Text,'-1')),'%')
       );
   end;
+  FGoogleOrgChart.Free;
+  FGoogleOrgChart := nil;
 end;
 
 procedure TFBrowseORG_UNITS.PARENT_ID_VALUEClick(Sender: TObject);

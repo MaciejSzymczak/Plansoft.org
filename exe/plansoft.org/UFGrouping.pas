@@ -988,6 +988,7 @@ var t : integer;
 begin
   if not query.Active then BRefreshClick(BRefresh);
 
+  Application.CreateForm(TFFIN_LINESGenerator, FFIN_LINESGenerator);
   if FFIN_LINESGenerator.showModal = mrOK then
   begin
    Query.First;
@@ -1011,6 +1012,8 @@ begin
    end;
    info ('Linie zosta³y dodane do dokumentu');
   end;
+  FFIN_LINESGenerator.Free;
+  FFIN_LINESGenerator := nil;
 end;
 
 procedure TFGrouping.SaveHtmlClick(Sender: TObject);
@@ -1182,7 +1185,6 @@ var F : Textfile;
     End;
 
 begin
-  if not elementEnabled('"Eksport do pliku csv"','2012.09.22', false) then exit;
   AssignFile(F, fileName );
   ReWrite(f);
 
@@ -1486,7 +1488,6 @@ end;
 
 procedure TFGrouping.Filtrzaawansowany1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.PERIODSCreate;
 
   If UFModuleFilter.ShowModal( PerSettings.Strings, fBrowsePERIODS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
@@ -1498,7 +1499,6 @@ end;
 
 procedure TFGrouping.MenuItem6Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.LECTURERSCreate;
   If UFModuleFilter.ShowModal( LSettings.Strings, fBrowseLECTURERS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONL.Text := '';
@@ -1509,7 +1509,6 @@ end;
 
 procedure TFGrouping.MenuItem8Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.GROUPSCreate;
   If UFModuleFilter.ShowModal( GSettings.Strings, fBrowseGROUPS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONG.Text := '';
@@ -1522,7 +1521,6 @@ end;
 
 procedure TFGrouping.MenuItem10Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.ROOMSInit(dmodule.pResCatId0,'','0=0','');
   If UFModuleFilter.ShowModal( RSettings.Strings, fBrowseROOMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       conResCat0.Text := '';
@@ -1533,7 +1531,6 @@ end;
 
 procedure TFGrouping.MenuItem12Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.SUBJECTSCreate;
   If UFModuleFilter.ShowModal( SSettings.Strings, fBrowseSUBJECTS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONS.Text := '';
@@ -1544,7 +1541,6 @@ end;
 
 procedure TFGrouping.MenuItem14Click(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.FORMSCreate;
   If UFModuleFilter.ShowModal( FSettings.Strings, fBrowseFORMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       CONF.Text := '';
@@ -1620,7 +1616,6 @@ end;
 
 procedure TFGrouping.Odczytajustawienia1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Odczytanie ustawieñ"','2013.05.19', false) then exit;
   loadSettings;
 end;
 

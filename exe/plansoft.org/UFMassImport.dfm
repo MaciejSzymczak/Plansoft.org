@@ -1,18 +1,19 @@
 inherited FMassImport: TFMassImport
   Left = 422
   Top = 251
-  Height = 319
+  Width = 635
+  Height = 368
   Caption = 'Pobieranie danych z programu Excel'
   PixelsPerInch = 120
   TextHeight = 16
   inherited Status: TPanel
-    Top = 273
-    Width = 605
+    Top = 309
+    Width = 627
   end
   object importType: TRadioGroup
     Left = 9
     Top = 101
-    Width = 212
+    Width = 288
     Height = 120
     Caption = 'Wybierz jakie dane chcesz pobra'#263
     Items.Strings = (
@@ -51,8 +52,8 @@ inherited FMassImport: TFMassImport
   end
   object Panel1: TPanel
     Left = 0
-    Top = 226
-    Width = 605
+    Top = 262
+    Width = 627
     Height = 47
     Align = alBottom
     TabOrder = 4

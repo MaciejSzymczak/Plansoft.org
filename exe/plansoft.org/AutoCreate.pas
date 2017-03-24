@@ -178,13 +178,11 @@ End;
 
 procedure FIN_LOOKUP_VALUESCreate;
 begin
- if not elementEnabled('"Modu³ finanse"','2012.06.03', false) then begin exit; end;
  If Not Assigned(FBrowseFIN_LOOKUP_VALUES) Then FBrowseFIN_LOOKUP_VALUES := TFBrowseFIN_LOOKUP_VALUES.Create(Application);
 end;
 
 Procedure FIN_LOOKUP_VALUESShowModalAsBrowser;
 Begin
- if not elementEnabled('"Modu³ finanse"','2012.06.03', false) then begin exit; end;
  FIN_LOOKUP_VALUESCreate;
  FBrowseFIN_LOOKUP_VALUES.CON_LOOKUP_TYPE.visible := true;
  FBrowseFIN_LOOKUP_VALUES.con_clear.Visible := true;
@@ -208,7 +206,6 @@ End;
 
 Function FIN_LOOKUP_VALUESShowModalAsMultiselectExt(pCON_LOOKUP_TYPE : ShortString; var ID : ShortString) : TModalResult;
 Begin
- if not elementEnabled('"Modu³ finanse i s³owniki"','2012.06.03', false) then begin exit; end;
  FIN_LOOKUP_VALUESCreate;
  FBrowseFIN_LOOKUP_VALUES.CON_LOOKUP_TYPE.Text := pCON_LOOKUP_TYPE;
  FBrowseFIN_LOOKUP_VALUES.CON_LOOKUP_TYPE.visible := false;

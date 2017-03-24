@@ -19,7 +19,7 @@ inherited FProgramSettings: TFProgramSettings
     Align = alBottom
     TabOrder = 1
     object BZamknij: TBitBtn
-      Left = 879
+      Left = 831
       Top = 6
       Width = 86
       Height = 32
@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 590
-    ActivePage = SAdvanced
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange

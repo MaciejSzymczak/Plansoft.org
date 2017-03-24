@@ -1528,6 +1528,7 @@ begin
   Point.x := 0;
   Point.y := btn.Height;
   Point   := btn.ClientToScreen(Point);
+  if FPattern = nil then Application.CreateForm(TFPattern, FPattern);
   FPattern.Left := Point.X;
   FPattern.Top := Point.Y;
   FPattern.showModal;

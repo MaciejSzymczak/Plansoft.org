@@ -1,81 +1,81 @@
 inherited FGoogleOrgChart: TFGoogleOrgChart
   Left = 428
   Top = 293
-  Width = 412
-  Height = 265
+  Width = 478
+  Height = 303
   ActiveControl = BSelectORG
   Caption = 'Struktura Uczelni- wykres'
-  PixelsPerInch = 96
-  TextHeight = 14
+  PixelsPerInch = 120
+  TextHeight = 16
   object Label1: TLabel [0]
-    Left = 8
-    Top = 48
-    Width = 103
-    Height = 14
+    Left = 9
+    Top = 55
+    Width = 124
+    Height = 16
     Caption = 'Dodaj wyk'#322'adowc'#243'w'
   end
   object Label2: TLabel [1]
-    Left = 48
-    Top = 96
-    Width = 66
-    Height = 14
+    Left = 55
+    Top = 110
+    Width = 85
+    Height = 16
     Caption = 'Dodaj zasoby'
   end
   object Label3: TLabel [2]
-    Left = 56
-    Top = 72
-    Width = 58
-    Height = 14
+    Left = 64
+    Top = 82
+    Width = 77
+    Height = 16
     Caption = 'Dodaj grupy'
   end
   object Label4: TLabel [3]
-    Left = 32
-    Top = 120
-    Width = 83
-    Height = 14
+    Left = 37
+    Top = 137
+    Width = 109
+    Height = 16
     Caption = 'Dodaj przedmioty'
   end
   object Label5: TLabel [4]
-    Left = 8
-    Top = 8
-    Width = 99
-    Height = 14
+    Left = 9
+    Top = 9
+    Width = 130
+    Height = 16
     Caption = 'Wykres dla jednostki'
   end
   inherited Status: TPanel
-    Top = 212
-    Width = 404
+    Top = 244
+    Width = 470
   end
   object Panel1: TPanel
     Left = 0
-    Top = 171
-    Width = 404
-    Height = 41
+    Top = 197
+    Width = 470
+    Height = 47
     Align = alBottom
     TabOrder = 1
     object BOk: TBitBtn
-      Left = 320
-      Top = 8
-      Width = 75
-      Height = 25
+      Left = 366
+      Top = 9
+      Width = 85
+      Height = 29
       Caption = 'Dalej >'
       ModalResult = 1
       TabOrder = 0
     end
     object BCancel: TBitBtn
-      Left = 8
-      Top = 8
-      Width = 75
-      Height = 25
+      Left = 9
+      Top = 9
+      Width = 86
+      Height = 29
       Caption = '<Zamknij'
       ModalResult = 2
       TabOrder = 1
     end
   end
   object L: TComboBox
-    Left = 117
-    Top = 40
-    Width = 164
+    Left = 134
+    Top = 46
+    Width = 187
     Height = 22
     Style = csOwnerDrawFixed
     ItemHeight = 16
@@ -88,9 +88,9 @@ inherited FGoogleOrgChart: TFGoogleOrgChart
       'Tak-uk'#322'ad szczeg'#243#322'owy')
   end
   object G: TComboBox
-    Left = 117
-    Top = 64
-    Width = 164
+    Left = 134
+    Top = 73
+    Width = 187
     Height = 22
     Style = csOwnerDrawFixed
     ItemHeight = 16
@@ -103,9 +103,9 @@ inherited FGoogleOrgChart: TFGoogleOrgChart
       'Tak-uk'#322'ad szczeg'#243#322'owy')
   end
   object R: TComboBox
-    Left = 117
-    Top = 88
-    Width = 164
+    Left = 134
+    Top = 101
+    Width = 187
     Height = 22
     Style = csOwnerDrawFixed
     ItemHeight = 16
@@ -118,9 +118,9 @@ inherited FGoogleOrgChart: TFGoogleOrgChart
       'Tak-uk'#322'ad szczeg'#243#322'owy')
   end
   object S: TComboBox
-    Left = 117
-    Top = 112
-    Width = 164
+    Left = 134
+    Top = 128
+    Width = 187
     Height = 22
     Style = csOwnerDrawFixed
     ItemHeight = 16
@@ -133,26 +133,26 @@ inherited FGoogleOrgChart: TFGoogleOrgChart
       'Tak-uk'#322'ad szczeg'#243#322'owy')
   end
   object showAll: TCheckBox
-    Left = 6
-    Top = 144
-    Width = 321
-    Height = 17
+    Left = 7
+    Top = 165
+    Width = 367
+    Height = 19
     Caption = 'Uwzgl'#281'dniaj wszystkie rekordy (ignoruj uprawnienia dost'#281'pu)'
     TabOrder = 6
   end
   object ORGID_VALUE: TEdit
-    Left = 118
-    Top = 8
-    Width = 257
-    Height = 22
+    Left = 135
+    Top = 9
+    Width = 294
+    Height = 24
     ReadOnly = True
     TabOrder = 7
   end
   object BSelectORG: TBitBtn
-    Left = 375
-    Top = 8
-    Width = 24
-    Height = 24
+    Left = 429
+    Top = 9
+    Width = 27
+    Height = 28
     ParentShowHint = False
     ShowHint = True
     TabOrder = 8
@@ -194,19 +194,19 @@ inherited FGoogleOrgChart: TFGoogleOrgChart
       0000000000000000000000000000000000000000000000000000}
   end
   object ORGID: TEdit
-    Left = 112
-    Top = 8
-    Width = 121
-    Height = 22
+    Left = 128
+    Top = 9
+    Width = 138
+    Height = 24
     TabOrder = 9
     Visible = False
     OnChange = ORGIDChange
   end
   object map: TMemo
-    Left = 291
-    Top = 40
-    Width = 81
-    Height = 65
+    Left = 333
+    Top = 46
+    Width = 92
+    Height = 74
     Lines.Strings = (
       'Nie=N'
       'Tak-uk'#322'ad zwi'#281'z'#322'y=C'

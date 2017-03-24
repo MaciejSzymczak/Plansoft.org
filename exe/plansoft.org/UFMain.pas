@@ -6,9 +6,9 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UFormConfig, ExtCtrls, StdCtrls, Buttons, ComCtrls, StrHlder,
   UCommon, DM, UFReadString, Menus, UFInfo, Tabs, Mask, DBCtrls, Grids,
-  ToolEdit, db, UFDatabaseLogin, DateUtils, jpeg, TypInfo, WebServExp,
-  WSDLBind, XMLSchema, WSDLPub, ImgList, UrlMon, adodb, XPMan, UFKPI, ShellAPI,
-  DBGrids, UUtilityParent;
+  ToolEdit, db, UFDatabaseLogin,
+  WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
+  DBGrids, UUtilityParent, DateUtils, XPMan;
 
 const
   clMove        =  1;
@@ -988,7 +988,7 @@ type
     PeriodDateFromSQL : string;
     PeriodDateToSQL : string;
 
-    diableFurtherActivities : boolean;
+    disableFurtherActivities : boolean;
     currSelectedArea : string[50]; //user by procedure set_tmp_selected_dates
     //
     ClassByLecturerCaches : tClassByLecturerCaches;
@@ -1883,6 +1883,7 @@ procedure TFMain.FormCreate(Sender: TObject);
 
   end;
 begin
+  silentMode := false;
   MapLecNames := Tmap.Create;
   MapLecColors:= Tmap.Create;
   MapGroColors:= Tmap.Create;
@@ -1892,8 +1893,7 @@ begin
 
   ignoreEvents := false;
   userLogged := false;
-  diableFurtherActivities := false;
-  silentMode := false;
+  disableFurtherActivities := false;
   StartUp := true;
 
   GridSelectionLeft   := -1;
@@ -4096,12 +4096,12 @@ begin
 
   loginParamsDelivered := false;
 
-  if (paramStr(1) <> '') and (StartUp) then
+  if (paramStr(1) <> '') and (paramStr(2) <> '') and (paramStr(3) <> '') and (StartUp) then
   begin
     aUserName := paramStr(1);
     aPassword := decryptPassword( paramStr(2) );
-
     aDBName   := nvl(paramStr(3), aDBName);
+    loginParamsDelivered := true;
   end;
 
   if not loginParamsDelivered then
@@ -4109,7 +4109,6 @@ begin
       loginParamsDelivered := true;
       setSystemParam('LoginDataBaseName', aDBName);
       setSystemParam('LoginUserName', aUserName);
-      //setSystemParam('LoginPassword', aPassword);
     end;
 
   StartUp := false;
@@ -4248,6 +4247,11 @@ begin
   fmain.D1Change(FCellLayout.D1);
 
   commandLineProcessing;
+  if not silentMode then begin
+      Timer1.Enabled := True;
+      //TimerShapesEngine.Enabled := True;
+      AutoSaver.Enabled := True;
+  end;
 end;
 
 
@@ -5269,6 +5273,7 @@ begin
   GridPanel.Visible := False;
   dmodule.CloseDBConnection;
   LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
+  if FImp = nil then Application.CreateForm(TFImp, FImp);
   FIMP.ShowModal;
 end;
 
@@ -5283,6 +5288,7 @@ begin
   GridPanel.Visible := False;
   dmodule.CloseDBConnection;
   LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
+  if FExp = nil then Application.CreateForm(TFExp, FExp);
   FEXP.ShowModal;
 end;
 
@@ -5995,8 +6001,10 @@ end;
 
 procedure TFMain.Zmiehas1Click(Sender: TObject);
 begin
-  inherited;
-    fchangepassword.showmodal;
+   Application.CreateForm(TFChangePassword, FChangePassword);
+   fchangepassword.showmodal;
+   fchangepassword.Free;
+   fchangepassword := nil;
 end;
 
 procedure TFMain.BAddClassMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -6152,9 +6160,6 @@ begin
   if not DModule.ADOConnection.Connected then exit;
   ForceCellHeightClick(nil);
 
-  //BTraceHistory.Visible := trackHistoryInstalled and elementEnabled('"Historia zmian"','2013.12.31', true);
-  //bthpopup.Visible := trackHistoryInstalled and elementEnabled('"Historia zmian"','2013.12.31', true);
-
   RefreshAfterOnShow.Enabled := true;
   setupFillButton;
 end;
@@ -6210,32 +6215,28 @@ begin
      //more: http://stackoverflow.com/questions/983738/call-to-tmouse-getcursorpos-sometimes-fails-with-a-call-to-an-os-function-faile
      GetCursorPos(cursorPos);
 try
-  if diableFurtherActivities then exit;
+  if disableFurtherActivities then exit;
   // hide toolbar and ballon when application is not active or main form is not active
   trace := '1.';
   if (not application.Active) or ( (application.Active) and (not application.MainForm.Active ) )  then begin
     trace := '2.';
     hideBaloonHint;
     trace := '3.';
-    //FBalloon.left := 10000;
-    // do not close toolbar when it is active
     if not ftoolWindow.Active then
       ftoolWindow.Hide;
+    trace := '4.';
     if not fCellLayout.Active then
       fCellLayout.Hide;
-    trace := '4.';
+    trace := '5.';
   end;
 
-  trace := '5.';
+  trace := '6.';
   if BFullScreen.Down then offset := 0 else offset := 20;
-
-  trace := '8.';
-
-
+  trace := '7.';
 except
  on e:exception do begin
-  info ('B³¹d wewnêtrzny: 2014.05.13 Ballon hint ' + trace + e.message);
-  diableFurtherActivities := true;
+  disableFurtherActivities := true;
+  info ('B³¹d wewnêtrzny: Ballon hint ' + trace + e.message);
  end;
 end;
 end;
@@ -6266,7 +6267,6 @@ begin
  if btn.Name = 'selectr'       then fmain.respopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectResCat1' then fmain.ResCat1popup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectFill'    then begin
-     if not elementEnabled('"Wype³nianie"','2014.07.20', false) then exit;
      fmain.FillPopup.Popup(Point.X,Point.Y);
  end;
 end;
@@ -6415,11 +6415,13 @@ begin
     exit;
   end;
 
+  if FCopyClasses = nil then Application.CreateForm(TFCopyClasses, FCopyClasses);
   if FCopyClasses.showModal = mrOK then BRefreshClick(nil);
 end;
 
 procedure TFMain.mmpurgeClick(Sender: TObject);
 begin
+ if FPurgeData = nil then Application.CreateForm(TFPurgeData, FPurgeData);
  if fpurgedata.showmodal = mrOK then BRefreshClick(nil);
 end;
 
@@ -7165,13 +7167,13 @@ begin
     exit;
   end;
 
-  if not elementEnabled('"Pobieranie z programu Excel"','2012.01.19', false) then exit;
+  if FMassImport = nil then Application.CreateForm(TFMassImport, FMassImport);
   FMassImport.ShowModal;
 end;
 
 procedure TFMain.Rejestracaus1Click(Sender: TObject);
 begin
-  inherited;
+  if FAbolitionTime = nil then Application.CreateForm(TFAbolitionTime, FAbolitionTime);
   FAbolitionTime.Showmodal;
 end;
 
@@ -7401,7 +7403,6 @@ end;
 
 procedure TFMain.Listazajchistoriazmian1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Historia zmian"','2013.12.31', false) then begin exit; end;
   if not trackHistoryInstalled then begin info('Element "Historia zmian" nie zosta³ zainstalowany'); exit; end;
   AutoCreate.CLASSESShowModalAsBrowser('CLASSES_HISTORY','','','', '','','','',false);
 end;
@@ -8163,8 +8164,6 @@ end;
 procedure TFMain.SwitchMenuClick(Sender: TObject);
 var s : string;
 begin
-  if not elementEnabled('"Panel wyszukiwania"','2014.05.08', false) then exit;
-
   if SwitchMenu.Down then begin
     BFastSearchShowAdvClick(nil);
     SearchPanel.width := 255;
@@ -8403,6 +8402,7 @@ begin
   if CustomPeriod.ItemIndex=10 then dmodule.dateRange:='TODAY:+30:+30';
   if CustomPeriod.ItemIndex=11 then dmodule.dateRange:='';
   if CustomPeriod.ItemIndex=12 then
+    if FDatesSelector = nil then Application.CreateForm(TFDatesSelector, FDatesSelector);
     if FDatesSelector.showModal = mrOK then begin
         With FDatesSelector do begin
           d1 := DateUtils.DaysBetween(today(), source_date_from.Datetime) + iif(today()<source_date_from.Datetime,0,1);
@@ -8441,18 +8441,19 @@ end;
 
 procedure TFMain.Generatorslajdw1Click(Sender: TObject);
 begin
+ Application.CreateForm(TFSlideshowGenerator, FSlideshowGenerator);
  FSlideshowGenerator.showmodal;
+ FSlideshowGenerator.Free;
+ FSlideshowGenerator := nil;
 end;
 
 procedure TFMain.Preferowaneterminy1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Preferowane terminy - lista"','2015.07.19', false) then exit;
   RES_HINTSShowModalAsBrowser;
 end;
 
 procedure TFMain.Lista1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Preferowane terminy - lista"','2015.07.19', false) then exit;
   RES_HINTSShowModalAsBrowser;
 end;
 

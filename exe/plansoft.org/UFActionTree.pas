@@ -35,7 +35,6 @@ implementation
 
 procedure TFActionTree.Oprion2Click(Sender: TObject);
 begin
-  if not elementEnabled('"Szybka nawigacja"','2015.12.30', false) then exit;
   selectedOption := 0; //'Edit';
   close;
 end;
@@ -82,14 +81,12 @@ end;
 
 procedure TFActionTree.Option3Click(Sender: TObject);
 begin
-  if not elementEnabled('"Szybka nawigacja"','2015.12.30', false) then exit;
   selectedOption := 2;
   close;
 end;
 
 procedure TFActionTree.SpeedButton1Click(Sender: TObject);
 begin
-  if not elementEnabled('"Szybka nawigacja"','2015.12.30', false) then exit;
   selectedOption := 3;
   close;
 end;

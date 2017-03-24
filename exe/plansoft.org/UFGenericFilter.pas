@@ -360,7 +360,6 @@ end;
 
 procedure TFGenericFilter.milaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.LECTURERSCreate;
   If UFModuleFilter.ShowModal( LSettings.Strings, fBrowseLECTURERS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       LFilterType.text := 'a';
@@ -402,7 +401,6 @@ end;
 
 procedure TFGenericFilter.migaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.GROUPSCreate;
   If UFModuleFilter.ShowModal( GSettings.Strings, fBrowseGROUPS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       GFilterType.text := 'a';
@@ -426,7 +424,6 @@ end;
 
 procedure TFGenericFilter.misaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.SUBJECTSCreate;
   If UFModuleFilter.ShowModal( SSettings.Strings, fBrowseSUBJECTS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
     SFilterType.text := 'a';
@@ -448,7 +445,6 @@ end;
 
 procedure TFGenericFilter.mifaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.FORMSCreate;
   If UFModuleFilter.ShowModal( FSettings.Strings, fBrowseFORMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       FFilterType.text := 'a';
@@ -470,7 +466,6 @@ end;
 
 procedure TFGenericFilter.mipaClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.PERIODSCreate;
 
   If UFModuleFilter.ShowModal( PerSettings.Strings, fBrowsePERIODS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
@@ -514,7 +509,6 @@ end;
 
 procedure TFGenericFilter.mir0aClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.ROOMSInit(dmodule.pResCatId0,'','0=0','');
   If UFModuleFilter.ShowModal( R0Settings.Strings, fBrowseROOMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       conResCat0.Text := '';
@@ -525,7 +519,6 @@ end;
 
 procedure TFGenericFilter.mir1aClick(Sender: TObject);
 begin
-  if not elementEnabled('"Statystyki - filtr zaawansowany"','2013.07.05', false) then exit;
   autocreate.ROOMSInit(dmodule.pResCatId1,'','0=0','');
   If UFModuleFilter.ShowModal( R1Settings.Strings, fBrowseROOMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
       conResCat1.Text := '';
