@@ -98,8 +98,22 @@ Begin
  SetAlarm(GetAlarm);
 End;
 
+
+
 procedure TFMain.FormCreate(Sender: TObject);
+function ExtractFileNameEX(const AFileName:String): String;
+ var
+   I: integer;
+ begin
+    I := LastDelimiter('.'+PathDelim+DriveDelim,AFileName);
+        if (I=0)  or  (AFileName[I] <> '.')
+            then
+                 I := MaxInt;
+          Result := ExtractFileName(Copy(AFileName,1,I-1));
+ end;
 begin
+ RxTrayIcon1.Hint := ExtractFileNameEX ( Application.ExeName );
+ Application.ShowHint := true;
  Randomize;
  FirstOnPaint := True;
 end;

@@ -1674,7 +1674,8 @@ var t                : integer;
                 recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
 
                 with q do begin
-                  dmodule.openSQL(q, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id)'
+                  try
+                  dmodule.openSQL(q, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by id'
                     ,'pres_id='      + inttostr(integer( presourceList.Items.Objects[t])) +
                      ';per_id_from1='+ currentPeriod.text    +
                      ';per_id_to1='  + currentPeriod.text    +
@@ -1682,6 +1683,13 @@ var t                : integer;
                      ';per_id_to2='  + currentPeriod.text
                      );
                   open;
+                  except
+                    on E:exception do begin
+                     CopyToClipboard( q.SQL.text);
+                     raise;
+                    end;
+                  end;
+
                   First;
                   while not Eof do begin
                     //add event
@@ -1732,9 +1740,9 @@ var t                : integer;
                      write ('DTSTAMP:'+FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)); //+'Z'
                      write ('UID:'+fieldByName('id').AsString);
                      write ('CLASS:PUBLIC');
-                     write ('CREATED:'+GetNowGMT(-timeZone));
+                     //write ('CREATED:'+GetNowGMT(-timeZone));
                      write ('DESCRIPTION:'+description);
-                     write ('LAST-MODIFIED:'+GetNowGMT(-timeZone));
+                     //write ('LAST-MODIFIED:'+GetNowGMT(-timeZone));
                      write ('LOCATION:'+location);
                      write ('SEQUENCE:0');
                      write ('STATUS:CONFIRMED');

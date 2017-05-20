@@ -3129,23 +3129,6 @@ var drawDone : boolean;
        point.X := rect.Left + grid.Left+SearchPanel.Width;
        point.Y := rect.Top + grid.top + iif(LeftPanel.Visible,LeftPanel.Height,0) + iif(TopPanel.Visible,TopPanel.Height,0);
        point := fmain.ClientToScreen(point);
-       {
-       with FBalloon do begin
-         Left := point.X;
-         Top  := point.Y;
-         title.caption := Class_.SUB_NAME + ' ('+ Class_.FOR_NAME +')';
-         L.Caption     := Class_.CALC_LECTURERS;
-         G.Caption     := Class_.CALC_GROUPS;
-         R.Caption     := ucommon.getResourcesByType(roomCatId, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
-         ResCat1.Caption:= ucommon.getResourcesByType(dmodule.pResCatId1, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
-         S.Caption     := Class_.sub_name;
-         F.Caption     := Class_.for_name;
-         O.Caption     := Class_.Owner;
-         CResCat1.Caption := dmodule.pResCatName1;
-       end;
-       if not fballoon.visible then begin FBalloon.Show; fmain.Show; end;
-       }
-
 
        uutilityparent.ShowBaloonHint(Point, self.Handle,
        CenterString( Class_.SUB_NAME + ' ('+ Class_.FOR_NAME +')', 97) ,
@@ -3978,7 +3961,6 @@ Var aUserName, aPassword, aDBName : ShortString;
         arguments   := extractWord(2,paramString,['=']);
 
         if not(command = 'INIFILE') then exit;
-        if not elementEnabled('"Automatyczny eksport danych"','2013.05.19', false) then exit;
 
         if extractFileName( arguments ) = arguments then
           arguments :=  uutilityParent.ApplicationDocumentsPath + arguments;
@@ -4142,14 +4124,6 @@ begin
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
 
-  try
-  if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
-     info('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
-  except
-    on E:exception  do
-      info('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
-  End;
-
   If Not Assigned(FLegend) Then FLegend := TFLegend.Create(Application);
   dmodule.pResCatId0 := nvl( getSystemParam('RESOURCE_CATEGORY_ID0')  , dmodule.dbgetSystemParam('RESOURCE_CATEGORY_ID0'));
   dmodule.pResCatId1 := nvl( getSystemParam('RESOURCE_CATEGORY_ID1')  , dmodule.dbgetSystemParam('RESOURCE_CATEGORY_ID1'));
@@ -4247,6 +4221,15 @@ begin
   fmain.D1Change(FCellLayout.D1);
 
   commandLineProcessing;
+
+  try
+  if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
+     if not silentMode then info('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
+  except
+    on E:exception  do
+      info('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
+  End;
+
   if not silentMode then begin
       Timer1.Enabled := True;
       //TimerShapesEngine.Enabled := True;

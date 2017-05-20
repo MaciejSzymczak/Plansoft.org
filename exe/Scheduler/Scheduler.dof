@@ -134,7 +134,3 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
-[Excluded Packages]
-C:\Temp\alek.dpl=(untitled)
-C:\EdytorCFG\ala.dpl=(untitled)
-C:\DCPcrypt\DCP3.dpl=DCP cryptographic components

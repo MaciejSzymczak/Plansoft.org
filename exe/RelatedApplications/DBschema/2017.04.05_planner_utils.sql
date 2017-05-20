@@ -1,7 +1,3 @@
-connect sys/..@sid as sysdba;  
-grant select on gv_$session to planner;
-
-
 create or replace package planner_utils is
 
    /*****************************************************************************************************************************
@@ -20,6 +16,7 @@ create or replace package planner_utils is
    | 2013.03.06 track history - changes  
    | 2013.11.03 bugfixing  
    | 2017.01.02 function killSessions return varchar2
+   | 2017.04.05 merged version
    \*-----------------------------------------------------------------------------------------------------------------------------*/
 
   exc_API_ver_error    number := -20000; --API version error
@@ -111,15 +108,15 @@ create or replace package planner_utils is
   procedure delete_class ( pid number ); 
 
   /*
-   funkcja zwraca wartosc wsp髄czynnika dla zajecia wyliczonego za pomoca odnalezionej formuly.
+   funkcja zwraca wartosc wspólczynnika dla zajecia wyliczonego za pomoca odnalezionej formuly.
    funkcja zwraca zero, jezeli wystapi blad.
    algotytm wyznaczania formuly:
    dla kazdego wykladowcy:
-     pobierz formule na dzien i wylicz wartosc formuly. podstaw liczba student體 = liczba wszystkich student體 sposr骴 grup w zajeciu.
-     jezeli nie znaleziono formuly, pobierz formule dla jednostki nadrzednej. powt髍z operacje az do odnalezienia formuly lub wystapienia bledu.
-   jezeli dla poszczeg髄nych wykladowc體 wsp髄czynniki r髗nia sie, w體czas zglos blad.
+     pobierz formule na dzien i wylicz wartosc formuly. podstaw liczba studentów = liczba wszystkich studentów sposród grup w zajeciu.
+     jezeli nie znaleziono formuly, pobierz formule dla jednostki nadrzednej. powtórz operacje az do odnalezienia formuly lub wystapienia bledu.
+   jezeli dla poszczególnych wykladowców wspólczynniki róznia sie, wówczas zglos blad.
 
-   w przypadku bledu funkcja zwraca wartosc 0. komunikat o bledzie odczytaj w體czas za pomoca funkcji get_last_error. w celu diagnostyki bledu sprawdz zmienne o nazwach zaczynajacych sie od last
+   w przypadku bledu funkcja zwraca wartosc 0. komunikat o bledzie odczytaj wówczas za pomoca funkcji get_last_error. w celu diagnostyki bledu sprawdz zmienne o nazwach zaczynajacych sie od last
   */
   function get_class_coeffficient ( aid number, aform_formula_type varchar2, aday date default sysdate) return number;
   function get_last_error return varchar2;
@@ -273,7 +270,7 @@ create or replace package body planner_utils is
     b1 := nvl(pb1, to_date('1000-01-01','yyyy-mm-dd')); 
     b2 := nvl(pb2, to_date('4000-12-31','yyyy-mm-dd'));     
   
-    -- Okres czasowy (A1,A2) ma czesc wsp髄na z okresem czasowym (B1,B2), gdy spelniony jest nastepujacy warunek logiczny:  
+    -- Okres czasowy (A1,A2) ma cz臋艣膰 wsp贸ln膮 z okresem czasowym (B1,B2), gdy spe艂niony jest nast臋puj膮cy warunek logiczny:  
     if  (A1 >= B1 or A2 >= B1) and (A1 <= B2 or A2 <= B2)  then
       return 'Y';
     else
@@ -303,7 +300,7 @@ create or replace package body planner_utils is
     dest_date_to := dest_date_from + to_number(source_date_to - source_date_from);
 
     if has_common_part(source_date_from,source_date_to,dest_date_from,dest_date_to) = 'Y' then    
-      output_param_char1 := 'Okresy zr骴lowy i docelowy nie moga sie pokrywac';
+      output_param_char1 := 'Okresy 藕r贸d艂owy i docelowy nie mog膮 si臋 pokrywa膰';
       return;
     end if;   
   
@@ -316,7 +313,7 @@ create or replace package body planner_utils is
        from classes
        where day between dest_date_from and dest_date_to;
      if c > 0 then
-       output_param_char1 := 'Nie mozna wykonac czynnosci, poniewaz w obszarze docelowym sa juz zaplanowane zajecia. Jezeli mimo to chcesz kontynuowac, zezw髄 na skopiowanie odznaczajac pole wyboru na formularzu';
+       output_param_char1 := 'Nie mo偶na wykona膰 czynno艣ci, poniewa偶 w obszarze docelowym s膮 ju偶 zaplanowane zaj臋cia. Je偶eli mimo to chcesz kontynuowa膰, zezw贸l na skopiowanie odznaczaj膮c pole wyboru na formularzu';
        return; 
      end if;
      end;  
@@ -677,7 +674,7 @@ create or replace package body planner_utils is
          and created_by <> user 
     )
     loop
-      raise_application_error(-20000, 'Planowanie zajec w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zostalo zablokowane przez uzytkownika '||rec.created_by);
+      raise_application_error(-20000, 'Planowanie zaj臋膰 w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zosta艂o zablokowane przez u偶ytkownika '||rec.created_by);
     end loop;    
     --
     if pgrantPermissions = 'Y' then auto_grant_permissions; end if;
@@ -716,10 +713,31 @@ create or replace package body planner_utils is
     
     declare
       plec_id number;
-    begin
-      for t in 1 .. xxmsz_tools.wordcount(pcalc_lec_ids, ';') loop
+      desc1Cnt number := xxmsz_tools.wordcount(pdesc1,',');
+      desc2Cnt number := xxmsz_tools.wordcount(pdesc2,',');
+      desc3Cnt number := xxmsz_tools.wordcount(pdesc3,',');
+      desc4Cnt number := xxmsz_tools.wordcount(pdesc4,',');
+      lecsCnt  number := xxmsz_tools.wordcount(pcalc_lec_ids, ';');
+      lecdesc1 varchar2(200);
+      lecdesc2 varchar2(200);
+      lecdesc3 varchar2(200);
+      lecdesc4 varchar2(200);
+      ----------------------------------------------
+      function getLecDesc(descCnt number, pdesc varchar2, t number) return varchar2 is begin
+        case when descCnt = 1       then return pdesc;
+             when descCnt = lecsCnt then return xxmsz_tools.extractword(t,pdesc,',');
+             else return null;
+        end case;     
+      end;
+    begin      
+      for t in 1 .. lecsCnt loop
         plec_id := xxmsz_tools.extractword(t,pcalc_lec_ids,';');
-        insert into lec_cla (id, lec_id, cla_id, is_child, day, hour) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', pday, phour);      
+        lecdesc1 := getLecDesc(desc1Cnt, pdesc1, t);
+        lecdesc2 := getLecDesc(desc2Cnt, pdesc2, t);
+        lecdesc3 := getLecDesc(desc3Cnt, pdesc3, t);
+        lecdesc4 := getLecDesc(desc4Cnt, pdesc4, t);
+        insert into lec_cla (id, lec_id, cla_id, is_child, day, hour, desc1, desc2, desc3, desc4) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', pday, phour
+        , lecdesc1, lecdesc2, lecdesc3, lecdesc4);      
         /*     
         for rec in (
             select unique child_id--, parent_id, level
@@ -939,12 +957,12 @@ create or replace package body planner_utils is
                return ffformula;
             exception
              when too_many_rows then
-               last_error := '(01)Odnaleziono kilka formul dla podanej formy, jednostki, typu formuly, daty)';
+               last_error := '(01)Odnaleziono kilka formu艂 dla podanej formy, jednostki, typu formu艂y, daty)';
                return 0;
              when no_data_found then
                guard := guard + 1;
                if guard > 100 then
-                 last_error := '(02)Przekroczono dopuszczalna liczbe zagniezdzen w strukturze organizacyjnej ( 100 ). Sprawdz, czy struktura organizacyjna nie zawiera cykli';
+                 last_error := '(02)Przekroczono dopuszczaln膮 liczb臋 zagnie偶d偶e艅 w strukturze organizacyjnej ( 100 ). Sprawd藕, czy struktura organizacyjna nie zawiera cykli';
                  return null;
                else
                  select parent_id
@@ -952,14 +970,14 @@ create or replace package body planner_utils is
                    from org_units
                   where id = aorguni_id;
                   if parent_orguni_id is null then
-                    last_error := '(03)Nie odnaleziono formuly dla formy prowadzenia zajec, zadanego dnia oraz jedn.org (oraz jednostek nadrzednych)';
+                    last_error := '(03)Nie odnaleziono formu艂y dla formy prowadzenia zaj臋膰, zadanego dnia oraz jedn.org (oraz jednostek nadrz臋dnych)';
                     return null;
                   else
                    return  get_orguni_formula ( parent_orguni_id );
                   end if;
                end if;
              when others        then
-               last_error := '(04)Wyszukiwanie formuly - blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
+               last_error := '(04)Wyszukiwanie formu艂y - b艂膮d: ' || to_char (sqlcode) || ' ' || sqlerrm;
                return null;
             end;
           end;
@@ -970,12 +988,12 @@ create or replace package body planner_utils is
             from lecturers where id = alec_id;
         exception
           when others        then
-            last_error := '(05)Nie powiodlo sie wyznaczenie jednostki organizacyjnej dla wykladowcy. Blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
+            last_error := '(05)Nie powiod艂o si臋 wyznaczenie jednostki organizacyjnej dla wyk艂adowcy. B艂膮d: ' || to_char (sqlcode) || ' ' || sqlerrm;
             return 0;
         end;
 
         if aorguni_id is null then
-           last_error := '(06)Dla wykladowcy nie okreslono jednostki organizacyjnej - nie mozna wyznaczyc formuly';
+           last_error := '(06)Dla wyk艂adowcy nie okre艣lono jednostki organizacyjnej - nie mo偶na wyznaczy膰 formu艂y';
            return 0;
         end if;
 
@@ -984,11 +1002,11 @@ create or replace package body planner_utils is
          return 0;
         end if;
 
-        ffformula := replace (ffformula, 'Zaograglij'      , 'Round');
+        ffformula := replace (ffformula, 'Zaogr膮glij'      , 'Round');
         --ffformula := replace (ffformula, 'Liczba_godz'     , to_char(ahours,'99999.0000') );
-        --ffformula := replace (ffformula, 'Liczba_student體', to_char(anumber_of_peoples,'99999.0000'));
+        --ffformula := replace (ffformula, 'Liczba_student贸w', to_char(anumber_of_peoples,'99999.0000'));
         ffformula := replace (ffformula, 'Liczba_godz'     , ' xxmsz_tools.strToNumber(' || to_char(ahours)             ||') ' );
-        ffformula := replace (ffformula, 'Liczba_student體', ' xxmsz_tools.strToNumber(' || to_char(anumber_of_peoples) ||') ' );
+        ffformula := replace (ffformula, 'Liczba_student贸w', ' xxmsz_tools.strToNumber(' || to_char(anumber_of_peoples) ||') ' );
         -- xxmsz_tools.strtonumber chyba niepotrzebne, przy okazji to przetestowania i ew. do usuniecia
 
         last_formula := ffformula;
@@ -997,7 +1015,7 @@ create or replace package body planner_utils is
           return xxmsz_tools.getsqlvalue('SELECT '||ffformula||' FROM DUAL');
         exception
           when others then
-            last_error := '(07)Blad podczas wyliczania formuly "' || FFFORMULA || '" Blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
+            last_error := '(07)B艂膮d podczas wyliczania formu艂y "' || FFFORMULA || '" B艂膮d: ' || to_char (sqlcode) || ' ' || sqlerrm;
             return 0;
         end;
       end;
@@ -1017,12 +1035,12 @@ create or replace package body planner_utils is
         where id = aid;
 
       if acalc_lecturers is null then
-        last_error := '(08)Nie mozna wyznaczyc wsp髄czynnika, poniewaz nie okreslono wykladowcy';
+        last_error := '(08)Nie mo偶na wyznaczy膰 wsp贸艂czynnika, poniewa偶 nie okre艣lono wyk艂adowcy';
         return 0;
       end if;
 
       if acalc_groups is null then
-        last_error := '(09)Nie mozna wyznaczyc wsp髄czynnika, poniewaz nie okreslono grup';
+        last_error := '(09)Nie mo偶na wyznaczy膰 wsp贸艂czynnika, poniewa偶 nie okre艣lono grup';
         return 0;
       end if;
 
@@ -1032,7 +1050,7 @@ create or replace package body planner_utils is
         where id in ( select gro_id from gro_cla where cla_id = aid );
 
       if anumber_of_peoples = 0 then
-        last_error := '(10)Nie mozna wyznaczyc wsp髄czynnika, poniewaz nie okreslono licznosci grup';
+        last_error := '(10)Nie mo偶na wyznaczy膰 wsp贸艂czynnika, poniewa偶 nie okre艣lono liczno艣ci grup';
         return 0;
       end if;
 
@@ -1040,7 +1058,7 @@ create or replace package body planner_utils is
       last_horus             := ahours;
       last_number_of_peoples := anumber_of_peoples;
 
-      -- wyznacz wsp髄czynnik dla kazdego wykladowcy
+      -- wyznacz wsp贸艂czynnik dla ka偶dego wyk艂adowcy
       coe := 0;
       for rec_lec in ( select lec_id from lec_cla where cla_id = aid ) loop
         prior_coe   := coe;
@@ -1051,14 +1069,14 @@ create or replace package body planner_utils is
         end if;
         if prior_coe <> 0 then
           if prior_coe <> coe then
-            last_error := '(11)Otrzymano r髗ne wartosci wsp髄czynnika dla wykladowc體 prowadzacych zajecie (' || prior_coe || ', '||  coe || ')';
+            last_error := '(11)Otrzymano r贸偶ne warto艣ci wsp贸艂czynnika dla wyk艂adowc贸w prowadz膮cych zaj臋cie (' || prior_coe || ', '||  coe || ')';
             return 0;
           end if;
         end if;
       end loop;
 
       if last_error is not null then
-        last_error := last_error || ' wywolanie: GET_CLASS_COEFFFICIENT ( '||aid||','''||aform_formula_type||''',TO_DATE(' || to_char(aday,'YYYY-MM-DD') || ',''YYYY-MM-DD''))';
+        last_error := last_error || ' wywo艂anie: GET_CLASS_COEFFFICIENT ( '||aid||','''||aform_formula_type||''',TO_DATE(' || to_char(aday,'YYYY-MM-DD') || ',''YYYY-MM-DD''))';
       end if;
 
       return coe;
@@ -1125,7 +1143,7 @@ create or replace package body planner_utils is
           and rom_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Zas骲, kt髍y probujesz scalic, zostal uzyty przez innych planist體. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezw髄 na scalanie jezeli istnieja zajecia zaplanowane przez innych planist體"');
+         raise_application_error(-20000, 'Zas贸b, kt贸ry probujesz scali膰, zosta艂 u偶yty przez innych planist贸w. Je偶eli mimo to chcesz dokona膰 scalenia, zaznacz pole wyboru "Zezw贸l na scalanie je偶eli istniej膮 zaj臋cia zaplanowane przez innych planist贸w"');
        end if;  
       end;           
     end if;
@@ -1183,7 +1201,7 @@ create or replace package body planner_utils is
           and lec_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o wykladowcy, kt髍e pr骲ujesz scalic, zostaly uzyte przez innych planist體. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezw髄 na scalanie jezeli istnieja zajecia zaplanowane przez innych planist體"');
+         raise_application_error(-20000, 'Dane o wyk艂adowcy, kt贸re pr贸bujesz scali膰, zosta艂y u偶yte przez innych planist贸w. Je偶eli mimo to chcesz dokona膰 scalenia, zaznacz pole wyboru "Zezw贸l na scalanie je偶eli istniej膮 zaj臋cia zaplanowane przez innych planist贸w"');
        end if;  
       end;           
     end if;
@@ -1238,7 +1256,7 @@ create or replace package body planner_utils is
           and gro_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o grupie, kt髍e probujesz scalic, zostaly uzyte przez innych planist體. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezw髄 na scalanie jezeli istnieja zajecia zaplanowane przez innych planist體"');
+         raise_application_error(-20000, 'Dane o grupie, kt贸re probujesz scali膰, zosta艂y u偶yte przez innych planist贸w. Je偶eli mimo to chcesz dokona膰 scalenia, zaznacz pole wyboru "Zezw贸l na scalanie je偶eli istniej膮 zaj臋cia zaplanowane przez innych planist贸w"');
        end if;  
       end;           
     end if;
@@ -1289,7 +1307,7 @@ create or replace package body planner_utils is
         where sub_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, kt髍y probujesz scalic, zostal uzyty przez innych planist體. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezw髄 na scalanie jezeli istnieja zajecia zaplanowane przez innych planist體"');
+         raise_application_error(-20000, 'Przedmiot, kt贸ry probujesz scali膰, zosta艂 u偶yty przez innych planist贸w. Je偶eli mimo to chcesz dokona膰 scalenia, zaznacz pole wyboru "Zezw贸l na scalanie je偶eli istniej膮 zaj臋cia zaplanowane przez innych planist贸w"');
        end if;  
       end;           
     end if;
@@ -1320,7 +1338,7 @@ create or replace package body planner_utils is
         where for_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, kt髍y probujesz scalic, zostal uzyty przez innych planist體. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezw髄 na scalanie jezeli istnieja zajecia zaplanowane przez innych planist體"');
+         raise_application_error(-20000, 'Przedmiot, kt贸ry probujesz scali膰, zosta艂 u偶yty przez innych planist贸w. Je偶eli mimo to chcesz dokona膰 scalenia, zaznacz pole wyboru "Zezw贸l na scalanie je偶eli istniej膮 zaj臋cia zaplanowane przez innych planist贸w"');
        end if;  
       end;           
     end if;
@@ -1342,7 +1360,7 @@ create or replace package body planner_utils is
   function insert_str_elem ( pparent_id number, pchild_id number, pstr_name_lov varchar2 default 'STREAM') return varchar2 is
    c number;
   begin
-    if pparent_id = pchild_id then return 'Zas骲 nie moze byc sam dla siebie podrzedny ani nadrzedny'; end if;
+    if pparent_id = pchild_id then return 'Zas贸b nie mo偶e by膰 sam dla siebie podrz臋dny ani nadrz臋dny'; end if;
     --avoid cycles
     select count(*)
      into c 
@@ -1353,7 +1371,7 @@ create or replace package body planner_utils is
         connect by prior parent_id = child_id   
         start with child_id=pparent_id)
     where id_list = pchild_id;
-    if c > 0 then return 'Dodanie rekordu spowodowaloby zapetlenie danych. Elementem nadrzednym nie moze byc element, kt髍y juz jest elementem podrzednym'; end if;
+    if c > 0 then return 'Dodanie rekordu spowodowa艂oby zap臋tlenie danych. Elementem nadrz臋dnym nie mo偶e by膰 element, kt贸ry ju偶 jest elementem podrz臋dnym'; end if;
     select count(*)
      into c 
      from
@@ -1363,13 +1381,13 @@ create or replace package body planner_utils is
         connect by prior child_id = parent_id  
         start with parent_id=pchild_id)
     where id_list = pparent_id;    
-    if c > 0 then return 'Dodanie rekordu spowodowaloby zapetlenie danych. Elementem podrzednym nie moze byc element, kt髍y juz jest elementem nadrzednym'; end if;    
+    if c > 0 then return 'Dodanie rekordu spowodowa艂oby zap臋tlenie danych. Elementem podrz臋dnym nie mo偶e by膰 element, kt贸ry ju偶 jest elementem nadrz臋dnym'; end if;    
     begin
       insert into str_elems (id, parent_id, child_id, str_name_lov) values (main_seq.nextval, pparent_id, pchild_id,pstr_name_lov);
       return '';
     exception 
       when others then 
-        if sqlcode = -1 then return 'Ta kombinacja juz istnieje. Rekord nie zostal dodany ponownie'; else return sqlerrm; end if;
+        if sqlcode = -1 then return 'Ta kombinacja ju偶 istnieje. Rekord nie zosta艂 dodany ponownie'; else return sqlerrm; end if;
     end;
   end insert_str_elem;           
 
@@ -1490,3 +1508,45 @@ create or replace package body planner_utils is
 end planner_utils;
 /
 
+declare   
+    procedure update_lec_cla (c classes%rowtype) is
+      plec_id number;
+      desc1Cnt number := xxmsz_tools.wordcount(c.desc1,',');
+      desc2Cnt number := xxmsz_tools.wordcount(c.desc2,',');
+      desc3Cnt number := xxmsz_tools.wordcount(c.desc3,',');
+      desc4Cnt number := xxmsz_tools.wordcount(c.desc4,',');
+      lecsCnt  number := xxmsz_tools.wordcount(c.calc_lec_ids, ';');
+      lecdesc1 varchar2(200);
+      lecdesc2 varchar2(200);
+      lecdesc3 varchar2(200);
+      lecdesc4 varchar2(200);
+      ----------------------------------------------
+      function getLecDesc(descCnt number, pdesc varchar2, t number) return varchar2 is begin
+        case when descCnt = 1       then return pdesc;
+             when descCnt = lecsCnt then return xxmsz_tools.extractword(t,pdesc,',');
+             else return null;
+        end case;     
+      end;
+    begin      
+      for t in 1 .. lecsCnt loop
+        plec_id := xxmsz_tools.extractword(t,c.calc_lec_ids,';');
+        lecdesc1 := getLecDesc(desc1Cnt, c.desc1, t);
+        lecdesc2 := getLecDesc(desc2Cnt, c.desc2, t);
+        lecdesc3 := getLecDesc(desc3Cnt, c.desc3, t);
+        lecdesc4 := getLecDesc(desc4Cnt, c.desc4, t);
+        update lec_cla 
+           set desc1=lecdesc1
+             , desc2=lecdesc2
+             , desc3=lecdesc3
+             , desc4=lecdesc4
+          where lec_id= plec_id
+            and cla_id= c.id;
+      end loop;
+    end;  
+begin
+  for rec in (select * from classes) loop
+      update_lec_cla (rec);
+  end loop;
+  commit;
+end;    
+/

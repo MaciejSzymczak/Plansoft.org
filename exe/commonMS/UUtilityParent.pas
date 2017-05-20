@@ -45,9 +45,6 @@ function defaultBrowserIsChrome : boolean;
 //wiêcej na ten temat w Wikipedii i http://www.kurshtml.boo.pl/generatory/unicode.html
 function XMLescapeChars (buffer : string) : string;
 
-function UnixExtractFileName ( s : string) : string;
-function UnixExtractFileDir ( s : string) : string;
-
 // odpowiedniki Oracle PL/SQL
 Function nvl(S, S1 : string) : string;   overload;
 function substr(S : string; Index : integer; const Count: Integer = 65000): string;
@@ -93,8 +90,6 @@ Procedure deleteFiles(Path, Mask : String);
 Function  stringToInt(S : String) : Integer;
 // zwraca bie¿¹cy katalog
 Function  getD : String;
-Function  getLengthMaskedText(S : ShortString) : Integer;
-Function  ifEnableIncrementMask(S : ShortString) : Boolean;
 Procedure lockFormComponents(F : TForm; const A : Array Of TControl);
 Procedure unLockFormComponents(F : TForm);
 
@@ -135,7 +130,6 @@ function  ExtractWord(N: Integer; const S: string; WordDelims: TCharSet): string
 function stringBetween( s : string; stringBefore : string; stringAfter : string; const stringNo : integer = 1) : string;
 Function  existsValue(const S: string; WordDelims: TCharSet; Value : String) : Boolean;
 Procedure copyToClipBoard(S : String);
-Function  getMSDosFileName(LongName : String) : ShortString;
 
 Function  isHour(S : ShortString) : Boolean; //Sprawdza, czy godzina jest w formacie HH24:MI
 
@@ -160,12 +154,6 @@ function  stringToTFontStyles(s : string) : TFontStyles;
 
 Function GetTerminalName : String;
 
-
-function fileContainsText ( fileName : tfileName; textToFind : string ) : boolean;
-
-procedure SetBaloonTip(Control: TWinControl; Icon: integer; Title: pchar; Text: PWideChar;BackCL, TextCL: TColor);
-
-// SetBaloonTip is not applicable for Tspeedbutton. Use it instead
 var currentBaloonHint: THandle;
     currentHintedObject : shortstring;
 function  ShowBaloonHint(Point: TPoint; Handle: THandle; Title: String;Msg: String; Icon: Integer): Boolean;
@@ -174,6 +162,11 @@ procedure HideBaloonHint;
 function concatElements ( pelems : array of string; psep : string ) : string;
 
 procedure webBrowser( purl : string);
+
+//source: http://www.delphifaq.com/faq/delphi_windows_API/f899.shtml
+function isAltDown : Boolean;
+function isCtrlDown : Boolean;
+function isShiftDown : Boolean;
 
 
 Var
@@ -187,10 +180,8 @@ Var
     editSharing      : boolean;
     confineCalendarId : ShortString;
     UserID    : ShortString;
-    MASKA     : String;
     VersionOfApplication : ShortString;
     NazwaAplikacji : ShortString;
-    Uprawnienia    : String[200];
 
 Type PString = ^ShortString;
 
@@ -407,55 +398,6 @@ begin
   end;
 end;
 
-procedure SetBaloonTip(Control: TWinControl; Icon: integer; Title: pchar; Text: PWideChar;BackCL, TextCL: TColor);
-const
-  TOOLTIPS_CLASS  = 'tooltips_class32';
-  TTS_ALWAYSTIP   = $01;
-  TTS_NOPREFIX    = $02;
-  TTS_BALLOON     = $40;
-  TTF_SUBCLASS    = $0010;
-  TTF_TRANSPARENT = $0100;
-  TTF_CENTERTIP   = $0002;
-  TTM_ADDTOOL     = $0400 + 50;
-  TTM_SETTITLE    = (WM_USER + 32);
-  ICC_WIN95_CLASSES = $000000FF;
-type
-  TOOLINFO = packed record
-    cbSize: Integer;
-    uFlags: Integer;
-    hwnd: THandle;
-    uId: Integer;
-    rect: TRect;
-    hinst: THandle;
-    lpszText: PWideChar;
-    lParam: Integer;
-  end;
-var
-  hWndTip: THandle;
-  ti: TOOLINFO;
-  hWnd: THandle;
-begin
-  hWnd    := Control.Handle;
-  hWndTip := CreateWindow(TOOLTIPS_CLASS, nil,
-    WS_POPUP or TTS_NOPREFIX or TTS_BALLOON or TTS_ALWAYSTIP,
-    0, 0, 0, 0, hWnd, 0, HInstance, nil);
-  if hWndTip <> 0 then
-  begin
-    SetWindowPos(hWndTip, HWND_TOPMOST, 0, 0, 0, 0,
-      SWP_NOACTIVATE or SWP_NOMOVE or SWP_NOSIZE);
-    ti.cbSize := SizeOf(ti);
-    ti.uFlags := TTF_CENTERTIP or TTF_TRANSPARENT or TTF_SUBCLASS;
-    ti.hwnd := hWnd;
-    ti.lpszText := Text;
-    Windows.GetClientRect(hWnd, ti.rect);
-    SendMessage(hWndTip, TTM_SETTIPBKCOLOR, BackCL, 0);
-    SendMessage(hWndTip, TTM_SETTIPTEXTCOLOR, TextCL, 0);
-    SendMessage(hWndTip, TTM_ADDTOOL, 1, Integer(@ti));
-    SendMessage(hWndTip, TTM_SETTITLE, Icon mod 4, Integer(Title));
-  end;
-end;
-
-
 function ShowBaloonHint(Point: TPoint; Handle: THandle; Title: String; Msg: String; Icon: Integer): Boolean;
 var
   ti: TToolInfo;
@@ -477,6 +419,8 @@ const
   end;
 
 begin
+  if isCtrlDown then exit;
+  
   currentBaloonHint:= CreateWindowEx(0,
                         TOOLTIPS_CLASS,
                         nil,
@@ -534,21 +478,6 @@ begin
   currentHintedObject := '';
 end;
 
-
-function UnixExtractFileName ( s : string) : string;
-begin
- s := uutilityparent.SearchAndReplace(s, '/','\');
- result := extractFileName('c:' + s);
- result := uutilityparent.SearchAndReplace(result, '\','/');
-end;
-
-function UnixExtractFileDir ( s : string) : string;
-begin
- s := uutilityparent.SearchAndReplace(s, '/','\');
- result := Copy(extractFileDir('c:' + s), 3, 65000);
- result := uutilityparent.SearchAndReplace(result, '\','/');
-end;
-
 Procedure TAmounts.Init;
 Begin
  Count := 0;
@@ -598,59 +527,6 @@ Var S : String;
 Begin
  GetDir(0,S);
  Result := S;
-End;
-
-Function GetLengthMaskedText(S : ShortString) : Integer;
-Var L : Integer;
-    LicznikZnakow : Integer;
-Begin
- If S = '' Then Begin Result := 15; Exit; End;
-
- LicznikZnakow := 0;
-
- L := 1;
- While S[L] <> ';' Do
- Begin
-  If S[L] In ['0','9','L','l','A','a','C','c'] Then Inc(LicznikZnakow);
-  L := L + 1;
- End;
-
- L := 2;
- While S[L] <> ';' Do
- Begin
-  If S[L] In ['0','9','L','l','A','a','C','c'] Then
-   If S[L-1] = '\' Then Dec(LicznikZnakow);
-  L := L + 1;
- End;
-
- If LicznikZnakow = 0 Then ShowMessage('Wprowadzona maska nie niew³aœciwa. Nale¿y j¹ zmieniæ, poniewa¿ nie mo¿na autonumerowaæ zleceñ. Maska musi posiadaæ znaki "09LlAaCc"');
- Result := LicznikZnakow;
-End;
-
-Function IfEnableIncrementMask(S : ShortString) : Boolean;
-Var L : Integer;
-    LicznikZnakow : Integer;
-Begin
- If S = '' Then Begin Result := True; Exit; End;
-
- LicznikZnakow := 0;
-
- L := 1;
- While S[L] <> ';' Do
- Begin
-  If S[L] In ['L','l'] Then Inc(LicznikZnakow);
-  L := L + 1;
- End;
-
- L := 2;
- While S[L] <> ';' Do
- Begin
-  If S[L] In ['L','l'] Then
-   If S[L-1] = '\' Then Dec(LicznikZnakow);
-  L := L + 1;
- End;
-
- If LicznikZnakow <> 0 Then Result := False Else Result := True;
 End;
 
 Function mergeStrings(sep : String; const strings : Array Of string) : String;
@@ -939,12 +815,6 @@ Begin
  If Name = 'SAVERESOURCES' Then
    If Trim(R.ReadString(Name))  = '' Then Begin
     R.WriteString(Name,'No');
-    //If Question('Program, na którym pracujesz zostanie odpowiednio skonfigurowany w zale¿noœci od mocy komputera.'+CR+
-    //'Je¿eli wybierzesz TAK (lepszy komputer), program bêdzie dzia³a³ nieco szybciej, ale bêdzie pamiêcioch³onny.'+
-    //'Je¿eli wybierzesz NIE (gorszy komputer), program bêdzie dzia³a³ nieco wolniej, ale bêdzie oszczêdzia³ pamiêæ.'+
-    //'Je¿eli nie wiesz, jak¹ odpowiedŸ wybraæ, wybierz odpowiedŸ NIE') = idYES
-    //Then R.WriteString(Name,'No')
-    //Else R.WriteString(Name,'Yes')
    End;
 
  Result  := R.ReadString(Name);
@@ -1061,7 +931,7 @@ End;
 Procedure CopyToClipBoard(S : String);
 Var Edit : TEdit;
 Begin
- If Not Assigned(Application.MainForm) Then Begin SError('Aplikacja bez formularza g³ówego, nie mo¿na wykonaæ CopyToClipBoard S='+S); Exit; End;
+ If Not Assigned(Application.MainForm) Then Begin SError('Nie mo¿na wykonaæ CopyToClipBoard S='+S); Exit; End;
  Edit := TEdit.Create(nil);
  Edit.Parent := Application.MainForm;
  Edit.Name := 'TemporaryEdit';
@@ -1173,20 +1043,6 @@ begin
   end;
 end;
 
-Function GetMSDosFileName(LongName : String) : ShortString;
-var
-  sShort: string;
-  iLen: integer;
-begin
-  SetLength(sShort, 255);
-  iLen:=GetShortPathName(
-    PChar(LongName),
-    PChar(sShort),
-    255);
-  SetLength(sShort, iLen);
-  Result := ExtractFileName(sShort);
-end;
-
 Function isHour(S : ShortString) : Boolean;
 Var H, M : Integer;
 Begin
@@ -1198,13 +1054,6 @@ Begin
  If Not ((M >= 0) and (M <= 59)) Then Exit;
  Result := True;
 End;
-
-{Function DateToOracle(Data : Integer) : ShortString; //data w sensie TimeStamp.Date
-  Var Year,Month,Day : Word;
-Begin
- decodeDate(Data,Year,Month,Day);
- Result := 'TO_DATE('''+FormatFloat('0000',Year)+'.'+FormatFloat('00',Month)+'.'+FormatFloat('00',Day)+''',''YYYY.MM.DD'')';
-End;}
 
 Function DateToYYYYMM(Data : TDateTime) : ShortString;
   Var Year,Month,Day : Word;
@@ -1321,36 +1170,6 @@ function Replace( sSrc, sLookFor, sReplaceWith : string ) : string;
 begin
  result := stringReplace( sSrc, sLookFor, sReplaceWith, [rfReplaceAll]);
 end;
-{
-var
-  nPos,
-  nLenLookFor : integer;
-
-  twoStepReplace : boolean;
-  sReplaceWithBuffer : string;
-begin
-  twoStepReplace := false;
-  if (pos(sLookFor,sReplaceWith) <> 0) and (sReplaceWith <> '$$$UNIQUE_IDENTYFIER$$$') then begin
-    sReplaceWithBuffer := sReplaceWith;
-    sReplaceWith := '$$$UNIQUE_IDENTYFIER$$$';
-    twoStepReplace := true;
-  end;
-
-  nPos        := Pos( sLookFor, sSrc );
-  nLenLookFor := Length( sLookFor );
-  while(nPos > 0)do
-  begin
-    Delete( sSrc, nPos, nLenLookFor );
-    Insert( sReplaceWith, sSrc, nPos );
-    nPos := Pos( sLookFor, sSrc );
-  end;
-  Result := sSrc;
-
-  if twoStepReplace then begin
-    Result := replace(sSrc, sReplaceWith, sReplaceWithBuffer)
-  end;
-end;
-}
 
 Function IsValidNumber(S : String) : Boolean;
 Begin
@@ -1559,8 +1378,6 @@ begin
   Result := sSrc;
 end;
 
-
-
 function stringBetween( s : string; stringBefore : string; stringAfter : string; const stringNo : integer = 1) : string;
    function xxmsz_tools_extractWord(poz: Integer; const words: string; Sep : char): string;
    var
@@ -1585,11 +1402,6 @@ function stringBetween( s : string; stringBefore : string; stringAfter : string;
      result :=  Word;
    END;
 begin
- {
-   2006.02.06
-   wywolanie stringBetween(('retertert :[ fgfgfg ] rtrttr :[ rtrtrt ]', ':[',']',1)
-   dzialalo nieprawidlowo, dlatego dodano if.
- }
  if pos(stringBefore,s) = 0 then begin
   result := '';
   exit;
@@ -1631,7 +1443,6 @@ Var R : TRegistry;
 
 Begin
  exit;
- //sprawdzenie, czy klient Oracle zostal zainstalowany
  R:=TRegistry.Create;
  R.RootKey:=HKEY_LOCAL_MACHINE;
  R.OpenKey('SOFTWARE\ORACLE',False);
@@ -1652,44 +1463,6 @@ Begin
  R.CloseKey;
  R.Destroy;
 End;
-
-function fileContainsText ( fileName : tfileName; textToFind : string ) : boolean;
-var f : textFile;
-    str : string;
-begin
- textToFind := replacePolishChars (textToFind);
-
- if   (extractFileExt(upperCase(filename)) <> '.TXT')
-  and (extractFileExt(upperCase(filename)) <> '.SQL')
-  and (extractFileExt(upperCase(filename)) <> '.PKS')
-  and (extractFileExt(upperCase(filename)) <> '.PKB')
-  and (extractFileExt(upperCase(filename)) <> '.TRG')
- then begin
-  result := false;
-  exit;
- end;
-
- if textToFind = '' then begin
-  result := true;
-  exit;
- end;
-
-  // find in filename
- if Pos(upperCase(TextToFind),upperCase(replacePolishChars(filename)))<>0 then begin
-  result := true;
-  exit;
- end;
-
- // look for content
- result := false;
- AssignFile(f, fileName);
- reset(f);
- while not eof(f)  do begin
-   readLn(f,   str);
-   if  Pos(upperCase(TextToFind),upperCase(replacePolishChars(str)))<>0 then begin  result := true; break; end;
- end;
- closeFile(f);
-end;
 
 Function GetNowMarker: String;
 var Year, Month, Day: Word;
@@ -1842,20 +1615,6 @@ begin
 end;
 
 
-{ TMap
-
-    Map : TMap;
-
-    Map := Tmap.Create;
-    map.init(true);
-    map.addKeyValue('1', 'val1');
-    map.addKeyValue('2', 'val2');
-    map.prepare;
-
-    Map.getValue(id)
-}
-
-
 //https://dzone.com/articles/delphi-left-pad-function
 function LeftPad(PadString : string ; HowMany : integer ; PadValue : string): string;
 var
@@ -1878,7 +1637,7 @@ var
 begin
   if Length(aStr)>Len then
     Result := Copy(aStr, 1, Len)
-  else 
+  else
   begin
     posStr := (len - Length(aStr)) div 2;
     Result := Format('%*s', [len, aStr + Format('%-*s', [posStr, ''])]);
@@ -1957,6 +1716,30 @@ begin
    result := map [ i ].value;
 end;
 
+function isAltDown : Boolean;
+var
+  State: TKeyboardState;
+begin { isAltDown }
+  GetKeyboardState(State);
+  Result := ((State[vk_Menu] and 128)<>0);
+end; { isAltDown }
+
+function isCtrlDown : Boolean;
+var
+  State: TKeyboardState;
+begin { isCtrlDown }
+  GetKeyboardState(State);
+  Result := ((State[VK_CONTROL] and 128)<>0);
+end; { isCtrlDown }
+
+function isShiftDown : Boolean;
+var
+  State: TKeyboardState;
+begin { isShiftDown }
+  GetKeyboardState(State);
+  Result := ((State[vk_Shift] and 128)<>0);
+end; { isShiftDown }
+
 initialization
  NowMarker := GetNowMarker;
  ExamineADOOracle;
@@ -1987,7 +1770,7 @@ initialization
    DeleteFiles(StringsPath,extractFileName(Application.ExeName) + '.*.scr');
  End;
  except
-  SError('Nie powid³o siê usuniêcie plików. SprawdŸ, czy mo¿esz usuwaæ pliki z folderu:'+StringsPath+' Jeœli nie, to zg³oœ problem administratorowi');
+  SError('Nie powid³o siê usuniêcie plików. SprawdŸ, czy mo¿esz usuwaæ pliki z folderu:'+StringsPath);
  End;
 
  try

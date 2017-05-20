@@ -13,6 +13,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'Scheduler';
   Application.CreateForm(TFMain, FMain);
   Application.CreateForm(TFConfiguration, FConfiguration);
   Application.CreateForm(TFInfo, FInfo);

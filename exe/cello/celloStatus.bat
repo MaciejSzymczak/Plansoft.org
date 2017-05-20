@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar cello.jar status C:\\Users\\Maciek\\planowanie\\documents\\Semestry
