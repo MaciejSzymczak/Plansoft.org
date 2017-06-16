@@ -32,10 +32,6 @@ type
     Label7: TLabel;
     AddText: TEdit;
     Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    GoogleUser: TEdit;
-    GooglePassword: TEdit;
     pmiddle: TPanel;
     pright: TPanel;
     pleft: TPanel;
@@ -60,8 +56,6 @@ type
     gfilter: TLabel;
     DoNotGenerateTableOfCon: TCheckBox;
     sqlHolder: TMemo;
-    GoogleSavePassword: TCheckBox;
-    BGoogleDeleteAll: TBitBtn;
     SaveDialog: TSaveDialog;
     bcreatepopup: TSpeedButton;
     BCreate: TSpeedButton;
@@ -98,7 +92,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ComboSortOrderChange(Sender: TObject);
     procedure genTypeChange(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCreateClick(Sender: TObject);
     procedure bcreatepopupClick(Sender: TObject);
     procedure Utwrzrozk1Click(Sender: TObject);
@@ -115,6 +108,7 @@ type
     procedure BOtherClick(Sender: TObject);
     procedure BShowAllClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     formPrepared : boolean;
     settingsLoaded : boolean;
@@ -476,7 +470,6 @@ procedure TFWWWGenerator.FormShow(Sender: TObject);
  var t : integer;
 begin
   inherited;
-  if GoogleSavePassword.Checked then GooglePassword.Text := encgetSystemParam('GooglePassword');
   genTypeChange (nil);
 
   with fprogramSettings do begin
@@ -522,6 +515,9 @@ begin
   //GROfilerSettings_dsp.Text := GROSettings.Strings.Values['Notes.Category:DEFAULT'];
   formPrepared := true;
   currentPeriodChange(self);
+
+  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini') then
+     UutilityParent.LoadFromIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
 end;
 
 procedure setAll( L : TCheckListBox; v : boolean);
@@ -1404,13 +1400,6 @@ begin
   tabsheet3.TabVisible  := genType.ItemIndex =0;
 end;
 
-procedure TFWWWGenerator.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
-  inherited;
-  if GoogleSavePassword.Checked then encsetSystemParam('GooglePassword', GooglePassword.Text);
-end;
-
 procedure TFWWWGenerator.BCreateClick(Sender: TObject);
 var t                : integer;
     ColoringIndex    : shortString;
@@ -1920,9 +1909,6 @@ begin
     WriteString ('wwwgenerator','DefaultFolder',Folder.Text);
     WriteString ('wwwgenerator','AddText',AddText.Text);
     WriteBool   ('wwwgenerator','DoNotGenerateTableOfCon',DoNotGenerateTableOfCon.Checked);
-    WriteString ('wwwgenerator','GoogleUser',GoogleUser.Text);
-    WriteString ('wwwgenerator','GooglePassword',  uutilityparent.EncryptShortString(1, GooglePassword.Text, 'SoftwareFactory') );
-    WriteBool   ('wwwgenerator','GoogleSavePassword',GoogleSavePassword.Checked);
     WriteString ('wwwgenerator','RoleName',fmain.CONROLE_VALUE.text);
     WriteBool   ('wwwgenerator','Groups',Groups.Checked);
     WriteBool   ('wwwgenerator','Resources',Resources.Checked);
@@ -2256,6 +2242,12 @@ procedure TFWWWGenerator.SpeedButton1Click(Sender: TObject);
 begin
   info('Je¿eli w witrynie chcesz umieœciæ dodatkow¹ informacjê nt. semestru (np. wersja robocza), umieœæ j¹ w tym polu');
 
+end;
+
+procedure TFWWWGenerator.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  UutilityParent.SaveToIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
 end;
 
 end.

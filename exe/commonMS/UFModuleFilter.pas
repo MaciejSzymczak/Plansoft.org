@@ -805,6 +805,9 @@ End;
 
 Function TFModuleFilter.GetFieldTypeForCombo(T : Integer) : ShortString;
 Begin
+  if Fields[T].ItemIndex = -1 then begin
+    Result := 'Error';
+  end else 
   Try    Result := GetFieldType(Columns[Fields[T].ItemIndex]);
   Except Result := 'Error'; End;
 End;

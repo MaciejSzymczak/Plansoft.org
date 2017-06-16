@@ -453,7 +453,7 @@ begin
   If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
   Begin
       With DModule Do Begin
-          Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM FROM PERIODS WHERE '+ NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text) );
+          Dmodule.SingleValue('SELECT min(TO_CHAR(DATE_FROM,''YYYY/MM/DD'')),max(TO_CHAR(DATE_TO,''YYYY/MM/DD'')), max(date_to-date_from), min(DATE_FROM) FROM PERIODS WHERE '+ NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text) );
           DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
           DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
       End;

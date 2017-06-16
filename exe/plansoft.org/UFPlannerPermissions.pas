@@ -326,7 +326,7 @@ begin
   End;
 
   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : before LoadCells');
-  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where upper('+sql_LECNAME+') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
   LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');

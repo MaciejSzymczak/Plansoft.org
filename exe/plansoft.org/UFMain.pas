@@ -3925,9 +3925,6 @@ begin
      defaultFolder                    := pdefaultFolder;
      addText.Text                     := pAddText;
      DoNotGenerateTableOfCon.Checked  := pDoNotGenerateTableOfCon;
-     GoogleUser.Text                  := pGoogleUser;
-     GooglePassword.Text              := uutilityparent.DecryptShortString(1, pGooglePassword, 'SoftwareFactory');
-     GoogleSavePassword.Checked       := pGoogleSavePassword;
      Groups.Checked                   := pGroups;
      Resources.Checked                := pResources;
      Lecturers.Checked                := pLecturers;

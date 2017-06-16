@@ -1529,6 +1529,7 @@ begin
       if (controls[t] is tmenuitem)  then (controls[t] as tmenuitem).Checked := readBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
       if (controls[t] is tPageControl)  then (controls[t] as tPageControl).ActivePageIndex := readInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.CommaText);
+      if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tmemo).name , '')),(controls[t] as tmemo).lines.CommaText);
       if (controls[t] is tradiogroup)  then (controls[t] as tradiogroup).itemIndex := readInteger  (sectionName, (controls[t] as tradiogroup).name , (controls[t] as tradiogroup).itemIndex);
       if (controls[t] is tcombobox)  then (controls[t] as tcombobox).itemIndex := readInteger  (sectionName, (controls[t] as tcombobox).name , (controls[t] as tcombobox).itemIndex);
     end;
@@ -1551,6 +1552,7 @@ begin
       if (controls[t] is tPageControl)  then   writeInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       //encode to aviod issues with special chars
       if (controls[t] is tstrholder)    then  writeString(sectionName, (controls[t] as tstrholder).name, encode64((controls[t] as tstrholder).Strings.CommaText));
+      if (controls[t] is tmemo)         then  writeString(sectionName, (controls[t] as tmemo).name, encode64((controls[t] as tmemo).Lines.CommaText));
       if (controls[t] is tcombobox)     then   writeInteger(sectionName, (controls[t] as tcombobox).name, (controls[t] as tcombobox).ItemIndex);
       if (controls[t] is tradiogroup)     then   writeInteger(sectionName, (controls[t] as tradiogroup).name, (controls[t] as tradiogroup).ItemIndex);
     end;
