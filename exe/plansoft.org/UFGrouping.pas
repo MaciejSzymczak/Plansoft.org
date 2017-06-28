@@ -759,13 +759,6 @@ begin
   BSTUDENTHOURS.Visible    := lshowme;
   end;
 
-  if PERSettings.Strings.Values['FilterType'] = 'a' then CONPERIOD_VALUE.Text := PERSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if LSettings.Strings.Values['FilterType'] = 'a'   then CONL_VALUE.Text := LSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if GSettings.Strings.Values['FilterType'] = 'a'   then CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if RSettings.Strings.Values['FilterType'] = 'a'   then conResCat0_value.Text := RSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if SSettings.Strings.Values['FilterType'] = 'a'   then CONS_VALUE.Text := SSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if FSettings.Strings.Values['FilterType'] = 'a'   then CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
-
   topPanel.Height := 330;
   bMoreLessClick(nil);
 
@@ -1284,6 +1277,21 @@ end;
 
 procedure TFGrouping.LoadFromIni ( inifilename : tfilename );
 begin
+
+  CONPERIOD.Text := '';
+  CONL.Text := '';
+  CONG.Text := '';
+  conResCat0.Text := '';
+  CONS.Text := '';
+  CONF.Text := '';
+
+  CONPERIOD_VALUE.Text := '';
+  CONL_VALUE.Text := '';
+  CONG_VALUE.Text := '';
+  conResCat0_value.Text := '';
+  CONS_VALUE.Text := '';
+  CONF_VALUE.Text := '';
+
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
             [ calculateCount, calculateLec, calculateStu, asOfDay
@@ -1294,14 +1302,22 @@ begin
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
             , ChSelectedDates
-            ]);
+            ], true);
+
+  if PERSettings.Strings.Values['FilterType'] = 'a' then CONPERIOD_VALUE.Text := PERSettings.Strings.Values['Notes.Category:DEFAULT'];
+  if LSettings.Strings.Values['FilterType'] = 'a'   then CONL_VALUE.Text := LSettings.Strings.Values['Notes.Category:DEFAULT'];
+  if GSettings.Strings.Values['FilterType'] = 'a'   then CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
+  if RSettings.Strings.Values['FilterType'] = 'a'   then conResCat0_value.Text := RSettings.Strings.Values['Notes.Category:DEFAULT'];
+  if SSettings.Strings.Values['FilterType'] = 'a'   then CONS_VALUE.Text := SSettings.Strings.Values['Notes.Category:DEFAULT'];
+  if FSettings.Strings.Values['FilterType'] = 'a'   then CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
+
 end;
 
 function TFGrouping.loadSettings :boolean;
 begin
   result := false;
   if not openDialog.Execute then exit;
-  self.LoadFromIni( saveDialog.FileName );
+  self.LoadFromIni( openDialog.FileName );
   result := true;
 end;
 
@@ -1586,20 +1602,17 @@ end;
 
 procedure TFGrouping.chLnewLineClick(Sender: TObject);
 begin
-  if not elementEnabled('"Raportowanie w oddzielnych liniach"','2014.12.26', false) then  chLnewLine.Checked:= false;
   calculateCountClick(nil);
   Query.close;
 end;
 
 procedure TFGrouping.chGnewLineClick(Sender: TObject);
 begin
-  if not elementEnabled('"Raportowanie w oddzielnych liniach"','2014.12.26', false) then  chGnewLine.Checked:= false;
   Query.close;
 end;
 
 procedure TFGrouping.chRnewLineClick(Sender: TObject);
 begin
-  if not elementEnabled('"Raportowanie w oddzielnych liniach"','2014.12.26', false) then chRnewLine.Checked:= false;
   Query.close;
 end;
 
@@ -1627,12 +1640,12 @@ end;
 procedure TFGrouping.bMoreLessClick(Sender: TObject);
 begin
  if topPanel.Height=160 then begin
+  groupOrderBy.Visible := true;
   groupFunctions.Visible := true;
   groupSelect.Visible := true;
-  groupOrderBy.Visible := true;
   bOtherReports.Visible := true;
   bOptions.Visible := true;
-  topPanel.Height := 353;
+  topPanel.Height := 405;
   bMoreLess.Caption := 'Mniej';
  end else begin
   groupFunctions.Visible := false;

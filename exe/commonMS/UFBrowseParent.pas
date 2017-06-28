@@ -1446,7 +1446,7 @@ begin
  If ActiveControl <> ESearch Then Try
    if (Grid.Visible) and (Grid.Enabled) then
      ActiveControl := Grid;
- Except {Gdy Update} End;
+ Except {Update} End;
  SetAccessForButtons;
  LFind.Caption := getFindCaption;
 end;

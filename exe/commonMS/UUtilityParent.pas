@@ -241,7 +241,7 @@ procedure writelog ( m : string; const pworkPath: string = '');
 Function GetNowMarker: String;
 Function GetNowGMT(offset: integer): String;
 
-procedure loadFromIni(iniFileName : string; sectionName : string; controls : Array of TObject );  overload;
+procedure loadFromIni(iniFileName : string; sectionName : string; controls : Array of TObject; const insertNulls : boolean = false );  overload;
 procedure saveToIni(iniFileName : string; sectionName : string; controls : Array of TObject );   overload;
 function loadFromIni(iniFileName : string; sectionName : string; Name, value : string ) : string; overload;
 procedure saveToIni(iniFileName : string; sectionName : string; Name, value : string );  overload;
@@ -1515,7 +1515,7 @@ begin
  end;
 end;
 
-procedure loadFromIni(iniFileName : string; sectionName : string; controls : Array of TObject );
+procedure loadFromIni(iniFileName : string; sectionName : string; controls : Array of TObject; const insertNulls : boolean = false );
 var iniFile : TIniFile;
     t       : integer;
 begin
@@ -1528,8 +1528,13 @@ begin
       if (controls[t] is tfilenameedit)      then (controls[t] as     tfilenameedit).text    := readString(sectionName, (controls[t] as     tfilenameedit).name , (controls[t] as     tfilenameedit).text);
       if (controls[t] is tmenuitem)  then (controls[t] as tmenuitem).Checked := readBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
       if (controls[t] is tPageControl)  then (controls[t] as tPageControl).ActivePageIndex := readInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
-      if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.CommaText);
-      if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tmemo).name , '')),(controls[t] as tmemo).lines.CommaText);
+      if insertNulls then begin
+        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := decode64(readString  (sectionName, (controls[t] as tstrholder).name , ''));
+        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := decode64(readString  (sectionName, (controls[t] as tmemo).name , ''));
+      end else begin
+        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.CommaText);
+        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tmemo).name , '')),(controls[t] as tmemo).lines.CommaText);
+      end;
       if (controls[t] is tradiogroup)  then (controls[t] as tradiogroup).itemIndex := readInteger  (sectionName, (controls[t] as tradiogroup).name , (controls[t] as tradiogroup).itemIndex);
       if (controls[t] is tcombobox)  then (controls[t] as tcombobox).itemIndex := readInteger  (sectionName, (controls[t] as tcombobox).name , (controls[t] as tcombobox).itemIndex);
     end;

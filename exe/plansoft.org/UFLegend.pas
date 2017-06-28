@@ -114,8 +114,6 @@ type
     procedure QueryRAfterOpen(DataSet: TDataSet);
     procedure QuerySAfterOpen(DataSet: TDataSet);
     procedure QueryCOUNTERBeforeOpen(DataSet: TDataSet);
-    procedure PageControlChanging(Sender: TObject;
-      var AllowChange: Boolean);
     procedure BRefreshClick(Sender: TObject);
     procedure FilterChange(Sender: TObject);
     procedure gridCounterDblClick(Sender: TObject);
@@ -136,6 +134,7 @@ type
     procedure SpeedButton8Click(Sender: TObject);
     procedure BEditorClick(Sender: TObject);
     procedure SpeedButton9Click(Sender: TObject);
+    procedure gridCounterExit(Sender: TObject);
   private
     gridsFontSize : integer;
     refreshAllowed : boolean;
@@ -327,7 +326,6 @@ end;
 procedure TFLegend.groupByFormClick(Sender: TObject);
 begin
   if not refreshAllowed then exit;
-  saveFormSettings;
   BRefreshClick(nil);
 end;
 
@@ -412,7 +410,7 @@ begin
   end;
 
   for i := 0 to gridCounter.FieldCount-1 do begin
-    if gridCounter.Columns[i].Width>150 then gridCounter.Columns[i].Width := 150;
+    if gridCounter.Columns[i].Width>250 then gridCounter.Columns[i].Width := 250;
   end;
 
 end;
@@ -486,12 +484,6 @@ begin
   if FormsList.Items.Count>0 then
    setSystemParam('FLegend.hoursList.checked',checkListBoxToText(hoursList) );
 
-end;
-
-procedure TFLegend.PageControlChanging(Sender: TObject;
-  var AllowChange: Boolean);
-begin
-  saveFormSettings;
 end;
 
 procedure TFLegend.BRefreshClick(Sender: TObject);
@@ -711,8 +703,6 @@ begin
       gridR.Columns[ 9].Width := strToInt( getSystemParam('FLegend.gridR.Column9.Width'  ,'63')   );
       gridR.Columns[10].Width := strToInt( getSystemParam('FLegend.gridR.Column10.Width'  ,'63')   );
   end;
-
-  saveFormSettings;
 end;
 
 procedure TFLegend.FilterChange(Sender: TObject);
@@ -1117,6 +1107,11 @@ end;
 procedure TFLegend.SpeedButton9Click(Sender: TObject);
 begin
   FMain.Ustawieniaprogramu1Click(nil);
+end;
+
+procedure TFLegend.gridCounterExit(Sender: TObject);
+begin
+  saveFormSettings;
 end;
 
 end.
