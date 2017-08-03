@@ -94,18 +94,37 @@ Type TSingleClass = Record
                     End;
 
 Type TCheckConflicts = Class
-           NewClass         : TSingleClass;
+           NewClassWithChilds : TSingleClass;
+           NewClassToCreate : TSingleClass;
            ConflictsClasses : Array[1..40] Of TSingleClass;
            Count            : Integer;
            Completion       : Boolean;
            CanDelete        : Boolean;
 
            private
-             procedure internalCreate(Day : TTimeStamp; Hour, fill, colour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
+             procedure internalCreate(
+               Day : TTimeStamp;
+               Hour, fill, colour : Integer;
+               Lecturers : TPointers;
+               Groups: TPointers;
+               Rooms: TPointers;
+               LecturersWithChilds : TPointers;
+               GroupsWithChilds: TPointers;
+               RoomsWithChilds: TPointers;
+               Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
              procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner : String);
              function  deleteConflictClasses : Boolean;
            public
-             function  conflictsReport(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
+             function  conflictsReport(
+               Day : TTimeStamp;
+               Hour : Integer;
+               Lecturers : TPointers;
+               Groups: TPointers;
+               Rooms: TPointers;
+               LecturersWithChilds : TPointers;
+               GroupsWithChilds: TPointers;
+               RoomsWithChilds: TPointers;
+               Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
              function  empty : Boolean;
              function  insert ( ttCombIds        : string ) : Boolean;
@@ -665,23 +684,49 @@ Begin
   End;
 End;
 
-Procedure TCheckConflicts.internalCreate(Day : TTimeStamp; Hour, fill, colour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
+Procedure TCheckConflicts.InternalCreate(
+    Day : TTimeStamp;
+    Hour, fill, colour : Integer;
+    Lecturers : TPointers;
+    Groups: TPointers;
+    Rooms: TPointers;
+    LecturersWithChilds : TPointers;
+    GroupsWithChilds: TPointers;
+    RoomsWithChilds: TPointers;
+    Sub_id, For_id : Integer;
+    Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
 Begin
- NewClass.day     := Day;
- NewClass.hour    := Hour;
- NewClass.fill    := fill;
- NewClass.colour  := colour;
- NewClass.desc1   := desc1;
- NewClass.desc2   := desc2;
- NewClass.desc3   := desc3;
- NewClass.desc4   := desc4;
- NewClass.lecturers := Lecturers;
- NewClass.groups  := Groups;
- NewClass.rooms   := Rooms;
- NewClass.sub_id  := Sub_id;
- NewClass.for_id  := For_id;
- NewClass.created_by := Created_by;
- NewClass._Owner  := _Owner;
+ NewClassToCreate.day     := Day;
+ NewClassToCreate.hour    := Hour;
+ NewClassToCreate.fill    := fill;
+ NewClassToCreate.colour  := colour;
+ NewClassToCreate.desc1   := desc1;
+ NewClassToCreate.desc2   := desc2;
+ NewClassToCreate.desc3   := desc3;
+ NewClassToCreate.desc4   := desc4;
+ NewClassToCreate.lecturers := Lecturers;
+ NewClassToCreate.groups  := Groups;
+ NewClassToCreate.rooms   := Rooms;
+ NewClassToCreate.sub_id  := Sub_id;
+ NewClassToCreate.for_id  := For_id;
+ NewClassToCreate.created_by := Created_by;
+ NewClassToCreate._Owner  := _Owner;
+
+ NewClassWithChilds.day     := Day;
+ NewClassWithChilds.hour    := Hour;
+ NewClassWithChilds.fill    := fill;
+ NewClassWithChilds.colour  := colour;
+ NewClassWithChilds.desc1   := desc1;
+ NewClassWithChilds.desc2   := desc2;
+ NewClassWithChilds.desc3   := desc3;
+ NewClassWithChilds.desc4   := desc4;
+ NewClassWithChilds.lecturers := LecturersWithChilds;
+ NewClassWithChilds.groups  := GroupsWithChilds;
+ NewClassWithChilds.rooms   := RoomsWithChilds;
+ NewClassWithChilds.sub_id  := Sub_id;
+ NewClassWithChilds.for_id  := For_id;
+ NewClassWithChilds.created_by := Created_by;
+ NewClassWithChilds._Owner  := _Owner;
 
  CanDelete := True;
  Completion := False;
@@ -735,12 +780,12 @@ Begin
    If (CurrentUserName <> _Owner) and (CurrentUserName <> Fmain.MapPlannerSupervisors.getValue(_Owner)) Then CanDelete := False;
 
  // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
- If (NewClass.Day.Date = Day.Date) And (NewClass.Hour = Hour)
-     And P1IncludesP2(NewClass.Lecturers, Lecturers)
-     And P1IncludesP2(NewClass.Groups, Groups)
-     And P1IncludesP2(NewClass.Rooms, Rooms)
-     And  (NewClass.Sub_id = Sub_id)
-     And (NewClass.For_id = For_id) And (NewClass.Created_by = Created_by) And (NewClass._Owner = _Owner) Then Begin
+ If (NewClassWithChilds.Day.Date = Day.Date) And (NewClassWithChilds.Hour = Hour)
+     And P1IncludesP2(NewClassWithChilds.Lecturers, Lecturers)
+     And P1IncludesP2(NewClassWithChilds.Groups, Groups)
+     And P1IncludesP2(NewClassWithChilds.Rooms, Rooms)
+     And  (NewClassWithChilds.Sub_id = Sub_id)
+     And (NewClassWithChilds.For_id = For_id) And (NewClassWithChilds.Created_by = Created_by) And (NewClassWithChilds._Owner = _Owner) Then Begin
        If (CurrentUserName = _Owner) or (CurrentUserName = Fmain.MapPlannerSupervisors.getValue(_Owner))  Then Begin
          Completion := True;
          Exit;
@@ -779,7 +824,16 @@ Begin
               Else Result := False;
 End;
 
-Function TCheckConflicts.ConflictsReport(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
+Function TCheckConflicts.ConflictsReport(
+  Day : TTimeStamp;
+  Hour : Integer;
+  Lecturers : TPointers;
+  Groups: TPointers;
+  Rooms: TPointers;
+  LecturersWithChilds : TPointers;
+  GroupsWithChilds: TPointers;
+  RoomsWithChilds: TPointers;
+  Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
 Var L      : Integer;
     Status : Integer;
     Class_ : TClass_;
@@ -822,12 +876,12 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
        );
   End;
 Begin
-  internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
+  internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,LecturersWithChilds,GroupsWithChilds,RoomsWithChilds,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
 
   For L := 1 To maxInClass Do
-    If Groups[L] <> 0 Then
+    If GroupsWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Groups[L]),Status,Class_);
+      DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(GroupsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass;
@@ -837,9 +891,9 @@ Begin
 
  //Analogicznie postêpujê w przypadku wyk³adowców i zasobow
   For L := 1 To maxInClass Do
-    If Lecturers[L] <> 0 Then
+    If LecturersWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Lecturers[L]),Status,Class_);
+      DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(LecturersWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass;
@@ -848,9 +902,9 @@ Begin
     End Else Break;
 
   For L := 1 To maxInClass Do
-    If Rooms[L] <> 0 Then
+    If RoomsWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(Rooms[L]),Status,Class_);
+      DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(RoomsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass;
@@ -875,9 +929,9 @@ Begin
  Result := True;
 
  For L := 1 To maxInClass Do
-    If NewClass.Groups[L] <> 0 Then
+    If NewClassWithChilds.Groups[L] <> 0 Then
     Begin
-      DBGetClassByGroup(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Groups[L]),Status,Class_);
+      DBGetClassByGroup(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
@@ -887,9 +941,9 @@ Begin
 
  //The same for lecturers, rooms and so on
  For L := 1 To maxInClass Do
-    If NewClass.Lecturers[L] <> 0 Then
+    If NewClassWithChilds.Lecturers[L] <> 0 Then
     Begin
-      DBGetClassByLecturer(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Lecturers[L]),Status,Class_);
+      DBGetClassByLecturer(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
@@ -898,9 +952,9 @@ Begin
     End;
 
  For L := 1 To maxInClass Do
-    If NewClass.Rooms[L] <> 0 Then
+    If NewClassWithChilds.Rooms[L] <> 0 Then
     Begin
-      DBGetClassByRoom(TSDateToOracle(NewClass.Day), TSDateToOracle(NewClass.Day), NewClass.Hour, IntToStr(NewClass.Rooms[L]),Status,Class_);
+      DBGetClassByRoom(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
@@ -921,7 +975,7 @@ Begin
  If (Not CheckConflicts.empty) Or (CheckConflicts.Completion) Then
    If Not CheckConflicts.deleteConflictClasses Then Begin Result := False; Exit; End;
 
-  if NewClass.Hour = -1 Then
+  if NewClassToCreate.Hour = -1 Then
     Info('Wyst¹pi³ problem IntToStr(NewClass.Hour) = -1. Zg³oœ problem serwisowi');
 
  With DModule Do Begin
@@ -930,25 +984,25 @@ Begin
 	calc_rom_ids := '';
 
   For t:=1 To maxInClass Do Begin
-   If NewClass.Lecturers[t] <> 0 Then calc_lec_ids := merge( calc_lec_ids, intToStr(NewClass.Lecturers[t]), ';');
-   If NewClass.Groups[t]    <> 0 Then calc_gro_ids := merge( calc_gro_ids, intToStr(NewClass.Groups[t])   , ';');
-   If NewClass.Rooms[t]     <> 0 Then calc_rom_ids := merge( calc_rom_ids, intToStr(NewClass.Rooms[t])    , ';');
+   If NewClassToCreate.Lecturers[t] <> 0 Then calc_lec_ids := merge( calc_lec_ids, intToStr(NewClassToCreate.Lecturers[t]), ';');
+   If NewClassToCreate.Groups[t]    <> 0 Then calc_gro_ids := merge( calc_gro_ids, intToStr(NewClassToCreate.Groups[t])   , ';');
+   If NewClassToCreate.Rooms[t]     <> 0 Then calc_rom_ids := merge( calc_rom_ids, intToStr(NewClassToCreate.Rooms[t])    , ';');
   End;
 
-  myClass.hour          := newClass.hour;
-  myClass.day           := newClass.day;
-  myClass.fill          := newClass.fill;
-  myClass.class_colour  := newClass.colour;
-  myClass.sub_id        := newClass.sub_id;
-  myClass.for_id        := newClass.for_id;
-  myClass.owner         := newClass._Owner;
+  myClass.hour          := newClassToCreate.hour;
+  myClass.day           := newClassToCreate.day;
+  myClass.fill          := newClassToCreate.fill;
+  myClass.class_colour  := newClassToCreate.colour;
+  myClass.sub_id        := newClassToCreate.sub_id;
+  myClass.for_id        := newClassToCreate.for_id;
+  myClass.owner         := newClassToCreate._Owner;
   myClass.calc_lec_ids  := calc_lec_ids;
   myClass.calc_gro_ids  := calc_gro_ids;
   myClass.calc_rom_ids  := calc_rom_ids;
-  myClass.desc1         := newClass.desc1;
-  myClass.desc2         := newClass.desc2;
-  myClass.desc3         := newClass.desc3;
-  myClass.desc4         := newClass.desc4;
+  myClass.desc1         := newClassToCreate.desc1;
+  myClass.desc2         := newClassToCreate.desc2;
+  myClass.desc3         := newClassToCreate.desc3;
+  myClass.desc4         := newClassToCreate.desc4;
 
   result := insertClass (myClass, ttCombIds);
  End;
@@ -989,14 +1043,14 @@ Var t : Integer;
 Begin
  L.Visible := Not CanDelete;
 
- SGNewClass.Cells[0,1] := GetDate(NewClass.Day.Date);
- SGNewClass.Cells[1,1] := IntToStr(NewClass.Hour);
- SGNewClass.Cells[2,1] := GetLecturers(NewClass.Lecturers);
- SGNewClass.Cells[3,1] := GetGroups(NewClass.Groups);
- SGNewClass.Cells[4,1] := GetRooms(NewClass.Rooms);
- SGNewClass.Cells[5,1] := GetSubject(NewClass.Sub_id);
- SGNewClass.Cells[6,1] := GetForm(NewClass.For_id);
- SGNewClass.Cells[7,1] := NewClass._Owner;
+ SGNewClass.Cells[0,1] := GetDate(NewClassToCreate.Day.Date);
+ SGNewClass.Cells[1,1] := IntToStr(NewClassToCreate.Hour);
+ SGNewClass.Cells[2,1] := GetLecturers(NewClassToCreate.Lecturers);
+ SGNewClass.Cells[3,1] := GetGroups(NewClassToCreate.Groups);
+ SGNewClass.Cells[4,1] := GetRooms(NewClassToCreate.Rooms);
+ SGNewClass.Cells[5,1] := GetSubject(NewClassToCreate.Sub_id);
+ SGNewClass.Cells[6,1] := GetForm(NewClassToCreate.For_id);
+ SGNewClass.Cells[7,1] := NewClassToCreate._Owner;
 
  With SGConflicts Do Begin
  RowCount := Count + 1; //+1 for header

@@ -48,6 +48,7 @@ type
     procedure bdelpopupClick(Sender: TObject);
     procedure SeeAvailableClick(Sender: TObject);
     procedure bfavpopupClick(Sender: TObject);
+    procedure AddClassDblClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -71,7 +72,7 @@ end;
 
 procedure TFToolWindow.AddClassClick(Sender: TObject);
 begin
- fmain.bAddClassClick(nil);
+   Fmain.AddClassToGrid(true);
 end;
 
 procedure TFToolWindow.EditClassClick(Sender: TObject);
@@ -168,6 +169,11 @@ end;
 procedure TFToolWindow.bfavpopupClick(Sender: TObject);
 begin
  fmain.bdelpopupClick(sender);
+end;
+
+procedure TFToolWindow.AddClassDblClick(Sender: TObject);
+begin
+  Fmain.AddClassToGrid(true);
 end;
 
 end.

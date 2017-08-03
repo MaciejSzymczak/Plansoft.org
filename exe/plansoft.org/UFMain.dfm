@@ -1,8 +1,8 @@
 inherited FMain: TFMain
-  Left = 300
-  Top = 161
-  Width = 1472
-  Height = 873
+  Left = 157
+  Top = 181
+  Width = 1928
+  Height = 1038
   Caption = 'Plansoft.org'
   KeyPreview = True
   Menu = MM
@@ -14,17 +14,17 @@ inherited FMain: TFMain
   object Splitter2: TSplitter [0]
     Left = 343
     Top = 0
-    Height = 748
+    Height = 913
   end
   inherited Status: TPanel
-    Top = 789
-    Width = 1464
+    Top = 954
+    Width = 1920
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
-    Top = 748
-    Width = 1464
+    Top = 913
+    Width = 1920
     Height = 41
     Align = alBottom
     TabOrder = 0
@@ -60,7 +60,7 @@ inherited FMain: TFMain
     object StatusBar: TStatusBar
       Left = 1
       Top = 21
-      Width = 1462
+      Width = 1918
       Height = 19
       Panels = <
         item
@@ -96,24 +96,24 @@ inherited FMain: TFMain
   object MainPanel: TPanel
     Left = 346
     Top = 0
-    Width = 1118
-    Height = 748
+    Width = 1574
+    Height = 913
     Align = alClient
     BorderWidth = 1
     Ctl3D = True
     ParentCtl3D = False
     TabOrder = 1
     object VSplitter: TSplitter
-      Left = 1112
+      Left = 1568
       Top = 211
-      Height = 535
+      Height = 700
       Align = alRight
     end
     object Splitter1: TSplitter
       Left = 3
       Top = 211
       Width = 4
-      Height = 535
+      Height = 700
       Visible = False
     end
     object Label2: TLabel
@@ -184,7 +184,7 @@ inherited FMain: TFMain
     object TopPanel: TPanel
       Left = 2
       Top = 2
-      Width = 1114
+      Width = 1570
       Height = 54
       Align = alTop
       TabOrder = 0
@@ -1063,6 +1063,7 @@ inherited FMain: TFMain
         ParentShowHint = False
         ShowHint = True
         OnClick = BAddClassClick
+        OnDblClick = BAddClassDblClick
         OnMouseMove = BAddClassMouseMove
       end
       object BRefresh: TSpeedButton
@@ -3262,7 +3263,7 @@ inherited FMain: TFMain
     object LeftPanel: TPanel
       Left = 2
       Top = 56
-      Width = 1114
+      Width = 1570
       Height = 155
       Align = alTop
       TabOrder = 1
@@ -4755,8 +4756,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 119
-        Top = 9
+        Left = 823
+        Top = 17
         Width = 568
         Height = 111
         TabOrder = 35
@@ -4798,10 +4799,10 @@ inherited FMain: TFMain
     end
     object pRightDockPanel: TPanel
       Tag = 1
-      Left = 1115
+      Left = 1571
       Top = 211
       Width = 1
-      Height = 535
+      Height = 700
       Align = alRight
       DockSite = True
       TabOrder = 2
@@ -4814,7 +4815,7 @@ inherited FMain: TFMain
       Left = 2
       Top = 211
       Width = 1
-      Height = 535
+      Height = 700
       Align = alLeft
       DockSite = True
       TabOrder = 3
@@ -6505,15 +6506,15 @@ inherited FMain: TFMain
     object gridPanel: TPanel
       Left = 7
       Top = 211
-      Width = 1105
-      Height = 535
+      Width = 1561
+      Height = 700
       Align = alClient
       Caption = 'gridPanel'
       TabOrder = 6
       object filterPanel: TPanel
         Left = 1
         Top = 1
-        Width = 1103
+        Width = 1559
         Height = 28
         Align = alTop
         TabOrder = 0
@@ -6555,8 +6556,8 @@ inherited FMain: TFMain
       object Grid: TDrawGrid
         Left = 1
         Top = 29
-        Width = 1103
-        Height = 505
+        Width = 1559
+        Height = 670
         Align = alClient
         ColCount = 50
         DefaultColWidth = 28
@@ -6577,19 +6578,47 @@ inherited FMain: TFMain
         OnMouseWheelUp = GridMouseWheelUp
         OnSelectCell = GridSelectCell
       end
+      object childsAndParents: TMemo
+        Left = 584
+        Top = 136
+        Width = 249
+        Height = 129
+        Lines.Strings = (
+          'select unique id from'
+          '('
+          'select parent_id id'
+          '  from str_elems_v'
+          '  where STR_NAME_LOV='#39'STREAM'#39
+          
+            '  CONNECT BY PRIOR STR_NAME_LOV='#39'STREAM'#39' and prior parent_id = c' +
+            'hild_id   '
+          '  start with child_id=:id1'
+          'union'
+          'select child_id id'
+          '  from str_elems_v'
+          '  where STR_NAME_LOV='#39'STREAM'#39
+          
+            '  CONNECT BY PRIOR STR_NAME_LOV='#39'STREAM'#39' and prior child_id = pa' +
+            'rent_id  '
+          '  start with parent_id=:id2'
+          ')')
+        TabOrder = 2
+        Visible = False
+        WordWrap = False
+      end
     end
   end
   object SearchPanel: TPanel
     Left = 0
     Top = 0
     Width = 343
-    Height = 748
+    Height = 913
     Align = alLeft
     Caption = 'SearchPanel'
     TabOrder = 3
     object Splitter3: TSplitter
       Left = 1
-      Top = 628
+      Top = 793
       Width = 341
       Height = 4
       Cursor = crSizeNS
@@ -6599,7 +6628,7 @@ inherited FMain: TFMain
       Left = 1
       Top = 56
       Width = 341
-      Height = 572
+      Height = 737
       Align = alClient
       HotTrack = True
       Images = ImageList
@@ -6965,7 +6994,7 @@ inherited FMain: TFMain
     end
     object PanelRecentlyUsed: TPanel
       Left = 1
-      Top = 632
+      Top = 797
       Width = 341
       Height = 115
       Align = alBottom

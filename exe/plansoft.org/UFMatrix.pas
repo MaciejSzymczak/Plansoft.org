@@ -1221,7 +1221,12 @@ begin
       setMacro(mainQuery,'PERMISSIONSS',_PERMISSIONSS);
       setMacro(mainQuery,'PERMISSIONSF',_PERMISSIONSF);
     end;
+    try
     mainQuery.Open;
+    except
+      copyToClipboard(mainQuery.SQL.Text);
+      raise;
+    end;
 
     UpdStatus('Budowanie raportu');
     with dmodule do begin
@@ -1315,7 +1320,7 @@ procedure TFMatrix.setMode;
 begin
  if LayoutSwitcher.Caption = 'Prze³¹cz do uk³adu prostego' then begin
      self.Top := 50;
-     self.Height := 535;
+     self.Height := 612;
      Column.Visible := true;
      title.Visible  := true;
  end else begin

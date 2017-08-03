@@ -4,23 +4,23 @@ object FToolWindow: TFToolWindow
   VertScrollBar.Style = ssFlat
   BorderStyle = bsNone
   Caption = 'FToolWindow'
-  ClientHeight = 49
-  ClientWidth = 490
+  ClientHeight = 60
+  ClientWidth = 603
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -14
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  PixelsPerInch = 96
-  TextHeight = 13
+  PixelsPerInch = 120
+  TextHeight = 16
   object Shape2: TShape
-    Left = 396
+    Left = 487
     Top = 2
-    Width = 47
-    Height = 45
+    Width = 58
+    Height = 56
     Pen.Color = clGray
     Pen.Mode = pmNotXor
     Shape = stRoundRect
@@ -28,16 +28,16 @@ object FToolWindow: TFToolWindow
   object Shape1: TShape
     Left = 0
     Top = 0
-    Width = 488
-    Height = 49
+    Width = 601
+    Height = 60
     Pen.Mode = pmMask
     Shape = stRoundRect
   end
   object Shape8a: TShape
-    Left = 329
+    Left = 405
     Top = 2
-    Width = 65
-    Height = 45
+    Width = 80
+    Height = 56
     Pen.Color = clGray
     Pen.Mode = pmNotXor
     Shape = stRoundRect
@@ -45,17 +45,17 @@ object FToolWindow: TFToolWindow
   object Shape1a: TShape
     Left = 2
     Top = 2
-    Width = 159
-    Height = 45
+    Width = 196
+    Height = 56
     Pen.Color = clGray
     Pen.Mode = pmNotXor
     Shape = stRoundRect
   end
   object moveRight: TSpeedButton
-    Left = 371
-    Top = 23
-    Width = 19
-    Height = 17
+    Left = 457
+    Top = 28
+    Width = 23
+    Height = 21
     Hint = 'Przesu'#324' zaznaczony obszar w prawo'
     Flat = True
     Glyph.Data = {
@@ -107,10 +107,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object moveUp: TSpeedButton
-    Left = 353
-    Top = 6
-    Width = 19
-    Height = 17
+    Left = 434
+    Top = 7
+    Width = 24
+    Height = 21
     Hint = 'Przesu'#324' zaznaczony obszar w g'#243'r'#281
     Flat = True
     Glyph.Data = {
@@ -162,10 +162,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object moveDown: TSpeedButton
-    Left = 353
-    Top = 23
-    Width = 19
-    Height = 17
+    Left = 434
+    Top = 28
+    Width = 24
+    Height = 21
     Hint = 'Przesu'#324' zaznaczony obszar w d'#243'l'
     Flat = True
     Glyph.Data = {
@@ -217,10 +217,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object moveLeft: TSpeedButton
-    Left = 334
-    Top = 23
-    Width = 19
-    Height = 17
+    Left = 411
+    Top = 28
+    Width = 23
+    Height = 21
     Hint = 'Przesu'#324' zaznaczony obszar w lewo'
     Flat = True
     Glyph.Data = {
@@ -272,10 +272,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object AddClass: TSpeedButton
-    Left = 4
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 5
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Dodaj zaj'#281'cia/ rezerwacje'
     AllowAllUp = True
     Flat = True
@@ -413,13 +413,14 @@ object FToolWindow: TFToolWindow
     ParentShowHint = False
     ShowHint = True
     OnClick = AddClassClick
+    OnDblClick = AddClassDblClick
     OnMouseMove = moveUpMouseMove
   end
   object EditClass: TSpeedButton
-    Left = 43
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 53
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Edytuj zaj'#281'cia/ rezerwacje'
     AllowAllUp = True
     Flat = True
@@ -560,10 +561,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object BDeleteClass: TSpeedButton
-    Left = 99
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 122
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Usu'#324' zaj'#281'cia/ rezerwacje'
     AllowAllUp = True
     Flat = True
@@ -704,19 +705,19 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object Shape9a: TShape
-    Left = 163
+    Left = 201
     Top = 2
-    Width = 164
-    Height = 45
+    Width = 201
+    Height = 56
     Pen.Color = clGray
     Pen.Mode = pmNotXor
     Shape = stRoundRect
   end
   object bclearselection: TSpeedButton
-    Left = 285
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 351
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Usu'#324' zaznaczenie obszaru'
     Flat = True
     Glyph.Data = {
@@ -856,10 +857,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object bpastearea: TSpeedButton
-    Left = 246
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 303
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Wklej obszar'
     Flat = True
     Glyph.Data = {
@@ -999,10 +1000,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object bcutarea: TSpeedButton
-    Left = 207
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 255
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Wytnij obszar'
     Flat = True
     Glyph.Data = {
@@ -1142,10 +1143,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object bcopyarea: TSpeedButton
-    Left = 167
-    Top = 5
-    Width = 40
-    Height = 39
+    Left = 206
+    Top = 6
+    Width = 49
+    Height = 48
     Hint = 'Kopiuj obszar'
     Flat = True
     Glyph.Data = {
@@ -1285,10 +1286,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object bdelpopup: TSpeedButton
-    Left = 138
-    Top = 5
-    Width = 15
-    Height = 39
+    Left = 170
+    Top = 6
+    Width = 18
+    Height = 48
     Hint = 'Select connection'
     Flat = True
     Glyph.Data = {
@@ -1306,10 +1307,10 @@ object FToolWindow: TFToolWindow
     OnClick = bdelpopupClick
   end
   object beditpopup: TSpeedButton
-    Left = 83
-    Top = 5
-    Width = 15
-    Height = 39
+    Left = 102
+    Top = 6
+    Width = 19
+    Height = 48
     Hint = 'Select connection'
     Flat = True
     Glyph.Data = {
@@ -1327,10 +1328,10 @@ object FToolWindow: TFToolWindow
     OnClick = bdelpopupClick
   end
   object SeeAvailable: TSpeedButton
-    Left = 400
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 492
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'poka'#380' wolne terminy dla wskazanego zaj'#281'cia'
     Flat = True
     Glyph.Data = {
@@ -1470,10 +1471,10 @@ object FToolWindow: TFToolWindow
     OnMouseMove = moveUpMouseMove
   end
   object bfavpopup: TSpeedButton
-    Left = 445
-    Top = 5
-    Width = 39
-    Height = 39
+    Left = 548
+    Top = 6
+    Width = 48
+    Height = 48
     Hint = 'Zaznacz termin jako preferowany / nie preferowany'
     Flat = True
     Glyph.Data = {

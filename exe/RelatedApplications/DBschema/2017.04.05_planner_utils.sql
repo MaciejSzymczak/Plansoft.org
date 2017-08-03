@@ -1,3 +1,10 @@
+connect sys;
+
+grant alter system to planner;
+grant select on sys.GV_$SESSION to planner;
+
+connect planner;
+
 create or replace package planner_utils is
 
    /*****************************************************************************************************************************

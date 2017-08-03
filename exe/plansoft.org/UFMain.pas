@@ -10,6 +10,8 @@ uses
   WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
   DBGrids, UUtilityParent, DateUtils, XPMan;
 
+var dGeneralDebug : string;
+
 const
   clMove        =  1;
   clCopy        =  2;
@@ -90,6 +92,15 @@ type TClassByChildCache = Class
                                 Status        : Integer;
                                 Valid         : Boolean;
                                End;
+                     dPER_ID : Integer;
+                     dchildId : String;
+                     d_SQL : String;
+                     dHighData : integer;
+                     dinitDone : String;
+                     dResetByCLA_IDDone : String;
+                     dResetByDayDone : String;
+                     d_GetClassByDone : String;
+                     dLastError : string;
                      private
                       //Procedure Add(TS : TTimeStamp; Zajecia: Integer; Var Status : Integer; Var Class_ : TClass_);
                       Procedure init(PER_ID : Integer; childId : String; _SQL : String);
@@ -105,6 +116,7 @@ type TClassByChildCache = Class
                    End;
      TClassByGroupCache = Class (TClassByChildCache)
                    public
+                      dgper_id : integer;
                       Procedure GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
                       Procedure LoadPeriod(PER_ID: Integer; childId : String);
                    End;
@@ -601,6 +613,7 @@ type
     TopCntQuery: TMemo;
     TopCntPeriodQuery: TMemo;
     TreeModeCleanup: TSpeedButton;
+    childsAndParents: TMemo;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -934,6 +947,7 @@ type
     procedure BShowCellLayoutClick(Sender: TObject);
     procedure BShowCellLayoutMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
+    procedure BAddClassDblClick(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -960,6 +974,7 @@ type
     procedure refreshPanels;
     procedure setActiveShape( no : integer);
     //procedure UpdateSoftware;
+    function getChildsAndParents (KeyValue : string; resultString : string; addKeyValue : boolean) : string;
     procedure _selectl (clearList : boolean);
     procedure _selectg (clearList : boolean);
     procedure _selectr (clearList : boolean);
@@ -1055,6 +1070,7 @@ type
     function getWhereFastFilter(filter, tableName : string) : string;
     Procedure refreshRecentlyUsed(aFilter : string);
     procedure UpsertRecentlyUsed(presId : String; presType : String);
+    procedure AddClassToGrid(firstResourceFlag : boolean);
   end;
 
 var
@@ -1525,11 +1541,15 @@ Begin
       Begin
        Data[t][t2].Valid := False; Exit;
       End;
+
+ dResetByCLA_IDDone:='Y';
 End;
 
 procedure TClassByChildCache.ResetByDay(TS: TTimeStamp; Zajecia: Integer);
 Var t : Integer;
 Begin
+ dResetByDayDone := 'Y';
+
  t := TS.Date - FirstDay;
  If t <= Count-1 Then begin
     Data[t][Zajecia].Valid := False; Exit; end
@@ -1555,17 +1575,50 @@ Var t1, t2, X, Y, L1 : Integer;
     Day  : TTimeStamp;
 
 Begin
- t1 := TS.Date - FirstDay;
-
- if (t1 > high(data)) or (Zajecia > MaxHours) then
-   SError ('Przytrzymaj naciœniêty przycisk Esc, ¿eby pozbyæ siê tego komunikatu, a nastêpnie naciœnij przycisk odœwie¿. Zg³oœ ten problem serwisowi technicznemu.'+cr+
+ if (dinitDone<>'Y') then begin
+   SError('Internal error. You must call TClassByChildCache.init before you call TClassByChildCache._GetClassBy.'+cr+
    ' ts.date='+intToStr(ts.date)+cr+
    ' firstDay='+intToStr(firstDay)+cr+
    ' t1='+intToStr(t1)+cr+
    ' high(data)='+ inttostr(high(data))+cr+
    ' Zajecia=' + intToStr(zajecia)+cr+
-   ' MaxHours=' + intToStr(MaxHours)+cr
- );
+   ' MaxHours=' + intToStr(MaxHours)+cr+
+   ' ChildId=' + childId+cr+
+   ' dPER_ID=' + inttostr(dPER_ID)+cr+
+   ' dchildId=' + dchildId+cr+
+   ' d_SQL=' + d_SQL+cr+
+   ' dHighData=' + inttostr(dHighData)+cr+
+   ' dinitDone=' + dinitDone+cr+
+   ' dResetByCLA_IDDone=' + dResetByCLA_IDDone+cr+
+   ' dResetByDayDone=' + dResetByDayDone+cr+
+   ' d_GetClassByDone=' + d_GetClassByDone);
+   Exit; //fatal error
+ end;
+
+ t1 := TS.Date - FirstDay;
+
+ dLastError := '';
+ if (t1 > high(data)) or (Zajecia > MaxHours) then begin
+   dLastError := 'Przytrzymaj naciœniêty przycisk Esc, ¿eby pozbyæ siê tego komunikatu, a nastêpnie naciœnij przycisk odœwie¿. Zg³oœ ten problem serwisowi technicznemu.'+cr+
+   ' ts.date='+intToStr(ts.date)+cr+
+   ' firstDay='+intToStr(firstDay)+cr+
+   ' t1='+intToStr(t1)+cr+
+   ' high(data)='+ inttostr(high(data))+cr+
+   ' Zajecia=' + intToStr(zajecia)+cr+
+   ' MaxHours=' + intToStr(MaxHours)+cr+
+   ' ChildId=' + childId+cr+
+   ' dPER_ID=' + inttostr(dPER_ID)+cr+
+   ' dchildId=' + dchildId+cr+
+   ' d_SQL=' + d_SQL+cr+
+   ' dHighData=' + inttostr(dHighData)+cr+
+   ' dinitDone=' + dinitDone+cr+
+   ' dResetByCLA_IDDone=' + dResetByCLA_IDDone+cr+
+   ' dResetByDayDone=' + dResetByDayDone+cr+
+   ' d_GetClassByDone=' + d_GetClassByDone;
+   Exit; //fatal error
+ end;
+
+ d_GetClassByDone := 'Y';
 
  If Data[t1][Zajecia].Valid Then Begin
    Status := Data[t1][Zajecia].Status;
@@ -1617,16 +1670,22 @@ End;
 Procedure TClassByLecturerCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Begin
  _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
+ if dLastError <> '' then
+    SError ('TClassByLecturerCache: ' + dLastError);
 End;
 
 Procedure TClassByGroupCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Begin
  _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
+ if dLastError <> '' then
+    SError ('TClassByGroupCache('+inttostr(dgper_id)+'): ' + dLastError + cr + 'dGeneralDebug=' + dGeneralDebug);
 End;
 
 Procedure TClassByRoomCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Begin
  _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
+ if dLastError <> '' then
+    SError ('TClassByRoomCache: ' + dLastError);
 End;
 
 {****************************************************************************}
@@ -1722,6 +1781,7 @@ end;
 procedure TClassByGroupCaches.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 var t : integer;
 begin
+ dGeneralDebug := '';
  childId := ExtractWord(1,childId,[';']); // get first from the list
  for t := 0 to maxLength - 1 do begin
    if Data[t].childId = childId then begin
@@ -1740,6 +1800,7 @@ begin
    Data[position - 1].Cache.Free;
  end;
 
+   dGeneralDebug := 'TClassByGroupCaches.GetClass '+inttostr(position)+' PER_ID='+inttostr(PER_ID)+' conPeriod.Text='+fmain.conPeriod.Text;
    Data[position - 1].Cache := TClassByGroupCache.create;
    Data[position - 1].Cache.LoadPeriod(PER_ID, childId);
    Data[position - 1].childId := childId;
@@ -2812,8 +2873,10 @@ Procedure TFMain.insertClasses;
  function AddClass(currentPattern : string) : boolean;
  var t : Integer;
      PLecturers, PGroups, PRooms : TPointers;
+     PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
      value : String;
      L, G, R, Created_by, _Owner : string;
+     LwithChildsAndParents, GwithChildsAndParents, RwithChildsAndParents  : string;
      pdesc1, pdesc2, pdesc3, pdesc4  : string;
      S, FormId, Fill, colour  : integer;
      checkResult                 : shortString;
@@ -2825,6 +2888,12 @@ Procedure TFMain.insertClasses;
       PLecturers[t] :=0;
       PGroups[t] :=0;
       PRooms[t] :=0;
+    End;
+
+    For t := 1 To maxInClass Do Begin
+      PLecturersWithChilds[t] :=0;
+      PGroupsWithChilds[t] :=0;
+      PRoomsWithChilds[t] :=0;
     End;
 
     With FDetails Do Begin
@@ -2848,6 +2917,38 @@ Procedure TFMain.insertClasses;
      For t := 1 To WordCount(R,[';']) Do Begin
       value := ExtractWord(t, R, [';']);
       PRooms[t] := StrToInt(Value)
+     End;
+
+
+     //add dependency records: childs and parents
+     LWithChildsAndParents := L;
+     For t := 1 To WordCount(L,[';']) Do Begin
+       value := ExtractWord(t, L, [';']);
+       LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false);
+     End;
+     For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
+      value := ExtractWord(t, LWithChildsAndParents, [';']);
+      PLecturersWithChilds[t] := StrToInt(Value)
+     End;
+
+     GWithChildsAndParents := G;
+     For t := 1 To WordCount(G,[';']) Do Begin
+       value := ExtractWord(t, G, [';']);
+       GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false);
+     End;
+     For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
+      value := ExtractWord(t, GWithChildsAndParents, [';']);
+      PGroupsWithChilds[t] := StrToInt(Value)
+     End;
+
+     RWithChildsAndParents := R;
+     For t := 1 To WordCount(R,[';']) Do Begin
+       value := ExtractWord(t, R, [';']);
+       RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false);
+     End;
+     For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
+      value := ExtractWord(t, RWithChildsAndParents, [';']);
+      PRoomsWithChilds[t] := StrToInt(Value)
      End;
 
      resourceList := replace(
@@ -2895,7 +2996,26 @@ Procedure TFMain.insertClasses;
      // passing parameters sometimes failed !
      TS      := UFmain.dummyTS;
      Zajecia := UFmain.dummyHour;
-     checkConflicts.ConflictsReport(TS, Zajecia, PLecturers, PGroups, PRooms, S, FormId, 0, fill, colour, Created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4);
+     checkConflicts.ConflictsReport(
+       TS
+     , Zajecia
+     , PLecturers
+     , PGroups
+     , PRooms
+     , PLecturersWithChilds
+     , PGroupsWithChilds
+     , PRoomsWithChilds
+     , S
+     , FormId
+     , 0
+     , fill
+     , colour
+     , Created_by
+     , _Owner
+     , pdesc1
+     , pdesc2
+     , pdesc3
+     , pdesc4);
     End;
 
     result := false;
@@ -3010,7 +3130,7 @@ begin
  End;
 end;
 
-procedure TFMain.BAddClassClick(Sender: TObject);
+procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
@@ -3024,9 +3144,9 @@ begin
    FDetails.SetValues(
      TS
    , Zajecia
-   , ConLecturer.Text
-   , ConGroup.Text
-   , merge ( conResCat0.Text, conResCat1.Text, ';')
+   , iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)
+   , iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)
+   , iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';'))
    //resource types
    , merge(
        repeatString(dmodule.pResCatId0, wordCount(conResCat0.Text,[';']) ,';' )
@@ -3048,7 +3168,11 @@ begin
 
  InsertClasses;
  refreshPanels;
+end;
 
+procedure TFMain.BAddClassClick(Sender: TObject);
+begin
+  AddClassToGrid(true);
 end;
 
 procedure TFMain.refreshPanels;
@@ -3449,8 +3573,14 @@ Var t : Integer;
     End;
 
 begin
+  dInitDone := 'In progress per_id='+inttostr(PER_ID)+' childId='+childId;
+
   If (PER_ID = 0) Or (PER_ID = -1) Then Exit;
   If (childId = '0') Or (childId = '-1') or (strIsEmpty(childId)) Then Exit;
+
+  dPER_ID := PER_ID;
+  dchildId := childId;
+  d_SQL := _SQL;
 
   With DModule Do Begin
    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+IntToStr(PER_ID)));
@@ -3499,6 +3629,9 @@ begin
    QWork.Next;
   End;
   End;
+
+  dHighData := high(data);
+  dInitDone := 'Y';
 end;
 
 procedure TClassByLecturerCache.LoadPeriod(PER_ID: Integer; childId : String);
@@ -3508,6 +3641,7 @@ End;
 
 procedure TClassByGroupCache.LoadPeriod(PER_ID : Integer; childId : String);
 Begin
+ dgper_id := PER_ID;
  init(PER_ID,  childId, 'SELECT CLA_ID FROM GRO_CLA WHERE GRO_ID in ');
 End;
 
@@ -4526,7 +4660,7 @@ Var Class_ : TClass_;
 begin
   If TabViewType.TabIndex = 4 Then begin InvertReservations; exit; end;
   If TabViewType.TabIndex = 5 Then begin InvertOtherCalendar; exit; end;
-  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then bEditClassClick(nil) Else bAddClassClick(nil);
+  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then bEditClassClick(nil) Else Fmain.AddClassToGrid(true);
 end;
 
 procedure TFMain.refreshLegend;
@@ -4952,16 +5086,32 @@ begin
       Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text)
       Else begin
        TabViewType.TabIndex := 0;
-       ConLecturer.Text := Merge(KeyValue, ConLecturer.Text, ';');
+       ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
       end;
    end;
   End;
+end;
+
+function TFMain.getChildsAndParents (KeyValue : string; resultString : string; addKeyValue : boolean) : string;
+begin
+  resultString :=  Merge(KeyValue, resultString, ';');
+  dmodule.OpenSQL(childsAndParents.Lines.Text,'id1='+KeyValue+';id2='+KeyValue);
+  with dmodule.QWork do begin
+    first;
+    while not Eof do begin
+      if not ExistsValue(resultString, [';'], FieldByName('Id').AsString) then
+        resultString :=  Merge(resultString, FieldByName('Id').AsString, ';');
+       next;
+     end;
+  end;
+  result := resultString;
 end;
 
 procedure TFMain._selectg;
 Var KeyValues : String;
     KeyValue  : string;
     t         : integer;
+    resultString : string;
 begin
   KeyValue := '';
   If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
@@ -4972,7 +5122,7 @@ begin
       Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
       Else begin
         TabViewType.TabIndex := 1;
-        ConGroup.Text := Merge(KeyValue, ConGroup.Text, ';');
+        ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
       end;
    end;
   End;
@@ -4992,7 +5142,7 @@ begin
       Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         TabViewType.TabIndex := 3;
-        conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
+        conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
       end;
    end;
   End;
@@ -5012,7 +5162,7 @@ begin
       Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         TabViewType.TabIndex := 2;
-        conResCat0.Text := Merge(KeyValue, conResCat0.Text, ';');
+        conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
       end;
    end;
   End;
@@ -8775,6 +8925,11 @@ begin
      FCellLayout.displayCellLayout(false);
   end;
   //FCellLayout.showMe;
+end;
+
+procedure TFMain.BAddClassDblClick(Sender: TObject);
+begin
+  AddClassToGrid(true);
 end;
 
 initialization

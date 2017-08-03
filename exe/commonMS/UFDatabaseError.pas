@@ -88,7 +88,7 @@ procedure TFDatabaseError.FormCreate(Sender: TObject);
 begin
  Inherited;
  Top    := 100;
- Height := 205+19+20;
+ Height := 290;
 end;
 
 procedure TFDatabaseError.BNaprawAutomatycznieClick(Sender: TObject);

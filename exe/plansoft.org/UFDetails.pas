@@ -143,6 +143,7 @@ type
     CALID: TEdit;
     CALID_VALUE: TEdit;
     BClearCal: TSpeedButton;
+    WarningMessage: TLabel;
     procedure notLClick(Sender: TObject);
     procedure SelectS1Click(Sender: TObject);
     procedure SelectF1Click(Sender: TObject);
@@ -228,6 +229,12 @@ type
     procedure CALIDChange(Sender: TObject);
     procedure CALID_VALUEClick(Sender: TObject);
     procedure BClearCalClick(Sender: TObject);
+    procedure G_value1DblClick(Sender: TObject);
+    procedure L_value1DblClick(Sender: TObject);
+    procedure rescat0_1_valueDblClick(Sender: TObject);
+    procedure L_value2DblClick(Sender: TObject);
+    procedure G_value2DblClick(Sender: TObject);
+    procedure rescat0_2_valueDblClick(Sender: TObject);
   private
     procedure selectLEC;
     procedure selectGRO;
@@ -267,7 +274,7 @@ type
 
     procedure setValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : string; S, F, Fill, colour : Integer; Kind : string; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
     //Je¿eli Zajecia<>-1 (warunek Zajecia=-1 oznacza wiele terminow) to w na formularzu wyœwietla siê data i godzina zajêæ i dzia³aj¹ przyciski do wybierania wolnych wyk³adówców, grup, zasobow
-
+    procedure DisplayWarning(L, G, R : String);
     procedure getValues( Var L, G, R : string; var S, F, Fill, colour : integer; var Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : string);
   end;
 
@@ -281,9 +288,27 @@ implementation
 Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings,
   UFPattern;
 
+procedure TFDetails.DisplayWarning(L, G, R : String);
+begin
+ WarningMessage.Visible := false;
+ if L<>fmain.ConLecturer.Text then begin
+   WarningMessage.Visible := true;
+   WarningMessage.Caption := '*** Zosta³ skopiowany tylko pierwszy wyk³adowca. Kliknij dwukrotnie w pole Wyk³adowcy je¿eli chcesz skopiowaæ pozosta³ych';
+ end;
+ if G<>fmain.ConGroup.Text then begin
+   WarningMessage.Visible := true;
+   WarningMessage.Caption := '*** Zosta³a skopiowana tylko pierwsza grupa. Kliknij dwukrotnie w pole Grupy je¿eli chcesz skopiowaæ pozosta³e';
+ end;
+ if R<>merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';') then begin
+   WarningMessage.Visible := true;
+   WarningMessage.Caption := '*** Zosta³a skopiowana tylko pierwsza sala. Kliknij dwukrotnie w pole Sale je¿eli chcesz skopiowaæ pozosta³e';
+ end;
+end;
 
 Procedure TFDetails.SetValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : String; S, F, Fill, colour : Integer; Kind : String; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
 Begin
+ DisplayWarning(L, G, R);
+
  CanRefresh := False;
 
  TS := aTS;
@@ -1627,5 +1652,41 @@ begin
 
 end;
 
+
+procedure TFDetails.G_value1DblClick(Sender: TObject);
+begin
+  G1.Text := Fmain.congroup.Text;
+  DisplayWarning(L1.Text,g1.Text,rescat0_1.Text);
+end;
+
+procedure TFDetails.L_value1DblClick(Sender: TObject);
+begin
+  L1.Text := Fmain.conlecturer.Text;
+  DisplayWarning(L1.Text,g1.Text,rescat0_1.Text);
+end;
+
+procedure TFDetails.rescat0_1_valueDblClick(Sender: TObject);
+begin
+  rescat0_1.Text := merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';');
+  DisplayWarning(L1.Text,g1.Text,rescat0_1.Text);
+end;
+
+procedure TFDetails.L_value2DblClick(Sender: TObject);
+begin
+  L2.Text := Fmain.conlecturer.Text;
+  DisplayWarning(L2.Text,g2.Text,rescat0_2.Text);
+end;
+
+procedure TFDetails.G_value2DblClick(Sender: TObject);
+begin
+  G2.Text := Fmain.congroup.Text;
+  DisplayWarning(L2.Text,g2.Text,rescat0_2.Text);
+end;
+
+procedure TFDetails.rescat0_2_valueDblClick(Sender: TObject);
+begin
+  rescat0_2.Text := merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';');
+  DisplayWarning(L2.Text,g2.Text,rescat0_2.Text);
+end;
 
 end.

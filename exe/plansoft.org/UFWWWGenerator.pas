@@ -1711,7 +1711,7 @@ var t                : integer;
                        FMain.TabViewType.TabIndex := 1;
                        FMain.ConGroup.Text        := inttostr(integer( presourceList.Items.Objects[t]));
                      end;
-                     if  presAlias = 'RES' then begin
+                     if  presAlias = 'ROM' then begin
                        FMain.TabViewType.TabIndex := 2;
                        FMain.conResCat0.Text        := inttostr(integer( presourceList.Items.Objects[t]));
                      end;
@@ -1766,7 +1766,6 @@ var t                : integer;
             tableOfContens;
           end;
       end;
-
       setStatus('');
       q.Free;
     end;
@@ -1870,10 +1869,6 @@ begin
   case genType.ItemIndex of
    0:generateWebPage;
    1:begin
-       //if (GoogleUser.Text='') or (GooglePassword.Text='') then begin
-       //  info('Podanie nazwy u¿ytkownika oraz has³a jest wymagane. Je¿eli nie masz u¿ytkownika, to wejdŸ na stronê https://www.google.pl/ i zarejestruj siê');
-       //  exit;
-       //end;
        generateIcsCalendars;
      end;
   end;
