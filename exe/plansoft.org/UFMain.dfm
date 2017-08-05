@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 157
-  Top = 181
+  Left = 249
+  Top = 38
   Width = 1928
   Height = 1038
   Caption = 'Plansoft.org'

@@ -974,7 +974,7 @@ type
     procedure refreshPanels;
     procedure setActiveShape( no : integer);
     //procedure UpdateSoftware;
-    function getChildsAndParents (KeyValue : string; resultString : string; addKeyValue : boolean) : string;
+    function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
     procedure _selectl (clearList : boolean);
     procedure _selectg (clearList : boolean);
     procedure _selectr (clearList : boolean);
@@ -5082,28 +5082,64 @@ begin
    if clearList then ConLecturer.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     If ExistsValue(ConLecturer.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text)
-      Else begin
+     //If ExistsValue(ConLecturer.Text, [';'], KeyValue)
+      //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text)
+      //Else begin
        TabViewType.TabIndex := 0;
        ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
-      end;
+      //end;
    end;
   End;
 end;
 
-function TFMain.getChildsAndParents (KeyValue : string; resultString : string; addKeyValue : boolean) : string;
+function LROR (S : String; WordDelim : Char) : String;
+Var Buffer : Array of String;
+    count, t : integer;
+Begin
+  result := S;
+
+  count := WordCount(S,[WordDelim]);
+  if count <=1 then exit;
+  SetLength(Buffer,count);
+  for t := 1 to count do
+   Buffer[t-1] := ExtractWord(t,S,[WordDelim]);
+
+  result := '';
+  for t := 2 to count do
+   result := merge(result,Buffer[t-1],';');
+  result :=  merge(result,Buffer[1-1],';');
+End;
+
+
+function TFMain.getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
+var t : integer;
+    KeyValue : string;
 begin
-  resultString :=  Merge(KeyValue, resultString, ';');
-  dmodule.OpenSQL(childsAndParents.Lines.Text,'id1='+KeyValue+';id2='+KeyValue);
-  with dmodule.QWork do begin
-    first;
-    while not Eof do begin
-      if not ExistsValue(resultString, [';'], FieldByName('Id').AsString) then
-        resultString :=  Merge(resultString, FieldByName('Id').AsString, ';');
-       next;
-     end;
-  end;
+   for t := 1 to wordCount(KeyValues, [';']) do begin
+     KeyValue := extractWord(t,KeyValues, [';']);
+     If not ExistsValue(resultString, [';'], KeyValue) then
+      begin
+        if addKeyValue then resultString :=  Merge(KeyValue, resultString, ';');
+        //add childs and parents as well
+        dmodule.OpenSQL(childsAndParents.Lines.Text,'id1='+KeyValue+';id2='+KeyValue);
+        with dmodule.QWork do begin
+          first;
+          while not Eof do begin
+            if not ExistsValue(resultString, [';'], FieldByName('Id').AsString) then
+              resultString :=  Merge(resultString, FieldByName('Id').AsString, ';');
+             next;
+           end;
+        end;
+      end;
+   end;
+
+  //set keyValue as current value
+  KeyValue := extractWord(1,KeyValues, [';']);
+  if (ExistsValue(resultString, [';'], KeyValue)) and (KeyValue <>  extractWord(1,resultString, [';'])) then
+   repeat
+     resultString := LROR(resultString,';');
+   until extractWord(1,resultString, [';']) = KeyValue;
+
   result := resultString;
 end;
 
@@ -5118,12 +5154,12 @@ begin
    if clearList then ConGroup.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     If ExistsValue(ConGroup.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
-      Else begin
+     //If ExistsValue(ConGroup.Text, [';'], KeyValue)
+      //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
+      //Else begin
         TabViewType.TabIndex := 1;
         ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
-      end;
+      //end;
    end;
   End;
 end;
@@ -5138,12 +5174,12 @@ begin
    if clearList then conResCat1.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     If existsValue(conResCat1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
-      Else begin
+     //If existsValue(conResCat1.Text, [';'], KeyValue)
+      //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      //Else begin
         TabViewType.TabIndex := 3;
         conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
-      end;
+      //end;
    end;
   End;
 end;
@@ -5158,12 +5194,12 @@ begin
    if clearList then conResCat0.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     If ExistsValue(conResCat0.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
-      Else begin
+     //If ExistsValue(conResCat0.Text, [';'], KeyValue)
+      //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      //Else begin
         TabViewType.TabIndex := 2;
         conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
-      end;
+      //end;
    end;
   End;
 end;
@@ -5246,23 +5282,6 @@ begin
     TabViewType.TabIndex := 2;
 end;
 
-function LROR (S : String; WordDelim : Char) : String;
-Var Buffer : Array of String;
-    count, t : integer;
-Begin
-  result := S;
-
-  count := WordCount(S,[WordDelim]);
-  if count <=1 then exit;
-  SetLength(Buffer,count);
-  for t := 1 to count do
-   Buffer[t-1] := ExtractWord(t,S,[WordDelim]);
-
-  result := '';
-  for t := 2 to count do
-   result := merge(result,Buffer[t-1],';');
-  result :=  merge(result,Buffer[1-1],';');
-End;
 
 procedure TFMain.rorLClick(Sender: TObject);
 begin
@@ -6524,9 +6543,10 @@ begin
   end;
 
   canShow := false;
-  ConLecturer.Text := myClass.calc_lec_ids;
-  ConGroup.Text    := myClass.calc_gro_ids;
-  conResCat0.Text  := myClass.calc_rom_ids;
+  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true);
+  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true);
+  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true);
+
   ConSubject.Text  := inttostr(myClass.sub_id);
   ConForm.Text     := inttostr(myClass.for_id);
   FChange(ConLecturer, ConLecturer_value, sql_LECDESC);
@@ -7350,6 +7370,7 @@ begin
   With FDetails Do Begin
    If Not CanPaste Then Info('Brak danych do wklejenia')
    Else Begin
+    //Do not use getChildsAndParents here
     ConLecturer.Text := Clipboard_L1;
     ConGroup.Text    := Clipboard_G1;
     conResCat0.Text  := Clipboard_ResCat0_1;
@@ -8091,7 +8112,8 @@ begin
                   LECTURERSShowModalAsSingleRecord(aedit,resourceId);
                 end;
              1: begin
-                  conlecturer.Text := resourceId;
+                  conlecturer.Text := '';
+                  conlecturer.Text := getChildsAndParents(resourceId, '', true);
                   TabViewType.TabIndex := 0;
                 end;
              2: begin
@@ -8120,7 +8142,10 @@ begin
             FActionTree.showList('G');
             case FActionTree.selectedOption of
              0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
-             1: begin congroup.Text := resourceId; TabViewType.TabIndex := 1; end;
+             1: begin
+                  congroup.Text := getChildsAndParents(resourceId, '', true);
+                  TabViewType.TabIndex := 1;
+                end;
              2: begin
                   FMain.set_tmp_selected_dates;
                   FGrouping.ignoreIni:=true;
@@ -8147,7 +8172,10 @@ begin
             FActionTree.showList('R');
             case FActionTree.selectedOption of
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
-             1: begin conResCat0.Text := resourceId; TabViewType.TabIndex := 2; end;
+             1: begin
+                  conResCat0.Text := getChildsAndParents(resourceId, '', true);
+                  TabViewType.TabIndex := 2;
+                end;
              2: begin
                   FMain.set_tmp_selected_dates;
                   FGrouping.ignoreIni:=true;
@@ -8193,9 +8221,9 @@ begin
             TabViewType.TabIndex := StrToInt(resourceType);
 
             Case TabViewType.TabIndex of
-             0: conlecturer.Text := resourceId;
-             1: congroup.Text := resourceId;
-             2: conResCat0.Text := resourceId;
+             0: conlecturer.Text := getChildsAndParents(resourceId, '', true);
+             1: congroup.Text := getChildsAndParents(resourceId, '', true);
+             2: conResCat0.Text := getChildsAndParents(resourceId, '', true);
             End;
 
             tv.Visible := true;
