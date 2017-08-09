@@ -8559,7 +8559,7 @@ begin
   if CustomPeriod.ItemIndex=9 then dmodule.dateRange:='TODAY:+0:+30';
   if CustomPeriod.ItemIndex=10 then dmodule.dateRange:='TODAY:+30:+30';
   if CustomPeriod.ItemIndex=11 then dmodule.dateRange:='';
-  if CustomPeriod.ItemIndex=12 then
+  if CustomPeriod.ItemIndex=12 then begin
     if FDatesSelector = nil then Application.CreateForm(TFDatesSelector, FDatesSelector);
     if FDatesSelector.showModal = mrOK then begin
         With FDatesSelector do begin
@@ -8570,6 +8570,7 @@ begin
           refreshFilter.Enabled := true;
         end;
     end else exit;
+  end;
   SearchCounter := 3;
   refreshFilter.Enabled := true;
 {
