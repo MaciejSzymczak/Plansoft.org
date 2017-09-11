@@ -135,6 +135,7 @@ type
     procedure BEditorClick(Sender: TObject);
     procedure SpeedButton9Click(Sender: TObject);
     procedure gridCounterExit(Sender: TObject);
+    procedure gridCounterCellClick(Column: TColumn);
   private
     gridsFontSize : integer;
     refreshAllowed : boolean;
@@ -156,7 +157,7 @@ var
 
 implementation
 
-uses UFMain, DM, UFProgramSettings;
+uses UFMain, DM, UFProgramSettings, UFLegendNavigation;
 
 {$R *.DFM}
 
@@ -399,6 +400,11 @@ begin
     gridCounter.Columns.LoadFromFile( getFileName(gridCounter) )
   else begin
     for i := 0 to gridCounter.FieldCount-1 do begin
+      if gridCounter.columns[i].FieldName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
+      if gridCounter.columns[i].FieldName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
+      if gridCounter.columns[i].FieldName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
+      if gridCounter.columns[i].FieldName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
+      if gridCounter.columns[i].FieldName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
       if gridCounter.columns[i].FieldName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
       if gridCounter.columns[i].FieldName = 'Forma' then gridCounter.Columns[i].Width := 100;
       if gridCounter.columns[i].FieldName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
@@ -576,16 +582,16 @@ begin
   if PageControl.ActivePage = TabsheetCounter then begin
     QueryCOUNTER.SQL.Clear;
     groupbyClause := mergeStrings(',',[
-         iif(groupByS.Checked,'SUB.NAME ','')
-        ,iif(groupByForm.Checked,'FR.NAME','')
+         iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')
+        ,iif(groupByForm.Checked,'FR.NAME,FR.ID','')
         ,iif(groupByDesc1.Checked,'CLA.DESC1','')
         ,iif(groupByDesc2.Checked,'CLA.DESC2','')
         ,iif(groupByDesc3.Checked,'CLA.DESC3','')
         ,iif(groupByDesc4.Checked,'CLA.DESC4','')
         //
-        ,iif(groupByL.Checked,'LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME','')
-        ,iif(groupByG.Checked,'GRO.NAME','')
-        ,iif(groupByR.Checked,'ROM.NAME','')
+        ,iif(groupByL.Checked,'LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,LEC.ID','')
+        ,iif(groupByG.Checked,'GRO.NAME,GRO.ID','')
+        ,iif(groupByR.Checked,'ROM.NAME,ROM.ID','')
         ,iif(groupBylDesc1.Checked,'LEC_CLA.DESC1','')
         ,iif(groupBylDesc2.Checked,'LEC_CLA.DESC2','')
         ,iif(groupBylDesc3.Checked,'LEC_CLA.DESC3','')
@@ -598,16 +604,16 @@ begin
 
     QueryCOUNTER.SQL.Add(
     'SELECT '+mergeStrings(',',[
-          iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot" ','')
-        , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma"','')
+          iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
+        , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma", FR.ID FOR_ID','')
         , iif(groupByDesc1.Checked, 'NVL(CLA.DESC1,''--'') "'+fprogramSettings.getClassDescPlural(1)+'"','')
         , iif(groupByDesc2.Checked, 'NVL(CLA.DESC2,''--'') "'+fprogramSettings.getClassDescPlural(2)+'"','')
         , iif(groupByDesc3.Checked, 'NVL(CLA.DESC3,''--'') "'+fprogramSettings.getClassDescPlural(3)+'"','')
         , iif(groupByDesc4.Checked, 'NVL(CLA.DESC4,''--'') "'+fprogramSettings.getClassDescPlural(4)+'"','')
         //
-        , iif(groupByL.Checked, 'NVL(LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,''--'') "Wyk³adowca"','')
-        , iif(groupByG.Checked, 'NVL(GRO.NAME,''--'') "Grupa"','')
-        , iif(groupByR.Checked, 'NVL(ROM.NAME,''--'') "Zasób"','')
+        , iif(groupByL.Checked, 'NVL(LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,''--'') "Wyk³adowca", LEC.ID LEC_ID','')
+        , iif(groupByG.Checked, 'NVL(GRO.NAME,''--'') "Grupa", GRO.ID GRO_ID','')
+        , iif(groupByR.Checked, 'NVL(ROM.NAME,''--'') "Zasób", ROM.ID ROM_ID','')
         //
         , iif(groupByLDesc1.Checked, 'NVL(LEC_CLA.DESC1,''--'') "'+fprogramSettings.getClassDescSingular(1)+'"','')
         , iif(groupByLDesc2.Checked, 'NVL(LEC_CLA.DESC2,''--'') "'+fprogramSettings.getClassDescSingular(2)+'"','')
@@ -712,7 +718,7 @@ end;
 
 procedure TFLegend.gridCounterDblClick(Sender: TObject);
 begin
-copyToclipboard(QueryCOUNTER.SQL.Text);
+//copyToclipboard(QueryCOUNTER.SQL.Text);
 end;
 
 procedure TFLegend.BOleExportClick(Sender: TObject);
@@ -1112,6 +1118,51 @@ end;
 procedure TFLegend.gridCounterExit(Sender: TObject);
 begin
   saveFormSettings;
+end;
+
+procedure TFLegend.gridCounterCellClick(Column: TColumn);
+var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS: String;
+begin
+  idL := '';
+  idG := '';
+  idR := '';
+  idF := '';
+  idS := '';
+  dspL := '';
+  dspG := '';
+  dspR := '';
+  dspF := '';
+  dspS := '';
+  if (groupByL.Checked) and  (QueryCounter.FieldByName('LEC_ID').AsString<>'') then begin
+     idL :=  QueryCounter.FieldByName('LEC_ID').AsString;
+     dspL := QueryCounter.FieldByName('Wyk³adowca').AsString;
+  end;
+  if (groupByG.Checked) and  (QueryCounter.FieldByName('GRO_ID').AsString<>'') then begin
+     idG := QueryCounter.FieldByName('GRO_ID').AsString;
+     dspG := QueryCounter.FieldByName('Grupa').AsString;
+  end;
+  if (groupByR.Checked) and  (QueryCounter.FieldByName('ROM_ID').AsString<>'') then begin
+     idR := QueryCounter.FieldByName('ROM_ID').AsString;
+     dspR := QueryCounter.FieldByName('Zasób').AsString;
+  end;
+  if (groupByS.Checked) and  (QueryCounter.FieldByName('SUB_ID').AsString<>'') then begin
+     idS := QueryCounter.FieldByName('SUB_ID').AsString;
+     dspS := QueryCounter.FieldByName('Przedmiot').AsString;
+  end;
+  if (groupByForm.Checked) and  (QueryCounter.FieldByName('FOR_ID').AsString<>'') then begin;
+     idF := QueryCounter.FieldByName('FOR_ID').AsString;
+     dspF :=  QueryCounter.FieldByName('Forma').AsString;
+  end;
+  FLegendNavigation.open(
+    idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS
+  );
+
+  if FLegendNavigation.itemClicked='dspL' then begin fmain.conlecturer.Text := fmain.getChildsAndParents(idL, '', true); fmain.TabViewType.TabIndex := 0; end;
+  if FLegendNavigation.itemClicked='dspG' then begin fmain.congroup.Text := fmain.getChildsAndParents(idG, '', true);  fmain.TabViewType.TabIndex := 1;  end;
+  if FLegendNavigation.itemClicked='dspR' then begin fmain.conResCat0.Text := fmain.getChildsAndParents(idR, '', true);  fmain.TabViewType.TabIndex := 2; end;
+  if FLegendNavigation.itemClicked='dspS' then begin fmain.consubject.Text := fmain.getChildsAndParents(idS, '', true);  fmain.DrawSuppressionS.Checked := true; end;
+  if FLegendNavigation.itemClicked='dspF' then begin fmain.conForm.Text := fmain.getChildsAndParents(idF, '', true); fmain.DrawSuppressionF.Checked := true; end;
+
 end;
 
 end.

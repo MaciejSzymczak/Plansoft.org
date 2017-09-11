@@ -974,7 +974,6 @@ type
     procedure refreshPanels;
     procedure setActiveShape( no : integer);
     //procedure UpdateSoftware;
-    function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
     procedure _selectl (clearList : boolean);
     procedure _selectg (clearList : boolean);
     procedure _selectr (clearList : boolean);
@@ -1071,6 +1070,7 @@ type
     Procedure refreshRecentlyUsed(aFilter : string);
     procedure UpsertRecentlyUsed(presId : String; presType : String);
     procedure AddClassToGrid(firstResourceFlag : boolean);
+    function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
   end;
 
 var
@@ -2212,7 +2212,6 @@ End;
 
 procedure TFMain.ConLecturerChange(Sender: TObject);
 begin
-  inherited;
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    FChange(ConLecturer, ConLecturer_value, sql_LECDESC);
@@ -2231,7 +2230,6 @@ end;
 
 procedure TFMain.ConGroupChange(Sender: TObject);
 begin
-  inherited;
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    FChange(ConGroup, ConGroup_value,sql_GRODESC);
@@ -2249,7 +2247,6 @@ end;
 
 procedure TFMain.conResCat0Change(Sender: TObject);
 begin
-  inherited;
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    FChange(conResCat0, conResCat0_value,sql_ResCat0DESC);

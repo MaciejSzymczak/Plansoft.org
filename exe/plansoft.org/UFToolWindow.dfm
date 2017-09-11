@@ -1,6 +1,6 @@
 object FToolWindow: TFToolWindow
-  Left = 558
-  Top = 266
+  Left = 543
+  Top = 331
   VertScrollBar.Style = ssFlat
   BorderStyle = bsNone
   Caption = 'FToolWindow'

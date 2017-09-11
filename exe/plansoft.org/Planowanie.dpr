@@ -85,7 +85,8 @@ uses
   UFActionTree in 'UFActionTree.pas' {FActionTree},
   UFCellLayout in 'UFCellLayout.pas' {FCellLayout},
   UFSalectDaysOfWeek in 'UFSalectDaysOfWeek.pas' {FSelectDaysOfWeek},
-  UFSharing in 'UFSharing.pas' {FSharing};
+  UFSharing in 'UFSharing.pas' {FSharing},
+  UFLegendNavigation in 'UFLegendNavigation.pas' {FLegendNavigation};
 
 {$R *.RES}
 
@@ -164,6 +165,7 @@ begin
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TFProgramSettings, FProgramSettings);
   Application.CreateForm(TFMatrix, FMatrix);
+  Application.CreateForm(TFLegendNavigation, FLegendNavigation);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

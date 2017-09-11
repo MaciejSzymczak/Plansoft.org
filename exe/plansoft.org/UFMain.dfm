@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 107
-  Top = 16
+  Left = 161
+  Top = 81
   Width = 1928
   Height = 1038
   Caption = 'Plansoft.org'
@@ -4756,8 +4756,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 823
-        Top = 17
+        Left = 279
+        Top = 9
         Width = 568
         Height = 111
         TabOrder = 35
