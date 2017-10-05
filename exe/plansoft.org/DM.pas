@@ -31,7 +31,7 @@ Const MaxAllLecturers     =   5000;
       g_date_hour         = -8;
       sql_LECNAME         = 'TITLE||'' ''||LAST_NAME||'' ''||FIRST_NAME';
       sql_LECNAMEORG      = 'TITLE||'' ''||LAST_NAME||'' ''||FIRST_NAME ||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
-      sql_GRONAME         = 'abbreviation';
+      sql_GRONAME         = 'nvl(abbreviation,name)';
       sql_ResCat0NAME     = 'NAME||'' ''||substr(attribs_01,1,55)';
       sql_ResCat1NAME     = 'NAME';
       sql_SUBNAME         = 'NAME';

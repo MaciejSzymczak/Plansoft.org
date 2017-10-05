@@ -14,6 +14,16 @@ type
     dspS: TLabel;
     dspF: TLabel;
     Bcancel: TBitBtn;
+    EditL: TSpeedButton;
+    EditG: TSpeedButton;
+    EditR: TSpeedButton;
+    EditS: TSpeedButton;
+    EditF: TSpeedButton;
+    StatL: TSpeedButton;
+    StatG: TSpeedButton;
+    StatR: TSpeedButton;
+    StatS: TSpeedButton;
+    StatF: TSpeedButton;
     procedure dspLMouseEnter(Sender: TObject);
     procedure dspLMouseLeave(Sender: TObject);
     procedure dspLClick(Sender: TObject);
@@ -22,7 +32,7 @@ type
   private
     { Private declarations }
   public
-    itemClicked : string;
+    selectedOption : string;
     function Open(idL, idG, idR, idF, idS : String; dspL, dspG, dspR, dspF, dspS : String) : tModalResult;
   end;
 
@@ -50,6 +60,16 @@ begin
      if  dspR.Caption <> '' then begin dspR.Hint := 'Kliknij aby przejœæ do rozk³adu';  dspR.Caption:=dspR.Caption+' >>'; end;
      if  dspS.Caption <> '' then begin dspS.Hint := 'Kliknij aby wyró¿niæ na rozk³adzie'; dspS.Caption:=dspS.Caption+' *'; end;
      if  dspF.Caption <> '' then begin dspF.Hint := 'Kliknij aby wyró¿niæ na rozk³adzie'; dspF.Caption:=dspF.Caption+' *'; end;
+     EditL.Visible := dspL.Caption <> '';
+     EditG.Visible := dspG.Caption <> '';
+     EditR.Visible := dspR.Caption <> '';
+     EditS.Visible := dspS.Caption <> '';
+     EditF.Visible := dspF.Caption <> '';
+     StatL.Visible := dspL.Caption <> '';
+     StatG.Visible := dspG.Caption <> '';
+     StatR.Visible := dspR.Caption <> '';
+     StatS.Visible := dspS.Caption <> '';
+     StatF.Visible := dspF.Caption <> '';
      ShowModal;
    end;
 end;
@@ -68,13 +88,13 @@ end;
 
 procedure TFLegendNavigation.dspLClick(Sender: TObject);
 begin
-  itemClicked := (Sender as TLabel).Name;
+  selectedOption := (Sender as TControl).Name;
   Close;
 end;
 
 procedure TFLegendNavigation.FormShow(Sender: TObject);
 begin
-  itemClicked := '';
+  selectedOption := '';
 end;
 
 procedure TFLegendNavigation.BcancelClick(Sender: TObject);

@@ -1071,6 +1071,7 @@ type
     procedure UpsertRecentlyUsed(presId : String; presType : String);
     procedure AddClassToGrid(firstResourceFlag : boolean);
     function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
+    procedure OpenFGrouping(resourceType : String; resourceId : String);
   end;
 
 var
@@ -2916,7 +2917,6 @@ Procedure TFMain.insertClasses;
       PRooms[t] := StrToInt(Value)
      End;
 
-
      //add dependency records: childs and parents
      LWithChildsAndParents := L;
      For t := 1 To WordCount(L,[';']) Do Begin
@@ -3097,7 +3097,7 @@ begin
       ignoreEvents := false;
       DModule.RefreshLookupEdit(Self, 'CALID','NAME','ROOMS','');
       If Not strIsEmpty(conPeriod.Text) Then otherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
-      //now you can use the function OtherCalendar.IsReserved(TS, Zajecia)
+      //now the OtherCalendar.IsReserved(TS, Zajecia) is available
     end;
 
     pattern := extractWord(1,FDetails.CPattern.Text,[' ']);
@@ -3204,7 +3204,6 @@ end;
 
 procedure TFMain.Cofnij1Click(Sender: TObject);
 begin
-  inherited;
   Dmodule.RollbackTrans;
   BRefreshClick(nil);
   RefreshGrid;
@@ -4391,23 +4390,23 @@ procedure TFMain.pasteArea;
   var dx, dy : integer;
       myRect: TGridRect;
 begin
-            dx := grid.Selection.Left - gridSelectionLeft;
-            dy := grid.Selection.Top - gridSelectionTop;
-            //clear selection
-            myRect.Left   := gridSelectionLeft;
-            myRect.Right  := gridSelectionRight;
-            myRect.Top    := gridSelectionTop;
-            myRect.Bottom := gridSelectionBottom;
-            grid.Selection        := myRect;
-            if gridSelectionMode = clRed then begin
-             //clear selection
-             gridSelectionLeft   := -1;
-             gridSelectionRight  := -1;
-             gridSelectionTop    := -1;
-             gridSelectionBottom := -1;
-            end;
-            //move
-            modifyClasses ( dx, dy, iif(gridSelectionMode = clRed,clMove,clCopy),'','');
+	dx := grid.Selection.Left - gridSelectionLeft;
+	dy := grid.Selection.Top - gridSelectionTop;
+	//clear selection
+	myRect.Left   := gridSelectionLeft;
+	myRect.Right  := gridSelectionRight;
+	myRect.Top    := gridSelectionTop;
+	myRect.Bottom := gridSelectionBottom;
+	grid.Selection        := myRect;
+	if gridSelectionMode = clRed then begin
+	 //clear selection
+	 gridSelectionLeft   := -1;
+	 gridSelectionRight  := -1;
+	 gridSelectionTop    := -1;
+	 gridSelectionBottom := -1;
+	end;
+	//move
+	modifyClasses ( dx, dy, iif(gridSelectionMode = clRed,clMove,clCopy),'','');
 end;
 
 procedure TFMain.clearSelection;
@@ -4648,7 +4647,7 @@ begin
      , Class_.desc4
    );
    InsertClasses;
- End Else Begin Info('Zaznacz element w siatce, który chcesz edytowaæ'); End;
+ End Else Begin Info('W siatce zaznacz komórkê do edycji'); End;
  refreshPanels;
 end;
 
@@ -5263,26 +5262,22 @@ end;
 
 procedure TFMain.CONLECTURER_valueEnter(Sender: TObject);
 begin
-  inherited;
   TabViewType.TabIndex := 0;
 end;
 
 procedure TFMain.CONGROUP_valueEnter(Sender: TObject);
 begin
-  inherited;
-    TabViewType.TabIndex := 1;
+  TabViewType.TabIndex := 1;
 end;
 
 procedure TFMain.conResCat0_valueEnter(Sender: TObject);
 begin
-  inherited;
-    TabViewType.TabIndex := 2;
+  TabViewType.TabIndex := 2;
 end;
 
 
 procedure TFMain.rorLClick(Sender: TObject);
 begin
-  inherited;
   TabViewType.TabIndex := 0;
   CanShow := False;
   ValidLClick(nil);
@@ -5292,7 +5287,6 @@ end;
 
 procedure TFMain.rorGClick(Sender: TObject);
 begin
-  inherited;
   TabViewType.TabIndex := 1;
   CanShow := False;
   ValidGClick(nil);
@@ -5610,413 +5604,424 @@ end;
 
 
 function TFMain.modifyClass;
- var newTS : TTimeStamp;
-     newZajecia : Integer;
-     oldclass, newClass : TClass_;
-     pttCombIds         : string;
-     cellStatus         : integer;
-     calendarSelected   : boolean;
+	function internalModifyClass : boolean;
+	 var newTS : TTimeStamp;
+		 newZajecia : Integer;
+		 oldclass, newClass : TClass_;
+		 pttCombIds         : string;
+		 cellStatus         : integer;
+		 calendarSelected   : boolean;
 
-   // unplugValue('1;2;3;4','4') --> '1;2;3'
-   // unplugValue('1;2;3;4','3') --> '1;2;4'
-   // unplugValue('1;2;3;4','1') --> '2;3;4'
-   function unplugValue ( tokens : string; token : string) : string;
-   begin
-     //unplug specific
-     tokens := replace(tokens,token,'');
-     tokens := replace(tokens,';;',';');
-     //cut last ; is exists
-     if substr(tokens, length(tokens), 1 ) = ';' then
-       tokens := substr(tokens, 1, length(tokens) -1 );
-     //cut first ; is exists
-     if substr(tokens, 1, 1 ) = ';' then
-       tokens := substr(tokens, 2, length(tokens) -1 );
-     result := tokens;
-   end;
+	   // unplugValue('1;2;3;4','4') --> '1;2;3'
+	   // unplugValue('1;2;3;4','3') --> '1;2;4'
+	   // unplugValue('1;2;3;4','1') --> '2;3;4'
+	   function unplugValue ( tokens : string; token : string) : string;
+	   begin
+		 //unplug specific
+		 tokens := replace(tokens,token,'');
+		 tokens := replace(tokens,';;',';');
+		 //cut last ; is exists
+		 if substr(tokens, length(tokens), 1 ) = ';' then
+		   tokens := substr(tokens, 1, length(tokens) -1 );
+		 //cut first ; is exists
+		 if substr(tokens, 1, 1 ) = ';' then
+		   tokens := substr(tokens, 2, length(tokens) -1 );
+		 result := tokens;
+	   end;
 
-   function copyValue(newVal : string; allowFlag : boolean; desc : string) : string;
-   begin
-     result := desc;
-     if allowFlag then begin
-     if wordCount(desc,[','])=1 then begin
-       result := newVal;
-     end else info('Przedmiotu lub formy w przypadku zajêæ równoleg³ych nie mo¿na w ten sposób zmieniaæ');
-     end;
-   end;
+	   function copyValue(newVal : string; allowFlag : boolean; desc : string) : string;
+	   begin
+		 result := desc;
+		 if allowFlag then begin
+		 if wordCount(desc,[','])=1 then begin
+		   result := newVal;
+		 end else info('Przedmiotu lub formy w przypadku zajêæ równoleg³ych nie mo¿na w ten sposób zmieniaæ');
+		 end;
+	   end;
 
+
+	begin
+	  result := false;
+	  If convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row) <> ConvClass Then
+	  begin
+	   //info ('Zaznacz rekord, który zamierzasz przesun¹æ');
+	   // skoro komorka nie zawiera zajecia do przesuniecia, to po prostu zignoruj ten fakt
+	   result := true;
+	   exit;
+	  end;
+
+	  If GetClassByRowCol(Col, Row, oldClass) <> ClassFound Then
+	  begin
+	   // skoro nie ma zajecia to przesuwania, to po prostu zignoruj ten fakt
+	   result := true;
+	   exit;
+	  end;
+
+	  //do not check combinations. just use old ones
+	  pttCombIds := dmodule.SingleValue('select tt_planner.get_tt_cla ( :id ) from dual', 'id=' + intToStr(oldClass.id) );
+
+	  repeat
+		col := col + deltaX;
+		row := row + deltaY;
+		cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
+	  until  (cellStatus = ConvClass) or (cellStatus = convOutOfRange);
+
+	  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
+	  Then
+	  begin
+	   info ('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
+	   exit;
+	  end;
+
+	  newClass      := oldClass;
+
+	  If (confineCalendarId<>'') then
+		  If confineCalendar.getRatio(newTS, newZajecia)<>calConfineOk then begin
+			  info ('Nie mo¿na tutaj planowaæ zajêæ');
+			  exit;
+		  End;
+
+	  calendarSelected := fdetails.CALID.Text<>'-1';
+	  if calendarSelected then
+	   if  otherCalendar.getRatio(TS, Zajecia)=calReserved then begin
+			  info ('Nie mo¿na tutaj planowaæ zajêæ ze wzglêdu na wybrany kalendarz szczególny');
+			  exit;
+		  End;
+
+	  succesFlag := false;
+	  case operation of
+	   //move, copy is in mode: all or nothing
+	   clMove: begin
+				 newClass.hour := newZajecia;
+				 newClass.day  := newTS;
+				 if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
+					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
+					 else newClass.owner := upperCase(CurrentUserName);
+				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not deleteClass ( oldClass ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+			   end;
+	   clCopy: begin
+				 newClass.hour := newZajecia;
+				 newClass.day  := newTS;
+				 if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
+					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
+					 else newClass.owner := upperCase(CurrentUserName);
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+			   end;
+	   //following operations are in mode: single class level
+	   clDeleteLec:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.calc_lec_ids := ''
+				 else
+				 begin
+				   //unplug specific
+				   newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not deleteClass ( oldClass ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 succesFlag := true;
+			   end;
+	   clDeleteGro:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.calc_gro_ids := ''
+				 else
+				 begin
+				   //unplug specific
+				   newClass.calc_gro_ids := unplugValue(newClass.calc_gro_ids,keyValue);
+				 end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not deleteClass ( oldClass ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 succesFlag := true;
+			   end;
+	   clDeleteRes:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.calc_rom_ids := ''
+				 else
+				 begin
+				   //unplug specific
+				   newClass.calc_rom_ids := unplugValue(newClass.calc_rom_ids,keyValue);
+				 end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clDeleteSub:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.sub_id := 0;
+				 //else
+				 //begin
+				 //  //unplug specific
+				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 //end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clDeleteDesc1:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.desc1 := '';
+				 //else
+				 //begin
+				 //  //unplug specific
+				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 //end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clDeleteDesc2:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.desc2 := '';
+				 //else
+				 //begin
+				 //  //unplug specific
+				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 //end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clDeleteDesc3:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.desc3 := '';
+				 //else
+				 //begin
+				 //  //unplug specific
+				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 //end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clDeleteDesc4:
+			   begin
+				 if keyValue = '' then
+				   //unplug all
+				   newClass.desc4 := '';
+				 //else
+				 //begin
+				 //  //unplug specific
+				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+				 //end;
+				 // omit cell if operation is not allowed
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				   if not deleteClass ( oldClass ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   succesFlag := true;
+			   end;
+	   clAttachLec:
+			   begin
+				 // nie dodawaj obiektu jezeli inny obiekt juz jest
+				 if exitIfAnyExists then
+				   if newClass.calc_lec_ids <> '' then begin result := true; exit; end;
+				 //nie dodawaj obiektu jezeli ten obiekt juz jest
+				 If not existsValue(newClass.calc_lec_ids, [';'], keyValue) then
+				 begin
+				   newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValue,';');
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clAttachGro:
+			   begin
+				 // nie dodawaj obiektu jezeli inny obiekt juz jest
+				 if exitIfAnyExists then
+				   if newClass.calc_gro_ids <> '' then begin result := true; exit; end;
+				 //nie dodawaj obiektu jezeli ten obiekt juz jest
+				 if not existsValue(newClass.calc_gro_ids, [';'], keyValue) then
+				 begin
+				   newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValue,';');
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clAttachRes:
+			   begin
+				 // nie dodawaj obiektu jezeli inny obiekt juz jest
+				 if exitIfAnyExists then
+				   if newClass.calc_rom_ids <> '' then begin result := true; exit; end;
+				 //nie dodawaj obiektu jezeli ten obiekt juz jest
+				 if not existsValue(newClass.calc_rom_ids, [';'], keyValue) then
+				 begin
+				   newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValue,';');
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeSub:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.sub_id = strtoint(keyValue)) then
+				 begin
+				   newClass.sub_id := strtoint(keyValue);
+				   newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=2 {2=subject}, newClass.desc1);
+				   newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=2            , newClass.desc2);
+				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=2            , newClass.desc3);
+				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=2            , newClass.desc4);
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeFor:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.for_id = strtoint(keyValue)) then
+				 begin
+				   newClass.for_id := strtoint(keyValue);
+				   newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=3 {3=form}, newClass.desc1);
+				   newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=3         , newClass.desc2);
+				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=3         , newClass.desc3);
+				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=3         , newClass.desc4);
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeOwner:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.owner =  keyValue) then
+				 begin
+				   newClass.owner := keyValue;
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeCColor:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.class_colour =  StrToInt(keyValue) ) then
+				 begin
+				   newClass.class_colour := strToInt(keyValue);
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeDesc1:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.desc1 =  keyValue) then
+				 begin
+				   newClass.desc1 := keyValue;
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeDesc2:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.desc2 =  keyValue) then
+				 begin
+				   newClass.desc2 := keyValue;
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeDesc3:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.desc3 =  keyValue) then
+				 begin
+				   newClass.desc3 := keyValue;
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	   clChangeDesc4:
+			   begin
+				 //nie zmieniaj obiektu jezeli juz jest
+				 if not (newClass.desc4 =  keyValue) then
+				 begin
+				   newClass.desc4 := keyValue;
+				   // omit cell if operation is not allowed
+				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not deleteClass ( oldClass ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 succesFlag := true;
+				 end;
+			   end;
+	  end;
+
+	  //sprawdzenie, czy mozna zaplanowac zajecie  - niepotrzebne, bo ewentualny komunikat o bledzie zwroci procedura insertClass
+	  //if not canInsertClass ( newClass ) then
+	  //begin
+	  //  info ('Nie mo¿na przesun¹æ rekordu za wzglêdu na konflikt z innymi zaplanowanymi rekordami');
+	  //  exit;
+	  //end;
+
+	  //grid.Col :=  grid.Col + deltaX;
+	  //grid.row :=  grid.row + deltaY;
+	  result := true;
+	end;
 
 begin
-  result := false;
-  If convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row) <> ConvClass Then
-  begin
-   //info ('Zaznacz rekord, który zamierzasz przesun¹æ');
-   // skoro komorka nie zawiera zajecia do przesuniecia, to po prostu zignoruj ten fakt
+ if not internalModifyClass then begin
+   result := false;
+   Cofnij1Click(nil);
+ end else begin
    result := true;
-   exit;
-  end;
-
-  If GetClassByRowCol(Col, Row, oldClass) <> ClassFound Then
-  begin
-   // skoro nie ma zajecia to przesuwania, to po prostu zignoruj ten fakt
-   result := true;
-   exit;
-  end;
-
-  //do not check combinations. just use old ones
-  pttCombIds := dmodule.SingleValue('select tt_planner.get_tt_cla ( :id ) from dual', 'id=' + intToStr(oldClass.id) );
-
-  repeat
-    col := col + deltaX;
-    row := row + deltaY;
-    cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
-  until  (cellStatus = ConvClass) or (cellStatus = convOutOfRange);
-
-  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
-  Then
-  begin
-   info ('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
-   exit;
-  end;
-
-  newClass      := oldClass;
-
-  If (confineCalendarId<>'') then
-      If confineCalendar.getRatio(newTS, newZajecia)<>calConfineOk then begin
-          info ('Nie mo¿na tutaj planowaæ zajêæ');
-          exit;
-      End;
-
-  calendarSelected := fdetails.CALID.Text<>'-1';
-  if calendarSelected then
-   if  otherCalendar.getRatio(TS, Zajecia)=calReserved then begin
-          info ('Nie mo¿na tutaj planowaæ zajêæ ze wzglêdu na wybrany kalendarz szczególny');
-          exit;
-      End;
-
-  succesFlag := false;
-  case operation of
-   //move, copy is in mode: all or nothing
-   clMove: begin
-             newClass.hour := newZajecia;
-             newClass.day  := newTS;
-             if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
-                 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
-                 else newClass.owner := upperCase(CurrentUserName);
-             if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
-             if not insertClass ( newClass, pttCombIds ) then exit;
-             if not deleteClass ( oldClass ) then exit;
-           end;
-   clCopy: begin
-             newClass.hour := newZajecia;
-             newClass.day  := newTS;
-             if Fmain.MapPlannerSupervisors.getValue(newClass.owner) = currentUserName then
-                 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
-                 else newClass.owner := upperCase(CurrentUserName);
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-             if not insertClass ( newClass, pttCombIds ) then exit;
-           end;
-   //following operations are in mode: single class level
-   clDeleteLec:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.calc_lec_ids := ''
-             else
-             begin
-               //unplug specific
-               newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-             if not deleteClass ( oldClass ) then exit;
-             if not insertClass ( newClass, pttCombIds ) then exit;
-             succesFlag := true;
-           end;
-   clDeleteGro:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.calc_gro_ids := ''
-             else
-             begin
-               //unplug specific
-               newClass.calc_gro_ids := unplugValue(newClass.calc_gro_ids,keyValue);
-             end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-             if not deleteClass ( oldClass ) then exit;
-             if not insertClass ( newClass, pttCombIds ) then exit;
-             succesFlag := true;
-           end;
-   clDeleteRes:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.calc_rom_ids := ''
-             else
-             begin
-               //unplug specific
-               newClass.calc_rom_ids := unplugValue(newClass.calc_rom_ids,keyValue);
-             end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clDeleteSub:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.sub_id := 0;
-             //else
-             //begin
-             //  //unplug specific
-             //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             //end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clDeleteDesc1:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.desc1 := '';
-             //else
-             //begin
-             //  //unplug specific
-             //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             //end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clDeleteDesc2:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.desc2 := '';
-             //else
-             //begin
-             //  //unplug specific
-             //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             //end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clDeleteDesc3:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.desc3 := '';
-             //else
-             //begin
-             //  //unplug specific
-             //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             //end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clDeleteDesc4:
-           begin
-             if keyValue = '' then
-               //unplug all
-               newClass.desc4 := '';
-             //else
-             //begin
-             //  //unplug specific
-             //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
-             //end;
-             // omit cell if operation is not allowed
-             if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-               if not deleteClass ( oldClass ) then exit;
-               if not insertClass ( newClass, pttCombIds ) then exit;
-               succesFlag := true;
-           end;
-   clAttachLec:
-           begin
-             // nie dodawaj obiektu jezeli inny obiekt juz jest
-             if exitIfAnyExists then
-               if newClass.calc_lec_ids <> '' then begin result := true; exit; end;
-             //nie dodawaj obiektu jezeli ten obiekt juz jest
-             If not existsValue(newClass.calc_lec_ids, [';'], keyValue) then
-             begin
-               newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValue,';');
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clAttachGro:
-           begin
-             // nie dodawaj obiektu jezeli inny obiekt juz jest
-             if exitIfAnyExists then
-               if newClass.calc_gro_ids <> '' then begin result := true; exit; end;
-             //nie dodawaj obiektu jezeli ten obiekt juz jest
-             if not existsValue(newClass.calc_gro_ids, [';'], keyValue) then
-             begin
-               newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValue,';');
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clAttachRes:
-           begin
-             // nie dodawaj obiektu jezeli inny obiekt juz jest
-             if exitIfAnyExists then
-               if newClass.calc_rom_ids <> '' then begin result := true; exit; end;
-             //nie dodawaj obiektu jezeli ten obiekt juz jest
-             if not existsValue(newClass.calc_rom_ids, [';'], keyValue) then
-             begin
-               newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValue,';');
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeSub:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.sub_id = strtoint(keyValue)) then
-             begin
-               newClass.sub_id := strtoint(keyValue);
-               newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=2 {2=subject}, newClass.desc1);
-               newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=2            , newClass.desc2);
-               newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=2            , newClass.desc3);
-               newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=2            , newClass.desc4);
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeFor:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.for_id = strtoint(keyValue)) then
-             begin
-               newClass.for_id := strtoint(keyValue);
-               newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=3 {3=form}, newClass.desc1);
-               newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=3         , newClass.desc2);
-               newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=3         , newClass.desc3);
-               newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=3         , newClass.desc4);
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeOwner:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.owner =  keyValue) then
-             begin
-               newClass.owner := keyValue;
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeCColor:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.class_colour =  StrToInt(keyValue) ) then
-             begin
-               newClass.class_colour := strToInt(keyValue);
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeDesc1:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.desc1 =  keyValue) then
-             begin
-               newClass.desc1 := keyValue;
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeDesc2:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.desc2 =  keyValue) then
-             begin
-               newClass.desc2 := keyValue;
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeDesc3:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.desc3 =  keyValue) then
-             begin
-               newClass.desc3 := keyValue;
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-   clChangeDesc4:
-           begin
-             //nie zmieniaj obiektu jezeli juz jest
-             if not (newClass.desc4 =  keyValue) then
-             begin
-               newClass.desc4 := keyValue;
-               // omit cell if operation is not allowed
-               if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-                 if not deleteClass ( oldClass ) then exit;
-                 if not insertClass ( newClass, pttCombIds ) then exit;
-                 succesFlag := true;
-             end;
-           end;
-  end;
-
-  //sprawdzenie, czy mozna zaplanowac zajecie  - niepotrzebne, bo ewentualny komunikat o bledzie zwroci procedura insertClass
-  //if not canInsertClass ( newClass ) then
-  //begin
-  //  info ('Nie mo¿na przesun¹æ rekordu za wzglêdu na konflikt z innymi zaplanowanymi rekordami');
-  //  exit;
-  //end;
-
-  //grid.Col :=  grid.Col + deltaX;
-  //grid.row :=  grid.row + deltaY;
-  result := true;
+ end;
 end;
+
 
 procedure TFMain.modifyClasses;
   procedure moveSelection ( deltaX, deltaY : integer );
@@ -6073,10 +6078,7 @@ begin
     xp := xstart;
     repeat
      xp := xp + dx;
-     if not modifyClass ( xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then begin
-       Cofnij1Click(nil);
-       exit;
-     end;
+     if not modifyClass ( xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
      if successFlag then cellsSucceed    := cellsSucceed +1
                     else cellsNotSucceed := cellsNotSucceed +1;
     until xp = xend;
@@ -8109,25 +8111,10 @@ begin
                   LECTURERSShowModalAsSingleRecord(aedit,resourceId);
                 end;
              1: begin
-                  conlecturer.Text := '';
-                  conlecturer.Text := getChildsAndParents(resourceId, '', true);
                   TabViewType.TabIndex := 0;
+                  conlecturer.Text := getChildsAndParents(resourceId, '', true);
                 end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.CONL.Text := resourceId;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('L',resourceId);
             end;
         end;
         //
@@ -8140,24 +8127,10 @@ begin
             case FActionTree.selectedOption of
              0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
-                  congroup.Text := getChildsAndParents(resourceId, '', true);
                   TabViewType.TabIndex := 1;
+                  congroup.Text := getChildsAndParents(resourceId, '', true);
                 end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.CONG.Text := resourceId;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('G',resourceId);
             end;
         end;
         //
@@ -8170,24 +8143,10 @@ begin
             case FActionTree.selectedOption of
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
-                  conResCat0.Text := getChildsAndParents(resourceId, '', true);
                   TabViewType.TabIndex := 2;
+                  conResCat0.Text := getChildsAndParents(resourceId, '', true);
                 end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.conResCat0.Text := resourceId;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('R',resourceId);
             end;
         end;
         //
@@ -8200,8 +8159,8 @@ begin
             case FActionTree.selectedOption of
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
-                  CALID.Text := resourceId;
                   TabViewType.TabIndex := 5;
+                  CALID.Text := resourceId;
              end;
             end;
         end;
@@ -8232,21 +8191,7 @@ begin
             case FActionTree.selectedOption of
              0: SUBJECTSShowModalAsSingleRecord(aedit,resourceId);
              1: begin CONSUBJECT.Text := resourceId; end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.CONS.Text := resourceId;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('S',resourceId);
             end;
         end;
         //
@@ -8256,21 +8201,7 @@ begin
             case FActionTree.selectedOption of
              0: FORMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin CONFORM.Text := resourceId; end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.CONF.Text := resourceId;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('F',resourceId);
             end;
         end;
         //
@@ -8288,20 +8219,7 @@ begin
             case FActionTree.selectedOption of
              0: PERIODSShowModalAsSingleRecord(aedit,resourceId);
              1: begin conPeriod.Text := resourceId; end;
-             2: begin
-                  FMain.set_tmp_selected_dates;
-                  FGrouping.ignoreIni:=true;
-                  //clear
-                  FGrouping.CONL.Text := '';
-                  FGrouping.CONG.Text := '';
-                  FGrouping.conResCat0.Text := '';
-                  FGrouping.CONS.Text := '';
-                  FGrouping.CONPERIOD.Text := '';
-                  //
-                  FGrouping.CONPERIOD.Text := conPeriod.Text;
-                  FGrouping.ShowModal;
-                  FGrouping.ignoreIni:=false;
-                end;
+             2: OpenFGrouping('P',resourceId);
             end;
         end;
         //
@@ -8956,6 +8874,31 @@ end;
 procedure TFMain.BAddClassDblClick(Sender: TObject);
 begin
   AddClassToGrid(true);
+end;
+
+procedure TFMain.OpenFGrouping(resourceType : String; resourceId : String);
+begin
+  FMain.set_tmp_selected_dates;
+  With FGrouping Do begin
+    ignoreIni:=true;
+    //clear
+    CONL.Text := '';
+    CONG.Text := '';
+    conResCat0.Text := '';
+    CONS.Text := '';
+    CONF.Text := '';
+    CONPERIOD.Text := '';
+    //
+    CONPERIOD.Text := conPeriod.Text;
+    if resourceType = 'L' then CONL.Text := resourceId;
+    if resourceType = 'G' then CONG.Text := resourceId;
+    if resourceType = 'R' then CONResCat0.Text := resourceId;
+    if resourceType = 'S' then CONS.Text := resourceId;
+    if resourceType = 'F' then CONF.Text := resourceId;
+    if resourceType = 'P' then CONPERIOD.Text := resourceId;
+    ShowModal;
+    ignoreIni:=false;
+  End;
 end;
 
 initialization

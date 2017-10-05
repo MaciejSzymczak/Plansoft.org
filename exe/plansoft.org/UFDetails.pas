@@ -271,6 +271,9 @@ type
     TS : TTimeStamp;
     Zajecia: Integer;
     oldCalName : string;
+    //validations: universal mechanism
+    Lecturer,       Group,       Room,       Subject,       classForm,       CreatedBy      , Owner,      Day, classHour : string;
+    LecturerBefore, GroupBefore, RoomBefore, SubjectBefore, classFormBefore, CreatedByBefore, OwnerBefore                : string;
 
     procedure setValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : string; S, F, Fill, colour : Integer; Kind : string; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
     //Je¿eli Zajecia<>-1 (warunek Zajecia=-1 oznacza wiele terminow) to w na formularzu wyœwietla siê data i godzina zajêæ i dzia³aj¹ przyciski do wybierania wolnych wyk³adówców, grup, zasobow
@@ -291,24 +294,23 @@ Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings,
 procedure TFDetails.DisplayWarning(L, G, R : String);
 begin
  WarningMessage.Visible := false;
- if L<>fmain.ConLecturer.Text then begin
+ if (L<>fmain.ConLecturer.Text) and (fmain.ConLecturer.Text<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Zosta³ skopiowany tylko pierwszy wyk³adowca. Kliknij dwukrotnie w pole Wyk³adowcy je¿eli chcesz skopiowaæ pozosta³ych';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Wyk³adowcy je¿eli chcesz skopiowaæ wszystkich wyk³adowców z okna g³ównego';
  end;
- if G<>fmain.ConGroup.Text then begin
+ if (G<>fmain.ConGroup.Text) and (fmain.ConGroup.Text<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Zosta³a skopiowana tylko pierwsza grupa. Kliknij dwukrotnie w pole Grupy je¿eli chcesz skopiowaæ pozosta³e';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Grupy je¿eli chcesz skopiowaæ wszystkie grupy z okna g³ównego';
  end;
- if R<>merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';') then begin
+ if (R<>merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';')) and (merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';')<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Zosta³a skopiowana tylko pierwsza sala. Kliknij dwukrotnie w pole Sale je¿eli chcesz skopiowaæ pozosta³e';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Sale je¿eli chcesz skopiowaæ wszystkie sale z okna g³ównego';
  end;
 end;
 
 Procedure TFDetails.SetValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : String; S, F, Fill, colour : Integer; Kind : String; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
 Begin
  DisplayWarning(L, G, R);
-
  CanRefresh := False;
 
  TS := aTS;
@@ -364,6 +366,23 @@ Begin
  F2Change(nil);
 
  rgReservationFor.ItemIndex := ReservationFor;
+
+ if PC.ActivePage = TSClasses then begin
+   LecturerBefore  := L_value1.Text;
+   GroupBefore     := G_value1.Text;
+   RoomBefore      := rescat0_1_value.Text;
+   SubjectBefore   := S_value1.Text;
+   classFormBefore := F_value1.Text;
+ end else begin
+   LecturerBefore  := L_value2.Text;
+   GroupBefore     := G_value1.Text;
+   RoomBefore      := rescat0_2_value.Text;
+   SubjectBefore   := 'N/A';
+   classFormBefore := F_value2.Text;
+ end;
+ CreatedbyBefore := Created_by_.Text;
+ OwnerBefore     := Owner_.Text;
+
 End;
 
 Procedure TFDetails.GetValues (Var L, G, R : string; var S, F, Fill, colour : integer; var Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : string);
@@ -714,14 +733,48 @@ procedure TFDetails.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   end;
   var cd1, cd2, cd3, cd4, cl : integer;
       serror, ferror : string;
+      plsqlValidation, parsedplsqlValidation : string;
+
+  procedure preparePlSQL();
+
+      function preparePlSQLHelper ( stringId, valueBefore, valueAfter : string) : string;
+      begin
+        valueBefore := replace(valueBefore,'''',' ');
+        valueAfter := replace(valueAfter,'''',' ');
+        valueBefore := replace(valueBefore,'"',' ');
+        valueAfter := replace(valueAfter,'"',' ');
+        plsqlValidation := replace(plsqlValidation,'BEFORE('+stringId+')','"'+valueBefore+'"');
+        plsqlValidation := replace(plsqlValidation,'IS_CHANGED('+stringId+')','nvl("'+valueAfter+'","x")<>nvl("'+valueBefore+'","x")');
+        plsqlValidation := replace(plsqlValidation,'IS_EMPTY('+stringId+')','nvl("'+valueAfter+'","x")="x"');
+        plsqlValidation := replace(plsqlValidation,'IS_NOT_EMPTY('+stringId+')','nvl("'+valueAfter+'","x")<>"x"');
+        plsqlValidation := replace(plsqlValidation,stringId,'"'+valueAfter+'"');
+      end;
+
+  begin
+    plsqlValidation := ansiUpperCase(plsqlValidation);
+    preparePlSQLHelper('CLASS.LECTURER.NAME',LecturerBefore,Lecturer);
+    preparePlSQLHelper('CLASS.GROUP.NAME',GroupBefore,Group);
+    preparePlSQLHelper('CLASS.ROOM.NAME',RoomBefore,Room);
+    preparePlSQLHelper('CLASS.SUBJECT.NAME',SubjectBefore,Subject);
+    preparePlSQLHelper('CLASS.FORM.NAME',classFormBefore,classForm);
+    preparePlSQLHelper('CLASS.CREATED_BY.NAME',CreatedBy,CreatedByBefore);
+    preparePlSQLHelper('CLASS.OWNER.NAME',OwnerBefore,Owner);
+    parsedPlsqlValidation := 'select case when '+plsqlValidation+' then "ERROR" else "OK" end from dual';
+    parsedPlsqlValidation := replace(parsedPlsqlValidation,'"','''');
+  end;
+
 begin
-  inherited;
   If ModalResult = mrOK Then
    Begin
     With UUtilityParent.CheckValid Do Begin //Metody: Init, addError(S : String), AddWarning(S : String),   ShowMessage : Boolean = czy wszystko jest ok ?
     Init(Self);
 
     If PC.ActivePage = TSClasses Then Begin
+      Lecturer  := l_value1.Text;
+      Group     := g_value1.Text;
+      Room      := rescat0_1_value.Text;
+      Subject   := s_value1.Text;
+      classForm := F_value1.Text;
       ValidLClick(nil);
       ValidGClick(nil);
       ValidRClick(nil);
@@ -769,6 +822,11 @@ begin
       end;
 
     End Else Begin
+      Lecturer  := l_value2.Text;
+      Group     := g_value2.Text;
+      Room      := rescat0_2_value.Text;
+      Subject   := 'N/A';
+      classForm := F_value2.Text;
       ValidL2Click(nil);
       ValidG2Click(nil);
       ValidR2Click(nil);
@@ -808,6 +866,52 @@ begin
       end;
 
     End;
+    Createdby := CreatedbyBefore;
+    Owner     := Owner_.Text;
+
+    {
+    info(format(
+        'Lecturer=[%s], [%s]'+cr+
+        'Group=[%s], [%s]'+cr+
+        'Room=[%s], [%s]'+cr+
+        'Subject=[%s], [%s]'+cr+
+        'classForm=[%s], [%s]'+cr+
+        'CreatedBy=[%s], [%s]'+cr+
+        'Owner=[%s], [%s]'+cr+
+        'Day=[%s], [%s]'+cr+
+        'classHour=[%s], [%s]'
+        , [
+        Lecturer,LecturerBefore
+        ,Group,GroupBefore
+        ,Room,RoomBefore
+        ,Subject,SubjectBefore
+        ,classForm, classFormBefore
+        ,CreatedBy, CreatedByBefore
+        ,Owner, OwnerBefore
+        ,Day,''
+        ,classHour,''
+        ]));
+    }
+
+    plsqlValidation :=
+    'class.owner.name=''PLANNER'''+cr+
+    'and ('+cr+
+    '  is_Changed(class.group.name)'+cr+
+    ' or is_Changed(class.room.name)'+cr+
+    ' or is_Changed(class.subject.name)'+cr+
+    ' or is_Changed(class.form.name)'+cr+
+    ')';
+    preparePlSQL();
+
+    //copytoclipboard(parsedPlsqlValidation);
+    //dmodule.openSQL(parsedPlsqlValidation);
+    //while not dmodule.QWork.Eof do begin
+      //if dmodule.QWork.Fields[0].AsString='ERROR' then addError('Nie mo¿na zmieniaæ grupy, sali, przedmiotu ani formy prowadzenia zajêæ');
+      //dmodule.QWork.Next;
+   // end;
+
+    //if dmodule.SingleValue()=''
+
     CanClose := ShowMessage;
     End;
   End;
@@ -852,9 +956,9 @@ begin
     BOK.Enabled         := False;
   End;
 
-         notL.Checked := strIsEmpty(L1.Text);
-         notG.Checked := strIsEmpty(G1.Text);
-         notResCat0_1.Checked := strIsEmpty(resCat0_1.Text);
+  notL.Checked := strIsEmpty(L1.Text);
+  notG.Checked := strIsEmpty(G1.Text);
+  notResCat0_1.Checked := strIsEmpty(resCat0_1.Text);
   notResCat1_1.Checked := strIsEmpty(resCat1_1.Text);
   rgReservationForClick(nil);
   CWeeksChange(nil);

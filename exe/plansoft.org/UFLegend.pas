@@ -136,6 +136,10 @@ type
     procedure SpeedButton9Click(Sender: TObject);
     procedure gridCounterExit(Sender: TObject);
     procedure gridCounterCellClick(Column: TColumn);
+    procedure GridLCellClick(Column: TColumn);
+    procedure GRIDGCellClick(Column: TColumn);
+    procedure GRIDRCellClick(Column: TColumn);
+    procedure GRIDSCellClick(Column: TColumn);
   private
     gridsFontSize : integer;
     refreshAllowed : boolean;
@@ -157,7 +161,8 @@ var
 
 implementation
 
-uses UFMain, DM, UFProgramSettings, UFLegendNavigation;
+uses UFMain, DM, UFProgramSettings, UFLegendNavigation, AutoCreate,
+  UFActionTree, UFGrouping;
 
 {$R *.DFM}
 
@@ -1121,7 +1126,7 @@ begin
 end;
 
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
-var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS: String;
+var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS: ShortString;
 begin
   idL := '';
   idG := '';
@@ -1157,12 +1162,83 @@ begin
     idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS
   );
 
-  if FLegendNavigation.itemClicked='dspL' then begin fmain.conlecturer.Text := fmain.getChildsAndParents(idL, '', true); fmain.TabViewType.TabIndex := 0; end;
-  if FLegendNavigation.itemClicked='dspG' then begin fmain.congroup.Text := fmain.getChildsAndParents(idG, '', true);  fmain.TabViewType.TabIndex := 1;  end;
-  if FLegendNavigation.itemClicked='dspR' then begin fmain.conResCat0.Text := fmain.getChildsAndParents(idR, '', true);  fmain.TabViewType.TabIndex := 2; end;
-  if FLegendNavigation.itemClicked='dspS' then begin fmain.consubject.Text := fmain.getChildsAndParents(idS, '', true);  fmain.DrawSuppressionS.Checked := true; end;
-  if FLegendNavigation.itemClicked='dspF' then begin fmain.conForm.Text := fmain.getChildsAndParents(idF, '', true); fmain.DrawSuppressionF.Checked := true; end;
+  if FLegendNavigation.selectedOption='dspL' then begin fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := fmain.getChildsAndParents(idL, '', true); end;
+  if FLegendNavigation.selectedOption='dspG' then begin fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := fmain.getChildsAndParents(idG, '', true);   end;
+  if FLegendNavigation.selectedOption='dspR' then begin fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := fmain.getChildsAndParents(idR, '', true);   end;
+  if FLegendNavigation.selectedOption='dspS' then begin fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := fmain.getChildsAndParents(idS, '', true);  end;
+  if FLegendNavigation.selectedOption='dspF' then begin fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := fmain.getChildsAndParents(idF, '', true);  end;
 
+  if FLegendNavigation.selectedOption='EditL' then begin LECTURERSShowModalAsSingleRecord(aedit,idL); end;
+  if FLegendNavigation.selectedOption='EditG' then begin GROUPSShowModalAsSingleRecord(aedit,idG); end;
+  if FLegendNavigation.selectedOption='EditR' then begin ROOMSShowModalAsSingleRecord(aedit,idR); end;
+  if FLegendNavigation.selectedOption='EditS' then begin SUBJECTSShowModalAsSingleRecord(aedit,idS); end;
+  if FLegendNavigation.selectedOption='EditF' then begin FORMSShowModalAsSingleRecord(aedit,idF); end;
+
+  if FLegendNavigation.selectedOption='StatL' then Fmain.OpenFGrouping('L',idL);
+  if FLegendNavigation.selectedOption='StatG' then Fmain.OpenFGrouping('G',idG);
+  if FLegendNavigation.selectedOption='StatR' then Fmain.OpenFGrouping('R',idR);
+  if FLegendNavigation.selectedOption='StatS' then Fmain.OpenFGrouping('S',idS);
+  if FLegendNavigation.selectedOption='StatF' then Fmain.OpenFGrouping('F',idF);
+end;
+
+procedure TFLegend.GridLCellClick(Column: TColumn);
+var resourceId : shortString;
+begin
+  resourceId := queryL.fieldByName('Id').AsString;
+  FActionTree.showList('L');
+  case FActionTree.selectedOption of
+    0: begin
+         LECTURERSShowModalAsSingleRecord(aedit,resourceId);
+       end;
+    1: begin
+         fmain.TabViewType.TabIndex := 0;
+         fmain.conlecturer.Text := fmain.getChildsAndParents(resourceId, '', true);
+       end;
+    2: FMain.OpenFGrouping('L',resourceId);
+  end;
+end;
+
+procedure TFLegend.GRIDGCellClick(Column: TColumn);
+var resourceId : shortString;
+begin
+  resourceId := queryG.fieldByName('Id').AsString;
+  FActionTree.showList('G');
+  case FActionTree.selectedOption of
+    0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
+    1: begin
+         fmain.TabViewType.TabIndex := 1;
+         fmain.congroup.Text := fmain.getChildsAndParents(resourceId, '', true);
+       end;
+    2: FMain.OpenFGrouping('G',resourceId);
+  end;
+end;
+
+procedure TFLegend.GRIDRCellClick(Column: TColumn);
+var resourceId : shortString;
+begin
+  resourceId := queryR.fieldByName('Id').AsString;
+  FActionTree.showList('R');
+  case FActionTree.selectedOption of
+    0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
+    1: begin
+       FMain.TabViewType.TabIndex := 2;
+       FMain.conResCat0.Text := FMain.getChildsAndParents(resourceId, '', true);
+       end;
+    2: FMain.OpenFGrouping('R',resourceId);
+  end;
+
+end;
+
+procedure TFLegend.GRIDSCellClick(Column: TColumn);
+var resourceId : shortString;
+begin
+  resourceId := queryS.fieldByName('Id').AsString;
+  FActionTree.showList('S');
+  case FActionTree.selectedOption of
+    0: SUBJECTSShowModalAsSingleRecord(aedit,resourceId);
+    1: begin FMain.CONSUBJECT.Text := resourceId; end;
+    2: FMain.OpenFGrouping('S',resourceId);
+  end;
 end;
 
 end.

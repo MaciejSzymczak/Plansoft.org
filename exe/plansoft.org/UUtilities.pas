@@ -162,7 +162,7 @@ function canInsertClass (
              var resultMessage : string;
              const fastCheck : boolean = false //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
          ) : boolean;
-function insertClass ( myClass : TClass_; pttCombIds : string ) : boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string ) : boolean;
 function deleteClass(Class_ : TClass_) : Boolean;
 Procedure DeleteOrphanedClasses;
 
@@ -1004,7 +1004,7 @@ Begin
   myClass.desc3         := newClassToCreate.desc3;
   myClass.desc4         := newClassToCreate.desc4;
 
-  result := insertClass (myClass, ttCombIds);
+  result := planner_utils_insert_classes (myClass, ttCombIds);
  End;
 End;
 
@@ -1372,7 +1372,7 @@ var sql_text, select_clause, from_clause : string;
     function classDesc : string;
     begin
 
-      result := 'Zajêcie '+DateToYYYYMMDD(TimeStampToDateTime(myClass.day))+':'+intToStr(myClass.hour)+': ';
+      result := DateToYYYYMMDD(TimeStampToDateTime(myClass.day))+' godzina:'+intToStr(myClass.hour);
     end;
 begin
   // functional checks
@@ -1445,11 +1445,13 @@ begin
   end;
 
   { procedura konstruuje zapytanie SQL o postaci
-  select 0 + lec.c + gro.c + rom.c
-  from dual
-   ,(select count( * ) c from lec_cla lec where  cla_id <> :cla_id and lec_id in () and lec.day = :day and lec.hour = :hour) lec
-   ,(select count( * ) c from gro_cla gro where  cla_id <> :cla_id and gro_id in () and gro.day = :day and gro.hour = :hour) gro
-   ,(select count( * ) c from rom_cla rom where  cla_id <> :cla_id and rom_id in () and rom.day = :day and rom.hour = :hour) rom
+    select ''||'#'||lec1||'#'||gro1||'#'||rom1
+    from(
+    select ''
+    ,(select unique (select TITLE||' '||LAST_NAME||' '||FIRST_NAME from lecturers where id=lec_id ) c from lec_cla lec, classes c where lec_id = 4012911 and lec.day = to_date('2015.07.31','yyyy.mm.dd') and lec.hour = '1' and c.id = lec.cla_id and (upper(c.owner)<>'PLANNER' or (upper(c.owner)='PLANNER' and cla_id <> 3986697)) ) lec1
+    ,(select unique (select abbreviation from groups where id=gro_id ) c from gro_cla gro, classes c where gro_id = 4008505 and gro.day = to_date('2015.07.31','yyyy.mm.dd') and gro.hour = '1' and c.id = gro.cla_id and (upper(c.owner)<>'PLANNER' or (upper(c.owner)='PLANNER' and cla_id <> 3986697)) ) gro1
+    ,(select unique (select NAME||' '||substr(attribs_01,1,55) from rooms where id=rom_id ) c from rom_cla rom, classes c where rom_id = 4010207 and rom.day = to_date('2015.07.31','yyyy.mm.dd') and rom.hour = '1' and c.id = rom.cla_id and (upper(c.owner)<>'PLANNER' or (upper(c.owner)='PLANNER' and cla_id <> 3986697)) ) rom1
+    from dual)
   }
 
   instances := 0;
@@ -1457,24 +1459,27 @@ begin
   // bugfix: passing owner by parameter does not work, so value is set directly!
   For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
-   select_clause := select_clause + '+lec'+inttostr(t)+'.c';
+   from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
+   select_clause := select_clause + '||''#''||lec'+inttostr(t);
   End;
 
   For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
-   select_clause := select_clause + '+gro'+inttostr(t)+'.c';
+   from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
+   select_clause := select_clause + '||''#''||gro'+inttostr(t);
   End;
 
   For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select count(1) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
-   select_clause := select_clause+ '+rom'+inttostr(t)+'.c';
+   from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
+   select_clause := select_clause+ '||''#''||rom'+inttostr(t);
   End;
 
-  sql_text := 'select 0'+select_clause+cr+
-       'from dual'+from_clause;
+  sql_text := 'select '''''+select_clause+cr+
+       'from ('+cr+
+       'select '''''+cr+
+       from_clause+cr+
+       'from dual)';
 
   trace :=
     sql_text + cr + cr +
@@ -1485,7 +1490,8 @@ begin
 
   with dmodule.QWork do begin
    SQL.Clear;
-   SQL.Add(SQL_TEXT);
+   SQL.Add(sql_text);
+   //copyToClipboard(sql_text);
    //parameters.paramByName('DAY').DataType := ftDateTime;
 
    //param names must be unique. As I use many times the same parameter, I must assign new number to each instance in order to keep param name unique
@@ -1515,12 +1521,14 @@ begin
    // info( dmodule.QWork.Parameters[t].Name   );
    // info( dmodule.QWork.Parameters[t].value );
    //end;
+   //copytoclipboard(sql_text + ' !!!!!!!!!! '+  trace);
 
    open;
-   Result := Fields[0].AsInteger = 0;
+   Result := replace(Fields[0].AsString,'#','') = '';
    if not result then
    begin
-     resultMessage := classDesc+'Zaplanowanie tego '+fprogramSettings.profileObjectNameClassgen.Text+' spodowa³oby konflikt z innymi';
+     resultMessage := format ( 'Wykryto konflikt w terminie: %s dla %s'
+                      ,[classDesc, replace(Fields[0].AsString,'#',cr)]); //fprogramSettings.profileObjectNameClassgen.Text
    end
    else
    begin
@@ -1529,11 +1537,10 @@ begin
   end;
 end;
 
-
-
-function insertClass ( myClass : TClass_; pttCombIds : string ) : boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string ) : boolean;
  var  resultMessage   : string;
 begin
+  Result := False;
   myClass.created_by := upperCase(CurrentUserName);
 
   // te kontrole przenies na poziom BD
@@ -1554,7 +1561,6 @@ begin
     Result := False;
     exit;
   end;
-
 
   try
     with dmodule.QWork do begin
@@ -1594,6 +1600,7 @@ begin
       logSQLStart('insert_classes', dmodule.QWork.SQL.CommaText);
       execSQL;
       logSQLStop;
+      result := true;
     end;
   except
     on E:exception do Begin
@@ -1603,8 +1610,8 @@ begin
       if Pos(sKeyViolation, E.Message)<>0 then
         info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na konflikt z innymi zaplanowanymi'+cr+cr+
               'Mo¿liwe przyczyny :' + cr +
-              '   1. inny u¿ytkownik systemu ju¿ zarejestrowa³ ten termin'+cr+
-              '   2. w tym terminie ju¿ s¹ zaplanowane '+fprogramsettings.profileObjectNameClasses.text +' powoduj¹ce konflikt'+cr+
+              '   1. Inny u¿ytkownik systemu ju¿ zarejestrowa³ ten termin'+cr+
+              '   2. W tym terminie ju¿ s¹ zaplanowane '+fprogramsettings.profileObjectNameClasses.text +' powoduj¹ce konflikt'+cr+
               'Odœwie¿ zawartoœæ siatki aby zobaczyæ zmiany wprowadzone przez innych u¿ytkowników'+cr+cr+cr+'------------------------------'+cr+
               'Komunikat dla administratora: ' + cr+ e.message)
       else if Pos('ORA-20000', E.Message)<>0 then
@@ -1626,7 +1633,7 @@ begin
     busyClassesCache.ClearCache;
   end;
 
-  result := true;
+
 end;
 
 initialization
