@@ -86,7 +86,7 @@ Type TSingleClass = Record
                       Sub_id     : integer;
                       For_id     : integer;
                       Created_by : String[30];
-                      _Owner     : String[30];
+                      _Owner     : String[255];
                       desc1      : string[255];
                       desc2      : string[255];
                       desc3      : string[255];
@@ -168,10 +168,12 @@ Procedure DeleteOrphanedClasses;
 
 procedure importPreviousGridSettings;
 
+function isOwner(classOwners : String): boolean;
+function isOwnerSupervisor(classOwners : String): boolean;
 
 implementation
 
-Uses UFProgramSettings;
+Uses UFProgramSettings, StrUtils;
 
 procedure importPreviousGridSettings;
 var pnos, phours_from, phours_to : array of string;
@@ -777,7 +779,7 @@ Function P1IncludesP2(P1, P2 : TPointers) : Boolean;
 {--------------------------------------------------}
 Var t : Integer;
 Begin
-   If (CurrentUserName <> _Owner) and (CurrentUserName <> Fmain.MapPlannerSupervisors.getValue(_Owner)) Then CanDelete := False;
+   If (not UUtilities.isOwner(_Owner)) Then CanDelete := False;
 
  // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
  If (NewClassWithChilds.Day.Date = Day.Date) And (NewClassWithChilds.Hour = Hour)
@@ -786,7 +788,7 @@ Begin
      And P1IncludesP2(NewClassWithChilds.Rooms, Rooms)
      And  (NewClassWithChilds.Sub_id = Sub_id)
      And (NewClassWithChilds.For_id = For_id) And (NewClassWithChilds.Created_by = Created_by) And (NewClassWithChilds._Owner = _Owner) Then Begin
-       If (CurrentUserName = _Owner) or (CurrentUserName = Fmain.MapPlannerSupervisors.getValue(_Owner))  Then Begin
+       If UUtilities.isOwner(_Owner) Then Begin
          Completion := True;
          Exit;
        End;
@@ -1315,14 +1317,35 @@ begin
  end;
 end;
 
+function isOwnerSupervisor(classOwners : String): boolean;
+var t : integer;
+    classOwner : string;
+    ClassOwnerSupervisor : string;
+begin
+  result := false;
+  For t := 1 To WordCount(classOwners, [';']) Do Begin
+    classOwner := Trim(ExtractWord(t,classOwners, [';']));
+    ClassOwnerSupervisor := Fmain.MapPlannerSupervisors.getValue(classOwner);
+    if ClassOwnerSupervisor = CurrentUserName then begin result := true; exit; end;
+  End
+end;
+
+function isOwner(classOwners : String): boolean;
+begin
+  result := false;
+  if AnsiContainsStr(';'+classOwners,';'+CurrentUserName) then begin result := true; exit; end;
+  if isOwnerSupervisor(classOwners) then begin result := true; exit; end;
+end;
+
+
 Function DeleteClass(Class_ : TClass_) : Boolean;
-Var _Owner : String[30];
+Var _Owner : String[255];
 Begin
  Result := True;
  _Owner := Class_.owner;
 
  If _Owner<>'' Then
-  If (CurrentUserName <> _Owner) and (CurrentUserName <> Fmain.MapPlannerSupervisors.getValue(_Owner)) Then Begin
+  If (not isOwner(_Owner)) Then Begin
    Info('Nie mo¿esz usun¹æ zajêcia u¿ytkownika '+_Owner);
    Result := False;
    Exit;

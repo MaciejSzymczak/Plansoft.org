@@ -6432,8 +6432,31 @@ inherited FMain: TFMain
         ''
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:classes.owner'
+        '### DATE:2017.10.10'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'PERIODS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.classes  modif' +
+          'y (owner varchar2(255))'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.classes_h_temp' +
+          '  modify (owner varchar2(255))'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.classes_histor' +
+          'y  modify (owner varchar2(255))'#39';'
+        '  exception when others then raise;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2017.01.29'
+        '### DATE:2017.11.01'
         'begin'
         ' --your next extention here'
         ' --notes:'
@@ -8009,6 +8032,17 @@ inherited FMain: TFMain
         OnClick = Wybrany1Click
       end
     end
+    object Od1: TMenuItem
+      Caption = 'Od'#322#261'cz w'#322'a'#347'ciciela'
+      object Przywr1: TMenuItem
+        Caption = 'Przywr'#243#263' domy'#347'lnego'
+        OnClick = Przywr1Click
+      end
+      object Odczwybranego1: TMenuItem
+        Caption = 'Od'#322#261'cz wybranego'
+        OnClick = Odczwybranego1Click
+      end
+    end
     object ppminusS: TMenuItem
       Caption = 'Usu'#324' przedmiot'
       OnClick = ppminusSClick
@@ -8069,6 +8103,10 @@ inherited FMain: TFMain
         Caption = 'Bez wzgl'#281'du na to, czy przydzielono'
         OnClick = N23Click
       end
+    end
+    object Do1: TMenuItem
+      Caption = 'Do'#322#261'cz wk'#322'a'#347'ciciela'
+      OnClick = Do1Click
     end
     object ppchangeS: TMenuItem
       Caption = 'Zmie'#324' przedmiot'

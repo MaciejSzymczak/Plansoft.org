@@ -235,6 +235,7 @@ type
     procedure L_value2DblClick(Sender: TObject);
     procedure G_value2DblClick(Sender: TObject);
     procedure rescat0_2_valueDblClick(Sender: TObject);
+    procedure Owner_Exit(Sender: TObject);
   private
     procedure selectLEC;
     procedure selectGRO;
@@ -289,7 +290,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings,
-  UFPattern;
+  UFPattern, UUtilities;
 
 procedure TFDetails.DisplayWarning(L, G, R : String);
 begin
@@ -638,7 +639,6 @@ end;
 procedure TFDetails.ValidLClick(Sender: TObject);
 Var Values, IDs : String;
 begin
-  inherited;
  Values := L_value1.Text;
  ValidValues('LECTURERS',Values,sql_LECNAME,IDs);
  L_value1.Text := Values;
@@ -648,7 +648,6 @@ end;
 procedure TFDetails.ValidGClick(Sender: TObject);
 Var Values, IDs : String;
 begin
-  inherited;
  Values := G_value1.Text;
  ValidValues('GROUPS',Values,sql_GRONAME,IDs);
  G_value1.Text := Values;
@@ -658,7 +657,6 @@ end;
 procedure TFDetails.ValidSClick(Sender: TObject);
 Var Values, IDs : String;
 begin
-  inherited;
  Values := S_value1.Text;
  ValidValues('SUBJECTS',Values,sql_SUBNAME,IDs);
  S_value1.Text := Values;
@@ -668,7 +666,6 @@ end;
 procedure TFDetails.ValidFClick(Sender: TObject);
 Var Values, IDs : String;
 begin
-  inherited;
  Values := F_value1.Text;
  ValidValues('FORMS',Values,sql_FORNAME,IDs);
  F_value1.Text := Values;
@@ -768,6 +765,8 @@ begin
    Begin
     With UUtilityParent.CheckValid Do Begin //Metody: Init, addError(S : String), AddWarning(S : String),   ShowMessage : Boolean = czy wszystko jest ok ?
     Init(Self);
+
+    if replace(trim(Owner_.Text),';','')='' then Owner_.Text := Created_by_.Text;
 
     If PC.ActivePage = TSClasses Then Begin
       Lecturer  := l_value1.Text;
@@ -944,16 +943,16 @@ begin
   rescat1_2_value.Hint:= ansiUpperCase( dmodule.pResCatName1 );
   LRescat1_2.Caption := dmodule.pResCatName1;
 
-  If (Owner_.Text = CurrentUserName) or (Fmain.MapPlannerSupervisors.getValue(Owner_.Text) = CurrentUserName) Then Begin
+  If  UUtilities.isOwner(Owner_.Text) Then Begin
     Owner_.Color        := ClWindow;
     SelectOwner.Enabled := True;
-    //pc.Enabled          := True;
     BOK.Enabled         := True;
+    Owner_.ReadOnly     := false;
   End Else Begin
     Owner_.Color        := clMenu;
     SelectOwner.Enabled := False;
-    //PC.Enabled          := False;
     BOK.Enabled         := False;
+    Owner_.ReadOnly     := true;
   End;
 
   notL.Checked := strIsEmpty(L1.Text);
@@ -1213,7 +1212,10 @@ begin
   KeyValue := '';
   setResLimitation(g_planner);
   If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then Begin
-    Owner_.Text := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
+    KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
+    if ExistsValue(Owner_.Text, [';'], KeyValue)
+      then //
+      else Owner_.Text := Merge(Owner_.Text, KeyValue, ';');
   End;
 end;
 
@@ -1791,6 +1793,14 @@ procedure TFDetails.rescat0_2_valueDblClick(Sender: TObject);
 begin
   rescat0_2.Text := merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';');
   DisplayWarning(L2.Text,g2.Text,rescat0_2.Text);
+end;
+
+procedure TFDetails.Owner_Exit(Sender: TObject);
+Var Values, IDs : String;
+begin
+ Values := Owner_.Text;
+ ValidValues('PLANNERS',Values,'NAME',IDs);
+ Owner_.Text := Values;
 end;
 
 end.

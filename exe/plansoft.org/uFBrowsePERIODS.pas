@@ -100,7 +100,7 @@ End;
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
 begin
  result := true;
- If (Query.FieldByName('CREATED_BY').AsString <> CurrentUserName) and (Fmain.MapPlannerSupervisors.getValue(Query.FieldByName('CREATED_BY').AsString) <> CurrentUserName) Then Begin
+ If (not UUtilities.IsOwner(Query.FieldByName('CREATED_BY').AsString)) Then Begin
   Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;
@@ -109,7 +109,7 @@ end;
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
  result := true;
- If (Query.FieldByName('CREATED_BY').AsString <> CurrentUserName) and (Fmain.MapPlannerSupervisors.getValue(Query.FieldByName('CREATED_BY').AsString) <> CurrentUserName) Then Begin
+ If (not UUtilities.IsOwner(Query.FieldByName('CREATED_BY').AsString)) Then Begin
   Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;
