@@ -136,6 +136,7 @@ Var
     OpisujKolumneZajec       : tOpisujKolumneZajec;
 
 
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
 
 Function GetCLASSESforL  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
 Function GetCLASSESforG  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
@@ -157,7 +158,7 @@ Function GetLongMonthName(Date : integer) : String;
 // nie wyswietla ona rowniez szczegolowego komunikatu
  // cla_id to id biezacego zajecia ( chodzi o to, zeby nie sprawdzac konfliku z samym soba )
 function canInsertClass (
-             myClass : TClass_;
+             theClass : TClass_;
              cla_id : integer;
              var resultMessage : string;
              const fastCheck : boolean = false //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
@@ -171,9 +172,75 @@ procedure importPreviousGridSettings;
 function isOwner(classOwners : String): boolean;
 function isOwnerSupervisor(classOwners : String): boolean;
 
+function LROR (S : String; WordDelim : Char) : String;
+
 implementation
 
 Uses UFProgramSettings, StrUtils;
+
+function LROR (S : String; WordDelim : Char) : String;
+Var Buffer : Array of String;
+    count, t : integer;
+Begin
+  result := S;
+
+  count := WordCount(S,[WordDelim]);
+  if count <=1 then exit;
+  SetLength(Buffer,count);
+  for t := 1 to count do
+   Buffer[t-1] := ExtractWord(t,S,[WordDelim]);
+
+  result := '';
+  for t := 2 to count do
+   result := merge(result,Buffer[t-1],';');
+  result :=  merge(result,Buffer[1-1],';');
+End;
+
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
+var t : integer;
+    KeyValue : string;
+    sql : string;
+begin
+sql :=
+'select unique id from'+cr+
+'('+cr+
+'select parent_id id'+cr+
+'  from str_elems_v'+cr+
+'  where STR_NAME_LOV=''STREAM'''+cr+
+'  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior parent_id = child_id'+cr+
+'  start with child_id=:id1'+cr+
+'union'+cr+
+'select child_id id'+cr+
+'  from str_elems_v'+cr+
+'  where STR_NAME_LOV=''STREAM'''+cr+
+'  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
+'  start with parent_id=:id2'+cr+
+')';
+
+   for t := 1 to wordCount(KeyValues, [';']) do begin
+     KeyValue := extractWord(t,KeyValues, [';']);
+     if (addKeyValue) and (not ExistsValue(resultString, [';'], KeyValue)) then resultString :=  Merge(KeyValue, resultString, ';');
+     //add childs and parents as well
+     dmodule.OpenSQL(sql,'id1='+KeyValue+';id2='+KeyValue);
+     with dmodule.QWork do begin
+       first;
+       while not Eof do begin
+         if not ExistsValue(resultString, [';'], FieldByName('Id').AsString) then
+           resultString :=  Merge(resultString, FieldByName('Id').AsString, ';');
+          next;
+        end;
+     end;
+   end;
+
+  //set keyValue as current value
+  KeyValue := extractWord(1,KeyValues, [';']);
+  if (ExistsValue(resultString, [';'], KeyValue)) and (KeyValue <>  extractWord(1,resultString, [';'])) then
+   repeat
+     resultString := LROR(resultString,';');
+   until extractWord(1,resultString, [';']) = KeyValue;
+
+  result := resultString;
+end;
 
 procedure importPreviousGridSettings;
 var pnos, phours_from, phours_to : array of string;
@@ -1346,14 +1413,14 @@ Begin
 
  If _Owner<>'' Then
   If (not isOwner(_Owner)) Then Begin
-   Info('Nie mo¿esz usun¹æ zajêcia u¿ytkownika '+_Owner);
+   Info('Nie mo¿esz zmieniaæ zajêæ u¿ytkownika '+_Owner);
    Result := False;
    Exit;
   End;
 
   If (confineCalendarId<>'') then
     If fmain.confineCalendar.getRatio(Class_.day, Class_.hour)<>calConfineOk then begin
-       Info('Nie mo¿esz usun¹æ zajêcia poza obszarem planowania, który zosta³ przypisany');
+       Info('Nie mo¿esz usun¹æ zajêcia poza obszarem planowania, który zosta³ ci przypisany');
        Result := False;
        Exit;
     End;
@@ -1371,7 +1438,7 @@ Begin
  end;
 End;
 
-function canInsertClass ( myClass : TClass_; cla_id : integer;  var resultMessage : string; const fastCheck : boolean = false ) : boolean;
+function canInsertClass ( theClass : TClass_; cla_id : integer;  var resultMessage : string; const fastCheck : boolean = false ) : boolean;
 var sql_text, select_clause, from_clause : string;
     t : integer;
     free_capacity : integer;
@@ -1380,6 +1447,7 @@ var sql_text, select_clause, from_clause : string;
     idsp      : shortString;
     cl, cd1, cd2, cd3, cd4 : integer;
     serror, ferror : shortString;
+    LWithChildsAndParents,GWithChildsAndParents,RWithChildsAndParents, value : String;
     var stringTokenizer : TStringTokenizer;
     //
     function countTokens (s : string) : integer;
@@ -1395,22 +1463,16 @@ var sql_text, select_clause, from_clause : string;
     function classDesc : string;
     begin
 
-      result := DateToYYYYMMDD(TimeStampToDateTime(myClass.day))+' godzina:'+intToStr(myClass.hour);
+      result := DateToYYYYMMDD(TimeStampToDateTime(theClass.day))+' godzina:'+intToStr(theClass.hour);
     end;
 begin
-  // functional checks
+  Result := true;
   resultMessage := '';
-
-  //if upperCase(myClass.owner) <> upperCase(user) then begin
-  //   resultMessage := 'Nie mo¿na wykonaæ tej operacji. Planista nie mo¿e zmieniaæ zajêæ innych planistów';
-  //   Result := False;
-  //   exit;
-  //end;
 
   sql_text :=
       'select nvl(group_capacity - resource_capacity,0) ' + cr +
-      '  from (    select sum(nvl(number_of_peoples,0   )) group_capacity from groups where id in ( '+nvl(replace(myClass.calc_gro_ids, ';',','),'0')+' )    )  ' + cr +
-      '     , (    select sum(nvl(attribn_01,9999)) resource_capacity from rooms  where id in ( '+nvl(replace(myClass.calc_rom_ids, ';',','),'0')+' )    )  ';
+      '  from (    select sum(nvl(number_of_peoples,0   )) group_capacity from groups where id in ( '+nvl(replace(theClass.calc_gro_ids, ';',','),'0')+' )    )  ' + cr +
+      '     , (    select sum(nvl(attribn_01,9999)) resource_capacity from rooms  where id in ( '+nvl(replace(theClass.calc_rom_ids, ';',','),'0')+' )    )  ';
 
   free_capacity :=
     strToInt(
@@ -1418,39 +1480,60 @@ begin
     sql_text
     ));
   if free_capacity > 0 then begin
-     resultMessage := classDesc+'Nie mo¿na wykonaæ tej operacji. Licznoœæ grup/y przekracza pojemnoœæ sal/i o ' + intToStr(free_capacity);
-     Result := true;
-     exit;
+     resultMessage := classDesc+cr+'Licznoœæ grup/y przekracza pojemnoœæ sal/i o ' + intToStr(free_capacity);
+     //Result := false;
+     //exit;
   end;
 
-  if myClass.sub_id<>0 then begin
+  if theClass.sub_id<>0 then begin
     stringTokenizer := TStringTokenizer.Create;
-    cl := wordCount(myClass.calc_lec_ids,[';']);
+    cl := wordCount(theClass.calc_lec_ids,[';']);
     if (cl <> 0) then begin
-      cd1 := countTokens(myClass.desc1);
-      cd2 := countTokens(myClass.desc2);
-      cd3 := countTokens(myClass.desc3);
-      cd4 := countTokens(myClass.desc4);
+      cd1 := countTokens(theClass.desc1);
+      cd2 := countTokens(theClass.desc2);
+      cd3 := countTokens(theClass.desc3);
+      cd4 := countTokens(theClass.desc4);
       serror := 'Liczba wyk³adowców('+intToStr(cl)+') nie zgadza siê z liczb¹ przedmiotów';
       ferror := 'Liczba wyk³adowców('+intToStr(cl)+') nie zgadza siê z liczb¹ form zajêæ';
-      if fprogramSettings.CopyField1.ItemIndex = 2 then if (cl <> cd1) and (cd1<>1) then resultMessage := classDesc+serror+'('+intToStr(cd1)+')';
-      if fprogramSettings.CopyField2.ItemIndex = 2 then if (cl <> cd2) and (cd2<>1) then resultMessage := classDesc+serror+'('+intToStr(cd2)+')';
-      if fprogramSettings.CopyField3.ItemIndex = 2 then if (cl <> cd3) and (cd3<>1) then resultMessage := classDesc+serror+'('+intToStr(cd3)+')';
-      if fprogramSettings.CopyField4.ItemIndex = 2 then if (cl <> cd4) and (cd4<>1) then resultMessage := classDesc+serror+'('+intToStr(cd4)+')';
+      if fprogramSettings.CopyField1.ItemIndex = 2 then if (cl <> cd1) and (cd1<>1) then begin resultMessage := classDesc+serror+'('+intToStr(cd1)+')'; result := false; end;
+      if fprogramSettings.CopyField2.ItemIndex = 2 then if (cl <> cd2) and (cd2<>1) then begin resultMessage := classDesc+serror+'('+intToStr(cd2)+')'; result := false; end;
+      if fprogramSettings.CopyField3.ItemIndex = 2 then if (cl <> cd3) and (cd3<>1) then begin resultMessage := classDesc+serror+'('+intToStr(cd3)+')'; result := false; end;
+      if fprogramSettings.CopyField4.ItemIndex = 2 then if (cl <> cd4) and (cd4<>1) then begin resultMessage := classDesc+serror+'('+intToStr(cd4)+')'; result := false; end;
       //
-      if fprogramSettings.CopyField1.ItemIndex = 3 then if (cl <> cd1) and (cd1<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd1)+')';
-      if fprogramSettings.CopyField2.ItemIndex = 3 then if (cl <> cd2) and (cd2<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd2)+')';
-      if fprogramSettings.CopyField3.ItemIndex = 3 then if (cl <> cd3) and (cd3<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd3)+')';
-      if fprogramSettings.CopyField4.ItemIndex = 3 then if (cl <> cd4) and (cd4<>1) then resultMessage := classDesc+ferror+'('+intToStr(cd4)+')';
-      if resultMessage<>'' then begin
-        result := false;
+      if fprogramSettings.CopyField1.ItemIndex = 3 then if (cl <> cd1) and (cd1<>1) then begin resultMessage := classDesc+ferror+'('+intToStr(cd1)+')'; result := false; end;
+      if fprogramSettings.CopyField2.ItemIndex = 3 then if (cl <> cd2) and (cd2<>1) then begin resultMessage := classDesc+ferror+'('+intToStr(cd2)+')'; result := false; end;
+      if fprogramSettings.CopyField3.ItemIndex = 3 then if (cl <> cd3) and (cd3<>1) then begin resultMessage := classDesc+ferror+'('+intToStr(cd3)+')'; result := false; end;
+      if fprogramSettings.CopyField4.ItemIndex = 3 then if (cl <> cd4) and (cd4<>1) then begin resultMessage := classDesc+ferror+'('+intToStr(cd4)+')'; result := false; end;
+      if result=false then begin
         exit;
       end;
     end;
     stringTokenizer.free;
   end;
 
+  if fastCheck then begin
+    result := true;
+    exit;
+  end;
 
+  //add dependency records: childs and parents
+  LWithChildsAndParents := theClass.calc_lec_ids;
+  For t := 1 To WordCount(theClass.calc_lec_ids,[';']) Do Begin
+    value := ExtractWord(t, theClass.calc_lec_ids, [';']);
+    LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false);
+  End;
+
+  GWithChildsAndParents := theClass.calc_gro_ids;
+  For t := 1 To WordCount(theClass.calc_gro_ids,[';']) Do Begin
+    value := ExtractWord(t, theClass.calc_gro_ids, [';']);
+    GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false);
+  End;
+
+  RWithChildsAndParents := theClass.calc_rom_ids;
+  For t := 1 To WordCount(theClass.calc_rom_ids,[';']) Do Begin
+    value := ExtractWord(t, theClass.calc_rom_ids, [';']);
+    RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false);
+  End;
 
   //check better room in condition of capacity
   //GetEnabledLGR(myClass.day,myClass.hour,myClass.calc_lec_ids, myClass.calc_gro_ids, myClass.calc_rom_ids, intToStr( myClass.sub_id ) , intToStr( myClass.for_id ) , User , true, CONDL, CONDG, CONDR, 'R');
@@ -1461,11 +1544,6 @@ begin
   //'   and attribn_01 > ..
   //'ORDER BY attribn_01
   // i pomiesci studentow i ma free_capa < poprzedniego
-
-  if fastCheck then begin
-    result := true;
-    exit;
-  end;
 
   { procedura konstruuje zapytanie SQL o postaci
     select ''||'#'||lec1||'#'||gro1||'#'||rom1
@@ -1480,19 +1558,19 @@ begin
   instances := 0;
 
   // bugfix: passing owner by parameter does not work, so value is set directly!
-  For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
+  For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
    from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
    select_clause := select_clause + '||''#''||lec'+inttostr(t);
   End;
 
-  For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
+  For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
    from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
    select_clause := select_clause + '||''#''||gro'+inttostr(t);
   End;
 
-  For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
+  For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
    from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
    select_clause := select_clause+ '||''#''||rom'+inttostr(t);
@@ -1506,8 +1584,8 @@ begin
 
   trace :=
     sql_text + cr + cr +
-    'hour:' + inttostr(myClass.hour) +cr+
-    'day:'  + uutilityparent.dateToYYYYMMDD(timeStampTodateTime(myClass.day)) +cr+
+    'hour:' + inttostr(theClass.hour) +cr+
+    'day:'  + uutilityparent.dateToYYYYMMDD(timeStampTodateTime(theClass.day)) +cr+
     'cla_id:'+ inttostr(cla_id) +cr+
    ' owner:' + upperCase(CurrentUserName);
 
@@ -1520,31 +1598,31 @@ begin
    //param names must be unique. As I use many times the same parameter, I must assign new number to each instance in order to keep param name unique
    for t := 1 to instances do begin
     idsp := inttostr(t);
-    parameters.paramByName('HOUR'+idsp).value   := myClass.hour;
-    parameters.paramByName('DAY'+idsp).value    := timeStampTodateTime(myClass.day);
+    parameters.paramByName('HOUR'+idsp).value   := theClass.hour;
+    parameters.paramByName('DAY'+idsp).value    := timeStampTodateTime(theClass.day);
     parameters.paramByName('cla_id'+idsp).value := cla_id;
    end;
 
-   For t := 1 To WordCount(myClass.calc_lec_ids,[';']) Do Begin
-    parameters.paramByName('lec'+inttostr(t)).value := ExtractWord(t, myClass.calc_lec_ids, [';']);
-    trace := trace + cr + 'lec'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_lec_ids, [';']);
+   For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
+    parameters.paramByName('lec'+inttostr(t)).value := ExtractWord(t, LWithChildsAndParents, [';']);
+    trace := trace + cr + 'lec'+inttostr(t)+':'+ ExtractWord(t, LWithChildsAndParents, [';']);
    End;
 
-   For t := 1 To WordCount(myClass.calc_gro_ids,[';']) Do Begin
-    parameters.paramByName('gro'+inttostr(t)).value := ExtractWord(t, myClass.calc_gro_ids, [';']);
-    trace := trace + cr + 'gro'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_gro_ids, [';']);
+   For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
+    parameters.paramByName('gro'+inttostr(t)).value := ExtractWord(t, GWithChildsAndParents, [';']);
+    trace := trace + cr + 'gro'+inttostr(t)+':'+ ExtractWord(t, GWithChildsAndParents, [';']);
    End;
 
-   For t := 1 To WordCount(myClass.calc_rom_ids,[';']) Do Begin
-    parameters.paramByName('rom'+inttostr(t)).value := ExtractWord(t, myClass.calc_rom_ids, [';']);
-    trace := trace + cr + 'rom'+inttostr(t)+':'+ ExtractWord(t, myClass.calc_rom_ids, [';']);
+   For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
+    parameters.paramByName('rom'+inttostr(t)).value := ExtractWord(t, RWithChildsAndParents, [';']);
+    trace := trace + cr + 'rom'+inttostr(t)+':'+ ExtractWord(t, RWithChildsAndParents, [';']);
    End;
 
    //for t := 0 to dmodule.QWork.Parameters.Count -1 do begin
    // info( dmodule.QWork.Parameters[t].Name   );
    // info( dmodule.QWork.Parameters[t].value );
    //end;
-   //copytoclipboard(sql_text + ' !!!!!!!!!! '+  trace);
+   //copytoclipboard(' *** '+  trace);
 
    open;
    Result := replace(Fields[0].AsString,'#','') = '';
@@ -1584,6 +1662,7 @@ begin
     Result := False;
     exit;
   end;
+  if resultMessage<>'' then warning(resultMessage);
 
   try
     with dmodule.QWork do begin

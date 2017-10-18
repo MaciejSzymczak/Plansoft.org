@@ -615,7 +615,6 @@ type
     TopCntQuery: TMemo;
     TopCntPeriodQuery: TMemo;
     TreeModeCleanup: TSpeedButton;
-    childsAndParents: TMemo;
     Do1: TMenuItem;
     Od1: TMenuItem;
     Przywr1: TMenuItem;
@@ -1081,7 +1080,6 @@ type
     Procedure refreshRecentlyUsed(aFilter : string);
     procedure UpsertRecentlyUsed(presId : String; presType : String);
     procedure AddClassToGrid(firstResourceFlag : boolean);
-    function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
     procedure OpenFGrouping(resourceType : String; resourceId : String);
   end;
 
@@ -1517,32 +1515,6 @@ Begin
    Else Status := ClassError;
    End;
 End;
-{
-Procedure TClassByChildCache.Init (aFirstDay, aCount, aMaxHours : Integer);
-Var t, t2 : Integer;
-Begin
-  MaxHours := aMaxHours;
-  SetLength(Data, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
-  for t := 0 to aCount -1 do     // ... i to samo dla kazdej tabeli zagniezdzonej
-    setLength(Data[t], MaxHours+1);
-
-  FirstDay := aFirstDay;
-  Count    := aCount;
-
- For t := 0 To Count-1 Do
-  For t2 := 1 To MaxHours Do
-    Data[t][t2].Valid := False;
-End;
-
-Procedure TClassByChildCache.Add(TS : TTimeStamp; Zajecia: Integer; Var Status : Integer; Var Class_ : TClass_);
-Var t : Integer;
-Begin
- t := TS.Date - FirstDay;
-
- Data[t][Zajecia].Valid   := True;
- Data[t][Zajecia].Status  := Status;
- Data[t][Zajecia].Class_  := Class_;
-End;}
 
 Procedure TClassByChildCache.ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
 Var t, t2 : Integer;
@@ -5121,57 +5093,6 @@ begin
   End;
 end;
 
-function LROR (S : String; WordDelim : Char) : String;
-Var Buffer : Array of String;
-    count, t : integer;
-Begin
-  result := S;
-
-  count := WordCount(S,[WordDelim]);
-  if count <=1 then exit;
-  SetLength(Buffer,count);
-  for t := 1 to count do
-   Buffer[t-1] := ExtractWord(t,S,[WordDelim]);
-
-  result := '';
-  for t := 2 to count do
-   result := merge(result,Buffer[t-1],';');
-  result :=  merge(result,Buffer[1-1],';');
-End;
-
-
-function TFMain.getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
-var t : integer;
-    KeyValue : string;
-begin
-   for t := 1 to wordCount(KeyValues, [';']) do begin
-     KeyValue := extractWord(t,KeyValues, [';']);
-     If not ExistsValue(resultString, [';'], KeyValue) then
-      begin
-        if addKeyValue then resultString :=  Merge(KeyValue, resultString, ';');
-        //add childs and parents as well
-        dmodule.OpenSQL(childsAndParents.Lines.Text,'id1='+KeyValue+';id2='+KeyValue);
-        with dmodule.QWork do begin
-          first;
-          while not Eof do begin
-            if not ExistsValue(resultString, [';'], FieldByName('Id').AsString) then
-              resultString :=  Merge(resultString, FieldByName('Id').AsString, ';');
-             next;
-           end;
-        end;
-      end;
-   end;
-
-  //set keyValue as current value
-  KeyValue := extractWord(1,KeyValues, [';']);
-  if (ExistsValue(resultString, [';'], KeyValue)) and (KeyValue <>  extractWord(1,resultString, [';'])) then
-   repeat
-     resultString := LROR(resultString,';');
-   until extractWord(1,resultString, [';']) = KeyValue;
-
-  result := resultString;
-end;
-
 procedure TFMain._selectg;
 Var KeyValues : String;
     KeyValue  : string;
@@ -5768,6 +5689,7 @@ function TFMain.modifyClass;
 				 begin
 				   //unplug specific
 				   newClass.owner := unplugValue(newClass.owner,keyValue);
+           if newClass.owner = '' then newClass.owner := newClass.created_by;
 				 end;
 				 // omit cell if operation is not allowed
 				 if not deleteClass ( oldClass ) then exit;

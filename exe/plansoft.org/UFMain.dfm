@@ -6601,34 +6601,6 @@ inherited FMain: TFMain
         OnMouseWheelUp = GridMouseWheelUp
         OnSelectCell = GridSelectCell
       end
-      object childsAndParents: TMemo
-        Left = 584
-        Top = 136
-        Width = 249
-        Height = 129
-        Lines.Strings = (
-          'select unique id from'
-          '('
-          'select parent_id id'
-          '  from str_elems_v'
-          '  where STR_NAME_LOV='#39'STREAM'#39
-          
-            '  CONNECT BY PRIOR STR_NAME_LOV='#39'STREAM'#39' and prior parent_id = c' +
-            'hild_id   '
-          '  start with child_id=:id1'
-          'union'
-          'select child_id id'
-          '  from str_elems_v'
-          '  where STR_NAME_LOV='#39'STREAM'#39
-          
-            '  CONNECT BY PRIOR STR_NAME_LOV='#39'STREAM'#39' and prior child_id = pa' +
-            'rent_id  '
-          '  start with parent_id=:id2'
-          ')')
-        TabOrder = 2
-        Visible = False
-        WordWrap = False
-      end
     end
   end
   object SearchPanel: TPanel
