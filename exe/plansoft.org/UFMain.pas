@@ -1088,7 +1088,6 @@ var
   // passing parameters via procedure worked sometimes badly !
   dummyTS : TTimeStamp;
   dummyHour : Integer;
-  MaxLegendPositions  : integer =  1000;
 
 Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Procedure DBGetClassByGroup   (DAY1, DAY2 : String; Zajecia: Integer; GRO_ID        : String; Var Status : Integer; Var Class_ : TClass_);
@@ -8846,6 +8845,7 @@ end;
 procedure TFMain.BShowCellLayoutMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
+  exit; //disabled on user request on 2017.10.28
   if MouseOverLeftPanel then begin
      MouseOverLeftPanel := false;
      FCellLayout.displayCellLayout(false);

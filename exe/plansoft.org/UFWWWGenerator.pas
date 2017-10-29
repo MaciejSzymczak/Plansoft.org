@@ -146,6 +146,8 @@ implementation
 uses DM, AutoCreate, UUtilityParent, FileCtrl, UFSettings, uFModuleFilter, uFBrowseGROUPS,
   UFProgramSettings, GoogleCal, UFBrowseROOMS, UFBrowseLECTURERS, UWeeklyTable;
 
+const  
+MaxLegendPositions  : integer =  1000;
 
 type thtmlTable = class
        table  : array of record
@@ -516,8 +518,16 @@ begin
   formPrepared := true;
   currentPeriodChange(self);
 
-  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini') then
-     UutilityParent.LoadFromIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
+
+  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini') then
+  xslt.Lines.LoadFromFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini');
+
+  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini') then
+  xslt.Lines.LoadFromFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini');
+
+  //if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini') then
+  //   UutilityParent.LoadFromIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
+
 end;
 
 procedure setAll( L : TCheckListBox; v : boolean);
@@ -579,7 +589,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
         fuse : Integer;
 
     Var Lgnd : Array Of Record Name, ShortCut : ShortString;  Colour : Integer; End;
-
+        LgndCnt : integer;
 
     //--------------------------------------------------------
     procedure htmlToPdf (fileName : String; pdfg,pdfl,pdfo,pdfs : boolean);
@@ -599,7 +609,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
       {if not fsettings.Debug.Checked then}
       //ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
       executeFileAndWait(exeName+' '+parameters);
-
     end;
 
     //--------------------------------------------------------
@@ -811,7 +820,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
     End;
 
     //--------------------------------------------------------
-    Procedure RefreshLegend;
+    function RefreshLegend : integer;
     Var DateFrom, DateTo : String;
       t : Integer;
       MaxL : Integer;
@@ -1037,6 +1046,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
      End;
     End;
 
+    result := t;
+
     For t := 1 To High(Lgnd) Do Begin
      If Not strIsEmpty(Lgnd[t].Name) Then Lgnd[t].Name     := '<P align=left>'+Lgnd[t].Name+'</P>';
     End;
@@ -1161,6 +1172,8 @@ Var xp, yp          : Integer;
        result := SearchAndReplace(result,#13#10, '<br>');
     end;
 
+
+
 //-------------------------------------------------------------------------------------------
 begin
  If Not (fmain.TabViewType.TabIndex in [0,1,2,3]) Then Begin
@@ -1168,7 +1181,7 @@ begin
   Exit;
  End;
 
- If ShowLegend Then RefreshLegend;
+ If ShowLegend Then LgndCnt := RefreshLegend;
 
  AssignFile(F, FileName);
  Rewrite(F);
@@ -1327,15 +1340,13 @@ begin
 
  {add missing legend items here}
  if ShowLegend Then
- While not ((Lgnd[t+1].Name='') and (Lgnd[t+1].ShortCut='')) do begin
-    if ShowLegend Then Begin
+ While t<LgndCnt do begin
       htmlTable.AddRow('ALIGN="center" VALIGN="middle"'); //style="display:none;"
       For xp:=0 To ColCount-1 Do Begin
          htmlTable.newCell('','','silver');
       End;
       t := t + 1;
       AddLegendRow;
-    End;
  end;
 
  End; //With fmain.Grid Do
@@ -2242,7 +2253,11 @@ end;
 procedure TFWWWGenerator.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
-  UutilityParent.SaveToIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
+  //ini file does not support chars longer than 2024 chars
+  //UutilityParent.SaveToIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
+  xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini');
+  xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini');
+
 end;
 
 end.

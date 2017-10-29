@@ -252,10 +252,8 @@ function Decode64(S: string): string;
 
 implementation
 
-Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls;
+Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls, EncdDecd;
 
-const
-  Codes64 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/';
 
 function checkListBoxToText (c : tchecklistbox) : string;
 var i : integer;
@@ -336,66 +334,14 @@ begin
  result := tokens.Count;
 end;
 
-
 function Encode64(S: string): string;
-var
-  i: Integer;
-  a: Integer;
-  x: Integer;
-  b: Integer;
 begin
-  Result := '';
-  a := 0;
-  b := 0;
-  for i := 1 to Length(s) do
-  begin
-    x := Ord(s[i]);
-    b := b * 256 + x;
-    a := a + 8;
-    while a >= 6 do
-    begin
-      a := a - 6;
-      x := b div (1 shl a);
-      b := b mod (1 shl a);
-      Result := Result + Codes64[x + 1];
-    end;
-  end;
-  if a > 0 then
-  begin
-    x := b shl (6 - a);
-    Result := Result + Codes64[x + 1];
-  end;
+  result := replace(EncdDecd.EncodeString(S),cr,'');
 end;
 
 function Decode64(S: string): string;
-var
-  i: Integer;
-  a: Integer;
-  x: Integer;
-  b: Integer;
 begin
-  Result := '';
-  a := 0;
-  b := 0;
-  for i := 1 to Length(s) do
-  begin
-    x := Pos(s[i], codes64) - 1;
-    if x >= 0 then
-    begin
-      b := b * 64 + x;
-      a := a + 6;
-      if a >= 8 then
-      begin
-        a := a - 8;
-        x := b shr a;
-        b := b mod (1 shl a);
-        x := x mod 256;
-        Result := Result + chr(x);
-      end;
-    end
-    else
-      Exit;
-  end;
+ result := EncdDecd.DecodeString(s);
 end;
 
 function ShowBaloonHint(Point: TPoint; Handle: THandle; Title: String; Msg: String; Icon: Integer): Boolean;
@@ -1529,11 +1475,11 @@ begin
       if (controls[t] is tmenuitem)  then (controls[t] as tmenuitem).Checked := readBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
       if (controls[t] is tPageControl)  then (controls[t] as tPageControl).ActivePageIndex := readInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       if insertNulls then begin
-        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := decode64(readString  (sectionName, (controls[t] as tstrholder).name , ''));
-        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := decode64(readString  (sectionName, (controls[t] as tmemo).name , ''));
+        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.Text := decode64(readString  (sectionName, (controls[t] as tstrholder).name , ''));
+        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.Text := decode64(readString  (sectionName, (controls[t] as tmemo).name , ''));
       end else begin
-        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.CommaText);
-        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.CommaText := nvl(decode64(readString  (sectionName, (controls[t] as tmemo).name , '')),(controls[t] as tmemo).lines.CommaText);
+        if (controls[t] is tstrholder) then (controls[t] as tstrholder).Strings.Text := nvl(decode64(readString  (sectionName, (controls[t] as tstrholder).name , '')),(controls[t] as tstrholder).Strings.Text);
+        if (controls[t] is tmemo) then (controls[t] as tmemo).lines.Text := nvl(decode64(readString  (sectionName, (controls[t] as tmemo).name , '')),(controls[t] as tmemo).lines.Text);
       end;
       if (controls[t] is tradiogroup)  then (controls[t] as tradiogroup).itemIndex := readInteger  (sectionName, (controls[t] as tradiogroup).name , (controls[t] as tradiogroup).itemIndex);
       if (controls[t] is tcombobox)  then (controls[t] as tcombobox).itemIndex := readInteger  (sectionName, (controls[t] as tcombobox).name , (controls[t] as tcombobox).itemIndex);
@@ -1556,8 +1502,8 @@ begin
       if (controls[t] is tmenuitem)     then   writeBool  (sectionName, (controls[t] as tmenuitem).name , (controls[t] as tmenuitem).Checked);
       if (controls[t] is tPageControl)  then   writeInteger  (sectionName, (controls[t] as tPageControl).name , (controls[t] as tPageControl).ActivePageIndex);
       //encode to aviod issues with special chars
-      if (controls[t] is tstrholder)    then  writeString(sectionName, (controls[t] as tstrholder).name, encode64((controls[t] as tstrholder).Strings.CommaText));
-      if (controls[t] is tmemo)         then  writeString(sectionName, (controls[t] as tmemo).name, encode64((controls[t] as tmemo).Lines.CommaText));
+      if (controls[t] is tstrholder)    then  writeString(sectionName, (controls[t] as tstrholder).name, encode64((controls[t] as tstrholder).Strings.Text));
+      if (controls[t] is tmemo)         then  writeString(sectionName, (controls[t] as tmemo).name, encode64((controls[t] as tmemo).Lines.Text));
       if (controls[t] is tcombobox)     then   writeInteger(sectionName, (controls[t] as tcombobox).name, (controls[t] as tcombobox).ItemIndex);
       if (controls[t] is tradiogroup)     then   writeInteger(sectionName, (controls[t] as tradiogroup).name, (controls[t] as tradiogroup).ItemIndex);
     end;
@@ -1764,7 +1710,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2017-01-28';
+ VersionOfApplication := '2017-11-01';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try
@@ -1775,6 +1721,7 @@ initialization
    DeleteFiles(StringsPath,extractFileName(Application.ExeName) + '.*.cfg');
    DeleteFiles(StringsPath,extractFileName(Application.ExeName) + '.*.rap');
    DeleteFiles(StringsPath,extractFileName(Application.ExeName) + '.*.scr');
+   DeleteFiles(StringsPath,extractFileName(Application.ExeName) + '.*.ini');
  End;
  except
   SError('Nie powid³o siê usuniêcie plików. SprawdŸ, czy mo¿esz usuwaæ pliki z folderu:'+StringsPath);
