@@ -5651,6 +5651,7 @@ function TFMain.modifyClass;
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(CurrentUserName);
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+         if not deleteClass ( oldClass ) then exit;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
 			   end;
 	   clCopy: begin
