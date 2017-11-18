@@ -65,20 +65,18 @@ inherited FProgramSettings: TFProgramSettings
       object Label1: TLabel
         Left = 18
         Top = 439
-        Width = 562
+        Width = 460
         Height = 16
         Caption = 
-          'Rozmiar pami'#281'ci potrzebny do przechowania pojedynczego zaj'#281'cia:.' +
-          '..........            [Bajt'#243'w]'
+          'Rozmiar pami'#281'ci potrzebny do przechowania pojedynczego zaj'#281'cia [' +
+          'Bajty]'
       end
       object Label2: TLabel
         Left = 18
         Top = 466
-        Width = 433
+        Width = 265
         Height = 16
-        Caption = 
-          'Maksymalna liczba buforowanych arkuszy:.........................' +
-          '.................'
+        Caption = 'Maksymalna liczba buforowanych arkuszy:'
       end
       object Example: TLabel
         Left = 18
@@ -171,7 +169,7 @@ inherited FProgramSettings: TFProgramSettings
         TabOrder = 0
       end
       object info: TEdit
-        Left = 402
+        Left = 498
         Top = 430
         Width = 65
         Height = 24
@@ -181,7 +179,7 @@ inherited FProgramSettings: TFProgramSettings
         Text = 'info'
       end
       object MaxNumberOfSheets: TEdit
-        Left = 402
+        Left = 498
         Top = 457
         Width = 65
         Height = 24

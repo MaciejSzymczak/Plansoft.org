@@ -178,6 +178,17 @@ Var
     manySubjectsFlag : boolean;
     editReservations : boolean;
     editSharing      : boolean;
+    CanEditL   : boolean;
+    CanEditG   : boolean;
+    CanEditR   : boolean;
+    CanEditS    : boolean;
+    CanEditF   : boolean;
+    CanEditO   : boolean;
+    CanEditD   : boolean;
+    CanEditAll   : boolean;
+    CanDelete  : boolean;
+    CanInsert   : boolean;
+    gFirstResourceFlag : boolean;
     confineCalendarId : ShortString;
     UserID    : ShortString;
     VersionOfApplication : ShortString;
@@ -1710,7 +1721,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2017-11-01';
+ VersionOfApplication := '2017-11-16';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

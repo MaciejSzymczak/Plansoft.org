@@ -38,6 +38,16 @@ type
     PARENT_ID_VALUE: TEdit;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
+    DBCheckBox4: TDBCheckBox;
+    DBCheckBox5: TDBCheckBox;
+    DBCheckBox6: TDBCheckBox;
+    DBCheckBox7: TDBCheckBox;
+    DBCheckBox8: TDBCheckBox;
+    DBCheckBox9: TDBCheckBox;
+    DBCheckBox10: TDBCheckBox;
+    DBCheckBox11: TDBCheckBox;
+    DBCheckBox12: TDBCheckBox;
+    first_Resource_Flag: TDBCheckBox;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -128,6 +138,19 @@ Begin
  QUERY['EDIT_ORG_UNITS'] := '+';
  QUERY['EDIT_FLEX'] := '+';
  QUERY['LOG_CHANGES'] := '-';
+ QUERY['EDIT_RESERVATIONS'] := '-';
+ QUERY['many_subjects_flag'] := '-';
+ QUERY['edit_sharing'] := '-';
+ QUERY['Can_Insert'] := '+';
+ QUERY['Can_Delete'] := '+';
+ QUERY['Can_Edit_L'] := '+';
+ QUERY['Can_Edit_G'] := '+';
+ QUERY['Can_Edit_R'] := '+';
+ QUERY['Can_Edit_S'] := '+';
+ QUERY['Can_Edit_F'] := '+';
+ QUERY['Can_Edit_O'] := '+';
+ QUERY['Can_Edit_D'] := '+';
+ QUERY['first_Resource_Flag'] := '+';
 End;
 
 procedure TFBrowsePLANNERS.BCheckDatabaseClick(Sender: TObject);

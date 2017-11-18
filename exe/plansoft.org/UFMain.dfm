@@ -6455,8 +6455,30 @@ inherited FMain: TFMain
         '### EXTENTION END'
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:planners.can_edit'
+        '### DATE:2017.11.11'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'PERIODS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.planners add (' +
+          ' Can_Edit_L  char(1) default '#39#39'+'#39#39', Can_Edit_G  char(1) default ' +
+          #39#39'+'#39#39', Can_Edit_R  char(1) default '#39#39'+'#39#39', Can_Edit_S  char(1) de' +
+          'fault '#39#39'+'#39#39', Can_Edit_F  char(1) default '#39#39'+'#39#39', Can_Delete  char' +
+          '(1) default '#39#39'+'#39#39', Can_Insert char(1) default '#39#39'+'#39#39', Can_Edit_O ' +
+          'char(1) default '#39#39'+'#39#39', Can_Edit_D char(1) default '#39#39'+'#39#39', first_R' +
+          'esource_Flag char(1) default '#39#39'+'#39#39')'#39';'
+        '  exception when others then raise;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2017.11.01'
+        '### DATE:2017.12.01'
         'begin'
         ' --your next extention here'
         ' --notes:'
@@ -7967,33 +7989,33 @@ inherited FMain: TFMain
   object DelPopup: TPopupMenu
     Left = 584
     Top = 320
-    object a1: TMenuItem
+    object ppDelete: TMenuItem
       Caption = 'Usu'#324
-      OnClick = a1Click
+      OnClick = ppDeleteClick
     end
     object ppminusL: TMenuItem
       Caption = 'Usu'#324' wyk'#322'adowc'#281
       object Wszystkich1: TMenuItem
-        Caption = 'Wszystko'
+        Caption = 'Wszystkich'
         OnClick = Wszystkich1Click
       end
       object Wybranego1: TMenuItem
-        Caption = 'Tylko wybrany'
+        Caption = 'Wybranego'
         OnClick = Wybranego1Click
       end
     end
     object ppminusG: TMenuItem
       Caption = 'Usu'#324' grup'#281
       object Wszystkie1: TMenuItem
-        Caption = 'Wszystko'
+        Caption = 'Wszystkie'
         OnClick = Wszystkie1Click
       end
       object Wybran1: TMenuItem
-        Caption = 'Tylko wybrany'
+        Caption = 'Wybran'#261
         OnClick = Wybran1Click
       end
     end
-    object Ususamezasoby1: TMenuItem
+    object ppminusR: TMenuItem
       Caption = 'Usu'#324' zas'#243'b'
       object Wszystkir1: TMenuItem
         Caption = 'Wszystkie'
@@ -8004,7 +8026,7 @@ inherited FMain: TFMain
         OnClick = Wybrany1Click
       end
     end
-    object Od1: TMenuItem
+    object ppminusO: TMenuItem
       Caption = 'Od'#322#261'cz w'#322'a'#347'ciciela'
       object Przywr1: TMenuItem
         Caption = 'Przywr'#243#263' domy'#347'lnego'
@@ -8046,7 +8068,7 @@ inherited FMain: TFMain
     object ppaddL: TMenuItem
       Caption = 'Do'#322#261'cz wyk'#322'adowc'#281
       object cmdattachLec: TMenuItem
-        Caption = 'Tylko gdy nie przydzielono '
+        Caption = 'Gdy nie ma'
         OnClick = cmdattachLecClick
       end
       object N21: TMenuItem
@@ -8057,7 +8079,7 @@ inherited FMain: TFMain
     object ppAddG: TMenuItem
       Caption = 'Do'#322#261'cz grup'#281
       object N19: TMenuItem
-        Caption = 'Tylko gdy nie przydzielono'
+        Caption = 'Gdy nie ma'
         OnClick = N19Click
       end
       object N22: TMenuItem
@@ -8065,10 +8087,10 @@ inherited FMain: TFMain
         OnClick = N22Click
       end
     end
-    object MenuItem4: TMenuItem
+    object ppAddR: TMenuItem
       Caption = 'Do'#322#261'cz zas'#243'b'
       object N110: TMenuItem
-        Caption = 'Tylko gdy nie przydzielono'
+        Caption = 'Gdy nie ma'
         OnClick = N110Click
       end
       object N23: TMenuItem
@@ -8076,9 +8098,9 @@ inherited FMain: TFMain
         OnClick = N23Click
       end
     end
-    object Do1: TMenuItem
-      Caption = 'Do'#322#261'cz wk'#322'a'#347'ciciela'
-      OnClick = Do1Click
+    object ppAddO: TMenuItem
+      Caption = 'Do'#322#261'cz w'#322'a'#347'ciciela'
+      OnClick = ppAddOClick
     end
     object ppchangeS: TMenuItem
       Caption = 'Zmie'#324' przedmiot'
@@ -8088,9 +8110,9 @@ inherited FMain: TFMain
       Caption = 'Zmie'#324' form'#281' zaj'#281#263
       OnClick = ppchangeFClick
     end
-    object Zmiewaciciela1: TMenuItem
+    object ppChangeO: TMenuItem
       Caption = 'Zmie'#324' w'#322'a'#347'ciciela'
-      OnClick = Zmiewaciciela1Click
+      OnClick = ppChangeOClick
     end
     object ppchangeClass: TMenuItem
       Caption = 'Zmie'#324' kolor zaj'#281'cia'
@@ -10216,8 +10238,8 @@ inherited FMain: TFMain
     end
   end
   object reportsPopup: TPopupMenu
-    Left = 848
-    Top = 16
+    Left = 1000
+    Top = 8
     object Raportowaniezaawansowane1: TMenuItem
       Caption = 'Statystyki'
       OnClick = Raportowaniezaawansowane1Click

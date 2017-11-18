@@ -2253,6 +2253,7 @@ end;
 procedure TFWWWGenerator.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
+  inherited;
   //ini file does not support chars longer than 2024 chars
   //UutilityParent.SaveToIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
   xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini');

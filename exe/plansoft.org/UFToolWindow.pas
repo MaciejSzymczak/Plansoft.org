@@ -60,9 +60,11 @@ var
 
 implementation
 
-uses UFMain;
+uses UFMain, UUtilityParent;
 
 {$R *.dfm}
+
+
 
 procedure TFToolWindow.Shape1aContextPopup(Sender: TObject;
   MousePos: TPoint; var Handled: Boolean);
@@ -72,7 +74,7 @@ end;
 
 procedure TFToolWindow.AddClassClick(Sender: TObject);
 begin
-   Fmain.AddClassToGrid(true);
+   Fmain.AddClassToGrid(gFirstResourceFlag);
 end;
 
 procedure TFToolWindow.EditClassClick(Sender: TObject);
@@ -146,6 +148,21 @@ procedure tftoolwindow.showtoolwindow;
   var point : tpoint;
       cursorPos       : TPoint;
 begin
+
+ AddClass.Enabled := fmain.bAddClass.Enabled;
+ BDeleteClass.Enabled := fmain.BDeleteClass.Enabled;
+ bdelpopup.Enabled := fmain.bdelpopup.Enabled;
+
+  moveLeft.Enabled := UUtilityParent.canInsert and UUtilityParent.canDelete;
+  moveUp.Enabled := UUtilityParent.canInsert and UUtilityParent.canDelete;
+  moveDown.Enabled := UUtilityParent.canInsert and UUtilityParent.canDelete;
+  moveright.Enabled := UUtilityParent.canInsert and UUtilityParent.canDelete;
+  bcutarea.Enabled := UUtilityParent.canDelete;
+  bpastearea.Enabled := UUtilityParent.canInsert;
+  bcopyarea.Enabled := UUtilityParent.canInsert or UUtilityParent.canDelete;
+  bclearselection.Enabled := UUtilityParent.canInsert or UUtilityParent.canDelete;
+
+
   //“A call to an OS function failed” problem
  //Use cursorPos.Y instead of Mouse.CursorPos.Y
  GetCursorPos(cursorPos);
@@ -173,7 +190,7 @@ end;
 
 procedure TFToolWindow.AddClassDblClick(Sender: TObject);
 begin
-  Fmain.AddClassToGrid(true);
+  Fmain.AddClassToGrid(gFirstResourceFlag);
 end;
 
 end.

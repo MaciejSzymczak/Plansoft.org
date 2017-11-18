@@ -100,6 +100,7 @@ Type TCheckConflicts = Class
            Count            : Integer;
            Completion       : Boolean;
            CanDelete        : Boolean;
+           currentClassId   : Integer;
 
            private
              procedure internalCreate(
@@ -118,6 +119,7 @@ Type TCheckConflicts = Class
              function  conflictsReport(
                Day : TTimeStamp;
                Hour : Integer;
+               acurrentClassId : Integer;
                Lecturers : TPointers;
                Groups: TPointers;
                Rooms: TPointers;
@@ -163,8 +165,8 @@ function canInsertClass (
              var resultMessage : string;
              const fastCheck : boolean = false //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
          ) : boolean;
-function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string ) : boolean;
-function deleteClass(Class_ : TClass_) : Boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1 ) : boolean;
+function deleteClass(Class_ : TClass_; const currentClassId : integer =-1) : Boolean;
 Procedure DeleteOrphanedClasses;
 
 procedure importPreviousGridSettings;
@@ -896,6 +898,7 @@ End;
 Function TCheckConflicts.ConflictsReport(
   Day : TTimeStamp;
   Hour : Integer;
+  acurrentClassId : Integer;
   Lecturers : TPointers;
   Groups: TPointers;
   Rooms: TPointers;
@@ -946,6 +949,7 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
   End;
 Begin
   internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,LecturersWithChilds,GroupsWithChilds,RoomsWithChilds,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
+  currentClassId := acurrentClassId;
 
   For L := 1 To maxInClass Do
     If GroupsWithChilds[L] <> 0 Then
@@ -1003,8 +1007,8 @@ Begin
       DBGetClassByGroup(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
       End;
     End;
 
@@ -1015,8 +1019,8 @@ Begin
       DBGetClassByLecturer(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
       End;
     End;
 
@@ -1026,8 +1030,8 @@ Begin
       DBGetClassByRoom(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
       End;
     End;
 End;
@@ -1073,7 +1077,7 @@ Begin
   myClass.desc3         := newClassToCreate.desc3;
   myClass.desc4         := newClassToCreate.desc4;
 
-  result := planner_utils_insert_classes (myClass, ttCombIds);
+  result := planner_utils_insert_classes (myClass, ttCombIds, currentClassId);
  End;
 End;
 
@@ -1405,11 +1409,20 @@ begin
 end;
 
 
-Function DeleteClass(Class_ : TClass_) : Boolean;
+Function DeleteClass(Class_ : TClass_; const currentClassId : integer =-1) : Boolean;
 Var _Owner : String[255];
 Begin
  Result := True;
  _Owner := Class_.owner;
+
+ if Class_.id = currentClassId then
+     //user can delete class providing it is an edit (edit = delete + insert )
+ else
+     if not UutilityParent.CanDelete then begin
+       Info('Nie mo¿esz usuwaæ zajêæ');
+       Result := False;
+       Exit;
+     end;
 
  If _Owner<>'' Then
   If (not isOwner(_Owner)) Then Begin
@@ -1466,6 +1479,16 @@ var sql_text, select_clause, from_clause : string;
       result := DateToYYYYMMDD(TimeStampToDateTime(theClass.day))+' godzina:'+intToStr(theClass.hour);
     end;
 begin
+
+  If cla_id <> -1 then
+  //Edit = delete + insert. Do not check  CanInsert in edit mode.
+  else
+  if not UUtilityParent.CanInsert then begin
+    Result := false;
+    resultMessage := 'Nie mo¿esz wstawiaæ zajêæ';
+    Exit;
+  end;
+
   Result := true;
   resultMessage := '';
 
@@ -1638,7 +1661,7 @@ begin
   end;
 end;
 
-function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string ) : boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1 ) : boolean;
  var  resultMessage   : string;
 begin
   Result := False;
@@ -1656,7 +1679,7 @@ begin
      exit;
   end;
 
-  if not canInsertClass ( myClass , -1, resultMessage, true ) then
+  if not canInsertClass ( myClass , currentClassId, resultMessage, true ) then
   begin
     info (resultMessage);
     Result := False;

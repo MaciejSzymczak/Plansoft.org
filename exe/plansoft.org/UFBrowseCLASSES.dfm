@@ -49,9 +49,9 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
       end
       inherited Grid: TRxDBGrid
-        Top = 225
+        Top = 241
         Width = 1118
-        Height = 266
+        Height = 250
         Columns = <
           item
             Expanded = False
@@ -240,111 +240,107 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       inherited CustomPanel: TPanel
         Top = 97
         Width = 1118
-        Height = 128
+        Height = 144
         inline GenericFilter: TFGenericFilter
           Left = 1
           Top = 42
           Width = 1430
-          Height = 79
+          Height = 103
           TabOrder = 1
           inherited bClearS: TSpeedButton
-            Top = 53
+            Top = 61
             OnClick = GenericFilterbClearSClick
           end
           inherited bClearF: TSpeedButton
-            Top = 53
+            Top = 61
             OnClick = GenericFilterbClearFClick
           end
           inherited bClearL: TSpeedButton
-            Top = 13
             OnClick = GenericFilterbClearLClick
           end
           inherited bClearG: TSpeedButton
-            Top = 13
             OnClick = GenericFilterbClearGClick
           end
           inherited bClearPeriod: TSpeedButton
-            Top = 53
+            Top = 61
             OnClick = GenericFilterbClearPeriodClick
           end
           inherited bClearRes0: TSpeedButton
-            Top = 13
             OnClick = GenericFilterbClearRes0Click
           end
           inherited bClearRes1: TSpeedButton
-            Top = 13
             OnClick = GenericFilterbClearRes1Click
           end
           inherited bClearPlanner: TSpeedButton
-            Top = 53
+            Top = 61
           end
           inherited conl: TEdit
-            Top = 14
             OnChange = FGenericFilter1conlChange
           end
-          inherited conl_value: TEdit
-            Top = 14
-          end
           inherited cong: TEdit
-            Top = 14
             OnChange = GenericFiltercongChange
           end
-          inherited cong_value: TEdit
-            Top = 14
-          end
           inherited conResCat0: TEdit
-            Top = 14
             OnChange = GenericFilterconResCat0Change
           end
-          inherited conrescat0_value: TEdit
-            Top = 14
-          end
           inherited conResCat1: TEdit
-            Top = 14
             OnChange = GenericFilterconResCat1Change
           end
-          inherited conrescat1_value: TEdit
-            Top = 14
-          end
           inherited cons: TEdit
-            Top = 54
+            Top = 62
             OnChange = GenericFilterconsChange
           end
           inherited cons_value: TEdit
-            Top = 54
+            Top = 62
           end
           inherited conf: TEdit
-            Top = 54
+            Top = 62
             OnChange = GenericFilterconfChange
           end
           inherited conf_value: TEdit
-            Top = 54
+            Top = 62
           end
           inherited conPeriod: TEdit
-            Top = 54
+            Top = 62
             OnChange = GenericFilterconPerChange
           end
           inherited conperiod_value: TEdit
-            Top = 54
+            Top = 62
           end
           inherited conPla: TEdit
-            Top = 54
+            Top = 62
             OnChange = GenericFilterconPlaChange
           end
           inherited conPla_value: TEdit
-            Top = 54
+            Top = 62
+          end
+          inherited ShowL: TEdit
+            Height = 15
+          end
+          inherited ShowG: TEdit
+            Height = 15
+          end
+          inherited ShowResCat0: TEdit
+            Height = 15
+          end
+          inherited ShowRESCAT1: TEdit
+            Height = 15
           end
           inherited ShowS: TEdit
-            Top = 40
+            Top = 44
+            Height = 15
           end
           inherited ShowForm: TEdit
-            Top = 40
+            Top = 44
+            Height = 15
           end
           inherited ShowPeriod: TEdit
-            Top = 40
+            Top = 44
+            Height = 15
           end
           inherited ShowPlanner: TEdit
-            Top = 40
+            Top = 44
+            Height = 15
           end
           inherited PERPopup: TPopupMenu
             Top = 52
@@ -476,7 +472,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
         object FDAY: TDateEdit
           Left = 936
-          Top = 62
+          Top = 66
           Width = 121
           Height = 21
           NumGlyphs = 2
@@ -485,9 +481,9 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
         object ShowRESCAT1: TEdit
           Left = 936
-          Top = 48
+          Top = 44
           Width = 121
-          Height = 12
+          Height = 15
           BevelInner = bvNone
           BevelOuter = bvNone
           BorderStyle = bsNone
@@ -497,7 +493,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
         object FHOUR: TComboBox
           Left = 1056
-          Top = 62
+          Top = 66
           Width = 42
           Height = 22
           Style = csOwnerDrawFixed
@@ -571,8 +567,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
         object ChSelectedDates: TCheckBox
           Left = 936
-          Top = 86
-          Width = 169
+          Top = 90
+          Width = 273
           Height = 17
           Caption = 'Terminy zaznaczone w siatce'
           TabOrder = 5
@@ -748,7 +744,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 945
         Top = 8
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'ID'
         DataField = 'ID'
         DataSource = Source
@@ -771,7 +767,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 56
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'HOUR'
         DataField = 'HOUR'
         DataSource = Source
@@ -782,7 +778,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 80
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'CALC_LECTURERS'
         DataField = 'CALC_LECTURERS'
         DataSource = Source
@@ -792,7 +788,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 104
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'CALC_GROUPS'
         DataField = 'CALC_GROUPS'
         DataSource = Source
@@ -802,7 +798,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 128
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'CALC_ROOMS'
         DataField = 'CALC_ROOMS'
         DataSource = Source
@@ -812,7 +808,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 152
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'SUB_ID'
         DataField = 'SUB_ID'
         DataSource = Source
@@ -823,7 +819,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 176
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'FOR_ID'
         DataField = 'FOR_ID'
         DataSource = Source
@@ -834,7 +830,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 200
         Width = 150
-        Height = 22
+        Height = 24
         Hint = 'FILL'
         DataField = 'FILL'
         DataSource = Source
@@ -845,7 +841,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 224
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'DESC1'
         DataField = 'DESC1'
         DataSource = Source
@@ -855,7 +851,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 248
         Width = 300
-        Height = 22
+        Height = 24
         Hint = 'DESC2'
         DataField = 'DESC2'
         DataSource = Source

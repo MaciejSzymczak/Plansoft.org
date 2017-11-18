@@ -501,6 +501,7 @@ procedure TFLegend.BRefreshClick(Sender: TObject);
 Var forms_filter,hours_filter : string;
     groupByClause : string;
     orderByClause : string;
+    rollUpFilter  : string;
 begin
   if not refreshAllowed then exit;
   //LTotal.Visible := false;
@@ -607,7 +608,19 @@ begin
     if addRollUp.checked then groupbyClause := 'GROUP BY ROLLUP('+groupbyClause+ ')'
                          else groupbyClause := 'GROUP BY '+groupbyClause;
 
+    rollUpFilter := '';
+    if addRollUp.checked then rollUpFilter := ' where '+
+       mergeStrings(' and ',[
+          '0=0'
+        , iif(groupByS.Checked, '(("Przedmiot" is not null and SUB_ID is not null) or ("Przedmiot"=''--'' and SUB_ID is null))','')
+        , iif(groupByForm.Checked, '(("Forma" is not null and FOR_ID is not null) or ("Forma"=''--'' and FOR_ID is null))','')
+        , iif(groupByL.Checked, '(("Wyk³adowca" is not null and LEC_ID is not null) or ("Wyk³adowca"=''--'' and LEC_ID is null))','')
+        , iif(groupByG.Checked, '(("Grupa" is not null and GRO_ID is not null) or ("Grupa"=''--'' and GRO_ID is null))','')
+        , iif(groupByR.Checked, '(("Zasób" is not null and ROM_ID is not null) or ("Zasób"=''--'' and ROM_ID is null))','')
+       ]);
+
     QueryCOUNTER.SQL.Add(
+    'select * from ('+cr+
     'SELECT '+mergeStrings(',',[
           iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
         , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma", FR.ID FOR_ID','')
@@ -665,9 +678,9 @@ begin
     iif ( SelectedSubOnly.Checked, iif( not strIsEmpty(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
-    'ORDER BY '+orderByClause
+    'ORDER BY '+orderByClause+
+    ')' + cr+ rollUpFilter
     );
-    //info('debug mode');
     QueryCOUNTER.Open;
   end;
 

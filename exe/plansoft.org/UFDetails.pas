@@ -271,12 +271,13 @@ type
     CanRefresh   : Boolean;
     TS : TTimeStamp;
     Zajecia: Integer;
+    currentClassId : Integer;
     oldCalName : string;
     //validations: universal mechanism
     Lecturer,       Group,       Room,       Subject,       classForm,       CreatedBy      , Owner,      Day, classHour : string;
     LecturerBefore, GroupBefore, RoomBefore, SubjectBefore, classFormBefore, CreatedByBefore, OwnerBefore                : string;
 
-    procedure setValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : string; S, F, Fill, colour : Integer; Kind : string; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
+    procedure setValues(aTS : TTimeStamp; aZajecia,classId: Integer; L, G, R, Rtypes : string; S, F, Fill, colour : Integer; Kind : string; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
     //Je¿eli Zajecia<>-1 (warunek Zajecia=-1 oznacza wiele terminow) to w na formularzu wyœwietla siê data i godzina zajêæ i dzia³aj¹ przyciski do wybierania wolnych wyk³adówców, grup, zasobow
     procedure DisplayWarning(L, G, R : String);
     procedure getValues( Var L, G, R : string; var S, F, Fill, colour : integer; var Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : string);
@@ -297,20 +298,22 @@ begin
  WarningMessage.Visible := false;
  if (L<>fmain.ConLecturer.Text) and (fmain.ConLecturer.Text<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Wyk³adowcy je¿eli chcesz skopiowaæ wszystkich wyk³adowców z okna g³ównego';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Wyk³adowcy je¿eli chcesz skopiowaæ wyk³adowców z okna g³ównego';
  end;
  if (G<>fmain.ConGroup.Text) and (fmain.ConGroup.Text<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Grupy je¿eli chcesz skopiowaæ wszystkie grupy z okna g³ównego';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Grupy je¿eli chcesz skopiowaæ grupy z okna g³ównego';
  end;
  if (R<>merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';')) and (merge ( fmain.conResCat0.Text, fmain.conResCat1.Text, ';')<>'') then begin
    WarningMessage.Visible := true;
-   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Sale je¿eli chcesz skopiowaæ wszystkie sale z okna g³ównego';
+   WarningMessage.Caption := '*** Kliknij dwukrotnie w pole Sale je¿eli chcesz skopiowaæ sale z okna g³ównego';
  end;
 end;
 
-Procedure TFDetails.SetValues(aTS : TTimeStamp; aZajecia: Integer; L, G, R, Rtypes : String; S, F, Fill, colour : Integer; Kind : String; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
+Procedure TFDetails.SetValues(aTS : TTimeStamp; aZajecia, classId: Integer; L, G, R, Rtypes : String; S, F, Fill, colour : Integer; Kind : String; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
 Begin
+ currentClassId := classId;
+
  DisplayWarning(L, G, R);
  CanRefresh := False;
 
@@ -919,6 +922,58 @@ end;
 procedure TFDetails.FormShow(Sender: TObject);
 begin
   inherited;
+
+  L_value1.Enabled := canEditL;
+  L_value2.Enabled := canEditL;
+  notL.Enabled := canEditL;
+  SelectL2.Enabled := canEditL;
+  SelectL1.Enabled := canEditL;
+  PLEC.Enabled := canEditL;
+
+  G_value1.Enabled := canEditG;
+  G_value2.Enabled := canEditG;
+  notG.Enabled := canEditG;
+  SelectG2.Enabled := canEditG;
+  SelectG1.Enabled := canEditG;
+  PGRO.Enabled := canEditG;
+
+  rescat0_1_value.Enabled := canEditR;
+  rescat0_2_value.Enabled := canEditR;
+  NotResCat0_1.Enabled := canEditR;
+  sr2.Enabled := canEditR;
+  selectResCat0_1.Enabled := canEditR;
+  PRESCAT0_1.Enabled := canEditR;
+
+  rescat1_1_value.Enabled := canEditR;
+  rescat1_2_value.Enabled := canEditR;
+  NotResCat1_1.Enabled := canEditR;
+  selectResCat1_2.Enabled := canEditR;
+  selectResCat1_1.Enabled := canEditR;
+  PRESCAT1_1.Enabled := canEditR;
+
+  S_value1.Enabled := canEditS;
+  SelectS1.Enabled := canEditS;
+
+  F_value2.Enabled := canEditF;
+  selectF2.Enabled := canEditF;
+  F_value1.Enabled := canEditF;
+  selectF1.Enabled := canEditF;
+
+  Owner_.Enabled := canEditO;
+  SelectOwner.Enabled := canEditO;
+
+  desc1.Enabled := canEditD;
+  desc2.Enabled := canEditD;
+  desc3.Enabled := canEditD;
+  desc4.Enabled := canEditD;
+
+  colour1.Enabled :=  CanEditAll;
+  bcolpopup1.Enabled := CanEditAll;
+  colour2.Enabled := CanEditAll;
+  bcolpopup2.Enabled := CanEditAll;
+  FILL1.Enabled := CanEditAll;
+  BSelectComb.Enabled := CanEditAll;
+
   PanelDesc.Visible := (FProgramSettings.getClassDescPlural(1)<>'') or (FProgramSettings.getClassDescPlural(2)<>'') or (FProgramSettings.getClassDescPlural(3)<>'') or (FProgramSettings.getClassDescPlural(4)<>'');
   ldesc1.Caption := FProgramSettings.getClassDescPlural(1);
   ldesc2.Caption := FProgramSettings.getClassDescPlural(2);
@@ -1023,32 +1078,32 @@ begin
   inherited;
  If Not CanPaste Then Info('Brak danych do wklejenia')
  Else Begin
-  L1.Text             := Clipboard_L1;
-  G1.Text             := Clipboard_G1;
-  resCat0_1.Text      := Clipboard_Rescat0_1;
-  resCat1_1.Text      := Clipboard_Rescat1_1;
-  S1.Text             := Clipboard_S1;
-  F1.Text             := Clipboard_F1;
+  if canEditL then L1.Text             := Clipboard_L1;
+  if canEditG then G1.Text             := Clipboard_G1;
+  if canEditR then resCat0_1.Text      := Clipboard_Rescat0_1;
+  if canEditR then resCat1_1.Text      := Clipboard_Rescat1_1;
+  if canEditS then S1.Text             := Clipboard_S1;
+  if canEditF then F1.Text             := Clipboard_F1;
   FILL1.ItemIndex     := (StrToInt(Clipboard_Fill1) div 10)-1;
   Colour1.Brush.Color := Clipboard_Colour1;
 
-  L2.Text             := Clipboard_L2;
-  G2.Text             := Clipboard_G2;
-  resCat0_2.Text      := Clipboard_Rescat0_2;
-  resCat1_2.Text      := Clipboard_Rescat1_2;
-  F2.Text             := Clipboard_F2;
+  if canEditL then L2.Text             := Clipboard_L2;
+  if canEditG then G2.Text             := Clipboard_G2;
+  if canEditR then resCat0_2.Text      := Clipboard_Rescat0_2;
+  if canEditR then resCat1_2.Text      := Clipboard_Rescat1_2;
+  if canEditF then F2.Text             := Clipboard_F2;
   Colour2.Brush.Color := Clipboard_Colour2;
 
-  notL.checked        :=  Clipboard_L1 = '';
-  notG.checked        :=  Clipboard_G1 = '';
-  NotResCat0_1.checked:=  Clipboard_Rescat0_1 = '';
-  notResCat1_1.checked:=  Clipboard_Rescat1_1 = '';
+  if canEditL then notL.checked        :=  Clipboard_L1 = '';
+  if canEditG then notG.checked        :=  Clipboard_G1 = '';
+  if canEditR then NotResCat0_1.checked:=  Clipboard_Rescat0_1 = '';
+  if canEditR then notResCat1_1.checked:=  Clipboard_Rescat1_1 = '';
 
   if elementEnabled('"Schowek opisy"','2016.03.20', true) then begin
-    desc1.Text          := Clipboard_Desc1;
-    desc2.Text          := Clipboard_Desc2;
-    desc3.Text          := Clipboard_Desc3;
-    desc4.Text          := Clipboard_Desc4;
+    if canEditO then desc1.Text          := Clipboard_Desc1;
+    if canEditO then desc2.Text          := Clipboard_Desc2;
+    if canEditO then desc3.Text          := Clipboard_Desc3;
+    if canEditO then desc4.Text          := Clipboard_Desc4;
   end;
  End;
 end;

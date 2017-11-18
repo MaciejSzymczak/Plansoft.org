@@ -387,15 +387,15 @@ type
     BFullScreen: TSpeedButton;
     Timer1: TTimer;
     DelPopup: TPopupMenu;
-    a1: TMenuItem;
+    ppDelete: TMenuItem;
     ppminusL: TMenuItem;
     ppminusG: TMenuItem;
-    Ususamezasoby1: TMenuItem;
+    ppminusR: TMenuItem;
     EditPopup: TPopupMenu;
     MenuItem1: TMenuItem;
     ppaddL: TMenuItem;
     ppAddG: TMenuItem;
-    MenuItem4: TMenuItem;
+    ppAddR: TMenuItem;
     beditpopup: TSpeedButton;
     ppchangeS: TMenuItem;
     ppchangeF: TMenuItem;
@@ -411,7 +411,7 @@ type
     Wybran1: TMenuItem;
     Wszystkir1: TMenuItem;
     Wybrany1: TMenuItem;
-    Zmiewaciciela1: TMenuItem;
+    ppChangeO: TMenuItem;
     ppminusS: TMenuItem;
     N15: TMenuItem;
     Kopiowaniegrupowe1: TMenuItem;
@@ -615,8 +615,8 @@ type
     TopCntQuery: TMemo;
     TopCntPeriodQuery: TMemo;
     TreeModeCleanup: TSpeedButton;
-    Do1: TMenuItem;
-    Od1: TMenuItem;
+    ppAddO: TMenuItem;
+    ppminusO: TMenuItem;
     Przywr1: TMenuItem;
     Odczwybranego1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
@@ -757,7 +757,7 @@ type
     procedure GridMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Timer1Timer(Sender: TObject);
-    procedure a1Click(Sender: TObject);
+    procedure ppDeleteClick(Sender: TObject);
     procedure bdelpopupClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure ppchangeSClick(Sender: TObject);
@@ -774,7 +774,7 @@ type
     procedure Wybran1Click(Sender: TObject);
     procedure Wszystkir1Click(Sender: TObject);
     procedure Wybrany1Click(Sender: TObject);
-    procedure Zmiewaciciela1Click(Sender: TObject);
+    procedure ppChangeOClick(Sender: TObject);
     procedure ppminusSClick(Sender: TObject);
     procedure Kopiowaniegrupowe1Click(Sender: TObject);
     procedure mmpurgeClick(Sender: TObject);
@@ -953,7 +953,7 @@ type
     procedure BShowCellLayoutMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
     procedure BAddClassDblClick(Sender: TObject);
-    procedure Do1Click(Sender: TObject);
+    procedure ppAddOClick(Sender: TObject);
     procedure Przywr1Click(Sender: TObject);
     procedure Odczwybranego1Click(Sender: TObject);
   private
@@ -1998,8 +1998,19 @@ procedure TFMain.RefreshGrid;
   filterPanel.Visible := BViewByCrossTable.Down;
   Legend.Visible := V;
   bAddClass.Visible := V;
+  bAddClass.Enabled := canInsert;
+  bmoveLeft.Enabled := canInsert and canDelete;
+  bmoveUp.Enabled := canInsert and canDelete;
+  bmoveDown.Enabled := canInsert and canDelete;
+  bmoveright.Enabled := canInsert and canDelete;
+  bcutarea.Enabled := canDelete;
+  bpastearea.Enabled := canInsert;
+  bcopyarea.Enabled := canInsert or canDelete;
+  bclearselection.Enabled := canInsert or canDelete;
+
   bEditClass.Visible := V;
   bDeleteClass.Visible := V;
+  bDeleteClass.Enabled := canDelete;
   bdelpopup.Visible := V;
   beditpopup.Visible := V;
   bRefresh.Visible := V;
@@ -2978,6 +2989,7 @@ Procedure TFMain.insertClasses;
      checkConflicts.ConflictsReport(
        TS
      , Zajecia
+     , FDetails.currentClassId
      , PLecturers
      , PGroups
      , PRooms
@@ -3123,6 +3135,7 @@ begin
    FDetails.SetValues(
      TS
    , Zajecia
+   , -1
    , iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)
    , iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)
    , iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';'))
@@ -3151,7 +3164,7 @@ end;
 
 procedure TFMain.BAddClassClick(Sender: TObject);
 begin
-  AddClassToGrid(true);
+  AddClassToGrid(gFirstResourceFlag);
 end;
 
 procedure TFMain.refreshPanels;
@@ -3460,8 +3473,8 @@ begin
            End;
            Case Status Of
             ClassNotFound : Begin End;
-            ClassFound    : DeleteClass(Class_);
-            ClassError    : DeleteClass(Class_);
+            ClassFound    : DeleteClass(Class_,-1);
+            ClassError    : DeleteClass(Class_,-1);
            End;
           End;
       Refresh;
@@ -4268,7 +4281,7 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing FROM PLANNERS WHERE NAME=USER');
+    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '+'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag FROM PLANNERS WHERE NAME=USER');
     UserID           := DModule.QWork.Fields[1].AsString;
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
     EditOrgUnits     := DModule.QWork.Fields[3].AsString = '+';
@@ -4278,6 +4291,44 @@ begin
     confineCalendarId:= DModule.QWork.Fields[7].AsString;
     editReservations := DModule.QWork.Fields[8].AsString = '+';
     editSharing      := DModule.QWork.Fields[9].AsString = '+';
+    CanEditL      := DModule.QWork.Fields[10].AsString = '+';
+    CanEditG      := DModule.QWork.Fields[11].AsString = '+';
+    CanEditR      := DModule.QWork.Fields[12].AsString = '+';
+    CanEditS      := DModule.QWork.Fields[13].AsString = '+';
+    CanEditF      := DModule.QWork.Fields[14].AsString = '+';
+    CanDelete     := DModule.QWork.Fields[15].AsString = '+';
+    CanInsert     := DModule.QWork.Fields[16].AsString = '+';
+    CanEditO      := DModule.QWork.Fields[17].AsString = '+';
+    CanEditD      := DModule.QWork.Fields[18].AsString = '+';
+    CanEditAll  := CanEditL and CanEditG and CanEditR and CanEditS and CanEditF and CanEditO and CanEditD;
+    gFirstResourceFlag := DModule.QWork.Fields[19].AsString = '+';
+
+    ppaddL.Enabled := canEditL;
+    ppminusL.Enabled := canEditL;
+    ppAddG.Enabled := canEditG;
+    ppminusG.Enabled := canEditG;
+    ppAddR.Enabled := canEditR;
+    ppminusR.Enabled := canEditR;
+    ppchangeS.Enabled := canEditS;
+    ppminusS.Enabled := canEditS;
+    ppchangeF.Enabled := canEditF;
+
+    ppDelete.Enabled := canDelete;
+    bdelpopup.Enabled := canDelete or CanEditL or CanEditG or CanEditR or CanEditS or CanEditF or CanEditO or CanEditD;
+
+    ppAddO.Enabled := canEditO;
+    ppChangeO.Enabled := canEditO;
+    ppchangeClass.Enabled := canEditAll;
+    Cdesc1.Enabled := canEditD;
+    Cdesc2.Enabled := canEditD;
+    Cdesc3.Enabled := canEditD;
+    Cdesc4.Enabled := canEditD;
+    ppminusO.Enabled := canEditO;
+    Ddesc1.Enabled := canEditD;
+    Ddesc2.Enabled := canEditD;
+    Ddesc3.Enabled := canEditD;
+    Ddesc4.Enabled := canEditD;
+
   Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
 
   dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors, true);
@@ -4590,13 +4641,13 @@ procedure TFMain.GridKeyDown(Sender: TObject; var Key: Word;
 begin
   inherited;
  Case Key Of
-  45:bAddClassClick(nil);
+  45:if canInsert then bAddClassClick(nil);
   13:GridDblClick(nil);
   32:begin
        FMain.set_tmp_selected_dates;
        showClasses(true,true);
      end;
-  46:BDeleteClassClick(nil);
+  46:if canDelete then BDeleteClassClick(nil);
   {c}67:if ssCtrl in Shift then copyArea;
   {x}88:if ssCtrl in Shift then cutArea;
   {v}86:if ssCtrl in Shift then pasteArea;
@@ -4633,6 +4684,9 @@ begin
    FDetails.SetValues(
        TS
      , Zajecia
+     //Pass currentClassId ONLY if one cell is selected. currentClassId does not make sense for the block of classes
+     //currentClassId decides if use can edit the class
+     , iif((Grid.Selection.Left=Grid.Selection.Right) and (Grid.Selection.Top=Grid.Selection.Bottom),Class_.id,-1)
      , Class_.CALC_LEC_IDS
      , Class_.CALC_GRO_IDS
      , Class_.CALC_ROM_IDS
@@ -4660,7 +4714,9 @@ Var Class_ : TClass_;
 begin
   If TabViewType.TabIndex = 4 Then begin InvertReservations; exit; end;
   If TabViewType.TabIndex = 5 Then begin InvertOtherCalendar; exit; end;
-  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then bEditClassClick(nil) Else Fmain.AddClassToGrid(true);
+  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound
+      Then bEditClassClick(nil)
+      Else if canInsert then Fmain.AddClassToGrid(gFirstResourceFlag);
 end;
 
 procedure TFMain.refreshLegend;
@@ -5651,8 +5707,8 @@ function TFMain.modifyClass;
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(CurrentUserName);
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
-         if not deleteClass ( oldClass ) then exit;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+         if not deleteClass ( oldClass, -1 ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 			   end;
 	   clCopy: begin
 				 newClass.hour := newZajecia;
@@ -5675,9 +5731,9 @@ function TFMain.modifyClass;
 				   newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass ) then exit;
+				 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteOwner:
@@ -5692,9 +5748,9 @@ function TFMain.modifyClass;
            if newClass.owner = '' then newClass.owner := newClass.created_by;
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass ) then exit;
+				 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteGro:
@@ -5708,9 +5764,9 @@ function TFMain.modifyClass;
 				   newClass.calc_gro_ids := unplugValue(newClass.calc_gro_ids,keyValue);
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass ) then exit;
+				 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteRes:
@@ -5724,9 +5780,9 @@ function TFMain.modifyClass;
 				   newClass.calc_rom_ids := unplugValue(newClass.calc_rom_ids,keyValue);
 				 end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
   				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteSub:
@@ -5740,9 +5796,9 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
   				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc1:
@@ -5756,9 +5812,9 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc2:
@@ -5772,9 +5828,9 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
   				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc3:
@@ -5788,9 +5844,9 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
   				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc4:
@@ -5804,9 +5860,9 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass ) then exit;
+				   if not deleteClass ( oldClass, oldClass.id ) then exit;
   				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 				   succesFlag := true;
 			   end;
 	   clAttachLec:
@@ -5819,9 +5875,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValue,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
+				   if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5835,9 +5891,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValue,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5851,9 +5907,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValue,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5863,9 +5919,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.owner := merge(newClass.owner, keyValue,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5880,9 +5936,9 @@ function TFMain.modifyClass;
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=2            , newClass.desc3);
 				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=2            , newClass.desc4);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5897,9 +5953,9 @@ function TFMain.modifyClass;
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=3         , newClass.desc3);
 				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=3         , newClass.desc4);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5910,9 +5966,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.owner := keyValue;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5923,9 +5979,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.class_colour := strToInt(keyValue);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5936,9 +5992,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc1 := keyValue;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5949,9 +6005,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc2 := keyValue;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5962,9 +6018,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc3 := keyValue;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -5975,9 +6031,9 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc4 := keyValue;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass ) then exit;
+					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6371,7 +6427,7 @@ except
 end;
 end;
 
-procedure TFMain.a1Click(Sender: TObject);
+procedure TFMain.ppDeleteClick(Sender: TObject);
 begin
   BDeleteClassClick(nil);
 end;
@@ -6416,7 +6472,7 @@ begin
   changeFor;
 end;
 
-procedure TFMain.Zmiewaciciela1Click(Sender: TObject);
+procedure TFMain.ppChangeOClick(Sender: TObject);
 begin
   changeOwner;
 end;
@@ -7193,7 +7249,7 @@ begin
      FillAdd.Visible := true;
      FillDelete.Visible := false;
      FillAddIfEmpty.OnClick:=nil;
-     FillAdd.OnClick :=Zmiewaciciela1Click;
+     FillAdd.OnClick :=ppChangeOClick;
      FillDelete.OnClick:=nil;
   end
   else
@@ -8856,7 +8912,7 @@ end;
 
 procedure TFMain.BAddClassDblClick(Sender: TObject);
 begin
-  AddClassToGrid(true);
+  AddClassToGrid(gFirstResourceFlag);
 end;
 
 procedure TFMain.OpenFGrouping(resourceType : String; resourceId : String);
@@ -8884,7 +8940,7 @@ begin
   End;
 end;
 
-procedure TFMain.Do1Click(Sender: TObject);
+procedure TFMain.ppAddOClick(Sender: TObject);
 begin
   if not elementEnabled('"Kilku w³aœcicieli zajêcia"','2017.10.01', false) then exit;
   attachOwner;
