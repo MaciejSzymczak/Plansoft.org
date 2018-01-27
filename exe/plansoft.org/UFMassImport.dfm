@@ -79,8 +79,8 @@ inherited FMassImport: TFMassImport
     end
   end
   object OpenDialog: TOpenDialog
-    DefaultExt = '*.xls'
-    Filter = 'xls|*.xls|*.*|*.*'
+    DefaultExt = '*.xlsx'
+    Filter = 'xls|*.xls|*.*|*.*|xlsx|*.xlsx'
     Left = 232
     Top = 96
   end

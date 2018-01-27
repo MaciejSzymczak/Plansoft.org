@@ -13,6 +13,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   inherited MainPage: TPageControl
     Width = 831
     Height = 641
+    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 823
@@ -474,53 +475,53 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Visible = False
       end
       object LabelABBREVIATION: TLabel [1]
-        Left = 88
-        Top = 40
-        Width = 25
-        Height = 14
+        Left = 82
+        Top = 8
+        Width = 31
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Skr'#243't'
         FocusControl = ABBREVIATION
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
       end
       object LabelNAME: TLabel [2]
-        Left = 78
-        Top = 88
-        Width = 35
-        Height = 14
+        Left = 74
+        Top = 57
+        Width = 39
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Nazwa'
         FocusControl = NAME
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [3]
         Left = 80
-        Top = 64
+        Top = 33
         Width = 33
         Height = 16
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
       object Shape1: TShape [4]
-        Left = 120
-        Top = 57
+        Left = 124
+        Top = 26
         Width = 41
         Height = 21
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [5]
         Left = 2
-        Top = 112
+        Top = 81
         Width = 111
         Height = 16
         Alignment = taRightJustify
@@ -528,23 +529,23 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       object Label3: TLabel [6]
         Left = 2
-        Top = 136
+        Top = 105
         Width = 111
         Height = 16
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
       object LabelORGUNI_ID: TLabel [7]
-        Left = 16
-        Top = 163
-        Width = 97
-        Height = 14
+        Left = -2
+        Top = 132
+        Width = 115
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Jedn. organizacyjna'
         FocusControl = ORGUNI_ID
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
@@ -582,96 +583,6 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 32
         Top = 176
         TabOrder = 6
-        inherited ATTRIBS_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBS_15: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_01: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_02: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_03: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_04: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_05: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_06: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_07: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_08: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_09: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_10: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_11: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_12: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_13: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_14: TDBEdit
-          Height = 24
-        end
-        inherited ATTRIBN_15: TDBEdit
-          Height = 24
-        end
       end
       object ID: TDBEdit
         Left = 649
@@ -688,8 +599,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Visible = False
       end
       object ABBREVIATION: TDBEdit
-        Left = 121
-        Top = 32
+        Left = 125
+        Top = 0
         Width = 300
         Height = 24
         Hint = 'ABBREVIATION'
@@ -698,8 +609,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         TabOrder = 0
       end
       object NAME: TDBEdit
-        Left = 121
-        Top = 80
+        Left = 125
+        Top = 49
         Width = 300
         Height = 24
         Hint = 'NAME'
@@ -708,8 +619,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         TabOrder = 1
       end
       object DESC1: TDBEdit
-        Left = 120
-        Top = 104
+        Left = 124
+        Top = 73
         Width = 617
         Height = 24
         DataField = 'DESC1'
@@ -717,8 +628,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         TabOrder = 4
       end
       object DESC2: TDBEdit
-        Left = 120
-        Top = 128
+        Left = 124
+        Top = 97
         Width = 617
         Height = 24
         DataField = 'DESC2'
@@ -726,8 +637,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         TabOrder = 5
       end
       object ORGUNI_ID: TDBEdit
-        Left = 113
-        Top = 152
+        Left = 117
+        Top = 121
         Width = 150
         Height = 24
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
@@ -739,8 +650,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         OnChange = ORGUNI_IDChange
       end
       object ORGUNI_ID_VALUE: TEdit
-        Left = 120
-        Top = 152
+        Left = 124
+        Top = 121
         Width = 257
         Height = 24
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
@@ -781,7 +692,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       object BClearORGUNI_ID: TBitBtn
         Left = 376
-        Top = 152
+        Top = 121
         Width = 25
         Height = 24
         ParentShowHint = False

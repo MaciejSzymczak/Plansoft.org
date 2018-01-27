@@ -10,27 +10,27 @@ inherited FCopyClasses: TFCopyClasses
   object Label1: TLabel [0]
     Left = 18
     Top = 46
-    Width = 481
+    Width = 414
     Height = 16
     Caption = 
       'Skopiowane dane umie'#347#263' w terminie od dnia                       ' +
-      '               do dnia '
+      '       do'
   end
   object Label4: TLabel [1]
     Left = 18
     Top = 18
-    Width = 484
+    Width = 413
     Height = 16
     Caption = 
       'Skopiuj wszystkie zaplanowane dane  od dnia                     ' +
-      '               do dnia  '
+      '       do'
   end
   inherited Status: TPanel
     Top = 363
     Width = 591
   end
   object source_date_from: TDateTimePicker
-    Left = 283
+    Left = 307
     Top = 9
     Width = 102
     Height = 22
@@ -50,7 +50,7 @@ inherited FCopyClasses: TFCopyClasses
     OnChange = dest_date_fromChange
   end
   object dest_date_from: TDateTimePicker
-    Left = 283
+    Left = 307
     Top = 37
     Width = 102
     Height = 22

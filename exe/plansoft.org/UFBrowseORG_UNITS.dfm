@@ -13,6 +13,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
   inherited MainPage: TPageControl
     Width = 946
     Height = 686
+    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938
@@ -556,7 +557,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       end
       inherited FlexPanel: TPanel
         Left = 32
-        Top = 176
+        Top = 184
         TabOrder = 10
       end
       object ID: TDBEdit

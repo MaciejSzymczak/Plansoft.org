@@ -228,6 +228,7 @@ type
     procedure GHideEmptyRowsBClick(Sender: TObject);
     procedure RHideEmptyRowsBClick(Sender: TObject);
   private
+    procedure showHideEditButton;
   public
     Path : String;
     LHideDows : string;
@@ -733,6 +734,7 @@ begin
    1:Begin Load(Path+'A3'); End;
   End;
 
+  showHideEditButton;
 end;
 
 procedure TFSettings.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -807,6 +809,7 @@ begin
          if not elementEnabled('"Forma zajêæ w legendzie"','2013.06.20', true) then
              (sender as tradiogroup).itemIndex := 0;
   end;
+  showHideEditButton;
 end;
 
 procedure TFSettings.LLShowLegendClick(Sender: TObject);
@@ -840,6 +843,8 @@ begin
      (Sender as tcheckbox).Checked := false;
      exit;
      end;
+
+    showHideEditButton;
 
     lpdfg.visible      := LPdfPrintOut.Checked;
     lpdfl.visible      := LPdfPrintOut.Checked;
@@ -876,6 +881,14 @@ begin
   if FSelectDaysOfWeek = nil then Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
   FSelectDaysOfWeek.showModalWithDefaults(RHideDows);
   RHideEmptyRows.Checked := RHideDows <> '-------';
+end;
+
+procedure TFSettings.showHideEditButton;
+begin
+ BWord.Enabled :=
+      ((PageControl.TabIndex=0) and (LPdfPrintOut.Checked=false))
+   or ((PageControl.TabIndex=1) and (GPdfPrintOut.Checked=false))
+   or ((PageControl.TabIndex=2) and (RPdfPrintOut.Checked=false));
 end;
 
 end.

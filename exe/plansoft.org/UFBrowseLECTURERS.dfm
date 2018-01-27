@@ -23,6 +23,19 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited TopPanel: TPanel
         Width = 878
+        object AvailableDsp: TLabel [5]
+          Left = 344
+          Top = 6
+          Width = 63
+          Height = 14
+          Caption = 'AvailableDsp'
+          Font.Charset = EASTEUROPE_CHARSET
+          Font.Color = clRed
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
+        end
       end
       inherited Grid: TRxDBGrid
         Top = 121
@@ -350,19 +363,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           Font.Style = []
           ParentFont = False
         end
-        object AvailableDsp: TLabel
-          Left = 256
-          Top = 6
-          Width = 63
-          Height = 14
-          Caption = 'AvailableDsp'
-          Font.Charset = EASTEUROPE_CHARSET
-          Font.Color = clRed
-          Font.Height = -11
-          Font.Name = 'Arial'
-          Font.Style = []
-          ParentFont = False
-        end
         object CON_ORGUNI_ID: TEdit
           Left = 72
           Top = 4
@@ -472,7 +472,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             0000}
         end
         object BKonsolidate: TBitBtn
-          Left = 790
+          Left = 550
           Top = 4
           Width = 82
           Height = 25
@@ -483,8 +483,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           OnClick = BKonsolidateClick
         end
         object ttEnabled: TCheckBox
-          Left = 472
-          Top = 10
+          Left = 232
+          Top = 2
           Width = 203
           Height = 17
           Anchors = [akRight, akBottom]
@@ -495,7 +495,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 681
+          Left = 441
           Top = 4
           Width = 104
           Height = 25
@@ -634,7 +634,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
-                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -844,7 +844,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
-                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF

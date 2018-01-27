@@ -42,7 +42,6 @@ type
     TimerDetails: TTimer;
     DSDetails: TDataSource;
     Splitter1: TSplitter;
-    AvailableDsp: TLabel;
     RightPage: TPageControl;
     Hierarchy: TTabSheet;
     rightPane: TPanel;
@@ -74,6 +73,7 @@ type
     BSelectROL_ID: TBitBtn;
     BClearROL_ID: TBitBtn;
     Label1: TLabel;
+    AvailableDsp: TLabel;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;

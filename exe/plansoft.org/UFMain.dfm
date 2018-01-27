@@ -7535,7 +7535,7 @@ inherited FMain: TFMain
         OnClick = Ukadtygodniowy1Click
       end
       object Ukadtabelikrzyowej1: TMenuItem
-        Caption = 'Uk'#322'ad tabeli krzy'#380'owej'
+        Caption = 'Uk'#322'ad wielu zasob'#243'w'
         OnClick = Ukadtabelikrzyowej1Click
       end
       object N5: TMenuItem
@@ -7666,6 +7666,7 @@ inherited FMain: TFMain
       end
       object mmprofileObjectNamePlanners: TMenuItem
         Caption = 'Plani'#347'ci'
+        Hint = 'Autoryzacje Uprawnienia'
         OnClick = mmprofileObjectNamePlannersClick
       end
       object Kalendarze1: TMenuItem
@@ -7888,6 +7889,7 @@ inherited FMain: TFMain
       end
       object Uprawnieniadoobiektw1: TMenuItem
         Caption = 'Uprawnienia do obiekt'#243'w'
+        Hint = 'Autoryzacje Planisci'
         OnClick = Uprawnieniadoobiektw1Click
       end
       object mmpurge: TMenuItem
