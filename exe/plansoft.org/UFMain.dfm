@@ -3,7 +3,7 @@ inherited FMain: TFMain
   Top = 50
   Width = 1928
   Height = 1038
-  Caption = 'Plansoft.org'
+  Caption = 'Plansoft.org                            (ver. 2018.02.22)'
   KeyPreview = True
   Menu = MM
   ShowHint = True
@@ -4299,7 +4299,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 101
         Top = 63
-        Width = 496
+        Width = 492
         Height = 24
         TabOrder = 9
         OnClick = CONGROUP_valueClick
@@ -4323,7 +4323,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 101
         Top = 90
-        Width = 496
+        Width = 492
         Height = 24
         TabOrder = 15
         OnClick = conResCat0_valueClick
@@ -4369,7 +4369,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 101
         Top = 35
-        Width = 496
+        Width = 492
         Height = 24
         TabOrder = 3
         OnClick = CONLECTURER_valueClick
@@ -4662,7 +4662,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 101
         Top = 118
-        Width = 496
+        Width = 492
         Height = 24
         TabOrder = 28
         OnClick = conResCat1_valueClick
@@ -4756,8 +4756,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 279
-        Top = 9
+        Left = 863
+        Top = 17
         Width = 568
         Height = 111
         TabOrder = 35
@@ -10223,8 +10223,8 @@ inherited FMain: TFMain
   object FillPopup: TPopupMenu
     Images = ImageList
     TrackButton = tbLeftButton
-    Left = 936
-    Top = 96
+    Left = 864
+    Top = 88
     object FillAddIfEmpty: TMenuItem
       Caption = 'Dodaj gdy puste'
       ImageIndex = 6

@@ -152,8 +152,8 @@ procedure TFConsolidation.BConsolidateClick(Sender: TObject);
 var dummy : shortString;
 const names : array[0..4] of shortString = ('LEC','GRO','RES','SUB','FOR');
 begin
- if strIsEmpty ( RECORD1.Text ) then begin info ('Wybierz rekord do zachowania'); exit; end;
- if strIsEmpty ( RECORD2.Text ) then begin info ('Wybierz rekord do usuniêcia'); exit; end;
+ if isBlank ( RECORD1.Text ) then begin info ('Wybierz rekord do zachowania'); exit; end;
+ if isBlank ( RECORD2.Text ) then begin info ('Wybierz rekord do usuniêcia'); exit; end;
  if RECORD2.Text = RECORD1.Text then begin info ('Wybierz dwa ró¿ne rekordy do scalenia'); exit; end;
 
  try

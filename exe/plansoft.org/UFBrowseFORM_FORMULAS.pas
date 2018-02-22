@@ -110,7 +110,7 @@ Begin
    Init(Self);
    RestrictEmpty([FOR_ID, ORGUNI_ID, FORMULA_TYPE, FORMULA, DATE_FROM ]);
    alert := checkFormula;
-   If not strIsEmpty(alert) Then addError(alert);
+   If not isBlank(alert) Then addError(alert);
    Result := ShowMessage;
  End;
 End;
@@ -314,7 +314,7 @@ procedure TFBrowseFORM_FORMULAS.BitBtn7Click(Sender: TObject);
 var alert : string;
 begin
   alert := checkFormula;
-  if strIsEmpty(alert) then info ('Formu³a nie zawiera b³êdów')
+  if isBlank(alert) then info ('Formu³a nie zawiera b³êdów')
                        else Serror( alert );
 end;
 

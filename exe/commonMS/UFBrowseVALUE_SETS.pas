@@ -108,7 +108,7 @@ Begin
         addError('WprowadŸ polecenie SQL')
       else begin
         alert := checkSQL;
-        If not strIsEmpty (alert) Then addError(alert);
+        If not isBlank (alert) Then addError(alert);
       end;
     end;
 
@@ -202,7 +202,7 @@ procedure TFBrowseVALUE_SETS.BcheckSyntaxClick(Sender: TObject);
 var alert : string;
 begin
   alert := checkSQL;
-  if strIsEmpty (alert ) then info ('Formu³a nie zawiera b³êdów')
+  if isBlank (alert ) then info ('Formu³a nie zawiera b³êdów')
                          else Serror( alert );
 end;
 

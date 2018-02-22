@@ -84,8 +84,8 @@ end;
 
 procedure TFTransfer.BCreateClick(Sender: TObject);
 begin
-  if strIsEmpty(ufrom.Text) then begin info('WprowadŸ wartoœæ w polu "Od planisty lub autoryzacji"'); exit; end;
-  if strIsEmpty(uto.Text) then begin info('WprowadŸ wartoœæ w polu "Do planisty lub autoryzacji"'); exit; end;
+  if isBlank(ufrom.Text) then begin info('WprowadŸ wartoœæ w polu "Od planisty lub autoryzacji"'); exit; end;
+  if isBlank(uto.Text) then begin info('WprowadŸ wartoœæ w polu "Do planisty lub autoryzacji"'); exit; end;
   if ufrom.Text=uto.Text then begin info('WprowadŸ dwie ró¿ne nazwy planistów'); exit; end;
   if question('Czy na pewno wykonaæ transfer?')=id_yes then begin
       try

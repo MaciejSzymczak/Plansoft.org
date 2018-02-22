@@ -105,27 +105,11 @@ type TClassByChildCache = Class
                      dLastError : string;
                      private
                       //Procedure Add(TS : TTimeStamp; Zajecia: Integer; Var Status : Integer; Var Class_ : TClass_);
-                      Procedure init(PER_ID : Integer; childId : String; _SQL : String);
-                      Procedure _GetClassBy(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
+                      Procedure ccLoadPeriod(PER_ID : Integer; childId : String; _SQL : String);
+                      Procedure ccGetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
                      public
                       Procedure ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                       Procedure ResetByDay(TS : TTimeStamp; Zajecia: Integer);
-                   End;
-     TClassByLecturerCache = Class (TClassByChildCache)
-                   public
-                      Procedure GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                      Procedure LoadPeriod(PER_ID: Integer; childId : String);
-                   End;
-     TClassByGroupCache = Class (TClassByChildCache)
-                   public
-                      dgper_id : integer;
-                      Procedure GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                      Procedure LoadPeriod(PER_ID: Integer; childId : String);
-                   End;
-     TClassByRoomCache = Class (TClassByChildCache)
-                   public
-                      Procedure GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                      Procedure LoadPeriod(PER_ID : Integer; childId : String);
                    End;
 
 type TClassByLecturerCaches
@@ -134,12 +118,12 @@ type TClassByLecturerCaches
                                position  : integer;
                                PER_ID: Integer;
                                data : Array of record
-                                 Cache : TClassByLecturerCache;
+                                 Cache : TClassByChildCache;
                                  childId : string;
                                end;
 
                                procedure init;
-                               Procedure getClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
+                               Procedure LgetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
                                Procedure loadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
                                Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                                Procedure resetByDay(TS : TTimeStamp; Zajecia: Integer);
@@ -150,7 +134,7 @@ type TClassByGroupCaches = class
                                position  : integer;
                                PER_ID: Integer;
                                data : Array of record
-                                 Cache : TClassByGroupCache;
+                                 GCache : TClassByChildCache;
                                  childId : string;
                                end;
                                procedure init;
@@ -165,7 +149,7 @@ type TClassByResCaches = class
                                position  : integer;
                                PER_ID: Integer;
                                data : Array of record
-                                 Cache : TClassByRoomCache;
+                                 Cache : TClassByChildCache;
                                  childId : string;
                                end;
                                procedure init;
@@ -1423,7 +1407,10 @@ Begin
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
     1: Status := ClassFound;
-   Else Status := ClassError;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByLecturer: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'childId='+childId);
+   end;
    End;
 End;
 
@@ -1467,7 +1454,10 @@ Begin
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
     1: Status := ClassFound;
-   Else Status := ClassError;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByGroup: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'GRO_ID='+GRO_ID);
+   end;
    End;
 End;
 
@@ -1511,7 +1501,10 @@ Begin
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
     1: Status := ClassFound;
-   Else Status := ClassError;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByRoom: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'ROM_ID='+ROM_ID);
+   end;
    End;
 End;
 
@@ -1552,7 +1545,7 @@ Begin
  End
 End;
 
-Procedure TClassByChildCache._GetClassBy(ts : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
+Procedure TClassByChildCache.ccGetClass(ts : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
 Var t1, t2, X, Y, L1 : Integer;
     DAY1, DAY2 : String;
     Day  : TTimeStamp;
@@ -1650,27 +1643,6 @@ Begin
  Info('Sytuacja niemo¿liwa! Zajecia='+IntToStr(Zajecia)+' TS.Date='+DateTimeToStr(TimeStampToDateTime(TS)));
 End;
 
-Procedure TClassByLecturerCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-Begin
- _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
- if dLastError <> '' then
-    SError ('TClassByLecturerCache: ' + dLastError);
-End;
-
-Procedure TClassByGroupCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-Begin
- _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
- if dLastError <> '' then
-    SError ('TClassByGroupCache('+inttostr(dgper_id)+'): ' + dLastError + cr + 'dGeneralDebug=' + dGeneralDebug);
-End;
-
-Procedure TClassByRoomCache.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-Begin
- _GetClassBy(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
- if dLastError <> '' then
-    SError ('TClassByRoomCache: ' + dLastError);
-End;
-
 {****************************************************************************}
 {********* MAIN PART  ******************* ********** ************************}
 {****************************************************************************}
@@ -1683,10 +1655,16 @@ begin
   PER_ID    := -1;
 end;
 
-procedure TClassByLecturerCaches.GetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
+procedure TClassByLecturerCaches.LGetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 var t : integer;
 begin
  childId := ExtractWord(1,childId,[';']); // get first from the list
+
+ //2018.02.22
+ if childId='' then begin
+     Status := ClassNotFound;
+     Exit;
+ end;
 
  {
  //Turn off the cache - tests only
@@ -1702,7 +1680,7 @@ begin
 
  for t := 0 to maxLength - 1 do begin
    if Data[t].childId = childId then begin
-     Data[t].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+     Data[t].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
      exit;
    end;
  end;
@@ -1717,10 +1695,10 @@ begin
    Data[position - 1].Cache.Free;
  end;
 
- Data[position - 1].Cache := TClassByLecturerCache.create;
- Data[position - 1].Cache.LoadPeriod(PER_ID, childId);
+ Data[position - 1].Cache := TClassByChildCache.create;
+ Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM LEC_CLA WHERE LEC_ID in ');
  Data[position - 1].childId := childId;
- Data[position - 1].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+ Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
 end;
 
 procedure TClassByLecturerCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
@@ -1766,9 +1744,16 @@ var t : integer;
 begin
  dGeneralDebug := '';
  childId := ExtractWord(1,childId,[';']); // get first from the list
+
+ //2018.02.22
+ if childId='' then begin
+     Status := ClassNotFound;
+     Exit;
+ end;
+
  for t := 0 to maxLength - 1 do begin
    if Data[t].childId = childId then begin
-     Data[t].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+     Data[t].GCache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
      exit;
    end;
  end;
@@ -1780,14 +1765,14 @@ begin
  end else begin
    position := position + 1;
    if position > strToInt ( GetSystemParam('MaxNumberOfSheets','50') ) then position := 1;
-   Data[position - 1].Cache.Free;
+   Data[position - 1].GCache.Free;
  end;
 
    dGeneralDebug := 'TClassByGroupCaches.GetClass '+inttostr(position)+' PER_ID='+inttostr(PER_ID)+' conPeriod.Text='+fmain.conPeriod.Text;
-   Data[position - 1].Cache := TClassByGroupCache.create;
-   Data[position - 1].Cache.LoadPeriod(PER_ID, childId);
+   Data[position - 1].GCache := TClassByChildCache.create;
+   Data[position - 1].GCache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM GRO_CLA WHERE GRO_ID in ');
    Data[position - 1].childId := childId;
-   Data[position - 1].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+   Data[position - 1].GCache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
 end;
 
 procedure TClassByGroupCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
@@ -1796,9 +1781,9 @@ begin
  //free used memory
  if (reloadFromDatabase) or (PER_ID <> aPER_ID) then
   for t := 0 to maxLength -1 do
-    if assigned(Data[t].Cache) then
-      if Data[t].Cache is TObject then
-        try Data[t].Cache.free; except end;
+    if assigned(Data[t].GCache) then
+      if Data[t].GCache is TObject then
+        try Data[t].GCache.free; except end;
 
  if reloadFromDatabase then maxLength := 0;
  if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie semestr
@@ -1809,7 +1794,7 @@ procedure TClassByGroupCaches.ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp;
 var t : integer;
 begin
  for t := 0 to maxLength - 1 do begin
-   Data[t].Cache.ResetByCLA_ID(CLA_ID,pday,phour);
+   Data[t].GCache.ResetByCLA_ID(CLA_ID,pday,phour);
  end;
 end;
 
@@ -1817,7 +1802,7 @@ procedure TClassByGroupCaches.ResetByDay(TS : TTimeStamp; Zajecia: Integer);
 var t : integer;
 begin
  for t := 0 to maxLength - 1 do begin
-   Data[t].Cache.ResetByDay(TS,Zajecia);
+   Data[t].GCache.ResetByDay(TS,Zajecia);
  end;
 end;
 
@@ -1834,9 +1819,16 @@ procedure TClassByResCaches.GetClass(TS : TTimeStamp; Zajecia: Integer; childId 
 var t : integer;
 begin
  childId := ExtractWord(1,childId,[';']); // get first from the list
+
+ //2018.02.22
+ if childId='' then begin
+     Status := ClassNotFound;
+     Exit;
+ end;
+
  for t := 0 to maxLength - 1 do begin
    if Data[t].childId = childId then begin
-     Data[t].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+     Data[t].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
      exit;
    end;
  end;
@@ -1851,10 +1843,10 @@ begin
    Data[position - 1].Cache.Free;
  end;
 
-   Data[position - 1].Cache := TClassByRoomCache.create;
-   Data[position - 1].Cache.LoadPeriod(PER_ID, childId);
+   Data[position - 1].Cache := TClassByChildCache.create;
+   Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM ROM_CLA WHERE ROM_ID in ');
    Data[position - 1].childId := childId;
-   Data[position - 1].Cache.GetClass(TS,Zajecia,childId,Status,Class_);
+   Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
 end;
 
 procedure TClassByResCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
@@ -2086,12 +2078,12 @@ begin
  If TabViewType.TabIndex = 2 Then BRescat0.Font.Style := BRescat0.Font.Style + [fsBold];
  If TabViewType.TabIndex = 3 Then BRescat1.Font.Style := BRescat1.Font.Style + [fsBold];
 
- If strIsEmpty(conPeriod.Text)                                    Then Begin SetButtons(False); Exit; End;
+ If isBlank(conPeriod.Text)                                    Then Begin SetButtons(False); Exit; End;
  If TabViewType.TabIndex = -1                                Then Begin SetButtons(False); Exit; End;
- If (TabViewType.TabIndex = 0) And (strIsEmpty(ConLecturer.Text)) Then Begin SetButtons(False); Exit; End;
- If (TabViewType.TabIndex = 1) And (strIsEmpty(ConGroup.Text))    Then Begin SetButtons(False); Exit; End;
- If (TabViewType.TabIndex = 2) And (strIsEmpty(conResCat0.Text))  Then Begin SetButtons(False); Exit; End;
- If (TabViewType.TabIndex = 3) And (strIsEmpty(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 0) And (isBlank(ConLecturer.Text)) Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 1) And (isBlank(ConGroup.Text))    Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 2) And (isBlank(conResCat0.Text))  Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
  Grid.Refresh;
@@ -2119,7 +2111,7 @@ Begin
 
   refreshPanels;
 
-  If strIsEmpty(conPeriod.TEXT) Then begin
+  If isBlank(conPeriod.TEXT) Then begin
     GridPanel.Visible := False;
     Exit;
   End;
@@ -2215,11 +2207,6 @@ begin
   End;
   rorL.Visible := wordCount((sender as tedit).Text, [';']) > 1;
   ShowAllAnyL.Visible       := ShowFreeTermsL.Checked       and rorL.Visible;
-
-  if rorL.Visible
-   then ConLecturer_value.Width := 409
-   else ConLecturer_value.Width := 409 + 25;
-
 end;
 
 procedure TFMain.ConGroupChange(Sender: TObject);
@@ -2234,9 +2221,6 @@ begin
   rorG.Visible := wordCount((sender as tedit).Text, [';']) > 1;
   ShowAllAnyG.Visible       := ShowFreeTermsG.Checked       and rorG.Visible;
 
-  if rorG.Visible
-   then ConGroup_value.Width := 409
-   else ConGroup_value.Width := 409 + 25;
 end;
 
 procedure TFMain.conResCat0Change(Sender: TObject);
@@ -2251,9 +2235,6 @@ begin
   rorR.Visible := wordCount((sender as tedit).Text, [';']) > 1;
   ShowAllAnyResCat0.Visible       := ShowFreeTermsR.Checked       and rorR.Visible;
 
-  if rorR.Visible
-   then conResCat0_value.Width := 409
-   else conResCat0_value.Width := 409 + 25;
 end;
 
 procedure TFMain.ConSubjectChange(Sender: TObject);
@@ -2270,9 +2251,9 @@ end;
 procedure TFMain.setPeriod;
 begin
   If CanShow Then Begin
-   if strIsEmpty(conPeriod.Text) then exit;
+   if isBlank(conPeriod.Text) then exit;
    SetVisibles;
-   If (Not strIsEmpty(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
+   If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    BRefreshClick(nil);
   End;
 end;
@@ -2280,10 +2261,10 @@ end;
 procedure TFMain.conPeriodChange(Sender: TObject);
 begin
   If CanShow Then Begin
-   if strIsEmpty(conPeriod.Text) then exit;
+   if isBlank(conPeriod.Text) then exit;
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
    SetVisibles;
-   If (Not strIsEmpty(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
+   If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
    BRefreshClick(nil);
   End;
@@ -2291,21 +2272,21 @@ end;
 
 Procedure TFMain.SetVisibles;
 Begin
-  LprofileObjectNameL.Visible    := not strIsEmpty(conPeriod.Text);
-  ConLecturer_value.Visible      := not strIsEmpty(conPeriod.Text);
-  SelectL.Visible                := not strIsEmpty(conPeriod.Text);
-  LprofileObjectNameG.Visible    := not strIsEmpty(conPeriod.Text);
-  ConGroup_value.Visible         := not strIsEmpty(conPeriod.Text);
-  SelectG.Visible                := not strIsEmpty(conPeriod.Text);
-  BRescat0.Visible               := not strIsEmpty(conPeriod.Text);
-  conResCat0_value.Visible       := not strIsEmpty(conPeriod.Text);
-  SelectR.Visible                := not strIsEmpty(conPeriod.Text);
-  LprofileObjectNameC1.Visible   := not strIsEmpty(conPeriod.Text);
-  ConSubject_value.Visible       := not strIsEmpty(conPeriod.Text);
-  //BitBtnSUB.Visible              := not strIsEmpty(conPeriod.Text);
-  FcellLayout.Coloring.Visible     := not strIsEmpty(conPeriod.Text);
-  FcellLayout.selectFill.Visible   := not strIsEmpty(conPeriod.Text);
-  FcellLayout.DESCRIPTIONS.Visible := not strIsEmpty(conPeriod.Text);
+  LprofileObjectNameL.Visible    := not isBlank(conPeriod.Text);
+  ConLecturer_value.Visible      := not isBlank(conPeriod.Text);
+  SelectL.Visible                := not isBlank(conPeriod.Text);
+  LprofileObjectNameG.Visible    := not isBlank(conPeriod.Text);
+  ConGroup_value.Visible         := not isBlank(conPeriod.Text);
+  SelectG.Visible                := not isBlank(conPeriod.Text);
+  BRescat0.Visible               := not isBlank(conPeriod.Text);
+  conResCat0_value.Visible       := not isBlank(conPeriod.Text);
+  SelectR.Visible                := not isBlank(conPeriod.Text);
+  LprofileObjectNameC1.Visible   := not isBlank(conPeriod.Text);
+  ConSubject_value.Visible       := not isBlank(conPeriod.Text);
+  //BitBtnSUB.Visible              := not isBlank(conPeriod.Text);
+  FcellLayout.Coloring.Visible     := not isBlank(conPeriod.Text);
+  FcellLayout.selectFill.Visible   := not isBlank(conPeriod.Text);
+  FcellLayout.DESCRIPTIONS.Visible := not isBlank(conPeriod.Text);
 End;
 
 procedure TFMain.zoomInClick(Sender: TObject);
@@ -2621,10 +2602,10 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                  //------------------------------------------------------
                  procedure DrawDesc;
                  begin
-                   if code = 'DESC1' then begin if not strIsEmpty(Class_.desc1) then Colors[0] := clRed else Colors[0] := clSilver; end;
-                   if code = 'DESC2' then begin if not strIsEmpty(Class_.desc2) then Colors[0] := clRed else Colors[0] := clSilver; end;
-                   if code = 'DESC3' then begin if not strIsEmpty(Class_.desc3) then Colors[0] := clRed else Colors[0] := clSilver; end;
-                   if code = 'DESC4' then begin if not strIsEmpty(Class_.desc4) then Colors[0] := clRed else Colors[0] := clSilver; end;
+                   if code = 'DESC1' then begin if not isBlank(Class_.desc1) then Colors[0] := clRed else Colors[0] := clSilver; end;
+                   if code = 'DESC2' then begin if not isBlank(Class_.desc2) then Colors[0] := clRed else Colors[0] := clSilver; end;
+                   if code = 'DESC3' then begin if not isBlank(Class_.desc3) then Colors[0] := clRed else Colors[0] := clSilver; end;
+                   if code = 'DESC4' then begin if not isBlank(Class_.desc4) then Colors[0] := clRed else Colors[0] := clSilver; end;
                    Generic(1, Colors);
                  end;
 
@@ -2717,14 +2698,14 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       if code = 'ALL_RES'    then DrawR         else DrawR;
 
       if DrawSuppressionS.Checked then
-      if not strIsEmpty(CONSUBJECT.Text) then
+      if not isBlank(CONSUBJECT.Text) then
           if (intToStr(class_.sub_id) <> CONSUBJECT.Text) then begin
               DrawSuppressionH(originalRect);
               DrawSuppressionV(originalRect);
           end;
 
       if DrawSuppressionF.Checked then
-      if not strIsEmpty(CONFORM.Text) then
+      if not isBlank(CONFORM.Text) then
           if (intToStr(class_.for_id) <> CONFORM.Text) then begin
               DrawSuppressionH(originalRect);
               DrawSuppressionV(originalRect);
@@ -2779,7 +2760,7 @@ begin
    originalRect :=  Rect;
    If Not CanShow Then Exit;
 
-   If strIsEmpty(conPeriod.Text) Then Begin
+   If isBlank(conPeriod.Text) Then Begin
       GridPanel.Visible := False;
       Exit;
    End;
@@ -2795,8 +2776,9 @@ begin
       If TabViewType.TabIndex<4 Then BusyClasses;
 
       Case TabViewType.TabIndex Of
-       0: Begin ClassByLecturerCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);drawReservationsCalendar; End;
-       1: Begin ClassByGroupCaches.GetClass   (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,ConGroup.Text   ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
+       0: Begin ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);drawReservationsCalendar; End;
+       1: Begin ClassByGroupCaches.GetClass   (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,ConGroup.Text   ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar;
+          End;
        2: Begin ClassByRoomCaches.GetClass    (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,conResCat0.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        3: Begin ClassByResCat1Caches.GetClass (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,CONResCat1.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        4: drawReservationsCalendar;
@@ -3090,7 +3072,7 @@ begin
       fmain.CALID.Text :=  fdetails.CALID.Text;
       ignoreEvents := false;
       DModule.RefreshLookupEdit(Self, 'CALID','NAME','ROOMS','');
-      If Not strIsEmpty(conPeriod.Text) Then otherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
+      If Not isBlank(conPeriod.Text) Then otherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
       //now the OtherCalendar.IsReserved(TS, Zajecia) is available
     end;
 
@@ -3185,12 +3167,12 @@ begin
   ValidGClick(nil);
   ValidRClick(nil);
 
-  If (Not strIsEmpty(ConLecturer.Text)) And (Not strIsEmpty(conPeriod.Text)) Then ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_reloadFromDatbase);
-  If (Not strIsEmpty(ConGroup.Text))    And (Not strIsEmpty(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
-  If (Not strIsEmpty(conResCat0.Text))  And (Not strIsEmpty(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
-  If (Not strIsEmpty(conResCat1.Text))  And (Not strIsEmpty(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
-  If                                    Not strIsEmpty(conPeriod.Text)  Then ReservationsCache.LoadPeriod(conPeriod.Text);
-  If                                    Not strIsEmpty(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
+  If (Not isBlank(ConLecturer.Text)) And (Not isBlank(conPeriod.Text)) Then ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_reloadFromDatbase);
+  If (Not isBlank(ConGroup.Text))    And (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
+  If (Not isBlank(conResCat0.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
+  If (Not isBlank(conResCat1.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
+  If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.LoadPeriod(conPeriod.Text);
+  If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
 
   OpisujKolumneZajec.internalCreate;
@@ -3297,7 +3279,7 @@ var drawDone : boolean;
       Status : Integer;
  Procedure LecturerPanel;
  Begin
-   ClassByLecturerCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
+   ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
    Case Status Of
     ClassNotFound : ClearPanel;
     ClassFound    : DrawP(Class_);
@@ -3466,7 +3448,7 @@ begin
        For yp:=Selection.Top To Selection.Bottom Do
           If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then Begin
            Case TabViewType.TabIndex Of
-            0: ClassByLecturerCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
+            0: ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
             1: ClassByGroupCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConGroup.Text, intToStr(AObjectId)), Status, Class_);
             2: ClassByRoomCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, conResCat0.Text, intToStr(AObjectId)), Status, Class_);
             3: ClassByResCat1Caches.GetClass(TS, Zajecia, iif(AObjectId = -1, CONResCat1.Text, intToStr(AObjectId)), Status, Class_);
@@ -3540,7 +3522,7 @@ begin
  Legenda1.Checked := Legend.Down;
 end;
 
-procedure TClassByChildCache.init(PER_ID: Integer; childId: String; _SQL: String);
+procedure TClassByChildCache.ccLoadPeriod(PER_ID: Integer; childId: String; _SQL: String);
 Var t : Integer;
     DateFrom, DateTo : String;
     X, Y : Integer;
@@ -3567,7 +3549,7 @@ begin
   dInitDone := 'In progress per_id='+inttostr(PER_ID)+' childId='+childId;
 
   If (PER_ID = 0) Or (PER_ID = -1) Then Exit;
-  If (childId = '0') Or (childId = '-1') or (strIsEmpty(childId)) Then Exit;
+  If (childId = '0') Or (childId = '-1') or (isBlank(childId)) Then Exit;
 
   dPER_ID := PER_ID;
   dchildId := childId;
@@ -3613,7 +3595,13 @@ begin
    if  (t < 0) or (t >high(data)) then SError('Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
    if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: '+'1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
    else begin
+     //dGeneralDebug := 'Status='+inttostr(Data[t][y].Status) + 'day='+ dateToYYYYMMDD_HHMMSSMI(QWork.FieldByName('DAY').AsDateTime) +'hour='+ QWork.FieldByName('HOUR').AsString + ' ' + qwork.SQL.Text; //@@@@
      Data[t][y].Status := SuccStatus(Data[t][y].Status);
+     //if (Data[t][y].Status=classError) then begin
+     // info('@@@@ ERROR4 ' + dGeneralDebug);
+     // fmain.Memo1.Lines.Text := dGeneralDebug;
+     // copyToClipboard('@@@@ ERROR4 ' + dGeneralDebug);
+     // end;
      Data[t][y].Class_ := QWorkToClass;
    end;
 
@@ -3624,22 +3612,6 @@ begin
   dHighData := high(data);
   dInitDone := 'Y';
 end;
-
-procedure TClassByLecturerCache.LoadPeriod(PER_ID: Integer; childId : String);
-Begin
- init(PER_ID,  childId, 'SELECT CLA_ID FROM LEC_CLA WHERE LEC_ID in ');
-End;
-
-procedure TClassByGroupCache.LoadPeriod(PER_ID : Integer; childId : String);
-Begin
- dgper_id := PER_ID;
- init(PER_ID,  childId, 'SELECT CLA_ID FROM GRO_CLA WHERE GRO_ID in ');
-End;
-
-procedure TClassByRoomCache.LoadPeriod(PER_ID : Integer; childId : String);
-Begin
- init(PER_ID,  childId, 'SELECT CLA_ID FROM ROM_CLA WHERE ROM_ID in ');
-End;
 
 procedure TFMain.buildMenu;
  var item : tMenuItem;
@@ -3675,10 +3647,10 @@ procedure TFMain.buildMenu;
          AddObject('Utworzy³'  , TString.Create('CREATED_BY'));
          AddObject(fprogramSettings.profileObjectNameClass.Text , TString.Create('CLASS')     );
          //red color for description
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(1)) then AddObject(FProgramSettings.getClassDescPlural(1), TString.Create('DESC1') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(2)) then AddObject(FProgramSettings.getClassDescPlural(2), TString.Create('DESC2') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(3)) then AddObject(FProgramSettings.getClassDescPlural(3), TString.Create('DESC3') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(4)) then AddObject(FProgramSettings.getClassDescPlural(4), TString.Create('DESC4') );
+         if not isBlank(FProgramSettings.getClassDescPlural(1)) then AddObject(FProgramSettings.getClassDescPlural(1), TString.Create('DESC1') );
+         if not isBlank(FProgramSettings.getClassDescPlural(2)) then AddObject(FProgramSettings.getClassDescPlural(2), TString.Create('DESC2') );
+         if not isBlank(FProgramSettings.getClassDescPlural(3)) then AddObject(FProgramSettings.getClassDescPlural(3), TString.Create('DESC3') );
+         if not isBlank(FProgramSettings.getClassDescPlural(4)) then AddObject(FProgramSettings.getClassDescPlural(4), TString.Create('DESC4') );
          AddObject('Zasoby - wszystkie', TString.Create('ALL_RES')      );
          AddObject('Brak'      , TString.Create('NONE')      );
        end;
@@ -3719,10 +3691,10 @@ procedure TFMain.buildMenu;
          AddObject('W³aœciciel'        , TString.Create('OWNER')     );
          AddObject('Zasoby - wszystkie', TString.Create('ALL_RES')   );
          AddObject('Brak'              , TString.Create('NONE')      );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(1)) then AddObject(FProgramSettings.getClassDescPlural(1), TString.Create('DESC1') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(2)) then AddObject(FProgramSettings.getClassDescPlural(2), TString.Create('DESC2') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(3)) then AddObject(FProgramSettings.getClassDescPlural(3), TString.Create('DESC3') );
-         if not strIsEmpty(FProgramSettings.getClassDescPlural(4)) then AddObject(FProgramSettings.getClassDescPlural(4), TString.Create('DESC4') );
+         if not isBlank(FProgramSettings.getClassDescPlural(1)) then AddObject(FProgramSettings.getClassDescPlural(1), TString.Create('DESC1') );
+         if not isBlank(FProgramSettings.getClassDescPlural(2)) then AddObject(FProgramSettings.getClassDescPlural(2), TString.Create('DESC2') );
+         if not isBlank(FProgramSettings.getClassDescPlural(3)) then AddObject(FProgramSettings.getClassDescPlural(3), TString.Create('DESC3') );
+         if not isBlank(FProgramSettings.getClassDescPlural(4)) then AddObject(FProgramSettings.getClassDescPlural(4), TString.Create('DESC4') );
        end;
 
        if tmp+1 > pcombobox.Items.Count then pcombobox.ItemIndex := -1
@@ -4339,7 +4311,7 @@ begin
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
   dmodule.loadMap('select name,(select name from planners x where id=planners.parent_id) from planners', MapPlannerSupervisors, true);
 
-  if not strIsEmpty(confineCalendarId) then begin
+  if not isBlank(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
     TabViewType.Tabs[5]:='';
     flegend.notes_before.ReadOnly := true;
@@ -4354,7 +4326,7 @@ begin
   end;
 
 
-  If strIsEmpty(CurrentUserName) Then Begin
+  If isBlank(CurrentUserName) Then Begin
     Info('Nie masz uprawnieñ do korzystania z aplikacji - brak informacji w tabeli PLANNERS');
     Result := False;
     Exit;
@@ -4659,7 +4631,7 @@ Var  Status : Integer;
 Begin
  If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Col,Row) = ConvClass Then Begin
       Case TabViewType.TabIndex Of
-       0: ClassByLecturerCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
+       0: ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
        1: ClassByGroupCaches.GetClass   (TS, Zajecia, iif(AObjectId = -1, ConGroup.Text,    intToStr(AObjectId)), Status, Class_);
        2: ClassByRoomCaches.GetClass    (TS, Zajecia, iif(AObjectId = -1, conResCat0.Text,  intToStr(AObjectId)), Status, Class_);
        3: ClassByResCat1Caches.GetClass (TS, Zajecia, iif(AObjectId = -1, CONResCat1.Text,  intToStr(AObjectId)), Status, Class_);
@@ -5094,11 +5066,11 @@ begin
     end;
    end;
 
-   BitBtnCLEARROLE.Visible := not strIsEmpty(conRole.Text);
+   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text);
    loadFormSettings;
 
    Self.Menu := MM;
-   If Not strIsEmpty(conPeriod.Text) Then setPeriod;
+   If Not isBlank(conPeriod.Text) Then setPeriod;
    RefreshGrid;
    //BIMP.Enabled := False;
    //BEXP.Enabled := False;
@@ -5546,8 +5518,8 @@ end;
 procedure TFMain.conRoleChange(Sender: TObject);
 begin
   If CanShow Then Begin
-   if strIsEmpty(conRole.Text) then begin conRole_value.Text := ''; exit; end;
-   BitBtnCLEARROLE.Visible := not strIsEmpty(conRole.Text);
+   if isBlank(conRole.Text) then begin conRole_value.Text := ''; exit; end;
+   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text);
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
   End;
 end;
@@ -5586,7 +5558,7 @@ end;
 
 procedure TFMain.mmconsolidationClick(Sender: TObject);
 begin
-  if not strIsEmpty(confineCalendarId) then begin
+  if not isBlank(confineCalendarId) then begin
     info('Scalanie danych zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
     exit;
   end;
@@ -6597,7 +6569,7 @@ end;
 
 procedure TFMain.Kopiowaniegrupowe1Click(Sender: TObject);
 begin
-  if not strIsEmpty(confineCalendarId) then begin
+  if not isBlank(confineCalendarId) then begin
     info('Kopiowanie rozk³adów zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
     exit;
   end;
@@ -7349,7 +7321,7 @@ end;
 
 procedure TFMain.massImportClick(Sender: TObject);
 begin
-  if not strIsEmpty(confineCalendarId) then begin
+  if not isBlank(confineCalendarId) then begin
     info('Importowanie danych w arkusza Excel zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
     exit;
   end;
@@ -7484,15 +7456,15 @@ begin
    conPeriod.Text := KeyValue;
    BRefreshClick(nil);
   End else
-    if not strIsEmpty (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
+    if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
 
-   if not strIsEmpty (conPeriod.Text) then
+   if not isBlank (conPeriod.Text) then
    With DModule Do Begin
     Dmodule.SingleValue('SELECT ROL_ID FROM PERIODS WHERE ID='+conPeriod.Text);
     roleId := QWork.Fields[0].AsString;
-    if not strIsEmpty(roleId) then begin
+    if not isBlank(roleId) then begin
      roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+' AND ROL_ID = ' +roleId);
-     if strIsEmpty(roleID) then info('Nie powiod³o siê aktywowanie autoryzacji, poniewa¿ nie masz uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
+     if isBlank(roleID) then info('Nie powiod³o siê aktywowanie autoryzacji, poniewa¿ nie masz uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
                         else conRole.Text := roleID;
     end;
    end;
@@ -7967,7 +7939,7 @@ Begin
     sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
-    if strIsEmpty(confineCalendarId) then
+    if isBlank(confineCalendarId) then
     sqlString := stringreplace(sqlString, '%PERMISSIONS_C', getWhereClause('ROOMS','m'), [])
     else
     //disable calendar in search panel
@@ -8647,7 +8619,7 @@ procedure TFMain.TabViewTypeChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
   AllowChange := true;
-  if (not strIsEmpty(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
+  if (not isBlank(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
 end;
 
 

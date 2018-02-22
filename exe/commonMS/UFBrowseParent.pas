@@ -2095,7 +2095,7 @@ end;
 Procedure TFBrowseParent.showModalAsBrowser(Filter : String);
 var t, t2: integer;
 Begin
- if not strIsEmpty(filter) then ESearch.Text := '';
+ if not isBlank(filter) then ESearch.Text := '';
  If Not DModule.ADOConnection.Connected Then Begin
   SError(Komunikaty.Strings[15]);
   Exit;

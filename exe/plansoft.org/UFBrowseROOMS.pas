@@ -627,17 +627,17 @@ end;
 
 function TFBrowseROOMS.canDelete: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseROOMS.canEditPermission: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseROOMS.canInsert: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 Procedure TFBrowseROOMS.AfterPost;

@@ -1305,9 +1305,8 @@ begin
     finalize( weeklyTables );
 
     UpdStatus('');
-    If strIsEmpty(Prog) Then UUTilityParent.ExecuteFile( uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'','',SW_SHOWMAXIMIZED)
-                        Else UUTilityParent.ExecuteFile(Prog, uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'',SW_SHOWMAXIMIZED);
-
+    If isBlank(Prog) Then UUTilityParent.ExecuteFile( uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'','',SW_SHOWMAXIMIZED)
+                     Else UUTilityParent.ExecuteFile(Prog, uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'',SW_SHOWMAXIMIZED);
 
 end;
 

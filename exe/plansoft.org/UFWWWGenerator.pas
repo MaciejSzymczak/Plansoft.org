@@ -213,21 +213,21 @@ end;
 
 procedure thtmlTable.newCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
-  If strIsEmpty(S) Then S := '&nbsp';
+  If isBlank(S) Then S := '&nbsp';
   If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
                   Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 procedure thtmlTable.newCellWidth(Command, S, Color, Width : String);
 Begin
-  If strIsEmpty(S) Then S := '&nbsp';
+  If isBlank(S) Then S := '&nbsp';
   If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" WIDTH='+WIDTH+' '+Command+' BGCOLOR='+Color+'>'+S+'</TD>')
                   Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" WIDTH='+WIDTH+' '+Command+' >'+S+'</TD>')
 End;
 
 procedure thtmlTable.newHeaderCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
-  If strIsEmpty(S) Then S := '&nbsp';
+  If isBlank(S) Then S := '&nbsp';
   If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
                   Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
@@ -375,7 +375,7 @@ var DateFrom, DateTo : String;
 begin
   inherited;
   if not formPrepared then exit;
-  If strIsEmpty(currentPeriod.Text) Then Exit;
+  If isBlank(currentPeriod.Text) Then Exit;
   //info(((TControl(Sender).Name) as tedit).text);
 
    DModule.RefreshLookupEdit(Self, currentPeriod.Name ,'NAME','PERIODS','');
@@ -635,7 +635,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
     //--------------------------------------------------------
     Procedure AddCell(Command, S, Color : String);
     Begin
-    If strIsEmpty(S) Then S := '&nbsp';
+    If isBlank(S) Then S := '&nbsp';
     If Color <> '0' Then Writeln( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' BGCOLOR='+Color+'>'+S+'</TD>')
                     Else Writeln( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' >'+S+'</TD>')
     End;
@@ -706,7 +706,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
          if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
          else token := TextOutResource ( descCodes[t] );
 
-         If Not strIsEmpty(Token) Then Begin
+         If Not isBlank(Token) Then Begin
            Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
            If Bolds[t] Then Token := '<B>'+Token+'</B>';
          End;
@@ -754,10 +754,10 @@ Procedure TFWWWGenerator.CalendarToHTML(
     //--------------------------------------------------------
      procedure DrawDesc;
      begin
-       if ColoringIndex = 'DESC1' then begin if not strIsEmpty(Class_.desc1) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
-       if ColoringIndex = 'DESC2' then begin if not strIsEmpty(Class_.desc2) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
-       if ColoringIndex = 'DESC3' then begin if not strIsEmpty(Class_.desc3) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
-       if ColoringIndex = 'DESC4' then begin if not strIsEmpty(Class_.desc4) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
+       if ColoringIndex = 'DESC1' then begin if not isBlank(Class_.desc1) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
+       if ColoringIndex = 'DESC2' then begin if not isBlank(Class_.desc2) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
+       if ColoringIndex = 'DESC3' then begin if not isBlank(Class_.desc3) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
+       if ColoringIndex = 'DESC4' then begin if not isBlank(Class_.desc4) then CommonAttr[0] := clRed else CommonAttr[0] := clSilver; end;
        Common(1, CommonAttr);
      end;
 
@@ -1049,7 +1049,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
     result := t;
 
     For t := 1 To High(Lgnd) Do Begin
-     If Not strIsEmpty(Lgnd[t].Name) Then Lgnd[t].Name     := '<P align=left>'+Lgnd[t].Name+'</P>';
+     If Not isBlank(Lgnd[t].Name) Then Lgnd[t].Name     := '<P align=left>'+Lgnd[t].Name+'</P>';
     End;
     end; //RefreshLegend
 
@@ -1245,7 +1245,7 @@ begin
          if pHideDows[tmp]='-' then showLine := true
          else begin
              Case fmain.TabViewType.TabIndex Of
-              0: Begin fmain.ClassByLecturerCaches.GetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
+              0: Begin fmain.ClassByLecturerCaches.LGetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
               1: Begin fmain.ClassByGroupCaches.GetClass   (TS, Zajecia, fmain.ConGroup.Text   , Status, Class_); End;
               2: Begin fmain.ClassByRoomCaches.GetClass    (TS, Zajecia, fmain.conResCat0.Text , Status, Class_); End;
               3: Begin fmain.ClassByResCat1Caches.GetClass (TS, Zajecia, fmain.CONResCat1.Text , Status, Class_); End;
@@ -1302,7 +1302,7 @@ begin
      Begin
       //If TabSet1.TabIndex<3 Then BusyClasses;
       Case fmain.TabViewType.TabIndex Of
-       0: Begin fmain.ClassByLecturerCaches.GetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
+       0: Begin fmain.ClassByLecturerCaches.LGetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
        1: Begin fmain.ClassByGroupCaches.GetClass   (TS, Zajecia, fmain.ConGroup.Text   , Status, Class_); End;
        2: Begin fmain.ClassByRoomCaches.GetClass    (TS, Zajecia, fmain.conResCat0.Text , Status, Class_); End;
        3: Begin fmain.ClassByResCat1Caches.GetClass (TS, Zajecia, fmain.CONResCat1.Text , Status, Class_); End;
@@ -1550,7 +1550,7 @@ var t                : integer;
 
         begin
           Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.GetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
+           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
            1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
            2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
            3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
@@ -1585,7 +1585,7 @@ var t                : integer;
             Class_ : TClass_;
         begin
           Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.GetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
+           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
            1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
            2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
            3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
@@ -1607,7 +1607,7 @@ var t                : integer;
            if  code= 'ALL_RES'    then Token := presources
            else token := TextOutResource ( code, '' , Class_, presources );
 
-           if strIsEmpty(token) then token := '<Skonfiguruj ustawienia>';
+           if isBlank(token) then token := '<Skonfiguruj ustawienia>';
 
          result := token;
         end;
@@ -1619,7 +1619,7 @@ var t                : integer;
             Class_ : TClass_;
         begin
           Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.GetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
+           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
            1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
            2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
            3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
@@ -1633,10 +1633,10 @@ var t                : integer;
            if  pcolor= 'OWNER'      then Token := class_.owner_colour      else
            if  pcolor= 'CREATED_BY' then Token := class_.creator_colour else
            if  pcolor= 'NONE'       then {}                         else
-           if  pcolor= 'DESC1'      then Token := iif(strIsEmpty(Class_.desc1),clRed,clSilver)      else
-           if  pcolor= 'DESC2'      then Token := iif(strIsEmpty(Class_.desc2),clRed,clSilver)      else
-           if  pcolor= 'DESC3'      then Token := iif(strIsEmpty(Class_.desc3),clRed,clSilver)      else
-           if  pcolor= 'DESC4'      then Token := iif(strIsEmpty(Class_.desc4),clRed,clSilver)      else
+           if  pcolor= 'DESC1'      then Token := iif(isBlank(Class_.desc1),clRed,clSilver)      else
+           if  pcolor= 'DESC2'      then Token := iif(isBlank(Class_.desc2),clRed,clSilver)      else
+           if  pcolor= 'DESC3'      then Token := iif(isBlank(Class_.desc3),clRed,clSilver)      else
+           if  pcolor= 'DESC4'      then Token := iif(isBlank(Class_.desc4),clRed,clSilver)      else
            if  pcolor= 'ALL_RES'    then Token := rcolor;
 
          result := DelphiColourToHTML(token);

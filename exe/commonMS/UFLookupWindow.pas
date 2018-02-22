@@ -205,7 +205,7 @@ procedure TFLookupWindow.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   inherited;
- if (MR = mrOK) and (strIsEmpty(ADOQuery.Fields[0].AsString)) then CanClose := False;
+ if (MR = mrOK) and (isBlank(ADOQuery.Fields[0].AsString)) then CanClose := False;
 end;
 
 procedure TFLookupWindow.BFILTERExit(Sender: TObject);

@@ -117,7 +117,7 @@ begin
 
     licenseType := encGetSystemParam('licenseType');
 
-    if strIsEmpty(licenseType) then begin
+    if isBlank(licenseType) then begin
      encSetSystemParam('installMarker', intToStr(todayMarker) + ';' + UUtilityParent.GetTerminalName, 'Planowanie');
      encSetSystemParam('licenseType', '120DAYS' + ';' + UUtilityParent.GetTerminalName, 'Planowanie');
      licenseType := encGetSystemParam('licenseType');

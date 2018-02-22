@@ -98,7 +98,7 @@ Procedure unLockComponents(F : TTabSheet);
 
 Function merge(S1, S2: string; const Sep : String = '') : String;
 Function mergeStrings(Sep : String; const strings : Array Of string ) : String;
-Function strIsEmpty(S : String) : Boolean;
+Function isBlank(S : String) : Boolean;
 Function floatToAmount(K : Extended) : String;
 
 Procedure warning(S : String);
@@ -551,7 +551,7 @@ Begin
   End;
 End;
 
-Function strIsEmpty(S : String) : Boolean;
+Function isBlank(S : String) : Boolean;
 Begin
  Result := Trim(S)='';
 End;
@@ -567,29 +567,29 @@ End;
 Procedure TCheckValid.SingleRestrictEmpty(WinControl : TWinControl);
 Begin
  If WinControl is TEdit Then Begin
-  If strIsEmpty(TEdit(WinControl).Text) Then Begin
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
+  If isBlank(TEdit(WinControl).Text) Then Begin
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
                               Else addError(WinControl.Hint+' jest polem wymaganym');
     If _ActiveControl = Nil Then _ActiveControl := WinControl;
   End;
  End Else
  If WinControl is TDBEdit Then Begin
-  If strIsEmpty(TDBEdit(WinControl).Text) Then Begin
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
+  If isBlank(TDBEdit(WinControl).Text) Then Begin
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
                               Else addError(WinControl.Hint+' jest polem wymaganym');
     If _ActiveControl = Nil Then _ActiveControl := WinControl;
   End;
  End Else
  If WinControl is TDBRadioGroup Then Begin
   If TDBRadioGroup(WinControl).ItemIndex=-1 Then Begin
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
                               Else addError(WinControl.Hint+' jest polem wymaganym');
     If _ActiveControl = Nil Then _ActiveControl := WinControl;
   End;
  End Else
  If WinControl is TRxDbLookupCombo Then Begin
-  If strIsEmpty(TRxDbLookupCombo(WinControl).Value) Then Begin
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
+  If isBlank(TRxDbLookupCombo(WinControl).Value) Then Begin
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
                               Else addError(WinControl.Hint+' jest polem wymaganym');
     If _ActiveControl = Nil Then _ActiveControl := WinControl;
   End;
@@ -598,12 +598,12 @@ Begin
   Try
     TDBDateEdit(WinControl).CheckValidDate;
     If TDBDateEdit(WinControl).Date=0 Then Begin
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' jest polem wymaganym')
                               Else addError(WinControl.Hint+' jest polem wymaganym');
       If _ActiveControl = Nil Then _ActiveControl := WinControl;
     End;
   Except
-    If strIsEmpty(WinControl.Hint) Then addError(WinControl.Name+' musi zawieraæ prawid³ow¹ datê')
+    If isBlank(WinControl.Hint) Then addError(WinControl.Name+' musi zawieraæ prawid³ow¹ datê')
                               Else addError(WinControl.Hint+' musi zawieraæ prawid³ow¹ datê');
     If _ActiveControl = Nil Then _ActiveControl := WinControl;
   End;
@@ -917,7 +917,7 @@ Procedure  SetSystemParam(Name, Value : ShortString; const configurationSet : St
      appName           : string;
 Begin
 
- if strIsEmpty(configurationSet) then begin
+ if isBlank(configurationSet) then begin
    appName := lowercase ( extractFileName ( Application.ExeName ));
    appName := searchAndReplace(appName,'.exe','');
    aconfigurationSet := appName
@@ -1141,7 +1141,7 @@ Begin
  S := SearchAndReplace(S,'8','');
  S := SearchAndReplace(S,'9','');
  S := SearchAndReplace(S,DecimalSeparator,'');
- Result := strIsEmpty(S);
+ Result := isBlank(S);
 End;
 
 Function StringToValidDatabaseString(S : String) : String;

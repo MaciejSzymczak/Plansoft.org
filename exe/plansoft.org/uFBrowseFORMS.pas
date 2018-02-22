@@ -204,17 +204,17 @@ end;
 
 function TFBrowseFORMS.canDelete: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseFORMS.canEditPermission: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseFORMS.canInsert: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 Procedure TFBrowseFORMS.AfterPost;

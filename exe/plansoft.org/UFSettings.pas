@@ -309,7 +309,7 @@ begin
     Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
 
    if fileExists(tmpFileName) then begin
-       If strIsEmpty(Prog)
+       If isBlank(Prog)
            Then UUTilityParent.ExecuteFile( tmpFileName ,'','',SW_SHOWMAXIMIZED)
            Else begin
              if tmpFileName=pdfFileName then begin

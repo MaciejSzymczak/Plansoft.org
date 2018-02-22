@@ -783,24 +783,24 @@ begin
       ValidSClick(nil);
       ValidFClick(nil);
       If not notL.Checked Then Begin
-        If strIsEmpty(L_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[L_value1.Hint, fprogramsettings.profileObjectNameLgen.Text, fprogramsettings.profileObjectNameLgen.Text]));
-        If Not strIsEmpty(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
+        If isBlank(L_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[L_value1.Hint, fprogramsettings.profileObjectNameLgen.Text, fprogramsettings.profileObjectNameLgen.Text]));
+        If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
       End;
       If not notG.Checked Then Begin
-        If strIsEmpty(G_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[g_value1.Hint, fprogramsettings.profileObjectNameGgen.Text, fprogramsettings.profileObjectNameGgen.Text]));
-        If Not strIsEmpty(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
+        If isBlank(G_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[g_value1.Hint, fprogramsettings.profileObjectNameGgen.Text, fprogramsettings.profileObjectNameGgen.Text]));
+        If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
       End;
-      If not notResCat0_1.Checked Then If strIsEmpty(rescat0_1_value.TEXT) Then Begin
+      If not notResCat0_1.Checked Then If isBlank(rescat0_1_value.TEXT) Then Begin
         addError(rescat0_1_value.Hint + ' musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ sal zaznacz pole wyboru "Bez tego zasobu"');
-        If Not strIsEmpty(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
       End;
-      If not notResCat1_1.Checked Then If strIsEmpty(rescat1_1_value.TEXT) Then Begin
+      If not notResCat1_1.Checked Then If isBlank(rescat1_1_value.TEXT) Then Begin
         addError(rescat1_1_value.Hint + ' musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ zasobów zaznacz pole wyboru "Bez tego zasobu"');
-        If Not strIsEmpty(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
       End;
 
       RestrictEmpty([S_value1, F_value1 ]);
-      If strIsEmpty(FILL1.TEXT) Then addError(FILL1.Hint + ' musi zostaæ wybrane');
+      If isBlank(FILL1.TEXT) Then addError(FILL1.Hint + ' musi zostaæ wybrane');
 
       if (not notL.Checked) then begin
         stringTokenizer := TStringTokenizer.Create;
@@ -835,20 +835,20 @@ begin
       //ValidS2Click(nil);
       ValidF2Click(nil);
       If (rgReservationFor.ItemIndex = 0) Then Begin
-        If strIsEmpty(L_value2.TEXT) Then addError(L_value2.Hint + ' musi zostaæ wybrane');
-        If Not strIsEmpty(L2.TEXT) Then If Not HasPermissionL(L2.TEXT) Then AddError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
+        If isBlank(L_value2.TEXT) Then addError(L_value2.Hint + ' musi zostaæ wybrane');
+        If Not isBlank(L2.TEXT) Then If Not HasPermissionL(L2.TEXT) Then AddError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
       End;
       If (rgReservationFor.ItemIndex = 1) Then Begin
-        If strIsEmpty(g_value2.TEXT) Then addError(g_value2.Hint + ' musi zostaæ wybrane');
-        If Not strIsEmpty(G2.TEXT) Then If Not HasPermissionG(G2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
+        If isBlank(g_value2.TEXT) Then addError(g_value2.Hint + ' musi zostaæ wybrane');
+        If Not isBlank(G2.TEXT) Then If Not HasPermissionG(G2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
       End;
       If (rgReservationFor.ItemIndex = 2) Then Begin
-        If strIsEmpty(rescat0_2_value.TEXT) Then addError(rescat0_2_value.Hint + ' musi zostaæ wybrane');
-        If Not strIsEmpty(rescat0_2.TEXT) Then If Not HasPermissionR(rescat0_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If isBlank(rescat0_2_value.TEXT) Then addError(rescat0_2_value.Hint + ' musi zostaæ wybrane');
+        If Not isBlank(rescat0_2.TEXT) Then If Not HasPermissionR(rescat0_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
       End;
       If (rgReservationFor.ItemIndex = 3) Then Begin
-        If strIsEmpty(rescat1_2_value.TEXT) Then addError(rescat1_2_value.Hint + ' musi zostaæ wybrane');
-        If Not strIsEmpty(rescat1_2.TEXT) Then If Not HasPermissionR(rescat1_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If isBlank(rescat1_2_value.TEXT) Then addError(rescat1_2_value.Hint + ' musi zostaæ wybrane');
+        If Not isBlank(rescat1_2.TEXT) Then If Not HasPermissionR(rescat1_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
       End;
       RestrictEmpty([F_value2]);
 
@@ -1010,10 +1010,10 @@ begin
     Owner_.ReadOnly     := true;
   End;
 
-  notL.Checked := strIsEmpty(L1.Text);
-  notG.Checked := strIsEmpty(G1.Text);
-  notResCat0_1.Checked := strIsEmpty(resCat0_1.Text);
-  notResCat1_1.Checked := strIsEmpty(resCat1_1.Text);
+  notL.Checked := isBlank(L1.Text);
+  notG.Checked := isBlank(G1.Text);
+  notResCat0_1.Checked := isBlank(resCat0_1.Text);
+  notResCat1_1.Checked := isBlank(resCat1_1.Text);
   rgReservationForClick(nil);
   CWeeksChange(nil);
   formChange('formShow');
@@ -1732,7 +1732,7 @@ end;
 procedure TFDetails.CALIDChange(Sender: TObject);
 begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-  BClearCal.Visible := not strIsEmpty(TEdit(Sender).Text);
+  BClearCal.Visible := not isBlank(TEdit(Sender).Text);
   CWeeksChange(nil);
 end;
 

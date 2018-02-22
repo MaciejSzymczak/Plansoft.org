@@ -237,17 +237,17 @@ end;
 
 function TFBrowseSUBJECTS.canDelete: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseSUBJECTS.canEditPermission: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseSUBJECTS.canInsert: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 Procedure TFBrowseSUBJECTS.AfterPost;

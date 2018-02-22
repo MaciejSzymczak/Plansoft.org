@@ -57,7 +57,7 @@ end;
 procedure TFImp.BitBtn1Click(Sender: TObject);
 begin
   inherited;
-  If strIsEmpty(EFilename.Text) Then Begin
+  If isBlank(EFilename.Text) Then Begin
     Info('Wybierz plik do zaimportowania');
     Exit;
   End;

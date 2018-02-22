@@ -257,7 +257,7 @@ function getWhereClause : string;
  var days : string;
      whereClause : string;
 begin
-    if not strIsEmpty(fmain.CONPERIOD.Text) then begin
+    if not isBlank(fmain.CONPERIOD.Text) then begin
       days := '';
       whereClause :=
         'CLA.DAY BETWEEN ' + fmain.PeriodDateFromSQL + ' AND ' + fmain.PeriodDateToSQL + CR;
@@ -274,7 +274,7 @@ begin
 
         whereClause := merge(whereClause, 'CLA.HOUR <=' + QWork.Fields[7].AsString, ' AND ');
       end;
-      if not strIsEmpty(days) then whereClause := merge(whereClause, 'TO_CHAR(CLA.DAY,''D'') IN ('+days+')', ' AND ');
+      if not isBlank(days) then whereClause := merge(whereClause, 'TO_CHAR(CLA.DAY,''D'') IN ('+days+')', ' AND ');
     end else whereClause := '0=0';
     result :=  '(' + whereClause + ')';
 end;
@@ -675,7 +675,7 @@ begin
     iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from gro_cla where '+getwhereClause+' and gro_id='+ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';'])+')','') + CR +
     iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+getwhereClause+' and rom_id='+ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';'])+')','') + CR +
     iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+getwhereClause+' and rom_id='+ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';'])+')','') + CR +
-    iif ( SelectedSubOnly.Checked, iif( not strIsEmpty(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
+    iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
     'ORDER BY '+orderByClause+

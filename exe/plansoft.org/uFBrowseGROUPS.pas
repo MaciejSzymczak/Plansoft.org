@@ -618,17 +618,17 @@ end;
 
 function TFBrowseGROUPS.canDelete: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseGROUPS.canEditPermission: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 function TFBrowseGROUPS.canInsert: Boolean;
 begin
- result := strIsEmpty(confineCalendarId);
+ result := isBlank(confineCalendarId);
 end;
 
 Procedure TFBrowseGROUPS.AfterPost;
