@@ -3,7 +3,7 @@ inherited FMain: TFMain
   Top = 50
   Width = 1928
   Height = 1038
-  Caption = 'Plansoft.org                            (ver. 2018.02.22)'
+  Caption = 'Plansoft.org                            (ver. 2018.04.21)'
   KeyPreview = True
   Menu = MM
   ShowHint = True
@@ -6476,9 +6476,57 @@ inherited FMain: TFMain
         'end;'
         '### EXTENTION END'
         ''
+        ''
+        '### EXTENTION BEGIN'
+        '### EXTENTION NAME:RESOURCES.locked_by'
+        '### DATE:2018.04.21'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'PERIODS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.lecturers add ' +
+          '( locked_by varchar2(30), locked_reason varchar2(255), locked_da' +
+          'te date )'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.groups add ( l' +
+          'ocked_by varchar2(30), locked_reason varchar2(255), locked_date ' +
+          'date )'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.rooms add ( lo' +
+          'cked_by varchar2(30), locked_reason varchar2(255), locked_date d' +
+          'ate )'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.lecturers_hist' +
+          'ory add ( locked_by varchar2(30), locked_reason varchar2(255), l' +
+          'ocked_date date )'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.groups_history' +
+          ' add ( locked_by varchar2(30), locked_reason varchar2(255), lock' +
+          'ed_date date )'#39';'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.rooms_history ' +
+          'add ( locked_by varchar2(30), locked_reason varchar2(255), locke' +
+          'd_date date )'#39';'
+        
+          '   execute immediate '#39'CREATE OR REPLACE FORCE VIEW RESOURCES (ID' +
+          ', NAME, LOCKED_BY, locked_reason, locked_date) AS select id, nam' +
+          'e, LOCKED_BY, locked_reason, locked_date from rooms union select' +
+          ' id, abbreviation||'#39#39' '#39#39'||name, LOCKED_BY, locked_reason, locked' +
+          '_date from groups union select id, title||'#39#39' '#39#39'||last_name||'#39#39' '#39 +
+          #39'||first_name, LOCKED_BY, locked_reason, locked_date from lectur' +
+          'ers'#39';'
+        '  exception when others then raise;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        ''
         '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2017.12.01'
+        '### DATE:2018.04.22'
         'begin'
         ' --your next extention here'
         ' --notes:'

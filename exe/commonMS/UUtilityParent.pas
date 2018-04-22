@@ -1165,6 +1165,7 @@ Begin
  Result := SearchAndReplace(Result,'>','');
  Result := SearchAndReplace(Result,'|','');
  Result := SearchAndReplace(Result,' ','_');
+ Result := SearchAndReplace(Result,#9,'');
 End;
 
 Function StrToTime(S : ShortString) : TDateTime;

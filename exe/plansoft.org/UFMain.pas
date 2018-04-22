@@ -1010,6 +1010,7 @@ type
     MouseOverLeftPanel : boolean;
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
+    function  getCurrentObjectType : string;
 
     procedure refreshLegend;
     Procedure buildCalendar(triggeredObject : String);
@@ -5047,6 +5048,7 @@ procedure TFMain.BLoginClick(Sender: TObject);
 var  db_version_info  : string[255];
      app_version_info : string[255];
 begin
+ dmodule.CommitTrans;
  If Logon Then
  Begin
    UnLockFormComponents(Self);
@@ -6856,6 +6858,21 @@ begin
   end;
   result := res;
 end;
+
+function TFMain.getCurrentObjectType : string;
+ var res : string;
+begin
+  if BViewByCrossTable.Down then begin result := '**none**'; exit; end;
+  res := '**none**';
+  Case TabViewType.TabIndex Of
+   0: res := 'lecturers';
+   1: res := 'groups';
+   2: res := 'rooms';
+   3: res := 'rooms';
+  end;
+  result := res;
+end;
+
 
 procedure TFMain.Przej1Click(Sender: TObject);
 begin

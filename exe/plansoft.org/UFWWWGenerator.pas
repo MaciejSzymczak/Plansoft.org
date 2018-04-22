@@ -1669,8 +1669,15 @@ var t                : integer;
             for t := 0 to presourceList.Count - 1 do begin
               if presourceList.Checked[t] then begin
 
-                AssignFile(outf, Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
-                Rewrite(outf);
+                try
+                  AssignFile(outf, Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
+                  Rewrite(outf);
+                except
+                    on E:exception do begin
+                     CopyToClipboard( Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
+                     raise;
+                    end;
+                end;
                 recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
 
                 with q do begin

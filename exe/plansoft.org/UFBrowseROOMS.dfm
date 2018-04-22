@@ -13,7 +13,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1127
     Height = 631
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1091
@@ -71,6 +70,27 @@ inherited FBrowseROOMS: TFBrowseROOMS
             Expanded = False
             FieldName = 'OUCODE'
             Title.Caption = 'Kod struktury jedn.org.'
+            Width = 134
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'LOCKED_BY'
+            Title.Caption = 'Zablokowany'
+            Width = 134
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'LOCKED_DATE'
+            Title.Caption = 'Zablokowany do'
+            Width = 134
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'LOCKED_REASON'
+            Title.Caption = 'Przyczyna blokady'
             Width = 134
             Visible = True
           end
@@ -486,7 +506,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Width = 105
           Height = 25
           Anchors = [akRight, akBottom]
-          Caption = 'Narz'#281'dzia'
+          Caption = 'Narzêdzia'
           TabOrder = 5
           OnClick = btoolsClick
           Glyph.Data = {
@@ -673,7 +693,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Width = 524
                 Height = 24
                 Align = alTop
-                Caption = 'Zasoby nadrz'#281'dne'
+                Caption = 'Zasoby nadrzêdne'
                 TabOrder = 0
               end
               object Panel4: TPanel
@@ -688,7 +708,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj nadrz'#281'dny'
+                  Caption = 'Dodaj nadrzêdny'
                   TabOrder = 0
                   OnClick = xflexClick
                   Glyph.Data = {
@@ -739,7 +759,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 57
                   Height = 25
-                  Caption = 'Usu'#324
+                  Caption = 'Usuñ'
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
@@ -878,7 +898,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Width = 524
                 Height = 16
                 Align = alTop
-                Caption = 'Zasoby podrz'#281'dne'
+                Caption = 'Zasoby podrzêdne'
                 TabOrder = 0
               end
               object Panel3: TPanel
@@ -893,7 +913,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj podrz'#281'dny'
+                  Caption = 'Dodaj podrzêdny'
                   TabOrder = 0
                   OnClick = AddDetailClick
                   Glyph.Data = {
@@ -944,7 +964,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 65
                   Height = 25
-                  Caption = 'Usu'#324
+                  Caption = 'Usuñ'
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
@@ -1196,7 +1216,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Width = 1119
         TabOrder = 6
         inherited BUpdChild1: TBitBtn
-          Caption = 'Zaj'#281'cia'
+          Caption = 'Zajêcia'
           Visible = True
         end
         inherited BUpdChild2: TBitBtn
@@ -1204,7 +1224,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Visible = True
         end
         inherited BUpdChild3: TBitBtn
-          Caption = 'Dost'#281'p'
+          Caption = 'Dostêp'
           Visible = True
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -1863,7 +1883,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       end>
     SQL.Strings = (
       
-        'select id,level, to_char( substr('#39'                    '#39',1,level*' +
+        'select id,level, to_char( substr(''                    '',1,level*' +
         '3) || child_dsp ) name'
       '  from str_elems_v'
       '  where STR_NAME_LOV=:STR_NAME_LOV1'
@@ -1886,7 +1906,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       OnClick = Scalaj1Click
     end
     object UtwrzmapGooglezzasobami1: TMenuItem
-      Caption = 'Utw'#243'rz map'#281' Google z zasobami'
+      Caption = 'Utwórz mapê Google z zasobami'
       OnClick = UtwrzmapGooglezzasobami1Click
     end
   end
