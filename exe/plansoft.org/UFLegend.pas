@@ -7,7 +7,7 @@ uses
   UFormConfig, StdCtrls, Buttons, ExtCtrls, Db, DBTables, Grids, DBGrids,
   ComCtrls, uutilityParent, ADODB, Menus,
   {used by export to excel} ActiveX, TlHelp32, OleServer,ExcelXP, Variants,
-  ImgList, CheckLst, DBCtrls, Mask, ToolEdit, Dateutils;
+  ImgList, CheckLst, DBCtrls, Mask, ToolEdit, Dateutils, UCommon;
 
 type
   TFLegend = class(TFormConfig)
@@ -95,11 +95,10 @@ type
     Label4: TLabel;
     LockTimeTable: TButton;
     UnlockTimeTable: TButton;
-    elocked_by: TEdit;
-    locked_date: TDateEdit;
-    Label5: TLabel;
-    locked_reason: TEdit;
     Label6: TLabel;
+    locked_by: TDBEdit;
+    locked_reason: TDBEdit;
+    SelectAnotherLocker: TBitBtn;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -152,6 +151,8 @@ type
     procedure LockTimeTableClick(Sender: TObject);
     procedure UnlockTimeTableClick(Sender: TObject);
     procedure locked_reasonExit(Sender: TObject);
+    procedure SelectAnotherLockerClick(Sender: TObject);
+    procedure locked_byExit(Sender: TObject);
   private
     gridsFontSize : integer;
     refreshAllowed : boolean;
@@ -703,7 +704,7 @@ begin
     dmodule.resetConnection ( QueryTimetableNotes );
     dmodule.openSQL(
          QueryTimetableNotes
-         ,'select id, per_id, res_id, notes_before, notes_after, internal_notes from timetable_notes where per_id=:per_id and res_id=:res_id' ,
+         ,'select id, per_id, res_id, notes_before, notes_after, internal_notes, locked_by, locked_reason from timetable_notes where per_id=:per_id and res_id=:res_id' ,
          'per_id='+ fmain.conPeriod.Text+
          ';res_id='+ intToStr(fmain.getCurrentObjectId)
          );
@@ -716,22 +717,8 @@ begin
       end;
     End;
 
-   if GroupBoxLock.Visible then begin
-     elocked_by.Text := dmodule.SingleValue('select locked_by, locked_reason, locked_date from '+fmain.getCurrentObjectType+' where id=:id','id='+ intToStr(fmain.getCurrentObjectId));
-     locked_reason.Text := dmodule.QWork.Fields[1].AsString;
-     locked_date.Date := dmodule.QWork.Fields[2].AsDateTime;
-
-     //unlock after locked_date
-     if (elocked_by.text<>'') and (locked_date.Date < now) then begin
-         dmodule.SQL('update '+fmain.getCurrentObjectType+' set locked_by=null, locked_reason=null, locked_date=null where id=:id'
-       ,'id='+inttostr(fmain.getCurrentObjectId));
-       elocked_by.Text := '';
-       locked_reason.Text := '';
-       locked_date.Clear;
-     end;
-
+   if GroupBoxLock.Visible then
      RefreshLockButtons;
-   end;
   end;
 
 
@@ -1288,45 +1275,90 @@ end;
 
 procedure TFLegend.RefreshLockButtons;
 Begin
-  LockTimeTable.Visible := elocked_by.text='';
-  UnlockTimeTable.Visible := elocked_by.text = currentUsername;
-  locked_date.ReadOnly := elocked_by.text<>'';
-  locked_reason.ReadOnly := elocked_by.text<>'';
+  LockTimeTable.Visible := locked_by.text='';
+  UnlockTimeTable.Visible := inStr(';'+locked_by.text,';'+currentUsername)<>0;
+  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0);
+  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0);
   if locked_reason.ReadOnly then locked_reason.Color := clBtnFace else locked_reason.Color := clWindow;
-  if locked_date.ReadOnly then locked_date.Color := clBtnFace else locked_date.Color := clWindow;
+  if locked_by.ReadOnly then locked_by.Color := clBtnFace else locked_by.Color := clWindow;
+  SelectAnotherLocker.Visible := not locked_by.ReadOnly;
 End;
 
 procedure TFLegend.LockTimeTableClick(Sender: TObject);
 begin
-    if ((locked_reason.text='') or (DateUtils.YearOf(locked_date.Date)=1899)) then begin
-      info('Podaj przyczynê i datê obowi¹zywania blokady');
+    if locked_reason.text='' then begin
+      info('Podaj powód blokady');
       exit;
     end;
 
-    if locked_date.Date < now then begin
-      info('Podaj datê obowi¹zywania blokady w przysz³oœci');
-      exit;
-    end;
+   if dm.dmodule.ADOConnection.Connected then
+      If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
 
-    dmodule.SQL('update '+fmain.getCurrentObjectType+' set locked_by=:locked_by, locked_reason=:locked_reason, locked_date='+DateTimeToOracle(locked_date.Date)+' where id=:id'
-      ,'locked_by='+currentUsername+
-      ';id='+inttostr(fmain.getCurrentObjectId)+
-      ';locked_reason='+locked_reason.text
-      );
-    BRefreshClick(nil);
+    QueryTimetableNotes['locked_by'] := currentUsername;
+    RefreshLockButtons;
 end;
 
 procedure TFLegend.UnlockTimeTableClick(Sender: TObject);
 begin
-  dmodule.SQL('update '+fmain.getCurrentObjectType+' set locked_by=null, locked_reason=null, locked_date=null where id=:id'
-     ,'id='+inttostr(fmain.getCurrentObjectId));
-  BRefreshClick(nil);
+   if dm.dmodule.ADOConnection.Connected then
+      If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
+
+  QueryTimetableNotes['locked_by'] := '';
+  QueryTimetableNotes['locked_reason'] := '';
+  RefreshLockButtons;
 end;
 
 procedure TFLegend.locked_reasonExit(Sender: TObject);
 begin
-  if ((LockTimeTable.Visible) and (locked_reason.text<>'') and (locked_date.Date > now)) then
-      LockTimeTableClick (nil);
+ if   (QueryTimetableNotes.FieldByName('locked_reason').AsString<>'')
+  and (QueryTimetableNotes.State = dsEdit)
+  and (QueryTimetableNotes.FieldByName('locked_by').AsString='')
+ then LockTimeTableClick(nil);
+end;
+
+procedure TFLegend.SelectAnotherLockerClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  if locked_reason.text='' then begin
+    info('Podaj powód blokady');
+    exit;
+  end;
+
+  KeyValue := '';
+  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
+    if ExistsValue(QueryTimetableNotes.FieldByName('locked_by').AsString, [';'], KeyValue)
+      then //
+      else begin
+        if dm.dmodule.ADOConnection.Connected then
+          If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
+        QueryTimetableNotes['locked_by'] := Merge(QueryTimetableNotes.FieldByName('locked_by').AsString, KeyValue, ';');
+        RefreshLockButtons;
+      end;
+  End;
+end;
+procedure TFLegend.locked_byExit(Sender: TObject);
+Var Values, IDs : String;
+begin
+  if (locked_reason.text='') and (QueryTimetableNotes.FieldByName('locked_by').AsString<>'') then begin
+    if dm.dmodule.ADOConnection.Connected then
+      If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
+    QueryTimetableNotes['locked_by'] := '';
+    info('Podaj powód blokady');
+    exit;
+  end;
+
+ Values := QueryTimetableNotes.FieldByName('locked_by').AsString;
+ ValidValues('PLANNERS',Values,'NAME',IDs);
+
+ if values <> QueryTimetableNotes.FieldByName('locked_by').AsString then
+ begin
+   if dm.dmodule.ADOConnection.Connected then
+     If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
+   QueryTimetableNotes['locked_by'] := Values;
+ end;
+
+ RefreshLockButtons;
 end;
 
 end.

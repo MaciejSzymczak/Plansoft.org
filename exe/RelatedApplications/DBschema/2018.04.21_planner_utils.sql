@@ -8,12 +8,25 @@ alter table classes_h_temp modify (calc_groups varchar2(500))
 alter table classes_h_temp modify (calc_rooms varchar2(500));
 alter table classes_h_temp modify (calc_lecturers varchar2(500));
 
+--errors if any can be ignored here
+alter table planner.lecturers drop ( locked_by , locked_reason , locked_date  );
+alter table planner.groups drop ( locked_by , locked_reason , locked_date  );
+alter table planner.rooms drop ( locked_by , locked_reason , locked_date  );
+alter table planner.lecturers_history drop ( locked_by , locked_reason , locked_date  );
+alter table planner.groups_history drop ( locked_by , locked_reason , locked_date  );
+alter table planner.rooms_history drop ( locked_by , locked_reason , locked_date  );
+CREATE OR REPLACE FORCE VIEW RESOURCES 
+AS select id, name from rooms 
+union select id, abbreviation||' '||name from groups 
+union select id, title||' '||last_name||' '||first_name from lecturers;
+
 connect sys;
 
 grant alter system to planner;
 grant select on sys.GV_$SESSION to planner;
 
 connect planner;
+
 
 create or replace package planner_utils is
 
@@ -126,15 +139,15 @@ create or replace package planner_utils is
   procedure delete_class ( pid number ); 
 
   /*
-   funkcja zwraca wartosc wsp車lczynnika dla zajecia wyliczonego za pomoca odnalezionej formuly.
+   funkcja zwraca wartosc wspolczynnika dla zajecia wyliczonego za pomoca odnalezionej formuly.
    funkcja zwraca zero, jezeli wystapi blad.
    algotytm wyznaczania formuly:
    dla kazdego wykladowcy:
-     pobierz formule na dzien i wylicz wartosc formuly. podstaw liczba student車w = liczba wszystkich student車w sposr車d grup w zajeciu.
-     jezeli nie znaleziono formuly, pobierz formule dla jednostki nadrzednej. powt車rz operacje az do odnalezienia formuly lub wystapienia bledu.
-   jezeli dla poszczeg車lnych wykladowc車w wsp車lczynniki r車znia sie, w車wczas zglos blad.
+     pobierz formule na dzien i wylicz wartosc formuly. podstaw liczba studentow = liczba wszystkich studentow sposrod grup w zajeciu.
+     jezeli nie znaleziono formuly, pobierz formule dla jednostki nadrzednej. powtorz operacje az do odnalezienia formuly lub wystapienia bledu.
+   jezeli dla poszczegolnych wykladowcow wspolczynniki roznia sie, wowczas zglos blad.
 
-   w przypadku bledu funkcja zwraca wartosc 0. komunikat o bledzie odczytaj w車wczas za pomoca funkcji get_last_error. w celu diagnostyki bledu sprawdz zmienne o nazwach zaczynajacych sie od last
+   w przypadku bledu funkcja zwraca wartosc 0. komunikat o bledzie odczytaj wowczas za pomoca funkcji get_last_error. w celu diagnostyki bledu sprawdz zmienne o nazwach zaczynajacych sie od last
   */
   function get_class_coeffficient ( aid number, aform_formula_type varchar2, aday date default sysdate) return number;
   function get_last_error return varchar2;
@@ -288,7 +301,7 @@ create or replace package body planner_utils is
     b1 := nvl(pb1, to_date('1000-01-01','yyyy-mm-dd')); 
     b2 := nvl(pb2, to_date('4000-12-31','yyyy-mm-dd'));     
   
-    -- Okres czasowy (A1,A2) ma cz??? wsp車ln? z okresem czasowym (B1,B2), gdy spe?niony jest nast?puj?cy warunek logiczny:  
+    -- Okres czasowy (A1,A2) ma cz??? wspoln? z okresem czasowym (B1,B2), gdy spe?niony jest nast?puj?cy warunek logiczny:  
     if  (A1 >= B1 or A2 >= B1) and (A1 <= B2 or A2 <= B2)  then
       return 'Y';
     else
@@ -318,7 +331,7 @@ create or replace package body planner_utils is
     dest_date_to := dest_date_from + to_number(source_date_to - source_date_from);
 
     if has_common_part(source_date_from,source_date_to,dest_date_from,dest_date_to) = 'Y' then    
-      output_param_char1 := 'Okresy ?r車d?owy i docelowy nie mog? si? pokrywa?';
+      output_param_char1 := 'Okresy ?rod?owy i docelowy nie mog? si? pokrywa?';
       return;
     end if;   
   
@@ -331,7 +344,7 @@ create or replace package body planner_utils is
        from classes
        where day between dest_date_from and dest_date_to;
      if c > 0 then
-       output_param_char1 := 'Nie mo?na wykona? czynno?ci, poniewa? w obszarze docelowym s? ju? zaplanowane zaj?cia. Je?eli mimo to chcesz kontynuowa?, zezw車l na skopiowanie odznaczaj?c pole wyboru na formularzu';
+       output_param_char1 := 'Nie mo?na wykona? czynno?ci, poniewa? w obszarze docelowym s? ju? zaplanowane zaj?cia. Je?eli mimo to chcesz kontynuowa?, zezwol na skopiowanie odznaczaj?c pole wyboru na formularzu';
        return; 
      end if;
      end;  
@@ -685,39 +698,48 @@ create or replace package body planner_utils is
     begin
       for t in 1 .. xxmsz_tools.wordcount(pcalc_lec_ids, ';') loop
            for rec in (
-             select title||' '||last_name||' '||first_name name
-                  , LOCKED_BY
-                  , locked_reason, locked_date 
-               from lecturers
-              where id = xxmsz_tools.extractword(t,pcalc_lec_ids,';') 
-                and LOCKED_BY <> user 
-                and locked_date > sysdate) loop
-             raise_application_error(-20000, 'Planowanie zaj?? w terminie do '||to_char(rec.locked_date,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+                select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) name 
+                     , LOCKED_BY
+                     , locked_reason 
+                     , (select name from periods where id = timetable_notes.per_id) period_name
+                  from timetable_notes 
+                 where 0=0
+                   --time table found by pday
+                   and per_id in (select id from periods where pday between date_from and date_to)
+                   and res_id = xxmsz_tools.extractword(t,pcalc_lec_ids,';') 
+                   -- user is not the locker
+                   and instr(','||locked_by,','||user)=0                 
+                ) loop
+             raise_application_error(-20000, 'Planowanie zaj?? w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane w semestrze "'|| rec.period_name||'" przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;   
       end loop;
       for t in 1 .. xxmsz_tools.wordcount(pcalc_gro_ids, ';') loop
            for rec in (
-             select nvl(abbreviation, name) name
-                  , LOCKED_BY
-                  , locked_reason, locked_date 
-               from groups
-              where id = xxmsz_tools.extractword(t,pcalc_gro_ids,';') 
-                and LOCKED_BY <> user 
-                and locked_date > sysdate) loop
-             raise_application_error(-20000, 'Planowanie zaj?? w terminie do '||to_char(rec.locked_date,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+                select (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id) name 
+                     , LOCKED_BY
+                     , locked_reason 
+                     , (select name from periods where id = timetable_notes.per_id) period_name
+                  from timetable_notes 
+                 where per_id in (select id from periods where pday between date_from and date_to)
+                   and res_id = xxmsz_tools.extractword(t,pcalc_gro_ids,';') 
+                   and instr(','||locked_by,','||user)=0   
+                   ) loop
+             raise_application_error(-20000, 'Planowanie zaj?? w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane w semestrze "'|| rec.period_name||'" przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;   
       end loop;
       for t in 1 .. xxmsz_tools.wordcount(pcalc_rom_ids, ';') loop
            for rec in (
-             select name
-                  , LOCKED_BY
-                  , locked_reason, locked_date 
-               from rooms
-              where id = xxmsz_tools.extractword(t,pcalc_rom_ids,';') 
-                and LOCKED_BY <> user 
-                and locked_date > sysdate) loop
-             raise_application_error(-20000, 'Planowanie zaj?? w terminie do '||to_char(rec.locked_date,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
-           end loop;   
+                select (select name from rooms where id=timetable_notes.res_id) name 
+                     , LOCKED_BY
+                     , locked_reason 
+                     , (select name from periods where id = timetable_notes.per_id) period_name
+                  from timetable_notes 
+                 where per_id in (select id from periods where pday between date_from and date_to)
+                   and res_id = xxmsz_tools.extractword(t,pcalc_rom_ids,';') 
+                   and instr(','||locked_by,','||user)=0   
+                   ) loop
+             raise_application_error(-20000, 'Planowanie zaj?? w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zosta?o zablokowane w semestrze "'|| rec.period_name||'" przez u?ytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+           end loop;    
       end loop;
     end;
   ----------------------------------------------------------------------------------------  
@@ -1020,7 +1042,7 @@ create or replace package body planner_utils is
              when no_data_found then
                guard := guard + 1;
                if guard > 100 then
-                 last_error := '(02)Przekroczono dopuszczaln? liczb? zagnie?d?e里 w strukturze organizacyjnej ( 100 ). Sprawd?, czy struktura organizacyjna nie zawiera cykli';
+                 last_error := '(02)Przekroczono dopuszczaln? liczb? zagnie?d?e? w strukturze organizacyjnej ( 100 ). Sprawd?, czy struktura organizacyjna nie zawiera cykli';
                  return null;
                else
                  select parent_id
@@ -1062,9 +1084,9 @@ create or replace package body planner_utils is
 
         ffformula := replace (ffformula, 'Zaogr?glij'      , 'Round');
         --ffformula := replace (ffformula, 'Liczba_godz'     , to_char(ahours,'99999.0000') );
-        --ffformula := replace (ffformula, 'Liczba_student車w', to_char(anumber_of_peoples,'99999.0000'));
+        --ffformula := replace (ffformula, 'Liczba_studentow', to_char(anumber_of_peoples,'99999.0000'));
         ffformula := replace (ffformula, 'Liczba_godz'     , ' xxmsz_tools.strToNumber(' || to_char(ahours)             ||') ' );
-        ffformula := replace (ffformula, 'Liczba_student車w', ' xxmsz_tools.strToNumber(' || to_char(anumber_of_peoples) ||') ' );
+        ffformula := replace (ffformula, 'Liczba_studentow', ' xxmsz_tools.strToNumber(' || to_char(anumber_of_peoples) ||') ' );
         -- xxmsz_tools.strtonumber chyba niepotrzebne, przy okazji to przetestowania i ew. do usuniecia
 
         last_formula := ffformula;
@@ -1093,12 +1115,12 @@ create or replace package body planner_utils is
         where id = aid;
 
       if acalc_lecturers is null then
-        last_error := '(08)Nie mo?na wyznaczy? wsp車?czynnika, poniewa? nie okre?lono wyk?adowcy';
+        last_error := '(08)Nie mo?na wyznaczy? wspo?czynnika, poniewa? nie okre?lono wyk?adowcy';
         return 0;
       end if;
 
       if acalc_groups is null then
-        last_error := '(09)Nie mo?na wyznaczy? wsp車?czynnika, poniewa? nie okre?lono grup';
+        last_error := '(09)Nie mo?na wyznaczy? wspo?czynnika, poniewa? nie okre?lono grup';
         return 0;
       end if;
 
@@ -1108,7 +1130,7 @@ create or replace package body planner_utils is
         where id in ( select gro_id from gro_cla where cla_id = aid );
 
       if anumber_of_peoples = 0 then
-        last_error := '(10)Nie mo?na wyznaczy? wsp車?czynnika, poniewa? nie okre?lono liczno?ci grup';
+        last_error := '(10)Nie mo?na wyznaczy? wspo?czynnika, poniewa? nie okre?lono liczno?ci grup';
         return 0;
       end if;
 
@@ -1116,7 +1138,7 @@ create or replace package body planner_utils is
       last_horus             := ahours;
       last_number_of_peoples := anumber_of_peoples;
 
-      -- wyznacz wsp車?czynnik dla ka?dego wyk?adowcy
+      -- wyznacz wspo?czynnik dla ka?dego wyk?adowcy
       coe := 0;
       for rec_lec in ( select lec_id from lec_cla where cla_id = aid ) loop
         prior_coe   := coe;
@@ -1127,7 +1149,7 @@ create or replace package body planner_utils is
         end if;
         if prior_coe <> 0 then
           if prior_coe <> coe then
-            last_error := '(11)Otrzymano r車?ne warto?ci wsp車?czynnika dla wyk?adowc車w prowadz?cych zaj?cie (' || prior_coe || ', '||  coe || ')';
+            last_error := '(11)Otrzymano ro?ne warto?ci wspo?czynnika dla wyk?adowcow prowadz?cych zaj?cie (' || prior_coe || ', '||  coe || ')';
             return 0;
           end if;
         end if;
@@ -1201,7 +1223,7 @@ create or replace package body planner_utils is
           and rom_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Zas車b, kt車ry probujesz scali?, zosta? u?yty przez innych planist車w. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezw車l na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planist車w"');
+         raise_application_error(-20000, 'Zasob, ktory probujesz scali?, zosta? u?yty przez innych planistow. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezwol na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planistow"');
        end if;  
       end;           
     end if;
@@ -1259,7 +1281,7 @@ create or replace package body planner_utils is
           and lec_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o wyk?adowcy, kt車re pr車bujesz scali?, zosta?y u?yte przez innych planist車w. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezw車l na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planist車w"');
+         raise_application_error(-20000, 'Dane o wyk?adowcy, ktore probujesz scali?, zosta?y u?yte przez innych planistow. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezwol na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planistow"');
        end if;  
       end;           
     end if;
@@ -1314,7 +1336,7 @@ create or replace package body planner_utils is
           and gro_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o grupie, kt車re probujesz scali?, zosta?y u?yte przez innych planist車w. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezw車l na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planist車w"');
+         raise_application_error(-20000, 'Dane o grupie, ktore probujesz scali?, zosta?y u?yte przez innych planistow. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezwol na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planistow"');
        end if;  
       end;           
     end if;
@@ -1365,7 +1387,7 @@ create or replace package body planner_utils is
         where sub_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, kt車ry probujesz scali?, zosta? u?yty przez innych planist車w. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezw車l na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planist車w"');
+         raise_application_error(-20000, 'Przedmiot, ktory probujesz scali?, zosta? u?yty przez innych planistow. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezwol na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planistow"');
        end if;  
       end;           
     end if;
@@ -1396,7 +1418,7 @@ create or replace package body planner_utils is
         where for_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, kt車ry probujesz scali?, zosta? u?yty przez innych planist車w. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezw車l na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planist車w"');
+         raise_application_error(-20000, 'Przedmiot, ktory probujesz scali?, zosta? u?yty przez innych planistow. Je?eli mimo to chcesz dokona? scalenia, zaznacz pole wyboru "Zezwol na scalanie je?eli istniej? zaj?cia zaplanowane przez innych planistow"');
        end if;  
       end;           
     end if;
@@ -1418,7 +1440,7 @@ create or replace package body planner_utils is
   function insert_str_elem ( pparent_id number, pchild_id number, pstr_name_lov varchar2 default 'STREAM') return varchar2 is
    c number;
   begin
-    if pparent_id = pchild_id then return 'Zas車b nie mo?e by? sam dla siebie podrz?dny ani nadrz?dny'; end if;
+    if pparent_id = pchild_id then return 'Zasob nie mo?e by? sam dla siebie podrz?dny ani nadrz?dny'; end if;
     --avoid cycles
     select count(*)
      into c 
@@ -1429,7 +1451,7 @@ create or replace package body planner_utils is
         connect by prior parent_id = child_id   
         start with child_id=pparent_id)
     where id_list = pchild_id;
-    if c > 0 then return 'Dodanie rekordu spowodowa?oby zap?tlenie danych. Elementem nadrz?dnym nie mo?e by? element, kt車ry ju? jest elementem podrz?dnym'; end if;
+    if c > 0 then return 'Dodanie rekordu spowodowa?oby zap?tlenie danych. Elementem nadrz?dnym nie mo?e by? element, ktory ju? jest elementem podrz?dnym'; end if;
     select count(*)
      into c 
      from
@@ -1439,7 +1461,7 @@ create or replace package body planner_utils is
         connect by prior child_id = parent_id  
         start with parent_id=pchild_id)
     where id_list = pparent_id;    
-    if c > 0 then return 'Dodanie rekordu spowodowa?oby zap?tlenie danych. Elementem podrz?dnym nie mo?e by? element, kt車ry ju? jest elementem nadrz?dnym'; end if;    
+    if c > 0 then return 'Dodanie rekordu spowodowa?oby zap?tlenie danych. Elementem podrz?dnym nie mo?e by? element, ktory ju? jest elementem nadrz?dnym'; end if;    
     begin
       insert into str_elems (id, parent_id, child_id, str_name_lov) values (main_seq.nextval, pparent_id, pchild_id,pstr_name_lov);
       return '';
