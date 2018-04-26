@@ -75,27 +75,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
           end
           item
             Expanded = False
-            FieldName = 'LOCKED_BY'
-            Title.Caption = 'Zablokowany'
-            Width = 134
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'LOCKED_DATE'
-            Title.Caption = 'Zablokowany do'
-            Width = 134
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'LOCKED_REASON'
-            Title.Caption = 'Przyczyna blokady'
-            Width = 134
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'ATTRIBS_01'
             Visible = True
           end
