@@ -15,7 +15,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
     Height = 631
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 1091
+        Left = 1087
         Top = 145
         Width = 4
         Height = 397
@@ -26,7 +26,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       end
       inherited Grid: TRxDBGrid
         Top = 145
-        Width = 1091
+        Width = 1087
         Height = 397
         Columns = <
           item
@@ -631,9 +631,9 @@ inherited FBrowseROOMS: TFBrowseROOMS
         end
       end
       object RightPage: TPageControl
-        Left = 1095
+        Left = 1091
         Top = 145
-        Width = 24
+        Width = 28
         Height = 397
         ActivePage = Hierarchy
         Align = alRight
@@ -642,7 +642,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         TabPosition = tpLeft
         OnMouseDown = RightPageMouseDown
         object Hierarchy: TTabSheet
-          Caption = 'Definiowanie hierarchii'
+          Caption = 'Zasoby zale¿ne'
           object rightPane: TPanel
             Left = 0
             Top = 0
@@ -653,7 +653,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             object Splitter2: TSplitter
               Left = 1
               Top = 186
-              Width = 526
+              Width = 248
               Height = 8
               Cursor = crVSplit
               Align = alTop
@@ -661,7 +661,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             object pparents: TPanel
               Left = 1
               Top = 25
-              Width = 526
+              Width = 248
               Height = 161
               Align = alTop
               Caption = 'pparents'
@@ -669,7 +669,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object PanelDetails: TPanel
                 Left = 1
                 Top = 1
-                Width = 524
+                Width = 246
                 Height = 24
                 Align = alTop
                 Caption = 'Zasoby nadrzêdne'
@@ -678,7 +678,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Panel4: TPanel
                 Left = 1
                 Top = 119
-                Width = 524
+                Width = 246
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -826,7 +826,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object GParents: TRxDBGrid
                 Left = 1
                 Top = 25
-                Width = 524
+                Width = 246
                 Height = 94
                 Align = alClient
                 DataSource = DSParents
@@ -851,7 +851,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                     Expanded = False
                     FieldName = 'LEVEL'
                     Title.Caption = 'Poziom'
-                    Width = 45
+                    Width = 0
                     Visible = True
                   end
                   item
@@ -866,7 +866,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             object pdetails: TPanel
               Left = 1
               Top = 194
-              Width = 526
+              Width = 248
               Height = 194
               Align = alClient
               Caption = 'pdetails'
@@ -874,7 +874,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object PanelORDERS: TPanel
                 Left = 1
                 Top = 1
-                Width = 524
+                Width = 246
                 Height = 16
                 Align = alTop
                 Caption = 'Zasoby podrzêdne'
@@ -883,7 +883,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Panel3: TPanel
                 Left = 1
                 Top = 152
-                Width = 524
+                Width = 246
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -1031,7 +1031,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object GDetails: TRxDBGrid
                 Left = 1
                 Top = 17
-                Width = 524
+                Width = 246
                 Height = 135
                 Align = alClient
                 DataSource = DSDetails
@@ -1057,7 +1057,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                     Expanded = False
                     FieldName = 'LEVEL'
                     Title.Caption = 'Poziom'
-                    Width = 45
+                    Width = 0
                     Visible = True
                   end
                   item
@@ -1072,7 +1072,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             object Panel5: TPanel
               Left = 1
               Top = 1
-              Width = 526
+              Width = 248
               Height = 24
               Align = alTop
               TabOrder = 2

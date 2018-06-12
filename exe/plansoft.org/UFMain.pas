@@ -603,6 +603,7 @@ type
     ppminusO: TMenuItem;
     Przywr1: TMenuItem;
     Odczwybranego1: TMenuItem;
+    AddDependencies: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -940,6 +941,7 @@ type
     procedure ppAddOClick(Sender: TObject);
     procedure Przywr1Click(Sender: TObject);
     procedure Odczwybranego1Click(Sender: TObject);
+    procedure AddDependenciesClick(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -5116,7 +5118,8 @@ begin
       //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text)
       //Else begin
        TabViewType.TabIndex := 0;
-       ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
+       //ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
+       ConLecturer.Text := Merge(KeyValue, ConLecturer.Text, ';');
       //end;
    end;
   End;
@@ -5137,7 +5140,8 @@ begin
       //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
       //Else begin
         TabViewType.TabIndex := 1;
-        ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
+        //ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
+        ConGroup.Text := Merge(KeyValue, ConGroup.Text, ';');
       //end;
    end;
   End;
@@ -5157,7 +5161,8 @@ begin
       //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
       //Else begin
         TabViewType.TabIndex := 3;
-        conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
+        //conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
+        conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
       //end;
    end;
   End;
@@ -5177,7 +5182,8 @@ begin
       //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
       //Else begin
         TabViewType.TabIndex := 2;
-        conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
+        //conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
+        conResCat0.Text := Merge(KeyValue, conResCat0.Text, ';');
       //end;
    end;
   End;
@@ -5237,6 +5243,7 @@ begin
   ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked and rorResCat1.Visible;
 
   RespectCompletions.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
+  AddDependencies.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
 
   If not CanShow Then exit;
   BusyClassesCache.ClearCache;
@@ -8945,6 +8952,14 @@ procedure TFMain.Odczwybranego1Click(Sender: TObject);
 begin
   if not elementEnabled('"Kilku w³aœcicieli zajêcia"','2017.10.01', false) then exit;
   deleteOwnerFromSelection(false);
+end;
+
+procedure TFMain.AddDependenciesClick(Sender: TObject);
+begin
+  ConLecturer.Text := getChildsAndParents(ConLecturer.Text, '', true);
+  ConGroup.Text := getChildsAndParents(ConGroup.Text, '', true);
+  conResCat0.Text := getChildsAndParents(conResCat0.Text, '', true);
+  conResCat1.Text := getChildsAndParents(conResCat1.Text, '', true);
 end;
 
 initialization

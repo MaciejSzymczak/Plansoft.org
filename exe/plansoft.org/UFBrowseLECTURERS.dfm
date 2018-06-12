@@ -1,9 +1,9 @@
 inherited FBrowseLECTURERS: TFBrowseLECTURERS
-  Left = 212
-  Top = 64
+  Left = 402
+  Top = 201
   Width = 894
   Height = 724
-  Caption = 'Wyk³adowcy'
+  Caption = 'Wyk'#322'adowcy'
   PixelsPerInch = 120
   TextHeight = 16
   inherited Status: TPanel
@@ -15,7 +15,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
     Height = 665
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 849
+        Left = 842
         Top = 121
         Width = 8
         Height = 455
@@ -39,13 +39,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited Grid: TRxDBGrid
         Top = 121
-        Width = 849
+        Width = 842
         Height = 455
         Columns = <
           item
             Expanded = False
             FieldName = 'ABBREVIATION'
-            Title.Caption = 'Skrót'
+            Title.Caption = 'Skr'#243't'
             Width = 51
             Visible = True
           end
@@ -59,14 +59,14 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           item
             Expanded = False
             FieldName = 'TITLE'
-            Title.Caption = 'Tytu³'
+            Title.Caption = 'Tytu'#322
             Width = 72
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'FIRST_NAME'
-            Title.Caption = 'Imiê'
+            Title.Caption = 'Imi'#281
             Width = 119
             Visible = True
           end
@@ -100,7 +100,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           item
             Expanded = False
             FieldName = 'ROLE_NAME'
-            Title.Caption = 'Przegl¹darka'
+            Title.Caption = 'Przegl'#261'darka'
             Width = 97
             Visible = True
           end
@@ -523,9 +523,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
       end
       object RightPage: TPageControl
-        Left = 857
+        Left = 850
         Top = 121
-        Width = 21
+        Width = 28
         Height = 455
         ActivePage = Hierarchy
         Align = alRight
@@ -534,7 +534,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabPosition = tpLeft
         OnMouseDown = RightPageMouseDown
         object Hierarchy: TTabSheet
-          Caption = 'Przegl¹danie hierarchii'
+          Caption = 'Wyk'#322'adowcy zale'#380'ni'
           object rightPane: TPanel
             Left = 0
             Top = 0
@@ -545,7 +545,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object Splitter2: TSplitter
               Left = 1
               Top = 186
-              Width = 448
+              Width = 248
               Height = 8
               Cursor = crVSplit
               Align = alTop
@@ -553,7 +553,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object pparents: TPanel
               Left = 1
               Top = 25
-              Width = 448
+              Width = 248
               Height = 161
               Align = alTop
               Caption = 'pparents'
@@ -561,16 +561,16 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object PanelDetails: TPanel
                 Left = 1
                 Top = 1
-                Width = 446
+                Width = 246
                 Height = 24
                 Align = alTop
-                Caption = 'Zasoby nadrzêdne'
+                Caption = 'Zasoby nadrz'#281'dne'
                 TabOrder = 0
               end
               object Panel4: TPanel
                 Left = 1
                 Top = 119
-                Width = 446
+                Width = 246
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -579,7 +579,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj nadrzêdny'
+                  Caption = 'Dodaj nadrz'#281'dny'
                   TabOrder = 0
                   OnClick = AddParentClick
                   Glyph.Data = {
@@ -630,7 +630,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   Top = 8
                   Width = 57
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
@@ -718,7 +718,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object GParents: TRxDBGrid
                 Left = 1
                 Top = 25
-                Width = 446
+                Width = 246
                 Height = 94
                 Align = alClient
                 DataSource = DSParents
@@ -748,7 +748,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                     Expanded = False
                     FieldName = 'LEVEL'
                     Title.Caption = 'Poziom'
-                    Width = 45
+                    Width = 0
                     Visible = True
                   end
                   item
@@ -763,7 +763,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object pdetails: TPanel
               Left = 1
               Top = 194
-              Width = 448
+              Width = 248
               Height = 252
               Align = alClient
               Caption = 'pdetails'
@@ -771,16 +771,16 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object PanelORDERS: TPanel
                 Left = 1
                 Top = 1
-                Width = 446
+                Width = 246
                 Height = 16
                 Align = alTop
-                Caption = 'Zasoby podrzêdne'
+                Caption = 'Zasoby podrz'#281'dne'
                 TabOrder = 0
               end
               object Panel3: TPanel
                 Left = 1
                 Top = 210
-                Width = 446
+                Width = 246
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -789,7 +789,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj podrzêdny'
+                  Caption = 'Dodaj podrz'#281'dny'
                   TabOrder = 0
                   OnClick = AddDetailClick
                   Glyph.Data = {
@@ -840,7 +840,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                   Top = 8
                   Width = 65
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
@@ -928,7 +928,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object GDetails: TRxDBGrid
                 Left = 1
                 Top = 17
-                Width = 446
+                Width = 246
                 Height = 193
                 Align = alClient
                 DataSource = DSDetails
@@ -954,7 +954,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                     Expanded = False
                     FieldName = 'LEVEL'
                     Title.Caption = 'Poziom'
-                    Width = 45
+                    Width = 0
                     Visible = True
                   end
                   item
@@ -969,7 +969,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object Panel5: TPanel
               Left = 1
               Top = 1
-              Width = 448
+              Width = 248
               Height = 24
               Align = alTop
               TabOrder = 2
@@ -1017,7 +1017,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Width = 22
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Tytu³'
+        Caption = 'Tytu'#322
         FocusControl = TITLE
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
@@ -1032,7 +1032,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Width = 25
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Skrót'
+        Caption = 'Skr'#243't'
         FocusControl = ABBREVIATION
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
@@ -1047,7 +1047,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Width = 18
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Imiê'
+        Caption = 'Imi'#281
         FocusControl = FIRST_NAME
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
@@ -1161,7 +1161,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Width = 89
         Height = 13
         Alignment = taRightJustify
-        Caption = 'przez przegl¹darkê'
+        Caption = 'przez przegl'#261'dark'#281
         FocusControl = ROL_ID
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -1176,7 +1176,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 8
         inherited BUpdChild1: TBitBtn
           Left = 88
-          Caption = 'Zajêcia'
+          Caption = 'Zaj'#281'cia'
           Visible = True
         end
         inherited BUpdChild2: TBitBtn
@@ -1186,7 +1186,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
         inherited BUpdChild3: TBitBtn
           Left = 248
-          Caption = 'Dostêp'
+          Caption = 'Dost'#281'p'
           Visible = True
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -1221,7 +1221,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Top = 80
         Width = 300
         Height = 24
-        Hint = 'TYTU£'
+        Hint = 'TYTU'#321
         DataField = 'TITLE'
         DataSource = Source
         TabOrder = 2
@@ -1231,7 +1231,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Top = 32
         Width = 300
         Height = 24
-        Hint = 'SKRÓT'
+        Hint = 'SKR'#211'T'
         DataField = 'ABBREVIATION'
         DataSource = Source
         TabOrder = 0
@@ -1241,7 +1241,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Top = 104
         Width = 300
         Height = 24
-        Hint = 'IMIÊ'
+        Hint = 'IMI'#280
         DataField = 'FIRST_NAME'
         DataSource = Source
         TabOrder = 3
@@ -1349,7 +1349,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Top = 64
         Width = 150
         Height = 24
-        Hint = 'DOMYŒLNA AUTORYZACJA'
+        Hint = 'DOMY'#346'LNA AUTORYZACJA'
         DataField = 'ROL_ID'
         DataSource = Source
         MaxLength = 10
@@ -1827,7 +1827,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end>
     SQL.Strings = (
       
-        'select id,level, to_char( substr(''                    '',1,level*' +
+        'select id,level, to_char( substr('#39'                    '#39',1,level*' +
         '3) || child_dsp ) name'
       '  from str_elems_v'
       '  where STR_NAME_LOV=:STR_NAME_LOV1'

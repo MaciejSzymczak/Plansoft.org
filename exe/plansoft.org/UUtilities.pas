@@ -208,13 +208,13 @@ sql :=
 '('+cr+
 'select parent_id id'+cr+
 '  from str_elems_v'+cr+
-'  where STR_NAME_LOV=''STREAM'''+cr+
+'  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
 '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior parent_id = child_id'+cr+
 '  start with child_id=:id1'+cr+
 'union'+cr+
 'select child_id id'+cr+
 '  from str_elems_v'+cr+
-'  where STR_NAME_LOV=''STREAM'''+cr+
+'  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
 '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
 '  start with parent_id=:id2'+cr+
 ')';

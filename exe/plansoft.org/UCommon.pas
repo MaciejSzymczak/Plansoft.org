@@ -81,17 +81,17 @@ Begin
    Token := Trim(ExtractWord(t,Values, [separator]));
    if tableName='ROOMS' then
      if pos(' ',Token)=0 then Token := Token + ' ';
-   If Not isBlank(Token) Then Begin
-                        ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') =    '''+ansiUpperCase(Token)+'''');
-     if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like '''+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
-     if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like ''%'+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
-     If Not isBlank(ID) Then Begin
-       IDs        := Merge(IDs,ID, separator);
-       TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
-     End Else Begin
-       //Info('Nie odnaleziono elementu "'+Token+'". Element zostanie usuniêty');
+     If Not isBlank(Token) Then Begin
+                            ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') =    '''+ansiUpperCase(Token)+'''');
+       if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like '''+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
+       if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like ''%'+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
+         If Not isBlank(ID) Then Begin
+         IDs        := Merge(IDs,ID, separator);
+         TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
+         End Else Begin
+         //Info('Nie odnaleziono elementu "'+Token+'". Element zostanie usuniêty');
+         End;
      End;
-   End;
  End;
  Values := TempValues;
 End;

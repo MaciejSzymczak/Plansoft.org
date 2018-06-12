@@ -3,7 +3,7 @@ inherited FMain: TFMain
   Top = 50
   Width = 1928
   Height = 1038
-  Caption = 'Plansoft.org                            (ver. 2018.04.21)'
+  Caption = 'Plansoft.org                          '
   KeyPreview = True
   Menu = MM
   ShowHint = True
@@ -3361,7 +3361,7 @@ inherited FMain: TFMain
         Height = 100
       end
       object BCopy: TSpeedButton
-        Left = 978
+        Left = 98
         Top = 6
         Width = 89
         Height = 28
@@ -3414,7 +3414,7 @@ inherited FMain: TFMain
         OnClick = BCopyClick
       end
       object BPaste: TSpeedButton
-        Left = 1070
+        Left = 190
         Top = 6
         Width = 89
         Height = 28
@@ -3986,7 +3986,7 @@ inherited FMain: TFMain
         OnClick = BSelectCombClick
       end
       object BShowCellLayout: TSpeedButton
-        Left = 887
+        Left = 7
         Top = 6
         Width = 89
         Height = 28
@@ -4055,6 +4055,16 @@ inherited FMain: TFMain
           C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
         OnClick = BShowCellLayoutClick
         OnMouseMove = BShowCellLayoutMouseMove
+      end
+      object AddDependencies: TSpeedButton
+        Left = 850
+        Top = 8
+        Width = 67
+        Height = 26
+        Hint = 'Dodaj zasoby zale'#380'ne'
+        Caption = 'Zale'#380'ne'
+        Flat = True
+        OnClick = AddDependenciesClick
       end
       object ValidResCat1: TBitBtn
         Left = 1310
@@ -4616,12 +4626,12 @@ inherited FMain: TFMain
       end
       object RespectCompletions: TCheckBox
         Tag = 67108864
-        Left = 723
+        Left = 739
         Top = 15
-        Width = 92
+        Width = 110
         Height = 19
         Hint = 'Uwzgl'#281'dniaj uzupe'#322'nianie zaj'#281'c'
-        Caption = 'uzupe'#322'nianie'
+        Caption = 'Uzupe'#322'nianie'
         TabOrder = 24
         OnClick = ShowFreeTermsLClick
       end
@@ -4756,8 +4766,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 863
-        Top = 17
+        Left = 967
+        Top = 41
         Width = 568
         Height = 111
         TabOrder = 35
@@ -10180,11 +10190,11 @@ inherited FMain: TFMain
     Font.Style = []
     Options = [fdEffects, fdNoStyleSel, fdApplyButton]
     OnApply = gridFontApply
-    Left = 1226
+    Left = 1618
     Top = 57
   end
   object XPManifest1: TXPManifest
-    Left = 1114
+    Left = 1722
     Top = 57
   end
   object thPopup: TPopupMenu
