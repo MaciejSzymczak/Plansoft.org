@@ -2270,9 +2270,8 @@ End;
 Function TFBrowseParent.showModalAsSingleRecord(Action : Integer; Var ID : ShortString) : TModalResult;
 Begin
  SingleMode := True;
- // to aviod "obiect was open"
+ // to aviod "object was open"
  dmodule.resetConnection(Query);
- flexRefreshFormView;
  Execute(Action, id);
 
  // to aviod "Nie mo¿na zmieniæ w³aœciwoœci ActiveConnection obiektu Recordset, którego Ÿród³em jest obiekt Command"
@@ -2692,6 +2691,7 @@ Try
   UnLockNotUpdatable;
  End;
 
+ flexRefreshFormView;
  BeforeEdit;
 
 Except

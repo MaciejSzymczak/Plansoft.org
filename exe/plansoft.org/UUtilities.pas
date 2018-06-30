@@ -4,7 +4,7 @@ unit UUtilities;
 
 interface
 
-Uses SysUtils, UFMain, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls;
+Uses SysUtils, UFMain, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning;
 
 Const convOutOfRange   = 0;
       ConvHeader       = 1;
@@ -563,7 +563,7 @@ Begin
   //info(inttostr(len) + ' ' +  intToStr( Date ) + ' ' + intToStr( startDate ) + ' ' + intToStr( endDate ) + ' ' + intToStr( startDate - endDate ) + ' ' + intToStr(Date - EndDate));
 
   if Len > high(ColRowDate) then begin
-    SError('1.Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len) + ' high(data)=' + intToStr(high(ColRowDate)) );
+    SError('1.Wyst¹pi³o zdarzenie "4 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len) + ' high(data)=' + intToStr(high(ColRowDate)) );
     dmodule.CloseDBConnection;
     halt;
   end;
@@ -1284,7 +1284,7 @@ Begin
     Len := Len + 1;
 
     if Len > high ( ColDate ) then begin
-      SError('2.Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len)+' hdata='+ intToStr( high(ColDate) ));
+      SError('2.Wyst¹pi³o zdarzenie "5 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len)+' hdata='+ intToStr( high(ColDate) ));
       dmodule.CloseDBConnection;
       halt;
     end;
@@ -1685,7 +1685,9 @@ begin
     Result := False;
     exit;
   end;
-  if resultMessage<>'' then warning(resultMessage);
+  if resultMessage<>'' then begin
+    FWarning.showMessage('SkipCapacityOverflow', resultMessage);
+  end;
 
   try
     with dmodule.QWork do begin

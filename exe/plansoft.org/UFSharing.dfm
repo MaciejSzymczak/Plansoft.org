@@ -1,22 +1,22 @@
 inherited FSharing: TFSharing
   Left = 738
   Top = 168
-  Width = 535
+  Width = 495
   Height = 632
   Caption = 'Wsp'#243#322'dzielenie'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 573
-    Width = 527
+    Top = 581
+    Width = 487
   end
   object CheckListBox: TCheckListBox
     Left = 0
-    Top = 33
-    Width = 527
+    Top = 29
+    Width = 487
     Height = 499
     Align = alClient
-    ItemHeight = 16
+    ItemHeight = 14
     Items.Strings = (
       'a'
       'a'
@@ -25,21 +25,21 @@ inherited FSharing: TFSharing
   end
   object Panel1: TPanel
     Left = 0
-    Top = 532
-    Width = 527
-    Height = 41
+    Top = 528
+    Width = 487
+    Height = 53
     Align = alBottom
     TabOrder = 2
     DesignSize = (
-      527
-      41)
+      487
+      53)
     object BOK: TBitBtn
-      Left = 359
-      Top = 8
-      Width = 72
-      Height = 25
+      Left = 328
+      Top = 16
+      Width = 63
+      Height = 22
       Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
-      Anchors = [akRight]
+      Anchors = [akLeft]
       Caption = '&OK'
       Default = True
       ModalResult = 1
@@ -66,11 +66,11 @@ inherited FSharing: TFSharing
       NumGlyphs = 2
     end
     object BCancel: TBitBtn
-      Left = 440
-      Top = 8
-      Width = 76
-      Height = 25
-      Anchors = [akRight, akBottom]
+      Left = 396
+      Top = 16
+      Width = 67
+      Height = 22
+      Anchors = [akLeft]
       Cancel = True
       Caption = '&Anuluj'
       ModalResult = 2
@@ -97,11 +97,10 @@ inherited FSharing: TFSharing
       NumGlyphs = 2
     end
     object BitBtn1: TBitBtn
-      Left = 7
-      Top = 8
-      Width = 170
-      Height = 25
-      Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
+      Left = 6
+      Top = 3
+      Width = 149
+      Height = 22
       Anchors = [akLeft]
       Caption = 'Widoczne tylko dla mnie'
       ParentShowHint = False
@@ -111,10 +110,10 @@ inherited FSharing: TFSharing
       NumGlyphs = 2
     end
     object BAdv: TBitBtn
-      Left = 183
-      Top = 8
-      Width = 114
-      Height = 25
+      Left = 160
+      Top = 3
+      Width = 153
+      Height = 22
       Hint = 'Zatwierd'#378' czynno'#347#263' i zamknij okno do aktualizacji'
       Anchors = [akLeft]
       Caption = 'Wi'#281'cej opcji'
@@ -124,19 +123,32 @@ inherited FSharing: TFSharing
       OnClick = BAdvClick
       NumGlyphs = 2
     end
+    object BitBtn2: TBitBtn
+      Left = 6
+      Top = 27
+      Width = 307
+      Height = 22
+      Anchors = [akLeft]
+      Caption = 'Widoczne tylko dla mnie i wszystkich moich autoryzacji'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+      OnClick = BitBtn2Click
+      NumGlyphs = 2
+    end
   end
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 527
-    Height = 33
+    Width = 487
+    Height = 29
     Align = alTop
     TabOrder = 3
     object ChangeAll: TCheckBox
-      Left = 8
-      Top = 8
-      Width = 137
-      Height = 17
+      Left = 7
+      Top = 7
+      Width = 120
+      Height = 15
       Caption = 'Zmie'#324' wszystkie'
       Checked = True
       State = cbChecked

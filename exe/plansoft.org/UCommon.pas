@@ -2,7 +2,7 @@ unit UCommon;
 
 interface
 
-Uses DM, UUtilityParent, SysUtils, StdCtrls;
+Uses DM, UUtilityParent, SysUtils, StdCtrls, StrUtils;
 
 
 Procedure ValidValues(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; const separator : char = ';');
@@ -14,6 +14,7 @@ procedure GetEnabledLGR(ConLecturer, ConGroup, ConRoom, ConSubject, ConForm, Own
                         const objectType : string = ''
                        );
 function getWhereClause ( tableName  : string; const tableAlias : String = ''; const columnName : String = 'ID'): string;
+function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : String = '') : string;
 function getResourcesByType(pResCatId : string; pResCatIds : string; pdesc : string) : string;
 function repeatString(pStr : string; pcnt : integer; pSep : string) : string;
 
@@ -226,6 +227,63 @@ begin
  if tableName = 'PLANNERS'  then result := '0=0';
  if result = '0=1' then SError('B³¹d programu - funkcja getWhereClause, wartoœæ ' + tableName);
 end;
+
+//--------------------------------------------------------------------------------------
+var previousperiodSelector : string;
+var previoustablePrefix : string;
+var previousResult : string;
+function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : String = '') : string;
+  var  HOURS_PER_DAY, DateFrom, DateTo : string;
+       days : string;
+  begin
+    if  (periodSelector=previousperiodSelector) and (previoustablePrefix=tablePrefix) then begin
+      result :=  previousResult;
+      exit;
+    end;
+
+    days := '';
+    result := '0=0';
+    if periodSelector = '' then exit;
+
+    With DModule Do Begin
+      Dmodule.OPENSQL('SELECT min(TO_CHAR(DATE_FROM,''YYYY/MM/DD''))'+
+                          ', max(TO_CHAR(DATE_TO,''YYYY/MM/DD''))'+
+                          ', max(date_to-date_from)'+
+                          ', min(DATE_FROM)'+
+                          ', min(SHOW_MON) SHOW_MON'+
+                          ', min(SHOW_TUE) SHOW_TUE'+
+                          ', min(SHOW_WED) SHOW_WED'+
+                          ', min(SHOW_THU) SHOW_THU'+
+                          ', min(SHOW_FRI) SHOW_FRI'+
+                          ', min(SHOW_SAT) SHOW_SAT'+
+                          ', min(SHOW_SUN) SHOW_SUN'+
+                          ', min(HOURS_PER_DAY) HOURS_PER_DAY '+
+                          'FROM PERIODS WHERE '+ periodSelector );
+      DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
+      DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+
+      if QWork.FieldByName('SHOW_MON').AsString = '+' then days := merge(days, '1', ',');
+      if QWork.FieldByName('SHOW_TUE').AsString = '+' then days := merge(days, '2', ',');
+      if QWork.FieldByName('SHOW_WED').AsString = '+' then days := merge(days, '3', ',');
+      if QWork.FieldByName('SHOW_THU').AsString = '+' then days := merge(days, '4', ',');
+      if QWork.FieldByName('SHOW_FRI').AsString = '+' then days := merge(days, '5', ',');
+      if QWork.FieldByName('SHOW_SAT').AsString = '+' then days := merge(days, '6', ',');
+      if QWork.FieldByName('SHOW_SUN').AsString = '+' then days := merge(days, '7', ',');
+      if days = '1,2,3,4,5,6,7' then days := '';
+
+      HOURS_PER_DAY := QWork.FieldByName('HOURS_PER_DAY').AsString;
+    End;
+
+    result := tablePrefix + 'DAY BETWEEN ' + DateFrom+' AND ' + DateTo + CR;
+    result := merge(result, tablePrefix+'HOUR <=' + HOURS_PER_DAY, ' AND ');
+    if not isBlank(days) then result := merge(result, 'TO_CHAR('+tablePrefix+'DAY,''D'') IN ('+days+')', ' AND ');
+    result :=  '(' + result + ')';
+    //
+    previousperiodSelector :=  periodSelector;
+    previoustablePrefix := tablePrefix;
+    previousResult :=  result;
+end;
+
 
 //--------------------------------------------------------------------------------------
 function getResourcesByType(pResCatId : string; pResCatIds : string; pdesc : string) : string;

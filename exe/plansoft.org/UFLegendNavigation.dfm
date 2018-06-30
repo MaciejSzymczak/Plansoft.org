@@ -2,13 +2,13 @@ object FLegendNavigation: TFLegendNavigation
   Left = 621
   Top = 470
   Width = 521
-  Height = 197
+  Height = 175
   VertScrollBar.Style = ssFlat
   Caption = 'Nawigacja'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
@@ -16,14 +16,14 @@ object FLegendNavigation: TFLegendNavigation
   OnShow = FormShow
   DesignSize = (
     513
-    160)
-  PixelsPerInch = 120
-  TextHeight = 16
+    144)
+  PixelsPerInch = 96
+  TextHeight = 13
   object dspL: TLabel
-    Left = 200
-    Top = 8
-    Width = 30
-    Height = 16
+    Left = 163
+    Top = 7
+    Width = 23
+    Height = 13
     Caption = 'dspL'
     ParentShowHint = False
     ShowHint = True
@@ -32,10 +32,10 @@ object FLegendNavigation: TFLegendNavigation
     OnMouseLeave = dspLMouseLeave
   end
   object dspG: TLabel
-    Left = 200
-    Top = 32
-    Width = 33
-    Height = 16
+    Left = 163
+    Top = 26
+    Width = 25
+    Height = 13
     Caption = 'dspG'
     ParentShowHint = False
     ShowHint = True
@@ -44,10 +44,10 @@ object FLegendNavigation: TFLegendNavigation
     OnMouseLeave = dspLMouseLeave
   end
   object dspR: TLabel
-    Left = 200
-    Top = 56
-    Width = 33
-    Height = 16
+    Left = 163
+    Top = 46
+    Width = 25
+    Height = 13
     Caption = 'dspR'
     ParentShowHint = False
     ShowHint = True
@@ -56,10 +56,10 @@ object FLegendNavigation: TFLegendNavigation
     OnMouseLeave = dspLMouseLeave
   end
   object dspS: TLabel
-    Left = 200
-    Top = 80
-    Width = 32
-    Height = 16
+    Left = 163
+    Top = 65
+    Width = 24
+    Height = 13
     Caption = 'dspS'
     ParentShowHint = False
     ShowHint = True
@@ -68,10 +68,10 @@ object FLegendNavigation: TFLegendNavigation
     OnMouseLeave = dspLMouseLeave
   end
   object dspF: TLabel
-    Left = 200
-    Top = 104
-    Width = 31
-    Height = 16
+    Left = 163
+    Top = 85
+    Width = 23
+    Height = 13
     Caption = 'dspF'
     ParentShowHint = False
     ShowHint = True
@@ -80,100 +80,100 @@ object FLegendNavigation: TFLegendNavigation
     OnMouseLeave = dspLMouseLeave
   end
   object EditL: TSpeedButton
-    Left = 8
-    Top = 8
-    Width = 65
-    Height = 22
+    Left = 7
+    Top = 7
+    Width = 52
+    Height = 17
     Caption = 'Edytuj'
     Flat = True
     OnClick = dspLClick
   end
   object EditG: TSpeedButton
-    Left = 8
-    Top = 32
-    Width = 65
-    Height = 22
+    Left = 7
+    Top = 26
+    Width = 52
+    Height = 18
     Caption = 'Edytuj'
     Flat = True
     OnClick = dspLClick
   end
   object EditR: TSpeedButton
-    Left = 8
-    Top = 56
-    Width = 65
-    Height = 22
+    Left = 7
+    Top = 46
+    Width = 52
+    Height = 17
     Caption = 'Edytuj'
     Flat = True
     OnClick = dspLClick
   end
   object EditS: TSpeedButton
-    Left = 8
-    Top = 80
-    Width = 65
-    Height = 22
+    Left = 7
+    Top = 65
+    Width = 52
+    Height = 18
     Caption = 'Edytuj'
     Flat = True
     OnClick = dspLClick
   end
   object EditF: TSpeedButton
-    Left = 8
-    Top = 104
-    Width = 65
-    Height = 22
+    Left = 7
+    Top = 85
+    Width = 52
+    Height = 17
     Caption = 'Edytuj'
     Flat = True
     OnClick = dspLClick
   end
   object StatL: TSpeedButton
-    Left = 80
-    Top = 8
-    Width = 105
-    Height = 22
+    Left = 65
+    Top = 7
+    Width = 85
+    Height = 17
     Caption = 'Podsumowanie'
     Flat = True
     OnClick = dspLClick
   end
   object StatG: TSpeedButton
-    Left = 80
-    Top = 32
-    Width = 105
-    Height = 22
+    Left = 65
+    Top = 26
+    Width = 85
+    Height = 18
     Caption = 'Podsumowanie'
     Flat = True
     OnClick = dspLClick
   end
   object StatR: TSpeedButton
-    Left = 80
-    Top = 56
-    Width = 105
-    Height = 22
+    Left = 65
+    Top = 46
+    Width = 85
+    Height = 17
     Caption = 'Podsumowanie'
     Flat = True
     OnClick = dspLClick
   end
   object StatS: TSpeedButton
-    Left = 80
-    Top = 80
-    Width = 105
-    Height = 22
+    Left = 65
+    Top = 65
+    Width = 85
+    Height = 18
     Caption = 'Podsumowanie'
     Flat = True
     OnClick = dspLClick
   end
   object StatF: TSpeedButton
-    Left = 80
-    Top = 104
-    Width = 105
-    Height = 22
+    Left = 65
+    Top = 85
+    Width = 85
+    Height = 17
     Caption = 'Podsumowanie'
     Flat = True
     OnClick = dspLClick
   end
   object Bcancel: TBitBtn
-    Left = 432
-    Top = 128
-    Width = 75
-    Height = 25
+    Left = 7
+    Top = 114
+    Width = 61
+    Height = 20
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Anuluj'

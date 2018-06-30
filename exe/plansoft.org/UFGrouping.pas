@@ -31,7 +31,7 @@ type
     ChFILL: TCheckBox;
     PageControl: TPageControl;
     TabSheet1: TTabSheet;
-    GroupBox2: TGroupBox;
+    wherePanel: TGroupBox;
     LL: TLabel;
     LR: TLabel;
     LF: TLabel;
@@ -264,12 +264,13 @@ Var columnsSelect, columnsGroupBy      : String;
     _PERMISSIONSL, _PERMISSIONSG, _PERMISSIONSR, _PERMISSIONSS, _PERMISSIONSF : string;
     summary1, summary2, summary3, summary4, summary5 : string;
     t                : Integer;
-    DateFrom, DateTo : string;
-    AS_TO_DATE       : string;
+    AS_OF_DATE       : string;
     lx, gx, rx       : boolean;
     //
     columnsLec : string;
     groupByLec : string;
+
+
 begin
   if (not calculateCount.Checked) and (not calculateLec.Checked) and (not calculateStu.Checked) and (not S4.Checked) then
   begin
@@ -282,7 +283,7 @@ begin
       info ('Przed uruchomieniem zestawienia wprowadŸ dzieñ, na który maj¹ zostaæ wyliczone wartoœci wspó³czynników');
       exit;
     end;
-    AS_TO_DATE :=  DateToOracle (asOfDay.Date);
+    AS_OF_DATE :=  DateToOracle (asOfDay.Date);
   end;
 
   columnsSelect := '';
@@ -308,7 +309,7 @@ begin
       else begin
           //this is needed by report (report sets sortOrder)
           if sortOrder<>'' then begin
-           columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "Wyk³adowcy-skróty"', ','); columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS', ','); 
+           columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "Wyk³adowcy-skróty"', ','); columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS', ',');
           end;
           columnsSelect := Merge(columnsSelect, 'SUBSTR(lecturers.full_name,1,254) "%Ls."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(lecturers.full_name,1,254)', ',');
       end;
@@ -408,8 +409,8 @@ begin
       end;
       SUMMARY1 := merge(summary1, ', GRIDS.DURATION * (FILL/100) "%CLASSes. (suma)"','')+CR;
     end;
-    if calculateLec.Checked   then SUMMARY2 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_TO_DATE+' ),1,254)  "Obci¹¿enie wyk³adowców"'+CR;
-    if calculateStu.Checked   then SUMMARY3 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''STUDENTHOURS'', '+AS_TO_DATE+' ),1,254)  "Studentogodziny"'+CR;
+    if calculateLec.Checked   then SUMMARY2 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ),1,254)  "Obci¹¿enie wyk³adowców"'+CR;
+    if calculateStu.Checked   then SUMMARY3 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ),1,254)  "Studentogodziny"'+CR;
     if S4.Checked             then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
@@ -433,8 +434,8 @@ begin
       end;
       SUMMARY1 := merge(summary1, ', sum(GRIDS.DURATION * (FILL/100)) "%CLASSes. (suma)"','')+CR;
     end;
-    if calculateLec.Checked   then SUMMARY2 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_TO_DATE+' ) ) "Obci¹¿enie wyk³adowców"'+CR;
-    if calculateStu.Checked   then SUMMARY3 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''STUDENTHOURS'', '+AS_TO_DATE+' ) ) "Studentogodziny"'+CR;
+    if calculateLec.Checked   then SUMMARY2 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ) ) "Obci¹¿enie wyk³adowców"'+CR;
+    if calculateStu.Checked   then SUMMARY3 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ) ) "Studentogodziny"'+CR;
     //if S4.Checked then SUMMARY4 := ', SUM ( groups.NOP ) "Liczba studentów"'+CR;
     if S4.Checked             then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
   end;
@@ -451,14 +452,7 @@ begin
 
   _CONPERIOD := '0=0';
   If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
-  Begin
-      With DModule Do Begin
-          Dmodule.SingleValue('SELECT min(TO_CHAR(DATE_FROM,''YYYY/MM/DD'')),max(TO_CHAR(DATE_TO,''YYYY/MM/DD'')), max(date_to-date_from), min(DATE_FROM) FROM PERIODS WHERE '+ NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text) );
-          DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-          DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
-      End;
-      _CONPERIOD := 'DAY BETWEEN '+DateFrom+' AND '+DateTo;
-  End;
+    _CONPERIOD := Ucommon.getWhereClausefromPeriod(NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text));
 
   _CONL := GetCLASSESforL( nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
   _CONG := GetCLASSESforG( nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
@@ -544,24 +538,6 @@ begin
             ,';',',')
             ,'.',',')
        );
-
-
-   // '   ,(SELECT XXMSZ_TOOLS.getSQLValues(''SELECT TITLE || '''' '''' || FIRST_NAME || '''' '''' || LAST_NAME FROM LEC_CLA,LECTURERS WHERE LEC_CLA.LEC_ID = LECTURERS.ID AND CLA_ID = ''||CLASSES.ID||'' ORDER BY  ABBREVIATION'',''N'',''; '') full_name '+CR+
-   // '           ,XXMSZ_TOOLS.getSQLValues(''SELECT o.name FROM LEC_CLA,LECTURERS,org_units o WHERE  o.id = lecturers.orguni_id and LEC_CLA.LEC_ID = LECTURERS.ID AND CLA_ID = ''||CLASSES.ID||'' ORDER BY  ABBREVIATION'',''N'',''; '') orguni '+CR+
-   // '          ,    id   '+cr+
-   // '     FROM classes   '+cr+
-   // '   ) lecturers '+cr
-
-   //SELECT C.CLA_ID '+cr+
-   //             ',SUM ( to_number(NUMBER_OF_PEOPLES) ) NOP'+cr+
-   //             ',planner_utils.get_group_types(C.CLA_ID)  group_type_dsp'+cr+
-   //             ',max(gou.name)  orguni'+cr+
-   //       'FROM GROUPS   G  '+cr+
-   //       ',    GRO_CLA  C  '+cr+
-   //       ',    org_units  gou '+cr+
-   //       'WHERE G.ID = C.GRO_ID    '+cr+
-   //       '  AND G.ORGUNI_ID = gou.ID(+)'+cr+
-   //       'GROUP BY C.CLA_ID
 
   S := fprogramSettings.translateMessages(S);
 

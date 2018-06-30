@@ -371,9 +371,8 @@ begin
 end;
 
 procedure TFWWWGenerator.currentPeriodChange(Sender: TObject);
-var DateFrom, DateTo : String;
+var periodClauseXXX, periodClauseGRO_CLA, periodClauseLEC_CLA, periodClauseROM_CLA : String;
 begin
-  inherited;
   if not formPrepared then exit;
   If isBlank(currentPeriod.Text) Then Exit;
   //info(((TControl(Sender).Name) as tedit).text);
@@ -385,14 +384,16 @@ begin
   RList.Items.Clear;
 
     With DModule Do Begin
-     Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM FROM PERIODS WHERE ID='+NVL(Fmain.CONPERIOD.Text,'-1'));
-     DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-     DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+
+     periodClauseXXX  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1') ,'XXX.');
+     periodClauseGRO_CLA  := replace(periodClauseXXX,'XXX.','GRO_CLA.');
+     periodClauseLEC_CLA  := replace(periodClauseXXX,'XXX.','LEC_CLA.');
+     periodClauseROM_CLA  := replace(periodClauseXXX,'XXX.','ROM_CLA.');
 
      //@@@sql_GRONAME vs nvl(GRO.NAME,GRO.abbreviation)
      OpenSQL('SELECT DISTINCT nvl(GROUPS.NAME,GROUPS.abbreviation) GRO_NAME, GROUPS.ID ' +
             'FROM GRO_CLA, GROUPS '+
-            'WHERE GRO_ID=GROUPS.ID AND GRO_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+            'WHERE GRO_ID=GROUPS.ID AND '+periodClauseGRO_CLA+' '+
             'AND GROUPS.ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + nvl(GROSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY GRO_NAME');
@@ -405,7 +406,7 @@ begin
 
      OpenSQL('SELECT DISTINCT '+sql_LECNAME+' LEC_NAME, LEC.ID, TITLE, LAST_NAME, FIRST_NAME ' +
             'FROM LEC_CLA, LECTURERS LEC '+
-            'WHERE LEC_ID=LEC.ID AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+            'WHERE LEC_ID=LEC.ID AND '+periodClauseLEC_CLA+' '+
             'AND LEC.ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + NVL(LECSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY ' + LECOrderby.Strings.ValueFromIndex [ ComboSortOrder.ItemIndex ]);
@@ -419,7 +420,7 @@ begin
 
      OpenSQL('SELECT DISTINCT '+sql_ResCat0NAME+'  ROM_NAME, ROM.ID ' +
             'FROM ROM_CLA, ROOMS ROM '+
-            'WHERE ROM_ID=ROM.ID AND ROM_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+            'WHERE ROM_ID=ROM.ID AND '+periodClauseROM_CLA+' '+
             'AND ROM.ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + NVL(ROMSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY ROM_NAME');
@@ -821,9 +822,9 @@ Procedure TFWWWGenerator.CalendarToHTML(
 
     //--------------------------------------------------------
     function RefreshLegend : integer;
-    Var DateFrom, DateTo : String;
-      t : Integer;
-      MaxL : Integer;
+      var periodClause : String;
+          t : Integer;
+          MaxL : Integer;
     begin
     inherited;
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
@@ -837,9 +838,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
     setLength(Lgnd, MaxLegendPositions+1);
     t := 0;
     With DModule Do Begin
-     Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM FROM PERIODS WHERE ID='+NVL(fmain.conPeriod.Text,'-1'));
-     DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-     DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+
+     periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1') ,'CLA.');
 
      case fmain.TabViewType.TabIndex of
       0:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
@@ -847,28 +847,28 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND LEC_ID='+NVL( ExtractWord(1,fmain.ConLecturer.TEXT,[';']) ,'-1')+
                 '   AND CLA.SUB_ID = SUB.ID '+
-                '   AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
       1:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, GRO_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND GRO_ID='+NVL( ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+
                 '   AND CLA.SUB_ID = SUB.ID '+
-                '   AND GRO_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
       2:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+
                 '   AND CLA.SUB_ID = SUB.ID '+
-                '   AND ROM_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
       3:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat1.TEXT,[';']) ,'-1')+
                 '   AND CLA.SUB_ID = SUB.ID '+
-                '   AND ROM_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
      end;
 
@@ -896,56 +896,56 @@ Procedure TFWWWGenerator.CalendarToHTML(
       //no summary mode
       if (LegendMode and 1 = 0) then
       case fmain.TabViewType.TabIndex of
-       0:OpenSQL2('SELECT DISTINCT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, NULL '+
+       0:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC_CLA >- LEC
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA2.LEC_ID = :LEC_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                   'ORDER BY 1'
                 , 'LEC_ID='+NVL(ExtractWord(1,fmain.ConLecturer.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       1:OpenSQL2('SELECT DISTINCT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, NULL '+
+       1:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , GRO_CLA '+   //  GRO_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND GRO_CLA.GRO_ID = :GRO_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                   'ORDER BY 1'
                 , 'GRO_ID='+NVL(ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       2:OpenSQL2('SELECT DISTINCT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, NULL '+
+       2:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID = :ROM_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                   'ORDER BY 1'
                 , 'ROM_ID='+NVL(  ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       3:OpenSQL2('SELECT DISTINCT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, NULL '+
+       3:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID = :ROM_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                   'ORDER BY 1'
                 , 'ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat1.TEXT,[';'])  ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
       end;
@@ -953,7 +953,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
       //summary mode
       if (LegendMode and 1 = 1) then
       case fmain.TabViewType.TabIndex of
-       0:OpenSQL2('SELECT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, FORM.abbreviation || '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+       0:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -961,17 +961,17 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   '   , LECTURERS LEC'+
                   '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC_CLA >- LEC
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
-                    'AND LEC_CLA.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND LEC_CLA2.LEC_ID = :LEC_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'LEC_ID='+NVL(ExtractWord(1,fmain.ConLecturer.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       1:OpenSQL2('SELECT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+       1:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -979,17 +979,17 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   '   , LECTURERS LEC'+
                   '   , GRO_CLA '+   //  GRO_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
-                    'AND LEC_CLA.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND GRO_CLA.GRO_ID = :GRO_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'GRO_ID='+NVL(ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       2:OpenSQL2('SELECT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+       2:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -997,17 +997,17 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   '   , LECTURERS LEC'+
                   '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
-                    'AND LEC_CLA.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID = :ROM_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'ROM_ID='+NVL(  ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       3:OpenSQL2('SELECT lec.abbreviation, LEC.TITLE || '' '' || LEC.FIRST_NAME || '' '' || LEC.LAST_NAME NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+       3:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1015,11 +1015,11 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   '   , LECTURERS LEC'+
                   '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID '+
-                    'AND LEC_CLA.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID = :ROM_ID '+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND LEC_CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' '+
+                    'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+

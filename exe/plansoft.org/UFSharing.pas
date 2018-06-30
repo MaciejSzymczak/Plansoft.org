@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormConfig, StdCtrls, CheckLst, Buttons, ExtCtrls, UUtilityParent,UFPlannerPermissions;
+  Dialogs, UFormConfig, StdCtrls, CheckLst, Buttons, ExtCtrls, UUtilityParent,UFPlannerPermissions, StrUtils;
                                                                               
 type
   TFSharing = class(TFormConfig)
@@ -16,9 +16,11 @@ type
     ChangeAll: TCheckBox;
     BitBtn1: TBitBtn;
     BAdv: TBitBtn;
+    BitBtn2: TBitBtn;
     procedure ChangeAllClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure BAdvClick(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
   private
     presourceType, presourceId : string;
   public
@@ -111,6 +113,26 @@ begin
   executeSQL(presourceType, presourceId);
   UFPlannerPermissions.ShowModal;
   Close;
+end;
+
+procedure TFSharing.BitBtn2Click(Sender: TObject);
+var t : integer;
+    key : shortString;
+    roles : string;
+begin
+   roles := '';
+   With dmodule do begin
+     openSql('select id from PLANNERS WHERE (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))');
+     While Not QWork.EOF Do Begin
+       roles := roles + '#'+qwork.Fields[0].AsString;
+       QWork.next;
+     End;
+   End;
+
+   for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
+     key := Fmain.MapPlanners.map[t].key;
+     FSharing.CheckListBox.Checked[t] := (key=UUtilityParent.UserID) or (StrUtils.AnsiContainsText(roles,'#'+key));
+   end;
 end;
 
 end.

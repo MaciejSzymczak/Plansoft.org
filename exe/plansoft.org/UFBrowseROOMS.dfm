@@ -4,21 +4,21 @@ inherited FBrowseROOMS: TFBrowseROOMS
   Width = 1135
   Height = 690
   Caption = 'Zasoby'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 631
+    Top = 639
     Width = 1127
   end
   inherited MainPage: TPageControl
     Width = 1127
-    Height = 631
+    Height = 639
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1087
         Top = 145
         Width = 4
-        Height = 397
+        Height = 407
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -27,7 +27,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       inherited Grid: TRxDBGrid
         Top = 145
         Width = 1087
-        Height = 397
+        Height = 407
         Columns = <
           item
             Expanded = False
@@ -305,11 +305,11 @@ inherited FBrowseROOMS: TFBrowseROOMS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 561
+        Top = 571
         Width = 1119
       end
       inherited Panel: TPanel
-        Top = 542
+        Top = 552
         Width = 1119
         inherited StatusBar: TStatusBar
           Width = 1050
@@ -362,7 +362,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 64
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -372,7 +372,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 1
           OnClick = CON_RESCAT_ID_VALUEClick
@@ -485,7 +485,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Width = 105
           Height = 25
           Anchors = [akRight, akBottom]
-          Caption = 'Narzêdzia'
+          Caption = 'Narz'#281'dzia'
           TabOrder = 5
           OnClick = btoolsClick
           Glyph.Data = {
@@ -508,7 +508,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 64
           Top = 28
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 6
           Visible = False
@@ -518,7 +518,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 72
           Top = 28
           Width = 121
-          Height = 24
+          Height = 22
           ReadOnly = True
           TabOrder = 7
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -634,7 +634,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 1091
         Top = 145
         Width = 28
-        Height = 397
+        Height = 407
         ActivePage = Hierarchy
         Align = alRight
         MultiLine = True
@@ -642,12 +642,12 @@ inherited FBrowseROOMS: TFBrowseROOMS
         TabPosition = tpLeft
         OnMouseDown = RightPageMouseDown
         object Hierarchy: TTabSheet
-          Caption = 'Zasoby zale¿ne'
+          Caption = 'Zasoby zale'#380'ne'
           object rightPane: TPanel
             Left = 0
             Top = 0
-            Width = 0
-            Height = 389
+            Width = 1
+            Height = 399
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
@@ -672,7 +672,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Width = 246
                 Height = 24
                 Align = alTop
-                Caption = 'Zasoby nadrzêdne'
+                Caption = 'Zasoby nadrz'#281'dne'
                 TabOrder = 0
               end
               object Panel4: TPanel
@@ -687,7 +687,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj nadrzêdny'
+                  Caption = 'Dodaj nadrz'#281'dny'
                   TabOrder = 0
                   OnClick = xflexClick
                   Glyph.Data = {
@@ -738,7 +738,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 57
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
@@ -867,7 +867,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               Left = 1
               Top = 194
               Width = 248
-              Height = 194
+              Height = 204
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 1
@@ -877,12 +877,12 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Width = 246
                 Height = 16
                 Align = alTop
-                Caption = 'Zasoby podrzêdne'
+                Caption = 'Zasoby podrz'#281'dne'
                 TabOrder = 0
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 152
+                Top = 162
                 Width = 246
                 Height = 41
                 Align = alBottom
@@ -892,7 +892,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj podrzêdny'
+                  Caption = 'Dodaj podrz'#281'dny'
                   TabOrder = 0
                   OnClick = AddDetailClick
                   Glyph.Data = {
@@ -943,7 +943,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   Top = 8
                   Width = 65
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
@@ -1032,7 +1032,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Left = 1
                 Top = 17
                 Width = 246
-                Height = 135
+                Height = 145
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -1079,17 +1079,17 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Label5: TLabel
                 Left = 8
                 Top = 8
-                Width = 109
-                Height = 16
+                Width = 83
+                Height = 14
                 Caption = 'Rodzaj hierarchii:'
               end
               object str_name_lov: TComboBox
                 Left = 96
                 Top = 0
                 Width = 145
-                Height = 24
+                Height = 22
                 Style = csDropDownList
-                ItemHeight = 16
+                ItemHeight = 14
                 ItemIndex = 0
                 TabOrder = 0
                 Text = 'Potok'
@@ -1108,8 +1108,8 @@ inherited FBrowseROOMS: TFBrowseROOMS
       object LabelID: TLabel [0]
         Left = 400
         Top = 552
-        Width = 217
-        Height = 16
+        Width = 166
+        Height = 14
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID_
         Visible = False
@@ -1130,10 +1130,10 @@ inherited FBrowseROOMS: TFBrowseROOMS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [2]
-        Left = 96
+        Left = 104
         Top = 88
-        Width = 33
-        Height = 16
+        Width = 25
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -1145,18 +1145,18 @@ inherited FBrowseROOMS: TFBrowseROOMS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [4]
-        Left = 18
+        Left = 42
         Top = 112
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [5]
-        Left = 18
+        Left = 42
         Top = 136
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
@@ -1191,11 +1191,11 @@ inherited FBrowseROOMS: TFBrowseROOMS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 565
+        Top = 575
         Width = 1119
         TabOrder = 6
         inherited BUpdChild1: TBitBtn
-          Caption = 'Zajêcia'
+          Caption = 'Zaj'#281'cia'
           Visible = True
         end
         inherited BUpdChild2: TBitBtn
@@ -1203,7 +1203,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Visible = True
         end
         inherited BUpdChild3: TBitBtn
-          Caption = 'Dostêp'
+          Caption = 'Dost'#281'p'
           Visible = True
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -1223,7 +1223,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 529
         Top = 544
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'ID'
         Color = clMenu
         DataField = 'ID'
@@ -1237,7 +1237,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 137
         Top = 56
         Width = 300
-        Height = 24
+        Height = 22
         DataField = 'NAME'
         DataSource = Source
         TabOrder = 4
@@ -1246,7 +1246,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 136
         Top = 104
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC1'
         DataSource = Source
         TabOrder = 7
@@ -1255,7 +1255,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 136
         Top = 128
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC2'
         DataSource = Source
         TabOrder = 8
@@ -1264,7 +1264,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 129
         Top = 32
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'KATEGORIA ZASOBU'
         DataField = 'RESCAT_ID'
         DataSource = Source
@@ -1277,7 +1277,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 136
         Top = 32
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 1
@@ -1389,7 +1389,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           Left = 8
           Top = 19
           Width = 313
-          Height = 24
+          Height = 22
           DataField = 'google_location'
           DataSource = Source
           TabOrder = 0
@@ -1416,13 +1416,13 @@ inherited FBrowseROOMS: TFBrowseROOMS
         TabOrder = 11
         object WebBrowser1: TWebBrowser
           Left = 2
-          Top = 18
+          Top = 16
           Width = 373
-          Height = 357
+          Height = 359
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000D71E0000851D00000000000000000000000000000000000000000000
+            4C0000008D2600001B2500000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126208000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -1433,7 +1433,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 129
         Top = 152
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -1446,7 +1446,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 136
         Top = 152
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 13
@@ -1862,7 +1862,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       end>
     SQL.Strings = (
       
-        'select id,level, to_char( substr(''                    '',1,level*' +
+        'select id,level, to_char( substr('#39'                    '#39',1,level*' +
         '3) || child_dsp ) name'
       '  from str_elems_v'
       '  where STR_NAME_LOV=:STR_NAME_LOV1'
@@ -1885,7 +1885,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       OnClick = Scalaj1Click
     end
     object UtwrzmapGooglezzasobami1: TMenuItem
-      Caption = 'Utwórz mapê Google z zasobami'
+      Caption = 'Utw'#243'rz map'#281' Google z zasobami'
       OnClick = UtwrzmapGooglezzasobami1Click
     end
   end

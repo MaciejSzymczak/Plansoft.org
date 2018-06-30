@@ -5,12 +5,12 @@ object FCellLayout: TFCellLayout
   AlphaBlendValue = 250
   BorderStyle = bsNone
   Caption = 'FCellLayout'
-  ClientHeight = 340
-  ClientWidth = 476
+  ClientHeight = 276
+  ClientWidth = 387
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -14
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsStayOnTop
@@ -18,29 +18,29 @@ object FCellLayout: TFCellLayout
   Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 13
   object Shape1: TShape
     Left = 0
     Top = 0
-    Width = 464
-    Height = 336
+    Width = 377
+    Height = 273
     Pen.Mode = pmMask
     Shape = stRoundRect
   end
   object GroupBox2: TGroupBox
-    Left = 10
-    Top = 10
-    Width = 189
-    Height = 49
+    Left = 8
+    Top = 8
+    Width = 154
+    Height = 40
     Caption = 'Kolorowanie'
     TabOrder = 0
     OnMouseMove = GroupBox2MouseMove
     object selectFill: TSpeedButton
-      Left = 151
-      Top = 17
-      Width = 29
-      Height = 27
+      Left = 123
+      Top = 14
+      Width = 23
+      Height = 22
       Flat = True
       Glyph.Data = {
         46050000424D4605000000000000360000002800000012000000120000000100
@@ -90,9 +90,9 @@ object FCellLayout: TFCellLayout
     end
     object Coloring: TComboBox
       Tag = 67108864
-      Left = 11
-      Top = 17
-      Width = 138
+      Left = 9
+      Top = 14
+      Width = 112
       Height = 22
       Hint = 'Kolorowanie ze wzgl'#281'du na'
       Style = csOwnerDrawFixed
@@ -116,44 +116,44 @@ object FCellLayout: TFCellLayout
     end
   end
   object GroupBox1: TGroupBox
-    Left = 206
-    Top = 9
-    Width = 247
-    Height = 307
+    Left = 167
+    Top = 7
+    Width = 201
+    Height = 250
     Caption = 'Rozmiary'
     TabOrder = 1
     OnMouseMove = GroupBox1MouseMove
     object Image1: TImage
-      Left = 175
-      Top = 30
-      Width = 18
-      Height = 142
+      Left = 142
+      Top = 24
+      Width = 15
+      Height = 116
       Transparent = True
       OnClick = Image1Click
     end
     object BCellReset: TSpeedButton
-      Left = 10
-      Top = 146
-      Width = 80
-      Height = 31
+      Left = 8
+      Top = 119
+      Width = 65
+      Height = 25
       Caption = 'Przywr'#243#263
       Flat = True
       OnClick = BCellResetClick
     end
     object BCellFont: TSpeedButton
-      Left = 10
-      Top = 177
-      Width = 80
-      Height = 31
+      Left = 8
+      Top = 144
+      Width = 65
+      Height = 25
       Caption = 'Czcionka'
       Flat = True
       OnClick = BCellFontClick
     end
     object ForcedCellHeight: TTrackBar
-      Left = 197
-      Top = 30
-      Width = 41
-      Height = 148
+      Left = 160
+      Top = 24
+      Width = 33
+      Height = 121
       Ctl3D = True
       LineSize = 0
       Max = 100
@@ -169,19 +169,19 @@ object FCellLayout: TFCellLayout
       OnChange = ForcedCellHeightChange
     end
     object ForceCellWidth: TCheckBox
-      Left = 10
-      Top = 20
-      Width = 168
-      Height = 21
+      Left = 8
+      Top = 16
+      Width = 137
+      Height = 17
       Caption = 'Chc'#281' ustali'#263' szeroko'#347#263
       TabOrder = 1
       OnClick = ForceCellWidthClick
     end
     object ForcedCellWidth: TTrackBar
       Left = 1
-      Top = 39
-      Width = 159
-      Height = 41
+      Top = 32
+      Width = 129
+      Height = 33
       Ctl3D = True
       LineSize = 0
       Max = 200
@@ -196,27 +196,27 @@ object FCellLayout: TFCellLayout
       OnChange = ForcedCellWidthChange
     end
     object ForceCellHeight: TCheckBox
-      Left = 177
-      Top = 177
-      Width = 21
-      Height = 21
+      Left = 144
+      Top = 144
+      Width = 17
+      Height = 17
       TabOrder = 3
       OnClick = ForceCellHeightClick
     end
   end
   object descriptions: TGroupBox
-    Left = 12
-    Top = 58
-    Width = 187
-    Height = 258
+    Left = 10
+    Top = 47
+    Width = 152
+    Height = 210
     Caption = 'Opisy w siatce'
     TabOrder = 2
     OnMouseMove = descriptionsMouseMove
     object D1: TComboBox
       Tag = 67108864
-      Left = 10
-      Top = 18
-      Width = 168
+      Left = 8
+      Top = 15
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -273,9 +273,9 @@ object FCellLayout: TFCellLayout
     end
     object D2: TComboBox
       Tag = 67108864
-      Left = 10
-      Top = 48
-      Width = 168
+      Left = 8
+      Top = 39
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -332,9 +332,9 @@ object FCellLayout: TFCellLayout
     end
     object D3: TComboBox
       Tag = 67108864
-      Left = 10
-      Top = 78
-      Width = 168
+      Left = 8
+      Top = 63
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -391,9 +391,9 @@ object FCellLayout: TFCellLayout
     end
     object D4: TComboBox
       Tag = 67108864
-      Left = 10
-      Top = 107
-      Width = 168
+      Left = 8
+      Top = 87
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -450,9 +450,9 @@ object FCellLayout: TFCellLayout
     end
     object D5: TComboBox
       Tag = 67108864
-      Left = 10
-      Top = 137
-      Width = 168
+      Left = 8
+      Top = 111
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -509,9 +509,9 @@ object FCellLayout: TFCellLayout
     end
     object D6: TComboBox
       Tag = 67108864
-      Left = 9
-      Top = 166
-      Width = 168
+      Left = 7
+      Top = 135
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -568,9 +568,9 @@ object FCellLayout: TFCellLayout
     end
     object D7: TComboBox
       Tag = 67108864
-      Left = 9
-      Top = 196
-      Width = 168
+      Left = 7
+      Top = 159
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25
@@ -627,9 +627,9 @@ object FCellLayout: TFCellLayout
     end
     object D8: TComboBox
       Tag = 67108864
-      Left = 9
-      Top = 225
-      Width = 168
+      Left = 7
+      Top = 183
+      Width = 137
       Height = 22
       Style = csOwnerDrawFixed
       DropDownCount = 25

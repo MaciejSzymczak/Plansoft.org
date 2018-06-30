@@ -1,7 +1,7 @@
 inherited FMain: TFMain
-  Left = 39
-  Top = 50
-  Width = 1928
+  Left = 216
+  Top = 53
+  Width = 1569
   Height = 1038
   Caption = 'Plansoft.org                          '
   KeyPreview = True
@@ -9,37 +9,37 @@ inherited FMain: TFMain
   ShowHint = True
   WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   object Splitter2: TSplitter [0]
-    Left = 343
+    Left = 300
     Top = 0
-    Height = 913
+    Height = 931
   end
   inherited Status: TPanel
-    Top = 954
-    Width = 1920
+    Top = 967
+    Width = 1561
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
-    Top = 913
-    Width = 1920
-    Height = 41
+    Top = 931
+    Width = 1561
+    Height = 36
     Align = alBottom
     TabOrder = 0
     object TabViewType: TTabSet
       Left = 0
       Top = -1
-      Width = 1135
-      Height = 24
+      Width = 993
+      Height = 21
       Hint = 
         'Prze'#322#261'cz kalendarz wyk'#322'adowcy, grupy, sali, czysty formularz, lu' +
         'b formularz'#13#10'do planowania rezerwacji termin'#243'w'
       DitherBackground = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -12
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentShowHint = False
@@ -59,8 +59,8 @@ inherited FMain: TFMain
     end
     object StatusBar: TStatusBar
       Left = 1
-      Top = 21
-      Width = 1918
+      Top = 16
+      Width = 1559
       Height = 19
       Panels = <
         item
@@ -94,168 +94,167 @@ inherited FMain: TFMain
     end
   end
   object MainPanel: TPanel
-    Left = 346
+    Left = 303
     Top = 0
-    Width = 1574
-    Height = 913
+    Width = 1258
+    Height = 931
     Align = alClient
     BorderWidth = 1
     Ctl3D = True
     ParentCtl3D = False
     TabOrder = 1
     object VSplitter: TSplitter
-      Left = 1568
-      Top = 211
-      Height = 700
+      Left = 1252
+      Top = 185
+      Height = 744
       Align = alRight
     end
     object Splitter1: TSplitter
       Left = 3
-      Top = 211
-      Width = 4
-      Height = 700
+      Top = 185
+      Height = 744
       Visible = False
     end
     object Label2: TLabel
-      Left = 29
-      Top = 279
-      Width = 819
-      Height = 52
+      Left = 25
+      Top = 244
+      Width = 725
+      Height = 46
       Caption = 
         'Chcesz zobaczy'#263' rozk'#322'ad zaj'#281#263' w tym miejscu? '#13#10'Musisz wybra'#263' sem' +
         'estr, a nast'#281'pnie musisz wybra'#263' wyk'#322'adowc'#281', grup'#281' lub zas'#243'b.'
       Font.Charset = EASTEUROPE_CHARSET
       Font.Color = clWindowText
-      Font.Height = -23
+      Font.Height = -20
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
     end
     object SpeedButton1: TSpeedButton
-      Left = 27
-      Top = 338
-      Width = 148
-      Height = 38
+      Left = 24
+      Top = 296
+      Width = 129
+      Height = 33
       Caption = 'Wybierz semestr'
       Flat = True
       OnClick = SpeedButton1Click
     end
     object SpeedButton2: TSpeedButton
-      Left = 27
-      Top = 384
-      Width = 148
-      Height = 38
+      Left = 24
+      Top = 336
+      Width = 129
+      Height = 33
       Caption = 'Wybierz wyk'#322'adowc'#281
       Flat = True
       OnClick = SpeedButton2Click
     end
     object SpeedButton3: TSpeedButton
-      Left = 210
-      Top = 384
-      Width = 148
-      Height = 38
+      Left = 184
+      Top = 336
+      Width = 129
+      Height = 33
       Caption = 'Wybierz grup'#281
       Flat = True
       OnClick = SpeedButton3Click
     end
     object SpeedButton4: TSpeedButton
-      Left = 393
-      Top = 384
-      Width = 148
-      Height = 38
+      Left = 344
+      Top = 336
+      Width = 129
+      Height = 33
       Caption = 'Wybierz zas'#243'b'
       Flat = True
       OnClick = SpeedButton4Click
     end
     object Label3: TLabel
-      Left = 183
-      Top = 393
-      Width = 19
-      Height = 16
+      Left = 160
+      Top = 344
+      Width = 14
+      Height = 14
       Caption = 'lub'
     end
     object Label4: TLabel
-      Left = 366
-      Top = 393
-      Width = 19
-      Height = 16
+      Left = 320
+      Top = 344
+      Width = 14
+      Height = 14
       Caption = 'lub'
     end
     object TopPanel: TPanel
       Left = 2
       Top = 2
-      Width = 1570
-      Height = 54
+      Width = 1254
+      Height = 47
       Align = alTop
       TabOrder = 0
       object Shape9a: TShape
-        Left = 299
+        Left = 262
         Top = 2
-        Width = 188
-        Height = 49
+        Width = 164
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape7a: TShape
-        Left = 584
+        Left = 511
         Top = 2
-        Width = 49
-        Height = 49
+        Width = 43
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape1a: TShape
-        Left = 121
+        Left = 106
         Top = 2
-        Width = 175
-        Height = 49
+        Width = 153
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape2a: TShape
-        Left = 698
+        Left = 611
         Top = 2
-        Width = 96
-        Height = 49
+        Width = 84
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape3a: TShape
-        Left = 637
+        Left = 557
         Top = 2
-        Width = 50
-        Height = 49
+        Width = 44
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape4a: TShape
-        Left = 798
+        Left = 698
         Top = 2
-        Width = 103
-        Height = 49
+        Width = 90
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Shape8a: TShape
-        Left = 490
+        Left = 429
         Top = 2
-        Width = 75
-        Height = 49
+        Width = 65
+        Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
       object Legend: TSpeedButton
-        Left = 587
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 514
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'W'#322#261'cz/ wy'#322#261'cz legend'#281
         AllowAllUp = True
         GroupIndex = 10
@@ -397,10 +396,10 @@ inherited FMain: TFMain
         OnMouseMove = LegendMouseMove
       end
       object bconflictspopup: TSpeedButton
-        Left = 639
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 559
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Poka'#380' wolne terminy'
         AllowAllUp = True
         Flat = True
@@ -509,10 +508,10 @@ inherited FMain: TFMain
         OnMouseMove = bconflictspopupMouseMove
       end
       object zoomIn: TSpeedButton
-        Left = 805
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 704
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Powi'#281'ksz kalendarz'
         Flat = True
         Glyph.Data = {
@@ -652,10 +651,10 @@ inherited FMain: TFMain
         OnMouseMove = zoomInMouseMove
       end
       object zoomOut: TSpeedButton
-        Left = 850
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 744
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Pomniejsz kalendarz'
         Flat = True
         Glyph.Data = {
@@ -795,10 +794,10 @@ inherited FMain: TFMain
         OnMouseMove = zoomInMouseMove
       end
       object Normal: TSpeedButton
-        Left = 777
-        Top = 6
-        Width = 9
-        Height = 13
+        Left = 680
+        Top = 5
+        Width = 8
+        Height = 12
         Hint = 'Przywr'#243#263' domy'#347'lne rozmiary kalendarza'
         Flat = True
         Glyph.Data = {
@@ -821,10 +820,10 @@ inherited FMain: TFMain
         OnClick = NormalClick
       end
       object bReports: TSpeedButton
-        Left = 954
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 835
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Analizuj dane'
         Flat = True
         Glyph.Data = {
@@ -922,10 +921,10 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BAddClass: TSpeedButton
-        Left = 125
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 109
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Dodaj zaj'#281'cia/ rezerwacje'
         AllowAllUp = True
         Flat = True
@@ -1067,10 +1066,10 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object BRefresh: TSpeedButton
-        Left = 903
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 790
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Od'#347'wie'#380' widok'
         AllowAllUp = True
         Flat = True
@@ -1210,10 +1209,10 @@ inherited FMain: TFMain
         OnClick = BRefreshClick
       end
       object BDeleteClass: TSpeedButton
-        Left = 231
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 202
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Usu'#324' zaj'#281'cia/ rezerwacje'
         AllowAllUp = True
         Flat = True
@@ -1354,10 +1353,10 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object BEditClass: TSpeedButton
-        Left = 169
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 148
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Edytuj zaj'#281'cia/ rezerwacje'
         AllowAllUp = True
         Flat = True
@@ -1498,10 +1497,10 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object BLogin: TSpeedButton
-        Left = 55
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 48
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Loguj/ wyloguj'
         Flat = True
         Glyph.Data = {
@@ -1576,10 +1575,10 @@ inherited FMain: TFMain
         OnClick = BLoginClick
       end
       object bwww: TSpeedButton
-        Left = 1005
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 879
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Publikuj rozk'#322'ady'
         Flat = True
         Glyph.Data = {
@@ -1723,10 +1722,10 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BViewByWeek: TSpeedButton
-        Left = 703
-        Top = 5
-        Width = 44
-        Height = 43
+        Left = 615
+        Top = 4
+        Width = 39
+        Height = 38
         Hint = 'Poka'#380' jednego wyk'#322'adowc'#281', grup'#281', sal'#281
         GroupIndex = 1
         Down = True
@@ -1836,10 +1835,10 @@ inherited FMain: TFMain
         OnMouseMove = BViewByWeekMouseMove
       end
       object BViewByCrossTable: TSpeedButton
-        Left = 746
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 653
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Poka'#380' wielu wyk'#322'adowc'#243'w, grupy, sale'
         GroupIndex = 1
         Flat = True
@@ -1948,10 +1947,10 @@ inherited FMain: TFMain
         OnMouseMove = BViewByWeekMouseMove
       end
       object bmoveUp: TSpeedButton
-        Left = 518
-        Top = 7
-        Width = 21
-        Height = 19
+        Left = 453
+        Top = 6
+        Width = 19
+        Height = 17
         Hint = 'Przesu'#324' zaznaczony obszar w g'#243'r'#281
         Flat = True
         Glyph.Data = {
@@ -2003,10 +2002,10 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveDown: TSpeedButton
-        Left = 518
-        Top = 26
-        Width = 21
-        Height = 20
+        Left = 453
+        Top = 23
+        Width = 19
+        Height = 17
         Hint = 'Przesu'#324' zaznaczony obszar w d'#243'l'
         Flat = True
         Glyph.Data = {
@@ -2058,10 +2057,10 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveright: TSpeedButton
-        Left = 539
-        Top = 26
-        Width = 22
-        Height = 20
+        Left = 472
+        Top = 23
+        Width = 19
+        Height = 17
         Hint = 'Przesu'#324' zaznaczony obszar w prawo'
         Flat = True
         Glyph.Data = {
@@ -2113,10 +2112,10 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveLeft: TSpeedButton
-        Left = 496
-        Top = 26
-        Width = 22
-        Height = 20
+        Left = 434
+        Top = 23
+        Width = 19
+        Height = 17
         Hint = 'Przesu'#324' zaznaczony obszar w lewo'
         Flat = True
         Glyph.Data = {
@@ -2168,10 +2167,10 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bcopyarea: TSpeedButton
-        Left = 304
-        Top = 5
-        Width = 46
-        Height = 44
+        Left = 266
+        Top = 4
+        Width = 40
+        Height = 39
         Hint = 'Kopiuj obszar'
         Flat = True
         Glyph.Data = {
@@ -2311,10 +2310,10 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bcutarea: TSpeedButton
-        Left = 350
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 306
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Wytnij obszar'
         Flat = True
         Glyph.Data = {
@@ -2454,10 +2453,10 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bpastearea: TSpeedButton
-        Left = 394
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 345
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Wklej obszar'
         Flat = True
         Glyph.Data = {
@@ -2597,10 +2596,10 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bclearselection: TSpeedButton
-        Left = 439
-        Top = 5
-        Width = 44
-        Height = 44
+        Left = 384
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Usu'#324' zaznaczenie obszaru'
         Flat = True
         Glyph.Data = {
@@ -2740,10 +2739,10 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object BFullScreen: TSpeedButton
-        Left = 1057
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 925
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Pe'#322'ny ekran'
         AllowAllUp = True
         GroupIndex = 2
@@ -2828,10 +2827,10 @@ inherited FMain: TFMain
         OnClick = BFullScreenClick
       end
       object beditpopup: TSpeedButton
-        Left = 214
-        Top = 5
-        Width = 17
-        Height = 44
+        Left = 187
+        Top = 4
+        Width = 15
+        Height = 39
         Hint = 'Wi'#281'cej...'
         Flat = True
         Glyph.Data = {
@@ -2849,10 +2848,10 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object bdelpopup: TSpeedButton
-        Left = 275
-        Top = 5
-        Width = 18
-        Height = 44
+        Left = 241
+        Top = 4
+        Width = 15
+        Height = 39
         Hint = 'Wi'#281'cej...'
         Flat = True
         Glyph.Data = {
@@ -2870,10 +2869,10 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BTraceHistory: TSpeedButton
-        Left = 1153
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 1009
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = #346'ledzenie historii zmian'
         AllowAllUp = True
         GroupIndex = 2
@@ -3015,10 +3014,10 @@ inherited FMain: TFMain
         OnClick = BTraceHistoryClick
       end
       object bthpopup: TSpeedButton
-        Left = 1198
-        Top = 5
-        Width = 17
-        Height = 44
+        Left = 1048
+        Top = 4
+        Width = 15
+        Height = 39
         Hint = 'Wi'#281'cej...'
         Flat = True
         Glyph.Data = {
@@ -3037,10 +3036,10 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object SwitchMenu: TSpeedButton
-        Left = 9
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 8
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Menu g'#322#243'wne'
         AllowAllUp = True
         GroupIndex = 11
@@ -3149,10 +3148,10 @@ inherited FMain: TFMain
         OnClick = SwitchMenuClick
       end
       object BCloseApp: TSpeedButton
-        Left = 1105
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 967
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Zamknij program'
         Flat = True
         Glyph.Data = {
@@ -3262,109 +3261,109 @@ inherited FMain: TFMain
     end
     object LeftPanel: TPanel
       Left = 2
-      Top = 56
-      Width = 1570
-      Height = 155
+      Top = 49
+      Width = 1254
+      Height = 136
       Align = alTop
       TabOrder = 1
       OnClick = LeftPanelClick
       OnMouseMove = LeftPanelMouseMove
       object LprofileObjectNameC1: TLabel
-        Left = 820
-        Top = 94
-        Width = 62
-        Height = 16
+        Left = 725
+        Top = 82
+        Width = 47
+        Height = 14
         Alignment = taRightJustify
         Caption = '&Przedmiot'
       end
       object LprofileObjectNamePeriod: TLabel
-        Left = 829
-        Top = 45
-        Width = 50
-        Height = 16
+        Left = 731
+        Top = 39
+        Width = 38
+        Height = 13
         Alignment = taRightJustify
         Caption = 'S&emestr'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
+        Font.Height = -12
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
       end
       object LprofileObjectNameC2: TLabel
-        Left = 838
-        Top = 121
-        Width = 41
-        Height = 16
+        Left = 739
+        Top = 106
+        Width = 30
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Forma'
       end
       object LCONROLE_VALUE: TLabel
-        Left = 809
-        Top = 66
-        Width = 70
-        Height = 16
+        Left = 714
+        Top = 58
+        Width = 55
+        Height = 13
         Alignment = taRightJustify
         Caption = '&Autoryzacja'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
+        Font.Height = -12
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
       end
       object BRescat1: TSpeedButton
-        Left = 6
-        Top = 118
-        Width = 96
-        Height = 25
+        Left = 5
+        Top = 103
+        Width = 84
+        Height = 22
         Caption = 'Category name'
         Flat = True
         OnClick = BRescat1Click
       end
       object BRescat0: TSpeedButton
-        Left = 6
-        Top = 90
-        Width = 96
-        Height = 25
+        Left = 5
+        Top = 79
+        Width = 84
+        Height = 22
         Caption = 'Zasoby'
         Flat = True
         OnClick = BRescat0Click
       end
       object LprofileObjectNameL: TSpeedButton
-        Left = 6
-        Top = 35
-        Width = 96
-        Height = 26
+        Left = 5
+        Top = 31
+        Width = 84
+        Height = 22
         Caption = 'Wyk'#322'adowcy'
         Flat = True
       end
       object LprofileObjectNameG: TSpeedButton
-        Left = 6
-        Top = 63
-        Width = 96
-        Height = 25
+        Left = 5
+        Top = 55
+        Width = 84
+        Height = 22
         Caption = 'Grupy'
         Flat = True
       end
       object lshowAvail: TLabel
-        Left = 629
-        Top = 19
-        Width = 100
-        Height = 16
+        Left = 550
+        Top = 17
+        Width = 77
+        Height = 14
         Caption = 'poka'#380' dost'#281'pne'
       end
       object Shape1: TShape
-        Left = 635
-        Top = 34
-        Width = 2
-        Height = 100
+        Left = 556
+        Top = 30
+        Width = 1
+        Height = 87
       end
       object BCopy: TSpeedButton
-        Left = 98
-        Top = 6
-        Width = 89
-        Height = 28
+        Left = 86
+        Top = 5
+        Width = 78
+        Height = 25
         Caption = '&Kopiuj'
         Flat = True
         Glyph.Data = {
@@ -3414,10 +3413,10 @@ inherited FMain: TFMain
         OnClick = BCopyClick
       end
       object BPaste: TSpeedButton
-        Left = 190
-        Top = 6
-        Width = 89
-        Height = 28
+        Left = 166
+        Top = 5
+        Width = 78
+        Height = 25
         Caption = '&Wklej'
         Flat = True
         Glyph.Data = {
@@ -3466,10 +3465,10 @@ inherited FMain: TFMain
         OnClick = BPasteClick
       end
       object BitBtnPER: TSpeedButton
-        Left = 1123
-        Top = 35
-        Width = 27
-        Height = 26
+        Left = 983
+        Top = 31
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3510,10 +3509,10 @@ inherited FMain: TFMain
         OnClick = BitBtnPERClick
       end
       object selectl: TSpeedButton
-        Left = 593
-        Top = 35
-        Width = 26
-        Height = 26
+        Left = 519
+        Top = 31
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3553,10 +3552,10 @@ inherited FMain: TFMain
         OnClick = selectlClick
       end
       object selectg: TSpeedButton
-        Left = 593
-        Top = 63
-        Width = 26
-        Height = 25
+        Left = 519
+        Top = 55
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3596,10 +3595,10 @@ inherited FMain: TFMain
         OnClick = selectgClick
       end
       object selectr: TSpeedButton
-        Left = 593
-        Top = 90
-        Width = 26
-        Height = 25
+        Left = 519
+        Top = 79
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3639,10 +3638,10 @@ inherited FMain: TFMain
         OnClick = selectrClick
       end
       object selectResCat1: TSpeedButton
-        Left = 593
-        Top = 118
-        Width = 26
-        Height = 25
+        Left = 519
+        Top = 103
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3682,10 +3681,10 @@ inherited FMain: TFMain
         OnClick = selectResCat1Click
       end
       object BitBtnROLE: TSpeedButton
-        Left = 1306
-        Top = 64
-        Width = 27
-        Height = 25
+        Left = 1143
+        Top = 56
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3726,10 +3725,10 @@ inherited FMain: TFMain
         OnClick = BitBtnROLEClick
       end
       object BitBtnSUB: TSpeedButton
-        Left = 1251
-        Top = 117
-        Width = 27
-        Height = 25
+        Left = 1095
+        Top = 102
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3770,10 +3769,10 @@ inherited FMain: TFMain
         OnClick = BitBtnSUBClick
       end
       object BitBtnFORM: TSpeedButton
-        Left = 1306
-        Top = 8
-        Width = 27
-        Height = 25
+        Left = 1143
+        Top = 7
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -3814,10 +3813,10 @@ inherited FMain: TFMain
         OnClick = BitBtnFORMClick
       end
       object BClearS: TSpeedButton
-        Left = 1251
-        Top = 89
-        Width = 27
-        Height = 25
+        Left = 1095
+        Top = 78
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           1A070000424D1A07000000000000360000002800000015000000150000000100
@@ -3880,10 +3879,10 @@ inherited FMain: TFMain
         OnClick = BClearSClick
       end
       object BitBtnCLEARROLE: TSpeedButton
-        Left = 1122
-        Top = 62
-        Width = 27
-        Height = 25
+        Left = 982
+        Top = 54
+        Width = 23
+        Height = 22
         Flat = True
         Glyph.Data = {
           1A070000424D1A07000000000000360000002800000015000000150000000100
@@ -3947,10 +3946,10 @@ inherited FMain: TFMain
         OnClick = BitBtnCLEARROLEClick
       end
       object BSelectComb: TSpeedButton
-        Left = 593
-        Top = 8
-        Width = 26
-        Height = 25
+        Left = 519
+        Top = 7
+        Width = 23
+        Height = 22
         Hint = 'Wybierz kombinacj'#281
         Flat = True
         Glyph.Data = {
@@ -3986,10 +3985,10 @@ inherited FMain: TFMain
         OnClick = BSelectCombClick
       end
       object BShowCellLayout: TSpeedButton
-        Left = 7
-        Top = 6
-        Width = 89
-        Height = 28
+        Left = 6
+        Top = 5
+        Width = 78
+        Height = 25
         Caption = 'Zaj'#281'cie'
         Flat = True
         Glyph.Data = {
@@ -4057,20 +4056,20 @@ inherited FMain: TFMain
         OnMouseMove = BShowCellLayoutMouseMove
       end
       object AddDependencies: TSpeedButton
-        Left = 850
-        Top = 8
-        Width = 67
-        Height = 26
+        Left = 744
+        Top = 7
+        Width = 58
+        Height = 23
         Hint = 'Dodaj zasoby zale'#380'ne'
         Caption = 'Zale'#380'ne'
         Flat = True
         OnClick = AddDependenciesClick
       end
       object ValidResCat1: TBitBtn
-        Left = 1310
-        Top = 32
-        Width = 28
-        Height = 27
+        Left = 1146
+        Top = 28
+        Width = 25
+        Height = 24
         Hint = 'Sprawd'#378' poprawno'#347#263' danych'
         ParentShowHint = False
         ShowHint = True
@@ -4124,10 +4123,10 @@ inherited FMain: TFMain
         NumGlyphs = 2
       end
       object ValidR: TBitBtn
-        Left = 1328
-        Top = 5
-        Width = 29
-        Height = 27
+        Left = 1162
+        Top = 4
+        Width = 25
+        Height = 24
         Hint = 'Sprawd'#378' poprawno'#347#263' danych'
         ParentShowHint = False
         ShowHint = True
@@ -4181,10 +4180,10 @@ inherited FMain: TFMain
         NumGlyphs = 2
       end
       object ValidG: TBitBtn
-        Left = 121
-        Top = 45
-        Width = 29
-        Height = 27
+        Left = 106
+        Top = 39
+        Width = 25
+        Height = 24
         Hint = 'Sprawd'#378' poprawno'#347#263' danych'
         ParentShowHint = False
         ShowHint = True
@@ -4238,10 +4237,10 @@ inherited FMain: TFMain
         NumGlyphs = 2
       end
       object ValidL: TBitBtn
-        Left = 94
-        Top = 46
-        Width = 28
-        Height = 27
+        Left = 82
+        Top = 40
+        Width = 25
+        Height = 24
         Hint = 'Sprawd'#378' poprawno'#347#263' danych'
         ParentShowHint = False
         ShowHint = True
@@ -4296,10 +4295,10 @@ inherited FMain: TFMain
       end
       object congroup: TEdit
         Tag = 67108864
-        Left = 91
-        Top = 63
-        Width = 79
-        Height = 24
+        Left = 80
+        Top = 55
+        Width = 69
+        Height = 22
         ReadOnly = True
         TabOrder = 8
         Visible = False
@@ -4307,10 +4306,10 @@ inherited FMain: TFMain
       end
       object CONGROUP_value: TEdit
         Tag = 67108864
-        Left = 101
-        Top = 63
-        Width = 492
-        Height = 24
+        Left = 88
+        Top = 55
+        Width = 431
+        Height = 22
         TabOrder = 9
         OnClick = CONGROUP_valueClick
         OnDblClick = CONGROUP_valueDblClick
@@ -4320,10 +4319,10 @@ inherited FMain: TFMain
       end
       object conResCat0: TEdit
         Tag = 67108864
-        Left = 91
-        Top = 90
-        Width = 75
-        Height = 24
+        Left = 80
+        Top = 79
+        Width = 65
+        Height = 22
         ReadOnly = True
         TabOrder = 14
         Visible = False
@@ -4331,10 +4330,10 @@ inherited FMain: TFMain
       end
       object conResCat0_value: TEdit
         Tag = 67108864
-        Left = 101
-        Top = 90
-        Width = 492
-        Height = 24
+        Left = 88
+        Top = 79
+        Width = 431
+        Height = 22
         TabOrder = 15
         OnClick = conResCat0_valueClick
         OnDblClick = conResCat0_valueDblClick
@@ -4344,10 +4343,10 @@ inherited FMain: TFMain
       end
       object CONSUBJECT: TEdit
         Tag = 67108864
-        Left = 878
-        Top = 89
-        Width = 83
-        Height = 24
+        Left = 768
+        Top = 78
+        Width = 73
+        Height = 22
         ReadOnly = True
         TabOrder = 20
         Visible = False
@@ -4355,10 +4354,10 @@ inherited FMain: TFMain
       end
       object CONSUBJECT_value: TEdit
         Tag = 67108864
-        Left = 887
-        Top = 89
-        Width = 339
-        Height = 24
+        Left = 776
+        Top = 78
+        Width = 297
+        Height = 22
         ReadOnly = True
         TabOrder = 21
         OnClick = CONSUBJECT_valueClick
@@ -4366,10 +4365,10 @@ inherited FMain: TFMain
       end
       object conlecturer: TEdit
         Tag = 67108864
-        Left = 91
-        Top = 35
-        Width = 75
-        Height = 24
+        Left = 80
+        Top = 31
+        Width = 65
+        Height = 22
         ReadOnly = True
         TabOrder = 2
         Visible = False
@@ -4377,10 +4376,10 @@ inherited FMain: TFMain
       end
       object CONLECTURER_value: TEdit
         Tag = 67108864
-        Left = 101
-        Top = 35
-        Width = 492
-        Height = 24
+        Left = 88
+        Top = 31
+        Width = 431
+        Height = 22
         TabOrder = 3
         OnClick = CONLECTURER_valueClick
         OnDblClick = CONLECTURER_valueDblClick
@@ -4390,18 +4389,18 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsL: TCheckBox
         Tag = 67108864
-        Left = 629
-        Top = 40
-        Width = 21
-        Height = 19
+        Left = 550
+        Top = 35
+        Width = 19
+        Height = 17
         Hint = 'poka'#380' wolne terminy'
         TabOrder = 6
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyL: TComboBox
-        Left = 650
-        Top = 34
-        Width = 151
+        Left = 569
+        Top = 30
+        Width = 132
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4415,10 +4414,10 @@ inherited FMain: TFMain
       end
       object conPeriod: TEdit
         Tag = 67108864
-        Left = 878
-        Top = 35
-        Width = 77
-        Height = 24
+        Left = 768
+        Top = 31
+        Width = 68
+        Height = 22
         ReadOnly = True
         TabOrder = 0
         Visible = False
@@ -4426,10 +4425,10 @@ inherited FMain: TFMain
       end
       object CONPERIOD_VALUE: TEdit
         Tag = 67108864
-        Left = 887
-        Top = 35
-        Width = 235
-        Height = 24
+        Left = 776
+        Top = 31
+        Width = 206
+        Height = 22
         ReadOnly = True
         TabOrder = 1
         OnClick = CONPERIOD_VALUEClick
@@ -4437,18 +4436,18 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsG: TCheckBox
         Tag = 67108864
-        Left = 629
-        Top = 67
-        Width = 21
-        Height = 20
+        Left = 550
+        Top = 59
+        Width = 19
+        Height = 17
         Hint = 'poka'#380' wolne terminy'
         TabOrder = 12
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyG: TComboBox
-        Left = 650
-        Top = 62
-        Width = 151
+        Left = 569
+        Top = 54
+        Width = 132
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4462,18 +4461,18 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsR: TCheckBox
         Tag = 67108864
-        Left = 629
-        Top = 95
-        Width = 21
-        Height = 19
+        Left = 550
+        Top = 83
+        Width = 19
+        Height = 17
         Hint = 'poka'#380' wolne terminy'
         TabOrder = 18
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyResCat0: TComboBox
-        Left = 650
-        Top = 89
-        Width = 151
+        Left = 569
+        Top = 78
+        Width = 132
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4486,10 +4485,10 @@ inherited FMain: TFMain
           'dla kt'#243'regokolwiek')
       end
       object rorL: TBitBtn
-        Left = 569
-        Top = 35
-        Width = 25
-        Height = 26
+        Left = 498
+        Top = 31
+        Width = 22
+        Height = 22
         Hint = 'Zamie'#324' miejscami'
         ParentShowHint = False
         ShowHint = True
@@ -4525,10 +4524,10 @@ inherited FMain: TFMain
           E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9EC}
       end
       object rorG: TBitBtn
-        Left = 569
-        Top = 63
-        Width = 25
-        Height = 25
+        Left = 498
+        Top = 55
+        Width = 22
+        Height = 22
         Hint = 'Zamie'#324' miejscami'
         ParentShowHint = False
         ShowHint = True
@@ -4564,10 +4563,10 @@ inherited FMain: TFMain
           E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9ECD8E9EC}
       end
       object rorR: TBitBtn
-        Left = 569
-        Top = 90
-        Width = 25
-        Height = 25
+        Left = 498
+        Top = 79
+        Width = 22
+        Height = 22
         Hint = 'Zamie'#324' miejscami'
         ParentShowHint = False
         ShowHint = True
@@ -4604,10 +4603,10 @@ inherited FMain: TFMain
       end
       object CONFORM: TEdit
         Tag = 67108864
-        Left = 880
-        Top = 117
-        Width = 83
-        Height = 24
+        Left = 770
+        Top = 102
+        Width = 73
+        Height = 22
         ReadOnly = True
         TabOrder = 22
         Visible = False
@@ -4615,10 +4614,10 @@ inherited FMain: TFMain
       end
       object CONFORM_VALUE: TEdit
         Tag = 67108864
-        Left = 887
-        Top = 117
-        Width = 339
-        Height = 24
+        Left = 776
+        Top = 102
+        Width = 297
+        Height = 22
         ReadOnly = True
         TabOrder = 23
         OnClick = CONFORM_VALUEClick
@@ -4626,10 +4625,10 @@ inherited FMain: TFMain
       end
       object RespectCompletions: TCheckBox
         Tag = 67108864
-        Left = 739
-        Top = 15
-        Width = 110
-        Height = 19
+        Left = 647
+        Top = 13
+        Width = 96
+        Height = 17
         Hint = 'Uwzgl'#281'dniaj uzupe'#322'nianie zaj'#281'c'
         Caption = 'Uzupe'#322'nianie'
         TabOrder = 24
@@ -4637,10 +4636,10 @@ inherited FMain: TFMain
       end
       object conRole: TEdit
         Tag = 67108864
-        Left = 878
-        Top = 62
-        Width = 77
-        Height = 24
+        Left = 768
+        Top = 54
+        Width = 68
+        Height = 22
         ReadOnly = True
         TabOrder = 25
         Visible = False
@@ -4648,10 +4647,10 @@ inherited FMain: TFMain
       end
       object CONROLE_VALUE: TEdit
         Tag = 67108864
-        Left = 887
-        Top = 62
-        Width = 235
-        Height = 24
+        Left = 776
+        Top = 54
+        Width = 206
+        Height = 22
         ReadOnly = True
         TabOrder = 26
         OnClick = CONROLE_VALUEClick
@@ -4659,10 +4658,10 @@ inherited FMain: TFMain
       end
       object conResCat1: TEdit
         Tag = 67108864
-        Left = 91
-        Top = 118
-        Width = 75
-        Height = 24
+        Left = 80
+        Top = 103
+        Width = 65
+        Height = 22
         ReadOnly = True
         TabOrder = 27
         Visible = False
@@ -4670,10 +4669,10 @@ inherited FMain: TFMain
       end
       object conResCat1_value: TEdit
         Tag = 67108864
-        Left = 101
-        Top = 118
-        Width = 492
-        Height = 24
+        Left = 88
+        Top = 103
+        Width = 431
+        Height = 22
         TabOrder = 28
         OnClick = conResCat1_valueClick
         OnDblClick = conResCat1_valueDblClick
@@ -4682,10 +4681,10 @@ inherited FMain: TFMain
         OnKeyUp = conResCat1_valueKeyUp
       end
       object rorResCat1: TBitBtn
-        Left = 569
-        Top = 118
-        Width = 25
-        Height = 25
+        Left = 498
+        Top = 103
+        Width = 22
+        Height = 22
         Hint = 'Zamie'#324' miejscami'
         ParentShowHint = False
         ShowHint = True
@@ -4722,18 +4721,18 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsResCat1: TCheckBox
         Tag = 67108864
-        Left = 629
-        Top = 122
-        Width = 21
-        Height = 20
+        Left = 550
+        Top = 107
+        Width = 19
+        Height = 17
         Hint = 'poka'#380' wolne terminy'
         TabOrder = 30
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyResCat1: TComboBox
-        Left = 650
-        Top = 117
-        Width = 151
+        Left = 569
+        Top = 102
+        Width = 132
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
@@ -4747,60 +4746,60 @@ inherited FMain: TFMain
       end
       object DrawSuppressionS: TCheckBox
         Tag = 67108864
-        Left = 1232
-        Top = 89
-        Width = 18
-        Height = 20
+        Left = 1078
+        Top = 78
+        Width = 16
+        Height = 17
         Hint = 'Wyr'#243#380'niaj wybrany przedmiot'
         TabOrder = 33
         OnClick = DrawSuppressionSClick
       end
       object DrawSuppressionF: TCheckBox
         Tag = 67108864
-        Left = 1232
-        Top = 117
-        Width = 18
-        Height = 19
+        Left = 1078
+        Top = 102
+        Width = 16
+        Height = 17
         Hint = 'Wyr'#243#380'niaj wybran'#261' form'#281
         TabOrder = 34
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 967
-        Top = 41
-        Width = 568
-        Height = 111
+        Left = 846
+        Top = 36
+        Width = 497
+        Height = 97
         TabOrder = 35
         Visible = False
         object LCal: TLabel
-          Left = 27
-          Top = 46
-          Width = 63
-          Height = 16
+          Left = 24
+          Top = 40
+          Width = 49
+          Height = 14
           Caption = 'Kalendarz'
         end
         object L4: TLabel
-          Left = 27
-          Top = 73
-          Width = 192
-          Height = 16
+          Left = 24
+          Top = 64
+          Width = 150
+          Height = 14
           Caption = 'Edycja kalendarza dni wolnych'
         end
         object CALID: TEdit
-          Left = 82
-          Top = 37
-          Width = 139
-          Height = 24
+          Left = 72
+          Top = 32
+          Width = 121
+          Height = 22
           TabOrder = 1
           Text = '-1'
           Visible = False
           OnChange = CALIDChange
         end
         object CALID_VALUE: TEdit
-          Left = 91
-          Top = 37
-          Width = 236
-          Height = 24
+          Left = 80
+          Top = 32
+          Width = 206
+          Height = 22
           ReadOnly = True
           TabOrder = 0
           OnClick = CALID_VALUEClick
@@ -4809,10 +4808,10 @@ inherited FMain: TFMain
     end
     object pRightDockPanel: TPanel
       Tag = 1
-      Left = 1571
-      Top = 211
+      Left = 1255
+      Top = 185
       Width = 1
-      Height = 700
+      Height = 744
       Align = alRight
       DockSite = True
       TabOrder = 2
@@ -4823,9 +4822,9 @@ inherited FMain: TFMain
     object pLeftDockPanel: TPanel
       Tag = 2
       Left = 2
-      Top = 211
+      Top = 185
       Width = 1
-      Height = 700
+      Height = 744
       Align = alLeft
       DockSite = True
       TabOrder = 3
@@ -4834,10 +4833,10 @@ inherited FMain: TFMain
       OnUnDock = pRightDockPanelUnDock
     end
     object DBUpdates: TMemo
-      Left = 896
-      Top = 393
-      Width = 211
-      Height = 102
+      Left = 784
+      Top = 344
+      Width = 185
+      Height = 89
       Lines.Strings = (
         '### EXTENTION BEGIN'
         '### EXTENTION NAME:Administrator'
@@ -6527,10 +6526,10 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object fastQueryGenericString: TMemo
-      Left = 1112
-      Top = 393
-      Width = 211
-      Height = 102
+      Left = 973
+      Top = 344
+      Width = 185
+      Height = 89
       Lines.Strings = (
         '('
         
@@ -6578,32 +6577,32 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object gridPanel: TPanel
-      Left = 7
-      Top = 211
-      Width = 1561
-      Height = 700
+      Left = 6
+      Top = 185
+      Width = 1246
+      Height = 744
       Align = alClient
       Caption = 'gridPanel'
       TabOrder = 6
       object filterPanel: TPanel
         Left = 1
         Top = 1
-        Width = 1559
-        Height = 28
+        Width = 1244
+        Height = 24
         Align = alTop
         TabOrder = 0
         object Filter: TEdit
-          Left = 137
+          Left = 120
           Top = 0
-          Width = 1245
-          Height = 24
+          Width = 1089
+          Height = 22
           TabOrder = 0
           OnChange = FilterChange
         end
         object CustomPeriod: TComboBox
           Left = 1
           Top = -1
-          Width = 138
+          Width = 121
           Height = 22
           Style = csOwnerDrawFixed
           DropDownCount = 15
@@ -6629,9 +6628,9 @@ inherited FMain: TFMain
       end
       object Grid: TDrawGrid
         Left = 1
-        Top = 29
-        Width = 1559
-        Height = 670
+        Top = 25
+        Width = 1244
+        Height = 718
         Align = alClient
         ColCount = 50
         DefaultColWidth = 28
@@ -6657,24 +6656,24 @@ inherited FMain: TFMain
   object SearchPanel: TPanel
     Left = 0
     Top = 0
-    Width = 343
-    Height = 913
+    Width = 300
+    Height = 931
     Align = alLeft
     Caption = 'SearchPanel'
     TabOrder = 3
     object Splitter3: TSplitter
       Left = 1
-      Top = 793
-      Width = 341
-      Height = 4
+      Top = 826
+      Width = 298
+      Height = 3
       Cursor = crSizeNS
       Align = alBottom
     end
     object TreeView1: TTreeView
       Left = 1
-      Top = 56
-      Width = 341
-      Height = 737
+      Top = 49
+      Width = 298
+      Height = 777
       Align = alClient
       HotTrack = True
       Images = ImageList
@@ -6690,18 +6689,18 @@ inherited FMain: TFMain
     object Panel1: TPanel
       Left = 1
       Top = 1
-      Width = 341
-      Height = 55
+      Width = 298
+      Height = 48
       Align = alTop
       TabOrder = 1
       DesignSize = (
-        341
-        55)
+        298
+        48)
       object BFastSearchNew: TSpeedButton
         Left = 1
-        Top = 5
-        Width = 45
-        Height = 44
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'Nowy'
         Flat = True
         Glyph.Data = {
@@ -6808,10 +6807,10 @@ inherited FMain: TFMain
         OnClick = BFastSearchNewClick
       end
       object BFastSearchShowAdv: TSpeedButton
-        Left = 48
-        Top = 5
-        Width = 45
-        Height = 44
+        Left = 42
+        Top = 4
+        Width = 39
+        Height = 39
         Hint = 'W'#322#261'cz panel dla zaawansowanych u'#380'ytkownik'#243'w'
         AllowAllUp = True
         GroupIndex = 66
@@ -6920,10 +6919,10 @@ inherited FMain: TFMain
         OnClick = BFastSearchShowAdvClick
       end
       object SearchMenu: TEdit
-        Left = 101
-        Top = 13
-        Width = 229
-        Height = 24
+        Left = 88
+        Top = 11
+        Width = 201
+        Height = 22
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'Szukaj...'
@@ -6933,10 +6932,10 @@ inherited FMain: TFMain
       end
     end
     object FastQueryString: TMemo
-      Left = 18
-      Top = 101
-      Width = 212
-      Height = 101
+      Left = 16
+      Top = 88
+      Width = 185
+      Height = 89
       Lines.Strings = (
         'select * from ('
         
@@ -7005,10 +7004,10 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object tt_notes: TMemo
-      Left = 18
-      Top = 210
-      Width = 212
-      Height = 102
+      Left = 16
+      Top = 184
+      Width = 185
+      Height = 89
       Lines.Strings = (
         
           'select tt.id, r.name ||'#39' ('#39'|| p.name||'#39')'#39' Name, per_id, res_id, ' +
@@ -7040,26 +7039,26 @@ inherited FMain: TFMain
     end
     object PanelRecentlyUsed: TPanel
       Left = 1
-      Top = 797
-      Width = 341
-      Height = 115
+      Top = 829
+      Width = 298
+      Height = 101
       Align = alBottom
       TabOrder = 4
       object Panel2: TPanel
         Left = 1
         Top = 1
-        Width = 339
-        Height = 30
+        Width = 296
+        Height = 26
         Align = alTop
         TabOrder = 0
         DesignSize = (
-          339
-          30)
+          296
+          26)
         object TreeModeCleanup: TSpeedButton
           Left = 1
           Top = 2
-          Width = 25
-          Height = 25
+          Width = 22
+          Height = 22
           Hint = 'Wyczy'#347#263' histori'#281
           Flat = True
           Glyph.Data = {
@@ -7101,9 +7100,9 @@ inherited FMain: TFMain
         end
         object TreeMode: TComboBox
           Tag = 67108864
-          Left = 27
+          Left = 24
           Top = 2
-          Width = 303
+          Width = 265
           Height = 22
           AutoDropDown = True
           AutoCloseUp = True
@@ -7130,9 +7129,9 @@ inherited FMain: TFMain
       end
       object TreeRecentlyused: TTreeView
         Left = 1
-        Top = 31
-        Width = 339
-        Height = 83
+        Top = 27
+        Width = 296
+        Height = 73
         Align = alClient
         HotTrack = True
         Images = ImageList
@@ -7147,10 +7146,10 @@ inherited FMain: TFMain
       end
     end
     object recentlyUsedQuery: TMemo
-      Left = 18
-      Top = 402
-      Width = 212
-      Height = 102
+      Left = 16
+      Top = 352
+      Width = 185
+      Height = 89
       Lines.Strings = (
         'select * from'
         '('
@@ -7195,10 +7194,10 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object mostlyUsedQuery: TMemo
-      Left = 115
-      Top = 603
-      Width = 212
-      Height = 102
+      Left = 101
+      Top = 528
+      Width = 185
+      Height = 89
       Lines.Strings = (
         'select name||'#39' ['#39'||row_number||'#39']'#39' name'
         '     , type'
@@ -7247,10 +7246,10 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object TopCntQuery: TMemo
-      Left = 93
-      Top = 581
-      Width = 211
-      Height = 101
+      Left = 81
+      Top = 508
+      Width = 185
+      Height = 89
       Lines.Strings = (
         
           'select case when type='#39'L'#39' then (select title||'#39' '#39'||first_name||'#39 +
@@ -7360,10 +7359,10 @@ inherited FMain: TFMain
       WordWrap = False
     end
     object TopCntPeriodQuery: TMemo
-      Left = 102
-      Top = 590
-      Width = 211
-      Height = 101
+      Left = 97
+      Top = 596
+      Width = 185
+      Height = 89
       Lines.Strings = (
         
           'select case when type='#39'L'#39' then (select title||'#39' '#39'||first_name||'#39 +
@@ -7406,7 +7405,7 @@ inherited FMain: TFMain
         #9'select lec_id res_id, '#39'L'#39' type, count(*) cnt'
         #9'  from lec_cla'
         '          where (%PERMISSIONS_L)'
-        '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '            and %PERIOD_CLAUSE'
         #9'  group by lec_id'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7418,7 +7417,7 @@ inherited FMain: TFMain
         #9'select gro_id, '#39'G'#39', count(*) cnt'
         #9'  from gro_cla'
         '          where (%PERMISSIONS_G)'
-        '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '            and %PERIOD_CLAUSE'
         #9'  group by gro_id'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7430,7 +7429,7 @@ inherited FMain: TFMain
         #9'select rom_id, '#39'R'#39', count(*) cnt'
         #9'  from rom_cla'
         '          where (%PERMISSIONS_R)'
-        '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '            and %PERIOD_CLAUSE'
         #9'  group by rom_id'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7443,7 +7442,7 @@ inherited FMain: TFMain
         #9'  from classes'
         #9'  where sub_id is not null'
         '          and (%PERMISSIONS_S)'
-        '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '            and %PERIOD_CLAUSE'
         #9'  group by sub_id'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7455,7 +7454,7 @@ inherited FMain: TFMain
         #9'select for_id, '#39'F'#39', count(*) cnt'
         #9'  from classes'
         '          where (%PERMISSIONS_F)'
-        '            and DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '            and %PERIOD_CLAUSE'
         #9'  group by for_id'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7468,7 +7467,7 @@ inherited FMain: TFMain
           #9'select (select id from planners where name = classes.created_by' +
           '), '#39'B'#39', count(*) cnt'
         #9'  from classes'
-        '          where DAY BETWEEN %DATE_FROM and %DATE_TO'
+        '          where %PERIOD_CLAUSE'
         #9'  group by created_by'
         #9') x'
         #9') where rownumber <= %LIMIT'
@@ -7592,6 +7591,10 @@ inherited FMain: TFMain
       object Legenda1: TMenuItem
         Caption = 'Legenda'
         OnClick = Legenda1Click
+      end
+      object Przywrckomunikaty1: TMenuItem
+        Caption = 'Przywr'#243#263' komunikaty'
+        OnClick = Przywrckomunikaty1Click
       end
       object N11: TMenuItem
         Caption = '-'

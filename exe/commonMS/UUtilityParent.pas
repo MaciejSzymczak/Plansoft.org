@@ -679,14 +679,6 @@ Begin
 
 End;
 
-Procedure Warning(S : String);
-Var H : String;
-Begin
- S := S + Char(0);
- H := sUWAGA;
- MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONWARNING + MB_TASKMODAL);
-End;
-
 Procedure info(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
 Var H : String;
 Begin
@@ -713,6 +705,14 @@ Begin
    End;
  end;
 
+End;
+
+Procedure Warning(S : String);
+Var H : String;
+Begin
+ S := S + Char(0);
+ H := sUWAGA;
+ MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONWARNING + MB_TASKMODAL);
 End;
 
 Procedure SError(S : String);

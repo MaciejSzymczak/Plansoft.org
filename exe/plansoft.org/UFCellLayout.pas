@@ -76,6 +76,7 @@ begin
  Point.y := fmain.BShowCellLayout.Height;
  Point   := fmain.BShowCellLayout.ClientToScreen(Point);
  Left := point.X - (fcellLayout.Width div 2);
+ if Left < 0 then Left := 0;
  Top  := point.Y;
  show;
 end;

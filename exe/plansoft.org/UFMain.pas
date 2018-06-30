@@ -604,6 +604,7 @@ type
     Przywr1: TMenuItem;
     Odczwybranego1: TMenuItem;
     AddDependencies: TSpeedButton;
+    Przywrckomunikaty1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -942,6 +943,7 @@ type
     procedure Przywr1Click(Sender: TObject);
     procedure Odczwybranego1Click(Sender: TObject);
     procedure AddDependenciesClick(Sender: TObject);
+    procedure Przywrckomunikaty1Click(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -990,11 +992,6 @@ type
     MapPlannerSupervisors : TMap;
     silentMode : boolean;
     AObjectId : integer;
-
-    PeriodDateFrom : TDateTime;
-    PeriodDateTo   : TDateTime;
-    PeriodDateFromSQL : string;
-    PeriodDateToSQL : string;
 
     disableFurtherActivities : boolean;
     currSelectedArea : string[50]; //user by procedure set_tmp_selected_dates
@@ -1148,6 +1145,7 @@ Var t : Integer;
     ids : string;
     SQLstmt : string;
     firstDay : integer;
+    periodClause : string;
 
 Var L1, L2 : Integer;
 begin
@@ -1158,7 +1156,9 @@ begin
    DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
    DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
    Count    :=  QWork.Fields[2].AsInteger+1;
+   //info (  IntToStr(PER_ID) +'#'+ QWork.Fields[2].AsString ) ;
    firstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
+   periodClause := format('DAY BETWEEN %s AND %s', [DateFrom, DateTo]);
 
    Init(firstDay, Count, QWork.FieldByName('HOURS_PER_DAY').AsInteger);
 
@@ -1226,26 +1226,25 @@ begin
    //variables have no meaning, statement will be commented
   end;
 
-
   SQLstmt :=
    'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(*) cnt'+cr+
    'from   classes, subjects sub, forms form'+cr+
    'where sub_id=sub.id(+) and for_id=form.id(+) and classes.id in'+cr+
    '('+cr+
    'select -1 from dual'+cr+
-   iif(LecCond='',''    ,'union select cla_id from lec_cla where day between '+DateFrom+' and '+DateTo+' and ('+LecCond+')'+cr)+
-   iif(GroCond='',''    ,'union select cla_id from gro_cla where day between '+DateFrom+' and '+DateTo+' and ('+GroCond+')'+cr)+
-   iif(RomCond='',''    ,'union select cla_id from rom_cla where day between '+DateFrom+' and '+DateTo+' and ('+RomCond+')'+cr)+
-   iif(ResCat1Cond='','','union select cla_id from rom_cla where day between '+DateFrom+' and '+DateTo+' and ('+ResCat1Cond+')'+cr)+
+   iif(LecCond='',''    ,'union select cla_id from lec_cla where '+periodClause+' and ('+LecCond+')'+cr)+
+   iif(GroCond='',''    ,'union select cla_id from gro_cla where '+periodClause+' and ('+GroCond+')'+cr)+
+   iif(RomCond='',''    ,'union select cla_id from rom_cla where '+periodClause+' and ('+RomCond+')'+cr)+
+   iif(ResCat1Cond='','','union select cla_id from rom_cla where '+periodClause+' and ('+ResCat1Cond+')'+cr)+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
-   'select id from classes where day between '+DateFrom+' and '+DateTo+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
-   iif(NotLec='','','union select cla_id from lec_cla where day between '+DateFrom+' and '+DateTo+' and '+NotLec+cr)+
-   iif(NotGro='','','union select cla_id from gro_cla where day between '+DateFrom+' and '+DateTo+' and '+NotGro+cr)+
-   iif(NotRom='','','union select cla_id from rom_cla where day between '+DateFrom+' and '+DateTo+' and '+NotRom+cr)+
+   'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
+   iif(NotLec='','','union select cla_id from lec_cla where '+periodClause+' and '+NotLec+cr)+
+   iif(NotGro='','','union select cla_id from gro_cla where '+periodClause+' and '+NotGro+cr)+
+   iif(NotRom='','','union select cla_id from rom_cla where '+periodClause+' and '+NotRom+cr)+
    ')'+cr+
    comment2+cr
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
@@ -1258,7 +1257,13 @@ begin
 
      t := X-FirstDay;
 
-     if  (t < 0) or (t >high(global)) then SError('Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista zajêæ') else
+     if  (t < 0) or (t >high(global)) then
+         SError('Wyst¹pi³o zdarzenie "1 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista zajêæ '+
+         't='+inttostr(t)+
+         ' high(global)='+inttostr(high(global))+
+         ' X='+inttostr(x)+
+         ' FirstDay='+inttostr(FirstDay)
+         ) else
      if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordow nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
      else begin
        global[t][y].isBusy := True;
@@ -1285,7 +1290,7 @@ begin
       openSQL (
        'select day, hour, min(ratio) ratio '+ //get worst ratio
          'from res_hints '+
-         'where day between '+DateFrom+' and '+DateTo + ' '+
+         'where '+periodClause + ' '+
            'and res_id in ('+ids+') '+
            iif( (fmain.FavSelected.Checked )and (fmain.getCurrentObjectId <>-1), ' and res_id='+ intToStr(fmain.getCurrentObjectId) + ' ','')+
        'group by day, hour ');
@@ -1293,7 +1298,7 @@ begin
        X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
        Y := QWork.FieldByName('HOUR').AsInteger;
        t := X-FirstDay;
-       if  (t < 0) or (t >high(ratio)) then SError('Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
+       if  (t < 0) or (t >high(ratio)) then SError('Wyst¹pi³o zdarzenie "2 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
        if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
        else begin
          ratio[t][y].ratio := QWork.FieldByName('ratio').AsInteger;
@@ -2127,10 +2132,6 @@ Begin
     Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD''), PERIODS.* FROM PERIODS WHERE ID='+conPeriod.TEXT));
     DateFrom := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
     DateTo := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
-    PeriodDateFrom := DateFrom;
-    PeriodDateto := DateTo;
-    PeriodDateFromSQL := DateToOracle(periodDateFrom);
-    PeriodDateToSQL   := DateToOracle(periodDateTo);
   End;
   HOURS_PER_DAY := DModule.QWork.FieldByName('HOURS_PER_DAY').AsInteger;
 
@@ -3595,7 +3596,7 @@ begin
 
    t := X-FirstDay;
 
-   if  (t < 0) or (t >high(data)) then SError('Wyst¹pi³o zdarzenie "Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
+   if  (t < 0) or (t >high(data)) then SError('Wyst¹pi³o zdarzenie "3 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
    if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: '+'1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
    else begin
      //dGeneralDebug := 'Status='+inttostr(Data[t][y].Status) + 'day='+ dateToYYYYMMDD_HHMMSSMI(QWork.FieldByName('DAY').AsDateTime) +'hour='+ QWork.FieldByName('HOUR').AsString + ' ' + qwork.SQL.Text; //@@@@
@@ -8343,7 +8344,7 @@ end;
 
 procedure TFMain.Nowyzasb1Click(Sender: TObject);
 begin
-  ROOMSShowModalAsBrowser('','');
+  ROOMSShowModalAsBrowser('1','');
 end;
 
 procedure TFMain.BFastSearchShowAdvClick(Sender: TObject);
@@ -8809,8 +8810,7 @@ Begin
         sqlString := stringreplace(sqlString, '%PERMISSIONS_S', getWhereClause('SUBJECTS','CLASSES','SUB_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_F', getWhereClause('FORMS','CLASSES','FOR_ID'), []);
         sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','100'), [rfReplaceAll]);
-        sqlString := stringreplace(sqlString, '%DATE_FROM',  DateToOracle(periodDateFrom), [rfReplaceAll]);
-        sqlString := stringreplace(sqlString, '%DATE_TO', DateToOracle(periodDateTo), [rfReplaceAll]);
+        sqlString := stringreplace(sqlString, '%PERIOD_CLAUSE',  getWhereClausefromPeriod('ID='+conPeriod.text,'')   , [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
         //copytoclipboard(  sqlString); info ('debug');
     end;
@@ -8960,6 +8960,12 @@ begin
   ConGroup.Text := getChildsAndParents(ConGroup.Text, '', true);
   conResCat0.Text := getChildsAndParents(conResCat0.Text, '', true);
   conResCat1.Text := getChildsAndParents(conResCat1.Text, '', true);
+end;
+
+procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);
+begin
+  SetSystemParam('MESSAGE.SkipCapacityOverflow','-');
+  Info('Otrze¿enie o przekroczonej zajêtoœci sal zosta³y przywrócone');
 end;
 
 initialization

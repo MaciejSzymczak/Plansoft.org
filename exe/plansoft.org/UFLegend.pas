@@ -267,32 +267,6 @@ Begin
 End;
 
 
-function getWhereClause : string;
- var days : string;
-     whereClause : string;
-begin
-    if not isBlank(fmain.CONPERIOD.Text) then begin
-      days := '';
-      whereClause :=
-        'CLA.DAY BETWEEN ' + fmain.PeriodDateFromSQL + ' AND ' + fmain.PeriodDateToSQL + CR;
-
-      with DModule do Begin
-        OPENSQL('SELECT SHOW_MON,SHOW_TUE,SHOW_WED,SHOW_THU,SHOW_FRI,SHOW_SAT,SHOW_SUN, hours_per_day  FROM PERIODS WHERE ID = ' + fmain.CONPERIOD.Text);
-        if QWork.Fields[0].AsString = '+' then days := merge(days, '1', ',');
-        if QWork.Fields[1].AsString = '+' then days := merge(days, '2', ',');
-        if QWork.Fields[2].AsString = '+' then days := merge(days, '3', ',');
-        if QWork.Fields[3].AsString = '+' then days := merge(days, '4', ',');
-        if QWork.Fields[4].AsString = '+' then days := merge(days, '5', ',');
-        if QWork.Fields[5].AsString = '+' then days := merge(days, '6', ',');
-        if QWork.Fields[6].AsString = '+' then days := merge(days, '7', ',');
-
-        whereClause := merge(whereClause, 'CLA.HOUR <=' + QWork.Fields[7].AsString, ' AND ');
-      end;
-      if not isBlank(days) then whereClause := merge(whereClause, 'TO_CHAR(CLA.DAY,''D'') IN ('+days+')', ' AND ');
-    end else whereClause := '0=0';
-    result :=  '(' + whereClause + ')';
-end;
-
 procedure TFLegend.FindModeClick(Sender: TObject);
 begin
   inherited;
@@ -513,6 +487,8 @@ end;
 
 procedure TFLegend.BRefreshClick(Sender: TObject);
 Var forms_filter,hours_filter : string;
+    periodClauseCLA  : string;
+    periodClause  : string;
     groupByClause : string;
     orderByClause : string;
     rollUpFilter  : string;
@@ -633,6 +609,8 @@ begin
         , iif(groupByR.Checked, '(("Zasób" is not null and ROM_ID is not null) or ("Zasób"=''--'' and ROM_ID is null))','')
        ]);
 
+    periodClauseCLA  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');
+    periodClause  := replace(periodClauseCLA,'CLA.','');
     QueryCOUNTER.SQL.Add(
     'select * from ('+cr+
     'SELECT '+mergeStrings(',',[
@@ -661,7 +639,7 @@ begin
           iif( groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked or groupByL.Checked, ',LEC_CLA, LECTURERS LEC ' + CR,'')+
           iif( groupByG.Checked, ',GRO_CLA, GROUPS GRO ' + CR,'')+
           iif( groupByR.Checked, ',ROM_CLA, ROOMS ROM ' + CR,'')+
-    ' WHERE '+ getwhereClause + CR +
+    ' WHERE '+ periodClauseCLA + CR +
       ' AND ('
           + fmain.getWhereFastFilter(self.filter.text, 'SUB')
           + ' or ' + fmain.getWhereFastFilter(self.filter.text, 'FR')
@@ -685,10 +663,10 @@ begin
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
-    iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from lec_cla where '+getwhereClause+' and lec_id='+ExtractWord(1,Nvl(fmain.ConLecturer.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from gro_cla where '+getwhereClause+' and gro_id='+ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+getwhereClause+' and rom_id='+ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+getwhereClause+' and rom_id='+ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';'])+')','') + CR +
+    iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from lec_cla where '+periodClause+' and lec_id='+ExtractWord(1,Nvl(fmain.ConLecturer.Text,'-1'),[';'])+')','') + CR +
+    iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from gro_cla where '+periodClause+' and gro_id='+ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';'])+')','') + CR +
+    iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+periodClause+' and rom_id='+ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';'])+')','') + CR +
+    iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+periodClause+' and rom_id='+ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';'])+')','') + CR +
     iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
