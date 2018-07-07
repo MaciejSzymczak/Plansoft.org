@@ -576,6 +576,7 @@ begin
   end;
 
   if PageControl.ActivePage = TabsheetCounter then begin
+    if Fmain.CONPERIOD.Text='' then exit;
     QueryCOUNTER.SQL.Clear;
     groupbyClause := mergeStrings(',',[
          iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')

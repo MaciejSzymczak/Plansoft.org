@@ -2263,7 +2263,7 @@ Begin
 
  // to aviod "Nie mo¿na zmieniæ w³aœciwoœci ActiveConnection obiektu Recordset, którego Ÿród³em jest obiekt Command"
  // error occured during closing aplication
- dmodule.resetConnection ( Query ); 
+ dmodule.resetConnection ( Query );
 End;
 
 //------------------------------------------------------------------
@@ -2272,7 +2272,19 @@ Begin
  SingleMode := True;
  // to aviod "object was open"
  dmodule.resetConnection(Query);
- Execute(Action, id);
+
+ //Execute(Action, id);
+ if Action = AEdit then begin
+   //redundant code, justification:
+   //EditClick reads SQL results, so the Query must be active
+   CurrOperation := AEdit;
+   self.ID := ID;
+   Query.Close;
+   SwitchQueryToDetails;
+   PrepareQueryOnDetailsForm;
+   editClick;
+ end
+ else Execute(Action, id);
 
  // to aviod "Nie mo¿na zmieniæ w³aœciwoœci ActiveConnection obiektu Recordset, którego Ÿród³em jest obiekt Command"
  // error occured on close aplication

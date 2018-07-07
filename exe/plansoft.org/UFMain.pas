@@ -4428,19 +4428,76 @@ begin
 end;
 
 procedure TFMain.deleteLecFromSelection;
-var keyValue : shortString;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
 begin
   if TabViewType.TabIndex = 0 then
    if question(
        format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy: %s zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text, fprogramsettings.profileObjectNameL.Text ])
       ) <> id_yes then exit;
+  keyValue := '';
+  if not unplugAll then begin
+    If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+      for t := 1 to wordCount(KeyValues, [',']) do begin
+        KeyValue := extractWord(t,KeyValues, [',']);
+        modifyClasses(0,0,clDeleteLec,keyValue,'');
+        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+      end;
+    end;
+  end else
+    modifyClasses(0,0,clDeleteLec,'' {keyValue},'');
+
+  grid.Refresh;
+end;
+
+procedure TFMain.deleteGroFromSelection;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
+begin
+  if TabViewType.TabIndex = 1 then
+   if question(
+       format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy: %s zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text, fprogramsettings.profileObjectNameG.Text ])
+   ) <> id_yes then exit;
 
   keyValue := '';
   if not unplugAll then begin
-    If LECTURERSShowModalAsSelect(KeyValue,'','0=0','') <> mrOK Then exit;
-  end;
+    If GROUPSShowModalAsMultiSelect(KeyValue,'','0=0','') = mrOK Then begin
+      for t := 1 to wordCount(KeyValues, [',']) do begin
+        KeyValue := extractWord(t,KeyValues, [',']);
+        modifyClasses(0,0,clDeleteGro,keyValue,'');
+        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+      end;
+    end;
+  end else
+    modifyClasses(0,0,clDeleteGro,''{keyValue},'');
 
-  modifyClasses(0,0,clDeleteLec,keyValue,'');
+  grid.Refresh;
+end;
+
+procedure TFMain.deleteResFromSelection;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
+begin
+  if TabViewType.TabIndex = 2 then
+   if question(
+       format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy zasób zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text])
+   ) <> id_yes then exit;
+
+  keyValue := '';
+  if not unplugAll then begin
+    If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') = mrOK Then begin
+      for t := 1 to wordCount(KeyValues, [',']) do begin
+        KeyValue := extractWord(t,KeyValues, [',']);
+        modifyClasses(0,0,clDeleteRes,keyValue,'');
+        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+      end;
+    end;
+  end else
+     modifyClasses(0,0,clDeleteRes,'' {keyValue},'');
+
   grid.Refresh;
 end;
 
@@ -4457,41 +4514,6 @@ begin
   grid.Refresh;
 end;
 
-procedure TFMain.deleteGroFromSelection;
-var keyValue : shortString;
-begin
-  if TabViewType.TabIndex = 1 then
-   if question(
-       format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy: %s zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text, fprogramsettings.profileObjectNameG.Text ])
-   ) <> id_yes then exit;
-
-  keyValue := '';
-  if not unplugAll then begin
-    If GROUPSShowModalAsSelect(KeyValue,'','0=0','') <> mrOK Then exit;
-  end;
-
-  modifyClasses(0,0,clDeleteGro,keyValue,'');
-  grid.Refresh;
-end;
-
-procedure TFMain.deleteResFromSelection;
-var keyValue : shortString;
-begin
-  //if not elementEnabled('"Operacje grupowe"','2011.01.01') then begin exit; end;
-  if TabViewType.TabIndex = 2 then
-   if question(
-       format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy zasób zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text])
-   ) <> id_yes then exit;
-
-  keyValue := '';
-  if not unplugAll then begin
-    If ROOMSShowModalAsSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') <> mrOK Then exit;
-  end;
-
-  modifyClasses(0,0,clDeleteRes,keyValue,'');
-  grid.Refresh;
-end;
-
 procedure TFMain.deleteSubFromSelection;
 begin
   modifyClasses(0,0,clDeleteSub,'','');
@@ -4505,16 +4527,54 @@ begin
 end;
 
 procedure TFMain.attachLec;
-Var KeyValue : ShortString;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
 begin
   KeyValue := '';
-  If LECTURERSShowModalAsSelect(KeyValue,'','0=0','') = mrOK Then
-  Begin
-    modifyClasses(0,0,clAttachLec,KeyValue,'', exitIfAnyExists);
+  If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+      modifyClasses(0,0,clAttachLec,KeyValue,'', exitIfAnyExists);
+      if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+    end;
     grid.Refresh;
   end;
 end;
 
+procedure TFMain.attachGro;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
+begin
+  KeyValue := '';
+  If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then
+  Begin
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+      modifyClasses(0,0,clAttachGro,KeyValue,'', exitIfAnyExists);
+      if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+    end;
+    grid.Refresh;
+  end;
+end;
+
+procedure TFMain.attachRes;
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
+begin
+  KeyValue := '';
+  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') = mrOK Then
+  Begin
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+      modifyClasses(0,0,clAttachRes,KeyValue,'', exitIfAnyExists);
+      if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
+    end;
+    grid.Refresh;
+  end;
+end;
 
 procedure TFMain.attachOwner;
 Var KeyValue : ShortString;
@@ -4524,28 +4584,6 @@ begin
   Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     modifyClasses(0,0,clAttachOwner,KeyValue,'', false);
-    grid.Refresh;
-  end;
-end;
-
-procedure TFMain.attachGro;
-Var KeyValue : ShortString;
-begin
-  KeyValue := '';
-  If GROUPSShowModalAsSelect(KeyValue,'','0=0','') = mrOK Then
-  Begin
-    modifyClasses(0,0,clAttachGro,KeyValue,'', exitIfAnyExists);
-    grid.Refresh;
-  end;
-end;
-
-procedure TFMain.attachRes;
-Var KeyValue : ShortString;
-begin
-  KeyValue := '';
-  If ROOMSShowModalAsSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') = mrOK Then
-  Begin
-    modifyClasses(0,0,clAttachRes,KeyValue,'', exitIfAnyExists);
     grid.Refresh;
   end;
 end;

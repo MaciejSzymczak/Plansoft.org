@@ -100,8 +100,8 @@ End;
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
 begin
  result := true;
- If (not UUtilities.IsOwner(Query.FieldByName('CREATED_BY').AsString)) Then Begin
-  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
+ If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) Then Begin
+  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
   result := false;
  End;
 end;
@@ -163,7 +163,7 @@ end;
 
 function TFBrowsePERIODS.getSearchFilter: string;
 begin
- result := '(xxmsz_tools.erasePolishChars(upper(periods.name||periods.desc1||periods.desc2||periods.attribs_01||periods.attribs_02||periods.attribs_03||periods.attribs_04||periods.attribs_05||periods.attribs_06||periods.attribs_07'+
+ result := '(xxmsz_tools.erasePolishChars(upper(periods.created_by||periods.name||periods.desc1||periods.desc2||periods.attribs_01||periods.attribs_02||periods.attribs_03||periods.attribs_04||periods.attribs_05||periods.attribs_06||periods.attribs_07'+
            '||periods.attribs_08||periods.attribs_09||periods.attribs_10||periods.attribs_11||periods.attribs_12||periods.attribs_13||periods.attribs_14||periods.attribs_15)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
 end;
 
