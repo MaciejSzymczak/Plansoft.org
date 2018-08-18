@@ -70,9 +70,6 @@ type
     LabelROL_ID: TLabel;
     ROL_ID: TDBEdit;
     ROL_ID_VALUE: TEdit;
-    BSelectROL_ID: TBitBtn;
-    BClearROL_ID: TBitBtn;
-    Label1: TLabel;
     AvailableDsp: TLabel;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
@@ -100,13 +97,10 @@ type
     procedure FormShow(Sender: TObject);
     procedure BMassImportClick(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
-    procedure ROL_IDChange(Sender: TObject);
-    procedure ROL_ID_VALUEDblClick(Sender: TObject);
-    procedure BSelectROL_IDClick(Sender: TObject);
-    procedure BClearROL_IDClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure ROL_IDChange(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -427,29 +421,6 @@ begin
   AutoCreate.FIN_PARTIESShowModalAsBrowser( 'PLANSOFT:' + Query.fieldByName('ID').AsString );
 end;
 
-procedure TFBrowseLECTURERS.ROL_IDChange(Sender: TObject);
-begin
-  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
-end;
-
-procedure TFBrowseLECTURERS.ROL_ID_VALUEDblClick(Sender: TObject);
-begin
-  BSelectROL_IDClick(nil);
-end;
-
-procedure TFBrowseLECTURERS.BSelectROL_IDClick(Sender: TObject);
-Var id : ShortString;
-begin
-  id := ROL_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
-    Query.FieldByName('ROL_ID').AsString := id;
-end;
-
-procedure TFBrowseLECTURERS.BClearROL_IDClick(Sender: TObject);
-begin
- Query.FieldByName('ROL_ID').Clear;
-end;
-
 procedure TFBrowseLECTURERS.ORGUNI_ID_VALUEClick(Sender: TObject);
 begin
   BSelectORGUNI_IDClick( nil );
@@ -499,6 +470,11 @@ procedure TFBrowseLECTURERS.BUpdChild3Click(Sender: TObject);
 begin
    FSharing.init('U','LEC',ID_.Text, QUERY.FieldByName('TITLE').AsString +' '+ QUERY.FieldByName('FIRST_NAME').AsString +' '+ QUERY.FieldByName('LAST_NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+procedure TFBrowseLECTURERS.ROL_IDChange(Sender: TObject);
+begin
+  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
 end;
 
 end.

@@ -3,7 +3,39 @@ inherited FMain: TFMain
   Top = 53
   Width = 1569
   Height = 1038
-  Caption = 'Plansoft.org                          '
+  Caption = 
+    '[[[[[                                                           ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                                ' +
+    '                                                               '
   KeyPreview = True
   Menu = MM
   ShowHint = True
@@ -6502,11 +6534,27 @@ inherited FMain: TFMain
         'end;'
         '### EXTENTION END'
         ''
+        '### EXTENTION BEGIN'
+        '### EXTENTION NAME:planners.password_sha1'
+        '### DATE:2018.08.14'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'PERIODS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.planners add (' +
+          ' password_sha1 varchar2(40), rol_id number, lec_id number  )'#39';'
+        '  exception when others then raise;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
         ''
         ''
         '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2018.04.26'
+        '### DATE:2018.08.15'
         'begin'
         ' --your next extention here'
         ' --notes:'

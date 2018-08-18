@@ -21,23 +21,35 @@ type
     ttEnabled: TCheckBox;
     DBCheckBox1: TDBCheckBox;
     BPlannerPermissions: TBitBtn;
-    chbIsAdmin: TDBCheckBox;
-    chbCanEditOrgUnits: TDBCheckBox;
-    chbCanEditAttribiutes: TDBCheckBox;
-    DBCheckBox2: TDBCheckBox;
-    DBCheckBox3: TDBCheckBox;
     LabelORGUNI_ID: TLabel;
     CAL_ID: TDBEdit;
     CAL_ID_VALUE: TEdit;
     BClearS: TSpeedButton;
     SpeedButton2: TSpeedButton;
-    EDIT_RESERVATIONS: TDBCheckBox;
-    edit_sharing: TDBCheckBox;
     Label1: TLabel;
     PARENT_ID: TDBEdit;
     PARENT_ID_VALUE: TEdit;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
+    LRec: TLabel;
+    ROL_ID: TDBEdit;
+    ROL_ID_VALUE: TEdit;
+    BClearROL_ID: TSpeedButton;
+    hrol: TSpeedButton;
+    LLec: TLabel;
+    LEC_ID: TDBEdit;
+    LEC_ID_VALUE: TEdit;
+    BClearLEC_ID: TSpeedButton;
+    hlec: TSpeedButton;
+    SystemPrivs: TGroupBox;
+    DBCheckBox2: TDBCheckBox;
+    DBCheckBox3: TDBCheckBox;
+    first_Resource_Flag: TDBCheckBox;
+    chbIsAdmin: TDBCheckBox;
+    chbCanEditOrgUnits: TDBCheckBox;
+    chbCanEditAttribiutes: TDBCheckBox;
+    edit_sharing: TDBCheckBox;
+    EDIT_RESERVATIONS: TDBCheckBox;
     DBCheckBox4: TDBCheckBox;
     DBCheckBox5: TDBCheckBox;
     DBCheckBox6: TDBCheckBox;
@@ -47,7 +59,8 @@ type
     DBCheckBox10: TDBCheckBox;
     DBCheckBox11: TDBCheckBox;
     DBCheckBox12: TDBCheckBox;
-    first_Resource_Flag: TDBCheckBox;
+    SetPassword: TBitBtn;
+    password_sha1: TDBEdit;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -69,6 +82,15 @@ type
     procedure SpeedButton3Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure ROL_IDChange(Sender: TObject);
+    procedure ROL_ID_VALUEClick(Sender: TObject);
+    procedure BClearROL_IDClick(Sender: TObject);
+    procedure hrolClick(Sender: TObject);
+    procedure LEC_IDChange(Sender: TObject);
+    procedure LEC_ID_VALUEClick(Sender: TObject);
+    procedure PLANNERTYPEChange(Sender: TObject);
+    procedure BClearLEC_IDClick(Sender: TObject);
+    procedure SetPasswordClick(Sender: TObject);
   private
   public
     Function  CheckRecord : Boolean; override;
@@ -89,7 +111,8 @@ implementation
 
 {$R *.DFM}
 
-Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UFLookupWindow;
+Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UFLookupWindow,
+  UFChangePassword;
 
 function TFBrowsePLANNERS.CanDelete: Boolean;
 begin
@@ -120,8 +143,20 @@ begin
 end;
 
 Function  TFBrowsePLANNERS.CheckRecord : Boolean;
+var WinControls : Array of TWinControl;
 Begin
-  Result := CheckValid.ReducRestrictEmpty(Self, [NAME]);
+
+  if  (PLANNERTYPE.ItemIndex = 2) then begin
+      SetLength(WinControls, 2);
+      WinControls[0] := Name;
+      WinControls[1] := password_sha1;
+  end
+  else begin
+      SetLength(WinControls, 1);
+      WinControls[0] := Name;
+  end;
+
+  Result := CheckValid.ReducRestrictEmpty(Self, WinControls);
 
 End;
 
@@ -335,7 +370,6 @@ end;
 
 procedure TFBrowsePLANNERS.SpeedButton2Click(Sender: TObject);
 begin
-begin
  info(
 'Mo¿esz ograniczyæ mo¿liwoœæ planowania tego planisty tylko do wybranych terminów. W tym celu wybierz kalendarz dni dostêpnych w tym polu'+cr+
 'Wprowadzenie wartoœci w polu Planowanie ograniczone spowoduje, ¿e nastêpuj¹ce funkcje zostan¹ wy³¹czone:'+cr+
@@ -348,6 +382,73 @@ begin
 '- Nie bêdzie móg³ u¿ywaæ funkcji kopiowania rozk³adów zajêæ.'
 );
 end;
+
+procedure TFBrowsePLANNERS.ROL_IDChange(Sender: TObject);
+begin
+  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
+end;
+
+procedure TFBrowsePLANNERS.ROL_ID_VALUEClick(Sender: TObject);
+Var id : ShortString;
+begin
+  id := ROL_ID.Text;
+  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
+    Query.FieldByName('ROL_ID').AsString := id;
+end;
+
+procedure TFBrowsePLANNERS.BClearROL_IDClick(Sender: TObject);
+begin
+ Query.FieldByName('ROL_ID').Clear;
+end;
+
+procedure TFBrowsePLANNERS.hrolClick(Sender: TObject);
+begin
+ info('Je¿eli wybierzesz wyk³adowcê w tym polu, wówczas ograniczysz planowanie dla tego u¿ytkownika tylko do wybranego wyk³adowcy');
+end;
+
+procedure TFBrowsePLANNERS.LEC_IDChange(Sender: TObject);
+begin
+  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_LECNAME,'LECTURERS','');
+
+end;
+
+procedure TFBrowsePLANNERS.LEC_ID_VALUEClick(Sender: TObject);
+Var KeyValue  : shortstring;
+begin
+  If LECTURERSShowModalAsSelect(KeyValue ,'','0=0','' ) = mrOK  Then
+    Query.FieldByName('LEC_ID').AsString := KeyValue;
+end;
+
+procedure TFBrowsePLANNERS.PLANNERTYPEChange(Sender: TObject);
+begin
+  SystemPrivs.Visible := (PLANNERTYPE.ItemIndex = 0) or (PLANNERTYPE.ItemIndex = 1);
+  LRec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
+  LLec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
+  ROL_ID_VALUE.Visible:=  PLANNERTYPE.ItemIndex = 2;
+  LEC_ID_VALUE.Visible:=  PLANNERTYPE.ItemIndex = 2;
+  BClearROL_ID.Visible:=  PLANNERTYPE.ItemIndex = 2;
+  BClearLEC_ID.Visible:=  PLANNERTYPE.ItemIndex = 2;
+  hrol.Visible        :=  PLANNERTYPE.ItemIndex = 2;
+  hlec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
+  SetPassword.visible :=  PLANNERTYPE.ItemIndex = 2;
+end;
+
+procedure TFBrowsePLANNERS.BClearLEC_IDClick(Sender: TObject);
+begin
+ Query.FieldByName('LEC_ID').Clear;
+end;
+
+procedure TFBrowsePLANNERS.SetPasswordClick(Sender: TObject);
+begin
+   Application.CreateForm(TFChangePassword, FChangePassword);
+   if fchangepassword.showmodal = mrOK then begin
+     password_sha1.Text := dmodule.SingleValue('select getSHA1('''+fchangepassword.ENewPassword.Text+''') from dual');
+     info ('Has³o zosta³o poprawnie zmienione');
+   end;
+   fchangepassword.Free;
+   fchangepassword := nil;
 end;
 
 end.
+
+

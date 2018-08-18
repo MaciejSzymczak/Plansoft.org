@@ -4463,7 +4463,7 @@ begin
 
   keyValue := '';
   if not unplugAll then begin
-    If GROUPSShowModalAsMultiSelect(KeyValue,'','0=0','') = mrOK Then begin
+    If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then begin
       for t := 1 to wordCount(KeyValues, [',']) do begin
         KeyValue := extractWord(t,KeyValues, [',']);
         modifyClasses(0,0,clDeleteGro,keyValue,'');
@@ -6208,7 +6208,10 @@ end;
 procedure TFMain.Zmiehas1Click(Sender: TObject);
 begin
    Application.CreateForm(TFChangePassword, FChangePassword);
-   fchangepassword.showmodal;
+   if fchangepassword.showmodal = mrOK then begin
+    dmodule.SQL('alter user '+DM.UserName+' identified by "'+fchangepassword.ENewPassword.Text+'"');
+    info ('Has³o dla u¿ytkownika '+DM.UserName+' zosta³o poprawnie zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
+   end;
    fchangepassword.Free;
    fchangepassword := nil;
 end;

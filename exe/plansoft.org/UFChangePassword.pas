@@ -41,13 +41,8 @@ procedure TFChangePassword.BChangePasswordClick(Sender: TObject);
 begin
   inherited;
   gCanClose := true;
-
   if (ENewPassword.Text = '') or (EConfirmPassword.Text = '') then begin info('Aby kontynuowaæ wprowadŸ dwukrotnie nowe has³o'); gCanClose := false; exit; end;
   if (ENewPassword.Text <> EConfirmPassword.Text) then begin info('Has³o wprowadzone za pierwszym razem ró¿ni siê od has³a wprowadzonego za drugim razem. Aby kontynuowaæ wprowadŸ drukrotnie to samo has³o'); gCanClose := false; exit; end;
-
-  dmodule.SQL('alter user '+DM.UserName+' identified by "'+ENewPassword.Text+'"');
-
-  info ('Has³o dla u¿ytkownika '+DM.UserName+' zosta³o poprawnie zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
 end;
 
 procedure TFChangePassword.BCancelClick(Sender: TObject);
@@ -67,7 +62,6 @@ procedure TFChangePassword.FormShow(Sender: TObject);
 begin
   inherited;
   gCanClose := true;
-  self.Caption := 'Zmiana has³a u¿ytkownika ' + DM.UserName;
   ENewPassword.Text := '';
   EConfirmPassword.Text := '';
 end;

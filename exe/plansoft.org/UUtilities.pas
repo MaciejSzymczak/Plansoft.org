@@ -140,9 +140,9 @@ Var
 
 function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
 
-Function GetCLASSESforL  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
-Function GetCLASSESforG  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
-Function GetCLASSESforR  (condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforL  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforG  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
+Function GetCLASSESforR  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
 Function GetCLASSESforPLA(ID : ShortString ) : String;
 
 Function NumToDayOfWeek(L : Integer) : String;
@@ -1140,34 +1140,34 @@ Begin
  End;
 End;
 
-Function GetCLASSESforL(condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
+Function GetCLASSESforL(colName, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
 var lmode : shortString;
 begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID ='+condition+')';
-    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID IN (SELECT ID FROM LECTURERS WHERE '+condition+'))';
+    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID ='+condition+')';
+    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID IN (SELECT ID FROM LECTURERS WHERE '+condition+'))';
 end;
 
-Function GetCLASSESforG(condition : String; const postfix : String = ''; const mode : shortstring='e') : String;
+Function GetCLASSESforG(colName, condition : String; const postfix : String = ''; const mode : shortstring='e') : String;
 var lmode : shortString;
 begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID ='+condition+')';
-    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID IN (SELECT ID FROM GROUPS WHERE '+condition+'))';
+    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID ='+condition+')';
+    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID IN (SELECT ID FROM GROUPS WHERE '+condition+'))';
 end;
 
-Function GetCLASSESforR(      condition : String;
+Function GetCLASSESforR(colName, condition : String;
                         const postfix   : String = '';
                         const mode      : shortstring='e') : String;
 var lmode : shortString;
 begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID ='+condition+')';
+    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID ='+condition+')';
                                  //CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA            WHERE ROM_ID =UPPER((select name from org_units where org_units.id = orguni_id)) LIKE UPPER('instytut budow%'))
-    if lmode = 'a' then Result := 'CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID IN (SELECT ID FROM ROOMS WHERE '+condition+'))';
+    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID IN (SELECT ID FROM ROOMS WHERE '+condition+'))';
 end;
 
 Function GetCLASSESforPLA(ID : ShortString ) : String;

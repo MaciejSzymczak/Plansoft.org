@@ -4,21 +4,22 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   Width = 894
   Height = 724
   Caption = 'Wyk'#322'adowcy'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 665
+    Top = 673
     Width = 886
   end
   inherited MainPage: TPageControl
     Width = 886
-    Height = 665
+    Height = 673
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 842
         Top = 121
         Width = 8
-        Height = 455
+        Height = 465
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -40,7 +41,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 842
-        Height = 455
+        Height = 465
         Columns = <
           item
             Expanded = False
@@ -337,11 +338,11 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 595
+        Top = 605
         Width = 878
       end
       inherited Panel: TPanel
-        Top = 576
+        Top = 586
         Width = 878
         inherited StatusBar: TStatusBar
           Width = 809
@@ -367,7 +368,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -377,7 +378,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           Left = 80
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           ReadOnly = True
           TabOrder = 1
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -526,7 +527,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Left = 850
         Top = 121
         Width = 28
-        Height = 455
+        Height = 465
         ActivePage = Hierarchy
         Align = alRight
         MultiLine = True
@@ -538,8 +539,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           object rightPane: TPanel
             Left = 0
             Top = 0
-            Width = 0
-            Height = 447
+            Width = 1
+            Height = 457
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
@@ -764,7 +765,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               Left = 1
               Top = 194
               Width = 248
-              Height = 252
+              Height = 262
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 1
@@ -779,7 +780,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 210
+                Top = 220
                 Width = 246
                 Height = 41
                 Align = alBottom
@@ -929,7 +930,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
                 Left = 1
                 Top = 17
                 Width = 246
-                Height = 193
+                Height = 203
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -976,17 +977,17 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object Label6: TLabel
                 Left = 8
                 Top = 8
-                Width = 109
-                Height = 16
+                Width = 83
+                Height = 14
                 Caption = 'Rodzaj hierarchii:'
               end
               object str_name_lov: TComboBox
                 Left = 96
                 Top = 0
                 Width = 145
-                Height = 24
+                Height = 22
                 Style = csDropDownList
-                ItemHeight = 16
+                ItemHeight = 14
                 ItemIndex = 0
                 TabOrder = 0
                 Text = 'Potok'
@@ -1005,8 +1006,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       object LabelID: TLabel [0]
         Left = 552
         Top = 8
-        Width = 214
-        Height = 16
+        Width = 164
+        Height = 14
         Caption = 'Kol. wpr:........................................'
         FocusControl = ID_
         Visible = False
@@ -1072,10 +1073,10 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [5]
-        Left = 80
+        Left = 88
         Top = 64
-        Width = 33
-        Height = 16
+        Width = 25
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -1087,26 +1088,26 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [7]
-        Left = 2
+        Left = 26
         Top = 184
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [8]
-        Left = 2
+        Left = 26
         Top = 208
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
       object Label4: TLabel [9]
         Left = 424
         Top = 104
-        Width = 387
-        Height = 16
+        Width = 286
+        Height = 14
         Caption = 'TITLE IS REQUIRED BY FUNCTION FDETAILS.VALIDVALUES'
         Visible = False
       end
@@ -1141,27 +1142,12 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       object LabelROL_ID: TLabel [12]
-        Left = 498
-        Top = 59
-        Width = 55
+        Left = 526
+        Top = 67
+        Width = 27
         Height = 13
         Alignment = taRightJustify
-        Caption = 'Planowanie'
-        FocusControl = ROL_ID
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label1: TLabel [13]
-        Left = 464
-        Top = 75
-        Width = 89
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'przez przegl'#261'dark'#281
+        Caption = 'Portal'
         FocusControl = ROL_ID
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -1171,7 +1157,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 599
+        Top = 609
         Width = 878
         TabOrder = 8
         inherited BUpdChild1: TBitBtn
@@ -1202,11 +1188,11 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             FFFFFF000000FFFF888FFFFFFFFFFF000000}
         end
       end
-      object ID_: TDBEdit [15]
+      object ID_: TDBEdit [14]
         Left = 665
         Top = 0
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'ID'
         Color = clMenu
         DataField = 'ID'
@@ -1216,69 +1202,69 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 9
         Visible = False
       end
-      object TITLE: TDBEdit [16]
+      object TITLE: TDBEdit [15]
         Left = 120
         Top = 80
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'TYTU'#321
         DataField = 'TITLE'
         DataSource = Source
         TabOrder = 2
       end
-      object ABBREVIATION: TDBEdit [17]
+      object ABBREVIATION: TDBEdit [16]
         Left = 120
         Top = 32
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'SKR'#211'T'
         DataField = 'ABBREVIATION'
         DataSource = Source
         TabOrder = 0
       end
-      object FIRST_NAME: TDBEdit [18]
+      object FIRST_NAME: TDBEdit [17]
         Left = 120
         Top = 104
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'IMI'#280
         DataField = 'FIRST_NAME'
         DataSource = Source
         TabOrder = 3
       end
-      object LAST_NAME: TDBEdit [19]
+      object LAST_NAME: TDBEdit [18]
         Left = 120
         Top = 128
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'NAZWISKO'
         DataField = 'LAST_NAME'
         DataSource = Source
         TabOrder = 4
       end
-      object DESC1: TDBEdit [20]
+      object DESC1: TDBEdit [19]
         Left = 120
         Top = 176
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC1'
         DataSource = Source
         TabOrder = 10
       end
-      object DESC2: TDBEdit [21]
+      object DESC2: TDBEdit [20]
         Left = 120
         Top = 200
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC2'
         DataSource = Source
         TabOrder = 11
       end
-      object ORGUNI_ID: TDBEdit [22]
+      object ORGUNI_ID: TDBEdit [21]
         Left = 113
         Top = 152
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -1287,17 +1273,17 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Visible = False
         OnChange = ORGUNI_IDChange
       end
-      object ORGUNI_ID_VALUE: TEdit [23]
+      object ORGUNI_ID_VALUE: TEdit [22]
         Left = 120
         Top = 152
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 6
         OnClick = ORGUNI_ID_VALUEClick
       end
-      object BSelectORGUNI_ID: TBitBtn [24]
+      object BSelectORGUNI_ID: TBitBtn [23]
         Left = 376
         Top = 152
         Width = 24
@@ -1335,20 +1321,20 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 12
       end
       object EMAIL: TDBEdit
-        Left = 560
+        Left = 584
         Top = 40
-        Width = 277
-        Height = 24
+        Width = 253
+        Height = 22
         Hint = 'EMAIL'
         DataField = 'EMAIL'
         DataSource = Source
         TabOrder = 1
       end
       object ROL_ID: TDBEdit
-        Left = 553
+        Left = 577
         Top = 64
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'DOMY'#346'LNA AUTORYZACJA'
         DataField = 'ROL_ID'
         DataSource = Source
@@ -1358,102 +1344,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         OnChange = ROL_IDChange
       end
       object ROL_ID_VALUE: TEdit
-        Left = 560
+        Left = 584
         Top = 64
-        Width = 233
-        Height = 24
+        Width = 249
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 14
-        OnDblClick = ROL_ID_VALUEDblClick
-      end
-      object BSelectROL_ID: TBitBtn
-        Left = 792
-        Top = 64
-        Width = 24
-        Height = 24
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 15
-        OnClick = BSelectROL_IDClick
-        Glyph.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000FF018B8A7AC385827DA26B6B6B3F00000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          00000000FF01094FFF974392F6FFEEE9DFFF86827FA700000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          FF020D51FF9B439AFFFF6ADAFFFF5DADF5FF998F7ED900000000000000000000
-          00000000000000000000000000000000000000000000000000006B7E690F0041
-          FC9F469FFFFF6FDAFFFF50ACFFFF1357FFB9002AFF0A00000000000000000000
-          000000000000000000006164682E515459524C4E523F1617180698928B9E7091
-          B2FF61D3FFFF4EAAFFFF1657FFB4001FFF070000000000000000000000000000
-          000076777A257B7E80C8B3A081FED2B588FDC3AA83FD83817AE566686CEAFFF7
-          F0FF6B93BDFF084AFEAF0028FF06000000000000000000000000000000007B7D
-          7F188D8A82E6F5CB84FEF5CB84FFF1C885FFF5CE8EFFFCD08CFFAE9E85FE7071
-          75F3A9A193BB3956B20A0000000000000000000000000000000000000000767A
-          7F95ECCB8EFFF3D192FFEECE92FFEDCC8EFFECC784FFEDC687FFFDD28FFF8783
-          7CDB000000010000000000000000000000000000000000000000000000009894
-          8BE1FEDFA1FFF2DAA5FFF2DBA7FFF1D79FFFEFD097FFECC886FFF6D298FFC1A9
-          87FF5254592A000000000000000000000000000000000000000000000000A7A1
-          91F4FFEBB9FFF8ECC6FFF7EBC0FFF5E3B2FFF2DAA3FFEECF94FFF4D093FFCFB6
-          8DFF5153583D0000000000000000000000000000000000000000000000009996
-          92D0FFF7CBFFFDFAE6FFFDF9E7FFF8EDC5FFF4E0B0FFF0D49BFFFAD594FFAF9F
-          85FE6264671A000000000000000000000000000000000000000000000000A0A1
-          A56FD5CCB1FFFFFFF2FFFFFFF2FFFBF3D2FFF6E2B4FFF7D99EFFF6D393FF7D7D
-          81B800000000000000000000000000000000000000000000000000000000D9D9
-          DA04A1A1A2B8D6CFB6FFFFFFDCFFFFF6CAFFFFEBB1FFEDD49CFE8C8983E47677
-          7A20000000000000000000000000000000000000000000000000000000000000
-          0000EBECED059C9CA07B979893E0A8A397FE97948CF07679809E7C7D7F1A0000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000}
-      end
-      object BClearROL_ID: TBitBtn
-        Left = 816
-        Top = 64
-        Width = 25
-        Height = 24
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 16
-        OnClick = BClearROL_IDClick
-        Glyph.Data = {
-          DE030000424DDE03000000000000420000002800000015000000150000000100
-          1000030000009C03000000000000000000000000000000000000007C0000E003
-          00001F0000001863186318631863186318631863186318631863186318631863
-          1863186318631863186318631863186300001863007C007C007C007C007C007C
-          007C007C007C007C007C007C007C007C007C007C007C007C1863186300001863
-          1863186318631863186318631863186318631863186318631863186318631863
-          186318631863186300001863007C007C007C007C007C007C007C007C007C007C
-          007C007C007C007C007C18631863186318631863000018631863186318631863
-          1863186318631863186318631863186318631863186318631863186318631863
-          00001863186318631863007C007C007C007C007C007C007C007C007C007C007C
-          007C007C007C007C186318630000186318631863186318631863186300000000
-          1042186318631863186318631863186318631863186318630000186318631863
-          18631863186300001F0018630000104218631863186318631863186318631863
-          1863186300001863186318631863186300001F0018631F001863000010421863
-          186318631863186318631863186318630000186318631863186300001F001863
-          1F00186318631863000010421863186318631863186318631863186300001863
-          186318631863000018631F001863186318630000FF7F00001042186318631863
-          18631863186318630000186318631863186318630000FF7F186318630000FF7F
-          0000000010421863186318631863186318631863000018631863186318631863
-          18630000FF7F0000FF7F00001042000010421863186318631863186318631863
-          000018631863186318631863186318630000FF7F000010421042000010421863
-          1863186318631863186318630000186318631863186318631863186318630000
-          0000000000001042000010421863186318631863186318630000186318631863
-          1863186318631863186318631863186318630000104200001042186318631863
-          1863186300001863186318631863186318631863186318631863186318631863
-          0000104200001042186318631863186300001863186318631863186318631863
-          1863186318631863186318631863000010420000104218631863186300001863
-          1863186318631863186318631863186318631863186318631863186300000000
-          1863186318631863000018631863186318631863186318631863186318631863
-          1863186318631863186318631863186318631863000018631863186318631863
-          1863186318631863186318631863186318631863186318631863186318631863
-          0000}
       end
     end
   end

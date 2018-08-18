@@ -261,6 +261,7 @@ uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
 procedure TFGrouping.BRefreshClick(Sender: TObject);
 Var columnsSelect, columnsGroupBy      : String;
     S, _CONL, _CONG, _CONR, _CONS, _CONF, _CONPERIOD, genericFilter  : string;
+    _CONL2, _CONG2, _CONR2 : string;
     _PERMISSIONSL, _PERMISSIONSG, _PERMISSIONSR, _PERMISSIONSS, _PERMISSIONSF : string;
     summary1, summary2, summary3, summary4, summary5 : string;
     t                : Integer;
@@ -269,6 +270,9 @@ Var columnsSelect, columnsGroupBy      : String;
     //
     columnsLec : string;
     groupByLec : string;
+    sqlLecturers_aggr_str : string;
+    sqlGroups_aggr_str : string;
+    sqlRes_aggr_str : string;
 
 
 begin
@@ -454,9 +458,12 @@ begin
   If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
     _CONPERIOD := Ucommon.getWhereClausefromPeriod(NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text));
 
-  _CONL := GetCLASSESforL( nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
-  _CONG := GetCLASSESforG( nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
-  _CONR := GetCLASSESforR( nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
+  _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
+  _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
+  _CONR := GetCLASSESforR('CLASSES.ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
+  _CONL2 := GetCLASSESforL('CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
+  _CONG2 := GetCLASSESforG('CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
+  _CONR2 := GetCLASSESforR('CLA_ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
 
   _CONS := '0=0';
   If                                        CONS.Text <> '' then _CONS := 'SUB_ID='+CONS.Text;
@@ -496,6 +503,18 @@ begin
     genericFilter := stringreplace(genericFilter, 'var9', replacePolishChars( ansiuppercase(egenericFilter.Text) ), []);
   end;
 
+  sqlLecturers_aggr_str := stringreplace(sqlLecturers_aggr.Lines.Text, '%conl',_CONL2, []);
+  sqlLecturers_aggr_str := stringreplace(sqlLecturers_aggr_str, '%cong',_CONG2, []);
+  sqlLecturers_aggr_str := stringreplace(sqlLecturers_aggr_str, '%conr',_CONR2, []);
+
+  sqlGroups_aggr_str := stringreplace(sqlGroups_aggr.Lines.Text, '%conl',_CONL2, []);
+  sqlGroups_aggr_str := stringreplace(sqlGroups_aggr_str, '%cong',_CONG2, []);
+  sqlGroups_aggr_str := stringreplace(sqlGroups_aggr_str, '%conr',_CONR2, []);
+
+  sqlRes_aggr_str := stringreplace(sqlRes_aggr.Lines.Text, '%conl',_CONL2, []);
+  sqlRes_aggr_str := stringreplace(sqlRes_aggr_str, '%cong',_CONG2, []);
+  sqlRes_aggr_str := stringreplace(sqlRes_aggr_str, '%conr',_CONR2, []);
+
   S :=
    'SELECT '+columnsSelect+
    summary1+summary2+summary3+summary4+summary5+
@@ -504,9 +523,9 @@ begin
        ',SUBJECTS SUB'+cr+
        ',org_units sou'+cr+
        ',FORMS FRM'+cr+
-       iif(lx,',('+ iif(chLnewLine.Checked, sqlLecturers_no_aggr.Lines.Text, sqlLecturers_aggr.Lines.Text) +') lecturers '+cr,'')+
-       iif(gx,',('+ iif(chGnewLine.Checked, sqlGroups_no_aggr.Lines.Text, sqlGroups_aggr.Lines.Text) +') groups '+cr,'')+
-       iif(rx,',('+ iif(chRnewLine.Checked, sqlRes_no_aggr.Lines.Text, sqlRes_aggr.Lines.Text) +') resources '+cr,'')+
+       iif(lx,',('+ iif(chLnewLine.Checked, sqlLecturers_no_aggr.Lines.Text, sqlLecturers_aggr_str) +') lecturers '+cr,'')+
+       iif(gx,',('+ iif(chGnewLine.Checked, sqlGroups_no_aggr.Lines.Text, sqlGroups_aggr_str) +') groups '+cr,'')+
+       iif(rx,',('+ iif(chRnewLine.Checked, sqlRes_no_aggr.Lines.Text, sqlRes_aggr_str) +') resources '+cr,'')+
    'WHERE '+
             iif(lx,'lecturers.id(+) = classes.id','0=0')+ cr+
    ' and '+ iif(gx,'groups.id(+) = classes.id','0=0') +cr+
