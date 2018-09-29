@@ -4,17 +4,17 @@ inherited FMassImport: TFMassImport
   Width = 635
   Height = 368
   Caption = 'Pobieranie danych z programu Excel'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 309
+    Top = 317
     Width = 627
   end
   object importType: TRadioGroup
-    Left = 9
-    Top = 101
-    Width = 288
-    Height = 120
+    Left = 8
+    Top = 88
+    Width = 252
+    Height = 105
     Caption = 'Wybierz jakie dane chcesz pobra'#263
     Items.Strings = (
       'Wyk'#322'adowcy'
@@ -25,10 +25,10 @@ inherited FMassImport: TFMassImport
     TabOrder = 1
   end
   object Memo1: TMemo
-    Left = 9
-    Top = 9
-    Width = 596
-    Height = 74
+    Left = 8
+    Top = 8
+    Width = 521
+    Height = 65
     BorderStyle = bsNone
     Color = clBtnFace
     Lines.Strings = (
@@ -43,34 +43,34 @@ inherited FMassImport: TFMassImport
     WordWrap = False
   end
   object chbTest: TCheckBox
-    Left = 9
-    Top = 229
-    Width = 285
-    Height = 19
+    Left = 8
+    Top = 200
+    Width = 249
+    Height = 17
     Caption = 'Uruchomienie testowe ( nie zapisuj danych )'
     TabOrder = 3
   end
   object Panel1: TPanel
     Left = 0
-    Top = 262
+    Top = 276
     Width = 627
-    Height = 47
+    Height = 41
     Align = alBottom
     TabOrder = 4
     object BitBtn1: TBitBtn
-      Left = 421
-      Top = 9
-      Width = 92
-      Height = 29
+      Left = 368
+      Top = 8
+      Width = 81
+      Height = 25
       Caption = 'Pobierz dane'
       TabOrder = 0
       OnClick = BitBtn1Click
     end
     object BitBtn2: TBitBtn
-      Left = 521
-      Top = 9
-      Width = 86
-      Height = 29
+      Left = 456
+      Top = 8
+      Width = 75
+      Height = 25
       Cancel = True
       Caption = 'Zamknij'
       Default = True
@@ -79,8 +79,8 @@ inherited FMassImport: TFMassImport
     end
   end
   object OpenDialog: TOpenDialog
-    DefaultExt = '*.xlsx'
-    Filter = 'xls|*.xls|*.*|*.*|xlsx|*.xlsx'
+    DefaultExt = '*.*'
+    Filter = 'xlsx|*.xlsx|*.*|*.*|xls|*.xls'
     Left = 232
     Top = 96
   end

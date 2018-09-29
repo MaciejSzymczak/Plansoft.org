@@ -1,12 +1,3 @@
-CREATE TABLE TMP_CHUNKEDCLOB
-(
-  ID     NUMBER,
-  VALUE  VARCHAR2(4000 BYTE)
-);
-CREATE PUBLIC SYNONYM TMP_CHUNKEDCLOB FOR TMP_CHUNKEDCLOB;
-ALTER TABLE TMP_CHUNKEDCLOB ADD (PRIMARY KEY (ID));
-
-
 CREATE OR REPLACE package Xxmsz_Tools as
 
   -- ***********************************************************************************************************************

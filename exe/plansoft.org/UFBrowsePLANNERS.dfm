@@ -1,6 +1,6 @@
 inherited FBrowsePLANNERS: TFBrowsePLANNERS
-  Left = 428
-  Top = 97
+  Left = 639
+  Top = 181
   Width = 993
   Height = 703
   Caption = 'Plani'#347'ci oraz autoryzacje'
@@ -511,7 +511,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 151
         Width = 25
         Height = 26
-        Hint = 'Kto i kiedy utworzy'#322' rekord'
         AllowAllUp = True
         GroupIndex = 1
         Glyph.Data = {
@@ -657,7 +656,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 127
         Width = 25
         Height = 26
-        Hint = 'Kto i kiedy utworzy'#322' rekord'
         AllowAllUp = True
         GroupIndex = 1
         Glyph.Data = {
@@ -803,7 +801,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 175
         Width = 25
         Height = 26
-        Hint = 'Kto i kiedy utworzy'#322' rekord'
         AllowAllUp = True
         GroupIndex = 1
         Glyph.Data = {
@@ -949,7 +946,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 199
         Width = 25
         Height = 26
-        Hint = 'Kto i kiedy utworzy'#322' rekord'
         AllowAllUp = True
         GroupIndex = 1
         Glyph.Data = {
@@ -1118,9 +1114,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 152
         Width = 150
         Height = 22
-        Hint = 
-          'Kalendarz planisty. Je'#380'eli wype'#322'nisz to pole, w'#243'wczas planista b' +
-          #281'dzie m'#243'g'#322' planowa'#263' zaj'#281'cia tylko we wskazanych terminach'
         DataField = 'CAL_ID'
         DataSource = Source
         MaxLength = 10
@@ -1143,9 +1136,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 128
         Width = 150
         Height = 22
-        Hint = 
-          'Kalendarz planisty. Je'#380'eli wype'#322'nisz to pole, w'#243'wczas planista b' +
-          #281'dzie m'#243'g'#322' planowa'#263' zaj'#281'cia tylko we wskazanych terminach'
         DataField = 'PARENT_ID'
         DataSource = Source
         MaxLength = 10
@@ -1168,9 +1158,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 176
         Width = 150
         Height = 22
-        Hint = 
-          'Kalendarz planisty. Je'#380'eli wype'#322'nisz to pole, w'#243'wczas planista b' +
-          #281'dzie m'#243'g'#322' planowa'#263' zaj'#281'cia tylko we wskazanych terminach'
+        Hint = 'ZASOBY'
         DataField = 'ROL_ID'
         DataSource = Source
         MaxLength = 10
@@ -1193,9 +1181,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Top = 200
         Width = 150
         Height = 22
-        Hint = 
-          'Kalendarz planisty. Je'#380'eli wype'#322'nisz to pole, w'#243'wczas planista b' +
-          #281'dzie m'#243'g'#322' planowa'#263' zaj'#281'cia tylko we wskazanych terminach'
         DataField = 'LEC_ID'
         DataSource = Source
         MaxLength = 10

@@ -147,9 +147,13 @@ var WinControls : Array of TWinControl;
 Begin
 
   if  (PLANNERTYPE.ItemIndex = 2) then begin
-      SetLength(WinControls, 2);
+      //portal user
+      SetLength(WinControls, 5);
       WinControls[0] := Name;
       WinControls[1] := password_sha1;
+      WinControls[2] := ROL_ID;
+      WinControls[3] := PARENT_ID;
+      WinControls[4] := CAL_ID;
   end
   else begin
       SetLength(WinControls, 1);

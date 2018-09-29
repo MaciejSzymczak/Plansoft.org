@@ -1,10 +1,10 @@
-alter table classes modify (calc_groups varchar2(500))
-alter table classes_history modify (calc_groups varchar2(500))
+alter table classes modify (calc_groups varchar2(500));
+alter table classes_history modify (calc_groups varchar2(500));
 alter table classes modify (calc_rooms varchar2(500));
 alter table classes_history modify (calc_rooms varchar2(500));
 alter table classes modify (calc_lecturers varchar2(500));
 alter table classes_history modify (calc_lecturers varchar2(500));
-alter table classes_h_temp modify (calc_groups varchar2(500))
+alter table classes_h_temp modify (calc_groups varchar2(500));
 alter table classes_h_temp modify (calc_rooms varchar2(500));
 alter table classes_h_temp modify (calc_lecturers varchar2(500));
 

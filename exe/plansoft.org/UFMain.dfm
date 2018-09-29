@@ -3,39 +3,7 @@ inherited FMain: TFMain
   Top = 53
   Width = 1569
   Height = 1038
-  Caption = 
-    '[[[[[                                                           ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                                ' +
-    '                                                               '
+  Caption = 'Plansoft.org        '
   KeyPreview = True
   Menu = MM
   ShowHint = True
@@ -6553,8 +6521,26 @@ inherited FMain: TFMain
         ''
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:LECTURERS.EMAIL OPTIONAL'
+        '### DATE:2018.08.16'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'LECTURERS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.rooms modify (' +
+          ' email null )'#39';'
+        '  exception when others then null;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2018.08.15'
+        '### DATE:2018.08.17'
         'begin'
         ' --your next extention here'
         ' --notes:'
