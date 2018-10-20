@@ -188,7 +188,7 @@ Var x, y : Integer;
    For y := 1 To Grid.RowCount Do  For x := 1 To Grid.ColCount Do Grid.Cells[x,y] := '';
    With DModule Do Begin
     if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells : from '+Descriptor);
-    OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
+    OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
 
     QWork.First;
     While Not QWork.EOF Do Begin
@@ -219,7 +219,7 @@ begin
 
   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : planners');
   With DModule Do Begin
-   OPENSQL('select * from planners where '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
+   OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
    //info (  inttostr(QWork.RecordCount+1) );
    LGrid.ColCount   := QWork.RecordCount+1;
    GGrid.ColCount   := QWork.RecordCount+1;
@@ -239,7 +239,7 @@ begin
 
    if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : planners2');
    //zmniejszenie liczby wierszy dla ostatniej siatki
-   OPENSQL('SELECT * FROM PLANNERS WHERE '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
+   OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
    ROLGrid.ColCount := QWork.RecordCount+1;
 
    if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : LECTURERS');
@@ -311,7 +311,7 @@ begin
    End;
 
    if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : PLANNERS');
-   OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
+   OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
    ROLGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -329,7 +329,7 @@ begin
   LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
   LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE '+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
+  LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
   LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : after LoadCells');
