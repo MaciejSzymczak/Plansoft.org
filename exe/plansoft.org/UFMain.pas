@@ -8688,8 +8688,6 @@ begin
   if (not isBlank(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
 end;
 
-
-
 procedure TFMain.LeftPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin

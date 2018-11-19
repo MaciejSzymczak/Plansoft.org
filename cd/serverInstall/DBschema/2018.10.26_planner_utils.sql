@@ -708,7 +708,7 @@ create or replace package body planner_utils is
                    and per_id in (select id from periods where pday between date_from and date_to)
                    and res_id = xxmsz_tools.extractword(t,pcalc_lec_ids,';') 
                    -- user is not the locker
-                   and instr(','||locked_by,','||user)=0                 
+                   and instr(';'||locked_by,';'||user)=0                 
                 ) loop
              raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;   
@@ -723,7 +723,7 @@ create or replace package body planner_utils is
                  where locked_by is not null
                    and per_id in (select id from periods where pday between date_from and date_to)
                    and res_id = xxmsz_tools.extractword(t,pcalc_gro_ids,';') 
-                   and instr(','||locked_by,','||user)=0   
+                   and instr(';'||locked_by,';'||user)=0   
                    ) loop
              raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;   
@@ -738,7 +738,7 @@ create or replace package body planner_utils is
                  where locked_by is not null
                    and per_id in (select id from periods where pday between date_from and date_to)
                    and res_id = xxmsz_tools.extractword(t,pcalc_rom_ids,';') 
-                   and instr(','||locked_by,','||user)=0   
+                   and instr(';'||locked_by,';'||user)=0   
                    ) loop
              raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;    

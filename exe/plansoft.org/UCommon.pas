@@ -309,9 +309,8 @@ begin
  end;
 end;
 
-
-
-
-
-
+begin
+previousperiodSelector := 'X';
+previoustablePrefix := 'X';
+previousResult := 'X';
 end.
