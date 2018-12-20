@@ -4565,7 +4565,7 @@ Var KeyValues : String;
     t         : integer;
 begin
   KeyValue := '';
-  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') = mrOK Then
+  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then
   Begin
     for t := 1 to wordCount(KeyValues, [',']) do begin
       KeyValue := extractWord(t,KeyValues, [',']);

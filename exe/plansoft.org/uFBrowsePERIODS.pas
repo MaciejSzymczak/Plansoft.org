@@ -86,7 +86,7 @@ End;
 Procedure TFBrowsePERIODS.DefaultValues;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
- Query['HOURS_PER_DAY'] := '8';
+ //Query['HOURS_PER_DAY'] := '8';
  Query['SHOW_MON']    := '+';
  Query['SHOW_TUE']    := '+';
  Query['SHOW_WED']    := '+';
@@ -95,6 +95,7 @@ Begin
  Query['SHOW_SAT']    := '+';
  Query['SHOW_SUN']    := '+';
  Query['LOCKED_FLAG'] := '-';
+ Query['CREATED_BY'] := CurrentUserName;
 End;
 
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
