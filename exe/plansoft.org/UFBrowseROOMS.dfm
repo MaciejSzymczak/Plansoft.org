@@ -15,7 +15,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
     Height = 639
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 1087
+        Left = 1084
         Top = 145
         Width = 4
         Height = 407
@@ -26,7 +26,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       end
       inherited Grid: TRxDBGrid
         Top = 145
-        Width = 1087
+        Width = 1084
         Height = 407
         Columns = <
           item
@@ -631,9 +631,9 @@ inherited FBrowseROOMS: TFBrowseROOMS
         end
       end
       object RightPage: TPageControl
-        Left = 1091
+        Left = 1088
         Top = 145
-        Width = 28
+        Width = 31
         Height = 407
         ActivePage = Hierarchy
         Align = alRight
@@ -646,14 +646,14 @@ inherited FBrowseROOMS: TFBrowseROOMS
           object rightPane: TPanel
             Left = 0
             Top = 0
-            Width = 1
+            Width = 4
             Height = 399
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
               Left = 1
               Top = 186
-              Width = 248
+              Width = 2
               Height = 8
               Cursor = crVSplit
               Align = alTop
@@ -661,7 +661,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             object pparents: TPanel
               Left = 1
               Top = 25
-              Width = 248
+              Width = 2
               Height = 161
               Align = alTop
               Caption = 'pparents'
@@ -669,7 +669,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object PanelDetails: TPanel
                 Left = 1
                 Top = 1
-                Width = 246
+                Width = 0
                 Height = 24
                 Align = alTop
                 Caption = 'Zasoby nadrz'#281'dne'
@@ -678,7 +678,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Panel4: TPanel
                 Left = 1
                 Top = 119
-                Width = 246
+                Width = 0
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -826,7 +826,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object GParents: TRxDBGrid
                 Left = 1
                 Top = 25
-                Width = 246
+                Width = 0
                 Height = 94
                 Align = alClient
                 DataSource = DSParents
@@ -860,13 +860,20 @@ inherited FBrowseROOMS: TFBrowseROOMS
                     Title.Caption = 'Nazwa'
                     Width = 165
                     Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = 195
+                    Visible = True
                   end>
               end
             end
             object pdetails: TPanel
               Left = 1
               Top = 194
-              Width = 248
+              Width = 2
               Height = 204
               Align = alClient
               Caption = 'pdetails'
@@ -874,7 +881,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object PanelORDERS: TPanel
                 Left = 1
                 Top = 1
-                Width = 246
+                Width = 0
                 Height = 16
                 Align = alTop
                 Caption = 'Zasoby podrz'#281'dne'
@@ -883,7 +890,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object Panel3: TPanel
                 Left = 1
                 Top = 162
-                Width = 246
+                Width = 0
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -1031,7 +1038,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               object GDetails: TRxDBGrid
                 Left = 1
                 Top = 17
-                Width = 246
+                Width = 0
                 Height = 145
                 Align = alClient
                 DataSource = DSDetails
@@ -1066,13 +1073,20 @@ inherited FBrowseROOMS: TFBrowseROOMS
                     Title.Caption = 'Nazwa'
                     Width = 166
                     Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = 200
+                    Visible = True
                   end>
               end
             end
             object Panel5: TPanel
               Left = 1
               Top = 1
-              Width = 248
+              Width = 2
               Height = 24
               Align = alTop
               TabOrder = 2
@@ -1827,7 +1841,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Value = '0'
       end>
     SQL.Strings = (
-      'select id,level, parent_dsp p'
+      'select id,level, parent_dsp p,exclusive_parent'
       '  from str_elems_v'
       '  where STR_NAME_LOV=:STR_NAME_LOV1'
       
@@ -1863,7 +1877,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
     SQL.Strings = (
       
         'select id,level, to_char( substr('#39'                    '#39',1,level*' +
-        '3) || child_dsp ) name'
+        '3) || child_dsp ) name,exclusive_parent'
       '  from str_elems_v'
       '  where STR_NAME_LOV=:STR_NAME_LOV1'
       

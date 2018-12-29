@@ -852,9 +852,9 @@ Begin
 
  // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
  If (NewClassWithChilds.Day.Date = Day.Date) And (NewClassWithChilds.Hour = Hour)
-     And P1IncludesP2(NewClassWithChilds.Lecturers, Lecturers)
-     And P1IncludesP2(NewClassWithChilds.Groups, Groups)
-     And P1IncludesP2(NewClassWithChilds.Rooms, Rooms)
+     And P1IncludesP2(NewClassToCreate.Lecturers, Lecturers)
+     And P1IncludesP2(NewClassToCreate.Groups, Groups)
+     And P1IncludesP2(NewClassToCreate.Rooms, Rooms)
      And  (NewClassWithChilds.Sub_id = Sub_id)
      And (NewClassWithChilds.For_id = For_id) And (NewClassWithChilds.Created_by = Created_by) And (NewClassWithChilds._Owner = _Owner) Then Begin
        If UUtilities.isOwner(_Owner) Then Begin

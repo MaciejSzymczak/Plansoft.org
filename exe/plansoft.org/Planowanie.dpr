@@ -87,7 +87,8 @@ uses
   UFSalectDaysOfWeek in 'UFSalectDaysOfWeek.pas' {FSelectDaysOfWeek},
   UFSharing in 'UFSharing.pas' {FSharing},
   UFLegendNavigation in 'UFLegendNavigation.pas' {FLegendNavigation},
-  UFWarning in 'UFWarning.pas' {FWarning};
+  UFWarning in 'UFWarning.pas' {FWarning},
+  UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent};
 
 {$R *.RES}
 
@@ -168,6 +169,7 @@ begin
   Application.CreateForm(TFMatrix, FMatrix);
   Application.CreateForm(TFLegendNavigation, FLegendNavigation);
   Application.CreateForm(TFWarning, FWarning);
+  Application.CreateForm(TFExclusiveParent, FExclusiveParent);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

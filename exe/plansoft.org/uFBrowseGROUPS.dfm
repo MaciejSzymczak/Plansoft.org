@@ -4,21 +4,21 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   Width = 996
   Height = 691
   Caption = 'Grupy'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 632
+    Top = 640
     Width = 988
   end
   inherited MainPage: TPageControl
     Width = 988
-    Height = 632
+    Height = 640
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 948
+        Left = 612
         Top = 145
         Width = 4
-        Height = 398
+        Height = 408
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -26,13 +26,13 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       end
       inherited Grid: TRxDBGrid
         Top = 145
-        Width = 948
-        Height = 398
+        Width = 612
+        Height = 408
         Columns = <
           item
             Expanded = False
             FieldName = 'ABBREVIATION'
-            Title.Caption = 'Skrót'
+            Title.Caption = 'Skr'#243't'
             Visible = True
           end
           item
@@ -58,14 +58,14 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           item
             Expanded = False
             FieldName = 'NUMBER_OF_PEOPLES'
-            Title.Caption = 'Licznoœæ'
+            Title.Caption = 'Liczno'#347#263
             Width = 70
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'ROLE_NAME'
-            Title.Caption = 'Przegl¹darka'
+            Title.Caption = 'Przegl'#261'darka'
             Visible = True
           end
           item
@@ -321,11 +321,11 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 562
+        Top = 572
         Width = 980
       end
       inherited Panel: TPanel
-        Top = 543
+        Top = 553
         Width = 980
         inherited StatusBar: TStatusBar
           Width = 911
@@ -377,7 +377,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -387,7 +387,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           Left = 80
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           ReadOnly = True
           TabOrder = 1
@@ -532,7 +532,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           Left = 72
           Top = 31
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 10
           Visible = False
@@ -542,7 +542,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           Left = 80
           Top = 31
           Width = 121
-          Height = 24
+          Height = 22
           ReadOnly = True
           TabOrder = 11
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -655,10 +655,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
       end
       object RightPage: TPageControl
-        Left = 952
+        Left = 616
         Top = 145
-        Width = 28
-        Height = 398
+        Width = 364
+        Height = 408
         ActivePage = Hierarchy
         Align = alRight
         Font.Charset = EASTEUROPE_CHARSET
@@ -673,18 +673,18 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         TabPosition = tpLeft
         OnMouseDown = RightPageMouseDown
         object Hierarchy: TTabSheet
-          Caption = 'Grupy zale¿ne'
+          Caption = 'Grupy zale'#380'ne'
           object rightPane: TPanel
             Left = 0
             Top = 0
-            Width = 1
-            Height = 390
+            Width = 337
+            Height = 400
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
               Left = 1
               Top = 186
-              Width = 251
+              Width = 335
               Height = 8
               Cursor = crVSplit
               Align = alTop
@@ -692,7 +692,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             object pparents: TPanel
               Left = 1
               Top = 25
-              Width = 251
+              Width = 335
               Height = 161
               Align = alTop
               Caption = 'pparents'
@@ -700,16 +700,16 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               object PanelDetails: TPanel
                 Left = 1
                 Top = 1
-                Width = 249
+                Width = 333
                 Height = 24
                 Align = alTop
-                Caption = 'Zasoby nadrzêdne'
+                Caption = 'Zasoby nadrz'#281'dne'
                 TabOrder = 0
               end
               object Panel4: TPanel
                 Left = 1
                 Top = 119
-                Width = 249
+                Width = 333
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -718,7 +718,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj nadrzêdny'
+                  Caption = 'Dodaj nadrz'#281'dny'
                   TabOrder = 0
                   OnClick = AddParentClick
                   Glyph.Data = {
@@ -769,7 +769,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   Top = 8
                   Width = 57
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
@@ -857,7 +857,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               object GParents: TRxDBGrid
                 Left = 1
                 Top = 25
-                Width = 249
+                Width = 333
                 Height = 94
                 Align = alClient
                 DataSource = DSParents
@@ -896,30 +896,37 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Title.Caption = 'Nazwa'
                     Width = 166
                     Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = 205
+                    Visible = True
                   end>
               end
             end
             object pdetails: TPanel
               Left = 1
               Top = 194
-              Width = 251
-              Height = 195
+              Width = 335
+              Height = 205
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 1
               object PanelORDERS: TPanel
                 Left = 1
                 Top = 1
-                Width = 249
+                Width = 333
                 Height = 16
                 Align = alTop
-                Caption = 'Zasoby podrzêdne'
+                Caption = 'Zasoby podrz'#281'dne'
                 TabOrder = 0
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 153
-                Width = 249
+                Top = 163
+                Width = 333
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -928,7 +935,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   Top = 8
                   Width = 113
                   Height = 25
-                  Caption = 'Dodaj podrzêdny'
+                  Caption = 'Dodaj podrz'#281'dny'
                   TabOrder = 0
                   OnClick = AddDetailClick
                   Glyph.Data = {
@@ -979,7 +986,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   Top = 8
                   Width = 65
                   Height = 25
-                  Caption = 'Usuñ'
+                  Caption = 'Usu'#324
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
@@ -1067,8 +1074,8 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               object GDetails: TRxDBGrid
                 Left = 1
                 Top = 17
-                Width = 249
-                Height = 136
+                Width = 333
+                Height = 146
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -1102,13 +1109,20 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Title.Caption = 'Nazwa'
                     Width = 166
                     Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = 205
+                    Visible = True
                   end>
               end
             end
             object Panel5: TPanel
               Left = 1
               Top = 1
-              Width = 251
+              Width = 335
               Height = 24
               Align = alTop
               TabOrder = 2
@@ -1144,8 +1158,8 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       object LabelID: TLabel [0]
         Left = 552
         Top = 8
-        Width = 217
-        Height = 16
+        Width = 166
+        Height = 14
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID_
         Visible = False
@@ -1156,7 +1170,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Width = 25
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Skrót'
+        Caption = 'Skr'#243't'
         FocusControl = ABBREVIATION
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
@@ -1166,10 +1180,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         ParentFont = False
       end
       object LabelNAME: TLabel [2]
-        Left = 73
+        Left = 78
         Top = 88
-        Width = 40
-        Height = 16
+        Width = 35
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Nazwa'
         FocusControl = NAME
@@ -1180,7 +1194,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Width = 44
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Licznoœæ'
+        Caption = 'Liczno'#347#263
         FocusControl = NUMBER_OF_PEOPLES
         Font.Charset = EASTEUROPE_CHARSET
         Font.Color = clRed
@@ -1190,10 +1204,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [4]
-        Left = 80
+        Left = 88
         Top = 64
-        Width = 33
-        Height = 16
+        Width = 25
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -1205,26 +1219,26 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [6]
-        Left = 2
+        Left = 26
         Top = 136
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [7]
-        Left = 2
+        Left = 26
         Top = 160
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
       object LabelGT_ID: TLabel [8]
-        Left = 426
+        Left = 432
         Top = 114
-        Width = 23
-        Height = 16
+        Width = 17
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Typ'
         FocusControl = GT_ID
@@ -1265,7 +1279,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Width = 89
         Height = 13
         Alignment = taRightJustify
-        Caption = 'przez przegl¹darkê'
+        Caption = 'przez przegl'#261'dark'#281
         FocusControl = ROL_ID
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -1290,11 +1304,11 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 566
+        Top = 576
         Width = 980
         TabOrder = 11
         inherited BUpdChild1: TBitBtn
-          Caption = 'Zajêcia'
+          Caption = 'Zaj'#281'cia'
           Visible = True
         end
         inherited BUpdChild2: TBitBtn
@@ -1302,7 +1316,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           Visible = True
         end
         inherited BUpdChild3: TBitBtn
-          Caption = 'Dostêp'
+          Caption = 'Dost'#281'p'
           Visible = True
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -1342,7 +1356,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Top = 32
         Width = 300
         Height = 24
-        Hint = 'SKRÓT'
+        Hint = 'SKR'#211'T'
         DataField = 'ABBREVIATION'
         DataSource = Source
         TabOrder = 0
@@ -1362,7 +1376,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Top = 104
         Width = 80
         Height = 24
-        Hint = 'LICZEBNOŒÆ'
+        Hint = 'LICZEBNO'#346#262
         DataField = 'NUMBER_OF_PEOPLES'
         DataSource = Source
         TabOrder = 4
@@ -1524,7 +1538,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Top = 32
         Width = 308
         Height = 24
-        Hint = 'IMIÊ'
+        Hint = 'IMI'#280
         DataField = 'EMAIL'
         DataSource = Source
         TabOrder = 2
@@ -1534,7 +1548,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Top = 64
         Width = 150
         Height = 24
-        Hint = 'DOMYŒLNA AUTORYZACJA'
+        Hint = 'DOMY'#346'LNA AUTORYZACJA'
         DataField = 'ROL_ID'
         DataSource = Source
         MaxLength = 10
@@ -2060,7 +2074,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Value = '0'
       end>
     SQL.Strings = (
-      'select id,level, parent_dsp'
+      'select id,level, parent_dsp,exclusive_parent'
       '  from str_elems_v'
       '  where level=1 and STR_NAME_LOV=:STR_NAME_LOV1'
       
@@ -2095,8 +2109,8 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       end>
     SQL.Strings = (
       
-        'select id,level, to_char( substr(''                    '',1,level*' +
-        '3) || child_dsp) name'
+        'select id,level, to_char( substr('#39'                    '#39',1,level*' +
+        '3) || child_dsp) name,exclusive_parent'
       '  from str_elems_v'
       '  where level=1 and STR_NAME_LOV=:STR_NAME_LOV1'
       

@@ -7980,6 +7980,10 @@ inherited FMain: TFMain
         Caption = 'Od'#347'wie'#380' pola nadmiarowe'
         OnClick = Odwiepolanadmiarowe1Click
       end
+      object recreateDependencies: TMenuItem
+        Caption = 'Skasuj konflikty'
+        OnClick = recreateDependenciesClick
+      end
       object N18: TMenuItem
         Caption = '-'
       end

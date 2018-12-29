@@ -105,7 +105,7 @@ type TClassByChildCache = Class
                      dLastError : string;
                      private
                       //Procedure Add(TS : TTimeStamp; Zajecia: Integer; Var Status : Integer; Var Class_ : TClass_);
-                      Procedure ccLoadPeriod(PER_ID : Integer; childId : String; _SQL : String);
+                      Procedure ccLoadPeriod(PER_ID : Integer; childId : String; _SQL : String; pres_type: string);
                       Procedure ccGetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_; ClassBy : TClassBy);
                      public
                       Procedure ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
@@ -605,6 +605,7 @@ type
     Odczwybranego1: TMenuItem;
     AddDependencies: TSpeedButton;
     Przywrckomunikaty1: TMenuItem;
+    recreateDependencies: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -944,6 +945,7 @@ type
     procedure Odczwybranego1Click(Sender: TObject);
     procedure AddDependenciesClick(Sender: TObject);
     procedure Przywrckomunikaty1Click(Sender: TObject);
+    procedure recreateDependenciesClick(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -1232,19 +1234,19 @@ begin
    'where sub_id=sub.id(+) and for_id=form.id(+) and classes.id in'+cr+
    '('+cr+
    'select -1 from dual'+cr+
-   iif(LecCond='',''    ,'union select cla_id from lec_cla where '+periodClause+' and ('+LecCond+')'+cr)+
-   iif(GroCond='',''    ,'union select cla_id from gro_cla where '+periodClause+' and ('+GroCond+')'+cr)+
-   iif(RomCond='',''    ,'union select cla_id from rom_cla where '+periodClause+' and ('+RomCond+')'+cr)+
-   iif(ResCat1Cond='','','union select cla_id from rom_cla where '+periodClause+' and ('+ResCat1Cond+')'+cr)+
+   iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+')'+cr)+
+   iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and  '+periodClause+' and ('+GroCond+')'+cr)+
+   iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and ('+RomCond+')'+cr)+
+   iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and ('+ResCat1Cond+')'+cr)+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
    'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
-   iif(NotLec='','','union select cla_id from lec_cla where '+periodClause+' and '+NotLec+cr)+
-   iif(NotGro='','','union select cla_id from gro_cla where '+periodClause+' and '+NotGro+cr)+
-   iif(NotRom='','','union select cla_id from rom_cla where '+periodClause+' and '+NotRom+cr)+
+   iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and  '+periodClause+' and '+NotLec+cr)+
+   iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and  '+periodClause+' and '+NotGro+cr)+
+   iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and '+NotRom+cr)+
    ')'+cr+
    comment2+cr
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
@@ -1393,7 +1395,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      LEC_CLA.LEC_ID =:lec AND '+
+   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
    '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']))
    else
    DModule.SingleValue(
@@ -1407,7 +1409,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      LEC_CLA.LEC_ID =:lec AND '+
+   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']));
 
    Class_ := QWorkToClass;
@@ -1440,7 +1442,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND '+
+   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
    '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']))
    else
    DModule.SingleValue(
@@ -1454,7 +1456,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND '+
+   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']));
 
    Class_ := QWorkToClass;
@@ -1487,7 +1489,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      ROM_CLA.ROM_ID=:rom AND '+
+   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
    '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']))
    else
    DModule.SingleValue(
@@ -1501,7 +1503,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      ROM_CLA.ROM_ID=:rom AND '+
+   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']));
 
    Class_ := QWorkToClass;
@@ -1704,7 +1706,7 @@ begin
  end;
 
  Data[position - 1].Cache := TClassByChildCache.create;
- Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM LEC_CLA WHERE LEC_ID in ');
+ Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM LEC_CLA WHERE LEC_ID in ','L');
  Data[position - 1].childId := childId;
  Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
 end;
@@ -1778,7 +1780,7 @@ begin
 
    dGeneralDebug := 'TClassByGroupCaches.GetClass '+inttostr(position)+' PER_ID='+inttostr(PER_ID)+' conPeriod.Text='+fmain.conPeriod.Text;
    Data[position - 1].GCache := TClassByChildCache.create;
-   Data[position - 1].GCache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM GRO_CLA WHERE GRO_ID in ');
+   Data[position - 1].GCache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM GRO_CLA WHERE GRO_ID in ','G');
    Data[position - 1].childId := childId;
    Data[position - 1].GCache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
 end;
@@ -1852,7 +1854,7 @@ begin
  end;
 
    Data[position - 1].Cache := TClassByChildCache.create;
-   Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM ROM_CLA WHERE ROM_ID in ');
+   Data[position - 1].Cache.ccLoadPeriod(PER_ID,  childId, 'SELECT CLA_ID FROM ROM_CLA WHERE ROM_ID in ','R');
    Data[position - 1].childId := childId;
    Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
 end;
@@ -3526,12 +3528,13 @@ begin
  Legenda1.Checked := Legend.Down;
 end;
 
-procedure TClassByChildCache.ccLoadPeriod(PER_ID: Integer; childId: String; _SQL: String);
+procedure TClassByChildCache.ccLoadPeriod(PER_ID: Integer; childId: String; _SQL: String; pres_type: string);
 Var t : Integer;
     DateFrom, DateTo : String;
     X, Y : Integer;
     L1, L2 : Integer;
     aMaxHours : Integer;
+    pcleanUpMode : shortstring;
 
     Procedure internalInit (aFirstDay, aCount, aMaxHours : Integer);
     Var t, t2 : Integer;
@@ -3554,6 +3557,24 @@ begin
 
   If (PER_ID = 0) Or (PER_ID = -1) Then Exit;
   If (childId = '0') Or (childId = '-1') or (isBlank(childId)) Then Exit;
+
+
+  pcleanUpMode := iif(fmain.recreateDependencies.Checked,'+','-');
+
+  with dmodule.QWork do begin
+    SQL.Clear;
+    SQL.Add(
+	  'begin '+ cr+
+	  ' planner_utils.insert_dependency_classes (:pres_id, :pres_type, :pper_id, :pcleanUpMode); '+ cr+
+	  'end;'
+	  );
+    parameters.ParamByName('pres_id').value    := childId;
+    parameters.ParamByName('pres_type').value  := pres_type;
+    parameters.ParamByName('pper_id').value    := PER_ID;
+    parameters.ParamByName('pcleanUpMode').value:= pcleanUpMode;
+
+    execSQL;
+  end;
 
   dPER_ID := PER_ID;
   dchildId := childId;
@@ -9005,6 +9026,11 @@ procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);
 begin
   SetSystemParam('MESSAGE.SkipCapacityOverflow','-');
   Info('Otrze¿enie o przekroczonej zajêtoœci sal zosta³y przywrócone');
+end;
+
+procedure TFMain.recreateDependenciesClick(Sender: TObject);
+begin
+  recreateDependencies.Checked := not recreateDependencies.Checked;
 end;
 
 initialization

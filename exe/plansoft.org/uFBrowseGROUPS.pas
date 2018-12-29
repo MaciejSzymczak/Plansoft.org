@@ -165,7 +165,7 @@ implementation
 
 
 uses DM, UUtilityParent, UFMain, UFLookupWindow, autocreate,
-  UFProgramSettings, UFMassImport, UFSharing;
+  UFProgramSettings, UFMassImport, UFSharing, UFExclusiveParent;
 
 {$R *.DFM}
 
@@ -380,12 +380,19 @@ end;
 procedure TFBrowseGROUPS.insert_str_elem(parent : boolean);
 Var keyValue : ShortString;
     resultValue : string;
+    mr : tmodalresult;
+    pexclusive_parent : shortString;
 begin
+  mr := FExclusiveParent.showModal;
+  if mr = mrYes then pexclusive_parent := '+';
+  if mr = mrNo then  pexclusive_parent := '-';
+  if (mr <> mrNo) and (mr <> mrYes) then exit;
+
   keyValue := '';
   If LookupWindow(DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValue,'500,100') = mrOK Then Begin
     with dmodule.QWork do begin
       SQL.Clear;
-      SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov ); end;');
+      SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
       if parent then begin
         Parameters.ParamByName('pparent_id').value    := keyValue;
         Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
@@ -395,6 +402,7 @@ begin
         Parameters.ParamByName('pchild_id').value    := keyValue;
         Parameters.ParamByName('pparent_id').value     := query.FieldByName('ID').asString;
       end;
+      Parameters.ParamByName('pexclusive_parent').value     := pexclusive_parent;
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
@@ -468,7 +476,7 @@ procedure TFBrowseGROUPS.RightPageMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if RightPage.Width = 24
+  if RightPage.Width <430
     then RightPage.Width := 430
     else RightPage.Width := 24;
 end;
