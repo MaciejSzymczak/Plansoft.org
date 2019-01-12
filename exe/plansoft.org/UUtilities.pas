@@ -1583,19 +1583,19 @@ begin
   // bugfix: passing owner by parameter does not work, so value is set directly!
   For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where no_conflict_flag is null and lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
    select_clause := select_clause + '||''#''||lec'+inttostr(t);
   End;
 
   For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where no_conflict_flag is null and gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
    select_clause := select_clause + '||''#''||gro'+inttostr(t);
   End;
 
   For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where no_conflict_flag is null and rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
    select_clause := select_clause+ '||''#''||rom'+inttostr(t);
   End;
 

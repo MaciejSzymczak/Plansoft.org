@@ -5711,9 +5711,9 @@ function TFMain.modifyClass;
 	  pttCombIds := dmodule.SingleValue('select tt_planner.get_tt_cla ( :id ) from dual', 'id=' + intToStr(oldClass.id) );
 
 	  repeat
-		col := col + deltaX;
-		row := row + deltaY;
-		cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
+		  col := col + deltaX;
+		  row := row + deltaY;
+		  cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
 	  until  (cellStatus = ConvClass) or (cellStatus = convOutOfRange);
 
 	  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
