@@ -625,7 +625,9 @@ end;
 function TFBrowseROOMS.getSearchFilter: string;
 begin
  result := '(xxmsz_tools.erasePolishChars(upper(org_units.name||rooms.name||rooms.desc1||rooms.desc2||rooms.attribs_01||rooms.email||rooms.attribs_01||rooms.attribs_02||rooms.attribs_03||rooms.attribs_04||rooms.attribs_05||rooms.attribs_06'+
-           '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+           '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'''+
+           ' OR ''#''||xxmsz_tools.erasePolishChars(upper(rooms.attribs_01)) like '''+replacePolishChars(ansiuppercase(trim(ESearch.Text)) )+'%'')';
+           copyToClipboard(result);
 end;
 
 function TFBrowseROOMS.getFindCaption: string;
