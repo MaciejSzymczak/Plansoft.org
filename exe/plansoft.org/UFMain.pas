@@ -8545,6 +8545,7 @@ function TFMain.getWhereFastFilter(filter, tableName : string) : string;
     result := stringreplace(result, 'var3', replacePolishChars( ansiuppercase(Filter) ), []);
     result := stringreplace(result, 'var4', replacePolishChars( ansiuppercase(Filter) ), []);
     result := stringreplace(result, 'var5', replacePolishChars( ansiuppercase(Filter) ), []);
+    result := stringreplace(result, 'var6', replacePolishChars( ansiuppercase(Filter) ), []);
     result := tablename+'.id in'+result;
   end;
 end;

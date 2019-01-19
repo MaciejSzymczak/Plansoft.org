@@ -18,7 +18,6 @@ type
     TabSheetS: TTabSheet;
     GridL: TDBGrid;
     GRIDG: TDBGrid;
-    GRIDR: TDBGrid;
     GRIDS: TDBGrid;
     DSL: TDataSource;
     DSG: TDataSource;
@@ -44,30 +43,13 @@ type
     groupByDesc2: TCheckBox;
     groupByDesc3: TCheckBox;
     groupByDesc4: TCheckBox;
-    upperPanel: TPanel;
-    Filter: TEdit;
-    BOleExport: TBitBtn;
     ppexport: TPopupMenu;
     ExportEasy: TMenuItem;
     ExportHtml: TMenuItem;
     ExcelApplication1: TExcelApplication;
     ImageList: TImageList;
     SqlR: TMemo;
-    RoomAdvPanel: TPanel;
-    Splitter1: TSplitter;
-    SpeedButton3: TSpeedButton;
     RMore: TSpeedButton;
-    FormsList: TCheckListBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    HoursList: TCheckListBox;
-    SpeedButton4: TSpeedButton;
-    SpeedButton5: TSpeedButton;
-    SpeedButton6: TSpeedButton;
-    SpeedButton7: TSpeedButton;
-    Label3: TLabel;
-    ClassesSelectedTotal: TEdit;
-    MinusReservations: TCheckBox;
     groupByLDesc1: TCheckBox;
     groupByLDesc2: TCheckBox;
     groupByLDesc3: TCheckBox;
@@ -99,6 +81,37 @@ type
     locked_by: TDBEdit;
     locked_reason: TDBEdit;
     SelectAnotherLocker: TBitBtn;
+    PanelResources: TPanel;
+    RoomAdvPanel: TPanel;
+    SpeedButton3: TSpeedButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    SpeedButton4: TSpeedButton;
+    SpeedButton5: TSpeedButton;
+    SpeedButton6: TSpeedButton;
+    SpeedButton7: TSpeedButton;
+    Label3: TLabel;
+    FormsList: TCheckListBox;
+    HoursList: TCheckListBox;
+    ClassesSelectedTotal: TEdit;
+    MinusReservations: TCheckBox;
+    Splitter1: TSplitter;
+    GRIDR: TDBGrid;
+    upperPanel: TPanel;
+    FilterL: TEdit;
+    BOleExport: TBitBtn;
+    Panel1: TPanel;
+    FilterG: TEdit;
+    BitBtn1: TBitBtn;
+    Panel2: TPanel;
+    FilterR: TEdit;
+    BitBtn2: TBitBtn;
+    Panel3: TPanel;
+    FilterS: TEdit;
+    BitBtn3: TBitBtn;
+    Panel4: TPanel;
+    FilterSummary: TEdit;
+    BitBtn4: TBitBtn;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -123,7 +136,7 @@ type
     procedure QuerySAfterOpen(DataSet: TDataSet);
     procedure QueryCOUNTERBeforeOpen(DataSet: TDataSet);
     procedure BRefreshClick(Sender: TObject);
-    procedure FilterChange(Sender: TObject);
+    procedure FilterLChange(Sender: TObject);
     procedure gridCounterDblClick(Sender: TObject);
     procedure BOleExportClick(Sender: TObject);
     procedure ExportEasyClick(Sender: TObject);
@@ -532,14 +545,14 @@ begin
   if PageControl.ActivePage = TabsheetL       then begin
     dmodule.resetConnection ( QueryL );
     QueryL.SQL.Clear;
-    QueryL.SQL.Add('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filter.text, 'LECTURERS')+' ORDER BY LAST_NAME');
+    QueryL.SQL.Add('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterL.text, 'LECTURERS')+' ORDER BY LAST_NAME');
     QueryL.Open;
   end;
 
   if PageControl.ActivePage = TabsheetG       then begin
     dmodule.resetConnection ( QueryG );
     QueryG.SQL.Clear;
-    QueryG.SQL.Add('SELECT groups.*, planner_utils.get_available_gro(groups.id) available_gro FROM GROUPS, GRO_PLA WHERE '+CondG+' AND GRO_PLA.GRO_ID = GROUPS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filter.text, 'GROUPS')+' ORDER BY NAME');
+    QueryG.SQL.Add('SELECT groups.*, planner_utils.get_available_gro(groups.id) available_gro FROM GROUPS, GRO_PLA WHERE '+CondG+' AND GRO_PLA.GRO_ID = GROUPS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterG.text, 'GROUPS')+' ORDER BY NAME');
     QueryG.Open;
   end;
 
@@ -559,7 +572,7 @@ begin
       SqlR.Lines.Text
         ,':CondR',CondR)
         ,':UserOrRoleID',FMain.getUserOrRoleID)
-        ,':fast_filter',fmain.getWhereFastFilter(self.filter.text, 'ROOMS'))
+        ,':fast_filter',fmain.getWhereFastFilter(self.filterR.text, 'ROOMS'))
         ,':order_by',sql_ResCat0NAME)
         ,':forms_filter',forms_filter)
         ,':hours_filter',hours_filter)
@@ -571,7 +584,7 @@ begin
   if PageControl.ActivePage = TabsheetS       then begin
     dmodule.resetConnection ( QueryS );
     QueryS.SQL.Clear;
-    QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+fmain.getWhereFastFilter(self.filter.text, 'SUBJECTS')+' order by name');
+    QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+fmain.getWhereFastFilter(self.filterS.text, 'SUBJECTS')+' order by name');
     QueryS.Open;
   end;
 
@@ -642,20 +655,20 @@ begin
           iif( groupByR.Checked, ',ROM_CLA, ROOMS ROM ' + CR,'')+
     ' WHERE '+ periodClauseCLA + CR +
       ' AND ('
-          + fmain.getWhereFastFilter(self.filter.text, 'SUB')
-          + ' or ' + fmain.getWhereFastFilter(self.filter.text, 'FR')
+          + fmain.getWhereFastFilter(self.filterSummary.text, 'SUB')
+          + ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'FR')
           + iif(groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked  or groupByL.Checked,
-              ' or ' + fmain.getWhereFastFilter(self.filter.text, 'LEC')
-            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC1)) LIKE '''+replacePolishChars( ansiuppercase(self.filter.text))+'%'''
-            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC2)) LIKE '''+replacePolishChars( ansiuppercase(self.filter.text))+'%'''
-            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC3)) LIKE '''+replacePolishChars( ansiuppercase(self.filter.text))+'%'''
-            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC4)) LIKE '''+replacePolishChars( ansiuppercase(self.filter.text))+'%'''
+              ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'LEC')
+            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC1)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
+            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC2)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
+            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC3)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
+            + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC4)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
           , '')
           + iif(groupByG.Checked,
-              ' or ' + fmain.getWhereFastFilter(self.filter.text, 'GRO')
+              ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'GRO')
           , '')
           + iif(groupByR.Checked,
-              ' or ' + fmain.getWhereFastFilter(self.filter.text, 'ROM')
+              ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'ROM')
           , '')
       +' ) '+CR+
       iif(groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked  or groupByL.Checked, ' AND LEC_CLA.CLA_ID(+) = CLA.ID AND LEC_CLA.LEC_ID=LEC.ID(+)' + CR,'')+
@@ -727,7 +740,7 @@ begin
   end;
 end;
 
-procedure TFLegend.FilterChange(Sender: TObject);
+procedure TFLegend.FilterLChange(Sender: TObject);
 begin
   BRefreshClick(nil);
 end;

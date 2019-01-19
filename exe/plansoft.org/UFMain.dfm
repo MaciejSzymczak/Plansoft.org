@@ -6584,12 +6584,12 @@ inherited FMain: TFMain
           '%var2%'#39' )) union'
         
           '(select m.id from rooms m, org_units o where m.ORGUNI_ID = o.id(' +
-          '+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.des' +
-          'c1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_02|' +
-          '|m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attri' +
-          'bs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m' +
-          '.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39'%v' +
-          'ar3%'#39')) union'
+          '+) and ((xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.de' +
+          'sc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_02' +
+          '||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attr' +
+          'ibs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||' +
+          'm.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39'%' +
+          'var3%'#39') or '#39'#'#39'||m.attribs_01 like '#39'var6%'#39') ) union'
         
           '(select m.id from forms m where (xxmsz_tools.erasePolishChars(up' +
           'per(m.name||m.desc1||m.desc2||m.attribs_01||m.attribs_01||m.attr' +
