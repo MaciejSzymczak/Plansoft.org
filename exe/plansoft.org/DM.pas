@@ -245,7 +245,7 @@ begin
  QueriesCnt := QueriesCnt + 1;
  with Queries[QueriesCnt] do begin
   Q := query;
-  sql      := TStringList.Create;
+  sql := TStringList.Create;
   sql.Assign ( query.sql );
   macroCnt := 0;
  end;

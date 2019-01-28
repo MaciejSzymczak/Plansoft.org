@@ -199,6 +199,7 @@ var
     colors[t].b := b;
   end;
 begin
+ FDatabaseLogin.Caption := 'Plansoft.org                (wersja '+UutilityParent.VersionOfApplication+')';
  ratioinside := 1;
  for t := 0 to 95 do begin
    r := random(6);

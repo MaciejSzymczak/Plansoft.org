@@ -4,7 +4,7 @@ unit UUtilityParent;
 interface
 
 Uses Forms, Controls, Windows, classes, DBTables, stdctrls, Rxlookup, Rxdbctrl, dbctrls, comctrls, shellapi, SysUtils,
-     bde, rxstrUtils, menus, FileCtrl, graphics, StrHlder, CheckLst;
+     bde, rxstrUtils, menus, FileCtrl, graphics, StrHlder, CheckLst, DBGrids;
 
 Type  TCharSet = Set of Char;
 
@@ -260,12 +260,95 @@ procedure saveToIni(iniFileName : string; sectionName : string; Name, value : st
 function Encode64(S: string): string;
 function Decode64(S: string): string;
 
+Procedure GridLayoutLoadFromFile (formName : String; Grid: TDBGrid);
+Procedure GridLayoutSaveToFile(formName : String; Grid: TDBGrid);
 
 implementation
 
 Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls, EncdDecd;
 
+//------------------------------------------------------------------
+Procedure GridLayoutLoad (Grid: TDBGrid; Strings : TStrings);
+Var L : Integer;
+    FieldName, Title,Width : ShortString;
+    Temp       : TColumn;
+begin
+ Grid.Columns.Clear;
+ For L:=0 To Strings.Count - 1 Do Begin
+   FieldName   := ExtractWord(1,Strings[L],['|']);
+   Title       := ExtractWord(2,Strings[L],['|']);
+   Width       := ExtractWord(3,Strings[L],['|']);
 
+   Temp := Grid.Columns.Add;
+   Temp.Title.Caption := Title;
+   Temp.Width := StrToInt(Width);
+   Temp.FieldName := FieldName;
+ end;
+end;
+
+//------------------------------------------------------------------
+Procedure GridLayoutSave(Grid: TDBGrid; var Strings : TStrings);
+Var l : Integer;
+begin
+  Strings.Clear;
+  For l:=0 To Grid.Columns.Count - 1 Do Begin
+   Strings.Add(
+     AnsiUpperCase(Grid.Columns[l].FieldName) + '|' +
+     Grid.Columns[l].Title.Caption + '|' +
+     IntToStr(Grid.Columns[l].Width) +
+     '|CATEGORY:');
+  End;
+end;
+
+//------------------------------------------------------------------
+Function getGridFileName(formName : String; Grid: TDBGrid) : String;
+Var l : Integer;
+    sortedColumNames : TStrings;
+Begin
+ sortedColumNames := TStringList.Create;
+
+ result := UUtilityParent.StringsPATH + extractFileName(Application.ExeName) +'.' + formName + '.' + Grid.Name;
+  For l:=0 To Grid.Columns.Count - 1 Do
+    sortedColumNames.Add(Copy(Grid.Columns[l].FieldName,1,10));
+  TStringList(sortedColumNames).Sort;
+  For l:=0 To sortedColumNames.Count-1 Do
+   result := result +'.'+ sortedColumNames[l];
+ result := result + '.cfg';
+
+End;
+
+//------------------------------------------------------------------
+Procedure GridLayoutLoadFromFile (formName : String; Grid: TDBGrid);
+var fileName: TFileName;
+    tmp : TStrings;
+Begin
+ //info(Grid.name+'    LOAD');
+ fileName := getGridFileName(formName,Grid);
+
+ if fileExists(fileName) then begin
+    //info('EXISTS');
+    tmp := TStringList.Create;
+    tmp.LoadFromFile(fileName);
+    GridLayoutLoad (Grid, tmp);
+ end;
+
+End;
+
+//------------------------------------------------------------------
+Procedure GridLayoutSaveToFile(formName : String; Grid: TDBGrid);
+var fileName: TFileName;
+    tmp : TStrings;
+Begin
+ //info(Grid.name+'    SAVE');
+ fileName := getGridFileName(formName,Grid);
+ tmp := TStringList.Create;
+ GridLayoutSave (Grid, tmp);
+ tmp.SaveToFile(fileName);
+End;
+
+
+
+//------------------------------------------------------------------
 function checkListBoxToText (c : tchecklistbox) : string;
 var i : integer;
     res : string;
@@ -1722,7 +1805,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2018-08-21';
+ VersionOfApplication := '2019-02-03';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

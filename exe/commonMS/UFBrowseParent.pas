@@ -345,7 +345,6 @@ type
    POST_UPPERCASE  : String[20];
    GridRelayoutRequired : boolean;
 
-   Procedure ApplyGridLayout;
    procedure UpdateStaticLayout;
    Procedure FindWindow(S : String);
    Procedure RefreshHotKeys;
@@ -441,7 +440,9 @@ type
    Procedure SwitchFormToDetails;
    Procedure ExportToHtml(aGrid : TDBGrid );
    function findFirstVisibleColumn : integer;
+
    Procedure CreateGridLayout;
+   Procedure ApplyGridLayout;
   end;
 
 var
@@ -1500,6 +1501,8 @@ End;
 
 //------------------------------------------------------------------
 Procedure TFBrowseParent.applyGridLayout;
+
+Procedure GridLayoutLoad (Grid: TDBGrid; Strings : TStrings; flexContextName : String);
 Var L : Integer;
     colNum : integer;
     FieldName, Title,Width : ShortString;
@@ -1510,7 +1513,7 @@ Var L : Integer;
   Var L : Integer;
   Begin
    For L:=0 To Grid.Columns.Count - 1 Do Begin
-    If Grid.Columns[L].FieldName = FieldName Then Begin Result := L; Exit; End;
+    If ansiUpperCase(Grid.Columns[L].FieldName) = FieldName Then Begin Result := L; Exit; End;
    End;
    Result := -1;
   End;
@@ -1519,26 +1522,26 @@ begin
  Temp := Nil;
 
  colNum := 0;
- For L:=0 To GridLayout.Strings.Count - 1 Do Begin
-  if (ExtractWord(4,GridLayout.Strings[L],['|']) = 'CATEGORY:DEFAULT')
+ For L:=0 To Strings.Count - 1 Do Begin
+  if (ExtractWord(4,Strings[L],['|']) = 'CATEGORY:DEFAULT')
      or
-     (ExtractWord(4,GridLayout.Strings[L],['|']) = 'CATEGORY:'+flexContextName)
+     (ExtractWord(4,Strings[L],['|']) = 'CATEGORY:'+flexContextName)
   then
   begin
-   FieldName   := ExtractWord(1,GridLayout.Strings[L],['|']);
-   Title       := ExtractWord(2,GridLayout.Strings[L],['|']);
-   Width       := ExtractWord(3,GridLayout.Strings[L],['|']);
+   FieldName   := ExtractWord(1,Strings[L],['|']);
+   Title       := ExtractWord(2,Strings[L],['|']);
+   Width       := ExtractWord(3,Strings[L],['|']);
 
    NK := ColNo(FieldName);
    If NK = -1 Then Begin
-    Warning('Nie ma pola FIELDNAME='+FieldName);
+    Warning('Invalid FIELDNAME='+FieldName);
     Exit;
    End;
 
    Try
     StrToInt(Width);
    Except
-    Warning('Szerokoœæ pola musi byæ liczb¹. FIELDNAME='+FieldName);
+    Warning('Invalid width. FIELDNAME='+FieldName);
     Exit;
    End;
 
@@ -1558,6 +1561,9 @@ begin
  If Temp <> Nil Then Temp.Free;
 end;
 
+begin
+  GridLayoutLoad(Grid, GridLayout.Strings, flexContextName);
+end;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.updateStaticLayout;

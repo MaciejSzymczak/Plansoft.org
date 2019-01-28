@@ -83,7 +83,7 @@ type
     SelectAnotherLocker: TBitBtn;
     PanelResources: TPanel;
     RoomAdvPanel: TPanel;
-    SpeedButton3: TSpeedButton;
+    BHide: TSpeedButton;
     Label1: TLabel;
     Label2: TLabel;
     SpeedButton4: TSpeedButton;
@@ -130,10 +130,6 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure QueryCOUNTERAfterOpen(DataSet: TDataSet);
-    procedure QueryLAfterOpen(DataSet: TDataSet);
-    procedure QueryGAfterOpen(DataSet: TDataSet);
-    procedure QueryRAfterOpen(DataSet: TDataSet);
-    procedure QuerySAfterOpen(DataSet: TDataSet);
     procedure QueryCOUNTERBeforeOpen(DataSet: TDataSet);
     procedure BRefreshClick(Sender: TObject);
     procedure FilterLChange(Sender: TObject);
@@ -142,7 +138,7 @@ type
     procedure ExportEasyClick(Sender: TObject);
     procedure ExportHtmlClick(Sender: TObject);
     procedure RMoreClick(Sender: TObject);
-    procedure SpeedButton3Click(Sender: TObject);
+    procedure BHideClick(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
     procedure SpeedButton5Click(Sender: TObject);
     procedure SpeedButton6Click(Sender: TObject);
@@ -150,12 +146,9 @@ type
     procedure HoursListClick(Sender: TObject);
     procedure FormsListClick(Sender: TObject);
     procedure MinusReservationsClick(Sender: TObject);
-    procedure GRIDRMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure SpeedButton8Click(Sender: TObject);
     procedure BEditorClick(Sender: TObject);
     procedure SpeedButton9Click(Sender: TObject);
-    procedure gridCounterExit(Sender: TObject);
     procedure gridCounterCellClick(Column: TColumn);
     procedure GridLCellClick(Column: TColumn);
     procedure GRIDGCellClick(Column: TColumn);
@@ -170,7 +163,6 @@ type
     gridsFontSize : integer;
     refreshAllowed : boolean;
     procedure refreshGridSize;
-    function getFileName ( g : tdbgrid ) : shortstring;
   public
     CondL, CondG, CondR : String;
     FormsListIds : Array of string;
@@ -380,76 +372,26 @@ begin
       HostDockSite.Width := 1;
 end;
 
-function TFLegend.getFileName(g: tdbgrid): shortstring;
-var i : integer;
-    s : string;
-begin
-  s := '';
-  for i := 0 to g.FieldCount-1 do begin
-    //if g.columns[i].Visible then
-      s := s + '.'+g.columns[i].FieldName;
-  end;
-  Result := UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.' + self.Name + '.' +  g.name + '.' + s + '.bin';
-end;
-
 procedure TFLegend.QueryCOUNTERAfterOpen(DataSet: TDataSet);
 var i : integer;
-    //s : string;
 begin
-    //s := '';
-    //for i := 0 to gridCounter.FieldCount-1 do begin
-    //  s := s + ','+gridCounter.columns[i].FieldName;
-    //end;
-    //info ( s );
-
-  if fileExists( getFileName(gridCounter) ) then
-    gridCounter.Columns.LoadFromFile( getFileName(gridCounter) )
-  else begin
-    for i := 0 to gridCounter.FieldCount-1 do begin
-      if gridCounter.columns[i].FieldName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
-      if gridCounter.columns[i].FieldName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
-      if gridCounter.columns[i].FieldName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
-      if gridCounter.columns[i].FieldName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
-      if gridCounter.columns[i].FieldName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
-      if gridCounter.columns[i].FieldName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
-      if gridCounter.columns[i].FieldName = 'Forma' then gridCounter.Columns[i].Width := 100;
-      if gridCounter.columns[i].FieldName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
-      if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(1) then gridCounter.Columns[i].Width := 60;
-      if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(2) then gridCounter.Columns[i].Width := 60;
-      if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(3) then gridCounter.Columns[i].Width := 60;
-      if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(4) then gridCounter.Columns[i].Width := 60;
-    end;
+  for i := 0 to gridCounter.FieldCount-1 do begin
+    if gridCounter.columns[i].FieldName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
+    if gridCounter.columns[i].FieldName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
+    if gridCounter.columns[i].FieldName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
+    if gridCounter.columns[i].FieldName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
+    if gridCounter.columns[i].FieldName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
+    if gridCounter.columns[i].FieldName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
+    if gridCounter.columns[i].FieldName = 'Forma' then gridCounter.Columns[i].Width := 100;
+    if gridCounter.columns[i].FieldName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
+    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(1) then gridCounter.Columns[i].Width := 60;
+    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(2) then gridCounter.Columns[i].Width := 60;
+    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(3) then gridCounter.Columns[i].Width := 60;
+    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(4) then gridCounter.Columns[i].Width := 60;
   end;
-
   for i := 0 to gridCounter.FieldCount-1 do begin
     if gridCounter.Columns[i].Width>250 then gridCounter.Columns[i].Width := 250;
   end;
-
-end;
-
-procedure TFLegend.QueryLAfterOpen(DataSet: TDataSet);
-begin
-  if fileExists( getFileName(gridL) ) then gridL.Columns.LoadFromFile( getFileName(gridL) ) ;
-end;
-
-procedure TFLegend.QueryGAfterOpen(DataSet: TDataSet);
-begin
-  if fileExists( getFileName(gridG) ) then gridG.Columns.LoadFromFile( getFileName(gridG) ) ;
-end;
-
-procedure TFLegend.QueryRAfterOpen(DataSet: TDataSet);
-var fileName : string;
-begin
-  fileName := getFileName(gridR);
-  if fileExists( fileName )
-    then gridR.Columns.LoadFromFile( fileName ) else
-  begin
-  end;
-end;
-
-procedure TFLegend.QuerySAfterOpen(DataSet: TDataSet);
-begin
-  if fileExists( getFileName(gridS) ) then gridS.Columns.LoadFromFile( getFileName(gridS) ) ;
 end;
 
 procedure TFLegend.QueryCOUNTERBeforeOpen(DataSet: TDataSet);
@@ -459,11 +401,11 @@ end;
 
 procedure TFLegend.saveFormSettings;
 begin
-  gridCounter.Columns.SaveToFile( getFileName(gridCounter) ) ;
-  gridL.Columns.SaveToFile( getFileName(gridL) ) ;
-  gridG.Columns.SaveToFile( getFileName(gridG) ) ;
-  gridR.Columns.SaveToFile( getFileName(gridR) ) ;
-  gridS.Columns.SaveToFile( getFileName(gridS) ) ;
+  UUtilityParent.GridLayoutSaveToFile('FLegend', gridCounter);
+  UUtilityParent.GridLayoutSaveToFile('FLegend', gridL);
+  UUtilityParent.GridLayoutSaveToFile('FLegend', gridG);
+  UUtilityParent.GridLayoutSaveToFile('FLegend', gridR);
+  UUtilityParent.GridLayoutSaveToFile('FLegend', gridS);
 
   setSystemParam('FLegend.gridsFontSize',intToStr (gridsFontSize) );
 
@@ -537,26 +479,32 @@ begin
     SelectedSubOnly.Checked := false;
   end;
 
-  dmodule.resetConnection ( QueryCOUNTER );
-
   //required by planner_utils.get_available_lec function
   if FindMode.ItemIndex = 0 then fmain.set_tmp_selected_dates;
 
   if PageControl.ActivePage = TabsheetL       then begin
+    if QueryL.Active then
+      UUtilityParent.GridLayoutSaveToFile(self.Name, gridL);
     dmodule.resetConnection ( QueryL );
     QueryL.SQL.Clear;
     QueryL.SQL.Add('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterL.text, 'LECTURERS')+' ORDER BY LAST_NAME');
     QueryL.Open;
+    UUtilityParent.GridLayoutLoadFromFile (self.Name,gridL);
   end;
 
   if PageControl.ActivePage = TabsheetG       then begin
+    if QueryG.Active then
+      UUtilityParent.GridLayoutSaveToFile(self.Name, gridG);
     dmodule.resetConnection ( QueryG );
     QueryG.SQL.Clear;
     QueryG.SQL.Add('SELECT groups.*, planner_utils.get_available_gro(groups.id) available_gro FROM GROUPS, GRO_PLA WHERE '+CondG+' AND GRO_PLA.GRO_ID = GROUPS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterG.text, 'GROUPS')+' ORDER BY NAME');
     QueryG.Open;
+    UUtilityParent.GridLayoutLoadFromFile (self.Name,gridG);
   end;
 
   if PageControl.ActivePage = TabsheetR       then begin
+    if QueryR.Active then
+      UUtilityParent.GridLayoutSaveToFile(self.Name, gridR);
     dmodule.resetConnection ( QueryR );
     getFilters(forms_filter,hours_filter);
     ClassesSelectedTotal.Text :=
@@ -580,15 +528,22 @@ begin
         ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
     );
     QueryR.Open;
+    UUtilityParent.GridLayoutLoadFromFile (self.Name,gridR);
   end;
   if PageControl.ActivePage = TabsheetS       then begin
+    if QueryS.Active then
+      UUtilityParent.GridLayoutSaveToFile(self.Name, gridS);
     dmodule.resetConnection ( QueryS );
     QueryS.SQL.Clear;
     QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+fmain.getWhereFastFilter(self.filterS.text, 'SUBJECTS')+' order by name');
     QueryS.Open;
+    UUtilityParent.GridLayoutLoadFromFile (self.Name,gridS);
   end;
 
   if PageControl.ActivePage = TabsheetCounter then begin
+    if QueryCOUNTER.Active then
+      UUtilityParent.GridLayoutSaveToFile(self.Name, gridCounter);
+    dmodule.resetConnection ( QueryCOUNTER );
     if Fmain.CONPERIOD.Text='' then exit;
     QueryCOUNTER.SQL.Clear;
     groupbyClause := mergeStrings(',',[
@@ -688,6 +643,7 @@ begin
     ')' + cr+ rollUpFilter
     );
     QueryCOUNTER.Open;
+    UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
   end;
 
   if PageControl.ActivePage = TabsheetTimetableNotes  then begin
@@ -711,32 +667,6 @@ begin
 
    if GroupBoxLock.Visible then
      RefreshLockButtons;
-  end;
-
-
-  if PageControl.ActivePage = TabsheetR then begin
-      if RoomAdvPanel.Visible then begin
-        gridR.Columns[1].visible := true;
-        gridR.Columns[2].visible := true;
-        gridR.Columns[3].visible := true;
-        gridR.Columns[4].visible := true;
-        gridR.Columns[1].Width := strToInt( getSystemParam('FLegend.gridR.Column1.Width'  ,'56')   );
-        gridR.Columns[2].Width := strToInt( getSystemParam('FLegend.gridR.Column2.Width'  ,'56')   );
-        gridR.Columns[3].Width := strToInt( getSystemParam('FLegend.gridR.Column3.Width'  ,'64')   );
-        gridR.Columns[4].Width := strToInt( getSystemParam('FLegend.gridR.Column4.Width'  ,'64')   );
-      end else begin
-        gridR.Columns[1].visible := false;
-        gridR.Columns[2].visible := false;
-        gridR.Columns[3].visible := false;
-        gridR.Columns[4].visible := false;
-      end;
-      gridR.Columns[ 0].Width := strToInt( getSystemParam('FLegend.gridR.Column0.Width'  ,'69')   );
-      gridR.Columns[ 5].Width := strToInt( getSystemParam('FLegend.gridR.Column5.Width'  ,'89')   );
-      gridR.Columns[ 6].Width := strToInt( getSystemParam('FLegend.gridR.Column6.Width'  ,'49')   );
-      gridR.Columns[ 7].Width := strToInt( getSystemParam('FLegend.gridR.Column7.Width'  ,'65')   );
-      gridR.Columns[ 8].Width := strToInt( getSystemParam('FLegend.gridR.Column8.Width'  ,'64')   );
-      gridR.Columns[ 9].Width := strToInt( getSystemParam('FLegend.gridR.Column9.Width'  ,'63')   );
-      gridR.Columns[10].Width := strToInt( getSystemParam('FLegend.gridR.Column10.Width'  ,'63')   );
   end;
 end;
 
@@ -1003,7 +933,7 @@ begin
   BRefreshClick(nil);
 end;
 
-procedure TFLegend.SpeedButton3Click(Sender: TObject);
+procedure TFLegend.BHideClick(Sender: TObject);
 begin
   RoomAdvPanel.Visible := false;
   RMore.Visible := true;
@@ -1096,24 +1026,6 @@ begin
   BRefreshClick(nil);
 end;
 
-procedure TFLegend.GRIDRMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  if RoomAdvPanel.Visible then begin
-    setSystemParam('FLegend.gridR.Column1.Width',intToStr(gridR.Columns[1].Width));
-    setSystemParam('FLegend.gridR.Column2.Width',intToStr(gridR.Columns[2].Width));
-    setSystemParam('FLegend.gridR.Column3.Width',intToStr(gridR.Columns[3].Width));
-    setSystemParam('FLegend.gridR.Column4.Width',intToStr(gridR.Columns[4].Width));
-  end;
-  setSystemParam('FLegend.gridR.Column0.Width',intToStr(gridR.Columns[0].Width));
-  setSystemParam('FLegend.gridR.Column5.Width',intToStr(gridR.Columns[5].Width));
-  setSystemParam('FLegend.gridR.Column6.Width',intToStr(gridR.Columns[6].Width));
-  setSystemParam('FLegend.gridR.Column7.Width',intToStr(gridR.Columns[7].Width));
-  setSystemParam('FLegend.gridR.Column8.Width',intToStr(gridR.Columns[8].Width));
-  setSystemParam('FLegend.gridR.Column9.Width',intToStr(gridR.Columns[9].Width));
-  setSystemParam('FLegend.gridR.Column10.Width',intToStr(gridR.Columns[10].Width));
-end;
-
 Procedure TFLegend.SaveTimeTableNotes;
 begin
  if dm.dmodule.ADOConnection.Connected then
@@ -1128,13 +1040,12 @@ end;
 
 procedure TFLegend.BEditorClick(Sender: TObject);
 begin
-
   info(
-'Twórz profesjonalnie wygl¹daj¹ce nag³ówki i stopki za pomoc¹ prostego edytora tekstu, który zaraz zostanie uruchomiony.'+cr+
-'Edytor sk³ada siê z dwóch okien: lewego i prawego.'+cr+
-'W lewym oknie utwórz nag³ówek (stopkê).'+cr+
-'Zawartoœæ prawego okna skopiuj do pola w aplikacji Plansoft.org.'+cr+
-'To wszystko, powodzenia!',showMonthly);
+  'Twórz profesjonalnie wygl¹daj¹ce nag³ówki i stopki za pomoc¹ prostego edytora tekstu, który zaraz zostanie uruchomiony.'+cr+
+  'Edytor sk³ada siê z dwóch okien: lewego i prawego.'+cr+
+  'W lewym oknie utwórz nag³ówek (stopkê).'+cr+
+  'Zawartoœæ prawego okna skopiuj do pola w aplikacji Plansoft.org.'+cr+
+  'To wszystko, powodzenia!',showMonthly);
 
 ExecuteFile('http://html-online.com/editor/','','',SW_SHOWMAXIMIZED);
 end;
@@ -1142,11 +1053,6 @@ end;
 procedure TFLegend.SpeedButton9Click(Sender: TObject);
 begin
   FMain.Ustawieniaprogramu1Click(nil);
-end;
-
-procedure TFLegend.gridCounterExit(Sender: TObject);
-begin
-  saveFormSettings;
 end;
 
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
