@@ -55,6 +55,13 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Columns = <
           item
             Expanded = False
+            FieldName = 'ID'
+            Title.Caption = 'Id'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'OPERATION_FLAG'
             Title.Caption = 'Operacja'
             Width = 97
@@ -219,12 +226,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             FieldName = 'DESC4'
             Title.Caption = 'Opis4'
             Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'ID'
-            Width = 0
             Visible = True
           end>
       end
@@ -913,7 +914,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
     Top = 104
   end
   inherited HolderSortOrder: TStrHolder
-    Capacity = 12
+    Capacity = 28
     Left = 640
     Top = 336
     StrData = (
@@ -944,7 +945,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '44455343317c4f706973317c43415445474f52593a44454641554c54'
       '44455343327c4f706973327c43415445474f52593a44454641554c54'
       '44455343337c4f706973337c43415445474f52593a44454641554c54'
-      '44455343347c4f706973347c43415445474f52593a44454641554c54')
+      '44455343347c4f706973347c43415445474f52593a44454641554c54'
+      '49647c49447c43415445474f52593a44454641554c54')
   end
   inherited GridLayout: TStrHolder
     Left = 592
@@ -986,7 +988,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         '65'
       
         '486973746f726961207a6d69616e3a2044617461206f626f772e20646f7c434c' +
-        '41535345532e4546464543544956455f454e445f444154457c667444617465')
+        '41535345532e4546464543544956455f454e445f444154457c667444617465'
+      '49647c434c41535345532e49447c6674537472696e67')
   end
   inherited Others: TStrHolder
     Capacity = 95
@@ -1165,6 +1168,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       
         '414c4941533a4154545249424e5f31353d434c41535345532e4154545249424e' +
         '5f3135'
+      '414c4941533a49443d434c41535345532e4944'
       
         '414c4941533a4f5045524154494f4e5f464c41473d6465636f646528434c4153' +
         '5345532e6f7065726174696f6e5f666c61672c2749272c27577374617769656e' +
@@ -1181,8 +1185,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '414c4941533a4f55475f4e414d453d4f55472e4e414d45'
       '414c4941533a4f55525f4e414d453d4f55522e4e414d45'
       '53656172636853514c3d303d30'
-      '466f726d43617074696f6e3d'
-      '')
+      '466f726d43617074696f6e3d')
   end
   inherited Messages: TStrHolder
     Left = 600

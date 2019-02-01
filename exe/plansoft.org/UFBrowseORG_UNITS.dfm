@@ -1,19 +1,18 @@
 inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
-  Left = 136
-  Top = 95
+  Left = 359
+  Top = 128
   Width = 954
   Height = 745
   Caption = 'Jednostki organizacyjne'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 686
+    Top = 694
     Width = 946
   end
   inherited MainPage: TPageControl
     Width = 946
-    Height = 686
-    ActivePage = Update
+    Height = 694
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938
@@ -21,7 +20,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 938
-        Height = 476
+        Height = 486
         Columns = <
           item
             Expanded = False
@@ -67,6 +66,13 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
             Expanded = False
             FieldName = 'PARENT_ID'
             Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'UNIT_TYPE'
+            Title.Caption = 'Typ jednostki'
+            Width = 85
+            Visible = True
           end
           item
             Expanded = False
@@ -309,11 +315,11 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 616
+        Top = 626
         Width = 938
       end
       inherited Panel: TPanel
-        Top = 597
+        Top = 607
         Width = 938
         inherited StatusBar: TStatusBar
           Width = 869
@@ -339,7 +345,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -349,7 +355,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           Left = 80
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 1
           OnDblClick = CON_PARENT_ID_VALUEDblClick
@@ -460,9 +466,9 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       object LabelID: TLabel [0]
         Left = 744
         Top = 8
-        Width = 217
-        Height = 16
-        Caption = 'Kol. wpr.:........................................'
+        Width = 8
+        Height = 14
+        Caption = 'Id'
         FocusControl = ID
         Visible = False
       end
@@ -497,41 +503,56 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         ParentFont = False
       end
       object LabelPARENT_ID: TLabel [3]
-        Left = 8
+        Left = 32
         Top = 88
-        Width = 105
-        Height = 16
+        Width = 81
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Jedn. nadrz'#281'dna'
         FocusControl = PARENT_ID
       end
       object LabelSTRUCT_CODE: TLabel [4]
-        Left = 29
+        Left = 48
         Top = 112
-        Width = 84
-        Height = 16
+        Width = 65
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Kod struktury'
         FocusControl = STRUCT_CODE
       end
       object Label3: TLabel [5]
-        Left = 2
+        Left = 26
         Top = 164
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
       object Label2: TLabel [6]
-        Left = 2
+        Left = 26
         Top = 140
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
+      object Label1: TLabel [7]
+        Left = 451
+        Top = 32
+        Width = 62
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Typ jednostki'
+        FocusControl = CODE
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
       inherited UpdPanel: TPanel
-        Top = 620
+        Top = 630
         Width = 938
         TabOrder = 8
         inherited BUpdChild1: TBitBtn
@@ -561,10 +582,10 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         TabOrder = 10
       end
       object ID: TDBEdit
-        Left = 857
+        Left = 760
         Top = 0
-        Width = 150
-        Height = 24
+        Width = 79
+        Height = 22
         Hint = 'ID'
         Color = clBtnFace
         DataField = 'ID'
@@ -578,7 +599,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 121
         Top = 32
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'NAZWA'
         DataField = 'NAME'
         DataSource = Source
@@ -588,7 +609,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 121
         Top = 56
         Width = 75
-        Height = 24
+        Height = 22
         Hint = 'KOD'
         DataField = 'CODE'
         DataSource = Source
@@ -598,7 +619,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 113
         Top = 80
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'PARENT_ID'
         DataField = 'PARENT_ID'
         DataSource = Source
@@ -623,7 +644,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 120
         Top = 132
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC1'
         DataSource = Source
         TabOrder = 6
@@ -632,7 +653,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 120
         Top = 156
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC2'
         DataSource = Source
         TabOrder = 7
@@ -641,7 +662,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         Left = 120
         Top = 80
         Width = 281
-        Height = 24
+        Height = 22
         Hint = 'NADRZ'#280'DNA JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 3
@@ -690,13 +711,32 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
           1863186318631863186318631863186318631863186318631863186318631863
           0000}
       end
+      object UNIT_TYPE: TDBEdit
+        Left = 521
+        Top = 32
+        Width = 120
+        Height = 22
+        Hint = 'KOD'
+        DataField = 'UNIT_TYPE'
+        DataSource = Source
+        TabOrder = 11
+      end
     end
+  end
+  inherited Source: TDataSource
+    Left = 384
+    Top = 208
+  end
+  inherited PMenu: TPopupMenu
+    Top = 184
   end
   inherited HolderSortOrder: TStrHolder
     Capacity = 4
     StrData = (
       ''
-      '5354525f434f44457c4b6f6420737472756b74757279')
+      '5354525f434f44457c4b6f6420737472756b74757279'
+      '554e49545f545950457c547970206a65646e6f73746b69'
+      '4e414d457c4e617a7761')
   end
   inherited GridLayout: TStrHolder
     Top = 312
@@ -887,6 +927,9 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
       '414c4941533a504152454e545f4f52473d504152454e542e4e414d45'
       '414c4941533a44455343313d504152454e542e4445534331'
       '414c4941533a44455343323d504152454e542e4445534332'
+      
+        '414c4941533a554e49545f545950453d4f52475f554e4954532e554e49545f54' +
+        '595045'
       '')
   end
   inherited Messages: TStrHolder
@@ -898,6 +941,10 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         '4a65646e6f73746b61206f7267616e697a6163796a6e61206e6965206d6fbf65' +
         '206279e62073616d6120646c6120736965626965206a65646e6f73746bb9206e' +
         '6164727aea646eb9')
+  end
+  inherited SearchTimer: TTimer
+    Left = 432
+    Top = 184
   end
   inherited flexPopup: TPopupMenu
     Top = 4
@@ -915,7 +962,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         'S.PARENT_ID = PARENT.ID (+)'
       '%SORTORDER'
       '')
-    Top = 128
+    Top = 192
   end
   object googleChart: TADOQuery
     AutoCalcFields = False

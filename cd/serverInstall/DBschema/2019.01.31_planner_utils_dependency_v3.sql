@@ -1,3 +1,14 @@
+begin
+insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
+insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-2,'NAD','NAD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
+insert into groups (id, abbreviation, name, orguni_id,colour) values (-1,'POD','Podgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into groups (id, abbreviation, name, orguni_id,colour) values (-2,'NAD','Nadgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into rooms (id, attribs_01, name, orguni_id,colour,rescat_id) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256, 1);
+insert into rooms (id, attribs_01, name, orguni_id,colour,rescat_id) values (-2,'NAD','NAD', (select min(id) from org_units), 192+192*256+192*256*256, 1);
+commit;
+end;
+/
+
 create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
@@ -18,6 +29,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
    2018.04.21 check_locks
    2018.06.22 AUTHID CURRENT_USER
    2018.01.12 NAD-POD
+   2018.01.28 NAD-POD improvement
 
    @author Maciej Szymczak
    */
@@ -1106,8 +1118,8 @@ create or replace package body planner_utils is
                ,-1
                ,-1
                ,'AUTO'
-               ,null /*lec*/
-               ,null /*gro*/
+               ,-1 /*lec*/
+               ,-1 /*gro*/
                ,pres_id /*res*/
                ,null
                ,'Zajęcia podrzędne'           
@@ -1156,8 +1168,8 @@ create or replace package body planner_utils is
                ,-2
                ,-2
                ,'AUTO'
-               ,null /*lec*/
-               ,null /*gro*/
+               ,-2 /*lec*/
+               ,-2 /*gro*/
                ,pres_id /*res*/
                ,null
                ,'Zajęcia nadrzędne'           
@@ -1319,9 +1331,9 @@ create or replace package body planner_utils is
                ,-1
                ,-1
                ,'AUTO'
-               ,null /*lec*/
+               ,-1 /*lec*/
                ,pres_id /*gro*/
-               ,null /*res*/
+               ,-1 /*res*/
                ,null
                ,'Zajęcia podrzędne'           
                , substrb(pchild_names,1,200)
@@ -1369,9 +1381,9 @@ create or replace package body planner_utils is
                ,-2
                ,-2
                ,'AUTO'
-               ,null /*lec*/
+               ,-2 /*lec*/
                ,pres_id /*gro*/
-               ,null /*res*/
+               ,-2 /*res*/
                ,null
                ,'Zajęcia nadrzędne'           
                , substrb(pchild_names,1,200)
@@ -1533,8 +1545,8 @@ create or replace package body planner_utils is
                ,-1
                ,'AUTO'
                ,pres_id /*lec*/
-               ,null /*gro*/
-               ,null /*res*/
+               ,-1 /*gro*/
+               ,-1 /*res*/
                ,null
                ,'Zajęcia podrzędne'           
                , substrb(pchild_names,1,200)
@@ -1583,8 +1595,8 @@ create or replace package body planner_utils is
                ,-2
                ,'AUTO'
                ,pres_id /*lec*/
-               ,null /*gro*/
-               ,null /*res*/
+               ,-2 /*gro*/
+               ,-2 /*res*/
                ,null
                ,'Zajęcia nadrzędne'           
                , substrb(pchild_names,1,200)

@@ -1421,7 +1421,7 @@ begin
       End;                                                    //#  FF FF FF
       Case Status Of                                          //   r  g  b
        ClassNotFound : begin
-                         If fmain.ReservationsCache.IsReserved(TS, Zajecia) Then htmlTable.newCell('background="reservation.gif"','','0') Else htmlTable.newCell('','','0');
+                         If fmain.ReservationsCache.IsReserved(TS, Zajecia)<>'' Then htmlTable.newCell('background="reservation.gif"','','0') Else htmlTable.newCell('','','0');
                        end;
        //ClassFound    : AddCell('',IntToStr(Class_.ID),DelphiColourToHTML(Class_.SUB_COLOUR));//DrawRect;
        ClassFound    : begin

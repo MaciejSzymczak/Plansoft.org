@@ -163,13 +163,12 @@ type TClassByResCaches = class
                      FirstDay : Integer;
                      maxHours : integer;
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
-                     Data : Array  Of
-                             Array Of Boolean; //False=Empty, True=Busy
+                     Data : Array Of Array Of String;
 
                      private
                       Procedure LoadPeriod(PER_ID : String);
                      public
-                      Function IsReserved(TS: TTimeStamp; Zajecia : Integer) : Boolean;
+                      Function IsReserved(TS: TTimeStamp; Zajecia : Integer) : String;
                       Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
                       Procedure Invert(TS: TTimeStamp; Zajecia: Integer);
                    End;
@@ -606,6 +605,8 @@ type
     AddDependencies: TSpeedButton;
     Przywrckomunikaty1: TMenuItem;
     recreateDependencies: TMenuItem;
+    ReservationType: TEdit;
+    LabelReservationType: TLabel;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -2341,8 +2342,9 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	code               : shortString;
     originalRect : trect;
 
-	Procedure DrawStriped(Var Rect : TRect);
+	Procedure DrawStriped(Var Rect : TRect; text : string);
 	Var t : Integer;
+      RWidth, RHeight : integer;
 	Begin
 	 t:=Rect.Left;
 	 grid.Canvas.Pen.Color := clBlack;
@@ -2353,6 +2355,16 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	   grid.Canvas.LineTo(t,Rect.Bottom);
 	   t := t + 5;
 	  End;
+
+   if text = 'HOLIDAY' then text := '';
+	 grid.Canvas.Font.Color := clBlack;
+	 RWidth := Rect.right - Rect.Left;
+	 RHeight := Rect.Bottom - Rect.top;
+	 grid.Canvas.TextOut(
+	   Rect.Left+RWidth div 2-3
+	 , Rect.Top+RHeight div 2-6
+	 , text );
+
 	End;
 
 	Procedure HighLight(Var Rect : TRect);
@@ -2742,8 +2754,10 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 end;
 
 	 Procedure drawReservationsCalendar;
+   var resType : string;
 	 Begin
-	  If ReservationsCache.IsReserved(TS, Zajecia) Then DrawStriped(Rect);
+    resType := ReservationsCache.IsReserved(TS, Zajecia);
+	  If resType<>'' Then DrawStriped(Rect, resType);
     If (confineCalendarId<>'') then
       If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then DrawCross(Rect);
 	 End;
@@ -2753,7 +2767,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 Begin
     ratio :=OtherCalendar.getRatio(TS, Zajecia);
 	  If ratio=calReserved
-      Then DrawStriped(Rect)
+      Then DrawStriped(Rect,'')
 	    else
         if ratio<>0
         Then DrawTriangle(Rect, ratio);
@@ -4833,7 +4847,7 @@ Begin
 
  For t := 0 To Count-1 Do
   For t2 := 1 To MaxHours Do
-    Data[t][t2] := False;
+    Data[t][t2] := '';
 End;
 
 
@@ -4859,36 +4873,28 @@ begin
 
    For L1 := 0 To Count -1 Do Begin
      For L2 := 1 To MaxHours Do Begin
-       Data[L1][L2] := False;
+       Data[L1][L2] := '';
       End;
    End;
 
   OPENSQL(
-   'SELECT DAY, HOUR '+
+   'SELECT DAY, HOUR, TYPE '+
      'FROM RESERVATIONS '+
     'WHERE DAY BETWEEN '+DateFrom+' AND '+DateTo);
 
   While Not QWork.EOF Do Begin
    X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
    Y := QWork.FieldByName('HOUR').AsInteger;
-
    t := X-FirstDay;
-
    if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem asyœcie technicznej');
-
-   if y > MaxHours then begin
-     //Warning('Zarezerwowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi');
-     //komunikat jest prawdziwy, ale nie trzeba go wyswietlac, to ze rezerwacje nie pojawiaja sie nie ma zadnych konsekwencji
-   end else begin
-     Data[t][y] := True;
-   end;
+   Data[t][y] := QWork.FieldByName('TYPE').AsString;
 
    QWork.Next;
   End;
   End;
 end;
 
-Function TReservationsCache.IsReserved(TS: TTimeStamp; Zajecia : Integer) : Boolean;
+Function TReservationsCache.IsReserved(TS: TTimeStamp; Zajecia : Integer) : String;
 Var t1 : Integer;
 begin
  t1 := TS.Date - FirstDay;
@@ -4899,9 +4905,14 @@ procedure TReservationsCache.Invert(TS: TTimeStamp; Zajecia: Integer);
 Var t1 : Integer;
 begin
  t1 := TS.Date - FirstDay;
- If Data[t1][Zajecia] Then DModule.SQL('DELETE FROM RESERVATIONS WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia))
-                      Else DModule.SQL('INSERT INTO RESERVATIONS (ID, DAY, HOUR) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+')');
- Data[t1][Zajecia] := Not Data[t1][Zajecia];
+ If Data[t1][Zajecia]<>''
+   Then Begin
+     DModule.SQL('DELETE FROM RESERVATIONS WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia));
+     Data[t1][Zajecia] := '';
+   end Else begin
+     DModule.SQL('INSERT INTO RESERVATIONS (ID, DAY, HOUR, TYPE) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+', '''+nvl(fmain.ReservationType.Text,'HOLIDAY')+''')');
+     Data[t1][Zajecia] := nvl(fmain.ReservationType.Text,'HOLIDAY');
+   end;
 end;
 
 
@@ -5016,7 +5027,6 @@ procedure TFMain.InvertReservations;
 Var xp, yp : Integer;
     operationDisabled : boolean;
 begin
-  inherited;
   if not editReservations then begin
     info ('Nie masz uprawnieñ do modyfikacji dni wolnych');
     exit;
@@ -8682,9 +8692,12 @@ begin
    CalViewPanel.Visible := true;
    CalViewPanel.Align := alClient;
    CalViewPanel.BringToFront;
+   AddDependencies.Visible := false;
+   BShowCellLayout.Visible := false;
    setParent(nil);
    Flegend.Hide;
  end else begin
+   BShowCellLayout.Visible := true;
    parentPanel := LeftPanel;
    CalViewPanel.Visible := false;
    setParent(parentPanel);
@@ -8692,6 +8705,8 @@ begin
  end;
 
  L4.Visible := tabViewType.TabIndex = 4;
+ ReservationType.Visible := tabViewType.TabIndex = 4;
+ LabelReservationType.Visible := tabViewType.TabIndex = 4;
  LCal.Visible := tabViewType.TabIndex = 5 ;
  CALID_VALUE.Visible := tabViewType.TabIndex = 5;
 

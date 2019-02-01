@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 149
-  Top = 22
+  Left = 107
+  Top = 127
   Width = 1569
   Height = 1038
   Caption = 'Plansoft.org        '
@@ -4765,29 +4765,36 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 846
-        Top = 36
+        Left = 318
+        Top = 12
         Width = 497
         Height = 97
         TabOrder = 35
         Visible = False
         object LCal: TLabel
           Left = 24
-          Top = 40
+          Top = 16
           Width = 49
           Height = 14
           Caption = 'Kalendarz'
         end
         object L4: TLabel
           Left = 24
-          Top = 64
-          Width = 150
+          Top = 40
+          Width = 153
           Height = 14
-          Caption = 'Edycja kalendarza dni wolnych'
+          Caption = 'Edycja kalendarza dni wolnych.'
+        end
+        object LabelReservationType: TLabel
+          Left = 24
+          Top = 64
+          Width = 82
+          Height = 14
+          Caption = 'Wy'#347'wietl symbol'
         end
         object CALID: TEdit
           Left = 72
-          Top = 32
+          Top = 8
           Width = 121
           Height = 22
           TabOrder = 1
@@ -4797,12 +4804,20 @@ inherited FMain: TFMain
         end
         object CALID_VALUE: TEdit
           Left = 80
-          Top = 32
+          Top = 8
           Width = 206
           Height = 22
           ReadOnly = True
           TabOrder = 0
           OnClick = CALID_VALUEClick
+        end
+        object ReservationType: TEdit
+          Left = 120
+          Top = 56
+          Width = 113
+          Height = 22
+          MaxLength = 15
+          TabOrder = 2
         end
       end
     end
@@ -6539,8 +6554,25 @@ inherited FMain: TFMain
         ''
         ''
         '### EXTENTION BEGIN'
+        '### EXTENTION NAME:RESERVATIONS.TYPE'
+        '### DATE:2019.02.01'
+        'begin'
+        
+          ' for rec in (select owner from all_objects where object_name = '#39 +
+          'LECTURERS'#39' and object_type = '#39'TABLE'#39') loop'
+        '  begin'
+        
+          '   execute immediate '#39'alter table '#39'||rec.owner||'#39'.RESERVATIONS a' +
+          'dd ( type varchar2(15) DEFAULT '#39#39'HOLIDAY'#39#39')'#39';'
+        '  exception when others then null;'
+        '  end;'
+        ' end loop;'
+        'end;'
+        '### EXTENTION END'
+        ''
+        '### EXTENTION BEGIN'
         '### EXTENTION NAME:Your next extention'
-        '### DATE:2018.08.17'
+        '### DATE:2019.02.02'
         'begin'
         ' --your next extention here'
         ' --notes:'

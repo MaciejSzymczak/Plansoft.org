@@ -36,6 +36,8 @@ type
     PPOrgChart: TPopupMenu;
     Wywietl1: TMenuItem;
     Wicejopcji1: TMenuItem;
+    UNIT_TYPE: TDBEdit;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure QueryBeforePost(DataSet: TDataSet);
     procedure PARENT_IDChange(Sender: TObject);
