@@ -318,6 +318,18 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             Expanded = False
             FieldName = 'ATTRIBN_15'
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'created_by'
+            Title.Caption = 'Utworzone przez'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'creation_date'
+            Title.Caption = 'Data utworzenia'
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
