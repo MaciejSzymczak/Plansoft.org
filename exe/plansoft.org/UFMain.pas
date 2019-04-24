@@ -163,7 +163,7 @@ type TClassByResCaches = class
                      FirstDay : Integer;
                      maxHours : integer;
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
-                     Data : Array Of Array Of String;
+                     Storage : Array Of Array Of String;
 
                      private
                       Procedure LoadPeriod(PER_ID : String);
@@ -4838,16 +4838,16 @@ procedure TReservationsCache.Init;
 Var t, t2 : Integer;
 Begin
   MaxHours := aMaxHours;
-  SetLength(Data, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
+  SetLength(Storage, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
   for t := 0 to aCount -1 do     // ... i to samo dla kazdej tabeli zagniezdzonej
-    setLength(Data[t], MaxHours+1);
+    setLength(Storage[t], MaxHours+1);
 
   FirstDay := aFirstDay;
   Count    := aCount;
 
  For t := 0 To Count-1 Do
   For t2 := 1 To MaxHours Do
-    Data[t][t2] := '';
+    Storage[t][t2] := '';
 End;
 
 
@@ -4873,7 +4873,7 @@ begin
 
    For L1 := 0 To Count -1 Do Begin
      For L2 := 1 To MaxHours Do Begin
-       Data[L1][L2] := '';
+       Storage[L1][L2] := '';
       End;
    End;
 
@@ -4887,7 +4887,8 @@ begin
    Y := QWork.FieldByName('HOUR').AsInteger;
    t := X-FirstDay;
    if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem asyœcie technicznej');
-   Data[t][y] := QWork.FieldByName('TYPE').AsString;
+   if y<=maxHours then
+     Storage[t][y] := QWork.FieldByName('TYPE').AsString;
 
    QWork.Next;
   End;
@@ -4898,20 +4899,20 @@ Function TReservationsCache.IsReserved(TS: TTimeStamp; Zajecia : Integer) : Stri
 Var t1 : Integer;
 begin
  t1 := TS.Date - FirstDay;
- Result := Data[t1][Zajecia];
+ Result := Storage[t1][Zajecia];
 end;
 
 procedure TReservationsCache.Invert(TS: TTimeStamp; Zajecia: Integer);
 Var t1 : Integer;
 begin
  t1 := TS.Date - FirstDay;
- If Data[t1][Zajecia]<>''
+ If Storage[t1][Zajecia]<>''
    Then Begin
      DModule.SQL('DELETE FROM RESERVATIONS WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia));
-     Data[t1][Zajecia] := '';
+     Storage[t1][Zajecia] := '';
    end Else begin
      DModule.SQL('INSERT INTO RESERVATIONS (ID, DAY, HOUR, TYPE) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+', '''+nvl(fmain.ReservationType.Text,'HOLIDAY')+''')');
-     Data[t1][Zajecia] := nvl(fmain.ReservationType.Text,'HOLIDAY');
+     Storage[t1][Zajecia] := nvl(fmain.ReservationType.Text,'HOLIDAY');
    end;
 end;
 

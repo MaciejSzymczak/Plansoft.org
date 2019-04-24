@@ -13,7 +13,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
   inherited MainPage: TPageControl
     Width = 985
     Height = 652
-    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 977
@@ -27,7 +26,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             Expanded = False
             FieldName = 'NAME'
             Title.Caption = 'Nazwa'
-            Width = 65
+            Width = 300
             Visible = True
           end
           item
