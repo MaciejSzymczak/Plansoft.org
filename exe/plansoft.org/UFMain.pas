@@ -2916,7 +2916,7 @@ Procedure TFMain.insertClasses;
      LWithChildsAndParents := L;
      For t := 1 To WordCount(L,[';']) Do Begin
        value := ExtractWord(t, L, [';']);
-       LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false);
+       LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
      End;
      For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
       value := ExtractWord(t, LWithChildsAndParents, [';']);
@@ -2926,7 +2926,7 @@ Procedure TFMain.insertClasses;
      GWithChildsAndParents := G;
      For t := 1 To WordCount(G,[';']) Do Begin
        value := ExtractWord(t, G, [';']);
-       GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false);
+       GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
      End;
      For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
       value := ExtractWord(t, GWithChildsAndParents, [';']);
@@ -2936,7 +2936,7 @@ Procedure TFMain.insertClasses;
      RWithChildsAndParents := R;
      For t := 1 To WordCount(R,[';']) Do Begin
        value := ExtractWord(t, R, [';']);
-       RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false);
+       RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
      End;
      For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
       value := ExtractWord(t, RWithChildsAndParents, [';']);
@@ -6635,9 +6635,9 @@ begin
   end;
 
   canShow := false;
-  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true);
-  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true);
-  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true);
+  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true, false);
+  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true, false);
+  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true, false);
 
   ConSubject.Text  := inttostr(myClass.sub_id);
   ConForm.Text     := inttostr(myClass.for_id);
@@ -8220,7 +8220,7 @@ begin
                 end;
              1: begin
                   TabViewType.TabIndex := 0;
-                  conlecturer.Text := getChildsAndParents(resourceId, '', true);
+                  conlecturer.Text := getChildsAndParents(resourceId, '', true, false);
                 end;
              2: OpenFGrouping('L',resourceId);
             end;
@@ -8236,7 +8236,7 @@ begin
              0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 1;
-                  congroup.Text := getChildsAndParents(resourceId, '', true);
+                  congroup.Text := getChildsAndParents(resourceId, '', true, false);
                 end;
              2: OpenFGrouping('G',resourceId);
             end;
@@ -8252,7 +8252,7 @@ begin
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 2;
-                  conResCat0.Text := getChildsAndParents(resourceId, '', true);
+                  conResCat0.Text := getChildsAndParents(resourceId, '', true, false);
                 end;
              2: OpenFGrouping('R',resourceId);
             end;
@@ -8285,9 +8285,9 @@ begin
             TabViewType.TabIndex := StrToInt(resourceType);
 
             Case TabViewType.TabIndex of
-             0: conlecturer.Text := getChildsAndParents(resourceId, '', true);
-             1: congroup.Text := getChildsAndParents(resourceId, '', true);
-             2: conResCat0.Text := getChildsAndParents(resourceId, '', true);
+             0: conlecturer.Text := getChildsAndParents(resourceId, '', true, false);
+             1: congroup.Text := getChildsAndParents(resourceId, '', true, false);
+             2: conResCat0.Text := getChildsAndParents(resourceId, '', true, false);
             End;
 
             tv.Visible := true;
@@ -9033,10 +9033,10 @@ end;
 
 procedure TFMain.AddDependenciesClick(Sender: TObject);
 begin
-  ConLecturer.Text := getChildsAndParents(ConLecturer.Text, '', true);
-  ConGroup.Text := getChildsAndParents(ConGroup.Text, '', true);
-  conResCat0.Text := getChildsAndParents(conResCat0.Text, '', true);
-  conResCat1.Text := getChildsAndParents(conResCat1.Text, '', true);
+  ConLecturer.Text := getChildsAndParents(ConLecturer.Text, '', true, false);
+  ConGroup.Text := getChildsAndParents(ConGroup.Text, '', true, false);
+  conResCat0.Text := getChildsAndParents(conResCat0.Text, '', true, false);
+  conResCat1.Text := getChildsAndParents(conResCat1.Text, '', true, false);
 end;
 
 procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);

@@ -161,6 +161,8 @@ type cclassbuffer =
     internalid  : string;
     hour        : integer;
     day         : string;
+    memory      : array of string;
+    memoryCnt   : integer;
     procedure init;
     procedure  setBuffer(
       pdtstart    : string;
@@ -189,11 +191,13 @@ type cclassbuffer =
       pday        : string
     ) : boolean;
     function flush : string;
+    function searchMemory (s : string) : boolean;
   end;
 
 procedure cclassbuffer.init;
 begin
  bufferIsEmpty := true;
+ memoryCnt := 0;
 end;
 
 procedure cclassbuffer.setBuffer;
@@ -234,6 +238,18 @@ begin
     (summary     = psummary     );
 end;
 
+function cclassbuffer.searchMemory (s : string) : boolean;
+var t : integer;
+begin
+  result := false;
+  for t:=0 to memoryCnt-1 do begin
+    if s =  memory[t] then begin
+      result := true;
+      exit;
+    end;
+  end;
+end;
+
 function cclassbuffer.flush : string;
 begin
   bufferIsEmpty := true;
@@ -256,6 +272,14 @@ begin
     'COLOR:'+color +#13#10+
     'INTERNALID:'+internalid +#13#10+
     'END:VEVENT';
+
+  if searchMemory(internalid) then
+    result := ''
+  else begin
+    SetLength(memory, memoryCnt+1);
+    memory[memoryCnt] := internalid;
+    memoryCnt := memoryCnt + 1;
+  end;
 end;
 
 const
@@ -1524,12 +1548,11 @@ begin
 end;
 
 procedure TFWWWGenerator.BCreateClick(Sender: TObject);
-var t                : integer;
-    ColoringIndex    : shortString;
+var ColoringIndex    : shortString;
 
 
     procedure generateIcsCalendars;
-    var q : tadoquery;
+    var queryClasses : tadoquery;
         outf : textFile;
 
         // ------------------------------------------------------
@@ -1761,7 +1784,7 @@ var t                : integer;
                                  pcolor: shortstring;
                                  pcode: shortstring;
                                  pcodes, pcombovalues : array of shortString);
-        var t          : integer;
+        var resIndex,x        : integer;
             gcal       : TGCalendar;
             yyyy,mm,dd : integer;
             hh1, mm1, hh2, mm2 : integer;
@@ -1775,172 +1798,181 @@ var t                : integer;
             timeZone : integer;
             lcolor, gcolor, rcolor : integer;
             classbuffer : cclassbuffer;
+            ChildsAndParents : string;
+            currentResource : string;
 
         begin
-          classbuffer := cclassbuffer.create;
           timeZone := 0;
           If pExportChecked Then Begin
-            for t := 0 to presourceList.Count - 1 do begin
-              if presourceList.Checked[t] then begin
+            for resIndex := 0 to presourceList.Count - 1 do begin
+              if presourceList.Checked[resIndex] then begin
 
                 try
-                  AssignFile(outf, Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
+                  AssignFile(outf, Folder.Text+'\' + StringToValidFileName(presourceList.Items[resIndex])+'.ics');
                   Rewrite(outf);
                 except
                     on E:exception do begin
-                     CopyToClipboard( Folder.Text+'\' + StringToValidFileName(presourceList.Items[t])+'.ics');
+                     CopyToClipboard( Folder.Text+'\' + StringToValidFileName(presourceList.Items[resIndex])+'.ics');
                      raise;
                     end;
                 end;
-                recreateCalendar( presourceList.Items[t] + ' ' + presourceName );
+                classbuffer := cclassbuffer.create;
+                classbuffer.init;
+                recreateCalendar( presourceList.Items[resIndex] + ' ' + presourceName );
 
-                with q do begin
-                  try
-                  classbuffer.init;
-                  dmodule.openSQL(q, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by day, hour'
-                    ,'pres_id='      + inttostr(integer( presourceList.Items.Objects[t])) +
-                     ';per_id_from1='+ currentPeriod.text    +
-                     ';per_id_to1='  + currentPeriod.text    +
-                     ';per_id_from2='+ currentPeriod.text    +
-                     ';per_id_to2='  + currentPeriod.text
-                     );
-                  open;
-                  except
-                    on E:exception do begin
-                     CopyToClipboard( q.SQL.text);
-                     raise;
-                    end;
-                  end;
+                ChildsAndParents := getChildsAndParents (inttostr(integer( presourceList.Items.Objects[resIndex])), '', true, true);
+                for x := 1 To WordCount(ChildsAndParents,[';']) do begin
+                  currentResource := ExtractWord(x, ChildsAndParents, [';']);
 
-                  First;
-                  while not Eof do begin
-                    //add event
+										  if  presAlias = 'LEC' then begin
+										    FMain.TabViewType.TabIndex := 0;
+										    FMain.ConLecturer.Text        := currentResource;
+										  end;
+										  if  presAlias = 'GRO' then begin
+										    FMain.TabViewType.TabIndex := 1;
+										    FMain.ConGroup.Text        := currentResource;
+										  end;
+										  if  presAlias = 'ROM' then begin
+										    FMain.TabViewType.TabIndex := 2;
+										    FMain.conResCat0.Text        := currentResource;
+										  end;
 
-                     yyyy       := fieldByName('day_yyyy').AsInteger;
-                     mm         := fieldByName('day_mm').AsInteger;
-                     dd         := fieldByName('day_dd').AsInteger;
-                     day        := dateTimeToTimeStamp(fieldByName('day').AsDateTime);
-                     plecturers := fieldByName('lecturers').AsString;
-                     pgroups    := fieldByName('groups').AsString;
-                     presources := fieldByName('resources').AsString;
-                     lcolor     := fieldByName('lcolor').AsInteger;
-                     gcolor     := fieldByName('gcolor').AsInteger;
-                     rcolor     := fieldByName('rcolor').AsInteger;
-                     pgoogleLocations := fieldByName('google_locations').AsString;
-                     id         := fieldByName('Id').AsString;
+											with queryClasses do begin
+											  try
+											  dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by day, hour'
+												,'pres_id='      + currentResource +
+												 ';per_id_from1='+ currentPeriod.text    +
+												 ';per_id_to1='  + currentPeriod.text    +
+												 ';per_id_from2='+ currentPeriod.text    +
+												 ';per_id_to2='  + currentPeriod.text
+												 );
+											  open;
+											  except
+												on E:exception do begin
+												 CopyToClipboard( queryClasses.SQL.text);
+												 raise;
+												end;
+											  end;
 
-                     if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
-                       info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
-                       q.Free;
-                       autocreate.GRIDSShowModalAsBrowser;
-                       exit;
-                     end;
+											  First;
+											  while not Eof do begin
+												//add event
 
-                     if  presAlias = 'LEC' then begin
-                       FMain.TabViewType.TabIndex := 0;
-                       FMain.ConLecturer.Text        := inttostr(integer( presourceList.Items.Objects[t]));
-                     end;
-                     if  presAlias = 'GRO' then begin
-                       FMain.TabViewType.TabIndex := 1;
-                       FMain.ConGroup.Text        := inttostr(integer( presourceList.Items.Objects[t]));
-                     end;
-                     if  presAlias = 'ROM' then begin
-                       FMain.TabViewType.TabIndex := 2;
-                       FMain.conResCat0.Text        := inttostr(integer( presourceList.Items.Objects[t]));
-                     end;
+												 yyyy       := fieldByName('day_yyyy').AsInteger;
+												 mm         := fieldByName('day_mm').AsInteger;
+												 dd         := fieldByName('day_dd').AsInteger;
+												 day        := dateTimeToTimeStamp(fieldByName('day').AsDateTime);
+												 plecturers := fieldByName('lecturers').AsString;
+												 pgroups    := fieldByName('groups').AsString;
+												 presources := fieldByName('resources').AsString;
+												 lcolor     := fieldByName('lcolor').AsInteger;
+												 gcolor     := fieldByName('gcolor').AsInteger;
+												 rcolor     := fieldByName('rcolor').AsInteger;
+												 pgoogleLocations := fieldByName('google_locations').AsString;
+												 id         := fieldByName('Id').AsString;
 
-                     ecolor       := getEventColor     (pcolor, day , fieldByName('Hour').AsInteger, lcolor, gcolor, rcolor);
-                     title       := getEventTitle      (pcode, day , fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
-                     description := getEventDescription(pcodes
-                                                       ,pcomboValues
-                                                       ,day, fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
-                     location    := pgoogleLocations;
+												 if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
+												   info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
+												   queryClasses.Free;
+												   autocreate.GRIDSShowModalAsBrowser;
+												   exit;
+												 end;
 
-                     {
-                     The algorithm:
-                        if loop:
-                          bufor empty
-                              setBuffer
-                          bufor not empty
-                              isContinuation? => splice classes
-                              otherwise flush and setBuffer
+												 ecolor       := getEventColor     (pcolor, day , fieldByName('Hour').AsInteger, lcolor, gcolor, rcolor);
+												 title        := getEventTitle      (pcode, day , fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
+												 description  := getEventDescription(pcodes
+																				   ,pcomboValues
+																				   ,day, fieldByName('Hour').AsInteger, plecturers, pgroups, presources);
+												 location    := pgoogleLocations;
 
-                        finalization:
-                            bufor not empty => flush
+												 {
+												 The algorithm:
+													if loop:
+													  bufor empty
+														  setBuffer
+													  bufor not empty
+														  isContinuation? => splice classes
+														  otherwise flush and setBuffer
 
-                     }
+													finalization:
+														bufor not empty => flush
 
-                     if classbuffer.bufferIsEmpty then begin
-                       classbuffer.setBuffer(
-                         FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                         ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
-                         ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                         ,fieldByName('id').AsString
-                         ,description
-                         ,location
-                         ,title
-                         ,ecolor
-                         ,Id
-                         ,fieldByName('Hour').AsInteger
-                         ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
-                       );
-                     end else begin
-                       //buffer is not empty
-                       if classbuffer.isContinuation(
-                         FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                         ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
-                         ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                         ,fieldByName('id').AsString
-                         ,description
-                         ,location
-                         ,title
-                         ,ecolor
-                         ,Id
-                         ,fieldByName('Hour').AsInteger
-                         ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
-                       )
-                       then begin
-                         //is continuation : splice classes
-                         classbuffer.dtend := FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0);
-                         classbuffer.uid := classbuffer.uid +'+'+ fieldByName('id').AsString;
-                         classbuffer.internalid := classbuffer.internalid +'+'+ Id;
-                         //hour also needs to be updated for the sake of splice with 3rd block
-                         classbuffer.hour  := fieldByName('Hour').AsInteger;
-                       end else begin
-                         //is not continuation
-                         write ( classbuffer.flush );
-                         classbuffer.setBuffer(
-                           FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                           ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
-                           ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
-                           ,fieldByName('id').AsString
-                           ,description
-                           ,location
-                           ,title
-                           ,ecolor
-                           ,Id
-                           ,fieldByName('Hour').AsInteger
-                           ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
-                         );
-                       end;
-                     end;
+												 }
 
-                    Next;
-                  end;
-                  if not classbuffer.bufferIsEmpty then
-                    write ( classbuffer.flush );
-                end;
+												 if classbuffer.bufferIsEmpty then begin
+												   classbuffer.setBuffer(
+													 FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													 ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
+													 ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													 ,fieldByName('id').AsString
+													 ,description
+													 ,location
+													 ,title
+													 ,ecolor
+													 ,Id
+													 ,fieldByName('Hour').AsInteger
+													 ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
+												   );
+												 end else begin
+												   //buffer is not empty
+												   if classbuffer.isContinuation(
+													 FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													 ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
+													 ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													 ,fieldByName('id').AsString
+													 ,description
+													 ,location
+													 ,title
+													 ,ecolor
+													 ,Id
+													 ,fieldByName('Hour').AsInteger
+													 ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
+												   )
+												   then begin
+													 //is continuation : splice classes
+													 classbuffer.dtend := FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0);
+													 classbuffer.uid := classbuffer.uid +'+'+ fieldByName('id').AsString;
+													 classbuffer.internalid := classbuffer.internalid +'+'+ Id;
+													 //hour also needs to be updated for the sake of splice with 3rd block
+													 classbuffer.hour  := fieldByName('Hour').AsInteger;
+												   end else begin
+													 //is not continuation
+													 write ( classbuffer.flush );
+													 classbuffer.setBuffer(
+													   FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													   ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
+													   ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
+													   ,fieldByName('id').AsString
+													   ,description
+													   ,location
+													   ,title
+													   ,ecolor
+													   ,Id
+													   ,fieldByName('Hour').AsInteger
+													   ,uutilityparent.dateToYYYYMMDD( fieldByName('day').AsDateTime )
+													 );
+												   end;
+												 end;
+
+												Next;
+											  end;
+											  if not classbuffer.bufferIsEmpty then
+												write ( classbuffer.flush );
+											end;
+
+                End;
+
                 write ('END:VCALENDAR');
+                classbuffer.free;
                 flush(outf);
                 CloseFile(outf);
               end;
             end;
           end;
-          classbuffer.free;
         end;
 
     begin
-      q := tadoquery.Create(self);
+      queryClasses := tadoquery.Create(self);
 
       if (getCode (FSettings.GD1)='NONE') or (getCode (FSettings.RD1)='NONE') or (getCode (FSettings.LD1)='NONE') then
           info ('Przed uruchomieniem eksportu danych uruchom Ustawienia i zdefiniuj jakie dane powinny zostaæ wys³ane do iKalendarz')
@@ -1953,7 +1985,7 @@ var t                : integer;
           end;
       end;
       setStatus('');
-      q.Free;
+      queryClasses.Free;
     end;
 
     // ------------------------------------------------------

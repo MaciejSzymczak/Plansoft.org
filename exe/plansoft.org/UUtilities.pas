@@ -138,7 +138,7 @@ Var
     OpisujKolumneZajec       : tOpisujKolumneZajec;
 
 
-function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
 
 Function GetCLASSESforL  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
 Function GetCLASSESforG  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
@@ -198,26 +198,32 @@ Begin
   result :=  merge(result,Buffer[1-1],';');
 End;
 
-function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean) : string;
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
 var t : integer;
     KeyValue : string;
     sql : string;
+    exclParent : string;
 begin
-sql :=
-'select unique id from'+cr+
-'('+cr+
-'select parent_id id'+cr+
-'  from str_elems_v'+cr+
-'  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
-'  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior parent_id = child_id'+cr+
-'  start with child_id=:id1'+cr+
-'union'+cr+
-'select child_id id'+cr+
-'  from str_elems_v'+cr+
-'  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
-'  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
-'  start with parent_id=:id2'+cr+
-')';
+  exclParent := '';
+  if ignoreExclusiveParent then exclParent := 'and exclusive_parent=''-''';
+
+  sql :=
+  //parents
+  'select unique id from'+cr+
+  '('+cr+
+  'select parent_id id'+cr+
+  '  from str_elems_v'+cr+
+  '  where level=1 and STR_NAME_LOV=''STREAM'''+exclParent+cr+
+  '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior parent_id = child_id'+cr+
+  '  start with child_id=:id1'+cr+
+  'union'+cr+
+  //childs
+  'select child_id id'+cr+
+  '  from str_elems_v'+cr+
+  '  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
+  '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
+  '  start with parent_id=:id2'+cr+
+  ')';
 
    for t := 1 to wordCount(KeyValues, [';']) do begin
      KeyValue := extractWord(t,KeyValues, [';']);
@@ -1543,19 +1549,19 @@ begin
   LWithChildsAndParents := theClass.calc_lec_ids;
   For t := 1 To WordCount(theClass.calc_lec_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_lec_ids, [';']);
-    LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false);
+    LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
   End;
 
   GWithChildsAndParents := theClass.calc_gro_ids;
   For t := 1 To WordCount(theClass.calc_gro_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_gro_ids, [';']);
-    GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false);
+    GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
   End;
 
   RWithChildsAndParents := theClass.calc_rom_ids;
   For t := 1 To WordCount(theClass.calc_rom_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_rom_ids, [';']);
-    RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false);
+    RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
   End;
 
   //check better room in condition of capacity

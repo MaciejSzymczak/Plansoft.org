@@ -4765,8 +4765,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 318
-        Top = 12
+        Left = 134
+        Top = 28
         Width = 497
         Height = 97
         TabOrder = 35

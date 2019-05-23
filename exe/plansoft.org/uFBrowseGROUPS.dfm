@@ -321,14 +321,16 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           end
           item
             Expanded = False
-            FieldName = 'created_by'
+            FieldName = 'CREATED_BY'
             Title.Caption = 'Utworzone przez'
+            Width = 200
             Visible = True
           end
           item
             Expanded = False
-            FieldName = 'creation_date'
+            FieldName = 'CREATION_DATE'
             Title.Caption = 'Data utworzenia'
+            Width = 200
             Visible = True
           end>
       end
