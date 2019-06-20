@@ -13,6 +13,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   inherited MainPage: TPageControl
     Width = 988
     Height = 640
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 612
@@ -1355,7 +1356,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 665
         Top = 0
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'ID'
         Color = clMenu
         DataField = 'ID'
@@ -1369,7 +1370,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 121
         Top = 32
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'SKR'#211'T'
         DataField = 'ABBREVIATION'
         DataSource = Source
@@ -1379,7 +1380,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 121
         Top = 80
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'NAZWA'
         DataField = 'NAME'
         DataSource = Source
@@ -1389,7 +1390,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 121
         Top = 104
         Width = 80
-        Height = 24
+        Height = 22
         Hint = 'LICZEBNO'#346#262
         DataField = 'NUMBER_OF_PEOPLES'
         DataSource = Source
@@ -1399,7 +1400,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 120
         Top = 128
         Width = 617
-        Height = 24
+        Height = 22
         Hint = 'OPIS1'
         DataField = 'DESC1'
         DataSource = Source
@@ -1409,7 +1410,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 120
         Top = 152
         Width = 617
-        Height = 24
+        Height = 22
         Hint = 'OPIS2'
         DataField = 'DESC2'
         DataSource = Source
@@ -1419,7 +1420,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 449
         Top = 104
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'TYP GRUPY'
         DataField = 'GROUP_TYPE'
         DataSource = Source
@@ -1432,7 +1433,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 456
         Top = 104
         Width = 153
-        Height = 24
+        Height = 22
         Hint = 'TYP GRUPY'
         ReadOnly = True
         TabOrder = 6
@@ -1551,7 +1552,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 565
         Top = 32
         Width = 308
-        Height = 24
+        Height = 22
         Hint = 'IMI'#280
         DataField = 'EMAIL'
         DataSource = Source
@@ -1561,7 +1562,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 559
         Top = 64
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'DOMY'#346'LNA AUTORYZACJA'
         DataField = 'ROL_ID'
         DataSource = Source
@@ -1574,7 +1575,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 566
         Top = 64
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 18
@@ -1672,7 +1673,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 113
         Top = 176
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -1685,7 +1686,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 120
         Top = 176
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 22

@@ -170,6 +170,7 @@ begin
   Application.CreateForm(TFLegendNavigation, FLegendNavigation);
   Application.CreateForm(TFWarning, FWarning);
   Application.CreateForm(TFExclusiveParent, FExclusiveParent);
+  Application.CreateForm(TFListOrganizer, FListOrganizer);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

@@ -1096,7 +1096,7 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout;
+  UFCellLayout, UFListOrganizer;
 
 var dummy : string;
 
@@ -2212,8 +2212,7 @@ begin
    ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('L');
   End;
-  rorL.Visible := wordCount((sender as tedit).Text, [';']) > 1;
-  ShowAllAnyL.Visible       := ShowFreeTermsL.Checked       and rorL.Visible;
+  ShowAllAnyL.Visible       := ShowFreeTermsL.Checked;
 end;
 
 procedure TFMain.ConGroupChange(Sender: TObject);
@@ -2225,8 +2224,7 @@ begin
    ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('G');
   End;
-  rorG.Visible := wordCount((sender as tedit).Text, [';']) > 1;
-  ShowAllAnyG.Visible       := ShowFreeTermsG.Checked       and rorG.Visible;
+  ShowAllAnyG.Visible       := ShowFreeTermsG.Checked;
 
 end;
 
@@ -2239,8 +2237,7 @@ begin
    ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('R');
   End;
-  rorR.Visible := wordCount((sender as tedit).Text, [';']) > 1;
-  ShowAllAnyResCat0.Visible       := ShowFreeTermsR.Checked       and rorR.Visible;
+  ShowAllAnyResCat0.Visible       := ShowFreeTermsR.Checked;
 
 end;
 
@@ -5185,13 +5182,13 @@ begin
    if clearList then ConLecturer.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     //If ExistsValue(ConLecturer.Text, [';'], KeyValue)
-      //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text)
-      //Else begin
+     If ExistsValue(ConLecturer.Text, [';'], KeyValue)
+     Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
+     Else begin
        TabViewType.TabIndex := 0;
        //ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
        ConLecturer.Text := Merge(KeyValue, ConLecturer.Text, ';');
-      //end;
+     end;
    end;
   End;
 end;
@@ -5207,13 +5204,13 @@ begin
    if clearList then ConGroup.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     //If ExistsValue(ConGroup.Text, [';'], KeyValue)
-      //Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
-      //Else begin
+     If ExistsValue(ConGroup.Text, [';'], KeyValue)
+      Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameG.Text)
+      Else begin
         TabViewType.TabIndex := 1;
         //ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
         ConGroup.Text := Merge(KeyValue, ConGroup.Text, ';');
-      //end;
+      end;
    end;
   End;
 end;
@@ -5228,13 +5225,13 @@ begin
    if clearList then conResCat1.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     //If existsValue(conResCat1.Text, [';'], KeyValue)
-      //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
-      //Else begin
+     If existsValue(conResCat1.Text, [';'], KeyValue)
+      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Else begin
         TabViewType.TabIndex := 3;
         //conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
         conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
-      //end;
+      end;
    end;
   End;
 end;
@@ -5249,13 +5246,13 @@ begin
    if clearList then conResCat0.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
-     //If ExistsValue(conResCat0.Text, [';'], KeyValue)
-      //Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
-      //Else begin
+     If ExistsValue(conResCat0.Text, [';'], KeyValue)
+      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Else begin
         TabViewType.TabIndex := 2;
         //conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
         conResCat0.Text := Merge(KeyValue, conResCat0.Text, ';');
-      //end;
+      end;
    end;
   End;
 end;
@@ -5308,10 +5305,10 @@ end;
 
 procedure TFMain.ShowFreeTermsLClick(Sender: TObject);
 begin
-  ShowAllAnyL.Visible       := ShowFreeTermsL.Checked       and rorL.Visible;
-  ShowAllAnyG.Visible       := ShowFreeTermsG.Checked       and rorG.Visible;
-  ShowAllAnyResCat0.Visible := ShowFreeTermsR.Checked       and rorR.Visible;
-  ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked and rorResCat1.Visible;
+  ShowAllAnyL.Visible       := ShowFreeTermsL.Checked;
+  ShowAllAnyG.Visible       := ShowFreeTermsG.Checked;
+  ShowAllAnyResCat0.Visible := ShowFreeTermsR.Checked;
+  ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked;
 
   RespectCompletions.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
   AddDependencies.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
@@ -5343,7 +5340,9 @@ begin
   CanShow := False;
   ValidLClick(nil);
   CanShow := True;
-  ConLecturer.Text := LROR(ConLecturer.Text,';')
+  if FListOrganizer.showList('L', Sender, ConLecturer.Text, CONLECTURER_value.Text,';') = mrOK then
+    ConLecturer.Text :=  replace(FListOrganizer.lbIds.Items.CommaText,',',';');
+   //ConLecturer.Text := LROR(ConLecturer.Text,';')
 end;
 
 procedure TFMain.rorGClick(Sender: TObject);
@@ -5352,7 +5351,9 @@ begin
   CanShow := False;
   ValidGClick(nil);
   CanShow := True;
-  ConGroup.Text := LROR(ConGroup.Text,';')
+  if FListOrganizer.showList('G', Sender, ConGroup.Text, CONGroup_value.Text,';') = mrOK then
+    ConGroup.Text :=  replace(FListOrganizer.lbIds.Items.CommaText,',',';');
+  //ConGroup.Text := LROR(ConGroup.Text,';')
 end;
 
 procedure TFMain.rorRClick(Sender: TObject);
@@ -5362,7 +5363,9 @@ begin
   CanShow := False;
   ValidRClick(nil);
   CanShow := True;
-  conResCat0.Text := LROR(conResCat0.Text,';')
+  if FListOrganizer.showList('R', Sender, conResCat0.Text, conResCat0_value.Text,';') = mrOK then
+    conResCat0.Text :=  replace(FListOrganizer.lbIds.Items.CommaText,',',';');
+  //conResCat0.Text := LROR(conResCat0.Text,';')
 end;
 
 procedure TFMain.ConFormChange(Sender: TObject);
@@ -7013,14 +7016,9 @@ begin
   If CanShow Then Begin
    FChange(conResCat1, conResCat1_value,sql_ResCat1DESC);
    ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), conResCat1.Text, bool_NOTreloadFromDatbase);
-   BuildCalendar('X');
+   BuildCalendar('R');
   End;
-  rorResCat1.Visible := wordCount((sender as tedit).Text, [';']) > 1;
-  ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked and rorResCat1.Visible;
-
-  if rorResCat1.Visible
-   then conResCat1_value.Width := 409
-   else conResCat1_value.Width := 409 + 25;
+  ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked;
 end;
 
 procedure TFMain.conResCat1_valueDblClick(Sender: TObject);
@@ -7069,7 +7067,9 @@ begin
   CanShow := False;
   ValidResCat1Click(nil);
   CanShow := True;
-  CONResCat1.Text := LROR(CONResCat1.Text,';')
+  if FListOrganizer.showList('R2', Sender, CONResCat1.Text, CONResCat1_value.Text,';') = mrOK then
+    CONResCat1.Text :=  replace(FListOrganizer.lbIds.Items.CommaText,',',';');
+ // CONResCat1.Text := LROR(CONResCat1.Text,';')
 end;
 
 procedure TFMain.Wicej1Click(Sender: TObject);
@@ -7877,30 +7877,22 @@ end;
 
 procedure TFMain.selectlClick(Sender: TObject);
 begin
-  if ConLecturer.Text=''
-    then  _selectL (false)
-    else  bdelpopupClick (sender);
+ _selectL (true);
 end;
 
 procedure TFMain.selectgClick(Sender: TObject);
 begin
-  if ConGroup.Text=''
-    then  _selectG (false)
-    else  bdelpopupClick (sender);
+  _selectG (true);
 end;
 
 procedure TFMain.selectrClick(Sender: TObject);
 begin
-  if conResCat0.Text=''
-    then  _selectR (false)
-    else  bdelpopupClick (sender);
+  _selectR (true);
 end;
 
 procedure TFMain.selectResCat1Click(Sender: TObject);
 begin
-  if conResCat1.Text=''
-    then  _selectResCat1 (false)
-    else  bdelpopupClick (sender);
+  _selectResCat1 (true);
 end;
 
 procedure TFMain.CONPERIOD_VALUEClick(Sender: TObject);
