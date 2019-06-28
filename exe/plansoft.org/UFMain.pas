@@ -5575,17 +5575,17 @@ end;
 
 procedure TFMain.CONLECTURER_valueDblClick(Sender: TObject);
 begin
-  _SelectL (false);
+ CONLECTURER.Text := LROR(CONLECTURER.Text,';');
 end;
 
 procedure TFMain.CONGROUP_valueDblClick(Sender: TObject);
 begin
-  _SelectG (false);
+ CONGROUP.Text := LROR(CONGROUP.Text,';');
 end;
 
 procedure TFMain.conResCat0_valueDblClick(Sender: TObject);
 begin
-  _SelectR (false);
+ conResCat0.Text := LROR(conResCat0.Text,';');
 end;
 
 procedure TFMain.CONSUBJECT_valueDblClick(Sender: TObject);
@@ -7023,7 +7023,7 @@ end;
 
 procedure TFMain.conResCat1_valueDblClick(Sender: TObject);
 begin
-  _SelectResCat1 (false);
+ conResCat1.Text := LROR(conResCat1.Text,';');
 end;
 
 procedure TFMain.conResCat1_valueEnter(Sender: TObject);
