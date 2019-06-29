@@ -102,11 +102,11 @@ procedure TFConsolidation.RECORD1Change(Sender: TObject);
 begin
   inherited;
   case consolidationKind.ItemIndex of
-   0 : FChange(RECORD1, RECORD_VALUE1, dm.sql_LECDESC);
-   1 : FChange(RECORD1, RECORD_VALUE1, dm.sql_GRODESC);
-   2 : FChange(RECORD1, RECORD_VALUE1, dm.sql_ResCat0DESC);
-   3 : FChange(RECORD1, RECORD_VALUE1, dm.sql_SUBDESC);
-   4 : FChange(RECORD1, RECORD_VALUE1, dm.sql_FORDESC);
+   0 : RECORD_VALUE1.text := FChange(RECORD1.text, dm.sql_LECDESC);
+   1 : RECORD_VALUE1.text := FChange(RECORD1.text, dm.sql_GRODESC);
+   2 : RECORD_VALUE1.text := FChange(RECORD1.text, dm.sql_ResCat0DESC);
+   3 : RECORD_VALUE1.text := FChange(RECORD1.text, dm.sql_SUBDESC);
+   4 : RECORD_VALUE1.text := FChange(RECORD1.text, dm.sql_FORDESC);
   end;
 end;
 
@@ -114,11 +114,11 @@ procedure TFConsolidation.RECORD2Change(Sender: TObject);
 begin
   inherited;
   case consolidationKind.ItemIndex of
-   0 : FChange(RECORD2, RECORD_VALUE2, dm.sql_LECDESC);
-   1 : FChange(RECORD2, RECORD_VALUE2, dm.sql_GRODESC);
-   2 : FChange(RECORD2, RECORD_VALUE2, dm.sql_ResCat0DESC);
-   3 : FChange(RECORD2, RECORD_VALUE2, dm.sql_SUBDESC);
-   4 : FChange(RECORD2, RECORD_VALUE2, dm.sql_FORDESC);
+   0 : RECORD_VALUE2.text := FChange(RECORD2.text, dm.sql_LECDESC);
+   1 : RECORD_VALUE2.text := FChange(RECORD2.text, dm.sql_GRODESC);
+   2 : RECORD_VALUE2.text := FChange(RECORD2.text, dm.sql_ResCat0DESC);
+   3 : RECORD_VALUE2.text := FChange(RECORD2.text, dm.sql_SUBDESC);
+   4 : RECORD_VALUE2.text := FChange(RECORD2.text, dm.sql_FORDESC);
   end;
 end;
 

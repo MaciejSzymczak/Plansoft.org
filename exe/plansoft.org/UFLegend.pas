@@ -11,7 +11,7 @@ uses
 
 type
   TFLegend = class(TFormConfig)
-    PageControl: TPageControl;
+    FLegendTabs: TPageControl;
     TabSheetL: TTabSheet;
     TabSheetG: TTabSheet;
     TabSheetR: TTabSheet;
@@ -123,7 +123,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FindModeClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure PageControlChange(Sender: TObject);
+    procedure FLegendTabsChange(Sender: TObject);
     procedure groupByFormClick(Sender: TObject);
     procedure SelectedSubOnlyClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
@@ -279,9 +279,18 @@ begin
 end;
 
 procedure TFLegend.FormShow(Sender: TObject);
+var ActivePageName : string;
 begin
-  UpperPanel.Visible := PageControl.ActivePage <> TabsheetTimetableNotes;
-  BottomPanel.Visible := PageControl.ActivePage <> TabsheetTimetableNotes;
+  ActivePageName := getSystemParam('FLegend.FLegendTabs','');
+  if ActivePageName='TabSheetL' then FLegendTabs.ActivePage := TabSheetL;
+  if ActivePageName='TabSheetG' then FLegendTabs.ActivePage := TabSheetG;
+  if ActivePageName='TabSheetR' then FLegendTabs.ActivePage := TabSheetR;
+  if ActivePageName='TabSheetS' then FLegendTabs.ActivePage := TabSheetS;
+  if ActivePageName='TabSheetCOUNTER' then FLegendTabs.ActivePage := TabSheetCOUNTER;
+  if ActivePageName='TabsheetTimetableNotes' then FLegendTabs.ActivePage := TabsheetTimetableNotes;
+
+  UpperPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
+  BottomPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
 
   refreshAllowed := false;
   inherited;
@@ -315,10 +324,10 @@ begin
   BRefreshClick(nil);
 end;
 
-procedure TFLegend.PageControlChange(Sender: TObject);
+procedure TFLegend.FLegendTabsChange(Sender: TObject);
 begin
-  UpperPanel.Visible  := PageControl.ActivePage <> TabsheetTimetableNotes;
-  BottomPanel.Visible := PageControl.ActivePage <> TabsheetTimetableNotes;
+  UpperPanel.Visible  := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
+  BottomPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
   BRefreshClick(nil);
 end;
 
@@ -401,6 +410,8 @@ end;
 
 procedure TFLegend.saveFormSettings;
 begin
+  setSystemParam('FLegend.FLegendTabs', FLegendTabs.ActivePage.Name );
+
   UUtilityParent.GridLayoutSaveToFile('FLegend', gridCounter);
   UUtilityParent.GridLayoutSaveToFile('FLegend', gridL);
   UUtilityParent.GridLayoutSaveToFile('FLegend', gridG);
@@ -450,25 +461,25 @@ Var forms_filter,hours_filter : string;
 begin
   if not refreshAllowed then exit;
   //LTotal.Visible := false;
-  FindMode.Visible := PageControl.ActivePage <> tabSheetCounter;
-  groupByForm.Visible := (PageControl.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
-  RMore.Visible := (PageControl.ActivePage = tabSheetR) and (RoomAdvPanel.Visible=false);
-  groupByDesc1.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(1)<>'');
-  groupByDesc2.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(2)<>'');
-  groupByDesc3.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(3)<>'');
-  groupByDesc4.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(4)<>'');
+  FindMode.Visible := FLegendTabs.ActivePage <> tabSheetCounter;
+  groupByForm.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
+  RMore.Visible := (FLegendTabs.ActivePage = tabSheetR) and (RoomAdvPanel.Visible=false);
+  groupByDesc1.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(1)<>'');
+  groupByDesc2.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(2)<>'');
+  groupByDesc3.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(3)<>'');
+  groupByDesc4.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(4)<>'');
   //
-  groupByL.Visible      := (PageControl.ActivePage = tabSheetCounter);
-  groupByG.Visible      := (PageControl.ActivePage = tabSheetCounter);
-  groupByS.Visible      := (PageControl.ActivePage = tabSheetCounter);
-  groupByR.Visible      := (PageControl.ActivePage = tabSheetCounter);
-  groupByLDesc1.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(1)<>'');
-  groupByLDesc2.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(2)<>'');
-  groupByLDesc3.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(3)<>'');
-  groupByLDesc4.Visible := (PageControl.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(4)<>'');
+  groupByL.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByG.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByS.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByR.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByLDesc1.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(1)<>'');
+  groupByLDesc2.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(2)<>'');
+  groupByLDesc3.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(3)<>'');
+  groupByLDesc4.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(4)<>'');
   //
-  SelectedSubOnly.Visible := (PageControl.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
-  addRollUp.visible := PageControl.ActivePage = tabSheetCounter;
+  SelectedSubOnly.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
+  addRollUp.visible := FLegendTabs.ActivePage = tabSheetCounter;
   //
   if manySubjectsFlag then begin
     groupByForm.Visible := false;
@@ -482,7 +493,7 @@ begin
   //required by planner_utils.get_available_lec function
   if FindMode.ItemIndex = 0 then fmain.set_tmp_selected_dates;
 
-  if PageControl.ActivePage = TabsheetL       then begin
+  if FLegendTabs.ActivePage = TabsheetL       then begin
     if QueryL.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridL);
     dmodule.resetConnection ( QueryL );
@@ -492,7 +503,7 @@ begin
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridL);
   end;
 
-  if PageControl.ActivePage = TabsheetG       then begin
+  if FLegendTabs.ActivePage = TabsheetG       then begin
     if QueryG.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridG);
     dmodule.resetConnection ( QueryG );
@@ -502,7 +513,7 @@ begin
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridG);
   end;
 
-  if PageControl.ActivePage = TabsheetR       then begin
+  if FLegendTabs.ActivePage = TabsheetR       then begin
     if QueryR.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridR);
     dmodule.resetConnection ( QueryR );
@@ -530,7 +541,7 @@ begin
     QueryR.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridR);
   end;
-  if PageControl.ActivePage = TabsheetS       then begin
+  if FLegendTabs.ActivePage = TabsheetS       then begin
     if QueryS.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridS);
     dmodule.resetConnection ( QueryS );
@@ -540,7 +551,7 @@ begin
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridS);
   end;
 
-  if PageControl.ActivePage = TabsheetCounter then begin
+  if FLegendTabs.ActivePage = TabsheetCounter then begin
     if QueryCOUNTER.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridCounter);
     dmodule.resetConnection ( QueryCOUNTER );
@@ -646,7 +657,7 @@ begin
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
   end;
 
-  if PageControl.ActivePage = TabsheetTimetableNotes  then begin
+  if FLegendTabs.ActivePage = TabsheetTimetableNotes  then begin
     GroupBoxLock.Visible :=  fmain.getCurrentObjectId <> -1;
     SaveTimeTableNotes;
     dmodule.resetConnection ( QueryTimetableNotes );
@@ -862,22 +873,22 @@ End;
 procedure TFLegend.ExportEasyClick(Sender: TObject);
 var aGrid : TDBGrid;
 begin
- if PageControl.ActivePage = TabsheetCounter then aGrid := gridCounter;
- if PageControl.ActivePage = TabsheetL then aGrid := gridL;
- if PageControl.ActivePage = TabsheetG then aGrid := gridG;
- if PageControl.ActivePage = TabsheetR then aGrid := gridR;
- if PageControl.ActivePage = TabsheetS then aGrid := gridS;
+ if FLegendTabs.ActivePage = TabsheetCounter then aGrid := gridCounter;
+ if FLegendTabs.ActivePage = TabsheetL then aGrid := gridL;
+ if FLegendTabs.ActivePage = TabsheetG then aGrid := gridG;
+ if FLegendTabs.ActivePage = TabsheetR then aGrid := gridR;
+ if FLegendTabs.ActivePage = TabsheetS then aGrid := gridS;
  dmodule.ExportToExcel(aGrid);
 end;
 
 procedure TFLegend.ExportHtmlClick(Sender: TObject);
 var aGrid : TDBGrid;
 begin
- if PageControl.ActivePage = TabsheetCounter then aGrid := gridCounter;
- if PageControl.ActivePage = TabsheetL then aGrid := gridL;
- if PageControl.ActivePage = TabsheetG then aGrid := gridG;
- if PageControl.ActivePage = TabsheetR then aGrid := gridR;
- if PageControl.ActivePage = TabsheetS then aGrid := gridS;
+ if FLegendTabs.ActivePage = TabsheetCounter then aGrid := gridCounter;
+ if FLegendTabs.ActivePage = TabsheetL then aGrid := gridL;
+ if FLegendTabs.ActivePage = TabsheetG then aGrid := gridG;
+ if FLegendTabs.ActivePage = TabsheetR then aGrid := gridR;
+ if FLegendTabs.ActivePage = TabsheetS then aGrid := gridS;
  ExportToHTML(aGrid);
 end;
 

@@ -6,7 +6,7 @@ Uses DM, UUtilityParent, SysUtils, StdCtrls, StrUtils;
 
 
 Procedure ValidValues(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; const separator : char = ';');
-procedure FChange(field, field_value : TEdit; SQLString : String; const separator : char = ';');
+function FChange(field : string; SQLString : String; const separator : char = ';') : string;
 procedure GetEnabledLGR(ConLecturer, ConGroup, ConRoom, ConSubject, ConForm, Owner : String;
                         SingleClassContext : Boolean;
                         var CONDL, CONDG, CONDR : String;
@@ -98,14 +98,14 @@ Begin
 End;
 
 //--------------------------------------------------------------------------------------
-procedure FChange(field, field_value : TEdit; SQLString : String; const separator : char = ';');
+function FChange(field : string; SQLString : String; const separator : char = ';') : string;
 Var t : Integer;
     value : String;
 begin
-  FIELD_VALUE.Text := '';
-  For t := 1 To WordCount( field.Text,[ separator ]) Do Begin
-   value := ExtractWord(t, field.Text, [ separator ]);
-   field_value.Text := Merge( field_value.Text,DModule.SingleValue(SQLString+VALUE), separator);
+  result := '';
+  For t := 1 To WordCount( field,[ separator ]) Do Begin
+   value := ExtractWord(t, field, [ separator ]);
+   result := Merge( result,DModule.SingleValue(SQLString+VALUE), separator);
   End;
 end;
 

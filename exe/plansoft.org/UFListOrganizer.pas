@@ -20,6 +20,7 @@ type
     BAdd: TBitBtn;
     lbIds: TListBox;
     BDeleteAll: TBitBtn;
+    BitBtn1: TBitBtn;
     procedure lbNamesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure lbNamesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -31,6 +32,7 @@ type
     procedure lbNamesDblClick(Sender: TObject);
     procedure BAddClick(Sender: TObject);
     procedure BDeleteAllClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     resType: string;
   public
@@ -47,7 +49,7 @@ implementation
 
 {$R *.dfm}
 
-Uses UUtilityParent, AutoCreate, UFProgramSettings, DM;
+Uses UUtilityParent, AutoCreate, UFProgramSettings, DM, UUtilities, UCommon;
 
 function TFListOrganizer.showList (presType: string; Sender: TObject; ids, displayedItems : string; WordDelim : Char) : tmodalResult;
 var t, len : integer;
@@ -109,7 +111,7 @@ end;
 procedure TFListOrganizer.lbNamesMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  NumY:=Y;   
+  NumY:=Y;
   NumX:=X;
 end;
 
@@ -259,6 +261,41 @@ begin
   lbNames.Items.Clear;
   lbIds.Items.Clear;
   BAddClick(Sender);
+end;
+
+procedure TFListOrganizer.BitBtn1Click(Sender: TObject);
+var InItems, OutItems, OutItems_dsp: String;
+    t, len : integer;
+    WordDelim : char;
+    sqlS : string;
+begin
+  WordDelim := ';';
+  InItems := replace(FListOrganizer.lbIds.Items.CommaText,',',';');
+  OutItems := getChildsAndParents(InItems, '', true, false);
+  //ConGroup.Text := getChildsAndParents(InItems, '', true, false);
+  //conResCat0.Text := getChildsAndParents(InItems, '', true, false);
+  //conResCat1.Text := getChildsAndParents(InItems, '', true, false);
+
+  lbIds.Items.Clear;
+  len := WordCount(OutItems,[WordDelim]);
+  for t := 1 to len do begin
+      lbIds.Items.Add( ExtractWord(t,OutItems ,[WordDelim]) );
+  end;
+
+  if resType ='L'  then sqlS := sql_LECDESC;
+  if resType ='G'  then sqlS := sql_GRODESC;
+  if resType ='R'  then sqlS := sql_ResCat0DESC;
+  if resType ='R2' then sqlS := sql_ResCat1DESC;
+
+  OutItems_dsp := FChange(OutItems, sqlS);
+
+  lbNames.Items.Clear;
+  len := WordCount(OutItems_dsp,[WordDelim]);
+  for t := 1 to len do begin
+      lbNames.Items.Add( ExtractWord(t,OutItems_dsp ,[WordDelim]) );
+  end;
+
+
 end;
 
 end.

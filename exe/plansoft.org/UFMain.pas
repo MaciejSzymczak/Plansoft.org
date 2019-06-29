@@ -602,7 +602,6 @@ type
     ppminusO: TMenuItem;
     Przywr1: TMenuItem;
     Odczwybranego1: TMenuItem;
-    AddDependencies: TSpeedButton;
     Przywrckomunikaty1: TMenuItem;
     recreateDependencies: TMenuItem;
     ReservationType: TEdit;
@@ -944,13 +943,11 @@ type
     procedure ppAddOClick(Sender: TObject);
     procedure Przywr1Click(Sender: TObject);
     procedure Odczwybranego1Click(Sender: TObject);
-    procedure AddDependenciesClick(Sender: TObject);
     procedure Przywrckomunikaty1Click(Sender: TObject);
     procedure recreateDependenciesClick(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
-    timer     : integer;
     timerShapes : integer;
     GridSelectionLeft : integer;
     GridSelectionRight : integer;
@@ -1010,6 +1007,7 @@ type
     //
     trackHistoryInstalled : boolean;
     MouseOverLeftPanel : boolean;
+    AutoSaveCounterDown : integer;
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
     function  getCurrentObjectType : string;
@@ -1949,7 +1947,6 @@ begin
   GridSelectionBottom := -1;
   gridSelectionMode   := clNone;
 
-  timer := 60;
   timerShapes := 2;
   init;
 
@@ -2207,7 +2204,7 @@ procedure TFMain.ConLecturerChange(Sender: TObject);
 begin
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
-   FChange(ConLecturer, ConLecturer_value, sql_LECDESC);
+   ConLecturer_value.Text := FChange(ConLecturer.text, sql_LECDESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_LECNAME,'LECTURERS','');
    ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('L');
@@ -2219,7 +2216,7 @@ procedure TFMain.ConGroupChange(Sender: TObject);
 begin
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
-   FChange(ConGroup, ConGroup_value,sql_GRODESC);
+   ConGroup_value.Text := FChange(ConGroup.text, sql_GRODESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME||''(''||abbreviation||'')''','GROUPS','');
    ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('G');
@@ -2232,7 +2229,7 @@ procedure TFMain.conResCat0Change(Sender: TObject);
 begin
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
-   FChange(conResCat0, conResCat0_value,sql_ResCat0DESC);
+   conResCat0_value.Text := FChange(conResCat0.text,sql_ResCat0DESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_ROMNAME,'ROOMS','');
    ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('R');
@@ -3172,7 +3169,7 @@ begin
  refreshRecentlyUsed('');
  //Refresh Legend
  if FLegend.Visible then
-   if (FLegend.PageControl.ActivePage = FLegend.TabSheetCOUNTER) or (FLegend.PageControl.ActivePage = FLegend.TabSheetTimetableNotes) then
+   if (FLegend.FLegendTabs.ActivePage = FLegend.TabSheetCOUNTER) or (FLegend.FLegendTabs.ActivePage = FLegend.TabSheetTimetableNotes) then
      FLegend.BRefreshClick(nil);
 end;
 
@@ -3201,11 +3198,16 @@ begin
   Dmodule.RollbackTrans;
   BRefreshClick(nil);
   RefreshGrid;
+  //
+  AutoSaveCounterDown := -1;
+  StatusBar.Panels[0].Text:=''; //saved
 end;
 
 procedure TFMain.Zapisz1Click(Sender: TObject);
 begin
   dmodule.CommitTrans;
+  AutoSaveCounterDown := -1;
+  StatusBar.Panels[0].Text:=''; //saved
 end;
 
 Var PrevCol, PrevRow : Integer;
@@ -3229,13 +3231,13 @@ var drawDone : boolean;
          rect  : trect;
     Begin
        drawDone := true;
-       StatusBar.Panels[0].Text := Class_.CALC_LECTURERS;
-       StatusBar.Panels[1].Text := Class_.CALC_GROUPS;
-       StatusBar.Panels[2].Text := Class_.CALC_ROOMS;
+       StatusBar.Panels[1].Text := Class_.CALC_LECTURERS;
+       StatusBar.Panels[2].Text := Class_.CALC_GROUPS;
+       StatusBar.Panels[3].Text := Class_.CALC_ROOMS;
 
-       StatusBar.Panels[3].Text :=Class_.SUB_NAME;
-       StatusBar.Panels[4].Text :=Class_.FOR_NAME;
-       StatusBar.Panels[5].Text :=Class_.Owner;
+       StatusBar.Panels[4].Text :=Class_.SUB_NAME;
+       StatusBar.Panels[5].Text :=Class_.FOR_NAME;
+       StatusBar.Panels[6].Text :=Class_.Owner;
 
        HideBaloonHint;
        //FBalloon.left := 10000;
@@ -3284,12 +3286,12 @@ var drawDone : boolean;
     Begin
       HideBaloonHint;
       //FBalloon.left := 10000;
-      StatusBar.Panels[0].Text := '';
       StatusBar.Panels[1].Text := '';
       StatusBar.Panels[2].Text := '';
       StatusBar.Panels[3].Text := '';
       StatusBar.Panels[4].Text := '';
       StatusBar.Panels[5].Text := '';
+      StatusBar.Panels[6].Text := '';
     End;
 
   Var Class_ : TClass_;
@@ -3426,7 +3428,6 @@ begin
   ftoolwindow.AlphaBlendValue := 255 - round(distance*5);
   //self.Caption := inttostr(distance1);
 
- timer := 60;
  Grid.MouseToCell(X, Y, Col, Row);
  FillPanel(Col, Row);
 end;
@@ -4401,6 +4402,7 @@ begin
   if not silentMode then begin
       Timer1.Enabled := True;
       //TimerShapesEngine.Enabled := True;
+      AutoSaveCounterDown := -1;
       AutoSaver.Enabled := True;
   end;
 end;
@@ -4768,10 +4770,10 @@ end;
 procedure TFMain.refreshLegend;
 var CONDL, CONDG, CONDR : String;
 begin
- StatusBar.Panels[6].Text := '(' + inttostr(grid.Selection.Top) + ':' + inttostr(grid.Selection.Left) + ')    Suma: ' + inttostr ( (grid.Selection.Right - grid.Selection.Left + 1) * (grid.Selection.bottom - grid.Selection.top + 1) );
+ StatusBar.Panels[7].Text := '(' + inttostr(grid.Selection.Top) + ':' + inttostr(grid.Selection.Left) + ')    Suma: ' + inttostr ( (grid.Selection.Right - grid.Selection.Left + 1) * (grid.Selection.bottom - grid.Selection.top + 1) );
  if not flegend.Visible then exit;
 
- if FLegend.PageControl.ActivePage <> FLegend.TabSheetCOUNTER then
+ if FLegend.FLegendTabs.ActivePage <> FLegend.TabSheetCOUNTER then
  if (FLegend.FindMode.ItemIndex > 0 ) and FLegend.Visible then begin
    //if convertGrid.ColRowToDate(AObjectId, TS,Zajecia,aCol,aRow) = ConvClass then begin
      GetEnabledLGR(ConLecturer.Text, ConGroup.Text, conResCat0.Text, ConSubject.Text, ConForm.Text, CurrentUserName , FLegend.FindMode.ItemIndex = 2, CONDL, CONDG, CONDR, '1');
@@ -5131,7 +5133,6 @@ begin
     end;
    except
     on E:exception do begin
-       //Politechnika Warszawska bug ?
       SError('Wykryto niezgodnoœæ pomiêdzy wersj¹ aplikacji a wersj¹ schematu w bazie danych.'+CR+'Zg³oœ problem serwisowi technicznemu.'+CR+'Wersja aplikacji to '+app_version_info+'.'+CR+'Wersja bazy danych nie zosta³a okreœlona:' +cr + e.message );
       //dmodule.CloseDBConnection;
       //Halt;
@@ -5142,6 +5143,14 @@ begin
    loadFormSettings;
 
    Self.Menu := MM;
+
+   //default values in case of the lgr was is not selected (first call after the upgrade)                             
+   if conLecturer.Text='' then conLecturer.Text := dmodule.SingleValue('Select max(id) from lecturers where id in (select lec_id from lec_pla where pla_id = '+UserID+')');
+   if conGroup.Text=''    then conGroup.Text    := dmodule.SingleValue('Select max(id) from groups where id in (select gro_id from gro_pla where pla_id = '+UserID+')');
+   if conResCat0.Text=''  then conResCat0.Text  := dmodule.SingleValue('Select max(id) from rooms where rescat_id='+dmodule.pResCatId0+' and id in (select rom_id from rom_pla where pla_id = '+UserID+')');
+   if conResCat1.Text=''  then conResCat1.Text  := dmodule.SingleValue('Select max(id) from rooms where rescat_id='+dmodule.pResCatId1+' and id in (select rom_id from rom_pla where pla_id = '+UserID+')');
+   if conPeriod.Text=''   then conPeriod.Text   := dmodule.SingleValue('Select max(id) from periods');
+
    If Not isBlank(conPeriod.Text) Then setPeriod;
    RefreshGrid;
    //BIMP.Enabled := False;
@@ -5311,7 +5320,6 @@ begin
   ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked;
 
   RespectCompletions.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
-  AddDependencies.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
 
   If not CanShow Then exit;
   BusyClassesCache.ClearCache;
@@ -5372,7 +5380,7 @@ procedure TFMain.ConFormChange(Sender: TObject);
 begin
   BusyClassesCache.ClearCache;
   if canshow then begin
-      FChange(ConForm, ConForm_value, sql_FORDESC );
+      ConForm_value.Text := FChange(ConForm.text, sql_FORDESC );
       UpsertRecentlyUsed(ExtractWord(1, TEdit(Sender).Text,  [';']),'F');
       BuildCalendar('F');
   End;
@@ -5658,11 +5666,12 @@ end;
 
 procedure TFMain.AutoSaverTimer(Sender: TObject);
 begin
-  If Not Self.Active Then Exit;
-  //Label8.Caption := inttostr(timer);
-  If timer > 0 Then timer := timer - 1;
-  If (timer = 1) and (DModule.ADOConnection.Connected) Then Begin
+  If AutoSaveCounterDown >= 0 then  AutoSaveCounterDown := AutoSaveCounterDown -1;
+  if AutoSaveCounterDown <> -1 then StatusBar.Panels[0].Text:='Nie zapisane ' + inttostr(AutoSaveCounterDown); 
+  if AutoSaveCounterDown <> 0 then exit;
+  If (DModule.ADOConnection.Connected) and (DModule.ADOConnection.InTransaction) Then Begin
     dmodule.CommitTrans;
+    StatusBar.Panels[0].Text:=''; //saved 
   end;
 end;
 
@@ -6642,12 +6651,12 @@ begin
   ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true, false);
   conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true, false);
 
-  ConSubject.Text  := inttostr(myClass.sub_id);
-  ConForm.Text     := inttostr(myClass.for_id);
-  FChange(ConLecturer, ConLecturer_value, sql_LECDESC);
-  FChange(ConGroup  , ConGroup_value,sql_GRODESC);
-  FChange(conResCat0, conResCat0_value,sql_ResCat0DESC);
-  FChange(conResCat1, conResCat1_value,sql_RESCAT1DESC);
+  ConSubject.Text        := inttostr(myClass.sub_id);
+  ConForm.Text           := inttostr(myClass.for_id);
+  ConLecturer_value.Text := FChange(ConLecturer.text, sql_LECDESC);
+  ConGroup_value.Text    := FChange(ConGroup.text  , sql_GRODESC);
+  conResCat0_value.Text  := FChange(conResCat0.text, sql_ResCat0DESC);
+  conResCat1_value.Text  := FChange(conResCat1.text, sql_RESCAT1DESC);
   canShow := true;
 
   LGRppClick(nil);
@@ -7014,7 +7023,7 @@ procedure TFMain.conResCat1Change(Sender: TObject);
 begin
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
-   FChange(conResCat1, conResCat1_value,sql_ResCat1DESC);
+   conResCat1_value.Text:= FChange(conResCat1.text, sql_ResCat1DESC);
    ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), conResCat1.Text, bool_NOTreloadFromDatbase);
    BuildCalendar('R');
   End;
@@ -8347,11 +8356,11 @@ begin
     if s <> '' then
         addDBItemsItemsToTreeView(TreeView1, s );
     TreeView1.Visible := true;
-    Self.Menu := nil;
+    //Self.Menu := nil;
   end else begin
     LeftPanel.visible := true;
     SearchPanel.width := 1;
-    Self.Menu := mm;
+    //Self.Menu := mm;
   end;
 end;
 
@@ -8685,7 +8694,6 @@ begin
    CalViewPanel.Visible := true;
    CalViewPanel.Align := alClient;
    CalViewPanel.BringToFront;
-   AddDependencies.Visible := false;
    BShowCellLayout.Visible := false;
    setParent(nil);
    Flegend.Hide;
@@ -9021,14 +9029,6 @@ procedure TFMain.Odczwybranego1Click(Sender: TObject);
 begin
   if not elementEnabled('"Kilku w³aœcicieli zajêcia"','2017.10.01', false) then exit;
   deleteOwnerFromSelection(false);
-end;
-
-procedure TFMain.AddDependenciesClick(Sender: TObject);
-begin
-  ConLecturer.Text := getChildsAndParents(ConLecturer.Text, '', true, false);
-  ConGroup.Text := getChildsAndParents(ConGroup.Text, '', true, false);
-  conResCat0.Text := getChildsAndParents(conResCat0.Text, '', true, false);
-  conResCat1.Text := getChildsAndParents(conResCat1.Text, '', true, false);
 end;
 
 procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);

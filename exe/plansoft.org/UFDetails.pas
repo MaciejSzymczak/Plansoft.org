@@ -636,7 +636,7 @@ end;
 procedure TFDetails.L1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(L1, L_value1, dm.sql_LECDESC );
+  L_value1.text := FChange(L1.text, dm.sql_LECDESC );
 end;
 
 procedure TFDetails.ValidLClick(Sender: TObject);
@@ -678,25 +678,25 @@ end;
 procedure TFDetails.G1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(G1, G_value1, dm.sql_GRODESC );
+  G_value1.text := FChange(G1.text, dm.sql_GRODESC );
 end;
 
 procedure TFDetails.rescat0_1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(ResCat0_1, ResCat0_1_value, sql_ResCat0DESC );
+  ResCat0_1_value.text := FChange(ResCat0_1.text, sql_ResCat0DESC );
 end;
 
 procedure TFDetails.S1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(S1, S_value1, dm.sql_SUBDESC );
+  S_value1.text := FChange(S1.text, dm.sql_SUBDESC );
 end;
 
 procedure TFDetails.F1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(F1, F_value1, dm.sql_FORDESC);
+  F_value1.text := FChange(F1.text,  dm.sql_FORDESC);
 end;
 
 procedure TFDetails.ValidRClick(Sender: TObject);
@@ -1124,27 +1124,27 @@ procedure TFDetails.L2Change(Sender: TObject);
 begin
   inherited;
   If Not CanRefresh Then Exit;
-  FChange(L2, L_value2, dm.sql_LECDESC );
+  L_value2.text := FChange(L2.text, dm.sql_LECDESC );
 end;
 
 procedure TFDetails.G2Change(Sender: TObject);
 begin
   inherited;
   If Not CanRefresh Then Exit;
-  FChange(G2, G_value2, dm.sql_GRODESC );
+  G_value2.text := FChange(G2.text, dm.sql_GRODESC );
 end;
 
 procedure TFDetails.rescat0_2Change(Sender: TObject);
 begin
   inherited;
   If Not CanRefresh Then Exit;
-  FChange(rescat0_2, rescat0_2_value, dm.sql_ResCat0DESC );
+  rescat0_2_value.text := FChange(rescat0_2.text, dm.sql_ResCat0DESC );
 end;
 
 procedure TFDetails.F2Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(F2, F_value2, dm.sql_FORDESC );
+  F_value2.text := FChange(F2.text, dm.sql_FORDESC );
 end;
 
 procedure TFDetails.ValidL2Click(Sender: TObject);
@@ -1426,7 +1426,7 @@ end;
 procedure TFDetails.rescat1_1Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(rescat1_1, rescat1_1_value, dm.sql_ResCat1DESC );
+  rescat1_1_value.text := FChange(rescat1_1.text, dm.sql_ResCat1DESC );
 end;
 
 procedure TFDetails.rescat1_1_valueExit(Sender: TObject);
@@ -1462,7 +1462,7 @@ end;
 procedure TFDetails.rescat1_2Change(Sender: TObject);
 begin
   If Not CanRefresh Then Exit;
-  FChange(rescat1_2, rescat1_2_value, dm.sql_ResCat1DESC );
+  rescat1_2_value.text := FChange(rescat1_2.text, dm.sql_ResCat1DESC );
 end;
 
 procedure TFDetails.selectResCat1_2Click(Sender: TObject);

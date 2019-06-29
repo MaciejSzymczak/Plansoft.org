@@ -5,27 +5,27 @@ inherited FConsolidation: TFConsolidation
   Height = 506
   Caption = 'Scalanie'
   OnActivate = FormActivate
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 447
+    Top = 455
     Width = 941
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 941
-    Height = 447
+    Height = 455
     ActivePage = TabSheet
     Align = alClient
     TabOrder = 1
     object TabSheet: TTabSheet
       Caption = 'Wybierz rodzaj scalania'
       object consolidationKind: TRadioGroup
-        Left = 192
-        Top = 274
-        Width = 440
-        Height = 102
+        Left = 168
+        Top = 240
+        Width = 385
+        Height = 89
         Caption = 'Wybierz rodzaj scalania a nast'#281'pnie naci'#347'nij przycisk Dalej'
         Columns = 2
         Items.Strings = (
@@ -38,10 +38,10 @@ inherited FConsolidation: TFConsolidation
         OnClick = consolidationKindClick
       end
       object BitBtn1: TBitBtn
-        Left = 750
-        Top = 375
-        Width = 85
-        Height = 28
+        Left = 656
+        Top = 328
+        Width = 75
+        Height = 25
         Cancel = True
         Caption = 'Anuluj'
         TabOrder = 1
@@ -135,10 +135,10 @@ inherited FConsolidation: TFConsolidation
         NumGlyphs = 2
       end
       object BNext: TBitBtn
-        Left = 667
-        Top = 375
-        Width = 86
-        Height = 28
+        Left = 584
+        Top = 328
+        Width = 75
+        Height = 25
         Caption = 'Dalej'
         TabOrder = 2
         OnClick = BNextClick
@@ -253,7 +253,7 @@ inherited FConsolidation: TFConsolidation
         Left = 0
         Top = 0
         Width = 933
-        Height = 275
+        Height = 241
         Align = alTop
         BorderStyle = bsNone
         Color = clBtnFace
@@ -298,10 +298,10 @@ inherited FConsolidation: TFConsolidation
         TabOrder = 3
       end
       object administratorMerging: TCheckBox
-        Left = 9
-        Top = 384
-        Width = 641
-        Height = 19
+        Left = 8
+        Top = 336
+        Width = 561
+        Height = 17
         Caption = 
           'Zezw'#243'l na scalanie je'#380'eli istniej'#261' zaj'#281'cia zaplanowane przez inn' +
           'ych planist'#243'w'
@@ -313,24 +313,24 @@ inherited FConsolidation: TFConsolidation
       Caption = '...'
       ImageIndex = 1
       object BConsolidate: TBitBtn
-        Left = 658
-        Top = 375
-        Width = 86
-        Height = 28
+        Left = 576
+        Top = 328
+        Width = 75
+        Height = 25
         Caption = 'Scalaj'
         TabOrder = 0
         OnClick = BConsolidateClick
       end
       object BitBtn5: TBitBtn
-        Left = 751
-        Top = 375
-        Width = 86
-        Height = 28
+        Left = 657
+        Top = 328
+        Width = 75
+        Height = 25
         Caption = 'Anuluj'
         TabOrder = 1
         OnClick = BitBtn1Click
         Glyph.Data = {
-          960A0000424DD60A000000000000B60000002800000024000000120000000100
+          D60A0000424DD60A000000000000B60000002800000024000000120000000100
           200000000000200A000000000000000000001000000000000000000000000000
           80000080000000808000800000008000800080800000C0C0C000808080000000
           FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00008080000080
@@ -418,43 +418,43 @@ inherited FConsolidation: TFConsolidation
         NumGlyphs = 2
       end
       object GroupBox1: TGroupBox
-        Left = 64
-        Top = 274
-        Width = 678
-        Height = 93
+        Left = 56
+        Top = 240
+        Width = 593
+        Height = 81
         Caption = 'Wybierz rekordy do scalenia'
         TabOrder = 2
         object Label3: TLabel
-          Left = 27
-          Top = 30
-          Width = 192
-          Height = 16
+          Left = 24
+          Top = 26
+          Width = 164
+          Height = 13
           Caption = 'Rekord do zachowania:.................'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -12
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label1: TLabel
-          Left = 26
-          Top = 63
-          Width = 187
-          Height = 16
+          Left = 23
+          Top = 55
+          Width = 161
+          Height = 13
           Caption = 'Rekord do usuni'#281'cia:....................'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -13
+          Font.Height = -12
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object RECORD1: TEdit
           Tag = 67108864
-          Left = 181
-          Top = 19
-          Width = 83
+          Left = 158
+          Top = 17
+          Width = 73
           Height = 24
           ReadOnly = True
           TabOrder = 0
@@ -463,9 +463,9 @@ inherited FConsolidation: TFConsolidation
         end
         object RECORD_VALUE1: TEdit
           Tag = 67108864
-          Left = 190
-          Top = 19
-          Width = 476
+          Left = 166
+          Top = 17
+          Width = 417
           Height = 24
           ReadOnly = True
           TabOrder = 1
@@ -473,10 +473,10 @@ inherited FConsolidation: TFConsolidation
           OnKeyPress = RECORD_VALUE1KeyPress
         end
         object SelectRECORD1: TBitBtn
-          Left = 638
-          Top = 17
-          Width = 28
-          Height = 28
+          Left = 558
+          Top = 15
+          Width = 25
+          Height = 24
           Hint = 'Dodaj nowy z listy'
           ParentShowHint = False
           ShowHint = True
@@ -520,9 +520,9 @@ inherited FConsolidation: TFConsolidation
         end
         object RECORD2: TEdit
           Tag = 67108864
-          Left = 182
-          Top = 53
-          Width = 83
+          Left = 159
+          Top = 46
+          Width = 73
           Height = 24
           ReadOnly = True
           TabOrder = 3
@@ -531,9 +531,9 @@ inherited FConsolidation: TFConsolidation
         end
         object RECORD_VALUE2: TEdit
           Tag = 67108864
-          Left = 191
-          Top = 53
-          Width = 476
+          Left = 167
+          Top = 46
+          Width = 417
           Height = 24
           ReadOnly = True
           TabOrder = 4
@@ -541,10 +541,10 @@ inherited FConsolidation: TFConsolidation
           OnKeyPress = RECORD_VALUE2KeyPress
         end
         object SelectRECORD2: TBitBtn
-          Left = 639
-          Top = 50
-          Width = 28
-          Height = 28
+          Left = 559
+          Top = 44
+          Width = 25
+          Height = 24
           Hint = 'Dodaj nowy z listy'
           ParentShowHint = False
           ShowHint = True
@@ -591,7 +591,7 @@ inherited FConsolidation: TFConsolidation
         Left = 0
         Top = 0
         Width = 933
-        Height = 275
+        Height = 241
         Align = alTop
         BorderStyle = bsNone
         Color = clBtnFace

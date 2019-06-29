@@ -326,7 +326,7 @@ begin
      profileObjectNameC1s.Text       := 'statusy';
      profileObjectNameC1acc.Text     := 'status';
      profileObjectNameC1gen.Text     := 'statusu';
-     profileObjectNameC2.Text        := 'zadanie';
+     profileObjectNameC2.Text        := 'zadanie';                 
      profileObjectNameC2s.Text       := 'zadania';
      profileObjectNameC2acc.Text     := 'zadanie';
      profileObjectNameC2gen.Text     := 'zadania';

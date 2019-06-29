@@ -1447,6 +1447,7 @@ Begin
   dmodule.sql('begin api.delete_class (:id ); end;'
              ,'id='+intToStr(Class_.ID)
              );
+  Fmain.AutoSaveCounterDown := 10;
 
  with fmain do begin
  ClassByLecturerCaches.ResetByCLA_ID(Class_.ID,Class_.day, Class_.hour);
@@ -1734,6 +1735,8 @@ begin
       execSQL;
       logSQLStop;
       result := true;
+
+      Fmain.AutoSaveCounterDown := 10;
     end;
   except
     on E:exception do Begin

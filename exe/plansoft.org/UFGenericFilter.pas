@@ -292,13 +292,13 @@ end;
 
 procedure TFGenericFilter.conPeriodChange(Sender: TObject);
 begin
-  FChange(ConPeriod, conPeriod_value, sql_PERDESC);
+  conPeriod_value.text := FChange(ConPeriod.text, sql_PERDESC);
   //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
 end;
 
 procedure TFGenericFilter.conPlaChange(Sender: TObject);
 begin
-  FChange(ConPla, ConPla_value, sql_PLADESC);
+  ConPla_value.text := FChange(ConPla.text, sql_PLADESC);
   bClearPlanner.Visible := (sender as tedit).Text <> '';
 end;
 
