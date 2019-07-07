@@ -493,12 +493,40 @@ begin
   //required by planner_utils.get_available_lec function
   if FindMode.ItemIndex = 0 then fmain.set_tmp_selected_dates;
 
+  if (FLegendTabs.ActivePage = TabsheetL) or
+     (FLegendTabs.ActivePage = TabsheetG) or
+     (FLegendTabs.ActivePage = TabsheetR)
+  then begin
+
+    getFilters(forms_filter,hours_filter);
+    ClassesSelectedTotal.Text :=
+    dmodule.SingleValue(
+    SearchAndReplace(SearchAndReplace(
+    'select count(1) from (select day, hour from tmp_selected_dates where sessionid = userenv(''sessionid'') and :hours_filter :minus_reservations)'
+    ,':hours_filter',hours_filter)
+    ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
+    );
+
+  end;
+
   if FLegendTabs.ActivePage = TabsheetL       then begin
     if QueryL.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridL);
     dmodule.resetConnection ( QueryL );
     QueryL.SQL.Clear;
-    QueryL.SQL.Add('SELECT lecturers.*, planner_utils.get_available_lec(lecturers.id) available_lec FROM LECTURERS, LEC_PLA WHERE '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterL.text, 'LECTURERS')+' ORDER BY LAST_NAME');
+    QueryL.SQL.Add(
+         SearchAndReplace(
+            'SELECT lecturers.*, '+
+            'nvl((case when :ClassesSelectedTotal = 0 then 100 else round ( ( (:ClassesSelectedTotal- nvl(alec.cnt,0) ) * 100) / :ClassesSelectedTotal ) end ),0) available_lec '+
+            'FROM LECTURERS, LEC_PLA '+
+            ',(select count(id) cnt, lec_id '+
+            '      from lec_cla '+
+            '     where ( day, hour ) in ( select day,hour from tmp_selected_dates where sessionid = userenv(''sessionid'') )'+
+            ' group by lec_id'+
+            ') alec '+
+      'WHERE alec.lec_id(+) = lecturers.id and '+CondL+' AND LEC_PLA.LEC_ID = LECTURERS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterL.text, 'LECTURERS')+' ORDER BY LAST_NAME'
+      ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
+      );
     QueryL.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridL);
   end;
@@ -508,7 +536,19 @@ begin
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridG);
     dmodule.resetConnection ( QueryG );
     QueryG.SQL.Clear;
-    QueryG.SQL.Add('SELECT groups.*, planner_utils.get_available_gro(groups.id) available_gro FROM GROUPS, GRO_PLA WHERE '+CondG+' AND GRO_PLA.GRO_ID = GROUPS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterG.text, 'GROUPS')+' ORDER BY NAME');
+    QueryG.SQL.Add(
+        SearchAndReplace(
+        'SELECT groups.*,'+
+        'nvl((case when :ClassesSelectedTotal = 0 then 100 else round ( ( (:ClassesSelectedTotal- nvl(agro.cnt,0) ) * 100) / :ClassesSelectedTotal ) end ),0) available_gro '+
+        'FROM GROUPS, GRO_PLA '+
+            ',(select count(id) cnt, gro_id '+
+            '      from gro_cla '+
+            '     where ( day, hour ) in ( select day,hour from tmp_selected_dates where sessionid = userenv(''sessionid'') )'+
+            ' group by gro_id'+
+            ') agro '+
+        'WHERE agro.gro_id(+) = groups.id and '+CondG+' AND GRO_PLA.GRO_ID = GROUPS.ID AND PLA_ID = '+FMain.getUserOrRoleID+' AND '+fmain.getWhereFastFilter(self.filterG.text, 'GROUPS')+' ORDER BY NAME'
+        ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
+        );
     QueryG.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridG);
   end;
@@ -517,14 +557,6 @@ begin
     if QueryR.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridR);
     dmodule.resetConnection ( QueryR );
-    getFilters(forms_filter,hours_filter);
-    ClassesSelectedTotal.Text :=
-    dmodule.SingleValue(
-    SearchAndReplace(SearchAndReplace(
-    'select count(1) from (select day, hour from tmp_selected_dates where sessionid = userenv(''sessionid'') and :hours_filter :minus_reservations)'
-    ,':hours_filter',hours_filter)
-    ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
-    );
     QueryR.SQL.Clear;
     QueryR.SQL.Add(
       SearchAndReplace(SearchAndReplace(SearchAndReplace(SearchAndReplace(SearchAndReplace(SearchAndReplace(SearchAndReplace(SearchAndReplace(

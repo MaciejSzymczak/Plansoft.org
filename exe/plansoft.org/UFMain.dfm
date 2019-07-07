@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 151
-  Top = 160
+  Left = 156
+  Top = 10
   Width = 1569
   Height = 1038
   Caption = 'Plansoft.org        '
@@ -63,6 +63,9 @@ inherited FMain: TFMain
       Width = 1559
       Height = 19
       Panels = <
+        item
+          Width = 100
+        end
         item
           Text = 'Wyk'#322'adowca'
           Width = 200
@@ -4055,16 +4058,6 @@ inherited FMain: TFMain
         OnClick = BShowCellLayoutClick
         OnMouseMove = BShowCellLayoutMouseMove
       end
-      object AddDependencies: TSpeedButton
-        Left = 744
-        Top = 7
-        Width = 58
-        Height = 23
-        Hint = 'Dodaj zasoby zale'#380'ne'
-        Caption = 'Zale'#380'ne'
-        Flat = True
-        OnClick = AddDependenciesClick
-      end
       object ValidResCat1: TBitBtn
         Left = 1146
         Top = 28
@@ -4657,8 +4650,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 614
-        Top = 20
+        Left = 694
+        Top = 68
         Width = 497
         Height = 97
         TabOrder = 35
@@ -7965,6 +7958,7 @@ inherited FMain: TFMain
   end
   object AutoSaver: TTimer
     Enabled = False
+    Interval = 2000
     OnTimer = AutoSaverTimer
     Left = 208
     Top = 104

@@ -88,7 +88,8 @@ uses
   UFSharing in 'UFSharing.pas' {FSharing},
   UFLegendNavigation in 'UFLegendNavigation.pas' {FLegendNavigation},
   UFWarning in 'UFWarning.pas' {FWarning},
-  UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent};
+  UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent},
+  UFListOrganizer in 'UFListOrganizer.pas' {FListOrganizer};
 
 {$R *.RES}
 
@@ -170,6 +171,7 @@ begin
   Application.CreateForm(TFLegendNavigation, FLegendNavigation);
   Application.CreateForm(TFWarning, FWarning);
   Application.CreateForm(TFExclusiveParent, FExclusiveParent);
+  Application.CreateForm(TFListOrganizer, FListOrganizer);
   Application.CreateForm(TFListOrganizer, FListOrganizer);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
