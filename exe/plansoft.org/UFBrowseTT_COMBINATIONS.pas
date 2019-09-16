@@ -606,42 +606,42 @@ end;
 
 procedure TFBrowseTT_COMBINATIONS.conlecChange(Sender: TObject);
 begin
-  if not disableControls then FChange(ConLec, conLec_value, sql_LECDESC, ';');
+  if not disableControls then conLec_value.Text := FChange(ConLec.text, sql_LECDESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.congroChange(Sender: TObject);
 begin
-  if not disableControls then FChange(ConGro, conGro_value, sql_GRODESC, ';');
+  if not disableControls then conGro_value.Text := FChange(ConGro.text, sql_GRODESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.conResCat0Change(Sender: TObject);
 begin
-  if not disableControls then FChange(conResCat0, conResCat0_value, sql_ResCat0DESC, ';');
+  if not disableControls then conResCat0_value.Text := FChange(conResCat0.text, sql_ResCat0DESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.conResCat1Change(Sender: TObject);
 begin
-  if not disableControls then FChange(conResCat1, conResCat1_value, sql_ResCat1DESC, ';');
+  if not disableControls then conResCat1_value.Text :=  FChange(conResCat1.text, sql_ResCat1DESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.consubChange(Sender: TObject);
 begin
-  if not disableControls then FChange(conSub, conSub_value, sql_SUBDESC, ';');
+  if not disableControls then conSub_value.Text := FChange(conSub.text, sql_SUBDESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.conforChange(Sender: TObject);
 begin
-  if not disableControls then FChange(conFor, conFor_value, sql_FORDESC, ';');
+  if not disableControls then conFor_value.Text := FChange(conFor.text,  sql_FORDESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.conperChange(Sender: TObject);
 begin
-  if not disableControls then FChange(conPer, conPer_value, sql_PERDESC, ';');
+  if not disableControls then conPer_value.Text := FChange(conPer.text, sql_PERDESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.conplaChange(Sender: TObject);
 begin
-  if not disableControls then FChange(conPla, conPla_value, sql_PLADESC, ';');
+  if not disableControls then conPla_value.Text := FChange(conPla.text, sql_PLADESC, ';');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.hideDisplayFields(Sender: TObject);
@@ -774,14 +774,14 @@ begin
      end;
    disableControls := false;
    hideDisplayFields(nil);
-   FChange(ConLec, conLec_value, sql_LECDESC, ';');
-   FChange(ConGro, conGro_value, sql_GRODESC, ';');
-   FChange(conResCat0, conResCat0_value, sql_ResCat0DESC, ';');
-   FChange(conResCat1, conResCat1_value, sql_ResCat1DESC, ';');
-   FChange(conSub, conSub_value, sql_SUBDESC, ';');
-   FChange(conFor, conFor_value, sql_FORDESC, ';');
-   FChange(conPer, conPer_value, sql_PERDESC, ';');
-   FChange(conPla, conPla_value, sql_PLADESC, ';');
+   conLec_value.Text := FChange(ConLec.text, sql_LECDESC, ';');
+   conGro_value.Text := FChange(ConGro.text, sql_GRODESC, ';');
+   conResCat0_value.Text := FChange(conResCat0.text, sql_ResCat0DESC, ';');
+   conResCat1_value.Text := FChange(conResCat1.text, sql_ResCat1DESC, ';');
+   conSub_value.Text := FChange(conSub.text, sql_SUBDESC, ';');
+   conFor_value.Text :=  FChange(conFor.text, sql_FORDESC, ';');
+   conPer_value.Text :=  FChange(conPer.text, sql_PERDESC, ';');
+   conPla_value.Text :=  FChange(conPla.text, sql_PLADESC, ';');
    end;
  end else
  begin
@@ -964,7 +964,7 @@ end;
 
 procedure TFBrowseTT_COMBINATIONS.contttChange(Sender: TObject);
 begin
-  FChange(Conttt, conttt_value, sql_TTRESCATDESC);
+  conttt_value.Text := fchange(Conttt.text, sql_TTRESCATDESC);
   BRefreshClick(nil);
 end;
 

@@ -1086,9 +1086,9 @@ begin
         _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
     End;
 
-    _CONL := GetCLASSESforL( nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text);
-    _CONG := GetCLASSESforG( nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text);
-    _CONR := GetCLASSESforR( nvl(CONR.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RFilterType.text);
+    _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text);
+    _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text);
+    _CONR := GetCLASSESforR('CLASSES.ID', nvl(CONR.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RFilterType.text);
 
     _CONS := '0=0';
     If                                        CONS.Text <> '' then _CONS := 'SUB_ID='+CONS.Text;

@@ -74,14 +74,16 @@ Var t : Integer;
     Token      : String;
     TempValues : String;
     ID         : ShortString;
+    invalidItems : String;
 Begin
  IDs := '';
  TempValues := '';
 
+ invalidItems := '';
  For t := 1 To WordCount(Values, [separator]) Do Begin
    Token := Trim(ExtractWord(t,Values, [separator]));
-   if tableName='ROOMS' then
-     if pos(' ',Token)=0 then Token := Token + ' ';
+     if tableName='ROOMS' then
+       if pos(' ',Token)=0 then Token := Token + ' ';
      If Not isBlank(Token) Then Begin
                             ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') =    '''+ansiUpperCase(Token)+'''');
        if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like '''+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
@@ -90,10 +92,13 @@ Begin
          IDs        := Merge(IDs,ID, separator);
          TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
          End Else Begin
-         //Info('Nie odnaleziono elementu "'+Token+'". Element zostanie usuniêty');
+           invalidItems:= merge(invalidItems, Token, ', ');
          End;
      End;
  End;
+ if (invalidItems<>'') and (not fmain.silentMode) then
+   Info('Nie rozpoznane nazwy: '+invalidItems+CR+CR+'Je¿eli nazwy s¹ prawid³owe, to poproœ administratora o nadanie dostêpu za pomoc¹ funkcji "Uprawnienia do obiektów".');
+
  Values := TempValues;
 End;
 
