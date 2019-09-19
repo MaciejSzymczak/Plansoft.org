@@ -1,5 +1,4 @@
-Ostatnia zaktualizowana notatka techniczna:
-2016.03.02.SzybkaNawigacja.CHG.docx <-- ta do scalenia!
-napisz notatkê, ¿e nowy podrêcznik
+Ostatnia zaktualizowana notatka techniczna: 2019.09.19
+note
 deply
 print
