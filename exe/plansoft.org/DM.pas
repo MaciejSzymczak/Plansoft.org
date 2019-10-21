@@ -1116,8 +1116,8 @@ Procedure TDModule.ExportToExcel(aGrid : TDBGrid );
                     'aQuery1AmountPaid.Value']);
                 }
                 aQuery.Next;
-                if LineNumber = 65000 then
-                  if question('Liczba wierszy do wyeksportowania przekracza 65000. Je¿eli u¿ywasz starszej wersji programu Excel to mo¿e wyst¹piæ b³¹d. Czy kontynuowaæ ?') <> id_yes then break;
+                if LineNumber = 2000 then
+                  if question('Liczba wierszy przekracza 2000. Zaleca siê przerwanie eksportu i wykonanie eksportu w formacie pliku Html. Plik html mo¿na otworzyæ w programie Excel. Czy przerwaæ?') <> id_yes then break;
               end;
               LineString := IntToStr(LineNumber);
               //Range['H2','H'+LineString].NumberFormat := '0.00%';

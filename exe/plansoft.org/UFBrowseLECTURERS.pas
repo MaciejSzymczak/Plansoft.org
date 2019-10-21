@@ -204,7 +204,7 @@ Var ID : ShortString;
 begin
   ID := ORGUNI_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
 end;
 
 procedure TFBrowseLECTURERS.CON_ORGUNI_IDChange(Sender: TObject);
@@ -218,7 +218,7 @@ procedure TFBrowseLECTURERS.BSelOUClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_ORGUNI_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
 end;
 
 procedure TFBrowseLECTURERS.BitBtn6Click(Sender: TObject);
@@ -289,10 +289,13 @@ begin
 end;
 
 procedure TFBrowseLECTURERS.insert_str_elem(parent : boolean);
-Var keyValue : ShortString;
+Var
+    keyValues: ShortString;
+    keyValue : ShortString;
     resultValue : string;
     mr : tmodalresult;
     pexclusive_parent : shortString;
+    t : integer;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -300,7 +303,9 @@ begin
   if (mr <> mrNo) and (mr <> mrYes) then exit;
 
   keyValue := '';
-  If LookupWindow(DModule.ADOConnection, 'LECTURERS LEC, LEC_PLA','LEC.ID','LAST_NAME||'' ''||FIRST_NAME','Nazwa','LAST_NAME||'' ''||FIRST_NAME','LEC_PLA.LEC_ID = LEC.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValue,'500,100') = mrOK Then Begin
+  If LookupWindow(True, DModule.ADOConnection, 'LECTURERS LEC, LEC_PLA','LEC.ID','LAST_NAME||'' ''||FIRST_NAME','Nazwa','LAST_NAME||'' ''||FIRST_NAME','LEC_PLA.LEC_ID = LEC.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+   KeyValue := extractWord(t,KeyValues, [',']);
     with dmodule.QWork do begin
       SQL.Clear;
       SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
@@ -317,8 +322,9 @@ begin
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
-    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-    if resultValue <> '' then info (resultValue) else refreshDetails;
+   end;
+   resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
+   if resultValue <> '' then info (resultValue) else refreshDetails;
   end;
 end;
 

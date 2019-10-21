@@ -5344,6 +5344,11 @@ end;
 
 procedure TFMain.rorLClick(Sender: TObject);
 begin
+  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
+    CONLECTURER.Text := LROR(CONLECTURER.Text,';');
+    exit;
+  end;
+
   TabViewType.TabIndex := 0;
   CanShow := False;
   ValidLClick(nil);
@@ -5355,6 +5360,11 @@ end;
 
 procedure TFMain.rorGClick(Sender: TObject);
 begin
+  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
+    CONGROUP.Text := LROR(CONGROUP.Text,';');
+    exit;
+  end;
+
   TabViewType.TabIndex := 1;
   CanShow := False;
   ValidGClick(nil);
@@ -5366,7 +5376,11 @@ end;
 
 procedure TFMain.rorRClick(Sender: TObject);
 begin
-  inherited;
+  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
+     conResCat0.Text := LROR(conResCat0.Text,';');
+    exit;
+  end;
+
   TabViewType.TabIndex := 2;
   CanShow := False;
   ValidRClick(nil);
@@ -7072,6 +7086,11 @@ end;
 
 procedure TFMain.rorResCat1Click(Sender: TObject);
 begin
+  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
+    conResCat1.Text := LROR(conResCat1.Text,';');
+    exit;
+  end;
+
   TabViewType.TabIndex := 3;
   CanShow := False;
   ValidResCat1Click(nil);
@@ -7582,7 +7601,7 @@ Var KeyValue : ShortString;
 begin
   KeyValue := conRole.Text;
   //If FORMSShowModalAsSelect(KeyValue) = mrOK Then F1.Text := KeyValue;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',KeyValue) = mrOK Then begin
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',KeyValue) = mrOK Then begin
     conRole.Text := KeyValue;
     setPeriod;
   end;

@@ -110,7 +110,7 @@ procedure TFBrowseFORMS.BitBtn3Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_TYPE_ID.Text;
-  If LookupWindow( DModule.ADOConnection, 'LOOKUPS','CODE','MEANING','TYP','NAME','LOOKUP_TYPE=''FORM_TYPE''','',ID) = mrOK Then CON_TYPE_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'LOOKUPS','CODE','MEANING','TYP','NAME','LOOKUP_TYPE=''FORM_TYPE''','',ID) = mrOK Then CON_TYPE_ID.Text := ID;
 end;
 
 procedure TFBrowseFORMS.CON_TYPE_ID_VALUEDblClick(Sender: TObject);

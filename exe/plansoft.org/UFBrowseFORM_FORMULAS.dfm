@@ -4,15 +4,15 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
   Width = 897
   Height = 545
   Caption = 'Formu'#322'y dla form zaj'#281#263
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 486
+    Top = 494
     Width = 889
   end
   inherited MainPage: TPageControl
     Width = 889
-    Height = 486
+    Height = 494
     ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
@@ -21,7 +21,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 881
-        Height = 276
+        Height = 286
         Columns = <
           item
             Expanded = False
@@ -107,11 +107,11 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 416
+        Top = 426
         Width = 881
       end
       inherited Panel: TPanel
-        Top = 397
+        Top = 407
         Width = 881
         inherited StatusBar: TStatusBar
           Width = 812
@@ -166,7 +166,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 0
           Visible = False
@@ -176,7 +176,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 80
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 1
           OnDblClick = CON_ORGUNI_ID_VALUEDblClick
@@ -273,7 +273,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 320
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 4
           Visible = False
@@ -283,7 +283,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 328
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 5
           OnDblClick = CON_FOR_ID_VALUEDblClick
@@ -380,7 +380,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 568
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 8
           Visible = False
@@ -390,7 +390,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
           Left = 576
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 9
         end
@@ -491,8 +491,8 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
       object LabelID: TLabel [0]
         Left = 600
         Top = 16
-        Width = 217
-        Height = 16
+        Width = 166
+        Height = 14
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID
         Visible = False
@@ -573,34 +573,34 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         ParentFont = False
       end
       object LabelDATE_TO: TLabel [6]
-        Left = 263
+        Left = 276
         Top = 352
-        Width = 50
-        Height = 16
+        Width = 37
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Data do'
         FocusControl = DATE_TO
       end
       object LabelDESC1: TLabel [7]
-        Left = 88
+        Left = 98
         Top = 376
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 1'
         FocusControl = DESC1
       end
       object LabelDESC2: TLabel [8]
-        Left = 88
+        Left = 98
         Top = 400
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 2'
         FocusControl = DESC2
       end
       inherited UpdPanel: TPanel
-        Top = 420
+        Top = 430
         Width = 881
         TabOrder = 16
       end
@@ -613,7 +613,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 729
         Top = 8
         Width = 148
-        Height = 24
+        Height = 22
         Hint = 'KOL.WPR.'
         Color = clBtnFace
         DataField = 'ID'
@@ -627,7 +627,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 129
         Top = 32
         Width = 148
-        Height = 24
+        Height = 22
         Hint = 'FORMA'
         DataField = 'FOR_ID'
         DataSource = Source
@@ -640,7 +640,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 129
         Top = 56
         Width = 148
-        Height = 24
+        Height = 22
         Hint = 'JEDN.ORG.'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -653,7 +653,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 129
         Top = 80
         Width = 264
-        Height = 24
+        Height = 22
         Hint = 'TYP FORMU'#321'Y'
         DataField = 'FORMULA_TYPE'
         DataSource = Source
@@ -665,7 +665,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 137
         Top = 104
         Width = 744
-        Height = 24
+        Height = 22
         Hint = 'FORMU'#321'A'
         DataField = 'FORMULA'
         DataSource = Source
@@ -697,7 +697,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 137
         Top = 368
         Width = 298
-        Height = 24
+        Height = 22
         Hint = 'OPIS 1'
         DataField = 'DESC1'
         DataSource = Source
@@ -707,7 +707,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 137
         Top = 392
         Width = 298
-        Height = 24
+        Height = 22
         Hint = 'OPIS 2'
         DataField = 'DESC2'
         DataSource = Source
@@ -717,7 +717,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 136
         Top = 56
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 4
@@ -815,7 +815,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 136
         Top = 32
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 0
@@ -912,7 +912,7 @@ inherited FBrowseFORM_FORMULAS: TFBrowseFORM_FORMULAS
         Left = 136
         Top = 80
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'RODZAJ'
         ReadOnly = True
         TabOrder = 8

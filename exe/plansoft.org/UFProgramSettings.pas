@@ -106,6 +106,7 @@ type
     CopyField3: TComboBox;
     CopyField4: TComboBox;
     KillSessions: TCheckBox;
+    Rotate: TCheckBox;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -169,6 +170,9 @@ begin
      SetSystemParam('Form.DefaultEditFontSize',intToStr(strToint(EditFontSize.Text)));
      SetSystemParam('Form.DefaultFontSize'    ,intToStr(strToint(FontSize.Text)));
      SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
+     SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
+     SetSystemParam('Rotate', BoolToStr(Rotate.checked) );
+
   except
    SError('Maksymalna liczba buforowanych arkuszy musi byæ liczb¹. Rozmiary czcionek musz¹ byæ liczbami');
    canClose := false;
@@ -224,6 +228,7 @@ begin
   EditFontSize.Text := GetSystemParam('Form.DefaultEditFontSize','8');
   FontSize.Text     := GetSystemParam('Form.DefaultFontSize','8');
   KillSessions.checked := StrToBool( GetSystemParam('KillSessions', '+' ) );
+  Rotate.checked := StrToBool( GetSystemParam('Rotate', '-' ) );
   MaxNumberOfSheetsChange(nil);
   activeControl := BZamknij;
 end;

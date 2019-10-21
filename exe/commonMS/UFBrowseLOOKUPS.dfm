@@ -4,15 +4,15 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
   Width = 834
   Height = 651
   Caption = 'Warto'#347'ci'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 592
+    Top = 600
     Width = 826
   end
   inherited MainPage: TPageControl
     Width = 826
-    Height = 592
+    Height = 600
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 818
@@ -20,7 +20,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 818
-        Height = 382
+        Height = 392
         Columns = <
           item
             Expanded = False
@@ -317,11 +317,11 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 522
+        Top = 532
         Width = 818
       end
       inherited Panel: TPanel
-        Top = 503
+        Top = 513
         Width = 818
         inherited StatusBar: TStatusBar
           Width = 749
@@ -517,10 +517,10 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         ParentFont = False
       end
       object LabelDESCRIPTION: TLabel [4]
-        Left = 84
+        Left = 91
         Top = 112
-        Width = 29
-        Height = 16
+        Width = 22
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis'
         FocusControl = DESCRIPTION
@@ -542,40 +542,40 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
       object LabelWHO_CREATION_DATE: TLabel [6]
         Left = 160
         Top = 252
-        Width = 173
-        Height = 16
+        Width = 134
+        Height = 14
         Caption = 'Data utworzenia:.................'
         FocusControl = WHO_CREATION_DATE
       end
       object LabelWHO_LAST_UPDATE_DATE: TLabel [7]
         Left = 160
         Top = 324
-        Width = 280
-        Height = 16
+        Width = 212
+        Height = 14
         Caption = 'Data ostat. zmiany:........................................'
         FocusControl = WHO_LAST_UPDATE_DATE
       end
       object LabelWHO_CREATED_BY: TLabel [8]
         Left = 160
         Top = 276
-        Width = 167
-        Height = 16
+        Width = 131
+        Height = 14
         Caption = 'Utworzy'#322':............................'
         FocusControl = WHO_CREATED_BY
       end
       object LabelWHO_LAST_UPDATED_BY: TLabel [9]
         Left = 160
         Top = 348
-        Width = 182
-        Height = 16
+        Width = 142
+        Height = 14
         Caption = 'Ostatnio zaktualizowa'#322':..........'
         FocusControl = WHO_LAST_UPDATED_BY
       end
       object LabelWHO_LAST_UPDATE_LOGIN: TLabel [10]
         Left = 160
         Top = 300
-        Width = 209
-        Height = 16
+        Width = 157
+        Height = 14
         Caption = 'ID sesji:........................................'
         FocusControl = WHO_LAST_UPDATE_LOGIN
       end
@@ -590,7 +590,7 @@ inherited FBrowseLOOKUPS: TFBrowseLOOKUPS
         Visible = False
       end
       inherited UpdPanel: TPanel
-        Top = 526
+        Top = 536
         Width = 818
         TabOrder = 11
       end

@@ -15,7 +15,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
     Height = 673
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 832
+        Left = 532
         Top = 121
         Width = 8
         Height = 465
@@ -39,7 +39,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited Grid: TRxDBGrid
         Top = 121
-        Width = 832
+        Width = 532
         Height = 465
         Columns = <
           item
@@ -523,9 +523,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
       end
       object RightPage: TPageControl
-        Left = 840
+        Left = 540
         Top = 121
-        Width = 38
+        Width = 338
         Height = 465
         ActivePage = Hierarchy
         Align = alRight
@@ -538,14 +538,14 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           object rightPane: TPanel
             Left = 0
             Top = 0
-            Width = 11
+            Width = 311
             Height = 457
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
               Left = 1
               Top = 186
-              Width = 9
+              Width = 309
               Height = 8
               Cursor = crVSplit
               Align = alTop
@@ -553,7 +553,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object pparents: TPanel
               Left = 1
               Top = 25
-              Width = 9
+              Width = 309
               Height = 161
               Align = alTop
               Caption = 'pparents'
@@ -561,7 +561,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object PanelDetails: TPanel
                 Left = 1
                 Top = 1
-                Width = 7
+                Width = 307
                 Height = 24
                 Align = alTop
                 Caption = 'Zasoby nadrz'#281'dne'
@@ -570,7 +570,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object Panel4: TPanel
                 Left = 1
                 Top = 119
-                Width = 7
+                Width = 307
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -718,7 +718,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object GParents: TRxDBGrid
                 Left = 1
                 Top = 25
-                Width = 7
+                Width = 307
                 Height = 94
                 Align = alClient
                 DataSource = DSParents
@@ -770,7 +770,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object pdetails: TPanel
               Left = 1
               Top = 194
-              Width = 9
+              Width = 309
               Height = 262
               Align = alClient
               Caption = 'pdetails'
@@ -778,7 +778,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object PanelORDERS: TPanel
                 Left = 1
                 Top = 1
-                Width = 7
+                Width = 307
                 Height = 16
                 Align = alTop
                 Caption = 'Zasoby podrz'#281'dne'
@@ -787,7 +787,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object Panel3: TPanel
                 Left = 1
                 Top = 220
-                Width = 7
+                Width = 307
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
@@ -935,7 +935,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
               object GDetails: TRxDBGrid
                 Left = 1
                 Top = 17
-                Width = 7
+                Width = 307
                 Height = 203
                 Align = alClient
                 DataSource = DSDetails
@@ -983,7 +983,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             object Panel5: TPanel
               Left = 1
               Top = 1
-              Width = 9
+              Width = 309
               Height = 24
               Align = alTop
               TabOrder = 2

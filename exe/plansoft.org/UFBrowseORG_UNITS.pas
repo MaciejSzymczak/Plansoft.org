@@ -139,7 +139,7 @@ procedure TFBrowseORG_UNITS.BSelOUClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_PARENT_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_PARENT_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_PARENT_ID.Text := ID;
 end;
 
 procedure TFBrowseORG_UNITS.CON_PARENT_ID_VALUEDblClick(Sender: TObject);
@@ -264,7 +264,7 @@ Var ID : ShortString;
 begin
   ID := PARENT_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
 end;
 
 end.

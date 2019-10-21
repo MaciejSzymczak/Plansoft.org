@@ -246,7 +246,7 @@ procedure TFBrowseGROUPS.BitBtn3Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_GT_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'LOOKUPS_GROUP_TYPE','CODE','NAME','Typ','NAME','0=0','',ID) = mrOK Then CON_GT_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'LOOKUPS_GROUP_TYPE','CODE','NAME','Typ','NAME','0=0','',ID) = mrOK Then CON_GT_ID.Text := ID;
 end;
 
 procedure TFBrowseGROUPS.BALLClick(Sender: TObject);
@@ -271,7 +271,7 @@ procedure TFBrowseGROUPS.BSelectGT_IDClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := GT_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'LOOKUPS_GROUP_TYPE','CODE','NAME','Typ','NAME','0=0','',ID) = mrOK Then Query.FieldByName('GROUP_TYPE').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'LOOKUPS_GROUP_TYPE','CODE','NAME','Typ','NAME','0=0','',ID) = mrOK Then Query.FieldByName('GROUP_TYPE').AsString := ID;
 end;
 
 procedure TFBrowseGROUPS.BClearGT_IDClick(Sender: TObject);
@@ -378,10 +378,13 @@ begin
 end;
 
 procedure TFBrowseGROUPS.insert_str_elem(parent : boolean);
-Var keyValue : ShortString;
+Var
+    keyValues: ShortString;
+    keyValue : ShortString;
     resultValue : string;
     mr : tmodalresult;
     pexclusive_parent : shortString;
+    t : integer;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -389,7 +392,9 @@ begin
   if (mr <> mrNo) and (mr <> mrYes) then exit;
 
   keyValue := '';
-  If LookupWindow(DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValue,'500,100') = mrOK Then Begin
+  If LookupWindow(True, DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+   KeyValue := extractWord(t,KeyValues, [',']);
     with dmodule.QWork do begin
       SQL.Clear;
       SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
@@ -406,8 +411,9 @@ begin
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
-    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-    if resultValue <> '' then info (resultValue) else refreshDetails;
+   end;
+   resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
+   if resultValue <> '' then info (resultValue) else refreshDetails;
   end;
 end;
 
@@ -560,7 +566,7 @@ procedure TFBrowseGROUPS.BSelectROL_IDClick(Sender: TObject);
 Var id : ShortString;
 begin
   id := ROL_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
     Query.FieldByName('ROL_ID').AsString := id;
 end;
 
@@ -579,7 +585,7 @@ Var ID : ShortString;
 begin
   ID := ORGUNI_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
 end;
 
 procedure TFBrowseGROUPS.CON_ORGUNI_IDChange(Sender: TObject);
@@ -593,7 +599,7 @@ procedure TFBrowseGROUPS.BSelOUClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_ORGUNI_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
 end;
 
 procedure TFBrowseGROUPS.BitBtn6Click(Sender: TObject);

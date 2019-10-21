@@ -150,7 +150,7 @@ procedure TFBrowseFORM_FORMULAS.BitBtn3Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_ORGUNI_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then CON_ORGUNI_ID.Text := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BitBtn6Click(Sender: TObject);
@@ -176,7 +176,7 @@ Var ID : ShortString;
 begin
   ID := ORGUNI_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BClearORGUNI_IDClick(Sender: TObject);
@@ -201,7 +201,7 @@ Var ID : ShortString;
 begin
   ID := FOR_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
-  If LookupWindow(DModule.ADOConnection, 'FORMS','','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then Query.FieldByName('FOR_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'FORMS','','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then Query.FieldByName('FOR_ID').AsString := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BClearFOR_IDClick(Sender: TObject);
@@ -221,7 +221,7 @@ procedure TFBrowseFORM_FORMULAS.BitBtn1Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_FOR_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'FORMS','','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then CON_FOR_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'FORMS','','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then CON_FOR_ID.Text := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BitBtn2Click(Sender: TObject);
@@ -245,7 +245,7 @@ procedure TFBrowseFORM_FORMULAS.BSELECTFORMULA_TYPEClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := FORMULA_TYPE.Text;
-  If LookupWindow(DModule.ADOConnection, 'LOOKUPS_FORM_FORMULA_TYPE','CODE','NAME','TYP FORMU£Y','NAME','0=0','',ID) = mrOK Then Query.FieldByName('FORMULA_TYPE').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'LOOKUPS_FORM_FORMULA_TYPE','CODE','NAME','TYP FORMU£Y','NAME','0=0','',ID) = mrOK Then Query.FieldByName('FORMULA_TYPE').AsString := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BCLEARFORMULA_TYPEClick(Sender: TObject);
@@ -272,7 +272,7 @@ procedure TFBrowseFORM_FORMULAS.BitBtn4Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_FORMULA_TYPE.Text;
-  If LookupWindow(DModule.ADOConnection, 'LOOKUPS_FORM_FORMULA_TYPE','CODE','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then CON_FORMULA_TYPE.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'LOOKUPS_FORM_FORMULA_TYPE','CODE','SUBSTR(NAME,1,250)','NAZWA','NAME','0=0','',ID) = mrOK Then CON_FORMULA_TYPE.Text := ID;
 end;
 
 procedure TFBrowseFORM_FORMULAS.BitBtn5Click(Sender: TObject);

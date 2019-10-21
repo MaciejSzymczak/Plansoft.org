@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 156
-  Top = 10
+  Left = 190
+  Top = 49
   Width = 1569
   Height = 1038
   Caption = 'Plansoft.org        '
@@ -3272,7 +3272,7 @@ inherited FMain: TFMain
       OnClick = LeftPanelClick
       OnMouseMove = LeftPanelMouseMove
       object LprofileObjectNameC1: TLabel
-        Left = 725
+        Left = 853
         Top = 82
         Width = 47
         Height = 14
@@ -3280,7 +3280,7 @@ inherited FMain: TFMain
         Caption = '&Przedmiot'
       end
       object LprofileObjectNamePeriod: TLabel
-        Left = 731
+        Left = 859
         Top = 39
         Width = 38
         Height = 13
@@ -3294,7 +3294,7 @@ inherited FMain: TFMain
         ParentFont = False
       end
       object LprofileObjectNameC2: TLabel
-        Left = 739
+        Left = 867
         Top = 106
         Width = 30
         Height = 14
@@ -3302,7 +3302,7 @@ inherited FMain: TFMain
         Caption = 'Forma'
       end
       object LCONROLE_VALUE: TLabel
-        Left = 714
+        Left = 842
         Top = 58
         Width = 55
         Height = 13
@@ -3350,14 +3350,14 @@ inherited FMain: TFMain
         Flat = True
       end
       object lshowAvail: TLabel
-        Left = 550
+        Left = 678
         Top = 17
         Width = 77
         Height = 14
         Caption = 'poka'#380' dost'#281'pne'
       end
       object Shape1: TShape
-        Left = 556
+        Left = 684
         Top = 30
         Width = 1
         Height = 87
@@ -3468,7 +3468,7 @@ inherited FMain: TFMain
         OnClick = BPasteClick
       end
       object BitBtnPER: TSpeedButton
-        Left = 983
+        Left = 1223
         Top = 31
         Width = 23
         Height = 22
@@ -3512,7 +3512,7 @@ inherited FMain: TFMain
         OnClick = BitBtnPERClick
       end
       object selectl: TSpeedButton
-        Left = 499
+        Left = 627
         Top = 32
         Width = 23
         Height = 22
@@ -3555,7 +3555,7 @@ inherited FMain: TFMain
         OnClick = selectlClick
       end
       object selectg: TSpeedButton
-        Left = 499
+        Left = 627
         Top = 57
         Width = 23
         Height = 22
@@ -3598,7 +3598,7 @@ inherited FMain: TFMain
         OnClick = selectgClick
       end
       object selectr: TSpeedButton
-        Left = 499
+        Left = 627
         Top = 81
         Width = 23
         Height = 22
@@ -3641,7 +3641,7 @@ inherited FMain: TFMain
         OnClick = selectrClick
       end
       object selectResCat1: TSpeedButton
-        Left = 499
+        Left = 627
         Top = 105
         Width = 23
         Height = 22
@@ -3728,7 +3728,7 @@ inherited FMain: TFMain
         OnClick = BitBtnROLEClick
       end
       object BitBtnSUB: TSpeedButton
-        Left = 1095
+        Left = 1223
         Top = 102
         Width = 23
         Height = 22
@@ -3816,7 +3816,7 @@ inherited FMain: TFMain
         OnClick = BitBtnFORMClick
       end
       object BClearS: TSpeedButton
-        Left = 1095
+        Left = 1223
         Top = 78
         Width = 23
         Height = 22
@@ -3882,7 +3882,7 @@ inherited FMain: TFMain
         OnClick = BClearSClick
       end
       object BitBtnCLEARROLE: TSpeedButton
-        Left = 982
+        Left = 1222
         Top = 54
         Width = 23
         Height = 22
@@ -3949,7 +3949,7 @@ inherited FMain: TFMain
         OnClick = BitBtnCLEARROLEClick
       end
       object BSelectComb: TSpeedButton
-        Left = 519
+        Left = 647
         Top = 7
         Width = 23
         Height = 22
@@ -4301,7 +4301,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 88
         Top = 55
-        Width = 409
+        Width = 537
         Height = 22
         TabOrder = 9
         OnClick = CONGROUP_valueClick
@@ -4325,7 +4325,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 88
         Top = 79
-        Width = 409
+        Width = 537
         Height = 22
         TabOrder = 15
         OnClick = conResCat0_valueClick
@@ -4336,7 +4336,7 @@ inherited FMain: TFMain
       end
       object CONSUBJECT: TEdit
         Tag = 67108864
-        Left = 768
+        Left = 896
         Top = 78
         Width = 73
         Height = 22
@@ -4347,7 +4347,7 @@ inherited FMain: TFMain
       end
       object CONSUBJECT_value: TEdit
         Tag = 67108864
-        Left = 776
+        Left = 904
         Top = 78
         Width = 297
         Height = 22
@@ -4371,7 +4371,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 88
         Top = 31
-        Width = 409
+        Width = 537
         Height = 22
         TabOrder = 3
         OnClick = CONLECTURER_valueClick
@@ -4382,7 +4382,7 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsL: TCheckBox
         Tag = 67108864
-        Left = 550
+        Left = 678
         Top = 35
         Width = 19
         Height = 17
@@ -4391,7 +4391,7 @@ inherited FMain: TFMain
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyL: TComboBox
-        Left = 569
+        Left = 697
         Top = 30
         Width = 132
         Height = 22
@@ -4407,7 +4407,7 @@ inherited FMain: TFMain
       end
       object conPeriod: TEdit
         Tag = 67108864
-        Left = 768
+        Left = 896
         Top = 31
         Width = 68
         Height = 22
@@ -4418,9 +4418,9 @@ inherited FMain: TFMain
       end
       object CONPERIOD_VALUE: TEdit
         Tag = 67108864
-        Left = 776
+        Left = 904
         Top = 31
-        Width = 206
+        Width = 297
         Height = 22
         ReadOnly = True
         TabOrder = 1
@@ -4429,7 +4429,7 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsG: TCheckBox
         Tag = 67108864
-        Left = 550
+        Left = 678
         Top = 59
         Width = 19
         Height = 17
@@ -4438,7 +4438,7 @@ inherited FMain: TFMain
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyG: TComboBox
-        Left = 569
+        Left = 697
         Top = 54
         Width = 132
         Height = 22
@@ -4454,7 +4454,7 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsR: TCheckBox
         Tag = 67108864
-        Left = 550
+        Left = 678
         Top = 83
         Width = 19
         Height = 17
@@ -4463,7 +4463,7 @@ inherited FMain: TFMain
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyResCat0: TComboBox
-        Left = 569
+        Left = 697
         Top = 78
         Width = 132
         Height = 22
@@ -4478,7 +4478,7 @@ inherited FMain: TFMain
           'dla kt'#243'regokolwiek')
       end
       object rorL: TBitBtn
-        Left = 522
+        Left = 650
         Top = 32
         Width = 22
         Height = 22
@@ -4490,7 +4490,7 @@ inherited FMain: TFMain
         OnClick = rorLClick
       end
       object rorG: TBitBtn
-        Left = 522
+        Left = 650
         Top = 57
         Width = 22
         Height = 22
@@ -4502,7 +4502,7 @@ inherited FMain: TFMain
         OnClick = rorGClick
       end
       object rorR: TBitBtn
-        Left = 522
+        Left = 650
         Top = 81
         Width = 22
         Height = 22
@@ -4515,7 +4515,7 @@ inherited FMain: TFMain
       end
       object CONFORM: TEdit
         Tag = 67108864
-        Left = 770
+        Left = 898
         Top = 102
         Width = 73
         Height = 22
@@ -4526,7 +4526,7 @@ inherited FMain: TFMain
       end
       object CONFORM_VALUE: TEdit
         Tag = 67108864
-        Left = 776
+        Left = 904
         Top = 102
         Width = 297
         Height = 22
@@ -4537,7 +4537,7 @@ inherited FMain: TFMain
       end
       object RespectCompletions: TCheckBox
         Tag = 67108864
-        Left = 647
+        Left = 775
         Top = 13
         Width = 96
         Height = 17
@@ -4548,7 +4548,7 @@ inherited FMain: TFMain
       end
       object conRole: TEdit
         Tag = 67108864
-        Left = 768
+        Left = 896
         Top = 54
         Width = 68
         Height = 22
@@ -4559,9 +4559,9 @@ inherited FMain: TFMain
       end
       object CONROLE_VALUE: TEdit
         Tag = 67108864
-        Left = 776
+        Left = 904
         Top = 54
-        Width = 206
+        Width = 297
         Height = 22
         ReadOnly = True
         TabOrder = 26
@@ -4583,7 +4583,7 @@ inherited FMain: TFMain
         Tag = 67108864
         Left = 88
         Top = 103
-        Width = 409
+        Width = 537
         Height = 22
         TabOrder = 28
         OnClick = conResCat1_valueClick
@@ -4593,7 +4593,7 @@ inherited FMain: TFMain
         OnKeyUp = conResCat1_valueKeyUp
       end
       object rorResCat1: TBitBtn
-        Left = 522
+        Left = 650
         Top = 105
         Width = 22
         Height = 22
@@ -4606,7 +4606,7 @@ inherited FMain: TFMain
       end
       object ShowFreeTermsResCat1: TCheckBox
         Tag = 67108864
-        Left = 550
+        Left = 678
         Top = 107
         Width = 19
         Height = 17
@@ -4615,7 +4615,7 @@ inherited FMain: TFMain
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyResCat1: TComboBox
-        Left = 569
+        Left = 697
         Top = 102
         Width = 132
         Height = 22
@@ -4631,7 +4631,7 @@ inherited FMain: TFMain
       end
       object DrawSuppressionS: TCheckBox
         Tag = 67108864
-        Left = 1078
+        Left = 1206
         Top = 78
         Width = 16
         Height = 17
@@ -4641,7 +4641,7 @@ inherited FMain: TFMain
       end
       object DrawSuppressionF: TCheckBox
         Tag = 67108864
-        Left = 1078
+        Left = 1206
         Top = 102
         Width = 16
         Height = 17
@@ -4650,7 +4650,7 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 694
+        Left = 950
         Top = 68
         Width = 497
         Height = 97

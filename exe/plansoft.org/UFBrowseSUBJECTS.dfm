@@ -4,15 +4,15 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   Width = 839
   Height = 700
   Caption = 'Przedmioty'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 641
+    Top = 649
     Width = 831
   end
   inherited MainPage: TPageControl
     Width = 831
-    Height = 641
+    Height = 649
     ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
@@ -21,7 +21,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       inherited Grid: TRxDBGrid
         Top = 121
         Width = 823
-        Height = 431
+        Height = 441
         Columns = <
           item
             Expanded = False
@@ -289,11 +289,11 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 571
+        Top = 581
         Width = 823
       end
       inherited Panel: TPanel
-        Top = 552
+        Top = 562
         Width = 823
         inherited StatusBar: TStatusBar
           Width = 754
@@ -341,7 +341,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Left = 72
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           Hint = 'RODZAJ'
           TabOrder = 2
           Visible = False
@@ -351,7 +351,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Left = 80
           Top = 4
           Width = 121
-          Height = 24
+          Height = 22
           ReadOnly = True
           TabOrder = 3
           OnClick = CON_ORGUNI_ID_VALUEClick
@@ -468,8 +468,8 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       object LabelID: TLabel [0]
         Left = 536
         Top = 8
-        Width = 213
-        Height = 16
+        Width = 163
+        Height = 14
         Caption = 'Kol.wpr.:........................................'
         FocusControl = ID
         Visible = False
@@ -505,10 +505,10 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         ParentFont = False
       end
       object LabelCOLOUR: TLabel [3]
-        Left = 80
+        Left = 88
         Top = 33
-        Width = 33
-        Height = 16
+        Width = 25
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Kolor'
       end
@@ -520,18 +520,18 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [5]
-        Left = 2
+        Left = 26
         Top = 81
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 1'
       end
       object Label3: TLabel [6]
-        Left = 2
+        Left = 26
         Top = 105
-        Width = 111
-        Height = 16
+        Width = 87
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Dodatkowy opis 2'
       end
@@ -551,7 +551,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 575
+        Top = 585
         Width = 823
         TabOrder = 3
         inherited BUpdChild1: TBitBtn
@@ -588,7 +588,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 649
         Top = 0
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'ID'
         Color = clMenu
         DataField = 'ID'
@@ -602,7 +602,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 125
         Top = 0
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'ABBREVIATION'
         DataField = 'ABBREVIATION'
         DataSource = Source
@@ -612,7 +612,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 125
         Top = 49
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'NAME'
         DataField = 'NAME'
         DataSource = Source
@@ -622,7 +622,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 124
         Top = 73
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC1'
         DataSource = Source
         TabOrder = 4
@@ -631,7 +631,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 124
         Top = 97
         Width = 617
-        Height = 24
+        Height = 22
         DataField = 'DESC2'
         DataSource = Source
         TabOrder = 5
@@ -640,7 +640,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 117
         Top = 121
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         DataField = 'ORGUNI_ID'
         DataSource = Source
@@ -653,7 +653,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Left = 124
         Top = 121
         Width = 257
-        Height = 24
+        Height = 22
         Hint = 'JEDNOSTKA ORGANIZACYJNA'
         ReadOnly = True
         TabOrder = 8

@@ -352,7 +352,7 @@ Var KeyValue : ShortString;
 begin
   KeyValue := PARENT_ID.Text;
   //If AutoCreate.PLANNERSShowModalAsSelect(KeyValue) = mrOK Then PARENT_ID.Text := KeyValue;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS',KeyValue,'NAME','Nazwa','NAME','0=0','',ID) = mrOK Then PARENT_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS',KeyValue,'NAME','Nazwa','NAME','0=0','',ID) = mrOK Then PARENT_ID.Text := ID;
 end;
 
 procedure TFBrowsePLANNERS.SpeedButton3Click(Sender: TObject);
@@ -396,7 +396,7 @@ procedure TFBrowsePLANNERS.ROL_ID_VALUEClick(Sender: TObject);
 Var id : ShortString;
 begin
   id := ROL_ID.Text;
-  If LookupWindow(DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',id) = mrOK Then
     Query.FieldByName('ROL_ID').AsString := id;
 end;
 

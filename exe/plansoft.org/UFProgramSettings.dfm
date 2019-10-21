@@ -19,7 +19,7 @@ inherited FProgramSettings: TFProgramSettings
     Align = alBottom
     TabOrder = 1
     object BZamknij: TBitBtn
-      Left = 727
+      Left = 839
       Top = 5
       Width = 75
       Height = 28
@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 604
-    ActivePage = TabSheet1
+    ActivePage = SAdvanced
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange
@@ -877,7 +877,7 @@ inherited FProgramSettings: TFProgramSettings
           Left = 136
           Top = 16
           Width = 81
-          Height = 24
+          Height = 22
           TabOrder = 0
           Text = 'EditFontSize'
         end
@@ -885,7 +885,7 @@ inherited FProgramSettings: TFProgramSettings
           Left = 136
           Top = 40
           Width = 81
-          Height = 24
+          Height = 22
           TabOrder = 1
           Text = 'FontSize'
         end
@@ -3064,6 +3064,14 @@ inherited FProgramSettings: TFProgramSettings
         Checked = True
         State = cbChecked
         TabOrder = 5
+      end
+      object Rotate: TCheckBox
+        Left = 7
+        Top = 289
+        Width = 491
+        Height = 15
+        Caption = 'Przycisk ... rotuje zasoby'
+        TabOrder = 6
       end
     end
   end

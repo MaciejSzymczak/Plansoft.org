@@ -139,7 +139,7 @@ procedure TFBrowseLOOKUPS.BSelectValueSetClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := CON_value_set_ID.Text;
-  If LookupWindow( DModule.ADOConnection, 'VALUE_SETS','','NAME','NAZWA','NAME','SET_TYPE=''LOOKUP''','',ID) = mrOK Then CON_value_set_ID.Text := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'VALUE_SETS','','NAME','NAZWA','NAME','SET_TYPE=''LOOKUP''','',ID) = mrOK Then CON_value_set_ID.Text := ID;
 end;
 
 procedure TFBrowseLOOKUPS.BClearValueSetClick(Sender: TObject);

@@ -14,12 +14,9 @@ type
     DBGrid: TDBGrid;
     TopPanel: TPanel;
     BFILTER: TEdit;
-    BRefresh: TBitBtn;
     DataSource: TDataSource;
     BClear: TBitBtn;
-    Label1: TLabel;
     SearchTimer: TTimer;
-    CaseSentensive: TCheckBox;
     BAdvanced: TBitBtn;
     ADOQuery: TADOQuery;
     procedure BRefreshClick(Sender: TObject);
@@ -50,13 +47,16 @@ type
 var
   FLookupWindow: TFLookupWindow;
 
-Function LookupWindow(aADOConnection : TADOConnection; aTableName, aKeyField, aDisplayFields, aDisplayCaption, aFindField, aWhereClause, aDefaultMask : String; Var KeyValue : ShortString; aColumnWidths : shortString = '') : TModalResult;
+Function LookupWindow(mulitSelectFlag: boolean; aADOConnection : TADOConnection; aTableName, aKeyField, aDisplayFields, aDisplayCaption, aFindField, aWhereClause, aDefaultMask : String; Var KeyValue : ShortString; aColumnWidths : shortString = '') : TModalResult;
 
 implementation
 
+uses DM;
+
 {$R *.DFM}
 
-Function LookupWindow(aADOConnection : TADOConnection; aTableName, aKeyField, aDisplayFields, aDisplayCaption, aFindField, aWhereClause, aDefaultMask : String; Var KeyValue : ShortString; aColumnWidths : shortString = '') : TModalResult;
+Function LookupWindow(mulitSelectFlag: boolean; aADOConnection : TADOConnection; aTableName, aKeyField, aDisplayFields, aDisplayCaption, aFindField, aWhereClause, aDefaultMask : String; Var KeyValue : ShortString; aColumnWidths : shortString = '') : TModalResult;
+var t : integer;
 Begin
  Application.CreateForm(TFLookupWindow, FLookupWindow);
  With FLookupWindow Do Begin
@@ -74,9 +74,27 @@ Begin
   iF WhereClause = '' Then WhereClause := '0=0';
   MR := mrCancel;
   BFILTER.Text := DefaultMask;
+
+  if mulitSelectFlag then begin
+    DBGrid.Options := DBGrid.Options + [dgMultiSelect];
+    DBGrid.Options := DBGrid.Options + [dgIndicator];
+  end else begin
+    DBGrid.Options := DBGrid.Options - [dgMultiSelect];
+    DBGrid.Options := DBGrid.Options - [dgIndicator];
+  end;
+
   ShowModal;
   Result := MR;
-  KeyValue := ADOQuery.Fields[0].AsString;
+
+  if DBGrid.SelectedRows.Count = 0
+    then KeyValue := ADOQuery.Fields[0].AsString;
+
+  For t := 0 To DBGrid.SelectedRows.Count - 1 Do Begin
+    ADOQuery.Bookmark := DBGrid.SelectedRows.Items[t];
+     If KeyValue <> '' Then KeyValue :=  KeyValue + ',';
+     KeyValue := KeyValue + ADOQuery.Fields[0].AsString;
+  End;
+
   Free;
  End;
 End;
@@ -85,9 +103,9 @@ procedure TFLookupWindow.BRefreshClick(Sender: TObject);
   Function Percent (S : String ) : String;
   Begin
    Result := S;
-   If Length(S)>0 Then If S[Length(S)]='%' Then Exit;
-   Result := S+'%';
+   Result := '%'+S+'%';
   End;
+
 Var aFN, aF   : String;
     FieldList : String;
     DBType    : string;
@@ -95,7 +113,7 @@ Var aFN, aF   : String;
 begin
   inherited;
   ADOQuery.Connection := ADOConnection;
-  If Not CaseSentensive.Checked Then Begin
+  If true Then Begin
    aFN := 'UPPER('+FindField+')';
    aF  := 'UPPER('''+Percent(BFILTER.Text)+''')';
   End Else Begin
@@ -127,7 +145,7 @@ begin
   DBGrid.Columns[0].Width := 0;
 
   for t := 1 to wordCount(DisplayCaption, [',']) do begin
-    dbGrid.Columns[t].Width   := strToInt ( nvl( extractWord(t, ColumnWidths, [',']), '500') ); 
+    dbGrid.Columns[t].Width   := strToInt ( nvl( extractWord(t, ColumnWidths, [',']), '500') );
     dbGrid.Columns[t].title.Caption   := extractWord(t, DisplayCaption, [',']);
   end;
   Caption := DisplayCaption;
@@ -135,28 +153,24 @@ end;
 
 procedure TFLookupWindow.BOKClick(Sender: TObject);
 begin
-  inherited;
   MR := mrOK;
   Close;
 end;
 
 procedure TFLookupWindow.BCANCELClick(Sender: TObject);
 begin
-  inherited;
   MR := mrCancel;
   Close;
 end;
 
 procedure TFLookupWindow.DBGridDblClick(Sender: TObject);
 begin
-  inherited;
  BOKClick(nil);
 end;
 
 procedure TFLookupWindow.DBGridKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  inherited;
   If Key = 13 Then Begin
     BOKClick(nil);
   End;
@@ -164,8 +178,7 @@ end;
 
 procedure TFLookupWindow.BClearClick(Sender: TObject);
 begin
-  inherited;
-  BFilter.Text := '%';
+  BFilter.Text := '';
   BRefreshClick(nil);
 end;
 
