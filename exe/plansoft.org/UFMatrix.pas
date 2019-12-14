@@ -89,48 +89,57 @@ type
     RFilterType: TEdit;
     SFilterType: TEdit;
     FFilterType: TEdit;
-    Image1: TImage;
-    Column: TComboBox;
     mainQuery: TADOQuery;
     buttonsPanel: TPanel;
     ButtonOptions: TSpeedButton;
-    Columns: TMemo;
-    subcolumn: TComboBox;
-    row: TComboBox;
-    title: TComboBox;
-    subtitle: TComboBox;
-    cell3: TComboBox;
-    cell4: TComboBox;
-    cell5: TComboBox;
-    cell2: TComboBox;
-    cell1: TComboBox;
-    Label1: TLabel;
-    Colors: TMemo;
-    color: TComboBox;
-    Label2: TLabel;
     lookupQuery: TADOQuery;
     BWord: TBitBtn;
     BOK: TBitBtn;
-    LayoutSwitcher: TSpeedButton;
     Zapisz1: TMenuItem;
     Otwrz1: TMenuItem;
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     getFlexSQL: TMemo;
     ColumnsOriginal: TMemo;
-    cell6: TComboBox;
-    ChbcntMode: TCheckBox;
     wordExcel: TPopupMenu;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     Przegldarka1: TMenuItem;
+    N1: TMenuItem;
+    cgbForceSpan: TMenuItem;
+    Panel2: TPanel;
+    row: TComboBox;
     row2: TComboBox;
     row3: TComboBox;
     row4: TComboBox;
     row5: TComboBox;
     row6: TComboBox;
-    N1: TMenuItem;
-    cgbForceSpan: TMenuItem;
+    Colors: TMemo;
+    Panel5: TPanel;
+    Label2: TLabel;
+    color: TComboBox;
+    ChbcntMode: TCheckBox;
+    cell1: TComboBox;
+    cell2: TComboBox;
+    cell3: TComboBox;
+    cell4: TComboBox;
+    cell5: TComboBox;
+    cell6: TComboBox;
+    Panel6: TPanel;
+    Panel3: TPanel;
+    title: TComboBox;
+    subtitle: TComboBox;
+    Columns: TMemo;
+    Panel4: TPanel;
+    Column: TComboBox;
+    subcolumn: TComboBox;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     procedure CONLChange(Sender: TObject);
     procedure CONRChange(Sender: TObject);
     procedure CONGChange(Sender: TObject);
@@ -166,7 +175,6 @@ type
     procedure CONS_VALUEChange(Sender: TObject);
     procedure CONF_VALUEChange(Sender: TObject);
     procedure BOKClick(Sender: TObject);
-    procedure LayoutSwitcherClick(Sender: TObject);
     procedure Zapisz1Click(Sender: TObject);
     procedure Otwrz1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
@@ -189,7 +197,6 @@ type
      procedure loadFromIni ( inifilename : tfilename );
      procedure saveToIni ( inifilename : tfilename );
      procedure generate (prog : string);
-     procedure setMode;
   end;
 
 var
@@ -330,8 +337,6 @@ end;
 
 begin
     getFlexColumns;
-
-    setMode;
 
     color.Items.Clear;
     column.Items.Clear;
@@ -707,6 +712,8 @@ begin
         LS     .Caption := profileObjectNameC1.Text;
         LF     .Caption := profileObjectNameC2.Text;
     end;
+
+
 end;
 
 Procedure TFMatrix.UpdStatus(S : String);
@@ -1315,20 +1322,6 @@ begin
   close;
 end;
 
-procedure TFMatrix.setMode;
-begin
- if LayoutSwitcher.Caption = 'Prze³¹cz do uk³adu prostego' then begin
-     self.Top := 50;
-     self.Height := 612;
-     Column.Visible := true;
-     title.Visible  := true;
- end else begin
-     Column.Visible := false;
-     title.Visible  := false;
-     self.Height :=  177;
- end;
-end;
-
 procedure TFMatrix.LoadFromIni ( inifilename : tfilename );
 begin
   uutilityparent.LoadFromIni(
@@ -1369,16 +1362,6 @@ begin
   if not saveDialog.Execute then exit;
   self.saveToIni(saveDialog.FileName);
   result := true;
-end;
-
-procedure TFMatrix.LayoutSwitcherClick(Sender: TObject);
-begin
- if LayoutSwitcher.Caption = 'Prze³¹cz do uk³adu zaawansowanego' then begin
-     LayoutSwitcher.Caption := 'Prze³¹cz do uk³adu prostego';
- end else begin
-     LayoutSwitcher.Caption := 'Prze³¹cz do uk³adu zaawansowanego';
- end;
- setMode;
 end;
 
 procedure TFMatrix.Zapisz1Click(Sender: TObject);

@@ -2881,18 +2881,18 @@ Begin
   except
    on E:exception Do Begin
      If Pos(sKeyViolation, E.Message)<>0 Then Begin
-      if DBMap.get (E.Message, translatedMessage) then begin SError(translatedMessage); abort; end;
+      if DBMap.get (E.Message, translatedMessage) then begin SError(translatedMessage+' [1]'); abort; end;
       If Question(Komunikaty.Strings[10]) = idYes Then Begin
-         errorMessage(APost, Self, E.Message);
+         errorMessage(APost, Self, E.Message+' [2]');
          Abort;
       End Else Abort;
      End
      else begin
-       errorMessage(APost, Self, E.Message);
+       errorMessage(APost, Self, E.Message+' [3]');
        Abort;
      end;
    End
-   Else SError(Komunikaty.Strings[14]);
+   Else SError(Komunikaty.Strings[14]+' [4]');
   end;
   AfterCloseDetails;
 

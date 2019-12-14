@@ -1543,10 +1543,10 @@ begin
        res_id    := qwork.fieldbyname('res_id').AsString;
 
        case rescat_id of
-         g_form      : begin if bf1        then begin f1.Text        := ''; bf1        := false; end; f1.Text := merge(f1.Text, res_id, ';'); end;
-         g_subject   : begin if bs1        then begin s1.Text        := ''; bs1        := false; end; s1.Text := merge(s1.Text, res_id, ';'); end;
-         g_lecturer  : begin if bl1        then begin l1.Text        := ''; bl1        := false; end; l1.Text := merge(l1.Text, res_id, ';'); end;
-         g_group     : begin if bg1        then begin g1.Text        := ''; bg1        := false; end; g1.Text := merge(g1.Text, res_id, ';'); end;
+         g_form      : begin if bf1        then begin f1.Text := ''; bf1 := false; end; f1.Text := res_id; end;
+         g_subject   : begin if bs1        then begin s1.Text := ''; bs1 := false; end; s1.Text := res_id; end;
+         g_lecturer  : begin if bl1        then begin l1.Text := ''; bl1 := false; end; l1.Text := merge(l1.Text, res_id, ';'); end;
+         g_group     : begin if bg1        then begin g1.Text := ''; bg1 := false; end; g1.Text := merge(g1.Text, res_id, ';'); end;
          //not valid in this context
          //g_planner   : conpla.Text := merge(conpla.Text, res_id, ';');
          //g_period    : conper.Text := merge(conper.Text, res_id, ';');

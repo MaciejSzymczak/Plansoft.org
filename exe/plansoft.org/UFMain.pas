@@ -7835,7 +7835,6 @@ begin
   else
       fmatrix.Caption := 'Tabela przestawna: ' + (sender as tmenuitem).Caption;
 
-  fmatrix.LayoutSwitcher.Caption := 'Prze³¹cz do uk³adu prostego';
   fmatrix.defaultSchema := 'CUSTOM';
   FMatrix.ShowModal;
 end;

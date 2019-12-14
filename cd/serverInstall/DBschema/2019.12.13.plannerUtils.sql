@@ -1,3 +1,6 @@
+CREATE GLOBAL TEMPORARY TABLE helper1 (id NUMBER) ON COMMIT DELETE ROWS;
+CREATE GLOBAL TEMPORARY TABLE helper2 (id NUMBER, desc2 varchar2(500), day date, hour number) ON COMMIT DELETE ROWS;
+
 create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
@@ -1041,7 +1044,25 @@ create or replace package body planner_utils is
   pchild_names varchar2(4000) := '';
   begin
     select date_from, date_to into vdate_from, vdate_to from periods where id = pper_id;
-    
+
+     delete from helper1;
+     insert into helper1 
+          --childs
+          (select child_id id
+            from str_elems_v
+            where level=1 and STR_NAME_LOV='STREAM'
+            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
+            start with parent_id=pres_id)
+           union 
+          --parents
+           (select parent_id id
+              from str_elems_v
+              where level=1 and STR_NAME_LOV='STREAM'
+            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
+            start with child_id=pres_id
+           );
+
+
     if (pres_type='R') then
 
          -- optional clean up
@@ -1060,7 +1081,7 @@ create or replace package body planner_utils is
              delete_class (rec.cla_id);
            end loop;
          end if;    
-        
+
          -- delete dependency classes with wrong description 
          for rec in (
            select * from
@@ -1073,22 +1094,7 @@ create or replace package body planner_utils is
                     where no_conflict_flag is null
                      and rom_cla.rom_id = rom.id 
                        and rom_id in 
-                            (
-                              --childs
-                              (select child_id id
-                                from str_elems_v
-                                where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                                start with parent_id=pres_id)
-                               union 
-                              --parents
-                               (select parent_id id
-                                  from str_elems_v
-                                  where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                                start with child_id=pres_id
-                               )
-                             ) 
+                            (select id from helper1) 
                        and day = existing_dep.day and hour = existing_dep.hour) correct_desc2
                from
                      (
@@ -1152,12 +1158,12 @@ create or replace package body planner_utils is
                ,-1 /*gro*/
                ,pres_id /*res*/
                ,null
-               ,'Zajęcia podrzędne'           
+               ,'Zajecia podrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-         
+
          --create parent dependencies
          for rec in (
             --classes of parents
@@ -1202,12 +1208,12 @@ create or replace package body planner_utils is
                ,-2 /*gro*/
                ,pres_id /*res*/
                ,null
-               ,'Zajęcia nadrzędne'           
+               ,'Zajecia nadrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-    
+
          for rec in (
            --candidate to delete
            select unique cla_id
@@ -1222,22 +1228,7 @@ create or replace package body planner_utils is
                     from rom_cla 
                   where no_conflict_flag is null
                     and rom_id in
-                    (
-                      --childs
-                      (select child_id id
-                        from str_elems_v
-                        where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                        start with parent_id=pres_id)
-                       union 
-                      --parents
-                       (select parent_id id
-                          from str_elems_v
-                          where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                        start with child_id=pres_id
-                       )
-                     ) 
+                        (select id from helper1) 
                   and day between vdate_from and vdate_to     
                   minus
                   --delete record if class for base record exists
@@ -1256,7 +1247,7 @@ create or replace package body planner_utils is
 
     -- very similar code for groups
     if (pres_type='G') then
-    
+
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
          -- as it recreates all dependencies, do not overdose this option!
@@ -1273,8 +1264,20 @@ create or replace package body planner_utils is
              delete_class (rec.cla_id);
            end loop;
          end if;    
-    
+
          -- delete dependency classes with wrong description 
+         Xxmsz_Tools.insertIntoEventLog('idc1');
+         delete from helper2;
+         insert into helper2
+             select unique cla.id, desc2, cla.day, cla.hour
+             from gro_cla
+                , classes cla
+             where no_conflict_flag = '+'
+              and gro_cla.cla_id = cla.id
+              and gro_id  = pres_id 
+              and gro_cla.day between vdate_from and vdate_to;
+
+         Xxmsz_Tools.insertIntoEventLog('idc2');
          for rec in (
            select * from
            (
@@ -1286,39 +1289,16 @@ create or replace package body planner_utils is
                     where no_conflict_flag is null
                      and gro_cla.gro_id = gro.id 
                        and gro_id in 
-                            (
-                              --childs
-                              (select child_id id
-                                from str_elems_v
-                                where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                                start with parent_id=pres_id)
-                               union 
-                              --parents
-                               (select parent_id id
-                                  from str_elems_v
-                                  where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                                start with child_id=pres_id
-                               )
-                             ) 
+                            (select id from helper1) 
                        and day = existing_dep.day and hour = existing_dep.hour) correct_desc2
-               from
-                     (
-                       select unique cla.id, desc2, cla.day, cla.hour
-                         from gro_cla
-                            , classes cla
-                         where no_conflict_flag = '+'
-                          and gro_cla.cla_id = cla.id
-                          and gro_id  = pres_id 
-                          and gro_cla.day between vdate_from and vdate_to
-                      ) existing_dep
+               from (select * from helper2) existing_dep
           ) where desc2 <> correct_desc2
          ) 
          loop
            delete_class (rec.id);
          end loop;
-
+         
+         Xxmsz_Tools.insertIntoEventLog('idc3');
          --create child dependencies
          for rec in (
             --classes of childs
@@ -1365,13 +1345,14 @@ create or replace package body planner_utils is
                ,pres_id /*gro*/
                ,-1 /*res*/
                ,null
-               ,'Zajęcia podrzędne'           
+               ,'Zajecia podrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-         
-         --create parent dependencies
+
+          Xxmsz_Tools.insertIntoEventLog('idc4');
+        --create parent dependencies
          for rec in (
             --classes of parents
             select unique day, hour  
@@ -1415,12 +1396,13 @@ create or replace package body planner_utils is
                ,pres_id /*gro*/
                ,-2 /*res*/
                ,null
-               ,'Zajęcia nadrzędne'           
+               ,'Zajecia nadrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-    
+
+         Xxmsz_Tools.insertIntoEventLog('idc5');
          for rec in (
            --candidate to delete
            select unique cla_id
@@ -1434,23 +1416,7 @@ create or replace package body planner_utils is
                   select unique day, hour  
                     from gro_cla 
                   where no_conflict_flag is null
-                    and gro_id in
-                    (
-                      --childs
-                      (select child_id id
-                        from str_elems_v
-                        where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                        start with parent_id=pres_id)
-                       union 
-                      --parents
-                       (select parent_id id
-                          from str_elems_v
-                          where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                        start with child_id=pres_id
-                       )
-                     ) 
+                    and gro_id in (select id from helper1)
                   and day between vdate_from and vdate_to     
                   minus
                   --delete record if class for base record exists
@@ -1464,7 +1430,8 @@ create or replace package body planner_utils is
          loop
            delete_class (rec.cla_id);
          end loop;
-      
+         Xxmsz_Tools.insertIntoEventLog('idc6');
+
     end if; --if (pres_type='G')
 
     -- very similar code for Lecturers
@@ -1486,7 +1453,7 @@ create or replace package body planner_utils is
              delete_class (rec.cla_id);
            end loop;
          end if;    
-    
+
          -- delete dependency classes with wrong description 
          for rec in (
            select * from
@@ -1499,22 +1466,7 @@ create or replace package body planner_utils is
                     where no_conflict_flag is null
                      and lec_cla.lec_id = lec.id 
                        and lec_id in 
-                            (
-                              --childs
-                              (select child_id id
-                                from str_elems_v
-                                where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                                start with parent_id=pres_id)
-                               union 
-                              --parents
-                               (select parent_id id
-                                  from str_elems_v
-                                  where level=1 and STR_NAME_LOV='STREAM'
-                                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                                start with child_id=pres_id
-                               )
-                             ) 
+                            (select id from helper1) 
                        and day = existing_dep.day and hour = existing_dep.hour) correct_desc2
                from
                      (
@@ -1578,12 +1530,12 @@ create or replace package body planner_utils is
                ,-1 /*gro*/
                ,-1 /*res*/
                ,null
-               ,'Zajęcia podrzędne'           
+               ,'Zajecia podrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-         
+
          --create parent dependencies
          for rec in (
             --classes of parents
@@ -1628,12 +1580,12 @@ create or replace package body planner_utils is
                ,-2 /*gro*/
                ,-2 /*res*/
                ,null
-               ,'Zajęcia nadrzędne'           
+               ,'Zajecia nadrzedne'           
                , substrb(pchild_names,1,200)
                ,null            
                ,null);            
          end loop;
-    
+
          for rec in (
            --candidate to delete
            select unique cla_id
@@ -1648,22 +1600,7 @@ create or replace package body planner_utils is
                     from lec_cla 
                   where no_conflict_flag is null
                     and lec_id in
-                    (
-                      --childs
-                      (select child_id id
-                        from str_elems_v
-                        where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                        start with parent_id=pres_id)
-                       union 
-                      --parents
-                       (select parent_id id
-                          from str_elems_v
-                          where level=1 and STR_NAME_LOV='STREAM'
-                        CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                        start with child_id=pres_id
-                       )
-                     ) 
+                       (select id from helper1) 
                   and day between vdate_from and vdate_to     
                   minus
                   --delete record if class for base record exists
@@ -1679,7 +1616,7 @@ create or replace package body planner_utils is
          end loop;
 
     end if; --if (pres_type='L')
-                    
+
   end;
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2265,4 +2202,39 @@ create or replace package body planner_utils is
  end delete_class;
 
 end planner_utils;
+/
+
+DECLARE CURSOR TEMP
+IS
+select 'DROP PUBLIC SYNONYM '||SNAME S from SYS.SYNONYMS WHERE CREATOR = USER AND SYNTYPE = 'PUBLIC';
+C INTEGER;
+BEGIN
+FOR REC_TEMP IN TEMP
+LOOP
+ C := DBMS_SQL.OPEN_CURSOR;
+ DBMS_SQL.PARSE(C, REC_TEMP.S,DBMS_SQL.V7);
+ DBMS_SQL.CLOSE_CURSOR(C);
+ END LOOP;
+END;
+/
+
+DECLARE
+CURSOR TEMP
+IS
+select 'CREATE PUBLIC SYNONYM '||object_name||' FOR '||object_name S from sys.all_objects where owner = user and
+OBJECT_TYPE NOT IN ('SYNONYM', 'INDEX', 'PACKAGE BODY') order by object_name;
+C INTEGER;
+BEGIN
+FOR REC_TEMP IN TEMP
+LOOP
+ C := DBMS_SQL.OPEN_CURSOR;
+ BEGIN
+ DBMS_SQL.PARSE(C, REC_TEMP.S,DBMS_SQL.V7);
+ EXCEPTION -- ZABLOKOWANIE ZATRZYMANIA Z POWODU BŁĘDÓW
+ WHEN OTHERS THEN
+ NULL; -- POLECENIE RAISE PODNOSI WYJĄTEK
+ END;
+ DBMS_SQL.CLOSE_CURSOR(C);
+ END LOOP;
+END;
 /

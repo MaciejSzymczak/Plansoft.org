@@ -8,9 +8,7 @@ uses
 
 type
   TFInfo = class(TFInfoParent)
-    Label1: TLabel;
     lversion: TLabel;
-    Label2: TLabel;
     procedure BOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
