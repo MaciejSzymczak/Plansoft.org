@@ -10,7 +10,7 @@ uses
   ExcelXP;
 
 Const MaxAllLecturers     =   5000;
-      MaxAllGroups        =   5000;
+      MaxAllGroups        =  10000;
       MaxAllRooms         =   3000;
       MaxAllRoles         =   2000;
       MaxAllPlanners      =    100;
