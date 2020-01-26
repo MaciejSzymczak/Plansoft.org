@@ -1805,7 +1805,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2020-01-18';
+ VersionOfApplication := '2020-01-26';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

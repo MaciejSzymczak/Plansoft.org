@@ -1614,7 +1614,7 @@ end;
 procedure TFGrouping.PodgldzapytaniaSQL1Click(Sender: TObject);
 begin
  CopyToClipboard(SQLPreview.Lines.Text);
- info('ok');
+ info('Zapytanie SQL zosta³o skopiowane do schowka. Przeka¿ je administratorowi w celu analizy');
 end;
 
 procedure TFGrouping.Zapiszustawienia1Click(Sender: TObject);

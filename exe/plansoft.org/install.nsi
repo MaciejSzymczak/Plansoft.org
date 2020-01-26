@@ -64,7 +64,7 @@ Section "Planowanie (wymagane)"
   File "pre_import.sql"
   File "A3"
   File "A4"
-  File "update.exe"
+  ;File "update.exe"
   File "update.xml"
   File "libgcc_s_sjlj-1.dll"
   File "libstdc++-6.dll"
@@ -140,7 +140,7 @@ Section "Skróty w menu startowym"
 
   CreateDirectory "$SMPROGRAMS\Planowanie"
   CreateShortCut "$SMPROGRAMS\Planowanie\Plansoft.org.lnk" "$INSTDIR\Planowanie.exe" "" "$INSTDIR\Planowanie.exe" 0
-  CreateShortCut "$SMPROGRAMS\Planowanie\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\update.exe" "" "$INSTDIR\update.exe" 0
+  ;CreateShortCut "$SMPROGRAMS\Planowanie\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\update.exe" "" "$INSTDIR\update.exe" 0
   CreateShortCut "$SMPROGRAMS\Planowanie\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   
 SectionEnd
@@ -149,7 +149,7 @@ SectionEnd
 Section "Skrót na pulpicie"
 
   CreateShortCut "$DESKTOP\PlanSoft.org.lnk" "$INSTDIR\Planowanie.exe" ""
-  CreateShortCut "$DESKTOP\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
+  ;CreateShortCut "$DESKTOP\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
 
 SectionEnd
 
@@ -157,7 +157,7 @@ SectionEnd
 Section "Szybkie uruchamianie"
 
   CreateShortCut "$QUICKLAUNCH\Plansoft.org.lnk" "$INSTDIR\Planowanie.exe" ""
-  CreateShortCut "$QUICKLAUNCH\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
+  ;CreateShortCut "$QUICKLAUNCH\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
 
 SectionEnd
 

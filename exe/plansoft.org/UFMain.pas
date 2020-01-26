@@ -1228,28 +1228,33 @@ begin
   end;
 
   SQLstmt :=
-   'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(*) cnt'+cr+
+   'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(1) cnt'+cr+
+   iif(LecCond='',',0 cntL'    ,',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+LecCond+')) cntL')+cr+
+   iif(GroCond='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+GroCond+')) cntG')+cr+
+   iif(RomCond='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+RomCond+'))  cntR')+cr+
+   iif(ResCat1Cond='',',0 cntR2',',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+')) cntR2')+cr+
    'from   classes, subjects sub, forms form'+cr+
    'where sub_id=sub.id(+) and for_id=form.id(+) and classes.id in'+cr+
    '('+cr+
    'select -1 from dual'+cr+
    iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+')'+cr)+
-   iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and  '+periodClause+' and ('+GroCond+')'+cr)+
-   iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and ('+RomCond+')'+cr)+
-   iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and ('+ResCat1Cond+')'+cr)+
+   iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and ('+GroCond+')'+cr)+
+   iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+RomCond+')'+cr)+
+   iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+')'+cr)+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
    'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
-   iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and  '+periodClause+' and '+NotLec+cr)+
-   iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and  '+periodClause+' and '+NotGro+cr)+
-   iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and  '+periodClause+' and '+NotRom+cr)+
+   iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and '+NotLec+cr)+
+   iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and '+NotGro+cr)+
+   iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and '+NotRom+cr)+
    ')'+cr+
    comment2+cr
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
 
+   //copyToClipboard(SQLstmt);
    openSQL ( SQLstmt );
 
     While Not QWork.EOF Do Begin
@@ -1270,6 +1275,10 @@ begin
        global[t][y].isBusy := True;
        global[t][y].busyCnt := global[t][y].busyCnt + QWork.FieldByName('cnt').AsInteger;
        global[t][y].claIds  := merge(global[t][y].claIds,
+           '['+iif(QWork.FieldByName('cntL').AsInteger>0,'W','')+
+           iif(QWork.FieldByName('cntG').AsInteger>0,'G','')+
+           iif(QWork.FieldByName('cntR').AsInteger>0,'S','')+
+           iif(QWork.FieldByName('cntr2').AsInteger>0,'Z','')+'] '+
            QWork.FieldByName('sub_name').AsString+' '+
            ' ('+QWork.FieldByName('for_name').AsString+' '+
            ')    '+fprogramsettings.profileObjectNameLs.text+':'+QWork.FieldByName('calc_lecturers').AsString+' '+
@@ -3956,6 +3965,7 @@ begin
      SGConflicts.Cells[5,0] := profileObjectNameC1.Text;
      SGConflicts.Cells[6,0] := profileObjectNameC2.Text + '/ rezerwacja';
      SGConflicts.Cells[7,0] := 'W³aœciel';
+     SGConflicts.Cells[8,0] := 'Przyczyna';
    end;
    //uprawnienia do obj +texts
    // dict windows - details + rzutnik +hints

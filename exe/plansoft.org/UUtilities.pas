@@ -91,6 +91,7 @@ Type TSingleClass = Record
                       desc2      : string[255];
                       desc3      : string[255];
                       desc4      : string[255];
+                      conflictReason: string[255];
                     End;
 
 Type TCheckConflicts = Class
@@ -113,7 +114,7 @@ Type TCheckConflicts = Class
                GroupsWithChilds: TPointers;
                RoomsWithChilds: TPointers;
                Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
-             procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner : String);
+             procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner, conflictReason : String);
              function  deleteConflictClasses : Boolean;
            public
              function  conflictsReport(
@@ -810,7 +811,7 @@ Begin
  Count := 0;
 End;
 
-Procedure TCheckConflicts.Add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner : String );
+Procedure TCheckConflicts.Add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner,conflictReason : String );
 {--------------------------------------------------}
 Function P1IncludesP2(P1, P2 : TPointers) : Boolean;
  Var t1, t2 : Integer;
@@ -881,7 +882,11 @@ Begin
      (ConflictsClasses[t].For_id      = For_id) And
      (ConflictsClasses[t].Created_By  = Created_By) And
      (ConflictsClasses[t]._Owner      = _Owner)
-  Then Exit;
+  Then begin
+    if  pos(conflictReason, ConflictsClasses[t].conflictReason)=0 then
+        ConflictsClasses[t].conflictReason :=  ConflictsClasses[t].conflictReason + conflictReason;
+    Exit;
+  end;
 
  Count := Count + 1;
  ConflictsClasses[Count].Day      := Day;
@@ -893,6 +898,7 @@ Begin
  ConflictsClasses[Count].For_id   := For_id;
  ConflictsClasses[Count].Created_By:= Created_By;
  ConflictsClasses[Count]._Owner   := _Owner;
+ ConflictsClasses[Count].conflictReason   := conflictReason;
 End;
 
 Function  TCheckConflicts.empty;
@@ -918,7 +924,7 @@ Var L      : Integer;
 
 Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
 
- Procedure AddSingleClass;
+ Procedure AddSingleClass (conflictReason: String);
  Var  L     : Integer;
       Len   : Integer;
   Begin
@@ -950,7 +956,7 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
        PGroups,
        PRooms,
        Class_.SUB_ID,
-       Class_.FOR_ID, Class_.Created_by, Class_.Owner
+       Class_.FOR_ID, Class_.Created_by, Class_.Owner, conflictReason
        );
   End;
 Begin
@@ -963,8 +969,8 @@ Begin
       DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(GroupsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass;
-      ClassError    : AddSingleClass;
+       ClassFound    : AddSingleClass('G');
+      ClassError    : AddSingleClass('G');
       End;
     End Else Break;
 
@@ -975,8 +981,8 @@ Begin
       DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(LecturersWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass;
-       ClassError    : AddSingleClass;
+       ClassFound    : AddSingleClass('W');
+       ClassError    : AddSingleClass('W');
       End;
     End Else Break;
 
@@ -986,8 +992,8 @@ Begin
       DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(RoomsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass;
-       ClassError    : AddSingleClass;
+       ClassFound    : AddSingleClass('S');
+       ClassError    : AddSingleClass('S');
       End;
     End Else Break;
 
@@ -1119,6 +1125,7 @@ Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLa
  End;
 
 Var t : Integer;
+var MarkL, MarkG, MarkR : string;
 Begin
  L.Visible := Not CanDelete;
 
@@ -1134,14 +1141,21 @@ Begin
  With SGConflicts Do Begin
  RowCount := Count + 1; //+1 for header
  For t := 1 To Count Do Begin
+  MarkL := ''; MarkG := ''; MarkR := '';
+  if pos('W', ConflictsClasses[t].conflictReason)<>0 then MarkL := '>> ';
+  if pos('G', ConflictsClasses[t].conflictReason)<>0 then MarkG := '>> ';
+  if pos('S', ConflictsClasses[t].conflictReason)<>0 then MarkR := '>> ';
   Cells[0,t] := GetDate(ConflictsClasses[t].Day.Date);
   Cells[1,t] := IntToStr(ConflictsClasses[t].Hour);
-  Cells[2,t] := GetLecturers(ConflictsClasses[t].Lecturers);
-  Cells[3,t] := GetGroups(ConflictsClasses[t].Groups);
-  Cells[4,t] := GetRooms(ConflictsClasses[t].Rooms);
+  Cells[2,t] := MarkL+GetLecturers(ConflictsClasses[t].Lecturers);
+  Cells[3,t] := MarkG+GetGroups(ConflictsClasses[t].Groups);
+  Cells[4,t] := MarkR+GetRooms(ConflictsClasses[t].Rooms);
   Cells[5,t] := GetSubject(ConflictsClasses[t].Sub_id);
   Cells[6,t] := GetForm(ConflictsClasses[t].For_id);
-  Cells[7,1] := ConflictsClasses[t]._Owner;
+  Cells[7,t] := ConflictsClasses[t]._Owner;
+  Cells[8,t] := ConflictsClasses[t].conflictReason;
+
+
  End;
  End;
 End;
