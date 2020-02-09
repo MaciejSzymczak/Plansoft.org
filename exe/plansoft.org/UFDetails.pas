@@ -29,9 +29,6 @@ type
     L_value1: TEdit;
     SelectL1: TBitBtn;
     ValidL: TBitBtn;
-    notL: TCheckBox;
-    notG: TCheckBox;
-    NotResCat0_1: TCheckBox;
     ValidR: TBitBtn;
     ValidG: TBitBtn;
     SelectG1: TBitBtn;
@@ -106,7 +103,6 @@ type
     rescat1_1_value: TEdit;
     selectResCat1_1: TBitBtn;
     PRESCAT1_1: TSpeedButton;
-    notResCat1_1: TCheckBox;
     validResCat1_1: TBitBtn;
     BAddResCat1: TPopupMenu;
     MenuItem1: TMenuItem;
@@ -410,10 +406,10 @@ begin
    Fill := 100;
    Colour := colour1.Brush.Color;
  end else begin
-   If        notL.Checked Then L     := '' Else     L := L1.Text;
-   If        notG.Checked Then G     := '' Else     G := G1.Text;
-   If notResCat0_1.Checked Then tmpR1 := '' Else tmpR1 := rescat0_1.Text;
-   If notResCat1_1.Checked Then tmpR2 := '' Else tmpR2 := rescat1_1.Text;
+   L := L1.Text;
+   G := G1.Text;
+   tmpR1 := rescat0_1.Text;
+   tmpR2 := rescat1_1.Text;
    R := merge(tmpR1, tmpR2, ';');
    S    := strToInt(S1.Text); //s1 cannot be null-see check record
    F    := strToInt(F1.Text);
@@ -424,39 +420,11 @@ end;
 
 procedure TFDetails.notLClick(Sender: TObject);
 begin
- If (notL.Checked) And (notG.Checked) And (NotResCat0_1.Checked) and (notResCat1_1.Checked) Then
+ If (L1.text='') And (G1.Text='') And (rescat0_1.Text='') and (rescat1_1.Text='') Then
   Begin
    ShowMessage( format('Nie mo¿na zapisaæ rekordu bez %s, %s lub zasobu', [ fprogramsettings.profileObjectNameLgen.Text, fprogramsettings.profileObjectNameGgen.Text ] ) );
-   notL.Checked        := True;
-   notG.Checked        := True;
-   notResCat0_1.Checked := True;
-   notResCat1_1.Checked := True;
    TCheckBox(Sender).Checked := False;
   End;
-
-  L_value1.Visible := Not notL.Checked;
-  LL1.Visible      := Not notL.Checked;
-  SelectL1.Visible := Not notL.Checked;
-  //ValidL.Visible   := Not notL.Checked;
-  plec.Visible     := Not notL.Checked;
-  //
-  G_value1.Visible := Not notG.Checked;
-  LG1.Visible      := Not notG.Checked;
-  SelectG1.Visible := Not notG.Checked;
-  //ValidG.Visible   := Not notG.Checked;
-  pgro.Visible     := Not notG.Checked;
-  //
-  rescat0_1_value.Visible  := Not notResCat0_1.Checked;
-  LRescat0_1.Visible       := Not notResCat0_1.Checked;
-  selectResCat0_1.Visible  := Not notResCat0_1.Checked;
-  //ValidR.Visible           := Not notResCat0_1.Checked;
-  PRESCAT0_1.Visible       := Not notResCat0_1.Checked;
-  //
-  rescat1_1_value.Visible  := Not notResCat1_1.Checked;
-  LRescat1_1.Visible       := Not notResCat1_1.Checked;
-  selectResCat1_1.Visible  := Not notResCat1_1.Checked;
-  validResCat1_1.Visible   := Not notResCat1_1.Checked;
-  PRESCAT1_1.Visible       := Not notResCat1_1.Checked;
 end;
 
 procedure TFDetails.selectLEC;
@@ -782,27 +750,15 @@ begin
       ValidRClick(nil);
       ValidSClick(nil);
       ValidFClick(nil);
-      If not notL.Checked Then Begin
-        If isBlank(L_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[L_value1.Hint, fprogramsettings.profileObjectNameLgen.Text, fprogramsettings.profileObjectNameLgen.Text]));
-        If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
-      End;
-      If not notG.Checked Then Begin
-        If isBlank(G_value1.TEXT) Then addError(  format('%s musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ %s zaznacz pole wyboru "Bez %s"',[g_value1.Hint, fprogramsettings.profileObjectNameGgen.Text, fprogramsettings.profileObjectNameGgen.Text]));
-        If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
-      End;
-      If not notResCat0_1.Checked Then If isBlank(rescat0_1_value.TEXT) Then Begin
-        addError(rescat0_1_value.Hint + ' musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ sal zaznacz pole wyboru "Bez tego zasobu"');
-        If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
-      End;
-      If not notResCat1_1.Checked Then If isBlank(rescat1_1_value.TEXT) Then Begin
-        addError(rescat1_1_value.Hint + ' musi zostaæ wybrane. Jeœli nie chcesz okreœlaæ zasobów zaznacz pole wyboru "Bez tego zasobu"');
-        If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
-      End;
+      If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
+      If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
+      If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+      If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
 
       RestrictEmpty([S_value1, F_value1 ]);
       If isBlank(FILL1.TEXT) Then addError(FILL1.Hint + ' musi zostaæ wybrane');
 
-      if (not notL.Checked) then begin
+      if (not isBlank(L1.Text)) then begin
         stringTokenizer := TStringTokenizer.Create;
         cl := countTokens(L_value1.Text);
         cd1 := countTokens(desc1.text);
@@ -925,28 +881,25 @@ begin
 
   L_value1.Enabled := canEditL;
   L_value2.Enabled := canEditL;
-  notL.Enabled := canEditL;
   SelectL2.Enabled := canEditL;
   SelectL1.Enabled := canEditL;
   PLEC.Enabled := canEditL;
 
   G_value1.Enabled := canEditG;
   G_value2.Enabled := canEditG;
-  notG.Enabled := canEditG;
   SelectG2.Enabled := canEditG;
   SelectG1.Enabled := canEditG;
   PGRO.Enabled := canEditG;
 
   rescat0_1_value.Enabled := canEditR;
   rescat0_2_value.Enabled := canEditR;
-  NotResCat0_1.Enabled := canEditR;
+  rescat0_1.Enabled := canEditR;
   sr2.Enabled := canEditR;
   selectResCat0_1.Enabled := canEditR;
   PRESCAT0_1.Enabled := canEditR;
 
   rescat1_1_value.Enabled := canEditR;
   rescat1_2_value.Enabled := canEditR;
-  NotResCat1_1.Enabled := canEditR;
   selectResCat1_2.Enabled := canEditR;
   selectResCat1_1.Enabled := canEditR;
   PRESCAT1_1.Enabled := canEditR;
@@ -1010,10 +963,6 @@ begin
     Owner_.ReadOnly     := true;
   End;
 
-  notL.Checked := isBlank(L1.Text);
-  notG.Checked := isBlank(G1.Text);
-  notResCat0_1.Checked := isBlank(resCat0_1.Text);
-  notResCat1_1.Checked := isBlank(resCat1_1.Text);
   rgReservationForClick(nil);
   CWeeksChange(nil);
   formChange('formShow');
@@ -1093,11 +1042,6 @@ begin
   if canEditR then resCat1_2.Text      := Clipboard_Rescat1_2;
   if canEditF then F2.Text             := Clipboard_F2;
   Colour2.Brush.Color := Clipboard_Colour2;
-
-  if canEditL then notL.checked        :=  Clipboard_L1 = '';
-  if canEditG then notG.checked        :=  Clipboard_G1 = '';
-  if canEditR then NotResCat0_1.checked:=  Clipboard_Rescat0_1 = '';
-  if canEditR then notResCat1_1.checked:=  Clipboard_Rescat1_1 = '';
 
   if elementEnabled('"Schowek opisy"','2016.03.20', true) then begin
     if canEditO then desc1.Text          := Clipboard_Desc1;
@@ -1490,10 +1434,10 @@ procedure TFDetails.setResLimitation(p_rescat_id: integer);
   function getResIds: string;
   begin
     result    := '';
-    result := merge( result , iif(notL.Checked,        '', L1.Text)    , ',');
-    result := merge( result , iif(notG.Checked,        '', G1.Text    ), ',');
-    result := merge( result , iif(notResCat0_1.Checked, '', rescat0_1.Text), ',');
-    result := merge( result , iif(notResCat1_1.checked, '', rescat1_1.Text), ',');
+    result := merge( result , L1.Text, ',');
+    result := merge( result , G1.Text, ',');
+    result := merge( result , rescat0_1.Text, ',');
+    result := merge( result , rescat1_1.Text, ',');
     result := merge( result , iif(false,                '', iif(S1.Text='0','',S1.Text)    ), ',');
     result := merge( result , iif(false,                '', F1.Text    ), ',');
     result := merge( result , iif(false,                '', fmain.conperiod.Text    ), ',');
@@ -1557,11 +1501,6 @@ begin
        end;
        qwork.Next;
      end;
-
-     if l1.Text        <> '' then notL.checked         := false;
-     if g1.Text        <> '' then notG.checked         := false;
-     if rescat0_1.Text <> '' then NotResCat0_1.checked := false;
-     if rescat1_1.Text <> '' then notResCat1_1.checked  := false;
 
      canRefresh := true;
      L1Change(nil);

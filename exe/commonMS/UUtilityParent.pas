@@ -34,6 +34,7 @@ type TMap = Class
 
 Const showDiagnosticsMessage = False;
 
+procedure ShowFolder(strFolder: string);
 function checkListBoxToText (c : tchecklistbox) : string;
 procedure checkListBoxToBool (c : tchecklistbox; values: string);
 
@@ -346,6 +347,15 @@ Begin
  tmp.SaveToFile(fileName);
 End;
 
+  procedure ShowFolder(strFolder: string);
+  begin
+    ShellExecute(Application.Handle,
+      PChar('explore'),
+      PChar(strFolder),
+      nil,
+      nil,
+      SW_SHOWNORMAL);
+  end;
 
 
 //------------------------------------------------------------------
@@ -1805,7 +1815,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2020-01-26';
+ VersionOfApplication := '2020-02-09';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

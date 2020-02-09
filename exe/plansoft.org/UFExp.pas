@@ -9,7 +9,6 @@ uses
 type
   TFExp = class(TFormConfig)
     BRun: TButton;
-    BitBtn1: TBitBtn;
     EFolderName: TEdit;
     ECommand: TEdit;
     Label4: TLabel;
@@ -19,7 +18,6 @@ type
     procedure EProgramChange(Sender: TObject);
     procedure ELoginChange(Sender: TObject);
     procedure EFolderNameChange(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
     procedure EFolderNameDblClick(Sender: TObject);
   private
     filename : string;
@@ -75,12 +73,6 @@ procedure TFExp.EFolderNameChange(Sender: TObject);
 begin
   inherited;
   RefreshCommand;
-end;
-
-procedure TFExp.BitBtn1Click(Sender: TObject);
-begin
-  inherited;
-  Close;
 end;
 
 procedure TFExp.EFolderNameDblClick(Sender: TObject);

@@ -82,6 +82,7 @@ type
     BOther: TSpeedButton;
     MDefault: TMemo;
     SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     procedure BitBtnPERClick(Sender: TObject);
     procedure currentPeriodChange(Sender: TObject);
     procedure GroupsClick(Sender: TObject);
@@ -109,12 +110,17 @@ type
     procedure BShowAllClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     formPrepared : boolean;
     settingsLoaded : boolean;
   public
     defaultFolder : string;
+    procedure setStatus(i : shortString);
     Procedure calendarToHTML(
+           pPeriodId: String;
+           presId : string;
+           presType : string;
            D1, D2, D3, D4, D5 : shortString;
            Header, Footer : TStrings;
            ShowLegend : Boolean;
@@ -193,6 +199,7 @@ type cclassbuffer =
     function flush : string;
     function searchMemory (s : string) : boolean;
   end;
+
 
 procedure cclassbuffer.init;
 begin
@@ -337,7 +344,7 @@ var style : string;
 begin
   //add vertical lines
   if Pos(intToStr(colCount),verticalLines)<>0  then
-      s := StringReplace(s, '<TD ', '<TD style=''border-right:solid 2.0pt''', [rfReplaceAll, rfIgnoreCase]);
+      s := StringReplace(s, '<TD ', '<TD style=''border-right:solid 2.0pt''', [rfIgnoreCase]);
 
   inc ( colCount );
   setLength(table[ rowCount-1 ].cells, colCount);
@@ -494,7 +501,146 @@ begin
  result := s;
 end;
 
+type TclassList =
+            Record
+              cnt     : integer;
+              classes : array of TClass_;
+            End;
+type tcurrentChartClasses = Class
+  data : Array Of  //day
+          Array Of //hour
+            TclassList;
+  firstDay : Integer;
+  procedure init(psql, pPerId, pResId, presAlias : string; form : tform);
+  function get(ts : TTimeStamp; hour: Integer) : TclassList;
+End;
+
+
+{ tcurrentChartClasses }
+
+function tcurrentChartClasses.get(ts: TTimeStamp;
+  hour: Integer): TclassList;
+begin
+ result := data[TS.Date - FirstDay, hour-1];
+end;
+
+procedure tcurrentChartClasses.init(psql, pPerId, pResId, presAlias : string; form : tform);
+    Var count : Integer;
+        dateFrom, dateTo : String;
+        queryClasses : tadoquery;
+        ChildsAndParents : string;
+        x : integer;
+        currentResource : string;
+        day, hour, t: integer;
+        ci : integer;
+        orderby : string;
+
+    Procedure internalInit (count, maxHours : Integer);
+    var day, hour : integer;
+    Begin
+      SetLength(data, count, maxHours);
+      For day := 0 To count-1 Do
+       For hour := 0 To maxHours-1 Do
+         data[day][hour].cnt := 0;
+    End;
+
+begin
+	queryClasses := tadoquery.Create(form);
+  With DModule Do Begin
+    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+pPerId));
+    dateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
+    dateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+
+    FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
+    internalInit (QWork.Fields[2].AsInteger+1, QWork.Fields[4].AsInteger);
+
+	ChildsAndParents := getChildsAndParents (pResId, '', true, true);
+	for x := 1 To WordCount(ChildsAndParents,[';']) do begin
+		currentResource := ExtractWord(x, ChildsAndParents, [';']);
+
+    if (presAlias='LEC') then orderby := 'calc_lecturers';
+    if (presAlias='GRO') then orderby := 'calc_groups';
+    if (presAlias='ROM') then orderby := 'calc_rooms';
+		with queryClasses do begin
+			try
+				dmodule.openSQL(queryClasses, psql + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by '+orderby
+				,'pres_id='      + currentResource +
+        ';per_id_from1='+ pPerId    +
+        ';per_id_to1='  + pPerId    +
+        ';per_id_from2='+ pPerId    +
+        ';per_id_to2='  + pPerId
+				);
+				open;
+				except
+				on E:exception do begin
+				  CopyToClipboard( queryClasses.SQL.text);
+			   	raise;
+				end;
+			end;
+
+			First;
+			while not Eof do begin
+
+      day := DateTimeToTimeStamp(FieldByName('DAY').AsDateTime).Date;
+      hour := FieldByName('HOUR').AsInteger;
+
+      t := day-firstDay;
+
+      Data[t][hour-1].cnt := Data[t][hour-1].cnt + 1;
+      setLength(Data[t][hour-1].classes, Data[t][hour-1].cnt);
+      ci := Data[t][hour-1].cnt - 1;
+
+      with Data[t][hour-1].classes[ci] do begin
+        id                 := fieldbyname('id').asinteger;
+        day                := datetimetotimestamp(fieldbyname('day').asdatetime);
+        hour               := fieldbyname('hour').asinteger;
+        fill               := fieldbyname('fill').asinteger;
+        sub_id             := fieldbyname('sub_id').asinteger;
+        for_id             := fieldbyname('for_id').asinteger;
+        for_kind           := fieldbyname('for_kind').asString;
+        sub_abbreviation   := fieldbyname('sub_abbreviation').asString;
+        sub_name           := fieldbyname('sub_name').asString;
+        sub_colour         := fieldbyname('sub_colour').asinteger;
+        for_colour         := fieldbyname('for_colour').asinteger;
+        owner_colour       := fieldbyname('owner_colour').asinteger;
+        creator_colour     := fieldbyname('creator_colour').asinteger;
+        class_colour       := fieldbyname('class_colour').asinteger;
+        desc1              := fieldbyname('desc1').asString;
+        desc2              := fieldbyname('desc2').asString;
+        desc3              := fieldbyname('desc3').asString;
+        desc4              := fieldbyname('desc4').asString;
+        for_abbreviation   := fieldbyname('for_abbreviation').asString;
+        for_name           := fieldbyname('for_name').asString;
+        calc_lecturers     := fieldbyname('calc_lecturers').asString;
+        calc_groups        := fieldbyname('calc_groups').asString;
+        calc_rooms         := fieldbyname('calc_rooms').asString;
+        calc_lec_ids       := fieldbyname('calc_lec_ids').asString;
+        calc_gro_ids       := fieldbyname('calc_gro_ids').asString;
+        calc_rom_ids       := fieldbyname('calc_rom_ids').asString;
+        calc_rescat_ids    := fieldbyname('calc_rescat_ids').asString;
+        created_by         := fieldbyname('created_by').asString;
+        owner              := fieldbyname('owner').asString;
+      end;
+
+			Next;
+			end;
+		end;
+
+	End;
+
+  End;
+  queryClasses.Free;
+end;
+
 {$R *.DFM}
+
+procedure TFWWWGenerator.setStatus(i : shortString);
+begin
+  Status.Caption := i;
+  Status.refresh;
+  Application.ProcessMessages;
+end;
+
 
 procedure TFWWWGenerator.BitBtnPERClick(Sender: TObject);
 var KeyValue : ShortString;
@@ -521,7 +667,7 @@ begin
 
     With DModule Do Begin
 
-     periodClauseXXX  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1') ,'XXX.');
+     periodClauseXXX  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(currentPeriod.Text,'-1') ,'XXX.');
      periodClauseGRO_CLA  := replace(periodClauseXXX,'XXX.','GRO_CLA.');
      periodClauseLEC_CLA  := replace(periodClauseXXX,'XXX.','LEC_CLA.');
      periodClauseROM_CLA  := replace(periodClauseXXX,'XXX.','ROM_CLA.');
@@ -697,6 +843,9 @@ begin
 end;
 
 Procedure TFWWWGenerator.CalendarToHTML(
+           pPeriodId: String;
+           presId : string;
+           presType : string;
            D1, D2, D3, D4, D5 : shortString;
            Header, Footer : TStrings;
            ShowLegend : Boolean;
@@ -724,6 +873,9 @@ Procedure TFWWWGenerator.CalendarToHTML(
         Class_ : TClass_;
         sHeader, sFooter : String;
         fuse : Integer;
+        currentChartClasses : tcurrentChartClasses;
+        classList : TclassList;
+        ReservationsCache     : tReservationsCache;
 
     Var Lgnd : Array Of Record Name, ShortCut : ShortString;  Colour : Integer; End;
         LgndCnt : integer;
@@ -757,25 +909,25 @@ Procedure TFWWWGenerator.CalendarToHTML(
       ColoringIndex : shortString;
       CellWIDTH : shortString) : string;
 
-     function TextoutResource ( code : shortString) : string;
-     begin
-      if code = 'ALL_RES' then result := Class_.CALC_ROOMS
-                          else result := ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
-      result := Copy(result,     1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
-     end;
+      function TextoutResource ( code : shortString) : string;
+      begin
+       if code = 'ALL_RES' then result := Class_.CALC_ROOMS
+                           else result := ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
+       result := Copy(result,     1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
+      end;
 
-    procedure writeLn(s : string);
-    begin
-     result := result + s;
-    end;
+      procedure writeLn(s : string);
+      begin
+       result := result + s;
+      end;
 
-    //--------------------------------------------------------
-    Procedure AddCell(Command, S, Color : String);
-    Begin
-    If isBlank(S) Then S := '&nbsp';
-    If Color <> '0' Then Writeln( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' BGCOLOR='+Color+'>'+S+'</TD>')
-                    Else Writeln( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' >'+S+'</TD>')
-    End;
+      //--------------------------------------------------------
+      Procedure AddCell(Command, S, Color : String);
+      Begin
+        If isBlank(S) Then S := '&nbsp';
+        If Color <> '0' Then Writeln( '<TD HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' BGCOLOR='+Color+'>'+S+'</TD>')
+                        Else Writeln( '<TD HEIGHT='+CELLHEIGHT+' WIDTH='+CellWIDTH+' '+Command+' >'+S+'</TD>')
+      End;
 
     //--------------------------------------------------------
      Procedure Common (Counter : Integer; CommonAttr : TColors);
@@ -939,6 +1091,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
        Common(1, CommonAttr);
       end;
 
+    // -------- DrawCell ---------------------------------
      Begin
       result := '';
       if ColoringIndex = 'L'          then DrawL         else
@@ -955,14 +1108,16 @@ Procedure TFWWWGenerator.CalendarToHTML(
       if ColoringIndex = 'DESC4'      then DrawDesc{red color for description} else
       if ColoringIndex = 'ALL_RES'    then DrawR     else DrawR;
     End;
+    // -------- END DrawCell ---------------------------------
 
     //--------------------------------------------------------
     function RefreshLegend : integer;
       var periodClause : String;
           t : Integer;
           MaxL : Integer;
+          ChildsAndParents : string;
     begin
-    inherited;
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
     For t := 1 To High(Lgnd) Do Begin
@@ -975,38 +1130,34 @@ Procedure TFWWWGenerator.CalendarToHTML(
     t := 0;
     With DModule Do Begin
 
-     periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1') ,'CLA.');
+     periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + pPeriodId ,'CLA.');
 
-     case fmain.TabViewType.TabIndex of
-      0:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
+     if presType='LEC' then
+        OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, LEC_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
-                '   AND LEC_ID='+NVL( ExtractWord(1,fmain.ConLecturer.TEXT,[';']) ,'-1')+
-                '   AND CLA.SUB_ID = SUB.ID '+
+                '   AND LEC_ID in '+ChildsAndParents+
+                '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
-      1:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
+
+      if presType='GRO' then
+        OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, GRO_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
-                '   AND GRO_ID='+NVL( ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+
-                '   AND CLA.SUB_ID = SUB.ID '+
+                '   AND GRO_ID in '+ChildsAndParents+
+                '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
-      2:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
+
+      if presType='ROM' then
+        OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
-                '   AND ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+
-                '   AND CLA.SUB_ID = SUB.ID '+
+                '   AND ROM_ID in '+ChildsAndParents+
+                '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
-      3:OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
-                '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
-                ' WHERE CLA_ID = CLA.ID'+
-                '   AND ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat1.TEXT,[';']) ,'-1')+
-                '   AND CLA.SUB_ID = SUB.ID '+
-                '   AND '+periodClause+' '+
-                'ORDER BY SUB.NAME');
-     end;
 
      //writeLog (GetNowMarker + ' before loop ');
      While Not QWork.Eof Do Begin
@@ -1019,6 +1170,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
       Lgnd[t].Name     := QWork.Fields[1].AsString;
       Lgnd[t].ShortCut := QWork.Fields[2].AsString;
       Lgnd[t].Colour   := QWork.Fields[3].AsInteger;
+
       t := t + 1;
       if t > MaxLegendPositions then begin
        //SError('Wyst¹pi³o zdarzenie "t > MaxLegendPositions"(2). t = '+inttostr(t)+', zg³oœ problem serwisowi');
@@ -1030,9 +1182,9 @@ Procedure TFWWWGenerator.CalendarToHTML(
       Lgnd[t].Colour   := 0;
 
       //no summary mode
-      if (LegendMode and 1 = 0) then
-      case fmain.TabViewType.TabIndex of
-       0:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
+      if (LegendMode and 1 = 0) then begin
+        if presType='LEC' then
+         OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
@@ -1040,12 +1192,14 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA2.LEC_ID = :LEC_ID '+
+                    'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                   'ORDER BY 1'
-                , 'LEC_ID='+NVL(ExtractWord(1,fmain.ConLecturer.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       1:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+
+        if presType='GRO' then
+         OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
@@ -1053,12 +1207,14 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
-                    'AND GRO_CLA.GRO_ID = :GRO_ID '+
+                    'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                   'ORDER BY 1'
-                , 'GRO_ID='+NVL(ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       2:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+
+        if presType='ROM' then
+         OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
@@ -1066,30 +1222,17 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
-                    'AND ROM_CLA.ROM_ID = :ROM_ID '+
+                    'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                   'ORDER BY 1'
-                , 'ROM_ID='+NVL(  ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       3:OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
-                  'FROM CLASSES CLA'+
-                  '   , LEC_CLA'+
-                  '   , LECTURERS LEC'+
-                  '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
-                  'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
-                    'AND LEC_CLA.CLA_ID =  CLA.ID '+
-                    'AND ROM_CLA.ROM_ID = :ROM_ID '+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND '+periodClause+' '+
-                  'ORDER BY 1'
-                , 'ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat1.TEXT,[';'])  ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
+                , 'SUB_ID='+QWork.Fields[0].AsString);
       end;
 
       //summary mode
-      if (LegendMode and 1 = 1) then
-      case fmain.TabViewType.TabIndex of
-       0:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+      if (LegendMode and 1 = 1) then begin
+        if presType='LEC' then
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1099,15 +1242,16 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND LEC_CLA2.LEC_ID = :LEC_ID '+
+                    'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
-                , 'LEC_ID='+NVL(ExtractWord(1,fmain.ConLecturer.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       1:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+        if presType='GRO' then
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1117,15 +1261,16 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND GRO_CLA.GRO_ID = :GRO_ID '+
+                    'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
-                , 'GRO_ID='+NVL(ExtractWord(1,fmain.ConGroup.TEXT,[';']),'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       2:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+        if presType='ROM' then
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1135,32 +1280,14 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND ROM_CLA.ROM_ID = :ROM_ID '+
+                    'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
                     'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
-                , 'ROM_ID='+NVL(  ExtractWord(1,fmain.ConResCat0.TEXT,[';']) ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
-       3:OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
-                  'FROM CLASSES CLA'+
-                  '   , FORMS FORM'+
-                  '   , GRIDS '+
-                  '   , LEC_CLA'+
-                  '   , LECTURERS LEC'+
-                  '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
-                  'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
-                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND ROM_CLA.ROM_ID = :ROM_ID '+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND '+periodClause+' '+
-                    'AND FORM.ID = CLA.FOR_ID '+
-                    'and cla.hour = grids.no '+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
-                  'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
-                , 'ROM_ID='+NVL( ExtractWord(1,fmain.ConResCat1.TEXT,[';'])  ,'-1')+';SUB_ID='+QWork.Fields[0].AsString);
+                , 'SUB_ID='+QWork.Fields[0].AsString);
       end;
 
       fuse := 1;
@@ -1190,16 +1317,19 @@ Procedure TFWWWGenerator.CalendarToHTML(
     end; //RefreshLegend
 
 Var xp, yp          : Integer;
-    t               : Integer;
+    legendRow       : Integer;
+    i               : integer;
     priorDayOfWeek  : integer;
     currentDayOfWeek: integer;
     showLine        : boolean;
     cellCurrent     : string;
+    cells           : string;
     htmlTable       : thtmlTable;
     notesBeforeText : string;
     notesAfterText  : string;
-    tmpGroupName    : string;
     tmp             : integer;
+    dummy          : integer;
+    colCnt, rowCnt : integer;
 
     //--------------------------------------------------------
     procedure addMonthsRow;
@@ -1207,52 +1337,50 @@ Var xp, yp          : Integer;
     Var SPAN   : Integer;
         oldMonthName : ShortString;
         newMonthName : ShortString;
+        dummy : integer;
     begin
-      With fmain.Grid Do Begin
-      //Names of months
-      htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
+        //Names of months
+        htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
 
-      htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthDay'),'0') );
-      htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthHour'),'0') );
-      //ConvertDateColRow.ColRowToDate(TS,Zajecia,0+2,0);
-      oldMonthName := GetLongMonthName(convertGrid.convertSingleObject.ColRowDate[1].Date);
-      newMonthName := oldMonthName;
-      SPAN := 0;
-      For xp:=0+2 To ColCount-1 Do Begin
-        If convertGrid.ColRowToDate(fmain.AObjectId, ufmain.TS,ufmain.Zajecia,xp,0) = ConvHeader Then
-          newMonthName := GetLongMonthName(TS.Date);
-        If newMonthName = oldMonthName Then Begin
-         SPAN := SPAN + 1;
-         // add spaned cell to be compilant with span algorythm
-         htmlTable.newHeaderCell('ALIGN="CENTER"',oldMonthName,'0',1,1,true);
-        End Else Begin
-         htmlTable.newHeaderCell('ALIGN="CENTER"',oldMonthName,'0',SPAN,1,false);
-         oldMonthName := newMonthName;
-         SPAN := 1;
+        htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthDay'),'0') );
+        htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthHour'),'0') );
+        //ConvertDateColRow.ColRowToDate(TS,Zajecia,0+2,0);
+        oldMonthName := GetLongMonthName(convertGrid.convertSingleObject.ColRowDate[1].Date);
+        newMonthName := oldMonthName;
+        SPAN := 0;
+        For xp:=0+2 To colCnt-1 Do Begin
+          If convertGrid.ColRowToDate(dummy, TS,Zajecia,xp,0) = ConvHeader Then
+            newMonthName := GetLongMonthName(TS.Date);
+          If newMonthName = oldMonthName Then Begin
+           SPAN := SPAN + 1;
+           // add spaned cell to be compilant with span algorythm
+           htmlTable.newHeaderCell('ALIGN="CENTER"',oldMonthName,'0',1,1,true);
+          End Else Begin
+           htmlTable.newHeaderCell('ALIGN="CENTER"',oldMonthName,'0',SPAN,1,false);
+           oldMonthName := newMonthName;
+           SPAN := 1;
+          End;
         End;
-      End;
-      htmlTable.newHeaderCell('ALIGN="CENTER" COLSPAN="'+IntToStr(SPAN)+'"',oldMonthName,'0');
+        htmlTable.newHeaderCell('ALIGN="CENTER" COLSPAN="'+IntToStr(SPAN)+'"',oldMonthName,'0');
 
-      if ShowLegend then begin
+        if ShowLegend then begin
           htmlTable.newCell('','','0');
           htmlTable.newCellWidth('','','0',NVL(GetSystemParam('CellWidthInLegend'),'100'));
-      end;
-      end;
+        end;
     end;
-
 
     //--------------------------------------------------------
     procedure calculateVerticalLines;
     Var xp     : Integer;
     Var oldMonthName : ShortString;
         newMonthName : ShortString;
+        dummy : integer;
     begin
       htmlTable.verticalLines := ',';
-      With fmain.Grid Do Begin
       oldMonthName := GetLongMonthName(convertGrid.convertSingleObject.ColRowDate[1].Date);
       newMonthName := oldMonthName;
-      For xp:=0+2 To ColCount-1 Do Begin
-        If convertGrid.ColRowToDate(fmain.AObjectId, ufmain.TS,ufmain.Zajecia,xp,0) = ConvHeader Then
+      For xp:=0+2 To colCnt-1 Do Begin
+        If convertGrid.ColRowToDate(dummy, TS,Zajecia,xp,0) = ConvHeader Then
           newMonthName := GetLongMonthName(TS.Date);
         If newMonthName = oldMonthName Then Begin
          {};
@@ -1261,21 +1389,20 @@ Var xp, yp          : Integer;
          htmlTable.verticalLines := htmlTable.verticalLines + intToStr(xp-1)+',';
         End;
       End;
-      end;
     end;
 
     //--------------------------------------------------------
     procedure addLegendRow;
     Begin
-      If Lgnd[t].Colour = 0 Then Begin
+      If Lgnd[legendRow].Colour = 0 Then Begin
 		      htmlTable.newCell(
 			      'WIDTH='+CellWIDTH
-			      ,Lgnd[t].ShortCut
+			      ,Lgnd[legendRow].ShortCut
 			      ,'0'
 		      );
 		     htmlTable.newCellWidth(
 			      ''
-			     ,'<FONT style="font-size:'+IntToStr(StrToInt(CELLSIZE)-2)+'px;">'+NVL(Lgnd[t].Name,'&nbsp')+'</FONT>'
+			     ,'<FONT style="font-size:'+IntToStr(StrToInt(CELLSIZE)-2)+'px;">'+NVL(Lgnd[legendRow].Name,'&nbsp')+'</FONT>'
 			     ,'0'
 			     , NVL(GetSystemParam('CellWidthInLegend'),'100')
 		      );
@@ -1283,39 +1410,50 @@ Var xp, yp          : Integer;
       Else Begin
 		      htmlTable.newCell(
 			       'WIDTH='+CellWIDTH
-			      ,Lgnd[t].ShortCut
-			      ,DelphiColourToHTML(Lgnd[t].Colour)
+			      ,Lgnd[legendRow].ShortCut
+			      ,DelphiColourToHTML(Lgnd[legendRow].Colour)
 		      );
 		      htmlTable.newCellWidth(
 			      ''
-			     ,'<FONT style="font-size:'+CELLSIZE+'px;"><B>'+NVL(Lgnd[t].Name,'&nbsp')+'</B></FONT>'
+			     ,'<FONT style="font-size:'+CELLSIZE+'px;"><B>'+NVL(Lgnd[legendRow].Name,'&nbsp')+'</B></FONT>'
 			     ,'0'
 			     ,NVL(GetSystemParam('CellWidthInLegend'),'100')
 		      );
       End;
     End;
 
+    var     tmpPERName    : string;
+    var     tmpLECName    : string;
+    var     tmpGROName    : string;
+    var     tmpROMName    : string;
+    
     function replacePlaceHolders(s : string) : string;
     begin
      result := SearchAndReplace(s,'_','&nbsp;');
-     result := SearchAndReplace(result,'%PERIOD',fmain.conPeriod_VALUE.Text);
-     result := SearchAndReplace(result,'%LECTURER',ExtractWord(1,fmain.ConLecturer_VALUE.Text,[';']));
-     result := SearchAndReplace(result,'%GROUP',tmpGroupName);
-     result := SearchAndReplace(result,'%ROOM',ExtractWord(1,fmain.conResCat0_value.Text,[';']));
-     result := SearchAndReplace(result,'%SUBJECT',fmain.ConSubject_VALUE.Text);
+     result := SearchAndReplace(result,'%PERIOD',tmpPERName);
+     result := SearchAndReplace(result,'%LECTURER',tmpLECName);
+     result := SearchAndReplace(result,'%GROUP',tmpGROName);
+     result := SearchAndReplace(result,'%ROOM',tmpROMName);
      //pure txt text
      if (pos('<',result)=0) and (pos('>',result)=0) then
        result := SearchAndReplace(result,#13#10, '<br>');
     end;
 
-
-
 //-------------------------------------------------------------------------------------------
 begin
- If Not (fmain.TabViewType.TabIndex in [0,1,2,3]) Then Begin
-   Info( format('Zaznacz kalendarz %s, %s lub zasobu', [fprogramSettings.profileObjectNameLgen.Text, fprogramSettings.profileObjectNameGgen.Text]) );
-  Exit;
- End;
+ currentChartClasses := tcurrentChartClasses.create();
+ ReservationsCache := tReservationsCache.Create;
+ //If Not (fmain.TabViewType.TabIndex in [0,1,2,3]) Then Begin
+ //  Info( format('Zaznacz kalendarz %s, %s lub zasobu', [fprogramSettings.profileObjectNameLgen.Text, fprogramSettings.profileObjectNameGgen.Text]) );
+ // Exit;
+ //End;
+
+ currentChartClasses.init(sqlHolder.Lines.Text, pPeriodId, presId, presType, FWWWGenerator);
+ ReservationsCache.ReservationsCacheLoadPeriod(pPeriodId);
+
+ if (presType='LEC') then convertGrid.setupGrid (pPeriodId, true, 0, '', colCnt, rowCnt);
+ if (presType='GRO') then convertGrid.setupGrid (pPeriodId, true, 1, '', colCnt, rowCnt);
+ if (presType='ROM') then convertGrid.setupGrid (pPeriodId, true, 2, '', colCnt, rowCnt);
 
  If ShowLegend Then LgndCnt := RefreshLegend;
 
@@ -1329,7 +1467,12 @@ begin
  WriteLn(f, '</HEAD>');
  WriteLn(f, '<BODY>');
 
- tmpGroupName := DModule.SingleValue('select nvl(name, abbreviation) from groups WHERE ID='+NVL(ExtractWord(1,fmain.ConGroup.Text,[';']),'-1'));
+ tmpPERName := DModule.SingleValue(sql_PERDESC+pPeriodId);
+ if pResType='LEC' then tmpLECName := DModule.SingleValue(sql_LECDESC+presId);
+ if pResType='GRO' then tmpGROName := DModule.SingleValue(sql_GRODESC+presId);
+ if pResType='ROM' then tmpROMName := DModule.SingleValue(sql_ResCat0DESC+presId);
+ setStatus('Tworzenie kalendarza:'+tmpLECName+tmpGROName+tmpROMName);
+
  notesBeforeText := '';
  notesAfterText := '';
 
@@ -1342,8 +1485,8 @@ begin
    end;
     dmodule.openSQL(
          'select id, per_id, res_id, notes_before, notes_after, internal_notes from timetable_notes where per_id=:per_id and res_id=:res_id' ,
-         'per_id='+ fmain.conPeriod.Text+
-         ';res_id='+ intToStr(fmain.getCurrentObjectId)
+         'per_id='+ pPeriodId+
+         ';res_id='+ pResId
          );
     notesBeforeText := replacePlaceHolders( dmodule.QWork.fieldByName('notes_before').AsString);
     notesAfterText :=  replacePlaceHolders( dmodule.QWork.fieldByName('notes_after').AsString)
@@ -1367,26 +1510,22 @@ begin
  if not pRepeatMonthNames then addMonthsRow;
  if pVerticalLines then calculateVerticalLines;
 
- t := 0;
- With fmain.Grid Do Begin
- For yp:=0 To RowCount-1 Do Begin
+ legendRow := 0;
+
+
+ For yp:=0 To rowCnt-1 Do Begin
 
   //there are no classes in line ? hide this line
   if pHideEmptyRows then begin
     showLine := false;
-    For xp:=0 To ColCount-1 Do Begin
-      if convertGrid.ColRowToDate(fmain.AObjectId, TS, Zajecia, xp, yp ) = ConvClass then begin
+    For xp:=0 To colCnt-1 Do Begin
+      if convertGrid.ColRowToDate(dummy, TS, Zajecia, xp, yp ) = ConvClass then begin
          tmp := DayOfWeek(TimeStampToDateTime(TS));
          //tmp=2(Monday) => pHideDows[2] = '-' => not selected to merge
          if pHideDows[tmp]='-' then showLine := true
          else begin
-             Case fmain.TabViewType.TabIndex Of
-              0: Begin fmain.ClassByLecturerCaches.LGetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
-              1: Begin fmain.ClassByGroupCaches.GetClass   (TS, Zajecia, fmain.ConGroup.Text   , Status, Class_); End;
-              2: Begin fmain.ClassByRoomCaches.GetClass    (TS, Zajecia, fmain.conResCat0.Text , Status, Class_); End;
-              3: Begin fmain.ClassByResCat1Caches.GetClass (TS, Zajecia, fmain.CONResCat1.Text , Status, Class_); End;
-             End;
-             if Status <> ClassNotFound then showLine := true;
+           classList := currentChartClasses.get(TS, Zajecia);
+           if (classList.cnt>0) then showLine := true;
          end;
       end;
       if Zajecia = 0 then showLine := true;
@@ -1396,7 +1535,7 @@ begin
   //addMonthHeader
   if pRepeatMonthNames then begin
     if showLine then begin
-        if convertGrid.ColRowToDate(fmain.AObjectId, TS,Zajecia,0,yp) = ConvDayOfWeek then begin
+        if convertGrid.ColRowToDate(dummy, TS,Zajecia,0,yp) = ConvDayOfWeek then begin
           currentDayOfWeek := DayOfWeek(TimeStampToDateTime(TS));
           if priorDayOfWeek <> currentDayOfWeek then begin
             addMonthsRow;
@@ -1409,8 +1548,8 @@ begin
   if showLine then begin
   htmlTable.AddRow('ALIGN="center" VALIGN="middle"'); //style="display:none;"
   //content
-  For xp:=0 To ColCount-1 Do Begin
-   Case convertGrid.ColRowToDate(fmain.AObjectId, TS,Zajecia,xp,yp) Of
+  For xp:=0 To colCnt-1 Do Begin
+   Case convertGrid.ColRowToDate(dummy, TS,Zajecia,xp,yp) Of
     ConvDayOfWeek: begin
                      // in pHideEmptyRows mode disable rowspan
                      if pHideEmptyRows
@@ -1436,56 +1575,63 @@ begin
                      End;
     ConvClass:
      Begin
-      //If TabSet1.TabIndex<3 Then BusyClasses;
-      Case fmain.TabViewType.TabIndex Of
-       0: Begin fmain.ClassByLecturerCaches.LGetClass(TS, Zajecia, fmain.ConLecturer.Text, Status, Class_); End;
-       1: Begin fmain.ClassByGroupCaches.GetClass   (TS, Zajecia, fmain.ConGroup.Text   , Status, Class_); End;
-       2: Begin fmain.ClassByRoomCaches.GetClass    (TS, Zajecia, fmain.conResCat0.Text , Status, Class_); End;
-       3: Begin fmain.ClassByResCat1Caches.GetClass (TS, Zajecia, fmain.CONResCat1.Text , Status, Class_); End;
-      End;                                                    //#  FF FF FF
-      Case Status Of                                          //   r  g  b
-       ClassNotFound : begin
-                         If fmain.ReservationsCache.IsReserved(TS, Zajecia)<>'' Then htmlTable.newCell('background="reservation.gif"','','0') Else htmlTable.newCell('','','0');
-                       end;
-       //ClassFound    : AddCell('',IntToStr(Class_.ID),DelphiColourToHTML(Class_.SUB_COLOUR));//DrawRect;
-       ClassFound    : begin
-                       cellCurrent :=
-                         DrawRect (Class_
-                                   ,D1, D2, D3, D4, D5
-                                   ,S1, S2, S3, S4, S5
-                                   ,B1, B2, B3, B4, B5
-                                   , ColoringIndex
-                                   , CellWIDTH);
-                       htmlTable.writeCell(cellCurrent);
-                       end;
-      ClassError    : begin
-                         htmlTable.newCell('','B³¹d','0');
-                       end;
-      End;
+      classList := currentChartClasses.get(TS, Zajecia);
+      if (classList.cnt=0) then
+       begin
+         If ReservationsCache.IsReserved(TS, Zajecia)<>'' Then htmlTable.newCell('background="reservation.gif"','','0') Else htmlTable.newCell('','','0');
+       end
+       else begin
+         if (classList.cnt=1) then begin
+           Class_ := classList.classes[0];
+           cellCurrent :=
+             DrawRect (Class_
+               ,D1, D2, D3, D4, D5
+               ,S1, S2, S3, S4, S5
+               ,B1, B2, B3, B4, B5
+               , ColoringIndex
+               , CellWIDTH);
+               cellCurrent := StringReplace(cellCurrent, '<TD ', '<TD ROWSPAN="?" COLSPAN="?"', [rfReplaceAll, rfIgnoreCase]);
+               htmlTable.writeCell(cellCurrent);
+         end else begin
+           cells := '';
+           for i := 0 to classList.cnt-1 do begin
+             Class_ := classList.classes[i];
+             cellCurrent :=
+               DrawRect (Class_
+                 ,D1, D2, D3, D4, D5
+                 ,S1, S2, S3, S4, S5
+                 ,B1, B2, B3, B4, B5
+                 , ColoringIndex
+                 , CellWIDTH);
+                 cells := cells + '<tr>'+cellCurrent+'</tr>';
+           end;
+           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="width:100%">'+cells+'</table></td>');
+         end;
+       end;
+
      End;
     end;
   End; //for
   if showLine then
     if ShowLegend Then Begin
-      t := t + 1;
+      legendRow := legendRow + 1;
       addLegendRow;
     End;
   //Writeln(f, '</TR>');
   end; // if showLine
   end; //For yp:=0 To RowCount-1 Do
 
- {add missing legend items here}
- if ShowLegend Then
- While t<LgndCnt do begin
-      htmlTable.AddRow('ALIGN="center" VALIGN="middle"'); //style="display:none;"
-      For xp:=0 To ColCount-1 Do Begin
-         htmlTable.newCell('','','silver');
-      End;
-      t := t + 1;
-      AddLegendRow;
- end;
+  {add missing legend items here}
+  if ShowLegend Then
+  While legendRow<LgndCnt do begin
+       htmlTable.AddRow('ALIGN="center" VALIGN="middle"'); //style="display:none;"
+       For xp:=0 To colCnt-1 Do Begin
+          htmlTable.newCell('','','silver');
+       End;
+       legendRow := legendRow + 1;
+       AddLegendRow;
+  end;
 
- End; //With fmain.Grid Do
 
  if ptransposition then htmlTable.transposite;
  case pSpan of
@@ -1527,6 +1673,8 @@ begin
 
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
+ currentChartClasses.free;
+ ReservationsCache.Free;
 end;
 
 procedure TFWWWGenerator.genTypeChange(Sender: TObject);
@@ -1554,18 +1702,12 @@ var ColoringIndex    : shortString;
     procedure generateIcsCalendars;
     var queryClasses : tadoquery;
         outf : textFile;
+        Class_ : TClass_;
 
         // ------------------------------------------------------
        procedure write(m : string);
        begin
           WriteLn(outf, UTF8Encode(m));
-        end;
-
-        // ------------------------------------------------------
-        procedure setStatus(i : shortString);
-        begin
-          Status.Caption := i;
-          Status.refresh;
         end;
 
         procedure tableOfContens;
@@ -1594,7 +1736,7 @@ var ColoringIndex    : shortString;
           WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
           WriteLn(f, '<xml>');
           WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-          WriteLn(f, '<period name="'+XMLescapeChars(fmain.CONPERIOD_VALUE.Text)+'"></period>');
+          WriteLn(f, '<period name="'+XMLescapeChars(currentPeriod_VALUE.Text)+'"></period>');     
           WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
           WriteLn(f, '<data>');
              If Groups.Checked Then Begin
@@ -1630,8 +1772,10 @@ var ColoringIndex    : shortString;
           flush(f);
           CloseFile(F);
           if not fmain.silentMode then begin
-              if defaultBrowserIsChrome then
-                  info('Je¿eli u¿ywasz przegl¹darki Chrome, to zobaczysz bia³y ekran zamiast spisu treœci. Aby wyœwietliæ spis treœci otwórz plik w innej przegl¹darce lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+              ShowFolder(Folder.Text);
+              if defaultBrowserIsChrome then begin
+                  info('Zrobione! Otwórz plik index.html za pomoc¹ Internet Explorer lub Firefox lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+              end;
               uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
           end;
         end;
@@ -1681,15 +1825,7 @@ var ColoringIndex    : shortString;
         var t : integer;
             Token, s : string;
             Status : Integer;
-            Class_ : TClass_;
-
         begin
-          Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
-           1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
-           2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
-           3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
-          End;                                                    //#  FF FF FF
 
          For t := 0 To high(codes) Do Begin
            Token := '';
@@ -1717,15 +1853,7 @@ var ColoringIndex    : shortString;
         function getEventTitle(code : shortString; pTS : TTimeStamp; pZajecia: Integer; plecturers, pgroups, presources : string) : string;
         var Token  : string;
             Status : Integer;
-            Class_ : TClass_;
         begin
-          Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
-           1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
-           2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
-           3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
-          End;
-
            Token := '';
            if  code= 'L'          then Token := plecturers        else
            if  code= 'G'          then Token := pgroups           else
@@ -1751,14 +1879,7 @@ var ColoringIndex    : shortString;
         function getEventColor(pcolor : shortString; pTS : TTimeStamp; pZajecia: Integer; lcolor, gcolor, rcolor : integer) : string;
         var Token  : integer;
             Status : Integer;
-            Class_ : TClass_;
         begin
-          Case fmain.TabViewType.TabIndex Of
-           0: Begin fmain.ClassByLecturerCaches.LGetClass(pTS, pZajecia, fmain.ConLecturer.Text, Status, Class_); End;
-           1: Begin fmain.ClassByGroupCaches.GetClass   (pTS, pZajecia, fmain.ConGroup.Text   , Status, Class_); End;
-           2: Begin fmain.ClassByRoomCaches.GetClass    (pTS, pZajecia, fmain.conResCat0.Text , Status, Class_); End;
-           3: Begin fmain.ClassByResCat1Caches.GetClass (pTS, pZajecia, fmain.CONResCat1.Text , Status, Class_); End;
-          End;
 
            token := 0;
            if  pcolor= 'L'          then Token := lcolor        else
@@ -1824,22 +1945,9 @@ var ColoringIndex    : shortString;
                 for x := 1 To WordCount(ChildsAndParents,[';']) do begin
                   currentResource := ExtractWord(x, ChildsAndParents, [';']);
 
-										  if  presAlias = 'LEC' then begin
-										    FMain.TabViewType.TabIndex := 0;
-										    FMain.ConLecturer.Text        := currentResource;
-										  end;
-										  if  presAlias = 'GRO' then begin
-										    FMain.TabViewType.TabIndex := 1;
-										    FMain.ConGroup.Text        := currentResource;
-										  end;
-										  if  presAlias = 'ROM' then begin
-										    FMain.TabViewType.TabIndex := 2;
-										    FMain.conResCat0.Text        := currentResource;
-										  end;
-
 											with queryClasses do begin
 											  try
-											  dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by day, hour'
+											  dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by day, hour'
 												,'pres_id='      + currentResource +
 												 ';per_id_from1='+ currentPeriod.text    +
 												 ';per_id_to1='  + currentPeriod.text    +
@@ -1870,6 +1978,38 @@ var ColoringIndex    : shortString;
 												 rcolor     := fieldByName('rcolor').AsInteger;
 												 pgoogleLocations := fieldByName('google_locations').AsString;
 												 id         := fieldByName('Id').AsString;
+
+                         with Class_ do begin
+                           id                 := fieldbyname('id').asinteger;
+                           day                := datetimetotimestamp(fieldbyname('day').asdatetime);
+                           hour               := fieldbyname('hour').asinteger;
+                           fill               := fieldbyname('fill').asinteger;
+                           sub_id             := fieldbyname('sub_id').asinteger;
+                           for_id             := fieldbyname('for_id').asinteger;
+                           for_kind           := fieldbyname('for_kind').asString;
+                           sub_abbreviation   := fieldbyname('sub_abbreviation').asString;
+                           sub_name           := fieldbyname('sub_name').asString;
+                           sub_colour         := fieldbyname('sub_colour').asinteger;
+                           for_colour         := fieldbyname('for_colour').asinteger;
+                           owner_colour       := fieldbyname('owner_colour').asinteger;
+                           creator_colour     := fieldbyname('creator_colour').asinteger;
+                           class_colour       := fieldbyname('class_colour').asinteger;
+                           desc1              := fieldbyname('desc1').asString;
+                           desc2              := fieldbyname('desc2').asString;
+                           desc3              := fieldbyname('desc3').asString;
+                           desc4              := fieldbyname('desc4').asString;
+                           for_abbreviation   := fieldbyname('for_abbreviation').asString;
+                           for_name           := fieldbyname('for_name').asString;
+                           calc_lecturers     := fieldbyname('calc_lecturers').asString;
+                           calc_groups        := fieldbyname('calc_groups').asString;
+                           calc_rooms         := fieldbyname('calc_rooms').asString;
+                           calc_lec_ids       := fieldbyname('calc_lec_ids').asString;
+                           calc_gro_ids       := fieldbyname('calc_gro_ids').asString;
+                           calc_rom_ids       := fieldbyname('calc_rom_ids').asString;
+                           calc_rescat_ids    := fieldbyname('calc_rescat_ids').asString;
+                           created_by         := fieldbyname('created_by').asString;
+                           owner              := fieldbyname('owner').asString;
+                         end;
 
 												 if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
 												   info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
@@ -2016,7 +2156,7 @@ var ColoringIndex    : shortString;
       WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
       WriteLn(f, '<xml>');
       WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-      WriteLn(f, '<period name="'+XMLescapeChars(fmain.CONPERIOD_VALUE.Text)+'"></period>');
+      WriteLn(f, '<period name="'+XMLescapeChars(currentPeriod_VALUE.Text)+'"></period>');
       WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
       WriteLn(f, '<data>');
          If Groups.Checked Then Begin
@@ -2024,11 +2164,8 @@ var ColoringIndex    : shortString;
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
                WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
-               FMain.TabViewType.TabIndex := 1;
-               FMain.ConGroup.Text    := inttostr(integer(GList.Items.Objects[t]));
-               FMain.BRefreshClick(nil);
                ColoringIndex := getCode(FSettings.GViewType);
-               With FSettings Do CalendarToHTML(getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked, iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1, gAddCreationDate.itemindex, ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked,Folder.Text+'/'+StringToValidFileName(GList.Items[t])+'.htm', GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked, gtransposition.Checked, gVerticalLines.checked, gnotes_before.Checked, gnotes_after.Checked, gPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked );
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(GList.Items.Objects[t])), 'GRO', getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked, iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1, gAddCreationDate.itemindex, ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked,Folder.Text+'/'+StringToValidFileName(GList.Items[t])+'.htm', GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked, gtransposition.Checked, gVerticalLines.checked, gnotes_before.Checked, gnotes_after.Checked, gPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked );
              end;
            end;
          end;
@@ -2037,11 +2174,8 @@ var ColoringIndex    : shortString;
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
-               FMain.TabViewType.TabIndex := 0;
-               FMain.ConLecturer.Text    := inttostr(integer(LList.Items.Objects[t]));
-               FMain.BRefreshClick(nil);
                ColoringIndex := getCode(FSettings.LViewType);
-               With FSettings Do CalendarToHTML(getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked);
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked);
              end;
            end;
          end;
@@ -2050,12 +2184,9 @@ var ColoringIndex    : shortString;
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
                WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
-               FMain.TabViewType.TabIndex := 2;
-               FMain.conResCat0.Text    := inttostr(integer(RList.Items.Objects[t]));
-               FMain.BRefreshClick(nil);
                try
                  ColoringIndex := getCode(FSettings.RViewType);
-                 With FSettings Do CalendarToHTML(getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked );
+                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked );
                except
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
@@ -2069,8 +2200,10 @@ var ColoringIndex    : shortString;
 
       CloseFile(F);
       if not fmain.silentMode then begin
-          if defaultBrowserIsChrome then
-              info('Je¿eli u¿ywasz przegl¹darki Chrome, to zobaczysz bia³y ekran zamiast spisu treœci. Aby wyœwietliæ spis treœci otwórz plik w innej przegl¹darce lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+          ShowFolder(Folder.Text);
+          if defaultBrowserIsChrome then begin
+              info('Zrobione! Otwórz plik index.html za pomoc¹ Internet Explorer lub Firefox lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+          end;
           uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
       end;
     End;
@@ -2468,5 +2601,11 @@ begin
   xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini');
 
 end;
+
+procedure TFWWWGenerator.SpeedButton2Click(Sender: TObject);
+begin
+  ShowFolder(Folder.Text);
+end;
+
 
 end.

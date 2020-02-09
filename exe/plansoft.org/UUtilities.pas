@@ -58,9 +58,12 @@ type TConvertGrid = class
        convertMode          : integer;
        convertSingleObject  : TConvertSingleObject;
        convertManyObjects   : TConvertManyObjects;
-       Procedure init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string); overload;
-       Procedure Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean); overload;
+       procedure setupGrid (periodId : String; singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt : integer);
        Function  ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+
+       private
+         Procedure initNOsingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
+         Procedure initSingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
      end;
 
      TOpisujKolumneZajec = class
@@ -623,7 +626,6 @@ Function  TConvertSingleObject.ColRowToDate;
 Var i : Integer;
     _D : Integer;
 Begin
-
  Col := Col - Modulo;
  _Hour := Row mod (MaxIloscGodzin+1);
  Row := (Row Div (MaxIloscGodzin+1))*(MaxIloscGodzin+1);
@@ -1162,32 +1164,48 @@ End;
 
 Function GetCLASSESforL(colName, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
 var lmode : shortString;
+    ChildsAndParents : string;
 begin
+
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID ='+condition+')';
-    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID IN (SELECT ID FROM LECTURERS WHERE '+condition+'))';
+    if lmode = 'e' then begin
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE is_child=''N'' and LEC_ID in '+ChildsAndParents+')';
+    end;
+    if lmode = 'a' then
+      Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE LEC_ID IN (SELECT ID FROM LECTURERS WHERE '+condition+'))';
 end;
 
 Function GetCLASSESforG(colName, condition : String; const postfix : String = ''; const mode : shortstring='e') : String;
 var lmode : shortString;
+    ChildsAndParents : string;
 begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID ='+condition+')';
-    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID IN (SELECT ID FROM GROUPS WHERE '+condition+'))';
+    if lmode = 'e' then begin
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE is_child=''N'' and GRO_ID in '+ChildsAndParents+')';
+    end;
+    if lmode = 'a' then
+      Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE GRO_ID IN (SELECT ID FROM GROUPS WHERE '+condition+'))';
 end;
 
 Function GetCLASSESforR(colName, condition : String;
                         const postfix   : String = '';
                         const mode      : shortstring='e') : String;
 var lmode : shortString;
+    ChildsAndParents : string;
 begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
-    if lmode = 'e' then Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID ='+condition+')';
+    if lmode = 'e' then begin
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE is_child=''N'' and ROM_ID in '+ChildsAndParents+')';
                                  //CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA            WHERE ROM_ID =UPPER((select name from org_units where org_units.id = orguni_id)) LIKE UPPER('instytut budow%'))
-    if lmode = 'a' then Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID IN (SELECT ID FROM ROOMS WHERE '+condition+'))';
+    end;
+    if lmode = 'a' then
+      Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE ROM_ID IN (SELECT ID FROM ROOMS WHERE '+condition+'))';
 end;
 
 Function GetCLASSESforPLA(ID : ShortString ) : String;
@@ -1385,7 +1403,7 @@ Begin
    End;
 End;
 
-Procedure TConvertGrid.init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
+Procedure TConvertGrid.initNOsingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
 begin
   convertManyObjects  := TconvertManyObjects.Create;
   //ConvertSingleObject := TConvertSingleObject.create;
@@ -1393,7 +1411,7 @@ begin
   convertManyObjects.init(StartDate, EndDate, LiczbaKolumn, LiczbaWierszy, aMaxIloscGodzin, SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN, ObjIds, ObjNames);
 end;
 
-Procedure TConvertGrid.Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
+Procedure TConvertGrid.initSingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
 begin
   convertMode := ConvSingleObject;
   convertSingleObject.init(StartDate, EndDate, LiczbaKolumn, LiczbaWierszy, aMaxIloscGodzin, SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN);
@@ -1782,9 +1800,76 @@ begin
     classByResCat1Caches.ResetByDay(myClass.day, myClass.hour);
     busyClassesCache.ClearCache;
   end;
-
-
 end;
+
+procedure TConvertGrid.setupGrid(periodId: String;  singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt: integer);
+var DateFrom, DateTo            : TDateTime;
+    ObjIDs                      : Array of integer;
+    ObjNames                    : Array of string;
+    Len                         : integer;
+Begin
+  With DModule Do Begin
+        Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD''), PERIODS.* FROM PERIODS WHERE ID='+periodId));
+        DateFrom := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+        DateTo := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+  End;
+  HOURS_PER_DAY := DModule.QWork.FieldByName('HOURS_PER_DAY').AsInteger;
+
+  if (singleChartMode = FALSE) then begin
+   Case resType Of
+     0:With DModule do
+           OPENSQL2(
+             'SELECT   ID, '+sql_LECNAME+' NAME' + CR +
+             'FROM LECTURERS ' + CR +
+             'WHERE ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'AND '+fmain.getWhereFastFilter(searchText,'LECTURERS')+CR+
+             'ORDER BY ABBREVIATION');
+     1:With DModule do
+           OPENSQL2(
+             'SELECT   ID, '+sql_GRONAME+' NAME' + CR +
+             'FROM GROUPS ' + CR +
+             'WHERE ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'AND '+fmain.getWhereFastFilter(searchText,'GROUPS')+CR+
+             'ORDER BY ABBREVIATION ');
+     2:With DModule do
+           OPENSQL2(
+             'SELECT   ID, '+sql_ResCat0NAME+' NAME' + CR +
+             'FROM ROOMS ' + CR +
+             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
+             'ORDER BY NAME ');
+     3:With DModule do
+           OPENSQL2(
+             'SELECT   ID, '+sql_ResCat1NAME+' NAME' + CR +
+             'FROM ROOMS ' + CR +
+             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+               'AND RESCAT_ID='+nvl( dmodule.pResCatId1 ,'-1') + CR +
+             'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
+             'ORDER BY NAME ');
+   end;
+   if resType in [0,1,2,3] then begin
+         With DModule do begin
+           Len := 0;
+           SetLength(ObjIDs, Len);
+           SetLength(ObjNames, Len);
+           While not QWork2.Eof do begin
+             inc ( len );
+             setLength(ObjIDs  , Len);
+             setLength(ObjNames, Len);
+             ObjIDs  [len - 1] := QWork2.FieldByName('ID').AsInteger;
+             ObjNames[len - 1] := QWork2.FieldByName('NAME').AsString;
+             QWork2.Next;
+           end;
+         end;
+   end;
+  end;
+
+
+  With DModule.QWork Do
+    if singleChartMode
+      then initSingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+')
+      else initNOsingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+', ObjIDs, ObjNames );
+End;
 
 initialization
   CheckConflicts     := tCheckConflicts.create;

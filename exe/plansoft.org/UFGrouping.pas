@@ -163,6 +163,9 @@ type
     chlDesc2: TCheckBox;
     chlDesc3: TCheckBox;
     chlDesc4: TCheckBox;
+    ChCreatedBy: TCheckBox;
+    ChOwnerName: TCheckBox;
+    ChCreationDate: TCheckBox;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -298,17 +301,19 @@ begin
   summary4 := '';
   summary5 := '';
 
-  If ChDay.Checked  Then Begin       columnsSelect := Merge(columnsSelect, 'DAY "Dzieñ"', ',');                                          columnsGroupBy := Merge(columnsGroupBy, 'DAY', ',');            End;
-  If ChMonth.Checked  Then Begin     columnsSelect := Merge(columnsSelect, 'TO_CHAR(DAY,''YYYY-MM'') "Miesi¹c"', ',');                   columnsGroupBy := Merge(columnsGroupBy, 'TO_CHAR(DAY,''YYYY-MM'')', ',');            End;
-  If ChDayOfWeek.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'to_char(DAY,''dy'') "Dzieñ tyg."', ',');                     columnsGroupBy := Merge(columnsGroupBy, 'to_char(DAY,''dy'')', ','); End;
-  If ChHOUR.Checked Then Begin       columnsSelect := Merge(columnsSelect, 'GRIDS.CAPTION "Godzina"', ',');                              columnsGroupBy := Merge(columnsGroupBy, 'GRIDS.CAPTION', ',');  End;
-
+  If ChDay.Checked        Then Begin columnsSelect := Merge(columnsSelect, 'DAY "Dzieñ"', ',');                            columnsGroupBy := Merge(columnsGroupBy, 'DAY', ',');            End;
+  If ChMonth.Checked      Then Begin columnsSelect := Merge(columnsSelect, 'TO_CHAR(DAY,''YYYY-MM'') "Miesi¹c"', ',');     columnsGroupBy := Merge(columnsGroupBy, 'TO_CHAR(DAY,''YYYY-MM'')', ',');            End;
+  If ChDayOfWeek.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'to_char(DAY,''dy'') "Dzieñ tyg."', ',');       columnsGroupBy := Merge(columnsGroupBy, 'to_char(DAY,''dy'')', ','); End;
+  If ChHOUR.Checked       Then Begin columnsSelect := Merge(columnsSelect, 'GRIDS.CAPTION "Godzina"', ',');                columnsGroupBy := Merge(columnsGroupBy, 'GRIDS.CAPTION', ',');  End;
+  If ChCreatedBy.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'CLASSES.created_by "Utworzy³"', ',');          columnsGroupBy := Merge(columnsGroupBy, 'CLASSES.created_by', ','); End;
+  If ChOwnerName.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'CLASSES.owner "W³aœciciel"', ',');             columnsGroupBy := Merge(columnsGroupBy, 'CLASSES.owner', ','); End;
+  If ChCreationDate.Checked        Then Begin columnsSelect := Merge(columnsSelect, 'classes.creation_date "Data utworzenia"', ','); columnsGroupBy := Merge(columnsGroupBy, 'classes.creation_date', ',');            End;
 
   If ChL.Checked Then Begin
       if chLnewLine.Checked then begin
-          columnsSelect := Merge(columnsSelect, 'title "Tytu³"', ',');       columnsGroupBy := Merge(columnsGroupBy, 'title', ',');
-          columnsSelect := Merge(columnsSelect, 'first_name "Imiê"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'first_name', ',');
-          columnsSelect := Merge(columnsSelect, 'last_name "Nazwisko"', ',');   columnsGroupBy := Merge(columnsGroupBy, 'last_name', ',');
+          columnsSelect := Merge(columnsSelect, 'title "Tytu³"', ',');        columnsGroupBy := Merge(columnsGroupBy, 'title', ',');
+          columnsSelect := Merge(columnsSelect, 'first_name "Imiê"', ',');    columnsGroupBy := Merge(columnsGroupBy, 'first_name', ',');
+          columnsSelect := Merge(columnsSelect, 'last_name "Nazwisko"', ','); columnsGroupBy := Merge(columnsGroupBy, 'last_name', ',');
       end
       else begin
           //this is needed by report (report sets sortOrder)
@@ -514,6 +519,8 @@ begin
   sqlRes_aggr_str := stringreplace(sqlRes_aggr.Lines.Text, '%conl',_CONL2, []);
   sqlRes_aggr_str := stringreplace(sqlRes_aggr_str, '%cong',_CONG2, []);
   sqlRes_aggr_str := stringreplace(sqlRes_aggr_str, '%conr',_CONR2, []);
+
+  if trim(sortOrderField.Text)='' then sortOrderField.Text := '1';
 
   S :=
    'SELECT '+columnsSelect+
@@ -822,8 +829,11 @@ Var l                 : Integer;
 
 begin
   ChDay.Checked       := false;
+  ChCreationDate.checked := false;
   ChMonth.Checked     := false;
   ChDayOfWeek.Checked := false;
+  ChCreatedBy.Checked   := false;
+  ChOwnerName.Checked       := false;
   ChHOUR.Checked      := false;
   CHL.Checked         := true; //!
   ChG.Checked         := true; //!
@@ -1260,7 +1270,7 @@ begin
             saveDialog.FileName , 'grouping',
             [ calculateCount, calculateLec, calculateStu, asOfDay
             , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
-            , ChDay, ChHOUR, ChFILL, ChDayOfWeek, ChMonth, CHL, CHUNI, chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
@@ -1291,8 +1301,8 @@ begin
             inifilename , 'grouping',
             [ calculateCount, calculateLec, calculateStu, asOfDay
             , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
-            , ChDay, ChHOUR, ChFILL, ChDayOfWeek, ChMonth, CHL, CHUNI,  chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
-            , sortOrderField, chbShowAll, EmergencyMode
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
+            , sortOrderField, chbShowAll, EmergencyMode   
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4

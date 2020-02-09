@@ -142,22 +142,22 @@ Uses autocreate, DM, ucommon, UFProgramSettings, UUtilities, UUtilityParent, UFM
 
 function TFGenericFilter.sqlL ( ptablePostfix : string ) : string;
 begin
- result := GetCLASSESforL( nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,LFilterType.text);
+ result := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,LFilterType.text);
 end;
 
 function TFGenericFilter.sqlG ( ptablePostfix : string ) : string;
 begin
- result := GetCLASSESforG( nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,GFilterType.text);
+ result := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,GFilterType.text);
 end;
 
 function TFGenericFilter.sqlR0 ( ptablePostfix : string ) : string;
 begin
- result := GetCLASSESforR( nvl(conResCat0.Text, R0Settings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,R0FilterType.text);
+ result := GetCLASSESforR('CLASSES.ID', nvl(conResCat0.Text, R0Settings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,R0FilterType.text);
 end;
 
 function TFGenericFilter.sqlR1 ( ptablePostfix : string ) : string;
 begin
- result := GetCLASSESforR( nvl(conResCat1.Text, R1Settings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,R1FilterType.text);
+ result := GetCLASSESforR('CLASSES.ID', nvl(conResCat1.Text, R1Settings.Strings.Values['SQL.Category:DEFAULT']) ,ptablePostfix,R1FilterType.text);
 end;
 
 

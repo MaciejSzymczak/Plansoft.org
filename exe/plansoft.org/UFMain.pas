@@ -57,15 +57,11 @@ Type TClass_    = Record
                   owner_colour    : integer;
                   creator_colour  : integer;
                   class_colour    : integer;
-                  //sub_desc1     : string[200];
-                  //sub_desc2     : string[200];
                   for_id          : integer;
                   for_abbreviation: string[30];
                   for_name        : string[30];
                   for_kind        : string[1];
-                  //for_desc1     : string[200];
-                  //for_desc2     : string[200];
-                  calc_lecturers  : string; //2013.07.26
+                  calc_lecturers  : string; 
                   calc_groups     : string;
                   calc_rooms      : string;
                   calc_lec_ids    : string;
@@ -87,8 +83,8 @@ type TClassByChildCache = Class
                      FirstDay : Integer;
                      MaxHours : integer;
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
-                     Data : Array Of
-                             Array Of
+                     Data : Array Of  //day
+                             Array Of //hour
                                Record
                                 Class_        : TClass_;
                                 Status        : Integer;
@@ -165,12 +161,13 @@ type TClassByResCaches = class
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
                      Storage : Array Of Array Of String;
 
-                     private
-                      Procedure LoadPeriod(PER_ID : String);
                      public
+                      Procedure ReservationsCacheLoadPeriod(PER_ID : String);
                       Function IsReserved(TS: TTimeStamp; Zajecia : Integer) : String;
-                      Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
                       Procedure Invert(TS: TTimeStamp; Zajecia: Integer);
+
+                     private
+                      Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
                    End;
      TotherCalendar = Class
                      Count    : Integer;
@@ -321,7 +318,6 @@ type
     Statystyki1: TMenuItem;
     Penyprzegld1: TMenuItem;
     UtwrzwitrynWWW1: TMenuItem;
-    WylijdoHTML1: TMenuItem;
     Zalogujponownie1: TMenuItem;
     N10: TMenuItem;
     Dodaj2: TMenuItem;
@@ -401,7 +397,6 @@ type
     mmpurge: TMenuItem;
     Atrybuty1: TMenuItem;
     N16: TMenuItem;
-    Pobierzaktualizacj1: TMenuItem;
     ConflictsPopup: TPopupMenu;
     LGRpp: TMenuItem;
     LGpp: TMenuItem;
@@ -425,7 +420,6 @@ type
     FavAll: TMenuItem;
     Przej1: TMenuItem;
     Sprawddostpneaktualizacje1: TMenuItem;
-    ExcelReports: TMenuItem;
     lecpopup: TPopupMenu;
     Wybierz1: TMenuItem;
     Dodaj1: TMenuItem;
@@ -535,7 +529,6 @@ type
     Nowyzasb1: TMenuItem;
     Nowyprzedmiot1: TMenuItem;
     Nowysemestr1: TMenuItem;
-    BFastSearchShowAdv: TSpeedButton;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
@@ -606,6 +599,7 @@ type
     recreateDependencies: TMenuItem;
     ReservationType: TEdit;
     LabelReservationType: TLabel;
+    Preview: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -685,7 +679,6 @@ type
     procedure Statystyki1Click(Sender: TObject);
     procedure Penyprzegld1Click(Sender: TObject);
     procedure UtwrzwitrynWWW1Click(Sender: TObject);
-    procedure WylijdoHTML1Click(Sender: TObject);
     procedure Zalogujponownie1Click(Sender: TObject);
     procedure Dodaj2Click(Sender: TObject);
     procedure Zmie1Click(Sender: TObject);
@@ -768,7 +761,6 @@ type
     procedure Atrybuty1Click(Sender: TObject);
     procedure LegendMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure Pobierzaktualizacj1Click(Sender: TObject);
     procedure LGRppClick(
       Sender: TObject);
     procedure LGppClick(Sender: TObject);
@@ -790,7 +782,6 @@ type
     procedure FavAllClick(Sender: TObject);
     procedure Przej1Click(Sender: TObject);
     procedure Sprawddostpneaktualizacje1Click(Sender: TObject);
-    procedure ExcelReportsClick(Sender: TObject);
     procedure Wybierz1Click(Sender: TObject);
     procedure Dodaj1Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
@@ -892,7 +883,6 @@ type
     procedure Nowyprzedmiot1Click(Sender: TObject);
     procedure Nowysemestr1Click(Sender: TObject);
     procedure Nowyzasb1Click(Sender: TObject);
-    procedure BFastSearchShowAdvClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
@@ -909,9 +899,7 @@ type
     procedure Ddesc4Click(Sender: TObject);
     procedure Listzajzaznaczoneterminy1Click(Sender: TObject);
     procedure abelaprzestawna1Click(Sender: TObject);
-    procedure Raportowanieproste1Click(Sender: TObject);
     procedure Raportowaniezaawansowane1Click(Sender: TObject);
-    procedure Szybkipodgld1Click(Sender: TObject);
     procedure Utwrzwitrynwww2Click(Sender: TObject);
     procedure EksportujdoGoogleKalendarz2Click(Sender: TObject);
     procedure WskanikiefektywnociwykresyGoogle1Click(Sender: TObject);
@@ -945,6 +933,7 @@ type
     procedure Odczwybranego1Click(Sender: TObject);
     procedure Przywrckomunikaty1Click(Sender: TObject);
     procedure recreateDependenciesClick(Sender: TObject);
+    procedure PreviewClick(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -992,6 +981,7 @@ type
     MapPlannerSupervisors : TMap;
     silentMode : boolean;
     AObjectId : integer;
+    classForEdition : integer;
 
     disableFurtherActivities : boolean;
     currSelectedArea : string[50]; //user by procedure set_tmp_selected_dates
@@ -1593,7 +1583,7 @@ Begin
 
  dLastError := '';
  if (t1 > high(data)) or (Zajecia > MaxHours) then begin
-   dLastError := 'Przytrzymaj naciœniêty przycisk Esc, ¿eby pozbyæ siê tego komunikatu, a nastêpnie naciœnij przycisk odœwie¿. Zg³oœ ten problem serwisowi technicznemu.'+cr+
+   dLastError := 'Przepraszamy! Przytrzymaj naciœniêty przycisk Esc, ¿eby pozbyæ siê tego komunikatu, a nastêpnie naciœnij przycisk odœwie¿. Zg³oœ ten problem serwisowi technicznemu.'+cr+
    ' ts.date='+intToStr(ts.date)+cr+
    ' firstDay='+intToStr(firstDay)+cr+
    ' t1='+intToStr(t1)+cr+
@@ -2107,11 +2097,8 @@ begin
 end;
 
 Procedure TFMain.BuildCalendar (triggeredObject : String);
-Var LiczbaKolumn, LiczbaWierszy : Integer;
-    DateFrom, DateTo            : TDateTime;
-    ObjIDs                      : Array of integer;
-    ObjNames                    : Array of string;
-    Len                         : integer;
+var  colCnt, rowCnt : integer;
+
 Begin
   if not canShow Then exit;
   Cursor := crHourGlass;
@@ -2133,77 +2120,19 @@ Begin
     Exit;
   End;
 
-  With DModule Do Begin
-    If Dmodule.SingleValue('SELECT COUNT(1) FROM PERIODS WHERE ID='+conPeriod.TEXT) <> '1' Then Begin
-     conPeriod.TEXT := '';
-     Exit;
-    End;
-    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD''), PERIODS.* FROM PERIODS WHERE ID='+conPeriod.TEXT));
-    DateFrom := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
-    DateTo := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+  If Dmodule.SingleValue('SELECT COUNT(1) FROM PERIODS WHERE ID='+conPeriod.TEXT) <> '1' Then Begin
+    conPeriod.TEXT := '';
+    Exit;
   End;
-  HOURS_PER_DAY := DModule.QWork.FieldByName('HOURS_PER_DAY').AsInteger;
 
   TabViewType.Tabs[0] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameL.text+' '+ExtractWord(1, ConLecturer_value.Text,  [';'])  , fprogramsettings.profileObjectNameLs.text);
   TabViewType.Tabs[1] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']) , fprogramsettings.profileObjectNameGs.text);
   TabViewType.Tabs[2] := iif( BViewByWeek.down,  dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';'])                      , dmodule.pResCatName0 );
   TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
 
- if BViewByCrossTable.Down then begin
-   Case TabViewType.TabIndex Of
-     0:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_LECNAME+' NAME' + CR +
-             'FROM LECTURERS ' + CR +
-             'WHERE ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+getUserOrRoleID+') ' + CR +
-             'AND '+getWhereFastFilter(filter.Text,'LECTURERS')+CR+
-             'ORDER BY ABBREVIATION');
-     1:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_GRONAME+' NAME' + CR +
-             'FROM GROUPS ' + CR +
-             'WHERE ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+getUserOrRoleID+') ' + CR +
-             'AND '+getWhereFastFilter(filter.Text,'GROUPS')+CR+
-             'ORDER BY ABBREVIATION ');
-     2:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_ResCat0NAME+' NAME' + CR +
-             'FROM ROOMS ' + CR +
-             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+getUserOrRoleID+') ' + CR +
-             'AND '+getWhereFastFilter(filter.Text,'ROOMS')+CR+
-             'ORDER BY NAME ');
-     3:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_ResCat1NAME+' NAME' + CR +
-             'FROM ROOMS ' + CR +
-             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+getUserOrRoleID+') ' + CR +
-               'AND RESCAT_ID='+nvl( dmodule.pResCatId1 ,'-1') + CR +
-             'AND '+getWhereFastFilter(filter.Text,'ROOMS')+CR+
-             'ORDER BY NAME ');
-   end;
-   if TabViewType.TabIndex in [0,1,2,3] then begin
-         With DModule do begin
-           Len := 0;
-           SetLength(ObjIDs, Len);
-           SetLength(ObjNames, Len);
-           While not QWork2.Eof do begin
-             inc ( len );
-             setLength(ObjIDs  , Len);
-             setLength(ObjNames, Len);
-             ObjIDs  [len - 1] := QWork2.FieldByName('ID').AsInteger;
-             ObjNames[len - 1] := QWork2.FieldByName('NAME').AsString;
-             QWork2.Next;
-           end;
-         end;
-   end;
- end;
-
-  With DModule.QWork Do
-    if BViewByWeek.Down then convertGrid.Init(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, LiczbaKolumn, LiczbaWierszy, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+')
-                        else convertGrid.Init(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, LiczbaKolumn, LiczbaWierszy, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+', ObjIDs, ObjNames );
-
-  Grid.ColCount := LiczbaKolumn;
-  Grid.RowCount := LiczbaWierszy;
+  convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, filter.text, colCnt, rowCnt);
+  Grid.ColCount := colCnt;
+  Grid.RowCount := rowCnt;
 
   RefreshGrid;
   Cursor := crDefault;
@@ -3030,7 +2959,6 @@ Procedure TFMain.insertClasses;
     End;
  End;
 
-//-------------------------------- insertClasses ------------------------------------------------------
 Var xp, yp           : Integer;
     classesCount     : integer;
     pattern          : shortString;
@@ -3085,6 +3013,8 @@ Var xp, yp           : Integer;
       end;
       }
     end;
+
+//-------------------------------- insertClasses ------------------------------------------------------
 begin
  If FDetails.ShowModal = mrOK Then Begin
 
@@ -3141,17 +3071,17 @@ begin
      TS
    , Zajecia
    , -1
-   , iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)
-   , iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)
-   , iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';'))
+   , iif(canEditL,  iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text), '')
+   , iif(canEditG,  iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text), '')
+   , iif(canEditR,  iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';')), '')
    //resource types
    , merge(
        repeatString(dmodule.pResCatId0, wordCount(conResCat0.Text,[';']) ,';' )
       ,repeatString(dmodule.pResCatId1, wordCount(conResCat1.Text,[';']) ,';' )
       ,';'
      )
-   , strToInt(iif(ConSubject.Text='','0',ConSubject.Text))
-   , strToInt(iif(ConForm.Text=''   ,'0',ConForm.Text))
+   , iif(canEditS, strToInt(iif(ConSubject.Text='','0',ConSubject.Text)),0)
+   , iif(canEditF, strToInt(iif(ConForm.Text=''   ,'0',ConForm.Text)),0)
    , 100
    , 0
    , dmodule.SingleValue('select kind from forms where id='+nvl(ConForm.Text,'-1'))
@@ -3183,9 +3113,13 @@ begin
 end;
 
 procedure TFMain.BRefreshClick(Sender: TObject);
+var pCol, pRow : integer;
 begin
-  grid.ColCount:=1;
-  grid.rowCount:=1;
+  //pCol := grid.Col;
+  //pRow := grid.Row;
+
+  //grid.ColCount:=1;
+  //grid.rowCount:=1;
   ValidLClick(nil);
   ValidGClick(nil);
   ValidRClick(nil);
@@ -3194,12 +3128,16 @@ begin
   If (Not isBlank(ConGroup.Text))    And (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
   If (Not isBlank(conResCat0.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
   If (Not isBlank(conResCat1.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
-  If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.LoadPeriod(conPeriod.Text);
+  If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
   If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
 
   OpisujKolumneZajec.internalCreate;
   BuildCalendar('X');
+
+  //grid.Col := pCol;
+  //grid.Row := pRow;
+
 end;
 
 procedure TFMain.Cofnij1Click(Sender: TObject);
@@ -3505,12 +3443,12 @@ begin
   g := '';
   r := '';
   if ignoreLgr=false then
-  Case TabViewType.TabIndex of
-   0: l := ExtractWord(1, ConLecturer.Text,  [';']);
-   1: g := ExtractWord(1, ConGroup.Text   ,  [';']);
-   2: r := ExtractWord(1, conResCat0.Text ,  [';']);
-   3: r := ExtractWord(1, conResCat1.Text ,  [';'])
-  end;
+    Case TabViewType.TabIndex of
+     0: l := ExtractWord(1, ConLecturer.Text,  [';']);
+     1: g := ExtractWord(1, ConGroup.Text   ,  [';']);
+     2: r := ExtractWord(1, conResCat0.Text ,  [';']);
+     3: r := ExtractWord(1, conResCat1.Text ,  [';'])
+    end;
 
   AutoCreate.CLASSESShowModalAsBrowser('CLASSES',l,g,r, CONPERIOD.Text,'','','',selectedDatesOnly);
 end;
@@ -3847,7 +3785,6 @@ begin
    mmconsolidation.Visible := lVisible;
    mmpurge.Visible      := lVisible;
    FormFormulas.Visible := lVisible;
-   ExcelReports.Visible := lVisible;
    massImport.Visible   := lVisible;
    MMDiagram.Visible    := lVisible;
    N14.Visible          := lVisible;
@@ -3916,9 +3853,6 @@ begin
      G_value2.Hint     := ansiUpperCase( profileObjectNameG.Text );
      S_value1.Hint     := ansiUpperCase( profileObjectNameC1.Text );
      F_value1.Hint     := ansiUpperCase( profileObjectNameC2.Text );
-     //
-     notL.Caption      := 'Bez ' + profileObjectNameLgen.Text;
-     notG.Caption      := 'Bez ' + profileObjectNameGgen.Text;
      //
      //Lhint1.caption    := format('Aby usun¹æ %s, %s lub zasób z listy zaznacz pole i ',[profileObjectNameLacc.Text, profileObjectNameGacc.Text]);
      //Lhint2.Caption    := lhint1.Caption;
@@ -4735,34 +4669,72 @@ begin
  If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
 
  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then Begin
-   Zajecia := -1;
-   if (Grid.Selection.Left=Grid.Selection.Right) and (Grid.Selection.Top=Grid.Selection.Bottom) then
-     If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Grid.Selection.Left,Grid.Selection.Top) <>ConvClass Then Zajecia := -1;
+   if Class_.owner ='AUTO' then begin
+      FMain.set_tmp_selected_dates;
+      classForEdition := -1;
+      showClasses(false,true);
+      if (classForEdition <> -1) then begin
+        convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Grid.Selection.Left,Grid.Selection.Top);
 
-   FDetails.SetValues(
-       TS
-     , Zajecia
-     //Pass currentClassId ONLY if one cell is selected. currentClassId does not make sense for the block of classes
-     //currentClassId decides if use can edit the class
-     , iif((Grid.Selection.Left=Grid.Selection.Right) and (Grid.Selection.Top=Grid.Selection.Bottom),Class_.id,-1)
-     , Class_.CALC_LEC_IDS
-     , Class_.CALC_GRO_IDS
-     , Class_.CALC_ROM_IDS
-     , Class_.calc_rescat_ids
-     , Class_.SUB_ID
-     , Class_.FOR_ID
-     , Class_.Fill
-     , Class_.class_colour
-     , Class_.FOR_KIND
-     , TabViewType.TabIndex
-     , Class_.Created_by
-     , Class_.Owner
-     , Class_.desc1
-     , Class_.desc2
-     , Class_.desc3
-     , Class_.desc4
-   );
-   InsertClasses;
+        dmodule.SingleValue('select * from classes, forms where forms.id = for_id and classes.id='+inttostr(classForEdition));
+        with dmodule.QWork do begin
+          FDetails.SetValues(
+              TS
+            , Zajecia
+            , classForEdition
+            , fieldByName('CALC_LEC_IDS').AsString
+            , fieldByName('CALC_GRO_IDS').AsString
+            , fieldByName('CALC_ROM_IDS').AsString
+            , fieldByName('calc_rescat_ids').AsString
+            , fieldByName('SUB_ID').AsInteger
+            , fieldByName('FOR_ID').AsInteger
+            , fieldByName('Fill').AsInteger
+            , fieldByName('colour').AsInteger
+            , fieldByName('KIND').AsString
+            , TabViewType.TabIndex
+            , fieldByName('Created_by').AsString
+            , fieldByName('Owner').AsString
+            , fieldByName('desc1').AsString
+            , fieldByName('desc2').AsString
+            , fieldByName('desc3').AsString
+            , fieldByName('desc4').AsString
+          );
+        end;
+        InsertClasses;
+      end;
+      BRefreshClick(nil);
+   end
+   else
+   begin
+     Zajecia := -1;
+     if (Grid.Selection.Left=Grid.Selection.Right) and (Grid.Selection.Top=Grid.Selection.Bottom) then
+       If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Grid.Selection.Left,Grid.Selection.Top) <>ConvClass Then Zajecia := -1;
+
+     FDetails.SetValues(
+         TS
+       , Zajecia
+       //Pass currentClassId ONLY if one cell is selected. currentClassId does not make sense for the block of classes
+       //currentClassId decides if use can edit the class
+       , iif((Grid.Selection.Left=Grid.Selection.Right) and (Grid.Selection.Top=Grid.Selection.Bottom),Class_.id,-1)
+       , Class_.CALC_LEC_IDS
+       , Class_.CALC_GRO_IDS
+       , Class_.CALC_ROM_IDS
+       , Class_.calc_rescat_ids
+       , Class_.SUB_ID
+       , Class_.FOR_ID
+       , Class_.Fill
+       , Class_.class_colour
+       , Class_.FOR_KIND
+       , TabViewType.TabIndex
+       , Class_.Created_by
+       , Class_.Owner
+       , Class_.desc1
+       , Class_.desc2
+       , Class_.desc3
+       , Class_.desc4
+     );
+     InsertClasses;
+   end;
  End Else Begin Info('W siatce zaznacz komórkê do edycji'); End;
  refreshPanels;
 end;
@@ -4817,7 +4789,7 @@ begin
     0: PageControl.ActivePage := TabSheetL;
     1: PageControl.ActivePage := TabSheetG;
     2: PageControl.ActivePage := TabSheetR;
-    //3: PageControl.ActivePage := TabSheetResCat1;  @@@popraw
+    3: PageControl.ActivePage := TabSheetR;
    End;
    BOK.Caption   := 'Anuluj';
    ShowModal;
@@ -4847,10 +4819,7 @@ procedure TReservationsCache.Init;
 Var t, t2 : Integer;
 Begin
   MaxHours := aMaxHours;
-  SetLength(Storage, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
-  for t := 0 to aCount -1 do     // ... i to samo dla kazdej tabeli zagniezdzonej
-    setLength(Storage[t], MaxHours+1);
-
+  SetLength(Storage, aCount, MaxHours+1); 
   FirstDay := aFirstDay;
   Count    := aCount;
 
@@ -4860,7 +4829,7 @@ Begin
 End;
 
 
-procedure TReservationsCache.LoadPeriod(PER_ID: String);
+procedure TReservationsCache.ReservationsCacheLoadPeriod(PER_ID: String);
 Var t : Integer;
     DateFrom, DateTo : String;
     X, Y : Integer;
@@ -5472,12 +5441,14 @@ end;
 
 procedure TFMain.BViewByWeekClick(Sender: TObject);
 begin
+  Preview.Enabled := true;
   dmodule.dateRange:='';
   setPeriod;
 end;
 
 procedure TFMain.BViewByCrossTableClick(Sender: TObject);
 begin
+  Preview.Enabled := false;
   dmodule.dateRange:='TODAY:+0:+0';
   CustomPeriod.ItemIndex:=2;
   setPeriod;
@@ -5541,17 +5512,13 @@ end;
 
 procedure TFMain.Penyprzegld1Click(Sender: TObject);
 begin
-  Raportowanieproste1Click(nil);
+  FMain.set_tmp_selected_dates;
+  showClasses(false,false);
 end;
 
 procedure TFMain.UtwrzwitrynWWW1Click(Sender: TObject);
 begin
   GenerateWWW(0);
-end;
-
-procedure TFMain.WylijdoHTML1Click(Sender: TObject);
-begin
-  Szybkipodgld1Click(nil);
 end;
 
 procedure TFMain.Zalogujponownie1Click(Sender: TObject);
@@ -6444,7 +6411,6 @@ end;
 procedure TFMain.RefreshAfterOnShowTimer(Sender: TObject);
 begin
  RefreshAfterOnShow.Enabled := false;
- BFastSearchShowAdv.Down  := (getSystemParam('BFastSearchShowAdv.Down')='+');
  SwitchMenu.Down  := (getSystemParam('SwitchMenu.Down')='+') or (getSystemParam('SwitchMenu.Down')='');
  Legend.Down      := (getSystemParam('Legend.Down')='+') or (getSystemParam('Legend.Down')='');
  BFullScreen.down := (getSystemParam('BFullScreen.down')='+') or (getSystemParam('BFullScreen.down')='');
@@ -6715,73 +6681,6 @@ begin
   setActiveShape(7);
 end;
 
-procedure TFMain.Pobierzaktualizacj1Click(Sender: TObject);
-begin
-  info('W celu pobrania aktualizacji zamknij program, a nastêpnie uruchom program Aktualizacja');
-  Close;
-  //info ('Program dokona teraz sprawdzenia, czy dostêpna jest nowsza wersja programu, a nastêpnie pobierze i zainstaluje aktualizacjê.'+cr+'Pobieranie pliku mo¿e potrwaæ od kilku sekund do kilkunastu minut, czas ten zale¿y od jakoœci po³¹czenia z Internetem');
-  //dmodule.CloseDBConnection;
-  //updateSoftware;
-end;
-
-{
-procedure TFMain.UpdateSoftware;
-var
-  FullProgPath: PChar;
-  temporaryFilePath : PChar;
-  F : TextFile;
-    //---------------------------------------------------------------------------------------------------------------------------
-    function getUpdater : boolean;
-      function getFile ( pfileName : string ) : boolean;
-      var FullProgPath : string;
-      begin
-        FprogressBar.Info.caption := 'Pobieranie pliku ' + pfileName;
-        FprogressBar.Show;
-        FprogressBar.Info.Refresh;
-        FullProgPath := PChar(extractFilePath(Application.ExeName)+pfileName);
-        if fileExists(FullProgPath) then
-        if not deleteFile(FullProgPath) then
-          begin SError('Aktualizacja nie powiod³a siê. Nie mo¿na skasowaæ pliku '+pfileName); result := false;  FprogressBar.Hide; exit; end;
-        if not URLDownloadToFile(nil,PAnsiChar('http://soft.home.pl/plansoft/'+pfileName), PAnsiChar(FullProgPath),0, nil) = 0 then
-          begin SError('Aktualizacja pliku '+pfileName+' nie powiod³a siê'+cr+'SprawdŸ, czy komputer jest pod³aczony do Internetu'); result := false;  FprogressBar.Hide; exit; end;
-        if not fileExists(FullProgPath) then
-          begin SError('Aktualizacja pliku '+pfileName+' nie powiod³a siê'+cr+'SprawdŸ, czy plik znajduje siê na serwerze'); result := false;  FprogressBar.Hide; exit; end;
-        result := true;
-        FprogressBar.Hide;
-      end;
-    begin
-      if not getFile ('update.xml') then exit;
-      if not getFile ('update.exe') then exit;
-      result := true;
-    end;
-//---------------------------------------------------------------------------------------------------------------------------
-begin
-  FullProgPath := PChar(extractFilePath(Application.ExeName)+'update.exe');
-  temporaryFilePath := PChar(extractFilePath(Application.ExeName)+'$$$temporary$$$');
-
-  //permissions granted ?
-  try
-    AssignFile(F, temporaryFilePath);
-    Rewrite(F);
-    WriteLn(f, '<any text>');
-    closeFile(f);
-    deletefile(temporaryFilePath);
-  except
-    info ('Nie mo¿na dokonaæ aktualizacji programu z powodu braku uprawnieñ do zapisu na dysku w lokalizacji'+cr+cr+extractFilePath(Application.ExeName)+cr+cr+'Uruchom program ponownie z poziomu administratora systemu');
-    Application.Terminate;
-    halt;
-  end;
-
-  getUpdater;
-
-  //update me !
-  WinExec(FullProgPath, SW_SHOW);
-  silentMode := true;
-  Close;
-  //Application.Terminate;
-end;
-}
-
 procedure TFMain.LGRppClick(
   Sender: TObject);
 begin
@@ -7003,14 +6902,6 @@ begin
   webBrowser('http://www.plansoft.org');
 end;
 
-procedure TFMain.ExcelReportsClick(Sender: TObject);
-begin
-  inherited;
-  if fileexists(applicationDir + '/tricksql/tricksql.exe')
-   then ExecuteFile(applicationDir + '/tricksql/tricksql.exe','inifile=dotacje_plansoft.ini','',SW_SHOWMAXIMIZED)
-   else info ('Modu³ raportowanie do Excela nie zosta³ zainstalowany na tym komputerze');
-end;
-
 procedure TFMain.Wybierz1Click(Sender: TObject);
 begin
   inherited;
@@ -7193,7 +7084,6 @@ begin
 
     //CanClose and form was actually open
     if (CanClose) and (userLogged) then begin
-      setSystemParam('BFastSearchShowAdv.Down', BoolToStr(BFastSearchShowAdv.Down));
       setSystemParam('SwitchMenu.Down', BoolToStr(SwitchMenu.Down));
       setSystemParam('Legend.Down', BoolToStr(Legend.Down));
       setSystemParam('BFullScreen.down', BoolToStr(BFullScreen.down));
@@ -8375,7 +8265,6 @@ procedure TFMain.SwitchMenuClick(Sender: TObject);
 var s : string;
 begin
   if SwitchMenu.Down then begin
-    BFastSearchShowAdvClick(nil);
     SearchPanel.width := 255;
     TreeView1.Visible := false;
     CopyMenuToTreeView(mm, TreeView1);
@@ -8449,11 +8338,6 @@ begin
   ROOMSShowModalAsBrowser('1','');
 end;
 
-procedure TFMain.BFastSearchShowAdvClick(Sender: TObject);
-begin
-  LeftPanel.Visible := BFastSearchShowAdv.Down;
-end;
-
 procedure TFMain.SpeedButton1Click(Sender: TObject);
 begin
  BitBtnPERClick(nil);
@@ -8524,7 +8408,7 @@ end;
 procedure TFMain.Listzajzaznaczoneterminy1Click(Sender: TObject);
 begin
     FMain.set_tmp_selected_dates;
-    showClasses(true,true);
+    showClasses(false,true);
 end;
 
 procedure TFMain.abelaprzestawna1Click(Sender: TObject);
@@ -8532,26 +8416,10 @@ begin
   Innatabelaprzestawna1Click(sender);
 end;
 
-procedure TFMain.Raportowanieproste1Click(Sender: TObject);
-begin
-  FMain.set_tmp_selected_dates;
-  showClasses(false,false);
-end;
-
 procedure TFMain.Raportowaniezaawansowane1Click(Sender: TObject);
 begin
   FMain.set_tmp_selected_dates;
   FGrouping.ShowModal;
-end;
-
-procedure TFMain.Szybkipodgld1Click(Sender: TObject);
-var ColoringIndex : shortString;
-begin
-   ColoringIndex := getCode(FcellLayout.Coloring);
-   fwwwgenerator.CalendarToHTML(getCode(FcellLayout.D1), getCode(FcellLayout.D2), getCode(FcellLayout.D3), getCode(FcellLayout.D4), getCode(FcellLayout.D5),             nil, nil,                  false,      0,          0                         ,ColoringIndex, IntToStr(Grid.DefaultColWidth), IntToStr(Grid.DefaultRowHeight), '10',                  '10', '10', '10', '10', '10',              FALSE, FALSE,FALSE,FALSE,FALSE, uutilityParent.ApplicationDocumentsPath + 'temp.htm', false, false, '-------',0,false,false,true,true,true,false,false,false,false,false);
- //              CalendarToHTML(D1, D2, D3, D4, D5 : ShortString                                           ; Header, Footer : TStrings; ShowLegend, legendMode, addCreationDate : Boolean; Coloring : ShortString;    CellWIDTH,                      CELLHEIGHT,                      CELLSIZE : ShortString; S1,   S2,   S3,   S4,   S5 : ShortString; B1, B2, B3, B4, B5 : Boolean;   FileName : ShortString);
-
- UUTilityParent.ExecuteFile(uutilityParent.ApplicationDocumentsPath +'temp.htm','','',SW_SHOWMAXIMIZED);
 end;
 
 procedure TFMain.Utwrzwitrynwww2Click(Sender: TObject);
@@ -8699,6 +8567,7 @@ var parentPanel : Twincontrol;
   procedure setParent (parentPanel : Twincontrol);
   begin
    BClearS.Parent := parentPanel;
+   Preview.Parent := parentPanel;
    BCopy.Parent := parentPanel;
    BPaste.Parent := parentPanel;
    lshowAvail.Parent := parentPanel;
@@ -9069,6 +8938,33 @@ procedure TFMain.recreateDependenciesClick(Sender: TObject);
 begin
   recreateDependencies.Checked := not recreateDependencies.Checked;
 end;
+
+procedure TFMain.PreviewClick(Sender: TObject);
+var ColoringIndex : shortString;
+    presId : String; presType : String;
+begin
+   FLegend.SaveTimeTableNotes;
+   dmodule.CommitTrans;
+   Fsettings.FormShow(nil);
+   Fsettings.BHtmlClick(nil);
+
+   {
+   FWWWGenerator := TFWWWGenerator.Create(Application);
+
+   case FMain.TabViewType.TabIndex of
+    0: begin presId:=ExtractWord(1,FMain.conlecturer.Text,[';']); presType:='LEC'; end;
+    1: begin presId:=ExtractWord(1,FMain.congroup.Text,[';']); presType:='GRO'; end;
+    2: begin presId:=ExtractWord(1,FMain.conResCat0.Text,[';']); presType:='ROM'; end;
+   end;
+   ColoringIndex := getCode(FcellLayout.Coloring);
+   fwwwgenerator.CalendarToHTML(conPeriod.Text, presId, presType, getCode(FcellLayout.D1), getCode(FcellLayout.D2), getCode(FcellLayout.D3), getCode(FcellLayout.D4), getCode(FcellLayout.D5),             nil, nil,                  false,      0,          0                         ,ColoringIndex, IntToStr(Grid.DefaultColWidth), IntToStr(Grid.DefaultRowHeight), '10',                  '10', '10', '10', '10', '10',              FALSE, FALSE,FALSE,FALSE,FALSE, uutilityParent.ApplicationDocumentsPath + 'temp.htm', false, false, '-------',0,false,false,true,true,true,false,false,false,false,false);
+ //              CalendarToHTML(D1, D2, D3, D4, D5 : ShortString                                           ; Header, Footer : TStrings; ShowLegend, legendMode, addCreationDate : Boolean; Coloring : ShortString;    CellWIDTH,                      CELLHEIGHT,                      CELLSIZE : ShortString; S1,   S2,   S3,   S4,   S5 : ShortString; B1, B2, B3, B4, B5 : Boolean;   FileName : ShortString);
+
+   UUTilityParent.ExecuteFile(uutilityParent.ApplicationDocumentsPath +'temp.htm','','',SW_SHOWMAXIMIZED);
+   FWWWGenerator.Free;
+   }
+end;
+
 
 initialization
   Randomize;

@@ -112,6 +112,10 @@ type
     Panel4: TPanel;
     FilterSummary: TEdit;
     BitBtn4: TBitBtn;
+    groupByCreatedBy: TCheckBox;
+    groupByOwnerName: TCheckBox;
+    groupByCreationDate: TCheckBox;
+    groupByDay: TCheckBox;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -308,9 +312,17 @@ begin
   groupByDesc2.checked := StrToBool( getSystemParam('FLegend.groupByDesc2.checked' ));
   groupByDesc3.checked := StrToBool( getSystemParam('FLegend.groupByDesc3.checked' ));
   groupByDesc4.checked := StrToBool( getSystemParam('FLegend.groupByDesc4.checked' ));
-  groupByL.checked      := StrToBool( getSystemParam('FLegend.groupByL.checked' ));
+  groupByL.checked     := StrToBool( getSystemParam('FLegend.groupByL.checked' ));
+
+  groupByCreatedBy.checked     := StrToBool( getSystemParam('FLegend.groupByCreatedBy.checked' ));
+  groupByOwnerName.checked     := StrToBool( getSystemParam('FLegend.groupByOwnerName.checked' ));
+  groupByCreationDate.checked     := StrToBool( getSystemParam('FLegend.groupByCreationDate.checked' ));
+
+
   groupByG.checked      := StrToBool( getSystemParam('FLegend.groupByG.checked' ));
   groupByS.checked      := StrToBool( getSystemParam('FLegend.groupByS.checked','+'));
+  groupByDay.checked      := StrToBool( getSystemParam('FLegend.groupByDay.checked','+'));
+
   groupByR.checked      := StrToBool( getSystemParam('FLegend.groupByR.checked' ));
   SelectedSubOnly.checked := StrToBool( getSystemParam('FLegend.groupByR.SelectedSubOnly' ));
   groupByLDesc1.checked := StrToBool( getSystemParam('FLegend.groupByLDesc1.checked' ));
@@ -434,8 +446,15 @@ begin
   setSystemParam('FLegend.groupByDesc4.checked',BoolToStr ( FLegend.groupByDesc4.checked ) );
   //
   setSystemParam('FLegend.groupByL.checked',BoolToStr ( FLegend.groupByL.checked ) );
+
+  setSystemParam('FLegend.groupByCreatedBy.checked',BoolToStr ( FLegend.groupByCreatedBy.checked ) );
+  setSystemParam('FLegend.groupByOwnerName.checked',BoolToStr ( FLegend.groupByOwnerName.checked ) );
+  setSystemParam('FLegend.groupByCreationDate.checked',BoolToStr ( FLegend.groupByCreationDate.checked ) );
+
   setSystemParam('FLegend.groupByG.checked',BoolToStr ( FLegend.groupByG.checked ) );
   setSystemParam('FLegend.groupByS.checked',BoolToStr ( FLegend.groupByS.checked ) );
+  setSystemParam('FLegend.groupByDay.checked',BoolToStr ( FLegend.groupByDay.checked ) );
+
   setSystemParam('FLegend.groupByR.checked',BoolToStr ( FLegend.groupByR.checked ) );
   setSystemParam('FLegend.SelectedSubOnly.checked',BoolToStr ( FLegend.SelectedSubOnly.checked ) );
   setSystemParam('FLegend.groupByLDesc1.checked',BoolToStr ( FLegend.groupByLDesc1.checked ) );
@@ -458,6 +477,7 @@ Var forms_filter,hours_filter : string;
     groupByClause : string;
     orderByClause : string;
     rollUpFilter  : string;
+    presId, ChildsAndParents : string;
 begin
   if not refreshAllowed then exit;
   //LTotal.Visible := false;
@@ -472,11 +492,18 @@ begin
   groupByL.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByG.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByS.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByDay.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+
   groupByR.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByLDesc1.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(1)<>'');
   groupByLDesc2.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(2)<>'');
   groupByLDesc3.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(3)<>'');
   groupByLDesc4.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(4)<>'');
+
+  groupByCreatedBy.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByOwnerName.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByCreationDate.Visible   := (FLegendTabs.ActivePage = tabSheetCounter);
+
   //
   SelectedSubOnly.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
   addRollUp.visible := FLegendTabs.ActivePage = tabSheetCounter;
@@ -584,13 +611,20 @@ begin
   end;
 
   if FLegendTabs.ActivePage = TabsheetCounter then begin
+    if (fmain.TabViewType.TabIndex = 0) then presId := ExtractWord(1,Nvl(fmain.ConLecturer.Text,'-1'),[';']);
+    if (fmain.TabViewType.TabIndex = 1) then presId := ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';']);
+    if (fmain.TabViewType.TabIndex = 2) then presId := ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';']);
+    if (fmain.TabViewType.TabIndex = 3) then presId := ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';']);
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
+
     if QueryCOUNTER.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridCounter);
     dmodule.resetConnection ( QueryCOUNTER );
     if Fmain.CONPERIOD.Text='' then exit;
     QueryCOUNTER.SQL.Clear;
     groupbyClause := mergeStrings(',',[
-         iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')
+        iif(groupByDay.Checked,'CLA.DAY','')
+        ,iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')
         ,iif(groupByForm.Checked,'FR.NAME,FR.ID','')
         ,iif(groupByDesc1.Checked,'CLA.DESC1','')
         ,iif(groupByDesc2.Checked,'CLA.DESC2','')
@@ -598,6 +632,9 @@ begin
         ,iif(groupByDesc4.Checked,'CLA.DESC4','')
         //
         ,iif(groupByL.Checked,'LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,LEC.ID','')
+        ,iif(groupByCreatedBy.Checked,'cla.created_by','')
+        ,iif(groupByOwnerName.Checked,'cla.owner','')
+        ,iif(groupByCreationDate.Checked,'cla.creation_date','')
         ,iif(groupByG.Checked,'GRO.NAME,GRO.ID','')
         ,iif(groupByR.Checked,'ROM.NAME,ROM.ID','')
         ,iif(groupBylDesc1.Checked,'LEC_CLA.DESC1','')
@@ -627,6 +664,7 @@ begin
     'select * from ('+cr+
     'SELECT '+mergeStrings(',',[
           iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
+        , iif(groupByDay.Checked, 'CLA.DAY "Dzieñ"','')
         , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma", FR.ID FOR_ID','')
         , iif(groupByDesc1.Checked, 'NVL(CLA.DESC1,''--'') "'+fprogramSettings.getClassDescPlural(1)+'"','')
         , iif(groupByDesc2.Checked, 'NVL(CLA.DESC2,''--'') "'+fprogramSettings.getClassDescPlural(2)+'"','')
@@ -637,6 +675,10 @@ begin
         , iif(groupByG.Checked, 'NVL(GRO.NAME,''--'') "Grupa", GRO.ID GRO_ID','')
         , iif(groupByR.Checked, 'NVL(ROM.NAME,''--'') "Zasób", ROM.ID ROM_ID','')
         //
+        , iif(groupByCreatedBy.Checked, 'cla.created_by "Utworzy³"','')
+        , iif(groupByOwnerName.Checked, 'cla.owner "W³aœciciel"','')
+        , iif(groupByCreationDate.Checked, 'cla.creation_date "Data utworzenia"','')
+        //
         , iif(groupByLDesc1.Checked, 'NVL(LEC_CLA.DESC1,''--'') "'+fprogramSettings.getClassDescSingular(1)+'"','')
         , iif(groupByLDesc2.Checked, 'NVL(LEC_CLA.DESC2,''--'') "'+fprogramSettings.getClassDescSingular(2)+'"','')
         , iif(groupByLDesc3.Checked, 'NVL(LEC_CLA.DESC3,''--'') "'+fprogramSettings.getClassDescSingular(3)+'"','')
@@ -644,14 +686,14 @@ begin
         //
         ,'SUM (GRIDS.DURATION*FILL/100) "Liczba godzin"'
         ])+
-    ' FROM CLASSES  CLA ' + CR +
+    ' FROM '+ CR +'CLASSES  CLA ' + CR +
           ',SUBJECTS SUB ' + CR +
           ',FORMS    FR' + CR +
           ',GRIDS' + CR +
           iif( groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked or groupByL.Checked, ',LEC_CLA, LECTURERS LEC ' + CR,'')+
           iif( groupByG.Checked, ',GRO_CLA, GROUPS GRO ' + CR,'')+
           iif( groupByR.Checked, ',ROM_CLA, ROOMS ROM ' + CR,'')+
-    ' WHERE '+ periodClauseCLA + CR +
+    ' WHERE cla.owner <> ''AUTO'' and '+ periodClauseCLA + CR +
       ' AND ('
           + fmain.getWhereFastFilter(self.filterSummary.text, 'SUB')
           + ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'FR')
@@ -668,6 +710,12 @@ begin
           + iif(groupByR.Checked,
               ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'ROM')
           , '')
+          + iif(groupByOwnerName.Checked,
+              ' or upper(cla.owner) like ''%' + upperCase(self.filterSummary.text) + '%'''
+          , '')
+          + iif(groupByCreatedBy.Checked,
+              ' or upper(cla.created_by) like ''%' + upperCase(self.filterSummary.text) + '%'''
+          , '')
       +' ) '+CR+
       iif(groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked  or groupByL.Checked, ' AND LEC_CLA.CLA_ID(+) = CLA.ID AND LEC_CLA.LEC_ID=LEC.ID(+)' + CR,'')+
       iif(groupByG.Checked, ' AND GRO_CLA.CLA_ID(+) = CLA.ID AND GRO_CLA.GRO_ID=GRO.ID(+)' + CR,'')+
@@ -675,16 +723,20 @@ begin
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
-    iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from lec_cla where '+periodClause+' and lec_id='+ExtractWord(1,Nvl(fmain.ConLecturer.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from gro_cla where '+periodClause+' and gro_id='+ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+periodClause+' and rom_id='+ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';'])+')','') + CR +
-    iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), ' and cla.id in (select cla_id from rom_cla where '+periodClause+' and rom_id='+ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';'])+')','') + CR +
-    iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
+      iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where is_child=''N'' and lec_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where is_child=''N'' and gro_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where is_child=''N'' and rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where is_child=''N'' and rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
     'ORDER BY '+orderByClause+
     ')' + cr+ rollUpFilter
     );
+
+
+
+    //copyToclipboard(QueryCOUNTER.SQL.text);
     QueryCOUNTER.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
   end;

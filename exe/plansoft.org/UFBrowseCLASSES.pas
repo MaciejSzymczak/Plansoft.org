@@ -33,7 +33,6 @@ type
     DESC2: TDBEdit;
     LabelDESC2: TLabel;
     GenericFilter: TFGenericFilter;
-    DelOrph: TBitBtn;
     PanelHistory: TPanel;
     historyFrom: TDateEdit;
     historyTo: TDateEdit;
@@ -57,7 +56,6 @@ type
     procedure GenericFilterconPerChange(Sender: TObject);
     procedure GenericFilterconResCat1Change(Sender: TObject);
     procedure GenericFilterconPlaChange(Sender: TObject);
-    procedure DelOrphClick(Sender: TObject);
     procedure ComboSortOrderChange(Sender: TObject);
     procedure historyFromChange(Sender: TObject);
     procedure historyToChange(Sender: TObject);
@@ -97,6 +95,7 @@ type
    Function  CanDelete    : Boolean;              override;
    Procedure ShowModalAsBrowser(Filter : String); override;
    Procedure GetTableName;                        override;
+    Procedure editClick;                     override;
 
    Procedure deleteClick;                         override;
    Function  execute(aCurrOperation : Integer; aID : ShortString) : TModalResult; override;
@@ -261,7 +260,7 @@ end;
 
 function TFBrowseCLASSES.CanEditPermission: Boolean;
 begin
- Result := False;
+ Result := true;
 end;
 
 function TFBrowseCLASSES.CanInsert: Boolean;
@@ -450,11 +449,6 @@ procedure TFBrowseCLASSES.GenericFilterconPlaChange(Sender: TObject);
 begin
   GenericFilter.conPlaChange(Sender);
   BRefreshClick(nil);
-end;
-
-procedure TFBrowseCLASSES.DelOrphClick(Sender: TObject);
-begin
-  DeleteOrphanedClasses;
 end;
 
 procedure TFBrowseCLASSES.ComboSortOrderChange(Sender: TObject);
@@ -653,6 +647,12 @@ end;
 function TFBrowseCLASSES.getFindCaption: string;
 begin
  Result := 'Dowolna fraza';
+end;
+
+procedure TFBrowseCLASSES.editClick;
+begin
+  fmain.classForEdition := Query['Id'];
+  close;
 end;
 
 end.

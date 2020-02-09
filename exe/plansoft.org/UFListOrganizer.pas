@@ -15,7 +15,6 @@ type
     BDown: TSpeedButton;
     lbNames: TListBox;
     BCancel: TBitBtn;
-    BSelect: TBitBtn;
     BDelete: TBitBtn;
     BAdd: TBitBtn;
     lbIds: TListBox;
@@ -74,7 +73,7 @@ begin
 
  lbNames.ItemIndex := 0;
  resType := presType;
- BSelect.Enabled := lbNames.Items.Count >0;
+ //BSelect.Enabled := lbNames.Items.Count >0;
  result := showModal;
 end;
 
@@ -156,7 +155,7 @@ begin
    end
  end;
 
- BSelect.Enabled := lbNames.Items.Count >0;
+ //BSelect.Enabled := lbNames.Items.Count >0;
 end;
 
 procedure TFListOrganizer.lbNamesDblClick(Sender: TObject);
@@ -253,7 +252,7 @@ if resType='R2' then begin
   End;
 end;
 
- BSelect.Enabled := lbNames.Items.Count >0;
+ //BSelect.Enabled := lbNames.Items.Count >0;
 end;
 
 procedure TFListOrganizer.BDeleteAllClick(Sender: TObject);

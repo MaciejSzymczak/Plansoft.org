@@ -31,6 +31,8 @@ temporary tablespace temp;
 grant "CONNECT" to "PLANNERREPORTS";
 grant "RESOURCE" to "PLANNERREPORTS";
 
+alter profile DEFAULT limit PASSWORD_REUSE_TIME unlimited;
+alter profile DEFAULT limit PASSWORD_LIFE_TIME  unlimited;
 
 STEP 2
 =================================
@@ -52,6 +54,32 @@ IMP
 STEP 4
 ================
 Sqlplus planner
+
+
+begin
+insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
+insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-2,'NAD','NAD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
+insert into groups (id, abbreviation, name, orguni_id,colour) values (-1,'POD','Podgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into groups (id, abbreviation, name, orguni_id,colour) values (-2,'NAD','Nadgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into rooms (id, attribs_01, name, orguni_id,colour,rescat_id) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256, 1);
+insert into rooms (id, attribs_01, name, orguni_id,colour,rescat_id) values (-2,'NAD','NAD', (select min(id) from org_units), 192+192*256+192*256*256, 1);
+commit;
+exception
+when others then null;
+end;
+/
+
+begin
+insert into subjects (id, abbreviation, name, orguni_id,colour) values (-1,'POD','Podgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into subjects (id, abbreviation, name, orguni_id,colour) values (-2,'NAD','Nadgrupa', (select min(id) from org_units), 192+192*256+192*256*256);
+insert into forms (id, abbreviation, name,colour) values (-1,'POD','Podgrupa', 192+192*256+192*256*256);
+insert into forms (id, abbreviation, name,colour) values (-2,'NAD','Nadgrupa', 192+192*256+192*256*256);
+commit;
+exception
+when others then null;
+end;
+/
+
 DECLARE CURSOR TEMP
 IS
 select 'DROP PUBLIC SYNONYM '||SNAME S from SYS.SYNONYMS WHERE CREATOR = USER AND SYNTYPE = 'PUBLIC';

@@ -58,7 +58,6 @@ type
     BDelete: TBitBtn;
     BSelect: TBitBtn;
     BCancel: TBitBtn;
-    BDeleteAll: TBitBtn;
     BSearch: TBitBtn;
     BCopy: TBitBtn;
     Panel: TPanel;
@@ -66,7 +65,6 @@ type
     BUpdCancel: TBitBtn;
     BUpdOK: TBitBtn;
     Messages: TStrHolder;
-    BUpdApply: TBitBtn;
     BUpdChild1: TBitBtn;
     BUpdChild2: TBitBtn;
     BUpdChild3: TBitBtn;
@@ -1064,7 +1062,6 @@ end;
 //------------------------------------------------------------------
 procedure TFBrowseParent.bDeleteAllClick(Sender: TObject);
 begin
- DeleteAllClick;
 end;
 
 //------------------------------------------------------------------
@@ -1072,14 +1069,13 @@ procedure TFBrowseParent.formResize(Sender: TObject);
 Var MaxMinH, MaxMinW, MinH, MinW : Integer;
 
 begin
- BUpdCancel.Left    := UpdPanel.Width - 65*1;
- BUpdOK.Left        := UpdPanel.Width - 65*2;
- BUpdApply.Left     := UpdPanel.Width - 65*3;
- BUpdNew.Left       := UpdPanel.Width - 65*4+33;
- BUpdCopy.Left      := UpdPanel.Width - 65*4;
+ BUpdCancel.Left    := UpdPanel.Width - 65;
+ BUpdOK.Left        := UpdPanel.Width - 65 - 65;
+ BUpdNew.Left       := UpdPanel.Width - 65 - 65 - 33;
+ BUpdCopy.Left      := UpdPanel.Width - 65 - 65 - 33 - 77;
 
- BUpdNext.Left      := UpdPanel.Width - 65*5 + 33;
- BUpdPrev.Left      := UpdPanel.Width - 65*5;
+ BUpdNext.Left      := UpdPanel.Width - 65 - 65 - 33 - 77 - 33;
+ BUpdPrev.Left      := UpdPanel.Width - 65 - 65 - 33 - 77 - 33 -33;
 
  BUpdChild1.Left := UpdPanel.Width - 65*5 - 80*1;
  BUpdChild2.Left := UpdPanel.Width - 65*5 - 80*2;
@@ -1100,11 +1096,10 @@ begin
  If Mode = 0 Then Begin
    BClose.Left   := BottomPanel.Width - 80*1;
    BSearch.Left    := BottomPanel.Width - 80*2;
-   BDeleteAll.Left := BottomPanel.Width - 80*3;
-   BDelete.Left    := BottomPanel.Width - 80*4;
-   BAdd.Left       := BottomPanel.Width - 80*5;
-   BCopy.Left      := BottomPanel.Width - 80*6;
-   BEdit.Left      := BottomPanel.Width - 80*7;
+   BDelete.Left    := BottomPanel.Width - 80*3;
+   BAdd.Left       := BottomPanel.Width - 80*4;
+   BCopy.Left      := BottomPanel.Width - 80*5;
+   BEdit.Left      := BottomPanel.Width - 80*6;
  End Else
  Begin
    BCancel.Left    := BottomPanel.Width - 1*80;
@@ -1185,7 +1180,6 @@ Begin
  BEdit.Enabled              := F;
  BCopy.Enabled              := F;
  BDelete.Enabled            := F;
- BDeleteAll.Enabled         := F;
  PPEdit.Enabled             := F;
  PPCopy.Enabled             := F;
  PPDelete.Enabled           := F;
@@ -1480,7 +1474,6 @@ end;
 //------------------------------------------------------------------
 Procedure TFBrowseParent.deleteAllClick;
 Begin
-  If Not BDeleteAll.Enabled Then Exit;
   If Question(Komunikaty.Strings[9]) = idYes Then Begin
     Query.DisableControls;
     Query.Last;
@@ -1603,7 +1596,6 @@ begin
   DodajE.Text                := Self.BAdd.Caption;
   KopiujE.Text               := Self.BCopy.Caption;
   UsunE.Text                 := Self.BDelete.Caption;
-  UsunAllE.Text              := Self.BDeleteAll.Caption;
   ZamknijE.Text              := Self.BClose.Caption;
   SzukajE.Text               := Self.BSearch.Caption;
   WybierzE.Text              := Self.BSelect.Caption;
@@ -1612,7 +1604,6 @@ begin
   DodajHint.Text             := Self.BAdd.Hint;
   KopiujHint.Text            := Self.BCopy.Hint;
   UsunHint.Text              := Self.BDelete.Hint;
-  UsunAllHint.Text           := Self.BDeleteAll.Hint;
   ZamknijHint.Text           := Self.BClose.Hint;
   SzukajHint.Text            := Self.BSearch.Hint;
   WybierzHint.Text           := Self.BSelect.Hint;
@@ -1649,7 +1640,6 @@ begin
   Self.BAdd.Caption               := DodajE.Text;
   Self.BCopy.Caption              := KopiujE.Text;
   Self.BDelete.Caption            := UsunE.Text;
-  Self.BDeleteAll.Caption         := UsunAllE.Text;
   Self.BClose.Caption             := ZamknijE.Text;
   Self.BSearch.Caption            := SzukajE.Text;
   Self.BSelect.Caption            := WybierzE.Text;
@@ -1658,7 +1648,6 @@ begin
   Self.BAdd.Hint                  := DodajHint.Text;
   Self.BCopy.Hint                 := KopiujHint.Text;
   Self.BDelete.Hint               := UsunHint.Text;
-  Self.BDeleteAll.Hint            := UsunAllHint.Text;
   Self.BClose.Hint                := ZamknijHint.Text;
   Self.BSearch.Hint               := SzukajHint.Text;
   Self.BSelect.Hint               := WybierzHint.Text;
@@ -1711,7 +1700,6 @@ begin
  If Mode = 0 Then Begin
    BClose.Visible    := True;
    BDelete.Visible   := True And ((Not Upraw.Down) Or CanDelete);
-   BDeleteAll.Visible:= True And ((Not Upraw.Down) Or CanDelete);
    BAdd.Visible      := True And ((Not Upraw.Down) Or CanInsert);
    BCopy.Visible     := True And ((Not Upraw.Down) Or CanInsert);
    BEdit.Visible     := True And ((Not Upraw.Down) Or CanEditPermission);
@@ -1724,7 +1712,6 @@ begin
  Begin
    BClose.Visible    := False;
    BDelete.Visible   := False;
-   BDeleteAll.Visible:= False;
    BAdd.Visible      := True;
    BCopy.Visible     := False;
    BEdit.Visible     := False;
@@ -2827,7 +2814,6 @@ Begin
    BUpdNext.Visible := not SingleMode;
    BUpdCopy.Visible := not SingleMode;
    BUpdNew.Visible := not SingleMode;
-   BUpdApply.Visible := not SingleMode;
 
    If Not SingleMode   Then Self.Show;
    If SingleMode       Then Self.ShowModal;
@@ -2864,7 +2850,7 @@ function TFBrowseParent.updApplyAndClose : boolean;
 var translatedMessage : string;
 Begin
   Result := False;
-  If (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdApply) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
+  If (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
   //important statement ! - it fires different events associated with activecontrol for example "OnExit" Event for TDBEdit
  ActiveControl := BUpdOK;
 
@@ -2940,9 +2926,9 @@ function TFBrowseParent.updApplyClick : Boolean;
 var translatedMessage : string;
 Begin
   Result := False;
-  If (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdApply) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
+  If (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
   //important statement ! - it fires different events associated with activecontrol for example TDBEdit.OnExit
-  ActiveControl := BUpdApply;
+  ActiveControl := BUpdOk;
 
   If Not CheckRecord Then Exit;
   if flexEnabled then
@@ -3207,7 +3193,7 @@ procedure TFBrowseParent.bUpdNewMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
   inherited;
-  If (ActiveControl <> BUpdCopy) And (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdApply) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
+  If (ActiveControl <> BUpdCopy) And (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
 end;
 
 //------------------------------------------------------------------

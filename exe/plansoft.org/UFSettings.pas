@@ -275,7 +275,10 @@ procedure TFSettings.HTML(Prog : String);
 var ColoringIndex : shortString;
     tmpFileName   : shortString;
     pdfFileName   : shortString;
+    presId : String; presType : String;
 begin
+  FWWWGenerator := TFWWWGenerator.Create(Application);
+
   tmpFileName :=  uutilityParent.ApplicationDocumentsPath + 'temp.htm';
   pdfFileName :=  uutilityParent.ApplicationDocumentsPath + 'temp.pdf';
   if fileexists( tmpFileName ) then
@@ -284,29 +287,36 @@ begin
      exit;
    end;
 
-  If PageControl.ActivePage = TabSheetL Then
+  case FMain.TabViewType.TabIndex of
+   0: begin presId:=ExtractWord(1,FMain.conlecturer.Text,[';']); presType:='LEC'; end;
+   1: begin presId:=ExtractWord(1,FMain.congroup.Text,[';']);    presType:='GRO'; end;
+   2: begin presId:=ExtractWord(1,FMain.conResCat0.Text,[';']); presType:='ROM'; end;
+   3: begin presId:=ExtractWord(1,FMain.conResCat1.Text,[';']); presType:='ROM'; end;
+  end;
+
+  //If PageControl.ActivePage = TabSheetL Then
     If FMain.TabViewType.TabIndex = 0 Then Begin
       ColoringIndex := getCode(LViewType);
-      fwwwGenerator.CalendarToHTML(getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1, lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked );
+      fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'LEC',getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1, lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked );
       if LPdfprintOut.checked then tmpFileName := pdfFileName;
-    End
-    Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameLgen.Text );
+    End;
+    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameLgen.Text );
 
-  If PageControl.ActivePage = TabSheetG Then
+  //If PageControl.ActivePage = TabSheetG Then
     If FMain.TabViewType.TabIndex = 1 Then Begin
       ColoringIndex := getCode(GViewType);
-      fwwwGenerator.CalendarToHTML(getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked, iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1,gAddCreationDate.itemindex, ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked);
+      fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'GRO',getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked, iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1,gAddCreationDate.itemindex, ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked);
       if GPdfprintOut.checked then tmpFileName := pdfFileName;
-    End
-    Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameGgen.Text);
+    End;
+    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameGgen.Text);
 
-  If PageControl.ActivePage = TabSheetR Then
-    If FMain.TabViewType.TabIndex = 2 Then Begin
+  //If PageControl.ActivePage = TabSheetR Then
+    If (FMain.TabViewType.TabIndex = 2) or (FMain.TabViewType.TabIndex = 3) Then Begin
       ColoringIndex := getCode(RViewType);
-      fwwwGenerator.CalendarToHTML(getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked);
+      fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'ROM',getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked);
       if RPdfprintOut.checked then tmpFileName := pdfFileName;
-    End
-    Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
+    End;
+    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
 
    if fileExists(tmpFileName) then begin
        If isBlank(Prog)
@@ -320,6 +330,8 @@ begin
                  UUTilityParent.ExecuteFile(Prog, tmpFileName ,'',SW_SHOWMAXIMIZED);
            End;
    end;
+
+  FWWWGenerator.Free;
 end;
 
 procedure TFSettings.BHtmlClick(Sender: TObject);

@@ -30,7 +30,7 @@ inherited FExclusiveParent: TFExclusiveParent
     Top = 8
     Width = 305
     Height = 65
-    Caption = 'Wy'#347'wietlaj na rozk'#322'adzie ZAJ'#280'CIA '
+    Caption = 'ZAJ'#280'CIE   (Jedna grupa nadrz'#281'dna)'
     ModalResult = 6
     TabOrder = 1
   end
@@ -39,7 +39,7 @@ inherited FExclusiveParent: TFExclusiveParent
     Top = 80
     Width = 305
     Height = 57
-    Caption = 'Wy'#347'wietlaj na rozk'#322'adzie ODNO'#346'NIK'
+    Caption = 'ODNO'#346'NIK    (Wi'#281'cej ni'#380' jedna grupa nadrz'#281'dna)'
     ModalResult = 7
     TabOrder = 2
   end
@@ -66,12 +66,8 @@ inherited FExclusiveParent: TFExclusiveParent
     BorderStyle = bsNone
     Color = clBtnFace
     Lines.Strings = (
-      'Mo'#380'na wskaza'#263' tylko JEDEN obiekty nadrz'#281'dny.'
-      
-        'Ten tryb wybiera si'#281' z regu'#322'y dla relacji grupa - rocznik, ponie' +
-        'wa'#380' grupa nale'#380'y tylko do '
-      'jednego rocznika.'
-      '')
+      'Przyk'#322'ad:'
+      'Grupa '#263'wiczeniowa - grupa rocznikowa.')
     ReadOnly = True
     TabOrder = 4
   end
@@ -83,12 +79,8 @@ inherited FExclusiveParent: TFExclusiveParent
     BorderStyle = bsNone
     Color = clBtnFace
     Lines.Strings = (
-      'Mo'#380'na wskaza'#263' wiele takich obiekt'#243'w.'
-      
-        'Ten tryb wybiera si'#281' z regu'#322'y dla relacji grupa laboratoryjna-gr' +
-        'upa '#263'wiczeniowa, poniewa'#380' '
-      'grupa laboratoryjna mo'#380'e sk'#322'ada'#263' si'#281' z kilku grup '#263'wiczeniowych.'
-      '')
+      'Przyk'#322'ad:'
+      'grupa laboratoryjna sk'#322'adaj'#261'ca si'#281' z dw'#243'ch grup '#263'wiczeniowych.')
     ReadOnly = True
     TabOrder = 5
   end

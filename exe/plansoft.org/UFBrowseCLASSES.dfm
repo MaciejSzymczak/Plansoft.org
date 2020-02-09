@@ -1,6 +1,6 @@
 inherited FBrowseCLASSES: TFBrowseCLASSES
-  Left = 184
-  Top = 152
+  Left = 430
+  Top = 218
   Width = 1134
   Caption = 'Zaj'#281'cia'
   PixelsPerInch = 96
@@ -20,15 +20,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           Height = 14
           Caption = 'Czy zaplanowane w dniach wolnych'
         end
-        object DelOrph: TBitBtn
-          Left = 672
-          Top = 3
-          Width = 121
-          Height = 25
-          Caption = 'Usu'#324' nie powi'#261'zane'
-          TabOrder = 11
-          OnClick = DelOrphClick
-        end
         object ConflictWithReservations: TComboBox
           Left = 805
           Top = 22
@@ -39,7 +30,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           ItemHeight = 16
           ItemIndex = 0
           MaxLength = 255
-          TabOrder = 12
+          TabOrder = 11
           Text = 'Bez znaczenia'
           OnChange = ConflictWithReservationsChange
           Items.Strings = (
@@ -55,30 +46,16 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Columns = <
           item
             Expanded = False
-            FieldName = 'ID'
-            Title.Caption = 'Id'
-            Width = 100
+            FieldName = 'DAY'
+            Title.Caption = 'Dzie'#324
+            Width = 60
             Visible = True
           end
           item
             Expanded = False
-            FieldName = 'OPERATION_FLAG'
-            Title.Caption = 'Operacja'
-            Width = 97
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'EFFECTIVE_START_DATE'
-            Title.Caption = 'Data obow. od'
-            Width = 114
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'EFFECTIVE_END_DATE'
-            Title.Caption = 'Data obow. do'
-            Width = 111
+            FieldName = 'HOUR'
+            Title.Caption = 'Godzina'
+            Width = 50
             Visible = True
           end
           item
@@ -93,34 +70,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             FieldName = 'FRM_NAME'
             Title.Caption = 'Forma'
             Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DAY'
-            Title.Caption = 'Dzie'#324
-            Width = 60
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DAY_OF_WEEK'
-            Title.Caption = 'Dzie'#324' tyg.'
-            Width = 60
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DAY_MONTH'
-            Title.Caption = 'Miesi'#261'c'
-            Width = 60
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'HOUR'
-            Title.Caption = 'Godzina'
-            Width = 50
             Visible = True
           end
           item
@@ -174,29 +123,43 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end
           item
             Expanded = False
-            FieldName = 'OUL_NAME'
-            Title.Caption = 'Jednostka wyk'#322'adowcy'
-            Width = 100
+            FieldName = 'OPERATION_FLAG'
+            Title.Caption = 'Operacja'
+            Width = 97
             Visible = True
           end
           item
             Expanded = False
-            FieldName = 'OUG_NAME'
-            Title.Caption = 'Jednostka grupy'
-            Width = 100
+            FieldName = 'EFFECTIVE_START_DATE'
+            Title.Caption = 'Data obow. od'
+            Width = 114
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'EFFECTIVE_END_DATE'
+            Title.Caption = 'Data obow. do'
+            Width = 111
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DAY_OF_WEEK'
+            Title.Caption = 'Dzie'#324' tyg.'
+            Width = 60
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DAY_MONTH'
+            Title.Caption = 'Miesi'#261'c'
+            Width = 60
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'OUS_NAME'
             Title.Caption = 'Jednostka przedmiotu'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'OUR_NAME'
-            Title.Caption = 'Jednostka zasobu'
             Width = 100
             Visible = True
           end
@@ -225,6 +188,13 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             Expanded = False
             FieldName = 'DESC4'
             Title.Caption = 'Opis4'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ID'
+            Title.Caption = 'Id'
             Width = 100
             Visible = True
           end>
@@ -790,7 +760,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 945
         Top = 8
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'ID'
         DataField = 'ID'
         DataSource = Source
@@ -813,7 +783,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 56
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'HOUR'
         DataField = 'HOUR'
         DataSource = Source
@@ -824,7 +794,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 80
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'CALC_LECTURERS'
         DataField = 'CALC_LECTURERS'
         DataSource = Source
@@ -834,7 +804,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 104
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'CALC_GROUPS'
         DataField = 'CALC_GROUPS'
         DataSource = Source
@@ -844,7 +814,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 128
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'CALC_ROOMS'
         DataField = 'CALC_ROOMS'
         DataSource = Source
@@ -854,7 +824,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 152
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'SUB_ID'
         DataField = 'SUB_ID'
         DataSource = Source
@@ -865,7 +835,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 176
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'FOR_ID'
         DataField = 'FOR_ID'
         DataSource = Source
@@ -876,7 +846,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 200
         Width = 150
-        Height = 24
+        Height = 22
         Hint = 'FILL'
         DataField = 'FILL'
         DataSource = Source
@@ -887,7 +857,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 224
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'DESC1'
         DataField = 'DESC1'
         DataSource = Source
@@ -897,7 +867,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Left = 121
         Top = 248
         Width = 300
-        Height = 24
+        Height = 22
         Hint = 'DESC2'
         DataField = 'DESC2'
         DataSource = Source
@@ -1180,10 +1150,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       
         '414c4941533a4546464543544956455f454e445f444154453d434c4153534553' +
         '2e4546464543544956455f454e445f44415445'
-      '414c4941533a4f554c5f4e414d453d4f554c2e4e414d45'
       '414c4941533a4f55535f4e414d453d4f55532e4e414d45'
-      '414c4941533a4f55475f4e414d453d4f55472e4e414d45'
-      '414c4941533a4f55525f4e414d453d4f55522e4e414d45'
       '53656172636853514c3d303d30'
       '466f726d43617074696f6e3d')
   end
@@ -1218,9 +1185,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '     , CLASSES.DESC2'
       '     , CLASSES.DESC3'
       '     , CLASSES.DESC4'
-      
-        '     , LEC.TITLE||'#39' '#39'||LEC.LAST_NAME||'#39' '#39'||LEC.FIRST_NAME CALC_L' +
-        'ECTURERS'
+      '     , CLASSES.CALC_LECTURERS'
       '     , CLASSES.CALC_GROUPS'
       '     , CLASSES.CALC_ROOMS'
       '     , CLASSES.CALC_LEC_IDS'
@@ -1239,37 +1204,16 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         'a'#39','#39'D'#39','#39'Usuni'#281'cie'#39') operation_flag'
       '     , CLASSES.effective_start_date'
       '     , CLASSES.effective_end_date'
-      '     , OUL.NAME OUL_NAME'
       '     , OUS.NAME OUS_NAME'
-      '     , OUG.NAME OUG_NAME'
-      '     , OUR.NAME OUR_NAME'
       'FROM %TABLENAME CLASSES'
       '   , GRIDS'
       '   , SUBJECTS SUB'
       '   , FORMS FRM'
-      '   , LECTURERS LEC'
-      '   , LEC_CLA'
-      '   , GRO_CLA'
-      '   , ROM_CLA'
-      '   , ROOMS ROM'
-      '   , GROUPS GRO'
-      '   , ORG_UNITS OUL'
       '   , ORG_UNITS OUS'
-      '   , ORG_UNITS OUG'
-      '   , ORG_UNITS OUR'
       'WHERE SUB.ID (+)= SUB_ID'
       '  AND FRM.ID = FOR_ID'
-      '  AND CLASSES.ID  = LEC_CLA.CLA_ID(+)'
-      '  AND CLASSES.ID  = GRO_CLA.CLA_ID(+)'
-      '  AND CLASSES.ID  = ROM_CLA.CLA_ID(+)'
-      '  AND LEC_CLA.LEC_ID = LEC.ID(+)'
-      '  AND GRO_CLA.GRO_ID = GRO.ID(+)'
-      '  AND ROM_CLA.ROM_ID = ROM.ID(+)'
       '  AND GRIDS.NO = CLASSES.HOUR'
-      '  AND LEC.ORGUNI_ID = OUL.ID(+)'
       '  AND SUB.ORGUNI_ID = OUS.ID(+)'
-      '  AND GRO.ORGUNI_ID = OUG.ID(+)'
-      '  AND ROM.ORGUNI_ID = OUR.ID(+)'
       
         '  AND %CONDITIONALS AND %SEARCH AND %CONPERIOD AND %CONL AND %CO' +
         'NG AND %CONRESCAT0 AND %CONRESCAT1 AND %CONS AND %CONF AND %CONP' +
@@ -1277,6 +1221,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       
         '  AND %HIST_FILTER  AND %RESERVATIONS_FILTER AND %DAY_FILTER AND' +
         ' %HOUR_FILTER AND %SELECTED_DATES'
+      '  AND CLASSES.OWNER <> '#39'AUTO'#39
       '%SORTORDER')
     Left = 448
     Top = 24
