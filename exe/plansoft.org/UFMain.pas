@@ -600,6 +600,7 @@ type
     ReservationType: TEdit;
     LabelReservationType: TLabel;
     Preview: TSpeedButton;
+    sqlCheckConflicts: TMemo;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);

@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 178
-  Top = 12
+  Left = 180
+  Top = 128
   Width = 1569
   Height = 1038
   Caption = 'Plansoft.org        '
@@ -3260,6 +3260,24 @@ inherited FMain: TFMain
         ShowHint = True
         Visible = False
         OnClick = BCloseAppClick
+      end
+      object sqlCheckConflicts: TMemo
+        Left = 1120
+        Top = 8
+        Width = 25
+        Height = 25
+        Lines.Strings = (
+          'select to_char(day, '#39'yyyy-mm-dd'#39')||'#39':'#39'||hour from'
+          '('
+          'select day, hour from %RESTYPE_cla where %RESTYPE_id=:id1'
+          'union'
+          'select day, hour from %RESTYPE_cla where %RESTYPE_id=:id2'
+          ')'
+          'where rownum < 100'
+          '')
+        TabOrder = 0
+        Visible = False
+        WordWrap = False
       end
     end
     object LeftPanel: TPanel

@@ -340,6 +340,7 @@ Var
     mr : tmodalresult;
     pexclusive_parent : shortString;
     t : integer;
+    checkSQL : string;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -348,6 +349,20 @@ begin
 
   keyValue := '';
   If LookupWindow(True, DModule.ADOConnection, 'ROOMS ROM, ROM_PLA','ROM.ID', sql_ResCat0NAME +', attribn_01','Zasób,Pojemnoœæ','NAME','ROM_PLA.ROM_ID = ROM.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+     checkSQL := fmain.sqlCheckConflicts.Lines.Text;
+     checkSQL := Replace(checkSQL,'%RESTYPE','ROM');
+     checkSQL := Replace(checkSQL,':id1',keyValue);
+     checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
+     resultValue := dmodule.SingleValue(checkSQL);
+     if (resultValue<>'') then begin
+       info('Nie mo¿na utworzyæ relacji, poniewa¿ sposowodwa³aby ona konflikty: Zasób podrzêdny oraz zasób nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       Exit;
+     End;
+   end;
+   
    for t := 1 to wordCount(KeyValues, [',']) do begin
     KeyValue := extractWord(t,KeyValues, [',']);
     with dmodule.QWork do begin

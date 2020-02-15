@@ -385,6 +385,7 @@ Var
     mr : tmodalresult;
     pexclusive_parent : shortString;
     t : integer;
+    checkSQL : string;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -393,6 +394,20 @@ begin
 
   keyValue := '';
   If LookupWindow(True, DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+     checkSQL := fmain.sqlCheckConflicts.Lines.Text;
+     checkSQL := Replace(checkSQL,'%RESTYPE','GRO');
+     checkSQL := Replace(checkSQL,':id1',keyValue);
+     checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
+     resultValue := dmodule.SingleValue(checkSQL);
+     if (resultValue<>'') then begin
+       info('Nie mo¿na utworzyæ relacji, poniewa¿ sposowodwa³aby ona konflikty: Grupa podrzêdna oraz grupa nadrzêdna maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       Exit;
+     End;
+   end;
+
    for t := 1 to wordCount(KeyValues, [',']) do begin
    KeyValue := extractWord(t,KeyValues, [',']);
     with dmodule.QWork do begin
@@ -412,6 +427,7 @@ begin
       execSQL;
     end;
    end;
+
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
    if resultValue <> '' then info (resultValue) else refreshDetails;
   end;
