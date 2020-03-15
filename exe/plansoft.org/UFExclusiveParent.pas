@@ -10,8 +10,6 @@ type
   TFExclusiveParent = class(TFormConfig)
     exclusive_parent: TBitBtn;
     non_exclusive_parent: TBitBtn;
-    CheckBox1: TCheckBox;
-    Label1: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
   private

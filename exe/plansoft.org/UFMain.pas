@@ -1133,11 +1133,16 @@ Var t : Integer;
     X, Y : Integer;
     LecCond, GroCond, RomCond, ResCat1Cond : String;
     NotLec, NotGro, NotRom : String;
-    Operator, comment1, comment2 : String;
+    comment1, comment2 : String;
     ids : string;
     SQLstmt : string;
     firstDay : integer;
     periodClause : string;
+    lcnt, gcnt, rcnt, r2cnt : integer;
+    havingLec  : string;
+    havingGro  : string;
+    havingRom  : string;
+    havingRom2 : string;
 
 Var L1, L2 : Integer;
 begin
@@ -1168,33 +1173,34 @@ begin
   //1 wolny termin dla któregokolwiek => dopelnienie: zajety termin dla wszystkich= zajety w1 and  zajety w2 and ...
   with FMain Do Begin
 
+    lcnt := WordCount(FMain.ConLecturer.Text,[';']);
+    gcnt := WordCount(FMain.ConGroup.Text,[';']);
+    rcnt := WordCount(FMain.conResCat0.Text,[';']);
+    r2cnt:= WordCount(FMain.CONResCat1.Text,[';']);
+
     LecCond := '';
-    if ShowAllAnyL.ItemIndex = 0 then Operator := ' OR ' else Operator := ' AND ';
-    If (not ShowFreeTermsL.Checked) or (WordCount(FMain.ConLecturer.Text,[';']) = 0) Then {}
+    If (not ShowFreeTermsL.Checked) or (lcnt = 0) Then {}
     else
-      for t := 1 To WordCount(FMain.ConLecturer.Text,[';']) Do
-        LecCond:= Merge(LecCond, 'lec_id='+ExtractWord(t,FMain.ConLecturer.Text,[';']), Operator);
+      for t := 1 To lcnt Do
+        LecCond:= Merge(LecCond, 'lec_id='+ExtractWord(t,FMain.ConLecturer.Text,[';']), ' OR ');
 
     GroCond := '';
-    if ShowAllAnyG.ItemIndex = 0 then Operator := ' OR ' else Operator := ' AND ';
-    If (not ShowFreeTermsG.Checked) or (WordCount(FMain.ConGroup.Text,[';']) = 0) Then {}
+    If (not ShowFreeTermsG.Checked) or (gcnt = 0) Then {}
     else
-      for t := 1 To WordCount(FMain.ConGroup.Text,[';']) Do
-        GroCond:= Merge(GroCond, 'gro_id='+ExtractWord(t,FMain.ConGroup.Text,[';']), Operator); // ten zapis oznacza: prawda gdy group ma zaplanowane rekordy w tym terminie
+      for t := 1 To gcnt Do
+        GroCond:= Merge(GroCond, 'gro_id='+ExtractWord(t,FMain.ConGroup.Text,[';']), ' OR ');
 
     RomCond := '';
-    if ShowAllAnyResCat0.ItemIndex = 0 then Operator := ' OR ' else Operator := ' AND ';
-    If (not ShowFreeTermsR.Checked) or (WordCount(FMain.conResCat0.Text,[';']) = 0) Then {}
+    If (not ShowFreeTermsR.Checked) or (rcnt = 0) Then {}
     else
-      for t := 1 To WordCount(FMain.conResCat0.Text,[';']) Do
-        RomCond:= Merge(RomCond, 'rom_id='+ExtractWord(t,FMain.conResCat0.Text,[';']), Operator); // ten zapis oznacza: prawda gdy room ma zaplanowane rekordy w tym terminie
+      for t := 1 To rcnt Do
+        RomCond:= Merge(RomCond, 'rom_id='+ExtractWord(t,FMain.conResCat0.Text,[';']), ' OR ');
 
     ResCat1Cond := '';
-    if ShowAllAnyResCat1.ItemIndex = 0 then Operator := ' OR ' else Operator := ' AND ';
-    If (not ShowFreeTermsResCat1.Checked) or (WordCount(FMain.CONResCat1.Text,[';']) = 0) Then {}
+    If (not ShowFreeTermsResCat1.Checked) or (r2cnt = 0) Then {}
     else
-      for t := 1 To WordCount(FMain.CONResCat1.Text,[';']) Do
-        ResCat1Cond:= Merge(ResCat1Cond, 'rom_id='+ExtractWord(t,FMain.ConResCat1.Text,[';']), Operator); // ten zapis oznacza: prawda gdy ResCat1 ma zaplanowane rekordy w tym terminie
+      for t := 1 To r2cnt Do
+        ResCat1Cond:= Merge(ResCat1Cond, 'rom_id='+ExtractWord(t,FMain.ConResCat1.Text,[';']), ' OR ');
 
   End;
 
@@ -1204,19 +1210,29 @@ begin
   if FMain.RespectCompletions.Checked then begin
    comment1 := '--';
    comment2 := '--';
-   for t := 1 To WordCount(FMain.ConLecturer.Text,[';']) Do
+   for t := 1 To lcnt Do
      NotLec:= Merge(NotLec, 'lec_id<>'+ExtractWord(t,FMain.ConLecturer.Text,[';']), ' and ');
-   for t := 1 To WordCount(FMain.ConGroup.Text,[';']) Do
+   for t := 1 To gcnt Do
      NotGro:= Merge(NotGro, 'gro_id<>'+ExtractWord(t,FMain.ConGroup.Text,[';']), ' and ');
-   for t := 1 To WordCount(FMain.conResCat0.Text,[';']) Do
+   for t := 1 To rcnt Do
      NotRom:= Merge(NotRom, 'rom_id<>'+ExtractWord(t,FMain.conResCat0.Text,[';']), ' and ');
-   for t := 1 To WordCount(FMain.CONResCat1.Text,[';']) Do
+   for t := 1 To r2cnt Do
      NotRom:= Merge(NotRom, 'rom_id<>'+ExtractWord(t,FMain.CONResCat1.Text,[';']) , ' and ');
   end else begin
    comment1  := '/*';
    comment2  := '*/';
    //variables have no meaning, statement will be commented
   end;
+
+  havingLec  := '='+intToStr(lcnt);
+  havingGro  := '='+intToStr(gcnt);
+  havingRom  := '='+intToStr(rcnt);
+  havingRom2 := '='+intToStr(r2cnt);
+
+  if FMain.ShowAllAnyL.ItemIndex=2 then  havingLec := ' in ('+Copy(FMain.ShowAllAnyL.Items[2],10,20)+')';
+  if FMain.ShowAllAnyG.ItemIndex=2 then  havingGro := ' in ('+Copy(FMain.ShowAllAnyG.Items[2],10,20)+')';
+  if FMain.ShowAllAnyResCat0.ItemIndex=2 then  havingRom := ' in ('+Copy(FMain.ShowAllAnyResCat0.Items[2],10,20)+')';
+  if FMain.ShowAllAnyResCat1.ItemIndex=2 then  havingRom2 := ' in ('+Copy(FMain.ShowAllAnyResCat1.Items[2],10,20)+')';
 
   SQLstmt :=
    'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(1) cnt'+cr+
@@ -1229,9 +1245,13 @@ begin
    '('+cr+
    'select -1 from dual'+cr+
    iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+')'+cr)+
+      iif((LecCond<>'') and (FMain.ShowAllAnyL.ItemIndex >0),'and (day, hour) in (select day, hour from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+') group by day, hour having count(1)'+ havingLec  +')'+cr,'')+
    iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and ('+GroCond+')'+cr)+
+      iif((GroCond<>'') and (FMain.ShowAllAnyG.ItemIndex>0),'and (day, hour) in (select day, hour from gro_cla where no_conflict_flag is null and '+periodClause+' and ('+GroCond+') group by day, hour having count(1)'+ havingGro  +')'+cr,'')+
    iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+RomCond+')'+cr)+
+      iif((RomCond<>'') and (FMain.ShowAllAnyResCat0.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+RomCond+') group by day, hour having count(1)'+ havingRom  +')'+cr,'')+
    iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+')'+cr)+
+      iif((ResCat1Cond<>'') and (FMain.ShowAllAnyResCat1.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+') group by day, hour having count(1)'+ HavingRom2  +')'+cr,'')+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
@@ -1959,13 +1979,13 @@ end;
 procedure TFMain.BDICTLECClick(Sender: TObject);
 begin
   LECTURERSShowModalAsBrowser('');
-  BuildCalendar('L');
+  BRefreshClick(nil);
 end;
 
 procedure TFMain.BDICTGROClick(Sender: TObject);
 begin
   GROUPSShowModalAsBrowser('');
-  BuildCalendar('G');
+  BRefreshClick(nil);
 end;
 
 procedure TFMain.BDICTSUBClick(Sender: TObject);
@@ -5293,7 +5313,19 @@ begin
 end;
 
 procedure TFMain.ShowFreeTermsLClick(Sender: TObject);
+var busyCond : string;
 begin
+  if (Sender <> nil) then
+  if (Sender is  TComboBox) then 
+    if (Sender as TComboBox).ItemIndex = 2 then begin
+      busyCond := Copy((Sender as TComboBox).Items[2],10,20);
+      busyCond := InputBox('Pytanie', 'Ile zajêtych zasobów? Mo¿esz wpisaæ kilka liczb np. 6,7,8',busyCond);
+      if (busyCond='') then busyCond := '6,7,8';
+      (Sender as TComboBox).Items[2] := 'Zajêtych: '+ busyCond;
+      (Sender as TComboBox).ItemIndex := 2;
+    end;
+
+
   ShowAllAnyL.Visible       := ShowFreeTermsL.Checked;
   ShowAllAnyG.Visible       := ShowFreeTermsG.Checked;
   ShowAllAnyResCat0.Visible := ShowFreeTermsR.Checked;

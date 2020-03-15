@@ -314,7 +314,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info('Nie mo¿na utworzyæ relacji, poniewa¿ sposowodwa³aby ona konflikty: Wyk³adowca podrzêdny oraz wy³adowca nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       info('Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Wyk³adowca podrzêdny oraz wy³adowca nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;
@@ -361,7 +361,7 @@ var id : shortString;
 begin
  if parent then id := qparents.FieldByName('id').AsString
            else id := qdetails.FieldByName('id').AsString;
-
+ if id='' then exit;
  if question
     ('Czy na pewno chcesz usun¹æ nastêpuj¹cy rekord ?'+cr+
      dmodule.SingleValue('select ''Podrzêdny: ''|| child_dsp|| chr(13)||chr(10)||''Nadrzêdny: '' ||parent_dsp from str_elems_v where id =' + id )

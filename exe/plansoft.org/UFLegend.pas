@@ -597,6 +597,7 @@ begin
         ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
         ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
     );
+    //copytoclipboard(QueryR.sql.Text);
     QueryR.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridR);
   end;

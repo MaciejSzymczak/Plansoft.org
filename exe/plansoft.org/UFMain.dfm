@@ -3269,11 +3269,15 @@ inherited FMain: TFMain
         Lines.Strings = (
           'select to_char(day, '#39'yyyy-mm-dd'#39')||'#39':'#39'||hour from'
           '('
-          'select day, hour from %RESTYPE_cla where %RESTYPE_id=:id1'
-          'union'
-          'select day, hour from %RESTYPE_cla where %RESTYPE_id=:id2'
+          
+            'select classes.day, classes.hour from %RESTYPE_cla, classes wher' +
+            'e classes.id = cla_id and owner<>'#39'AUTO'#39' and %RESTYPE_id=:id1'
+          'INTERSECT'
+          
+            'select classes.day, classes.hour from %RESTYPE_cla, classes wher' +
+            'e classes.id = cla_id and owner<>'#39'AUTO'#39' and %RESTYPE_id=:id2'
           ')'
-          'where rownum < 100'
+          'where rownum < 10'
           '')
         TabOrder = 0
         Visible = False
@@ -4482,13 +4486,14 @@ inherited FMain: TFMain
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
-        ItemIndex = 1
+        ItemIndex = 0
         TabOrder = 7
-        Text = 'dla kt'#243'regokolwiek'
+        Text = 'dla wszystkich'
         OnClick = ShowFreeTermsLClick
         Items.Strings = (
           'dla wszystkich'
-          'dla kt'#243'regokolwiek')
+          'dla kt'#243'regokolwiek'
+          'Zaj'#281'tych:6,7,8')
       end
       object conPeriod: TEdit
         Tag = 67108864
@@ -4529,13 +4534,14 @@ inherited FMain: TFMain
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
-        ItemIndex = 1
+        ItemIndex = 0
         TabOrder = 13
-        Text = 'dla kt'#243'regokolwiek'
+        Text = 'dla wszystkich'
         OnClick = ShowFreeTermsLClick
         Items.Strings = (
           'dla wszystkich'
-          'dla kt'#243'regokolwiek')
+          'dla kt'#243'regokolwiek'
+          'Zaj'#281'tych:6,7,8')
       end
       object ShowFreeTermsR: TCheckBox
         Tag = 67108864
@@ -4554,13 +4560,14 @@ inherited FMain: TFMain
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
-        ItemIndex = 1
+        ItemIndex = 0
         TabOrder = 19
-        Text = 'dla kt'#243'regokolwiek'
+        Text = 'dla wszystkich'
         OnClick = ShowFreeTermsLClick
         Items.Strings = (
           'dla wszystkich'
-          'dla kt'#243'regokolwiek')
+          'dla kt'#243'regokolwiek'
+          'Zaj'#281'tych:6,7,8')
       end
       object rorL: TBitBtn
         Left = 650
@@ -4706,13 +4713,14 @@ inherited FMain: TFMain
         Height = 22
         Style = csOwnerDrawFixed
         ItemHeight = 16
-        ItemIndex = 1
+        ItemIndex = 0
         TabOrder = 31
-        Text = 'dla kt'#243'regokolwiek'
+        Text = 'dla wszystkich'
         OnClick = ShowFreeTermsLClick
         Items.Strings = (
           'dla wszystkich'
-          'dla kt'#243'regokolwiek')
+          'dla kt'#243'regokolwiek'
+          'Zaj'#281'tych:6,7,8')
       end
       object DrawSuppressionS: TCheckBox
         Tag = 67108864
