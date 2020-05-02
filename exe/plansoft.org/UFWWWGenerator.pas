@@ -1949,7 +1949,9 @@ var ColoringIndex    : shortString;
 
 											with queryClasses do begin
 											  try
-											  dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by day, hour'
+                        //2020.05.02 Include also parent classes on the printouts (like Inauguracja roku)
+											  dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by day, hour'
+											  //dmodule.openSQL(queryClasses, sqlHolder.Lines.Text + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by day, hour'
 												,'pres_id='      + currentResource +
 												 ';per_id_from1='+ currentPeriod.text    +
 												 ';per_id_to1='  + currentPeriod.text    +
