@@ -563,7 +563,9 @@ begin
     if (presAlias='ROM') then orderby := 'calc_rooms';
 		with queryClasses do begin
 			try
-				dmodule.openSQL(queryClasses, psql + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by '+orderby
+        //2020.05.02 Include also parent classes on the printouts (like Inauguracja roku)
+				//dmodule.openSQL(queryClasses, psql + ' and c.id in (select cla_id from '+presAlias+'_cla where is_child=''N'' and '+presAlias+'_id = :pres_id) order by '+orderby
+				dmodule.openSQL(queryClasses, psql + ' and c.id in (select cla_id from '+presAlias+'_cla where '+presAlias+'_id = :pres_id) order by '+orderby
 				,'pres_id='      + currentResource +
         ';per_id_from1='+ pPerId    +
         ';per_id_to1='  + pPerId    +
