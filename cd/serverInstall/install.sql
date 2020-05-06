@@ -1,8 +1,16 @@
+STEP 0
+==================================
+Install Oracle18c XE
+install Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME)
+
 STEP 1
 ==================================
-Connect system
-drop user planner cascade; --ewentualny błąd można zignorować
-drop role pla_permission; -- ewentualny błąd można zignorować
+Connect as sys to 127.0.0.1:1521/XEPDB1 (!! do not use 127.0.0.1:1521/XE)
+begin
+	execute immediate 'drop user planner cascade'; 
+	execute immediate 'drop role pla_permission'; 
+exception when others then null;
+end;
 create user planner identified by planner
 DEFAULT TABLESPACE USERS
 QUOTA UNLIMITED ON USERS;
@@ -34,9 +42,7 @@ grant "RESOURCE" to "PLANNERREPORTS";
 alter profile DEFAULT limit PASSWORD_REUSE_TIME unlimited;
 alter profile DEFAULT limit PASSWORD_LIFE_TIME  unlimited;
 
-STEP 2
-=================================
-connect sys as sysdba;
+prompt connect sys as sysdba;
 grant select on SYS.CDEF$ to planner;
 grant select on SYS.CON$ to planner;
 grant select on SYS.OBJ$ to planner;
@@ -46,15 +52,14 @@ grant select on sys.GV_$SESSION to planner;
 GRANT EXECUTE ON sys.dbms_crypto TO planner;
 
 
-STEP 3
+STEP 2
 ===============
-IMP
+import init.dmp
+IMP planner@127.0.0.1:1521/XEPDB1
 
-
-STEP 4
+STEP 3
 ================
 Sqlplus planner
-
 
 begin
 insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
@@ -123,7 +128,6 @@ end;
 
 
 --select 'grant select on planner.'||lower(table_name)||' to plannerreports;' from cat where table_type = 'TABLE' order by
-table_name
 grant execute on planner.getSQLValues to plannerreports;
 grant select on planner.classes to plannerreports;
 grant select on planner.flex_col_usage to plannerreports;
