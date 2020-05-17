@@ -398,13 +398,25 @@ Begin
   SQL.Clear;
   //param check must be set false when you are trying to install package which contains characters : inside the body
   ParamCheck := pparams<>'';
-  SQL.Add(S);
+
+  //SQL.Add(S);
+  // for t := 1 to wordCount(pparams,[';']) do begin
+  //   wholeString  := extractWord(t,pparams,[';']);
+  //   paramName  := extractWord(1,wholeString,['=']);
+  //   paramValue := extractWord(2,wholeString,['=']);
+  //   parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
+  // end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
+     S := searchAndReplace(S,':'+paramName,''''+ searchAndReplace ( paramValue , '!chr(61)', '=') +'''');
    end;
+   SQL.Add(S);
+
+
   ExecSQL;
   //revert original settings
   ParamCheck := true;
@@ -424,13 +436,24 @@ Begin
  query.CursorLocation  := clUseServer;
  With query Do Begin
   SQL.Clear;
-  SQL.Add(S);
+
+   //SQL.Add(S);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
   ExecSQL;
  End;
  logSQLStop;
@@ -446,13 +469,23 @@ Begin
  logSQLStart ('SQL2', S);
  With Dmodule.QWork2 Do Begin
   SQL.Clear;
-  SQL.Add(S);
+  //SQL.Add(S);
+  // for t := 1 to wordCount(pparams,[';']) do begin
+  //   wholeString  := extractWord(t,pparams,[';']);
+  //   paramName  := extractWord(1,wholeString,['=']);
+  //   paramValue := extractWord(2,wholeString,['=']);
+  //   parameters.ParamByName(paramName).value   := paramValue;
+  // end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
   ExecSQL;
  End;
  logSQLStop;
@@ -472,13 +505,25 @@ Begin
                   else logSQLStart ('openSQL', S);
  With Dmodule.QWork Do Begin
    SQL.Clear;
-   SQL.Add(S);
+
+   //SQL.Add(S);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //  //xx := parameters.ParamByName(paramName).datatype;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
    open;
  End;
  logSQLStop;
@@ -499,13 +544,24 @@ Begin
                   else logSQLStart ('openSQL', S);
  With query Do Begin
    SQL.Clear;
-   SQL.Add(S);
+
+   //SQL.Add(S);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
    open;
  End;
  logSQLStop;
@@ -523,13 +579,24 @@ Begin
                   else logSQLStart ('openSQL2', S);
  With Dmodule.QWork2 Do Begin
    SQL.Clear;
-   SQL.Add(S);
+
+   //SQL.Add(S);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
    open;
  End;
  logSQLStop;
@@ -546,13 +613,24 @@ Begin
                   else logSQLStart ('openSQL3', S);
  With Dmodule.QWork3 Do Begin
    SQL.Clear;
-   SQL.Add(S);
+
+   //SQL.Add(S);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
    open;
  End;
  logSQLStop;
@@ -615,14 +693,26 @@ Begin
  Dmodule.QWork.Close;
  With Dmodule.QWork Do Begin
    SQL.Clear;
-   SQL.Add(S);
-   Parameters.ParseSQL(SQL.Text, True);
+
+   //SQL.Add(S);
+   //Parameters.ParseSQL(SQL.Text, True);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+
+
    Open;
    Result := Fields[0].AsString;
  end;
@@ -641,14 +731,25 @@ Begin
  logSQLStart ('singleValue2', S);
  With Dmodule.QWork2 Do Begin
    SQL.Clear;
-   SQL.Add(S);
-   Parameters.ParseSQL(SQL.Text, True);
+
+   //SQL.Add(S);
+   //Parameters.ParseSQL(SQL.Text, True);
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  parameters.ParamByName(paramName).value   := paramValue;
+   //end;
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := paramValue;
+     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Add(S);
+      
    Open;
  end;
  Result := QWork2.Fields[0].AsString;

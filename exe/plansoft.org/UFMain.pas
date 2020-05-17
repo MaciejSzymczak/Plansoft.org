@@ -4305,9 +4305,9 @@ begin
 
   Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
 
-  dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers', MapLecColors, true);
-  dmodule.loadMap('select id,NVL(COLOUR,0) from groups', MapGroColors, true);
-  dmodule.loadMap('select id,NVL(COLOUR,0) from rooms', MapRomColors, true);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers order by id', MapLecColors, true);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from groups order by id', MapGroColors, true);
+  dmodule.loadMap('select id,NVL(COLOUR,0) from rooms order by id', MapRomColors, true);
   //
   dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);

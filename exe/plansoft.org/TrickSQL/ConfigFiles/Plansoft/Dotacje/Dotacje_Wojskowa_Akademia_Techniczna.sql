@@ -27,16 +27,17 @@ select
        WCY --> Wydzia³ Cyberentyki           
        WEL --> Wydzia³ Elektroniki
        WIG --> Wydzia³ In¿ynierii L¹dowej i Geodezji
-       WME --> Wydzia³ Mechaniczny
+       WIM --> Wydzia³ Inzynierii Mechaninej
        WML --> Wydzia³ Mechatroniki
        WTC --> Wydzia³ Nowych Technologii i Chemii
 2019.04.20 Zmiany w sposobie wyznaczania nazwy wydzia³u i wspó³czynnika dla grupy
-	Trzeba podzieliæ to na dwa kryteria. Dla grup nazywanych wed³ug nowych standardów, np. WME18TX1S1, do oznaczenia wydzia³u musi braæ trzy pierwsze litery stanowi¹ce kod wydzia³u np. WME=Wydzia³ Mechaniczny. 
+	Trzeba podzieliæ to na dwa kryteria. Dla grup nazywanych wed³ug nowych standardów, np. WME18TX1S1, do oznaczenia wydzia³u musi braæ trzy pierwsze litery stanowi¹ce kod wydzia³u np. WIM=Wydzia³ Inzynierri Mechanicznej. 
 	Do okreœlenia wspó³czynnika studiów potrzebna bêdzie szósta pozycja, jest to litera która w „starych” oznaczeniach by³a na pierwszej pozycji. 
 	Kryteria dla grup oznaczanych po staremu, bez zmian. Je¿eli chodzi o wspó³czynniki:
 	F=1,1
 	P=1,5
 	W=1,5
+2020.05.17 WME -> WIM	
 */
  unique
   WYDZIAL_GRUPY      "Wydzia³ grupy"
@@ -128,13 +129,13 @@ from
            when substr(g.abbreviation,1,1)= 'G' then 'WIG' --'Wydzia³ In¿ynierii L¹dowej i Geodezji'
            when substr(g.abbreviation,1,1)= 'I' then 'WCY' --'Wydzia³ Cybernetyki'
            when substr(g.abbreviation,1,1)= 'L' then 'WML' --'Wydzia³ Mechatroniki'
-           when substr(g.abbreviation,1,1)= 'M' then 'WME' --'Wydzia³ Mechaniczny'
+           when substr(g.abbreviation,1,1)= 'M' then 'WIM' --'Wydzia³ Inzynierri Mechanicznej'
            when substr(g.abbreviation,1,1)= 'N' then 'WTC' --'Wydzia³ Nowych Technologii i Chemii'
            when substr(g.abbreviation,1,1)= 'O' then 'IOE' --'Intytut Optoelektroniki'
            when substr(g.abbreviation,1,1)= 'P' then 'WLO' --'Wydzia³ Logistyki'           
            when substr(g.abbreviation,1,1)= 'R' then 'WCY' --'Wydzia³ Cybernetyki'
            when substr(g.abbreviation,1,1)= 'S' then 'WML' --'Wydzia³ Mechatroniki'
-           when substr(g.abbreviation,1,1)= 'T' then 'WME' --'Wydzia³ Mechaniczny'
+           when substr(g.abbreviation,1,1)= 'T' then 'WIM' --'Wydzia³ Inzynierri Mechanicznej'
            when substr(g.abbreviation,1,1)= 'W' then 'IOE' --'Instytut Optoelektroniki'
            when substr(g.abbreviation,1,1)= 'Z' then 'WCY' --'Wydzia³ Cybernetyki'           
          else 'NIEZNANY'
@@ -221,13 +222,13 @@ from
      and g.id(+) = gro_cla.gro_id
      and forms.id = classes.for_id
      and subjects.id = classes.sub_id
-	 and g.name like ':group_name' 
-     and (
-         g.abbreviation like '%:s_n1'
-      or g.abbreviation like '%:s_n2'
-      or g.abbreviation like '%:s_n3' --2012.02.20 Studia doktoranckie
-      or g.abbreviation like '%:s_n4'
-         )
+	 --and g.name like ':group_name' 
+     --and (
+     --    g.abbreviation like '%:s_n1'
+     -- or g.abbreviation like '%:s_n2'
+     -- or g.abbreviation like '%:s_n3' --2012.02.20 Studia doktoranckie
+     -- or g.abbreviation like '%:s_n4'
+     --    )
      and classes.day between :date_start 
                      and     :date_end   
      --and g.attribs_01=nvl(':pwojskowe_cywilne', g.attribs_01)   
@@ -274,13 +275,13 @@ select g.id, g.name,
    when substr(g.abbreviation,1,1)= 'G' then 'WIG' --'Wydzia³ In¿ynierii L¹dowej i Geodezji'
    when substr(g.abbreviation,1,1)= 'I' then 'WCY' --'Wydzia³ Cybernetyki'
    when substr(g.abbreviation,1,1)= 'L' then 'WML' --'Wydzia³ Mechatroniki'
-   when substr(g.abbreviation,1,1)= 'M' then 'WME' --'Wydzia³ Mechaniczny'
+   when substr(g.abbreviation,1,1)= 'M' then 'WIM' --'Wydzia³ Inzynierri Mechanicznej'
    when substr(g.abbreviation,1,1)= 'N' then 'WTC' --'Wydzia³ Nowych Technologii i Chemii'
    when substr(g.abbreviation,1,1)= 'O' then 'IOE' --'Intytut Optoelektroniki'
    when substr(g.abbreviation,1,1)= 'P' then 'WLO' --'Wydzia³ Logistyki'           
    when substr(g.abbreviation,1,1)= 'R' then 'WCY' --'Wydzia³ Cybernetyki'
    when substr(g.abbreviation,1,1)= 'S' then 'WML' --'Wydzia³ Mechatroniki'
-   when substr(g.abbreviation,1,1)= 'T' then 'WME' --'Wydzia³ Mechaniczny'
+   when substr(g.abbreviation,1,1)= 'T' then 'WIM' --'Wydzia³ Inzynierri Mechanicznej'
    when substr(g.abbreviation,1,1)= 'W' then 'IOE' --'Instytut Optoelektroniki'
    when substr(g.abbreviation,1,1)= 'Z' then 'WCY' --'Wydzia³ Cybernetyki'           
   else 'NIEZNANY'

@@ -9,9 +9,9 @@ type tcell = class
          dataCell: boolean;
          table : array of record
                      s: string;
-                     cnt : integer;
+                     count : real;
                  end;
-         procedure add(pcntMode : boolean; pdataCell: boolean; pspannedCell : boolean; colspan : integer; s : string; ignoreDuplicates : boolean);
+         procedure addClass(pcntMode : boolean; pdataCell: boolean; pspannedCell : boolean; colspan : integer; s : string; ignoreDuplicates : boolean; count : real);
          function getBody : string;
      end;
 
@@ -35,7 +35,7 @@ type tweeklyTable = class
                  pcolLabels    //day of weeks
                , pcolsubLabels //group names
                , prowLabels : array of string );
-             procedure addCell (dataCell: boolean; colLabel, colsubLabel, rowLabel, attributes, body : string; colsubLabelMode : boolean);
+             procedure addCell (dataCell: boolean; colLabel, colsubLabel, rowLabel, attributes, body : string; colsubLabelMode : boolean; count : real);
              function  getTitle : string;
              function  getBody (forceSpan : boolean) : string;
              procedure cleanUp;
@@ -131,11 +131,11 @@ begin
         for t := 0 to cLength-1 do begin
              if t  mod subColLen = 1 then begin
                  table[0][t+1]:= tcell.Create;
-                 table[0][t+1].add (cntMode, false, false,subColLen,'<td bgcolor="grey" colspan="?"><center>'+pcolLabels[t div subColLen]+'</center></td>', true);
+                 table[0][t+1].addClass(cntMode, false, false,subColLen,'<td bgcolor="grey" colspan="?"><center>'+pcolLabels[t div subColLen]+'</center></td>', true, 0);
              end else begin
                  //table[0][t+1] := getSpannedCell;
                  table[0][t+1]:= tcell.Create;
-                 table[0][t+1].add (cntMode, false, true,0,'<td bgcolor="grey"><center>'+pcolLabels[t div subColLen]+'</center></td>', true);
+                 table[0][t+1].addClass (cntMode, false, true,0,'<td bgcolor="grey"><center>'+pcolLabels[t div subColLen]+'</center></td>', true, 0);
              end;
 
              table[1][t+1]          := simpleGreyCell(pcolsubLabels[t  mod subColLen]);
@@ -152,7 +152,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-procedure tweeklyTable.addCell (dataCell: boolean; colLabel, colsubLabel, rowLabel, attributes, body : string; colsubLabelMode : boolean);
+procedure tweeklyTable.addCell (dataCell: boolean; colLabel, colsubLabel, rowLabel, attributes, body : string; colsubLabelMode : boolean; count : real);
 var r,c : integer;
     function rowLabelToId ( s : string ) : integer;
     var t : integer;
@@ -188,7 +188,7 @@ begin
 
   if pos('width=',attributes)=0 then attributes := attributes + ' width="?"';
 
-  table[ r ][ c ].add (cntMode, dataCell, false,0,'<td '+attributes+'>'+body+'</td>', true);
+  table[ r ][ c ].addClass (cntMode, dataCell, false,0,'<td '+attributes+'>'+body+'</td>', true, count);
 end;
 
 //------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ function tweeklyTable.simpleGreyCell (s: string) : tcell;
 var c : tcell;
 begin
     c := tcell.create;
-    c.add(cntMode, false, false,0,'<td bgcolor="grey"><center>'+s+'</center></td>', true);
+    c.addClass(cntMode, false, false,0,'<td bgcolor="grey"><center>'+s+'</center></td>', true, 0);
     result := c;
 end;
 
@@ -307,12 +307,12 @@ function tweeklyTable.getSpannedCell : tcell;
 var c : tcell;
 begin
     c := tcell.create;
-    c.add(cntMode, false, true, 0,'', true);
+    c.addClass(cntMode, false, true, 0,'', true, 0);
     result := c;
 end;
 
 //------------------------------------------------------------------------------
-procedure tcell.add;
+procedure tcell.addClass(pcntMode : boolean; pdataCell: boolean; pspannedCell : boolean; colspan : integer; s : string; ignoreDuplicates : boolean; count : real) ;
 var t : integer;
 begin
     cntMode     := pcntMode;
@@ -322,19 +322,19 @@ begin
     if ignoreDuplicates then
         for t := 0 to length(table) - 1 do
             if table[ t ].s = s then begin
-                inc ( table[ t ].cnt );
+                table[ t ].count := table[ t ].count + count;
                 exit;
             end;
     setLength(table, length(table)+1);
     table[ length(table)-1 ].s := s;
-    table[ length(table)-1 ].cnt := 1;
+    table[ length(table)-1 ].count := count;
 end;
 
 //------------------------------------------------------------------------------
 function tcell.getBody : string;
 var t   : integer;
     res : string;
-    c    : integer;
+    c    : real;
 begin
     if spannedCell then begin
       result := '';
@@ -346,11 +346,11 @@ begin
     if dataCell then begin
        c:=0;
        for t := 0 to length(table) - 1 do
-           c := c + table[t].cnt;
+           c := c + table[t].count;
        result :=
             '<td><table border="2" style="border:solid white; border-collapse: collapse; font-size:10px;" width="100%">'+#13+#10+
             '<tr>'+#13#10+
-            '<center>'+intToStr(c)+'</center>'+
+            '<center>'+FloatToStr(c)+'</center>'+
            '</tr>'+#13#10+
             '</table></td>';
         exit;

@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 604
-    ActivePage = SAdvanced
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange
@@ -327,196 +327,196 @@ inherited FProgramSettings: TFProgramSettings
         Left = 168
         Top = 64
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 1
       end
       object profileObjectNamePeriods: TEdit
         Left = 296
         Top = 64
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 2
       end
       object profileObjectNameL: TEdit
         Left = 168
         Top = 152
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 5
       end
       object profileObjectNameLs: TEdit
         Left = 296
         Top = 152
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 6
       end
       object profileObjectNameG: TEdit
         Left = 168
         Top = 176
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 9
       end
       object profileObjectNameGs: TEdit
         Left = 296
         Top = 176
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 10
       end
       object profileObjectNameC1s: TEdit
         Left = 296
         Top = 232
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 14
       end
       object profileObjectNameC1: TEdit
         Left = 168
         Top = 232
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 13
       end
       object profileObjectNameC2s: TEdit
         Left = 296
         Top = 256
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 18
       end
       object profileObjectNameC2: TEdit
         Left = 168
         Top = 256
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 17
       end
       object profileObjectNameClasses: TEdit
         Left = 296
         Top = 88
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 22
       end
       object profileObjectNameClass: TEdit
         Left = 168
         Top = 88
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 21
       end
       object profileObjectNamePlanner: TEdit
         Left = 168
         Top = 112
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 25
       end
       object profileObjectNamePlanners: TEdit
         Left = 296
         Top = 112
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 26
       end
       object profileObjectNamePeriodacc: TEdit
         Left = 424
         Top = 64
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 4
       end
       object profileObjectNameClassacc: TEdit
         Left = 424
         Top = 88
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 23
       end
       object profileObjectNamePlanneracc: TEdit
         Left = 424
         Top = 112
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 28
       end
       object profileObjectNameLacc: TEdit
         Left = 424
         Top = 152
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 7
       end
       object profileObjectNameGacc: TEdit
         Left = 424
         Top = 176
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 11
       end
       object profileObjectNameC1acc: TEdit
         Left = 424
         Top = 232
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 15
       end
       object profileObjectNameC2acc: TEdit
         Left = 424
         Top = 256
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 19
       end
       object profileObjectNamePeriodgen: TEdit
         Left = 552
         Top = 64
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 3
       end
       object profileObjectNameClassgen: TEdit
         Left = 552
         Top = 88
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 24
       end
       object profileObjectNamePlannergen: TEdit
         Left = 552
         Top = 112
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 27
       end
       object profileObjectNameLgen: TEdit
         Left = 552
         Top = 152
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 8
       end
       object profileObjectNameGgen: TEdit
         Left = 552
         Top = 176
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 12
       end
       object profileObjectNameC1gen: TEdit
         Left = 552
         Top = 232
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 16
       end
       object profileObjectNameC2gen: TEdit
         Left = 552
         Top = 256
         Width = 121
-        Height = 24
+        Height = 22
         TabOrder = 20
       end
       object Button1: TButton

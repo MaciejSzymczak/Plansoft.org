@@ -29,7 +29,7 @@ type TMap = Class
          procedure addKeyValue(key, value: string);
          procedure prepare;
          function  getIndex (key : string) : integer;
-         function  getValue (key : string) : string;
+         function  getValue (pkey : string) : string;
      End;
 
 Const showDiagnosticsMessage = False;
@@ -1711,6 +1711,23 @@ end;
 
 procedure TMap.addKeyValue(key, value: string);
 begin
+{We replace "-" with "/" to sort the values alphabetically in the right order.
+
+ for the values: -1,-2,1,2,7 the map needs to be (Correct order):
+ 000/1
+ 000/2
+ 00001
+ 00002
+ 00007
+
+ BUT not in incorrect order:
+ 00001
+ 00002
+ 00007
+ 000-1
+ 000-2
+ }
+ key := searchAndReplace(key,'-','/');
  if lpadKey then key := LeftPad(key,10,'0');
  tokens.Add(key+'='+value);
 end;
@@ -1763,13 +1780,15 @@ begin
   end;
 end;
 
-function TMap.getValue(key: string): string;
+function TMap.getValue(pkey: string): string;
 var i : integer;
+    key: string;
 begin
- if lpadKey then key := LeftPad(key,10,'0');
+ pkey := searchAndReplace(pkey,'-','/');
+ if lpadKey then key := LeftPad(pkey,10,'0');
  i := getIndex(key);
  if i = -1 then
-   result := key
+   result := pkey
  else
    result := map [ i ].value;
 end;
@@ -1815,7 +1834,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2020-05-02';
+ VersionOfApplication := '2020-05-14';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

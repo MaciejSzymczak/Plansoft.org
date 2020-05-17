@@ -1293,7 +1293,7 @@ begin
                 iif(colCell4='DUMMY_NULL','',mainQuery.FieldByName(colCell4).asstring+'<br>')+
                 iif(colCell5='DUMMY_NULL','',mainQuery.FieldByName(colCell5).asstring+'<br>')+
                 iif(colCell6='DUMMY_NULL','',mainQuery.FieldByName(colCell6).asstring)
-            ,colSubColumn <> 'DUMMY_NULL');
+            ,colSubColumn <> 'DUMMY_NULL', mainQuery.FieldByName('Duration').asFloat  * mainQuery.FieldByName('Fill').asFloat/100 );
 
             mainQuery.Next;
         end;
