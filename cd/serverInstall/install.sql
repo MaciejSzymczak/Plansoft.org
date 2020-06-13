@@ -2,6 +2,7 @@ STEP 0
 ==================================
 Install Oracle18c XE
 install Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME)
+	soft.home.pl/oracle18cXE/NT_180000_client.zip
 
 STEP 1
 ==================================
@@ -159,3 +160,32 @@ grant select on planner.tmp_numbers to plannerreports;
 grant select on planner.tmp_selected_dates to plannerreports;
 grant select on planner.tmp_varchar2 to plannerreports;
 grant select on planner.value_sets to plannerreports;
+
+
+STEP 4
+================
+Connect sys
+
+create or replace procedure purge_audit_trail (days in number) as
+purge_date date;
+begin
+  purge_date := trunc(sysdate-days);
+  delete from aud$ where ntimestamp# < purge_date;
+  delete from planner.classes_history where effective_end_date < purge_date and rownum < 10000;
+  commit;
+end;
+/
+
+prompt select * from dba_scheduler_jobs
+
+begin
+  dbms_scheduler.create_job(
+      job_name => 'AUDIT_PURGE'
+     ,job_type => 'PLSQL_BLOCK'
+     ,job_action => 'begin purge_audit_trail(31); end;'
+     ,repeat_interval => 'freq=daily'
+     ,enabled => TRUE
+     );
+end;
+
+prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;

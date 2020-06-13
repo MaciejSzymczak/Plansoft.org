@@ -60,7 +60,7 @@ type
     asOfDay: TDateEdit;
     Holder: TStrHolder;
     Query: TADOQuery;
-    S4: TCheckBox;
+    chgStudents: TCheckBox;
     groupOrderBy: TGroupBox;
     sortOrderField: TEdit;
     Label1: TLabel;
@@ -166,6 +166,7 @@ type
     ChCreatedBy: TCheckBox;
     ChOwnerName: TCheckBox;
     ChCreationDate: TCheckBox;
+    chgParent: TCheckBox;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -279,7 +280,7 @@ Var columnsSelect, columnsGroupBy      : String;
 
 
 begin
-  if (not calculateCount.Checked) and (not calculateLec.Checked) and (not calculateStu.Checked) and (not S4.Checked) then
+  if (not calculateCount.Checked) and (not calculateLec.Checked) and (not calculateStu.Checked) and (not chgStudents.Checked) then
   begin
    info ('Zaznacz co najmniej jedno pole wyboru w grupie o nazwie Wylicz');
    exit;
@@ -353,6 +354,8 @@ begin
 
   If CHUNI.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'lecturers.orguni "Jednostka wyk³adowcy"', ',');     columnsGroupBy := Merge(columnsGroupBy, 'lecturers.orguni', ',');       End;
 
+  If chgParent.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'groups.parent_group "Grupy nadrzêdne"', ',');    columnsGroupBy := Merge(columnsGroupBy, 'groups.parent_group', ',');       End;
+
   If chgorg.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'groups.orguni "Jednostka grupy"', ',');    columnsGroupBy := Merge(columnsGroupBy, 'groups.orguni', ',');       End;
   If chsorg.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'sou.name "Jednostka przedmiotu"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'sou.name', ',');       End;
   If chrorg.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'resources.orguni "Jednostka zasobu"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'resources.orguni', ',');       End;
@@ -360,7 +363,7 @@ begin
   If CHGT.Checked   Then Begin columnsSelect := Merge(columnsSelect, 'group_type_dsp "Typ"', ',');   columnsGroupBy := Merge(columnsGroupBy, 'group_type_dsp', ',');       End;
 
   lx := chl.Checked or chuni.Checked;
-  gx := chg.Checked or chgt.checked or S4.Checked or chgorg.Checked;
+  gx := chg.Checked or chgt.checked or chgStudents.Checked or chgorg.Checked or chgParent.Checked;
   rx := chr.Checked or chrorg.checked;
 
   if (chLnewLine.Checked or chGnewLine.Checked or chRnewLine.Checked) then begin
@@ -420,7 +423,7 @@ begin
     end;
     if calculateLec.Checked   then SUMMARY2 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ),1,254)  "Obci¹¿enie wyk³adowców"'+CR;
     if calculateStu.Checked   then SUMMARY3 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ),1,254)  "Studentogodziny"'+CR;
-    if S4.Checked             then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
+    if chgStudents.Checked    then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
     if calculateCount.Checked then begin
@@ -446,7 +449,7 @@ begin
     if calculateLec.Checked   then SUMMARY2 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ) ) "Obci¹¿enie wyk³adowców"'+CR;
     if calculateStu.Checked   then SUMMARY3 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ) ) "Studentogodziny"'+CR;
     //if S4.Checked then SUMMARY4 := ', SUM ( groups.NOP ) "Liczba studentów"'+CR;
-    if S4.Checked             then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
+    if chgStudents.Checked    then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
   end;
 
   columnsSelect  := NVL(columnsSelect,'''Wszystko''');
@@ -686,7 +689,7 @@ begin
   chlDesc2.Visible := chLnewLine.Checked and  (fprogramsettings.getClassDescSingular(2)<>'');
   chlDesc3.Visible := chLnewLine.Checked and  (fprogramsettings.getClassDescSingular(3)<>'');
   chlDesc4.Visible := chLnewLine.Checked and  (fprogramsettings.getClassDescSingular(4)<>'');
-  chGnewLine.visible := chg.Checked or chgt.checked or S4.Checked or chgorg.Checked;
+  chGnewLine.visible := chg.Checked or chgt.checked or chgStudents.Checked or chgorg.Checked or chgParent.Checked;
   chRnewLine.visible := chr.Checked or chrorg.checked;
   Query.close;
 end;
@@ -753,7 +756,7 @@ begin
   ChS .Caption := profileObjectNameC1s.Text;
   ChF .Caption := profileObjectNameC2s.Text;
   CHGT.Caption := 'Typ (' + profileObjectNameG.Text + ')';
-  S4.Visible   := lshowme;
+  chgStudents.Visible   := lshowme;
   EmergencyMode.Visible := lshowme;
 
   //additional reports
@@ -843,6 +846,7 @@ begin
   ChF.Checked         := true; //!
   CHUNI.Checked       := false;
   chgorg.Checked      := false;
+  chgParent.Checked   := false;
   chsorg.Checked      := false;
   chrorg.Checked      := false;
   CHGT.Checked        := false;
@@ -863,13 +867,13 @@ begin
   if reportId = LEC_UTILIZATION then begin
     calculateLec.Checked    := true;
     calculateStu.Checked    := false;
-    S4.Checked    := false;
+    chgStudents.Checked    := false;
   end;
 
   if reportId = STUDENTHOURS then begin
     calculateLec.Checked    := false;
     calculateStu.Checked    := true;
-    S4.Checked    := true;
+    chgStudents.Checked    := true;
   end;
 
   if EmergencyMode.Checked then begin
@@ -1270,7 +1274,7 @@ begin
             saveDialog.FileName , 'grouping',
             [ calculateCount, calculateLec, calculateStu, asOfDay
             , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
@@ -1301,7 +1305,7 @@ begin
             inifilename , 'grouping',
             [ calculateCount, calculateLec, calculateStu, asOfDay
             , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, S4, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode   
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
