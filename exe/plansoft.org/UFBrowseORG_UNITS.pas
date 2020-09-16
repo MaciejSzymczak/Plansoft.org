@@ -38,6 +38,7 @@ type
     Wicejopcji1: TMenuItem;
     UNIT_TYPE: TDBEdit;
     Label1: TLabel;
+    CheckDB: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure QueryBeforePost(DataSet: TDataSet);
     procedure PARENT_IDChange(Sender: TObject);
@@ -55,6 +56,7 @@ type
     procedure Wywietl1Click(Sender: TObject);
     procedure Wicejopcji1Click(Sender: TObject);
     procedure PARENT_ID_VALUEClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -107,7 +109,7 @@ End;
 procedure TFBrowseORG_UNITS.FormCreate(Sender: TObject);
 begin
   inherited;
-  SetNotUpdatable([CODE, PARENT_ID, PARENT_ID_VALUE, BClearPARENT_ID], [LabelCODE, LabelPARENT_ID]);
+  //SetNotUpdatable([CODE, PARENT_ID, PARENT_ID_VALUE, BClearPARENT_ID], [LabelCODE, LabelPARENT_ID]);
 end;
 
 procedure TFBrowseORG_UNITS.QueryBeforePost(DataSet: TDataSet);
@@ -265,6 +267,12 @@ begin
   ID := PARENT_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
   If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PARENT_ID').AsString := ID;
+end;
+
+procedure TFBrowseORG_UNITS.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Dmodule.SQL2( checkdb.Lines.Text );
 end;
 
 end.

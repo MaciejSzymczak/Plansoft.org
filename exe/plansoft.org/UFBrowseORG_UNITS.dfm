@@ -13,6 +13,7 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
   inherited MainPage: TPageControl
     Width = 946
     Height = 694
+    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938
@@ -720,6 +721,34 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
         DataField = 'UNIT_TYPE'
         DataSource = Source
         TabOrder = 11
+      end
+      object CheckDB: TMemo
+        Left = 656
+        Top = 48
+        Width = 185
+        Height = 89
+        Lines.Strings = (
+          'begin'
+          'insert into helper2 (id, desc2)'
+          '  select id,struct_code_C  from ('
+          
+            '  select level, id, name, code, struct_code, substr(sys_connect_' +
+            'by_path(code, '#39'.'#39'),2,6500) struct_code_C'
+          '  from org_units'
+          '  start  with parent_id is null'
+          '  connect by prior id=parent_id  '
+          '  )'
+          '  where struct_code_C <> struct_code;'
+          'for rec in (select * from helper2) loop'
+          
+            '    update org_units set struct_code = rec.desc2 where id = rec.' +
+            'id;'
+          'end loop;'
+          'commit;'
+          'end;')
+        TabOrder = 12
+        Visible = False
+        WordWrap = False
       end
     end
   end
