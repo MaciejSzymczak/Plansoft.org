@@ -281,7 +281,9 @@ function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : S
 
     result := tablePrefix + 'DAY BETWEEN ' + DateFrom+' AND ' + DateTo + CR;
     result := merge(result, tablePrefix+'HOUR <=' + HOURS_PER_DAY, ' AND ');
-    if not isBlank(days) then result := merge(result, 'TO_CHAR('+tablePrefix+'DAY,''D'') IN ('+days+')', ' AND ');
+    //if not isBlank(days) then result := merge(result, 'TO_CHAR('+tablePrefix+'DAY,''D'') IN ('+days+')', ' AND ');
+    if not isBlank(days) then result := merge(result, '(1+trunc('+tablePrefix+'DAY)-trunc('+tablePrefix+'DAY,''IW'')) IN ('+days+')', ' AND ');
+
     result :=  '(' + result + ')';
     //
     previousperiodSelector :=  periodSelector;
