@@ -88,6 +88,10 @@ type
     CON_ORGUNI_ID_VALUE: TEdit;
     BSelOU: TBitBtn;
     BitBtn6: TBitBtn;
+    generateChart: TADOQuery;
+    chartHeader: TMemo;
+    chartFooter: TMemo;
+    BitBtn1: TBitBtn;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -136,6 +140,7 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -156,6 +161,8 @@ type
     Function  canEditPermission : Boolean;   override;
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;
+
+    procedure generateOrgChart();
   end;
 
 var
@@ -674,6 +681,38 @@ procedure TFBrowseGROUPS.BUpdChild3Click(Sender: TObject);
 begin
    FSharing.init('U','GRO',ID_.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+procedure TFBrowseGROUPS.generateOrgChart;
+var
+    tmpFileName : string;
+    tmpFile : textfile;
+    htmlContent : string;
+begin
+  dmodule.CommitTrans;
+  dmodule.resetConnection(generateChart);
+  generateChart.Open;
+  htmlContent := '';
+  while not generateChart.Eof do begin
+     htmlContent := htmlContent + generateChart.Fields[0].AsString + cr;
+     generateChart.Next;
+  end;
+  generateChart.Close;
+  Dmodule.RollbackTrans;
+  
+  tmpFileName := uutilityParent.ApplicationDocumentsPath +'Plansoft.org.groups.html';
+
+  AssignFile(tmpFile, tmpFileName );
+  rewrite(tmpFile);
+  writeln(tmpFile, chartHeader.text+  htmlContent + chartFooter.text);
+  closeFile(tmpFile);
+
+  ExecuteFile(tmpFileName,'','',SW_SHOWMAXIMIZED);
+end;
+
+procedure TFBrowseGROUPS.BitBtn1Click(Sender: TObject);
+begin
+  generateOrgChart;
 end;
 
 end.

@@ -13,7 +13,6 @@ inherited FBrowseORG_UNITS: TFBrowseORG_UNITS
   inherited MainPage: TPageControl
     Width = 946
     Height = 694
-    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 938

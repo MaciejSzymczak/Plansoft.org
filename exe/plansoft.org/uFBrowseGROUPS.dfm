@@ -362,7 +362,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           ParentFont = False
         end
         object AvailableDsp: TLabel
-          Left = 515
+          Left = 563
           Top = 14
           Width = 63
           Height = 14
@@ -944,6 +944,9 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
+                DesignSize = (
+                  333
+                  41)
                 object AddDetail: TBitBtn
                   Left = 8
                   Top = 8
@@ -1084,6 +1087,16 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
                     C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
                 end
+                object BitBtn1: TBitBtn
+                  Left = 218
+                  Top = 9
+                  Width = 107
+                  Height = 25
+                  Anchors = [akRight, akBottom]
+                  Caption = 'Diagram'
+                  TabOrder = 2
+                  OnClick = BitBtn1Click
+                end
               end
               object GDetails: TRxDBGrid
                 Left = 1
@@ -1166,6 +1179,38 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             end
           end
         end
+      end
+      object chartHeader: TMemo
+        Left = 216
+        Top = 240
+        Width = 185
+        Height = 89
+        Lines.Strings = (
+          '<html>'
+          
+            '<script type="text/javascript" src="http://viz-js.com/bower_comp' +
+            'onents/viz.js/viz.js"></script>'
+          '<body>'
+          '<script>'
+          'var gt = '#39'digraph G { rankdir=LR;'#39';')
+        TabOrder = 7
+        Visible = False
+        WordWrap = False
+      end
+      object chartFooter: TMemo
+        Left = 224
+        Top = 336
+        Width = 185
+        Height = 89
+        Lines.Strings = (
+          '    gt += '#39'}'#39';'
+          'document.body.innerHTML = Viz(gt, "svg");'
+          '</script>'
+          '</body>'
+          '</html>')
+        TabOrder = 8
+        Visible = False
+        WordWrap = False
       end
     end
     inherited Update: TTabSheet
@@ -2133,5 +2178,18 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       '  start with parent_id=:id')
     Left = 52
     Top = 252
+  end
+  object generateChart: TADOQuery
+    AutoCalcFields = False
+    Connection = DModule.ADOConnection
+    CommandTimeout = 1000
+    Parameters = <>
+    SQL.Strings = (
+      
+        'select  '#39'gt += '#39#39'"'#39' || child_dsp || '#39'"->"'#39' || parent_dsp || '#39'";'#39 +
+        #39#39' relation from str_elems_v'
+      '')
+    Left = 576
+    Top = 88
   end
 end
