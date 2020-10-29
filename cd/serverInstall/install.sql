@@ -1,9 +1,11 @@
 STEP 0
 ==================================
 Install Oracle18c XE
+	http://plansoft.org/OracleXE112_Win64.zip
 install Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME)
 	soft.home.pl/oracle18cXE/NT_180000_client.zip
-
+	
+	
 STEP 1
 ==================================
 Connect as sys to 127.0.0.1:1521/XEPDB1 (!! do not use 127.0.0.1:1521/XE)
