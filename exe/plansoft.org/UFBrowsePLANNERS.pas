@@ -13,7 +13,6 @@ type
     ID_: TDBEdit;
     NAME: TDBEdit;
     LabelNAME: TLabel;
-    BCheckDatabase: TBitBtn;
     PLANNERTYPE: TDBRadioGroup;
     LabelCOLOUR: TLabel;
     Shape1: TShape;

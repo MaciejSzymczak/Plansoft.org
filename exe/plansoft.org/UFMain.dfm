@@ -7617,10 +7617,6 @@ inherited FMain: TFMain
         Caption = 'Formy zaj'#281#263'/ rezerwacje'
         OnClick = BDICTFORClick
       end
-      object FormFormulas: TMenuItem
-        Caption = 'Formu'#322'y dla form zaj'#281#263
-        OnClick = FormFormulasClick
-      end
       object mmprofileObjectNamePeriods: TMenuItem
         Caption = 'Semestry'
         OnClick = BDICTPERClick

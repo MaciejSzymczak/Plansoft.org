@@ -92,6 +92,9 @@ type
     chartHeader: TMemo;
     chartFooter: TMemo;
     BitBtn1: TBitBtn;
+    PPDiagram: TPopupMenu;
+    Wszystkiegrupy1: TMenuItem;
+    ylkogrupyzbiecegosemestru1: TMenuItem;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -140,6 +143,8 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure Wszystkiegrupy1Click(Sender: TObject);
+    procedure ylkogrupyzbiecegosemestru1Click(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
   private
     Counter  : Integer;
@@ -162,7 +167,7 @@ type
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;
 
-    procedure generateOrgChart();
+    procedure generateOrgChart(currentPeriodOnly : boolean);
   end;
 
 var
@@ -410,7 +415,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info('Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Grupa podrzêdna oraz grupa nadrzêdna maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Grupa podrzêdna oraz grupa nadrzêdna maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;
@@ -683,18 +688,40 @@ begin
    dmodule.CommitTrans;
 end;
 
-procedure TFBrowseGROUPS.generateOrgChart;
+procedure TFBrowseGROUPS.generateOrgChart(currentPeriodOnly : boolean);
 var
     tmpFileName : string;
     tmpFile : textfile;
     htmlContent : string;
+     DateFrom, DateTo : String;
 begin
   dmodule.CommitTrans;
   dmodule.resetConnection(generateChart);
-  generateChart.Open;
+
+  if (currentPeriodOnly) then begin
+    Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+nvl(fmain.conPeriod.Text,'-1'));
+    DateFrom := 'TO_DATE('''+dmodule.QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
+    DateTo   := 'TO_DATE('''+dmodule.QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+
+    dmodule.openSQL(generateChart,
+       'select child_dsp, parent_dsp from str_elems_v'+
+       ' where parent_id in (select gro_id from gro_cla where day between :dfrom1 and :dto1)'+
+       ' or child_id in (select gro_id from gro_cla where day between :dfrom2 and :dto2)',
+	  	';dfrom1=' +  DateFrom +
+	  	';dto1=' +  DateTo +
+	  	';dfrom2=' +  DateFrom +
+	  	';dto2=' + DateTo
+      , false
+    );
+  end else begin
+    dmodule.openSQL(generateChart,
+       'select child_dsp, parent_dsp from str_elems_v');
+  end;
+
+  //generateChart.Open;
   htmlContent := '';
   while not generateChart.Eof do begin
-     htmlContent := htmlContent + generateChart.Fields[0].AsString + cr;
+     htmlContent := htmlContent +  'gt += ''"' + generateChart.Fields[0].AsString + '"->"' + generateChart.Fields[1].AsString + '";'''  + cr;
      generateChart.Next;
   end;
   generateChart.Close;
@@ -710,9 +737,25 @@ begin
   ExecuteFile(tmpFileName,'','',SW_SHOWMAXIMIZED);
 end;
 
-procedure TFBrowseGROUPS.BitBtn1Click(Sender: TObject);
+procedure TFBrowseGROUPS.Wszystkiegrupy1Click(Sender: TObject);
 begin
-  generateOrgChart;
+  generateOrgChart(false);
+end;
+
+procedure TFBrowseGROUPS.ylkogrupyzbiecegosemestru1Click(Sender: TObject);
+begin
+  generateOrgChart(true);
+end;
+
+procedure TFBrowseGROUPS.BitBtn1Click(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ PPDiagram.Popup(Point.X,Point.Y);
 end;
 
 end.

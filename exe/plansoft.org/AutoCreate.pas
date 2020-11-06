@@ -102,10 +102,10 @@ Procedure ORG_UNITSShowModalAsBrowser;
 Function  ORG_UNITSShowModalAsSelect(var ID : ShortString) : TModalResult;
 Procedure ORG_UNITSFree;
 
-procedure FORM_FORMULASCreate;
-Procedure FORM_FORMULASShowModalAsBrowser;
-Function  FORM_FORMULASShowModalAsSelect(var ID : ShortString) : TModalResult;
-Procedure FORM_FORMULASFree;
+//procedure FORM_FORMULASCreate;
+//Procedure FORM_FORMULASShowModalAsBrowser;
+//Function  FORM_FORMULASShowModalAsSelect(var ID : ShortString) : TModalResult;
+//Procedure FORM_FORMULASFree;
 
 Procedure CONSOLIDATIONShowModalAsBrowser (aconsolidationKind : integer);
 Procedure FDataDiagramShowModalAsBrowser;
@@ -775,6 +775,7 @@ Begin
  FBrowseORG_UNITS := Nil;
 End;
 
+{
 procedure FORM_FORMULASCreate;
 begin
 If Not Assigned(FBrowseFORM_FORMULAS) Then FBrowseFORM_FORMULAS := TFBrowseFORM_FORMULAS.Create(Application);
@@ -804,6 +805,7 @@ Begin
  If Assigned(FBrowseFORM_FORMULAS) Then FBrowseFORM_FORMULAS.Free;
  FBrowseFORM_FORMULAS := Nil;
 End;
+}
 
 Procedure CONSOLIDATIONShowModalAsBrowser (aconsolidationKind : integer);
 Begin

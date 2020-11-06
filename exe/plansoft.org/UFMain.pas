@@ -337,7 +337,6 @@ type
     conRole: TEdit;
     conRole_VALUE: TEdit;
     MORG_UNITS: TMenuItem;
-    FormFormulas: TMenuItem;
     Ustawieniakonfiguracyjne1: TMenuItem;
     N6: TMenuItem;
     mmconsolidation: TMenuItem;
@@ -3805,7 +3804,7 @@ begin
    mmfreeFooter.Visible := lVisible;
    mmconsolidation.Visible := lVisible;
    mmpurge.Visible      := lVisible;
-   FormFormulas.Visible := lVisible;
+   //FormFormulas.Visible := lVisible;
    massImport.Visible   := lVisible;
    MMDiagram.Visible    := lVisible;
    N14.Visible          := lVisible;
@@ -5661,7 +5660,7 @@ end;
 
 procedure TFMain.FormFormulasClick(Sender: TObject);
 begin
-  FORM_FORMULASShowModalAsBrowser;
+  //FORM_FORMULASShowModalAsBrowser;
 end;
 
 procedure TFMain.Ustawieniakonfiguracyjne1Click(Sender: TObject);
@@ -6542,9 +6541,7 @@ begin
  if btn.Name = 'selectg'       then fmain.gropopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectr'       then fmain.respopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectResCat1' then fmain.ResCat1popup.Popup(Point.X,Point.Y);
- if btn.Name = 'selectFill'    then begin
-     fmain.FillPopup.Popup(Point.X,Point.Y);
- end;
+ if btn.Name = 'selectFill'    then fmain.FillPopup.Popup(Point.X,Point.Y); 
 end;
 
 procedure TFMain.MenuItem1Click(Sender: TObject);

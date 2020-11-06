@@ -845,7 +845,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
-                OnDblClick = GridDblClick
                 Columns = <
                   item
                     Expanded = False
@@ -1057,7 +1056,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
-                OnDblClick = GridDblClick
                 OnTitleClick = GridTitleClick
                 Columns = <
                   item

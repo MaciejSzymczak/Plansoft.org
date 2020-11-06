@@ -10,7 +10,6 @@ type
   TFDataDiagram = class(TFormConfig)
     Image1: TImage;
     BitBtn1: TBitBtn;
-    BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
     BitBtn4: TBitBtn;
     BitBtn5: TBitBtn;
@@ -65,7 +64,7 @@ end;
 
 procedure TFDataDiagram.BitBtn2Click(Sender: TObject);
 begin
-  FORM_FORMULASShowModalAsBrowser;
+  //FORM_FORMULASShowModalAsBrowser;
 end;
 
 procedure TFDataDiagram.BitBtn6Click(Sender: TObject);

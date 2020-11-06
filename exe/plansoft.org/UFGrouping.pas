@@ -52,12 +52,6 @@ type
     CONG_VALUE: TEdit;
     CHUNI: TCheckBox;
     CHGT: TCheckBox;
-    GroupFunctions: TGroupBox;
-    calculateCount: TCheckBox;
-    calculateLec: TCheckBox;
-    calculateStu: TCheckBox;
-    LDAY: TLabel;
-    asOfDay: TDateEdit;
     Holder: TStrHolder;
     Query: TADOQuery;
     chgStudents: TCheckBox;
@@ -176,7 +170,6 @@ type
     procedure CONPERIODChange(Sender: TObject);
     procedure xBitBtnPERClick(Sender: TObject);
     procedure calculateCountClick(Sender: TObject);
-    procedure calculateLecClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure bdelpopupClick(Sender: TObject);
     procedure SaveAppClick(Sender: TObject);
@@ -280,19 +273,6 @@ Var columnsSelect, columnsGroupBy      : String;
 
 
 begin
-  if (not calculateCount.Checked) and (not calculateLec.Checked) and (not calculateStu.Checked) and (not chgStudents.Checked) then
-  begin
-   info ('Zaznacz co najmniej jedno pole wyboru w grupie o nazwie Wylicz');
-   exit;
-  end;
-
-  if calculateLec.Checked or calculateStu.Checked then begin
-    if  asOfDay.Date = 0 THEN begin
-      info ('Przed uruchomieniem zestawienia wprowadŸ dzieñ, na który maj¹ zostaæ wyliczone wartoœci wspó³czynników');
-      exit;
-    end;
-    AS_OF_DATE :=  DateToOracle (asOfDay.Date);
-  end;
 
   columnsSelect := '';
   columnsGroupBy := '';
@@ -401,7 +381,7 @@ begin
   end;
 
   if EmergencyMode.Checked then begin
-    if calculateCount.Checked then begin
+    if true then begin
       if ChF.Checked then begin
         dmodule.openSQL(
           'select id, name'+cr+
@@ -421,12 +401,10 @@ begin
       end;
       SUMMARY1 := merge(summary1, ', GRIDS.DURATION * (FILL/100) "%CLASSes. (suma)"','')+CR;
     end;
-    if calculateLec.Checked   then SUMMARY2 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ),1,254)  "Obci¹¿enie wyk³adowców"'+CR;
-    if calculateStu.Checked   then SUMMARY3 := ', substr(PLANNER_UTILS.GET_CLASS_COEFFFICIENT_TESTER ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ),1,254)  "Studentogodziny"'+CR;
     if chgStudents.Checked    then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
-    if calculateCount.Checked then begin
+    if true then begin
       if ChF.Checked then begin
         dmodule.openSQL(
           'select id, name'+cr+
@@ -446,8 +424,6 @@ begin
       end;
       SUMMARY1 := merge(summary1, ', sum(GRIDS.DURATION * (FILL/100)) "%CLASSes. (suma)"','')+CR;
     end;
-    if calculateLec.Checked   then SUMMARY2 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''LEC_UTILIZATION'', '+AS_OF_DATE+' ) ) "Obci¹¿enie wyk³adowców"'+CR;
-    if calculateStu.Checked   then SUMMARY3 := ', SUM ( PLANNER_UTILS.GET_CLASS_COEFFFICIENT ( CLASSES.ID, ''STUDENTHOURS'', '+AS_OF_DATE+' ) ) "Studentogodziny"'+CR;
     //if S4.Checked then SUMMARY4 := ', SUM ( groups.NOP ) "Liczba studentów"'+CR;
     if chgStudents.Checked    then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
   end;
@@ -694,13 +670,6 @@ begin
   Query.close;
 end;
 
-procedure TFGrouping.calculateLecClick(Sender: TObject);
-begin
-  asOfDay.Visible  :=  calculateLec.Checked or calculateStu.Checked;
-  lday.Visible :=  calculateLec.Checked or calculateStu.Checked;
-  Query.close;
-end;
-
 procedure TFGrouping.FormShow(Sender: TObject);
 var lshowme : boolean;
 begin
@@ -714,9 +683,7 @@ begin
     chsorg.Checked := false;
   end;
 
-  calculateLecClick( nil );
   defaultText := status.Caption;
-  asOfDay.Date := now;
 
  with fprogramsettings do begin
   //self.Caption           := fprogramsettings.profileObjectNameGs.Text;
@@ -748,8 +715,6 @@ begin
 
   //@@@hardcoding
   lshowme := profileType.ItemIndex = 0;
-  //functions
-  GroupFunctions.Visible := lshowme;
   //group by
   CHL .Caption := profileObjectNameLs.Text;
   ChG .Caption := profileObjectNameGs.Text;
@@ -850,7 +815,6 @@ begin
   chsorg.Checked      := false;
   chrorg.Checked      := false;
   CHGT.Checked        := false;
-  calculateCount.Checked := false;
   ChDesc1.Checked     := false;
   ChDesc2.Checked     := false;
   ChDesc3.Checked     := false;
@@ -864,15 +828,7 @@ begin
   chGnewLine.Checked  := false;
   chRnewLine.Checked  := false;
 
-  if reportId = LEC_UTILIZATION then begin
-    calculateLec.Checked    := true;
-    calculateStu.Checked    := false;
-    chgStudents.Checked    := false;
-  end;
-
   if reportId = STUDENTHOURS then begin
-    calculateLec.Checked    := false;
-    calculateStu.Checked    := true;
     chgStudents.Checked    := true;
   end;
 
@@ -1272,8 +1228,7 @@ begin
 
   uutilityparent.saveToIni(
             saveDialog.FileName , 'grouping',
-            [ calculateCount, calculateLec, calculateStu, asOfDay
-            , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
+            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
             , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
@@ -1303,8 +1258,7 @@ begin
 
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
-            [ calculateCount, calculateLec, calculateStu, asOfDay
-            , CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
+            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
             , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode   
             , LSettings, GSettings, RSettings, SSettings, FSettings
@@ -1650,14 +1604,12 @@ procedure TFGrouping.bMoreLessClick(Sender: TObject);
 begin
  if topPanel.Height=160 then begin
   groupOrderBy.Visible := true;
-  groupFunctions.Visible := true;
   groupSelect.Visible := true;
   bOtherReports.Visible := true;
   bOptions.Visible := true;
   topPanel.Height := 405;
   bMoreLess.Caption := 'Mniej';
  end else begin
-  groupFunctions.Visible := false;
   groupSelect.Visible := false;
   groupOrderBy.Visible := false;
   bOtherReports.Visible := false;

@@ -358,7 +358,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info('Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Zasób podrzêdny oraz zasób nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Zasób podrzêdny oraz zasób nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;

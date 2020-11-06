@@ -87,7 +87,7 @@ type
     Procedure SQL         (var query : tadoquery;S : String; const pparams : String = ''); overload;
     Procedure SQL         (S : String; const pparams : String = ''); overload;
     Procedure SQL2        (S : String; const pparams : String = '');
-    Procedure openSQL     (var query : tadoquery; S : String; const pparams : String = ''); overload;
+    Procedure openSQL     (var query : tadoquery; S : String; const pparams : String = ''; const quoteFlag : boolean = true); overload;
     Procedure openSQL     (S : String; const pparams : String = '');                 overload;
     Procedure openSQL2    (S : String; const pparams : String = '');
     Procedure openSQL3    (S : String; const pparams : String = '');
@@ -530,7 +530,7 @@ Begin
 End;
 
 //----------------------------------------------------------------
-Procedure TDModule.openSQL(var query : tadoquery; S : String; const pparams : String = '');
+Procedure TDModule.openSQL(var query : tadoquery; S : String; const pparams : String = ''; const quoteFlag : boolean = true);
  var wholeString : String;
      paramName   : String;
      paramValue  : String;
@@ -558,10 +558,12 @@ Begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     if quoteFlag
+       then S := searchAndReplace(S,':'+paramName,''''+paramValue+'''')
+       else S := searchAndReplace(S,':'+paramName,paramValue);
    end;
    SQL.Add(S);
-
+   //copytoclipboard(s);
    open;
  End;
  logSQLStop;

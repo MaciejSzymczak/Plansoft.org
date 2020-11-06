@@ -140,6 +140,10 @@ type
     CALID_VALUE: TEdit;
     BClearCal: TSpeedButton;
     WarningMessage: TLabel;
+    clearL: TBitBtn;
+    clearG: TBitBtn;
+    clearR: TBitBtn;
+    clearR2: TBitBtn;
     procedure notLClick(Sender: TObject);
     procedure SelectS1Click(Sender: TObject);
     procedure SelectF1Click(Sender: TObject);
@@ -232,6 +236,14 @@ type
     procedure G_value2DblClick(Sender: TObject);
     procedure rescat0_2_valueDblClick(Sender: TObject);
     procedure Owner_Exit(Sender: TObject);
+    procedure clearLClick(Sender: TObject);
+    procedure clearGClick(Sender: TObject);
+    procedure clearRClick(Sender: TObject);
+    procedure clearR2Click(Sender: TObject);
+    procedure L_value1Change(Sender: TObject);
+    procedure G_value1Change(Sender: TObject);
+    procedure rescat0_1_valueChange(Sender: TObject);
+    procedure rescat1_1_valueChange(Sender: TObject);
   private
     procedure selectLEC;
     procedure selectGRO;
@@ -884,12 +896,14 @@ begin
   SelectL2.Enabled := canEditL;
   SelectL1.Enabled := canEditL;
   PLEC.Enabled := canEditL;
+  clearL.Enabled := canEditL;
 
   G_value1.Enabled := canEditG;
   G_value2.Enabled := canEditG;
   SelectG2.Enabled := canEditG;
   SelectG1.Enabled := canEditG;
   PGRO.Enabled := canEditG;
+  clearG.Enabled := canEditG;
 
   rescat0_1_value.Enabled := canEditR;
   rescat0_2_value.Enabled := canEditR;
@@ -897,6 +911,8 @@ begin
   sr2.Enabled := canEditR;
   selectResCat0_1.Enabled := canEditR;
   PRESCAT0_1.Enabled := canEditR;
+  clearR.Enabled := canEditR;
+  clearR2.Enabled := canEditR;
 
   rescat1_1_value.Enabled := canEditR;
   rescat1_2_value.Enabled := canEditR;
@@ -1795,6 +1811,48 @@ begin
  Values := Owner_.Text;
  ValidValues('PLANNERS',Values,'NAME',IDs);
  Owner_.Text := Values;
+end;
+
+procedure TFDetails.clearLClick(Sender: TObject);
+begin
+  L1.Text := '';
+end;
+
+procedure TFDetails.clearGClick(Sender: TObject);
+begin
+  G1.Text := '';
+
+end;
+
+procedure TFDetails.clearRClick(Sender: TObject);
+begin
+  inherited;
+  rescat0_1.Text := '';
+end;
+
+procedure TFDetails.clearR2Click(Sender: TObject);
+begin
+  rescat1_1.Text := '';
+end;
+
+procedure TFDetails.L_value1Change(Sender: TObject);
+begin
+  ClearL.Visible := L_value1.Text <> '';
+end;
+
+procedure TFDetails.G_value1Change(Sender: TObject);
+begin
+  ClearG.Visible := G_value1.Text <> '';
+end;
+
+procedure TFDetails.rescat0_1_valueChange(Sender: TObject);
+begin
+  ClearR.Visible := rescat0_1_value.Text <> '';
+end;
+
+procedure TFDetails.rescat1_1_valueChange(Sender: TObject);
+begin
+    ClearR2.Visible := rescat1_1_value.Text <> '';
 end;
 
 end.

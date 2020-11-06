@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls;
+  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls, Menus;
 
 type
   TFListOrganizer = class(TFormConfig)
@@ -18,8 +18,11 @@ type
     BDelete: TBitBtn;
     BAdd: TBitBtn;
     lbIds: TListBox;
-    BDeleteAll: TBitBtn;
     BitBtn1: TBitBtn;
+    beditpopup: TSpeedButton;
+    addPopup: TPopupMenu;
+    MenuItem2: TMenuItem;
+    BitBtn2: TBitBtn;
     procedure lbNamesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure lbNamesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -30,8 +33,9 @@ type
     procedure BDeleteClick(Sender: TObject);
     procedure lbNamesDblClick(Sender: TObject);
     procedure BAddClick(Sender: TObject);
-    procedure BDeleteAllClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure beditpopupClick(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
   private
     resType: string;
   public
@@ -48,7 +52,8 @@ implementation
 
 {$R *.dfm}
 
-Uses UUtilityParent, AutoCreate, UFProgramSettings, DM, UUtilities, UCommon;
+Uses UUtilityParent, AutoCreate, UFProgramSettings, DM, UUtilities, UCommon,
+  UFMain;
 
 function TFListOrganizer.showList (presType: string; Sender: TObject; ids, displayedItems : string; WordDelim : Char) : tmodalResult;
 var t, len : integer;
@@ -255,13 +260,6 @@ end;
  //BSelect.Enabled := lbNames.Items.Count >0;
 end;
 
-procedure TFListOrganizer.BDeleteAllClick(Sender: TObject);
-begin
-  lbNames.Items.Clear;
-  lbIds.Items.Clear;
-  BAddClick(Sender);
-end;
-
 procedure TFListOrganizer.BitBtn1Click(Sender: TObject);
 var InItems, OutItems, OutItems_dsp: String;
     t, len : integer;
@@ -295,6 +293,23 @@ begin
   end;
 
 
+end;
+
+procedure TFListOrganizer.beditpopupClick(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ addPopup.Popup(Point.X,Point.Y);
+end;
+procedure TFListOrganizer.MenuItem2Click(Sender: TObject);
+begin
+  lbNames.Items.Clear;
+  lbIds.Items.Clear;
+  BAddClick(Sender);
 end;
 
 end.

@@ -364,17 +364,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       inherited CustomPanel: TPanel
         Width = 977
         Height = 42
-        object BCheckDatabase: TBitBtn
-          Left = 8
-          Top = 8
-          Width = 129
-          Height = 25
-          Caption = 'Sprawd'#378' baz'#281
-          TabOrder = 0
-          OnClick = BCheckDatabaseClick
-        end
         object ttEnabled: TCheckBox
-          Left = 657
+          Left = 145
           Top = 8
           Width = 161
           Height = 17
@@ -382,16 +373,16 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           Caption = 'Tylko dozwolone kombinacje'
           Checked = True
           State = cbChecked
-          TabOrder = 1
+          TabOrder = 0
           OnClick = ttEnabledClick
         end
         object BPlannerPermissions: TBitBtn
-          Left = 144
+          Left = 8
           Top = 8
           Width = 129
           Height = 25
           Caption = 'Uprawnienia planist'#243'w'
-          TabOrder = 2
+          TabOrder = 1
           OnClick = BPlannerPermissionsClick
         end
       end
