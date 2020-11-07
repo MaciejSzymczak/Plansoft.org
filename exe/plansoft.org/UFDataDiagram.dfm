@@ -3399,22 +3399,13 @@ inherited FDataDiagram: TFDataDiagram
     TabOrder = 1
     OnClick = BitBtn1Click
   end
-  object BitBtn2: TBitBtn
-    Left = 558
-    Top = 167
-    Width = 123
-    Height = 25
-    Caption = 'Formu'#322'y dla form zaj'#281#263
-    TabOrder = 2
-    OnClick = BitBtn2Click
-  end
   object BitBtn3: TBitBtn
     Left = 726
     Top = 161
     Width = 123
     Height = 25
     Caption = 'Formy / rezerwacje'
-    TabOrder = 3
+    TabOrder = 2
     OnClick = BitBtn3Click
   end
   object BitBtn4: TBitBtn
@@ -3423,7 +3414,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Zaj'#281'cia'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = BitBtn4Click
   end
   object BitBtn5: TBitBtn
@@ -3432,7 +3423,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Przedmioty'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = BitBtn5Click
   end
   object BitBtn6: TBitBtn
@@ -3441,7 +3432,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Wyk'#322'adowcy'
-    TabOrder = 6
+    TabOrder = 5
     OnClick = BitBtn6Click
   end
   object BitBtn7: TBitBtn
@@ -3450,7 +3441,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Grupy'
-    TabOrder = 7
+    TabOrder = 6
     OnClick = BitBtn7Click
   end
   object BitBtn8: TBitBtn
@@ -3459,7 +3450,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Zasoby'
-    TabOrder = 8
+    TabOrder = 7
     OnClick = BitBtn8Click
   end
   object BitBtn9: TBitBtn
@@ -3468,7 +3459,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Plani'#347'ci'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = BitBtn9Click
   end
   object BitBtn10: TBitBtn
@@ -3477,7 +3468,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Uprawnienia'
-    TabOrder = 10
+    TabOrder = 9
     OnClick = BitBtn10Click
   end
   object BitBtn11: TBitBtn
@@ -3486,7 +3477,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Uprawnienia'
-    TabOrder = 11
+    TabOrder = 10
     OnClick = BitBtn11Click
   end
   object BitBtn12: TBitBtn
@@ -3495,7 +3486,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Uprawnienia'
-    TabOrder = 12
+    TabOrder = 11
     OnClick = BitBtn12Click
   end
   object BitBtn13: TBitBtn
@@ -3504,7 +3495,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Autoryzacje'
-    TabOrder = 13
+    TabOrder = 12
     OnClick = BitBtn13Click
   end
   object BitBtn14: TBitBtn
@@ -3513,7 +3504,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Semestry'
-    TabOrder = 14
+    TabOrder = 13
     OnClick = BitBtn14Click
   end
   object BitBtn15: TBitBtn
@@ -3522,7 +3513,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Kategorie zasob'#243'w'
-    TabOrder = 15
+    TabOrder = 14
     OnClick = BitBtn15Click
   end
   object BitBtn16: TBitBtn
@@ -3531,7 +3522,7 @@ inherited FDataDiagram: TFDataDiagram
     Width = 123
     Height = 25
     Caption = 'Plan zaj'#281'c'
-    TabOrder = 16
+    TabOrder = 15
   end
   object BitBtn17: TBitBtn
     Left = 968
@@ -3541,7 +3532,7 @@ inherited FDataDiagram: TFDataDiagram
     Cancel = True
     Caption = 'Zamknij'
     Default = True
-    TabOrder = 17
+    TabOrder = 16
     OnClick = BitBtn17Click
   end
 end

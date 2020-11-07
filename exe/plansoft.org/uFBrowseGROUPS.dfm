@@ -1,6 +1,6 @@
 inherited FBrowseGROUPS: TFBrowseGROUPS
-  Left = 302
-  Top = 67
+  Left = 561
+  Top = 202
   Width = 996
   Height = 691
   Caption = 'Grupy'
@@ -13,6 +13,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   inherited MainPage: TPageControl
     Width = 988
     Height = 640
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 612
@@ -890,7 +891,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
-                OnDblClick = GridDblClick
                 Columns = <
                   item
                     Expanded = False
@@ -1120,7 +1120,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
-                OnDblClick = GridDblClick
                 OnTitleClick = GridTitleClick
                 Columns = <
                   item
@@ -1389,6 +1388,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             878FFFF7887FFF000000FFFF878FFF88FF88FF000000FFFF7778FF87FF78FF00
             0000FFF88FF7FFF8778FFF000000FFF7FFF7FFFFFFFFFF000000FFF87888FFFF
             FFFFFF000000FFFF888FFFFFFFFFFF000000}
+        end
+        inherited BUpdChild4: TBitBtn
+          Caption = 'Diagram'
+          Visible = True
         end
       end
       inherited FlexPanel: TPanel
@@ -2191,5 +2194,21 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       '')
     Left = 576
     Top = 88
+  end
+  object PPDiagram: TPopupMenu
+    Left = 452
+    Top = 460
+    object Wszystkiegrupy1: TMenuItem
+      Caption = 'Wszystkie grupy'
+      OnClick = Wszystkiegrupy1Click
+    end
+    object ylkogrupyzbiecegosemestru1: TMenuItem
+      Caption = 'Grupy z bie'#380#261'cego semestru'
+      OnClick = ylkogrupyzbiecegosemestru1Click
+    end
+    object ylkogrupypowizanezwybrangrup1: TMenuItem
+      Caption = 'Grupy powi'#261'zane z wybran'#261' grup'#261
+      OnClick = ylkogrupypowizanezwybrangrup1Click
+    end
   end
 end

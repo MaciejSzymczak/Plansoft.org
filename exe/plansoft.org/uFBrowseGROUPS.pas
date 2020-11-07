@@ -95,6 +95,7 @@ type
     PPDiagram: TPopupMenu;
     Wszystkiegrupy1: TMenuItem;
     ylkogrupyzbiecegosemestru1: TMenuItem;
+    ylkogrupypowizanezwybrangrup1: TMenuItem;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -146,6 +147,8 @@ type
     procedure Wszystkiegrupy1Click(Sender: TObject);
     procedure ylkogrupyzbiecegosemestru1Click(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure ylkogrupypowizanezwybrangrup1Click(Sender: TObject);
+    procedure BUpdChild4Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -167,7 +170,7 @@ type
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;
 
-    procedure generateOrgChart(currentPeriodOnly : boolean);
+    procedure generateOrgChart(mode : string);
   end;
 
 var
@@ -688,7 +691,7 @@ begin
    dmodule.CommitTrans;
 end;
 
-procedure TFBrowseGROUPS.generateOrgChart(currentPeriodOnly : boolean);
+procedure TFBrowseGROUPS.generateOrgChart(mode: string);
 var
     tmpFileName : string;
     tmpFile : textfile;
@@ -698,13 +701,21 @@ begin
   dmodule.CommitTrans;
   dmodule.resetConnection(generateChart);
 
-  if (currentPeriodOnly) then begin
+  //------------------------------------------------------------------------
+  if (mode='all') then
+  begin
+    dmodule.openSQL(generateChart,
+       'select child_dsp, parent_dsp, exclusive_parent from str_elems_v');
+  end;
+
+  //------------------------------------------------------------------------
+  if (mode='currentPeriodOnly') then begin
     Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+nvl(fmain.conPeriod.Text,'-1'));
     DateFrom := 'TO_DATE('''+dmodule.QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
     DateTo   := 'TO_DATE('''+dmodule.QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
 
     dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp from str_elems_v'+
+       'select child_dsp, parent_dsp, exclusive_parent from str_elems_v'+
        ' where parent_id in (select gro_id from gro_cla where day between :dfrom1 and :dto1)'+
        ' or child_id in (select gro_id from gro_cla where day between :dfrom2 and :dto2)',
 	  	';dfrom1=' +  DateFrom +
@@ -713,20 +724,35 @@ begin
 	  	';dto2=' + DateTo
       , false
     );
-  end else begin
+  end;
+
+
+  //------------------------------------------------------------------------
+  if (mode='currentGroup') then
+  begin
+    dmodule.sql(
+     'begin'+
+     ' delete from helper1;'+
+     ' insert into helper1 (id) values ('+query.FieldByName('ID').asString+');'+
+     ' for l in 1..30 loop'+
+     '   insert into helper1 (id) select child_id from str_elems_v where  parent_id in (select id from helper1) minus select id from helper1;'+
+     '   insert into helper1 (id) select parent_id from str_elems_v where  child_id in (select id from helper1)  minus select id from helper1;'+
+     ' end loop;'+
+     ' end;');
+
     dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp from str_elems_v');
+       'select child_dsp, parent_dsp, exclusive_parent from str_elems_v where child_id in (select id from helper1) or parent_id in (select id from helper1)');
   end;
 
   //generateChart.Open;
   htmlContent := '';
   while not generateChart.Eof do begin
-     htmlContent := htmlContent +  'gt += ''"' + generateChart.Fields[0].AsString + '"->"' + generateChart.Fields[1].AsString + '";'''  + cr;
+     htmlContent := htmlContent +  'gt += ''"' + generateChart.Fields[0].AsString + '"->"' + generateChart.Fields[1].AsString + '"'+ iif(generateChart.Fields[2].AsString='+',' [penwidth=5]','') +';'''  + cr;
      generateChart.Next;
   end;
   generateChart.Close;
   Dmodule.RollbackTrans;
-  
+
   tmpFileName := uutilityParent.ApplicationDocumentsPath +'Plansoft.org.groups.html';
 
   AssignFile(tmpFile, tmpFileName );
@@ -739,12 +765,12 @@ end;
 
 procedure TFBrowseGROUPS.Wszystkiegrupy1Click(Sender: TObject);
 begin
-  generateOrgChart(false);
+  generateOrgChart('all');
 end;
 
 procedure TFBrowseGROUPS.ylkogrupyzbiecegosemestru1Click(Sender: TObject);
 begin
-  generateOrgChart(true);
+  generateOrgChart('currentPeriodOnly');
 end;
 
 procedure TFBrowseGROUPS.BitBtn1Click(Sender: TObject);
@@ -756,6 +782,17 @@ begin
  Point.y := btn.Height;
  Point   := btn.ClientToScreen(Point);
  PPDiagram.Popup(Point.X,Point.Y);
+end;
+
+procedure TFBrowseGROUPS.ylkogrupypowizanezwybrangrup1Click(
+  Sender: TObject);
+begin
+  generateOrgChart('currentGroup');
+end;
+
+procedure TFBrowseGROUPS.BUpdChild4Click(Sender: TObject);
+begin
+ generateOrgChart('currentGroup');
 end;
 
 end.
