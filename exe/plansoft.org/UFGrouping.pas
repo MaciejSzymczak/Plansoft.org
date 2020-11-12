@@ -161,6 +161,10 @@ type
     ChOwnerName: TCheckBox;
     ChCreationDate: TCheckBox;
     chgParent: TCheckBox;
+    chlcount: TCheckBox;
+    chgcount: TCheckBox;
+    chrcount: TCheckBox;
+    chlcountHelp: TSpeedButton;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -226,6 +230,7 @@ type
     procedure bMoreLessClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure chlcountHelpClick(Sender: TObject);
   private
      sortOrder : string[255];
      defaultText : string;
@@ -262,7 +267,6 @@ Var columnsSelect, columnsGroupBy      : String;
     _PERMISSIONSL, _PERMISSIONSG, _PERMISSIONSR, _PERMISSIONSS, _PERMISSIONSF : string;
     summary1, summary2, summary3, summary4, summary5 : string;
     t                : Integer;
-    AS_OF_DATE       : string;
     lx, gx, rx       : boolean;
     //
     columnsLec : string;
@@ -354,17 +358,19 @@ begin
      if  chldesc2.Checked then begin columnsLec := Merge(columnsLec, 'ldesc2 "'+chldesc2.Caption+'"', ','); groupByLec := Merge(groupByLec, 'ldesc2', ',');end;
      if  chldesc3.Checked then begin columnsLec := Merge(columnsLec, 'ldesc3 "'+chldesc3.Caption+'"', ','); groupByLec := Merge(groupByLec, 'ldesc3', ',');end;
      if  chldesc4.Checked then begin columnsLec := Merge(columnsLec, 'ldesc4 "'+chldesc4.Caption+'"', ','); groupByLec := Merge(groupByLec, 'ldesc4', ',');end;
-     columnsLec := Merge(columnsLec, 'lcount "Liczba wyk³adowców"', ',');
-     groupByLec := Merge(groupByLec, 'lcount', ',');
+     if chlcount.Checked then begin
+       columnsLec := Merge(columnsLec, 'lcount "Liczba wyk³adowców"', ',');
+       groupByLec := Merge(groupByLec, 'lcount', ',');
+     end;
      //
      columnsSelect := Merge(columnsSelect,
       merge(
       merge(
          iif(chLnewLine.Checked and lx,columnsLec,'')
-       , iif(chGnewLine.Checked and gx,'gcount "Liczba Grup"','')
+       , iif(chGnewLine.Checked and gx and chgcount.Checked,'gcount "Liczba Grup"','')
        , ','
       )
-       , iif(chRnewLine.Checked and rx,'rcount "Liczba zasobów"','')
+       , iif(chRnewLine.Checked and rx and chrcount.Checked,'rcount "Liczba zasobów"','')
        , ',')
     ,',');
 
@@ -372,10 +378,10 @@ begin
       merge(
       merge(
          iif(chLnewLine.Checked and lx,groupByLec,'')
-       , iif(chGnewLine.Checked and gx,'gcount','')
+       , iif(chGnewLine.Checked and gx and chgcount.Checked,'gcount','')
        , ','
       )
-       , iif(chRnewLine.Checked and rx,'rcount','')
+       , iif(chRnewLine.Checked and rx and chrcount.Checked,'rcount','')
        , ',')
     ,',');
   end;
@@ -667,6 +673,10 @@ begin
   chlDesc4.Visible := chLnewLine.Checked and  (fprogramsettings.getClassDescSingular(4)<>'');
   chGnewLine.visible := chg.Checked or chgt.checked or chgStudents.Checked or chgorg.Checked or chgParent.Checked;
   chRnewLine.visible := chr.Checked or chrorg.checked;
+  chlcount.Visible := chLnewLine.Checked;
+  chlcountHelp.Visible := chLnewLine.Checked;
+  chGcount.Visible := chGnewLine.Checked;
+  chRcount.Visible := chRnewLine.Checked;
   Query.close;
 end;
 
@@ -827,6 +837,9 @@ begin
   chLnewLine.Checked  := false;
   chGnewLine.Checked  := false;
   chRnewLine.Checked  := false;
+  chlcount.Checked  := true;
+  chgcount.Checked  := true;
+  chrcount.Checked  := true;
 
   if reportId = STUDENTHOURS then begin
     chgStudents.Checked    := true;
@@ -1235,6 +1248,7 @@ begin
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
             , ChSelectedDates
+            , chlcount, chgcount, chrcount
             ]);
   result := true;
 end;
@@ -1265,6 +1279,7 @@ begin
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
             , ChSelectedDates
+            , chlcount, chgcount, chrcount
             ], true);
 
   if PERSettings.Strings.Values['FilterType'] = 'a' then CONPERIOD_VALUE.Text := PERSettings.Strings.Values['Notes.Category:DEFAULT'];
@@ -1566,17 +1581,16 @@ end;
 procedure TFGrouping.chLnewLineClick(Sender: TObject);
 begin
   calculateCountClick(nil);
-  Query.close;
 end;
 
 procedure TFGrouping.chGnewLineClick(Sender: TObject);
 begin
-  Query.close;
+  calculateCountClick(nil);
 end;
 
 procedure TFGrouping.chRnewLineClick(Sender: TObject);
 begin
-  Query.close;
+  calculateCountClick(nil);
 end;
 
 procedure TFGrouping.PodgldzapytaniaSQL1Click(Sender: TObject);
@@ -1628,6 +1642,15 @@ end;
 procedure TFGrouping.FormCreate(Sender: TObject);
 begin
   ignoreIni:=false;
+end;
+
+procedure TFGrouping.chlcountHelpClick(Sender: TObject);
+begin
+  Info('Dotyczy zajêæ prowadzonych przez wiêcej ni¿ jednego wyk³adowcê: Podziel liczbê zajêæ przez liczbê wyk³adowców, a otrzymasz liczbê zajêæ w przeliczeniu na ka¿dego wyk³adowcê.'+cr+
+  ' Program nie wykonuje dzielenia automatycznie z dwóch powodów:'+cr+
+  ' 1) Ze wzglêdu na mo¿liwe zaokr¹glenia np. 1/3 '+cr+
+   '2) Czasami po prostu nie chcemy, by dzieliæ liczbê zajêæ przez liczbê wyk³adowców');
+
 end;
 
 end.

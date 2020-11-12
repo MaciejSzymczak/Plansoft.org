@@ -736,7 +736,6 @@ begin
     );
 
 
-
     //copyToclipboard(QueryCOUNTER.SQL.text);
     QueryCOUNTER.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
