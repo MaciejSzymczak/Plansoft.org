@@ -116,6 +116,7 @@ type
     groupByOwnerName: TCheckBox;
     groupByCreationDate: TCheckBox;
     groupByDay: TCheckBox;
+    chGnewLine: TCheckBox;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -320,6 +321,8 @@ begin
 
 
   groupByG.checked      := StrToBool( getSystemParam('FLegend.groupByG.checked' ));
+  chGnewLine.checked      := StrToBool( getSystemParam('FLegend.chGnewLine.checked' ));
+
   groupByS.checked      := StrToBool( getSystemParam('FLegend.groupByS.checked','+'));
   groupByDay.checked      := StrToBool( getSystemParam('FLegend.groupByDay.checked','+'));
 
@@ -395,20 +398,26 @@ end;
 
 procedure TFLegend.QueryCOUNTERAfterOpen(DataSet: TDataSet);
 var i : integer;
+    fName : string;
 begin
   for i := 0 to gridCounter.FieldCount-1 do begin
-    if gridCounter.columns[i].FieldName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
-    if gridCounter.columns[i].FieldName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
-    if gridCounter.columns[i].FieldName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
-    if gridCounter.columns[i].FieldName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
-    if gridCounter.columns[i].FieldName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
-    if gridCounter.columns[i].FieldName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
-    if gridCounter.columns[i].FieldName = 'Forma' then gridCounter.Columns[i].Width := 100;
-    if gridCounter.columns[i].FieldName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
-    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(1) then gridCounter.Columns[i].Width := 60;
-    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(2) then gridCounter.Columns[i].Width := 60;
-    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(3) then gridCounter.Columns[i].Width := 60;
-    if gridCounter.columns[i].FieldName =  fprogramSettings.getClassDescPlural(4) then gridCounter.Columns[i].Width := 60;
+    fName := gridCounter.columns[i].FieldName;
+    //info(fName);
+    if fName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'CALC_GRO_IDS' then gridCounter.Columns[i].Width := 0;
+    if fName = 'CALC_ROM_IDS' then gridCounter.Columns[i].Width := 0;
+    if fName = 'CALC_CLA_IDS' then gridCounter.Columns[i].Width := 0;
+    if fName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
+    if fName = 'Forma' then gridCounter.Columns[i].Width := 100;
+    if fName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
+    if fName =  fprogramSettings.getClassDescPlural(1) then gridCounter.Columns[i].Width := 60;
+    if fName =  fprogramSettings.getClassDescPlural(2) then gridCounter.Columns[i].Width := 60;
+    if fName =  fprogramSettings.getClassDescPlural(3) then gridCounter.Columns[i].Width := 60;
+    if fName =  fprogramSettings.getClassDescPlural(4) then gridCounter.Columns[i].Width := 60;
   end;
   for i := 0 to gridCounter.FieldCount-1 do begin
     if gridCounter.Columns[i].Width>250 then gridCounter.Columns[i].Width := 250;
@@ -452,6 +461,8 @@ begin
   setSystemParam('FLegend.groupByCreationDate.checked',BoolToStr ( FLegend.groupByCreationDate.checked ) );
 
   setSystemParam('FLegend.groupByG.checked',BoolToStr ( FLegend.groupByG.checked ) );
+  setSystemParam('FLegend.chGnewLine.checked',BoolToStr ( FLegend.chGnewLine.checked ) );
+
   setSystemParam('FLegend.groupByS.checked',BoolToStr ( FLegend.groupByS.checked ) );
   setSystemParam('FLegend.groupByDay.checked',BoolToStr ( FLegend.groupByDay.checked ) );
 
@@ -491,6 +502,8 @@ begin
   //
   groupByL.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByG.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  chGnewLine.Visible    := (FLegendTabs.ActivePage = tabSheetCounter) and groupByG.Checked;
+
   groupByS.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByDay.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
 
@@ -620,10 +633,10 @@ begin
 
     if QueryCOUNTER.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridCounter);
-    dmodule.resetConnection ( QueryCOUNTER );
-    if Fmain.CONPERIOD.Text='' then exit;
-    QueryCOUNTER.SQL.Clear;
-    groupbyClause := mergeStrings(',',[
+      dmodule.resetConnection ( QueryCOUNTER );
+      if Fmain.CONPERIOD.Text='' then exit;
+      QueryCOUNTER.SQL.Clear;
+      groupbyClause := mergeStrings(',',[
         iif(groupByDay.Checked,'CLA.DAY','')
         ,iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')
         ,iif(groupByForm.Checked,'FR.NAME,FR.ID','')
@@ -636,34 +649,36 @@ begin
         ,iif(groupByCreatedBy.Checked,'cla.created_by','')
         ,iif(groupByOwnerName.Checked,'cla.owner','')
         ,iif(groupByCreationDate.Checked,'cla.creation_date','')
-        ,iif(groupByG.Checked,'GRO.NAME,GRO.ID','')
+        ,iif(groupByG.Checked and chGnewLine.Checked,'GRO.NAME,GRO.ID','')
+        ,iif(groupByG.Checked and not chGnewLine.Checked,'cla.calc_groups, cla.CALC_GRO_IDS','')
         ,iif(groupByR.Checked,'ROM.NAME,ROM.ID','')
         ,iif(groupBylDesc1.Checked,'LEC_CLA.DESC1','')
         ,iif(groupBylDesc2.Checked,'LEC_CLA.DESC2','')
         ,iif(groupBylDesc3.Checked,'LEC_CLA.DESC3','')
         ,iif(groupBylDesc4.Checked,'LEC_CLA.DESC4','')
-    ]);
-    groupbyClause := nvl(groupbyClause,'null');
-    orderByClause := groupbyClause;
-    if addRollUp.checked then groupbyClause := 'GROUP BY ROLLUP('+groupbyClause+ ')'
-                         else groupbyClause := 'GROUP BY '+groupbyClause;
+      ]);
+      groupbyClause := nvl(groupbyClause,'null');
+      orderByClause := groupbyClause;
+      if addRollUp.checked then groupbyClause := 'GROUP BY ROLLUP('+groupbyClause+ ')'
+                           else groupbyClause := 'GROUP BY '+groupbyClause;
 
-    rollUpFilter := '';
-    if addRollUp.checked then rollUpFilter := ' where '+
+      rollUpFilter := '';
+      if addRollUp.checked then rollUpFilter := ' where '+
        mergeStrings(' and ',[
           '0=0'
-        , iif(groupByS.Checked, '(("Przedmiot" is not null and SUB_ID is not null) or ("Przedmiot"=''--'' and SUB_ID is null))','')
-        , iif(groupByForm.Checked, '(("Forma" is not null and FOR_ID is not null) or ("Forma"=''--'' and FOR_ID is null))','')
-        , iif(groupByL.Checked, '(("Wyk³adowca" is not null and LEC_ID is not null) or ("Wyk³adowca"=''--'' and LEC_ID is null))','')
-        , iif(groupByG.Checked, '(("Grupa" is not null and GRO_ID is not null) or ("Grupa"=''--'' and GRO_ID is null))','')
-        , iif(groupByR.Checked, '(("Zasób" is not null and ROM_ID is not null) or ("Zasób"=''--'' and ROM_ID is null))','')
+        , iif(groupByS.Checked                       , '(("Przedmiot" is not null and SUB_ID is not null) or ("Przedmiot"=''--'' and SUB_ID is null))','')
+        , iif(groupByForm.Checked                    , '(("Forma" is not null and FOR_ID is not null) or ("Forma"=''--'' and FOR_ID is null))','')
+        , iif(groupByL.Checked                       , '(("Wyk³adowca" is not null and LEC_ID is not null) or ("Wyk³adowca"=''--'' and LEC_ID is null))','')
+        , iif(groupByG.Checked and     chGnewLine.Checked, '(("Grupa" is not null and GRO_ID is not null) or ("Grupa"=''--'' and GRO_ID is null))','')
+        , iif(groupByG.Checked and not chGnewLine.Checked, '(("Grupa" is not null ) or ("Grupa"=''--''))','')
+        , iif(groupByR.Checked                       , '(("Zasób" is not null and ROM_ID is not null) or ("Zasób"=''--'' and ROM_ID is null))','')
        ]);
 
-    periodClauseCLA  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');
-    periodClause  := replace(periodClauseCLA,'CLA.','');
-    QueryCOUNTER.SQL.Add(
-    'select * from ('+cr+
-    'SELECT '+mergeStrings(',',[
+      periodClauseCLA  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');
+      periodClause  := replace(periodClauseCLA,'CLA.','');
+      QueryCOUNTER.SQL.Add(
+        'select * from ('+cr+
+       'SELECT '+mergeStrings(',',[
           iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
         , iif(groupByDay.Checked, 'CLA.DAY "Dzieñ"','')
         , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma", FR.ID FOR_ID','')
@@ -672,9 +687,10 @@ begin
         , iif(groupByDesc3.Checked, 'NVL(CLA.DESC3,''--'') "'+fprogramSettings.getClassDescPlural(3)+'"','')
         , iif(groupByDesc4.Checked, 'NVL(CLA.DESC4,''--'') "'+fprogramSettings.getClassDescPlural(4)+'"','')
         //
-        , iif(groupByL.Checked, 'NVL(LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,''--'') "Wyk³adowca", LEC.ID LEC_ID','')
-        , iif(groupByG.Checked, 'NVL(GRO.NAME,''--'') "Grupa", GRO.ID GRO_ID','')
-        , iif(groupByR.Checked, 'NVL(ROM.NAME,''--'') "Zasób", ROM.ID ROM_ID','')
+        , iif(groupByL.Checked                       , 'NVL(LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,''--'') "Wyk³adowca", LEC.ID LEC_ID','')
+        , iif(groupByG.Checked and     chGnewLine.Checked, 'NVL(GRO.NAME,''--'') "Grupa", GRO.ID GRO_ID','')
+        , iif(groupByG.Checked and not chGnewLine.Checked, 'NVL(cla.calc_groups,''--'') "Grupa", CALC_GRO_IDS','')
+        , iif(groupByR.Checked                       , 'NVL(ROM.NAME,''--'') "Zasób", ROM.ID ROM_ID','')
         //
         , iif(groupByCreatedBy.Checked, 'cla.created_by "Utworzy³"','')
         , iif(groupByOwnerName.Checked, 'cla.owner "W³aœciciel"','')
@@ -692,8 +708,8 @@ begin
           ',FORMS    FR' + CR +
           ',GRIDS' + CR +
           iif( groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked or groupByL.Checked, ',LEC_CLA, LECTURERS LEC ' + CR,'')+
-          iif( groupByG.Checked, ',GRO_CLA, GROUPS GRO ' + CR,'')+
-          iif( groupByR.Checked, ',ROM_CLA, ROOMS ROM ' + CR,'')+
+          iif( groupByG.Checked and chGnewLine.Checked, ',GRO_CLA, GROUPS GRO ' + CR,'')+
+          iif( groupByR.Checked                       , ',ROM_CLA, ROOMS ROM ' + CR,'')+
     ' WHERE cla.owner <> ''AUTO'' and '+ periodClauseCLA + CR +
       ' AND ('
           + fmain.getWhereFastFilter(self.filterSummary.text, 'SUB')
@@ -705,22 +721,25 @@ begin
             + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC3)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
             + ' or xxmsz_tools.erasePolishChars(upper(LEC_CLA.DESC4)) LIKE '''+replacePolishChars( ansiuppercase(self.filterSummary.text))+'%'''
           , '')
-          + iif(groupByG.Checked,
+          + iif(groupByG.Checked and chGnewLine.Checked,
               ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'GRO')
-          , '')
+              , '')
+          + iif(groupByG.Checked and not chGnewLine.Checked,
+              ' or upper(cla.calc_groups) like ''%' + upperCase(self.filterSummary.text) + '%'''
+              , '')
           + iif(groupByR.Checked,
               ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'ROM')
-          , '')
+              , '')
           + iif(groupByOwnerName.Checked,
               ' or upper(cla.owner) like ''%' + upperCase(self.filterSummary.text) + '%'''
-          , '')
+              , '')
           + iif(groupByCreatedBy.Checked,
               ' or upper(cla.created_by) like ''%' + upperCase(self.filterSummary.text) + '%'''
           , '')
       +' ) '+CR+
       iif(groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked  or groupByL.Checked, ' AND LEC_CLA.CLA_ID(+) = CLA.ID AND LEC_CLA.LEC_ID=LEC.ID(+)' + CR,'')+
-      iif(groupByG.Checked, ' AND GRO_CLA.CLA_ID(+) = CLA.ID AND GRO_CLA.GRO_ID=GRO.ID(+)' + CR,'')+
-      iif(groupByR.Checked, ' AND ROM_CLA.CLA_ID(+) = CLA.ID AND ROM_CLA.ROM_ID=ROM.ID(+)' + CR,'')+
+      iif(groupByG.Checked and chGnewLine.Checked, ' AND GRO_CLA.CLA_ID(+) = CLA.ID AND GRO_CLA.GRO_ID=GRO.ID(+)' + CR,'')+
+      iif(groupByR.Checked                       , ' AND ROM_CLA.CLA_ID(+) = CLA.ID AND ROM_CLA.ROM_ID=ROM.ID(+)' + CR,'')+
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
@@ -734,7 +753,6 @@ begin
     'ORDER BY '+orderByClause+
     ')' + cr+ rollUpFilter
     );
-
 
     //copyToclipboard(QueryCOUNTER.SQL.text);
     QueryCOUNTER.Open;
@@ -1167,9 +1185,13 @@ begin
      idL :=  QueryCounter.FieldByName('LEC_ID').AsString;
      dspL := QueryCounter.FieldByName('Wyk³adowca').AsString;
   end;
-  if (groupByG.Checked) and  (QueryCounter.FieldByName('GRO_ID').AsString<>'') then begin
+  if (groupByG.Checked) and (chGnewLine.checked) and  (QueryCounter.FieldByName('GRO_ID').AsString<>'') then begin
      idG := QueryCounter.FieldByName('GRO_ID').AsString;
      dspG := QueryCounter.FieldByName('Grupa').AsString;
+  end;
+  if (groupByG.Checked) and (not chGnewLine.checked) and  (QueryCounter.FieldByName('CALC_GRO_IDS').AsString<>'') then begin
+     idG :=  ExtractWord(1, QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']);
+     dspG := ExtractWord(1, QueryCounter.FieldByName('Grupa').AsString, [';']);;
   end;
   if (groupByR.Checked) and  (QueryCounter.FieldByName('ROM_ID').AsString<>'') then begin
      idR := QueryCounter.FieldByName('ROM_ID').AsString;

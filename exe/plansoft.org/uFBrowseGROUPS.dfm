@@ -13,7 +13,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   inherited MainPage: TPageControl
     Width = 988
     Height = 640
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 612
@@ -1179,38 +1178,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           end
         end
       end
-      object chartHeader: TMemo
-        Left = 216
-        Top = 240
-        Width = 185
-        Height = 89
-        Lines.Strings = (
-          '<html>'
-          
-            '<script type="text/javascript" src="http://viz-js.com/bower_comp' +
-            'onents/viz.js/viz.js"></script>'
-          '<body>'
-          '<script>'
-          'var gt = '#39'digraph G { rankdir=LR;'#39';')
-        TabOrder = 7
-        Visible = False
-        WordWrap = False
-      end
-      object chartFooter: TMemo
-        Left = 224
-        Top = 336
-        Width = 185
-        Height = 89
-        Lines.Strings = (
-          '    gt += '#39'}'#39';'
-          'document.body.innerHTML = Viz(gt, "svg");'
-          '</script>'
-          '</body>'
-          '</html>')
-        TabOrder = 8
-        Visible = False
-        WordWrap = False
-      end
     end
     inherited Update: TTabSheet
       object LabelID: TLabel [0]
@@ -2182,22 +2149,9 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
     Left = 52
     Top = 252
   end
-  object generateChart: TADOQuery
-    AutoCalcFields = False
-    Connection = DModule.ADOConnection
-    CommandTimeout = 1000
-    Parameters = <>
-    SQL.Strings = (
-      
-        'select  '#39'gt += '#39#39'"'#39' || child_dsp || '#39'"->"'#39' || parent_dsp || '#39'";'#39 +
-        #39#39' relation from str_elems_v'
-      '')
-    Left = 576
-    Top = 88
-  end
   object PPDiagram: TPopupMenu
-    Left = 452
-    Top = 460
+    Left = 884
+    Top = 452
     object Wszystkiegrupy1: TMenuItem
       Caption = 'Wszystkie grupy'
       OnClick = Wszystkiegrupy1Click
@@ -2209,6 +2163,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
     object ylkogrupypowizanezwybrangrup1: TMenuItem
       Caption = 'Grupy powi'#261'zane z wybran'#261' grup'#261
       OnClick = ylkogrupypowizanezwybrangrup1Click
+    end
+    object Wicejmoliwo1: TMenuItem
+      Caption = 'Wi'#281'cej mo'#380'liwosci'
+      OnClick = Wicejmoliwo1Click
     end
   end
 end

@@ -1,7 +1,7 @@
 CREATE GLOBAL TEMPORARY TABLE HELPER3 
    (	ID NUMBER) ON COMMIT DELETE ROWS ;
-   
-   create or replace package body planner_utils is
+
+create or replace package body planner_utils is
   -- 2018.12.21 changes
   
   deleted_class_id number := null;

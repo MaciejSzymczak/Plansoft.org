@@ -13,6 +13,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 673
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 532
@@ -1329,6 +1330,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Left = 4
         Top = 232
         Width = 861
+        Height = 305
         TabOrder = 12
       end
       object EMAIL: TDBEdit

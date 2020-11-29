@@ -89,7 +89,8 @@ uses
   UFLegendNavigation in 'UFLegendNavigation.pas' {FLegendNavigation},
   UFWarning in 'UFWarning.pas' {FWarning},
   UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent},
-  UFListOrganizer in 'UFListOrganizer.pas' {FListOrganizer};
+  UFListOrganizer in 'UFListOrganizer.pas' {FListOrganizer},
+  UFGraphviz in 'UFGraphviz.pas' {FGraphviz};
 
 {$R *.RES}
 
@@ -173,6 +174,7 @@ begin
   Application.CreateForm(TFExclusiveParent, FExclusiveParent);
   Application.CreateForm(TFListOrganizer, FListOrganizer);
   Application.CreateForm(TFListOrganizer, FListOrganizer);
+  Application.CreateForm(TFGraphviz, FGraphviz);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;
