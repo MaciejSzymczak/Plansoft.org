@@ -20,6 +20,10 @@ type
     Timer1: TTimer;
     glPanel: TPanel;
     DatabaseName: TEdit;
+    GroupBox1: TGroupBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormPaint(Sender: TObject);
@@ -28,6 +32,11 @@ type
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Label1DblClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure Label4MouseEnter(Sender: TObject);
+    procedure Label4MouseLeave(Sender: TObject);
+    procedure Label4Click(Sender: TObject);
+    procedure Label5Click(Sender: TObject);
+    procedure Label6Click(Sender: TObject);
   private
     uchwytDC :HDC; //uchwyt do "display device context (DC)"
     uchwytRC :HGLRC; //uchwyt do "OpenGL rendering context"
@@ -410,6 +419,33 @@ begin
       info ('WprowadŸ nazwê bazy danych (np. dok), nazwê u¿ytkownika oraz has³o');
       canClose := false;
     end;
+end;
+
+procedure TFDatabaseLogin.Label4MouseEnter(Sender: TObject);
+begin
+  (Sender as TLabel).Font.Color := clBlue;
+  (Sender as TLabel).Font.Style := [fsUnderline];
+end;
+
+procedure TFDatabaseLogin.Label4MouseLeave(Sender: TObject);
+begin
+  (Sender as TLabel).Font.Color := clBlack;
+  (Sender as TLabel).Font.Style := [];
+end;
+
+procedure TFDatabaseLogin.Label4Click(Sender: TObject);
+begin
+  webBrowser('http://www.plansoft.org/wp-content/uploads/Podrecznik_aplikacji_Plansoft.org-web/index.html');
+end;
+
+procedure TFDatabaseLogin.Label5Click(Sender: TObject);
+begin
+  webBrowser('http://www.plansoft.org');
+end;
+
+procedure TFDatabaseLogin.Label6Click(Sender: TObject);
+begin
+  webBrowser('https://www.facebook.com/Plansoft.org/');
 end;
 
 end.

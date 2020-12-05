@@ -879,7 +879,7 @@ end;
 
 procedure webBrowser( purl : string);
 var
-  zUrl, zParams : array[0..79] of Char;
+  zUrl, zParams : array[0..255] of Char;
 begin
   ShellExecute(Application.MainForm.Handle,nil, StrPCopy(zUrl, purl) , StrPCopy(zParams, '') ,nil,sw_maximize);
 end;
@@ -1834,7 +1834,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2020-11-29';
+ VersionOfApplication := '2020-12-05';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

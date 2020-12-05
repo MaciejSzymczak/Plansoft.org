@@ -6198,10 +6198,6 @@ inherited FMain: TFMain
         Caption = 'Rejestracja us'#322'ugi serwisowej'
         OnClick = Rejestracaus1Click
       end
-      object Sprawddostpneaktualizacje1: TMenuItem
-        Caption = 'Sprawd'#378' dost'#281'pne aktualizacje'
-        OnClick = Sprawddostpneaktualizacje1Click
-      end
     end
   end
   object AutoSaver: TTimer

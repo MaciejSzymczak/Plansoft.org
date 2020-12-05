@@ -67,9 +67,9 @@ begin
     DateTo   := 'TO_DATE('''+dmodule.QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
 
     dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v order by parent_dsp, child_dsp'+
+       'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v'+
        ' where parent_id in (select gro_id from gro_cla where day between :dfrom1 and :dto1)'+
-       ' or child_id in (select gro_id from gro_cla where day between :dfrom2 and :dto2)',
+       ' or child_id in (select gro_id from gro_cla where day between :dfrom2 and :dto2) order by parent_dsp, child_dsp',
 	  	';dfrom1=' +  DateFrom +
 	  	';dto1=' +  DateTo +
 	  	';dfrom2=' +  DateFrom +

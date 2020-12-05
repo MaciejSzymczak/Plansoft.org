@@ -418,7 +418,6 @@ type
     FavSelected: TMenuItem;
     FavAll: TMenuItem;
     Przej1: TMenuItem;
-    Sprawddostpneaktualizacje1: TMenuItem;
     lecpopup: TPopupMenu;
     Wybierz1: TMenuItem;
     Dodaj1: TMenuItem;
