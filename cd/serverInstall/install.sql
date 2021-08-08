@@ -1,22 +1,26 @@
 STEP 0
 ==================================
-Install Oracle18c XE
+Install Oracle 11g XE
 	http://plansoft.org/OracleXE112_Win64.zip
-install Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME)
-	soft.home.pl/oracle18cXE/NT_180000_client.zip
+Install Oracle SQLDeveloper (free for use)
+Install Oracle client 11g XE
+	http://plansoft.org/win32_11gR2_client.zip
+
+Note: Do NOT install oracle11c XE as you may not found the component oraoledb
+	Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
+	Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME) soft.home.pl/oracle18cXE/NT_180000_client.zip
 	
 	
 STEP 1
 ==================================
-Connect as sys to 127.0.0.1:1521/XEPDB1 (!! do not use 127.0.0.1:1521/XE)
+Connect as sys to 127.0.0.1:1521/XE (Oracle 18c: 127.0.0.1:1521/XEPDB1)
+prompt connect sys as sysdba;
 begin
 	execute immediate 'drop user planner cascade'; 
 	execute immediate 'drop role pla_permission'; 
 exception when others then null;
 end;
-create user planner identified by planner
-DEFAULT TABLESPACE USERS
-QUOTA UNLIMITED ON USERS;
+create user planner identified by planner DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
 grant dba to planner;
 create role pla_permission identified by XXXALABAMA;
 grant delete any table to pla_permission;
@@ -45,7 +49,6 @@ grant "RESOURCE" to "PLANNERREPORTS";
 alter profile DEFAULT limit PASSWORD_REUSE_TIME unlimited;
 alter profile DEFAULT limit PASSWORD_LIFE_TIME  unlimited;
 
-prompt connect sys as sysdba;
 grant select on SYS.CDEF$ to planner;
 grant select on SYS.CON$ to planner;
 grant select on SYS.OBJ$ to planner;
@@ -58,7 +61,7 @@ GRANT EXECUTE ON sys.dbms_crypto TO planner;
 STEP 2
 ===============
 import init.dmp
-IMP planner@127.0.0.1:1521/XEPDB1
+IMP planner@127.0.0.1:1521/XE
 
 STEP 3
 ================
@@ -163,7 +166,6 @@ grant select on planner.tmp_selected_dates to plannerreports;
 grant select on planner.tmp_varchar2 to plannerreports;
 grant select on planner.value_sets to plannerreports;
 
-
 STEP 4
 ================
 Connect sys
@@ -178,8 +180,6 @@ begin
 end;
 /
 
-prompt select * from dba_scheduler_jobs
-
 begin
   dbms_scheduler.create_job(
       job_name => 'AUDIT_PURGE'
@@ -190,4 +190,5 @@ begin
      );
 end;
 
+prompt select * from dba_scheduler_jobs
 prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;

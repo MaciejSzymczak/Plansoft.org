@@ -697,7 +697,7 @@ Begin
  except
  end;
  //GetDate := rxStrUtils.AddChar('0',IntToStr(Day),2) + '.' + rxStrUtils.AddChar('0',IntToStr(Month),2);
- GetDate := rxStrUtils.AddChar('0',IntToStr(Day),2) + '.' + intToRoman ( Month );
+ GetDate := rxStrUtils.AddChar('0',IntToStr(Day),2) + ' ' + intToRoman ( Month );
 End;
 
 Function getDay(Date : integer) : String;

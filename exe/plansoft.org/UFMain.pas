@@ -8976,22 +8976,6 @@ begin
    dmodule.CommitTrans;
    Fsettings.FormShow(nil);
    Fsettings.BHtmlClick(nil);
-
-   {
-   FWWWGenerator := TFWWWGenerator.Create(Application);
-
-   case FMain.TabViewType.TabIndex of
-    0: begin presId:=ExtractWord(1,FMain.conlecturer.Text,[';']); presType:='LEC'; end;
-    1: begin presId:=ExtractWord(1,FMain.congroup.Text,[';']); presType:='GRO'; end;
-    2: begin presId:=ExtractWord(1,FMain.conResCat0.Text,[';']); presType:='ROM'; end;
-   end;
-   ColoringIndex := getCode(FcellLayout.Coloring);
-   fwwwgenerator.CalendarToHTML(conPeriod.Text, presId, presType, getCode(FcellLayout.D1), getCode(FcellLayout.D2), getCode(FcellLayout.D3), getCode(FcellLayout.D4), getCode(FcellLayout.D5),             nil, nil,                  false,      0,          0                         ,ColoringIndex, IntToStr(Grid.DefaultColWidth), IntToStr(Grid.DefaultRowHeight), '10',                  '10', '10', '10', '10', '10',              FALSE, FALSE,FALSE,FALSE,FALSE, uutilityParent.ApplicationDocumentsPath + 'temp.htm', false, false, '-------',0,false,false,true,true,true,false,false,false,false,false);
- //              CalendarToHTML(D1, D2, D3, D4, D5 : ShortString                                           ; Header, Footer : TStrings; ShowLegend, legendMode, addCreationDate : Boolean; Coloring : ShortString;    CellWIDTH,                      CELLHEIGHT,                      CELLSIZE : ShortString; S1,   S2,   S3,   S4,   S5 : ShortString; B1, B2, B3, B4, B5 : Boolean;   FileName : ShortString);
-
-   UUTilityParent.ExecuteFile(uutilityParent.ApplicationDocumentsPath +'temp.htm','','',SW_SHOWMAXIMIZED);
-   FWWWGenerator.Free;
-   }
 end;
 
 
