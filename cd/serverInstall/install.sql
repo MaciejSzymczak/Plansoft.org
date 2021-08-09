@@ -6,7 +6,7 @@ Install Oracle SQLDeveloper (free for use)
 Install Oracle client 11g XE
 	http://plansoft.org/win32_11gR2_client.zip
 
-Note: Do NOT install oracle11c XE as you may not found the component oraoledb
+Note: Do NOT install higher version than oracle11c XE - not tested yet. 
 	Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
 	Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME) soft.home.pl/oracle18cXE/NT_180000_client.zip
 	
@@ -60,7 +60,7 @@ GRANT EXECUTE ON sys.dbms_crypto TO planner;
 
 STEP 2
 ===============
-import init.dmp
+import file: 2021.08.09.init.dmp
 IMP planner@127.0.0.1:1521/XE
 
 STEP 3
