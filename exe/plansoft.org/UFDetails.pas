@@ -764,8 +764,8 @@ begin
       ValidFClick(nil);
       If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
       If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
-      If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
-      If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+      If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(1)');
+      If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(2)');
 
       RestrictEmpty([S_value1, F_value1 ]);
       If isBlank(FILL1.TEXT) Then addError(FILL1.Hint + ' musi zostaæ wybrane');

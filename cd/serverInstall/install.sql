@@ -192,3 +192,24 @@ end;
 
 prompt select * from dba_scheduler_jobs
 prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;
+
+STEP 5 - OPTIONAL. REMOVE TEST DATA
+================
+truncate table lec_cla;
+truncate table gro_cla;
+truncate table rom_cla;
+delete from classes;
+truncate table classes_history;
+delete from subjects where id > 0;
+delete from groups where id > 0;
+delete from lecturers where id > 0;
+delete from rooms where id > 0;
+delete from form_formulas where id > 0;
+delete from forms where id > 0;
+update lecturers set last_name = 'POD' where id=-1;
+update lecturers set last_name = 'NAD' where id=-2;
+update forms set name = 'Podgrupa' where id = -1;
+update forms set name = 'Nadgrupa' where id = -2;
+commit;
+
+
