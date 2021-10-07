@@ -65,9 +65,11 @@ GRANT EXECUTE ON sys.dbms_crypto TO planner;
 
 STEP 2
 ===============
-download https://github.com/MaciejSzymczak/Plansoft.org/tree/master/cd/serverInstall/2021.08.09.init.dmp
+download and unzip this file 
+https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/2021.08.09.init.dmp.zip
+
 IMP planner@127.0.0.1:1521/XE
-and import downloaded file
+and import 2021.08.09.init.dmp
 
 STEP 3
 ================
