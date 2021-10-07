@@ -60,12 +60,24 @@ GRANT EXECUTE ON sys.dbms_crypto TO planner;
 
 STEP 2
 ===============
-import file: 2021.08.09.init.dmp
+download https://github.com/MaciejSzymczak/Plansoft.org/tree/master/cd/serverInstall/2021.08.09.init.dmp
 IMP planner@127.0.0.1:1521/XE
+and import downloaded file
 
 STEP 3
 ================
 Sqlplus planner
+
+alter table lecturers modify email null;
+update grids set duration = 1;
+update lecturers set last_name = 'POD' where id=-1;
+update lecturers set last_name = 'NAD' where id=-2;
+update forms set name = 'Podgrupa' where id = -1;
+update forms set name = 'Nadgrupa' where id = -2;
+delete from TIMETABLE_NOTES;
+delete from TT_COMBINATIONS;
+delete from TMP_DZ_PRZEDMIOTY;
+delete from TT_INCLUSIONS;
 
 begin
 insert into lecturers (id, abbreviation, first_name, orguni_id,colour, email) values (-1,'POD','POD', (select min(id) from org_units), 192+192*256+192*256*256,'dummy@dommy.com');
