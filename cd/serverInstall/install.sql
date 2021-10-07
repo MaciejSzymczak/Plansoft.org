@@ -1,16 +1,19 @@
 STEP 0
 ==================================
-Install Oracle 11g XE (this is free for use)
+
+a. Install Oracle 11g XE (this is free for use)
 	http://plansoft.org/OracleXE112_Win64.zip
-Install Oracle SQLDeveloper Windows 64-bit with JDK 8 included (this is free for use)
+
+b. Install Oracle SQLDeveloper Windows 64-bit with JDK 8 included (this is free for use)
 Use SQLDeveloper to run the installation scripts described below in this file
 	https://www.oracle.com/tools/downloads/sqldev-downloads.html
-Perform the steps described here
+
+c. Perform the steps described here
 	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
 
-Note: Do NOT install higher version than oracle11c XE - not tested yet. 
-	Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
-	Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME) soft.home.pl/oracle18cXE/NT_180000_client.zip
+	Note: Do NOT install higher version than oracle11c XE - not tested yet. 
+		Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
+		Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME) soft.home.pl/oracle18cXE/NT_180000_client.zip
 	
 	
 STEP 1
@@ -147,6 +150,54 @@ end;
 /
 
 
+STEP 4
+================
+Connect sys
+
+create or replace procedure purge_audit_trail (days in number) as
+purge_date date;
+begin
+  purge_date := trunc(sysdate-days);
+  delete from aud$ where ntimestamp# < purge_date;
+  delete from planner.classes_history where effective_end_date < purge_date and rownum < 10000;
+  commit;
+end;
+/
+
+begin
+  dbms_scheduler.create_job(
+      job_name => 'AUDIT_PURGE'
+     ,job_type => 'PLSQL_BLOCK'
+     ,job_action => 'begin purge_audit_trail(31); end;'
+     ,repeat_interval => 'freq=daily'
+     ,enabled => TRUE
+     );
+end;
+
+prompt select * from dba_scheduler_jobs
+prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;
+
+STEP 5 - OPTIONAL. REMOVE TEST DATA and setup readOnly user
+================
+connect planner;
+
+truncate table lec_cla;
+truncate table gro_cla;
+truncate table rom_cla;
+delete from classes;
+truncate table classes_history;
+delete from subjects where id > 0;
+delete from groups where id > 0;
+delete from lecturers where id > 0;
+delete from rooms where id > 0;
+delete from form_formulas where id > 0;
+delete from forms where id > 0;
+update lecturers set last_name = 'POD' where id=-1;
+update lecturers set last_name = 'NAD' where id=-2;
+update forms set name = 'Podgrupa' where id = -1;
+update forms set name = 'Nadgrupa' where id = -2;
+commit;
+
 --select 'grant select on planner.'||lower(table_name)||' to plannerreports;' from cat where table_type = 'TABLE' order by
 grant execute on planner.getSQLValues to plannerreports;
 grant select on planner.classes to plannerreports;
@@ -179,51 +230,3 @@ grant select on planner.tmp_numbers to plannerreports;
 grant select on planner.tmp_selected_dates to plannerreports;
 grant select on planner.tmp_varchar2 to plannerreports;
 grant select on planner.value_sets to plannerreports;
-
-STEP 4
-================
-Connect sys
-
-create or replace procedure purge_audit_trail (days in number) as
-purge_date date;
-begin
-  purge_date := trunc(sysdate-days);
-  delete from aud$ where ntimestamp# < purge_date;
-  delete from planner.classes_history where effective_end_date < purge_date and rownum < 10000;
-  commit;
-end;
-/
-
-begin
-  dbms_scheduler.create_job(
-      job_name => 'AUDIT_PURGE'
-     ,job_type => 'PLSQL_BLOCK'
-     ,job_action => 'begin purge_audit_trail(31); end;'
-     ,repeat_interval => 'freq=daily'
-     ,enabled => TRUE
-     );
-end;
-
-prompt select * from dba_scheduler_jobs
-prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;
-
-STEP 5 - OPTIONAL. REMOVE TEST DATA
-================
-truncate table lec_cla;
-truncate table gro_cla;
-truncate table rom_cla;
-delete from classes;
-truncate table classes_history;
-delete from subjects where id > 0;
-delete from groups where id > 0;
-delete from lecturers where id > 0;
-delete from rooms where id > 0;
-delete from form_formulas where id > 0;
-delete from forms where id > 0;
-update lecturers set last_name = 'POD' where id=-1;
-update lecturers set last_name = 'NAD' where id=-2;
-update forms set name = 'Podgrupa' where id = -1;
-update forms set name = 'Nadgrupa' where id = -2;
-commit;
-
-
