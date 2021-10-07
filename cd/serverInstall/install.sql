@@ -1,10 +1,12 @@
 STEP 0
 ==================================
-Install Oracle 11g XE
+Install Oracle 11g XE (this is free for use)
 	http://plansoft.org/OracleXE112_Win64.zip
-Install Oracle SQLDeveloper (free for use)
-Install Oracle client 11g XE
-	http://plansoft.org/win32_11gR2_client.zip
+Install Oracle SQLDeveloper Windows 64-bit with JDK 8 included (this is free for use)
+Use SQLDeveloper to run the installation scripts described below in this file
+	https://www.oracle.com/tools/downloads/sqldev-downloads.html
+Perform the steps described here
+	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
 
 Note: Do NOT install higher version than oracle11c XE - not tested yet. 
 	Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
