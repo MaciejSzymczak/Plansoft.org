@@ -34,7 +34,6 @@ type
     GT_ID: TDBEdit;
     GT_ID_VALUE: TEdit;
     BSelectGT_ID: TBitBtn;
-    BClearGT_ID: TBitBtn;
     BStat: TBitBtn;
     BExtra: TBitBtn;
     B1: TBitBtn;
@@ -94,6 +93,7 @@ type
     ylkogrupyzbiecegosemestru1: TMenuItem;
     ylkogrupypowizanezwybrangrup1: TMenuItem;
     Wicejmoliwo1: TMenuItem;
+    SpeedButton2: TSpeedButton;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -148,6 +148,7 @@ type
     procedure ylkogrupypowizanezwybrangrup1Click(Sender: TObject);
     procedure BUpdChild4Click(Sender: TObject);
     procedure Wicejmoliwo1Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -399,6 +400,7 @@ Var
     pexclusive_parent : shortString;
     t : integer;
     checkSQL : string;
+    currentParent : string;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -428,23 +430,28 @@ begin
       SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
       if parent then begin
         Parameters.ParamByName('pparent_id').value    := keyValue;
+        currentParent := keyValue;
         Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
       end
       else
       begin
         Parameters.ParamByName('pchild_id').value    := keyValue;
         Parameters.ParamByName('pparent_id').value     := query.FieldByName('ID').asString;
+        currentParent := query.FieldByName('ID').asString;
       end;
       Parameters.ParamByName('pexclusive_parent').value     := pexclusive_parent;
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
+    fmain.propagateDependencyChanges(currentParent, 'G');
    end;
 
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
    if resultValue <> '' then info (resultValue) else refreshDetails;
+
   end;
 end;
+
 
 
 procedure TFBrowseGROUPS.AddParentClick(Sender: TObject);
@@ -461,6 +468,7 @@ end;
 
 procedure TFBrowseGROUPS.delete_str_elem(parent : boolean);
 var id : shortString;
+    parentId : shortString;
 begin
  if parent then id := qparents.FieldByName('id').AsString
            else id := qdetails.FieldByName('id').AsString;
@@ -470,7 +478,9 @@ begin
      dmodule.SingleValue('select ''Podrzêdny: ''|| child_dsp|| chr(13)||chr(10)||''Nadrzêdny: '' ||parent_dsp from str_elems_v where id =' + id )
     ) = id_yes
  then begin
+  parentId := dmodule.SingleValue('select parent_id from str_elems_v where id =' + id );
   dmodule.SQL('delete from str_elems where id = '  + id );
+  fmain.propagateDependencyChanges(parentId, 'G');
   refreshDetails;
  end;
 end;
@@ -566,7 +576,7 @@ end;
 procedure TFBrowseGROUPS.BMassImportClick(Sender: TObject);
 begin
  dmodule.CommitTrans;
- FMain.massImportClick(nil);
+ FMain.RunMassImport(1); //GRO
  BRefreshClick(nil);
 end;
 
@@ -724,6 +734,11 @@ end;
 procedure TFBrowseGROUPS.Wicejmoliwo1Click(Sender: TObject);
 begin
  FGraphviz.customshowmodal(query.FieldByName('ID').asString);
+end;
+
+procedure TFBrowseGROUPS.SpeedButton1Click(Sender: TObject);
+begin
+  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj grupy przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 end.

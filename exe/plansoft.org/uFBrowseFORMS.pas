@@ -171,7 +171,7 @@ end;
 procedure TFBrowseFORMS.BMassImportClick(Sender: TObject);
 begin
  dmodule.CommitTrans;
- FMain.massImportClick(nil);
+ FMain.RunMassImport(4); //FOR
  BRefreshClick(nil);
 end;
 

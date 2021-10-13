@@ -271,7 +271,6 @@ type
     Uprawnieniadoobiektw1: TMenuItem;
     BLogin: TSpeedButton;
     Edycja1: TMenuItem;
-    N3: TMenuItem;
     Odwiepolanadmiarowe1: TMenuItem;
     bwww: TSpeedButton;
     ConLecturer: TEdit;
@@ -305,7 +304,6 @@ type
     mmplanG: TMenuItem;
     mmplanR: TMenuItem;
     Czysty1: TMenuItem;
-    Ustawieniaprogramu2: TMenuItem;
     N7: TMenuItem;
     Kategoriezasobw1: TMenuItem;
     Pobierzdanezpliku1: TMenuItem;
@@ -391,7 +389,6 @@ type
     Wybrany1: TMenuItem;
     ppChangeO: TMenuItem;
     ppminusS: TMenuItem;
-    N15: TMenuItem;
     Kopiowaniegrupowe1: TMenuItem;
     mmpurge: TMenuItem;
     Atrybuty1: TMenuItem;
@@ -599,6 +596,9 @@ type
     LabelReservationType: TLabel;
     Preview: TSpeedButton;
     sqlCheckConflicts: TMemo;
+    N24: TMenuItem;
+    N25: TMenuItem;
+    N26: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -1011,6 +1011,7 @@ type
     procedure invertOtherCalendar;
     procedure SetRatio ( pratio : integer);
     procedure set_tmp_selected_dates;
+    procedure RunMassImport(whatObject : Integer);
 
 
     //Operacje grupowe
@@ -1055,6 +1056,7 @@ type
     procedure UpsertRecentlyUsed(presId : String; presType : String);
     procedure AddClassToGrid(firstResourceFlag : boolean);
     procedure OpenFGrouping(resourceType : String; resourceId : String);
+    procedure propagateDependencyChanges(parentId : String; res_type : String );
   end;
 
 var
@@ -5522,10 +5524,11 @@ begin
     Exit;
    End;
 
-  CanShow := False;
-  GridPanel.Visible := False;
-  dmodule.CloseDBConnection;
-  LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
+  dmodule.CommitTrans;
+  //CanShow := False;
+  //GridPanel.Visible := False;
+  //dmodule.CloseDBConnection;
+  //LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
   if FExp = nil then Application.CreateForm(TFExp, FExp);
   FEXP.ShowModal;
 end;
@@ -7374,7 +7377,7 @@ begin
   End;
 end;
 
-procedure TFMain.massImportClick(Sender: TObject);
+procedure TFMain.RunMassImport(whatObject : Integer);
 begin
   if not isBlank(confineCalendarId) then begin
     info('Importowanie danych w arkusza Excel zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
@@ -7382,7 +7385,21 @@ begin
   end;
 
   if FMassImport = nil then Application.CreateForm(TFMassImport, FMassImport);
+
+  FMassImport.importType.ItemIndex := whatObject;
+
+  if whatObject =-1 then
+    FMassImport.PC.ActivePageIndex := 0
+  else
+    FMassImport.PC.ActivePageIndex := 1;
+
   FMassImport.ShowModal;
+end;
+
+
+procedure TFMain.massImportClick(Sender: TObject);
+begin
+ RunMassImport(-1);
 end;
 
 procedure TFMain.Rejestracaus1Click(Sender: TObject);
@@ -8978,6 +8995,24 @@ begin
    Fsettings.BHtmlClick(nil);
 end;
 
+
+procedure TFMain.propagateDependencyChanges(parentId, res_type: String);
+begin
+    with dmodule.QWork do begin
+      SQL.Clear;
+      SQL.Add(
+	    'begin '+ cr+
+	    ' planner_utils.insert_dependency_classes (:pres_id, :pres_type, :pper_id, :pcleanUpMode); '+ cr+
+	    'end;'
+	    );
+      parameters.ParamByName('pres_id').value    := parentId;
+      parameters.ParamByName('pres_type').value  := res_type;
+      parameters.ParamByName('pper_id').value    := Fmain.conPeriod.Text; //this parameter is ignored
+      parameters.ParamByName('pcleanUpMode').value:= '+'; //recreate dependencies
+
+      execSQL;
+    end;
+end;
 
 initialization
   Randomize;

@@ -5955,6 +5955,14 @@ inherited FMain: TFMain
     end
     object Narzdzia2: TMenuItem
       Caption = 'Narz'#281'dzia'
+      object Uprawnieniadoobiektw1: TMenuItem
+        Caption = 'Uprawnienia'
+        Hint = 'Autoryzacje Planisci'
+        OnClick = Uprawnieniadoobiektw1Click
+      end
+      object N25: TMenuItem
+        Caption = '-'
+      end
       object Dozwolonekombinacjetypwzasobw1: TMenuItem
         Caption = 'Typy ogranicze'#324
         OnClick = Dozwolonekombinacjetypwzasobw1Click
@@ -5977,6 +5985,13 @@ inherited FMain: TFMain
       object Listazajchistoriazmian1: TMenuItem
         Caption = 'Lista zaj'#281#263' - historia zmian'
         OnClick = Listazajchistoriazmian1Click
+      end
+      object Preferowaneterminy1: TMenuItem
+        Caption = 'Preferowane terminy'
+        OnClick = Preferowaneterminy1Click
+      end
+      object N24: TMenuItem
+        Caption = '-'
       end
       object Statystyki1: TMenuItem
         Caption = 'Statystyki'
@@ -6072,16 +6087,9 @@ inherited FMain: TFMain
         Caption = 'Wska'#378'niki efektywno'#347'ci (wykresy Google)'
         OnClick = Wskanikiefektywnoci1Click
       end
-      object N12: TMenuItem
-        Caption = '-'
-      end
-      object UtwrzwitrynWWW1: TMenuItem
-        Caption = 'Utw'#243'rz witryn'#281' WWW'
-        OnClick = UtwrzwitrynWWW1Click
-      end
-      object EksportujdoGoogleKalendarz1: TMenuItem
-        Caption = 'Eksportuj do iKalendarz'
-        OnClick = EksportujdoGoogleKalendarz1Click
+      object Generatorslajdw1: TMenuItem
+        Caption = 'Generator slajd'#243'w'
+        OnClick = Generatorslajdw1Click
       end
       object MapaGooglezzasobami1: TMenuItem
         Caption = 'Mapa Google z zasobami'
@@ -6094,6 +6102,17 @@ inherited FMain: TFMain
           OnClick = GoogleMapAdvClick
         end
       end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object UtwrzwitrynWWW1: TMenuItem
+        Caption = 'Utw'#243'rz witryn'#281' WWW'
+        OnClick = UtwrzwitrynWWW1Click
+      end
+      object EksportujdoGoogleKalendarz1: TMenuItem
+        Caption = 'Eksportuj do iKalendarz'
+        OnClick = EksportujdoGoogleKalendarz1Click
+      end
       object N6: TMenuItem
         Caption = '-'
       end
@@ -6105,43 +6124,27 @@ inherited FMain: TFMain
         Caption = 'Scalaj'
         OnClick = mmconsolidationClick
       end
-      object N15: TMenuItem
-        Caption = '-'
-      end
       object Kopiowaniegrupowe1: TMenuItem
         Caption = 'Kopiuj rozk'#322'ad'
         OnClick = Kopiowaniegrupowe1Click
       end
-      object Generatorslajdw1: TMenuItem
-        Caption = 'Generator slajd'#243'w'
-        OnClick = Generatorslajdw1Click
+      object mmpurge: TMenuItem
+        Caption = 'Usu'#324' dane'
+        OnClick = mmpurgeClick
+      end
+      object N26: TMenuItem
+        Caption = '-'
       end
     end
     object Narzdzia1: TMenuItem
       Caption = 'Narz'#281'dzia administracyjne'
-      object Ustawieniaprogramu2: TMenuItem
-        Caption = 'Ustawienia pami'#281'ci'
-        OnClick = Ustawieniaprogramu2Click
-      end
-      object Uprawnieniadoobiektw1: TMenuItem
-        Caption = 'Uprawnienia do obiekt'#243'w'
-        Hint = 'Autoryzacje Planisci'
-        OnClick = Uprawnieniadoobiektw1Click
-      end
-      object mmpurge: TMenuItem
-        Caption = 'Usu'#324' dane archiwalne'
-        OnClick = mmpurgeClick
-      end
-      object N3: TMenuItem
-        Caption = '-'
+      object Zapiszdanedopliku1: TMenuItem
+        Caption = 'Kopia zapasowa'
+        OnClick = Zapiszdanedopliku1Click
       end
       object Pobierzdanezpliku1: TMenuItem
-        Caption = 'Import bazy - pobierz dane z pliku'
+        Caption = 'Odzyskanie danych'
         OnClick = Pobierzdanezpliku1Click
-      end
-      object Zapiszdanedopliku1: TMenuItem
-        Caption = 'Eksport bazy- zapisz dane do pliku'
-        OnClick = Zapiszdanedopliku1Click
       end
       object N8: TMenuItem
         Caption = '-'
@@ -6168,10 +6171,6 @@ inherited FMain: TFMain
       object Atrybuty1: TMenuItem
         Caption = 'Atrybuty'
         OnClick = Atrybuty1Click
-      end
-      object Preferowaneterminy1: TMenuItem
-        Caption = 'Preferowane terminy'
-        OnClick = Preferowaneterminy1Click
       end
       object N14: TMenuItem
         Caption = '-'

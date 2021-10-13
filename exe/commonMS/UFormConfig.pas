@@ -237,7 +237,7 @@ Begin
     WriteLn(TF, TDBChart(Form.Components[T]).Name);
     WriteLnTStrings(TF, TDBChart(Form.Components[T]).Title.Text);
    End Else
-   If Form.Components[T] is TEdit Then Begin
+   If (Form.Components[T] is TEdit) or (Form.Components[T] is TDirectoryEdit) Then Begin
      //Je¿eli w TAG jest zapalony bit 26 (licz¹c od 1), przechowuj TEXT
     If TEdit(Form.Components[T]).Tag And 67108864 = 67108864 Then Begin
      WriteLn(TF, 'TEdit');
@@ -492,7 +492,7 @@ try
     If NazwaNieZgadzaSie(TDBChart(Form.Components[T]).Name,GetString) Then Exit;
     ReadLnTStrings(TF, TDBChart(Form.Components[T]).Title.Text);
    End Else
-   If Form.Components[T] is TEdit Then Begin
+   If (Form.Components[T] is TEdit) or (Form.Components[T] is TDirectoryEdit) Then Begin
      //Je¿eli w TAG jest zapalony bit 26 (licz¹c od 1), przechowuj TEXT
     If TEdit(Form.Components[T]).Tag And 67108864 = 67108864 Then Begin
      GetString;
@@ -636,16 +636,16 @@ begin
 
   For t := 0 To form.ComponentCount-1 Do
   Begin
-   If form.Components[t] is tedit        Then (form.Components[t] as tedit).Font.Size        := EditFontSize;
+   If form.Components[t] is TEdit        Then (form.Components[t] as tedit).Font.Size        := EditFontSize;
    If form.Components[t] is TSpeedButton Then (form.Components[t] as TSpeedButton).Font.Size := FontSize;
    If form.Components[t] is TLabel       Then (form.Components[t] as TLabel).Font.Size       := FontSize;
-   If form.Components[t] is tcombobox    Then (form.Components[t] as tcombobox).Font.Size    := FontSize;
-   If form.Components[t] is tcheckbox    Then (form.Components[t] as tcheckbox).Font.Size    := FontSize;
-   If form.Components[t] is tgroupbox    Then (form.Components[t] as tgroupbox).Font.Size    := FontSize;
-   If form.Components[t] is tbutton    Then (form.Components[t] as tbutton).Font.Size    := FontSize;
-   If form.Components[t] is tbitbtn    Then (form.Components[t] as tbitbtn).Font.Size    := FontSize;
-   If form.Components[t] is ttabsheet    Then (form.Components[t] as ttabsheet).Font.Size    := FontSize;
-   If form.Components[t] is tmemo    Then (form.Components[t] as tmemo).Font.Size    := FontSize;
+   If form.Components[t] is TCombobox    Then (form.Components[t] as tcombobox).Font.Size    := FontSize;
+   If form.Components[t] is TCheckbox    Then (form.Components[t] as tcheckbox).Font.Size    := FontSize;
+   If form.Components[t] is TGroupbox    Then (form.Components[t] as tgroupbox).Font.Size    := FontSize;
+   If form.Components[t] is TButton    Then (form.Components[t] as tbutton).Font.Size    := FontSize;
+   If form.Components[t] is TBitbtn    Then (form.Components[t] as tbitbtn).Font.Size    := FontSize;
+   If form.Components[t] is TTabsheet    Then (form.Components[t] as ttabsheet).Font.Size    := FontSize;
+   If form.Components[t] is TMemo    Then (form.Components[t] as tmemo).Font.Size    := FontSize;
   end;
 
 end;

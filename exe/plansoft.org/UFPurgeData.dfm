@@ -2,20 +2,20 @@ inherited FPurgeData: TFPurgeData
   Left = 390
   Top = 225
   Width = 573
-  Height = 325
+  Height = 359
   Caption = 'Usuwanie danych archiwalnych'
   OnCloseQuery = FormCloseQuery
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 274
+    Top = 308
     Width = 565
   end
   object Pages: TPageControl
     Left = 0
     Top = 0
     Width = 565
-    Height = 274
+    Height = 308
     ActivePage = Main
     Align = alClient
     MultiLine = True
@@ -28,19 +28,19 @@ inherited FPurgeData: TFPurgeData
         Left = 0
         Top = 0
         Width = 538
-        Height = 266
+        Height = 300
         Align = alClient
         TabOrder = 0
         object Label3: TLabel
           Left = 8
-          Top = 160
-          Width = 458
+          Top = 192
+          Width = 445
           Height = 60
           Caption = 
-            'Zachowaj ostro'#380'no'#347#263' !'#13#10'Zostan'#261' usuni'#281'te wszystkie dane spe'#322'niaj'#261 +
-            'ce podane kryteria, wszystkich planist'#243'w.'#13#10'Podczas usuwania nie ' +
-            'b'#281'dzie brane pod uwag'#281' to, kto utworzy'#322' zaj'#281'cia, ani to, czy '#13#10'z' +
-            'alogowany u'#380'ytkownik ma dost'#281'p do wyk'#322'adowc'#243'w, grup czy zasob'#243'w.'
+            'Zachowaj ostro'#380'no'#347#263' !'#13#10'Zostan'#261' usuni'#281'te wszystkie zaj'#281'cia w poda' +
+            'nych datach, wszystkich planist'#243'w.'#13#10'Podczas usuwania nie b'#281'dzie ' +
+            'brane pod uwag'#281' to, kto utworzy'#322' zaj'#281'cia, ani to, czy '#13#10'zalogowa' +
+            'ny u'#380'ytkownik ma dost'#281'p do wyk'#322'adowc'#243'w, grup czy zasob'#243'w.'
           Font.Charset = EASTEUROPE_CHARSET
           Font.Color = clRed
           Font.Height = -12
@@ -52,7 +52,7 @@ inherited FPurgeData: TFPurgeData
           Left = 8
           Top = 48
           Width = 441
-          Height = 105
+          Height = 145
           Caption = 'Usu'#324' r'#243'wnie'#380' '
           TabOrder = 1
           object Label2: TLabel
@@ -115,6 +115,24 @@ inherited FPurgeData: TFPurgeData
             State = cbChecked
             TabOrder = 4
           end
+          object CheckBox1: TCheckBox
+            Left = 8
+            Top = 104
+            Width = 233
+            Height = 17
+            Caption = 'Preferowane terminy'
+            Enabled = False
+            TabOrder = 5
+          end
+          object CheckBox2: TCheckBox
+            Left = 8
+            Top = 120
+            Width = 105
+            Height = 17
+            Caption = 'Semestry'
+            Enabled = False
+            TabOrder = 6
+          end
         end
         object GroupBox2: TGroupBox
           Left = 8
@@ -154,7 +172,7 @@ inherited FPurgeData: TFPurgeData
         end
         object Panel1: TPanel
           Left = 1
-          Top = 224
+          Top = 258
           Width = 536
           Height = 41
           Align = alBottom
@@ -199,12 +217,12 @@ inherited FPurgeData: TFPurgeData
         Left = 0
         Top = 0
         Width = 538
-        Height = 266
+        Height = 300
         Align = alClient
         TabOrder = 0
         object Panel4: TPanel
           Left = 1
-          Top = 224
+          Top = 258
           Width = 536
           Height = 41
           Align = alBottom
@@ -244,7 +262,7 @@ inherited FPurgeData: TFPurgeData
           Left = 1
           Top = 1
           Width = 536
-          Height = 223
+          Height = 257
           ActivePage = TabSheet6
           Align = alClient
           TabOrder = 1
@@ -458,28 +476,28 @@ inherited FPurgeData: TFPurgeData
   end
   object dsl: TDataSource
     DataSet = ql
-    Left = 297
-    Top = 46
+    Left = 473
+    Top = 30
   end
   object dsg: TDataSource
     DataSet = qg
-    Left = 297
-    Top = 78
+    Left = 473
+    Top = 70
   end
   object dss: TDataSource
     DataSet = qs
-    Left = 297
-    Top = 150
+    Left = 473
+    Top = 134
   end
   object dsr: TDataSource
     DataSet = qr
-    Left = 297
-    Top = 114
+    Left = 473
+    Top = 106
   end
   object dsp: TDataSource
     DataSet = qp
-    Left = 297
-    Top = 182
+    Left = 473
+    Top = 166
   end
   object ql: TADOQuery
     Connection = DModule.ADOConnection
@@ -492,7 +510,7 @@ inherited FPurgeData: TFPurgeData
     Connection = DModule.ADOConnection
     CursorLocation = clUseServer
     Parameters = <>
-    Left = 388
+    Left = 412
     Top = 84
   end
   object qr: TADOQuery

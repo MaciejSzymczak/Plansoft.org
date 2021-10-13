@@ -35,6 +35,7 @@ type
     CON_ORGUNI_ID_VALUE: TEdit;
     BSelOU: TBitBtn;
     BitBtn6: TBitBtn;
+    SpeedButton3: TSpeedButton;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -54,6 +55,7 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -162,7 +164,7 @@ end;
 procedure TFBrowseSUBJECTS.BMassImportClick(Sender: TObject);
 begin
  dmodule.CommitTrans;
- FMain.massImportClick(nil);
+ FMain.RunMassImport(3); //SUB
  BRefreshClick(nil);
 end;
 
@@ -263,6 +265,11 @@ procedure TFBrowseSUBJECTS.BUpdChild3Click(Sender: TObject);
 begin
    FSharing.init('U','SUB',ID.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+procedure TFBrowseSUBJECTS.SpeedButton1Click(Sender: TObject);
+begin
+  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj przemioty przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 end.

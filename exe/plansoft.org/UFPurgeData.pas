@@ -11,7 +11,7 @@ type
   TFPurgeData = class(TFormConfig)
     Pages: TPageControl;
     Main: TTabSheet;
-    Preview: TTabSheet;
+    Preview: TTabSheet;                                                                                                                          
     MainPanel: TPanel;
     Label3: TLabel;
     GroupBox1: TGroupBox;
@@ -71,6 +71,8 @@ type
     BExecute2: TBitBtn;
     BitBtn3: TBitBtn;
     Label10: TLabel;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure BCancelClick(Sender: TObject);
     procedure BExecuteClick(Sender: TObject);

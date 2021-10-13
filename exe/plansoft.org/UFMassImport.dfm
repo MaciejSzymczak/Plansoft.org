@@ -1,81 +1,95 @@
 inherited FMassImport: TFMassImport
   Left = 422
   Top = 251
-  Width = 635
+  Width = 489
   Height = 368
   Caption = 'Pobieranie danych z programu Excel'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 317
-    Width = 627
+    Width = 481
   end
-  object importType: TRadioGroup
-    Left = 8
-    Top = 88
-    Width = 252
-    Height = 105
-    Caption = 'Wybierz jakie dane chcesz pobra'#263
-    Items.Strings = (
-      'Wyk'#322'adowcy'
-      'Grupy'
-      'Sale'
-      'Przedmioty'
-      'Formy / rezerwacje')
-    TabOrder = 1
-  end
-  object Memo1: TMemo
-    Left = 8
-    Top = 8
-    Width = 521
-    Height = 65
-    BorderStyle = bsNone
-    Color = clBtnFace
-    Lines.Strings = (
-      'Za pomoc'#261' tego formularza mo'#380'esz pobra'#263' dane z programu Excel.'
-      'Arkusz excel z danymi musi mie'#263' okre'#347'lony format.'
-      
-        'W pierwszym wierszu musi by'#263' nag'#322#243'wek, w kolejnych wierszach mus' +
-        'z'#261' znajdowa'#263' si'#281' dane.'
-      'Aby dowiedzie'#263' si'#281' wi'#281'cej zajrzyj do podr'#281'cznika u'#380'ytkownika.')
-    ReadOnly = True
-    TabOrder = 2
-    WordWrap = False
-  end
-  object chbTest: TCheckBox
-    Left = 8
-    Top = 200
-    Width = 249
-    Height = 17
-    Caption = 'Uruchomienie testowe ( nie zapisuj danych )'
-    TabOrder = 3
-  end
-  object Panel1: TPanel
+  object PC: TPageControl
     Left = 0
-    Top = 276
-    Width = 627
-    Height = 41
-    Align = alBottom
-    TabOrder = 4
-    object BitBtn1: TBitBtn
-      Left = 368
-      Top = 8
-      Width = 81
-      Height = 25
-      Caption = 'Pobierz dane'
-      TabOrder = 0
-      OnClick = BitBtn1Click
+    Top = 0
+    Width = 481
+    Height = 317
+    ActivePage = TabSheet3
+    Align = alClient
+    TabOrder = 1
+    object TabSheet1: TTabSheet
+      Caption = '1. Co importujemy? '
+      object importType: TRadioGroup
+        Left = 112
+        Top = 19
+        Width = 252
+        Height = 238
+        Caption = 'Jakie dane importujemy?'
+        Items.Strings = (
+          'Wyk'#322'adowcy'
+          'Grupy'
+          'Sale'
+          'Przedmioty'
+          'Formy / rezerwacje'
+          '(WKR'#211'TCE!) Plan studi'#243'w')
+        TabOrder = 0
+        OnClick = importTypeClick
+      end
     end
-    object BitBtn2: TBitBtn
-      Left = 456
-      Top = 8
-      Width = 75
-      Height = 25
-      Cancel = True
-      Caption = 'Zamknij'
-      Default = True
-      TabOrder = 1
-      OnClick = BitBtn2Click
+    object TabSheet3: TTabSheet
+      Caption = '2. Pobierz szablon'
+      ImageIndex = 2
+      object BTemplate: TBitBtn
+        Left = 16
+        Top = 16
+        Width = 449
+        Height = 105
+        Caption = 'Kliknij TUTAJ aby pobra'#263' szablon do wype'#322'nienia'
+        TabOrder = 0
+        OnClick = BTemplateClick
+      end
+      object BitBtn1: TBitBtn
+        Left = 16
+        Top = 128
+        Width = 449
+        Height = 105
+        Caption = 'Mam ju'#380' szablon, kontynuuj'
+        TabOrder = 1
+        OnClick = BitBtn1Click
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = '3. Importujemy !'
+      ImageIndex = 1
+      object BitBtn2: TBitBtn
+        Left = 112
+        Top = 96
+        Width = 265
+        Height = 57
+        Caption = 'Chc'#281' tylko przetestowa'#263' plik >>'
+        TabOrder = 0
+        OnClick = BitBtn2Click
+      end
+      object BitBtn3: TBitBtn
+        Left = 112
+        Top = 32
+        Width = 265
+        Height = 57
+        Caption = 'Chc'#281' zaimportowa'#263' plik >>'
+        TabOrder = 1
+        OnClick = BitBtn3Click
+      end
+      object chbTest: TCheckBox
+        Left = 8
+        Top = 259
+        Width = 249
+        Height = 17
+        Caption = 'Uruchomienie testowe ( nie zapisuj danych )'
+        Enabled = False
+        TabOrder = 2
+        Visible = False
+      end
     end
   end
   object OpenDialog: TOpenDialog

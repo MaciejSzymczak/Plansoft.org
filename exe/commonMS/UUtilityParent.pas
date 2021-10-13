@@ -1785,7 +1785,9 @@ var i : integer;
     key: string;
 begin
  pkey := searchAndReplace(pkey,'-','/');
- if lpadKey then key := LeftPad(pkey,10,'0');
+ if lpadKey
+   then key := LeftPad(pkey,10,'0')
+   else key := pkey;
  i := getIndex(key);
  if i = -1 then
    result := pkey
@@ -1834,7 +1836,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2020-12-05';
+ VersionOfApplication := '2021-10-12';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

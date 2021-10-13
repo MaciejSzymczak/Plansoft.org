@@ -95,7 +95,7 @@ begin
      if cruid = 'I' then FSharing.CheckListBox.Checked[t] := true;
      if cruid = 'U' then FSharing.CheckListBox.Checked[t] := tmp.getValue(Fmain.MapPlanners.map[t].key)='FOUND';
      if Fmain.MapPlanners.map[t].key = fmain.getUserOrRoleID then begin
-         FSharing.CheckListBox.ItemEnabled[t] := false;
+     //    FSharing.CheckListBox.ItemEnabled[t] := false;
          FSharing.CheckListBox.Checked[t] := true;
      end;
    end;

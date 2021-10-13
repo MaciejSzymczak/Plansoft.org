@@ -71,6 +71,8 @@ type
     ROL_ID: TDBEdit;
     ROL_ID_VALUE: TEdit;
     AvailableDsp: TLabel;
+    SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -101,6 +103,8 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -136,7 +140,7 @@ uses DM, UUtilityParent, UFMain, AutoCreate, ufLookupWindow,
 
 Function  TFBrowseLECTURERS.CheckRecord : Boolean;
 Begin
-  Result := CheckValid.ReducRestrictEmpty(Self, [ABBREVIATION, TITLE, FIRST_NAME, LAST_NAME, ORGUNI_ID, EMAIL]);
+  Result := CheckValid.ReducRestrictEmpty(Self, [ABBREVIATION, TITLE, FIRST_NAME, LAST_NAME, ORGUNI_ID]);
 End;
 
 Procedure TFBrowseLECTURERS.DefaultValues;
@@ -297,6 +301,7 @@ Var
     pexclusive_parent : shortString;
     t : integer;
     checkSQL : string;
+    currentParent : string;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -326,17 +331,20 @@ begin
       SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
       if parent then begin
         Parameters.ParamByName('pparent_id').Value   := keyValue;
+        currentParent := keyValue;
         Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
       end
       else
       begin
         Parameters.ParamByName('pchild_id').value    := keyValue;
         Parameters.ParamByName('pparent_id').value     := query.FieldByName('ID').asString;
+        currentParent := query.FieldByName('ID').asString;
       end;
       Parameters.ParamByName('pexclusive_parent').value     := pexclusive_parent;
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
+    fmain.propagateDependencyChanges(currentParent, 'L');
    end;
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
    if resultValue <> '' then info (resultValue) else refreshDetails;
@@ -358,6 +366,7 @@ end;
 
 procedure TFBrowseLECTURERS.delete_str_elem(parent : boolean);
 var id : shortString;
+    parentId : shortString;
 begin
  if parent then id := qparents.FieldByName('id').AsString
            else id := qdetails.FieldByName('id').AsString;
@@ -367,7 +376,9 @@ begin
      dmodule.SingleValue('select ''Podrzêdny: ''|| child_dsp|| chr(13)||chr(10)||''Nadrzêdny: '' ||parent_dsp from str_elems_v where id =' + id )
     ) = id_yes
  then begin
+  parentId := dmodule.SingleValue('select parent_id from str_elems_v where id =' + id );
   dmodule.SQL('delete from str_elems where id = '  + id );
+  fmain.propagateDependencyChanges(parentId, 'G');
   refreshDetails;
  end;
 end;
@@ -441,7 +452,7 @@ end;
 procedure TFBrowseLECTURERS.BMassImportClick(Sender: TObject);
 begin
  dmodule.CommitTrans;
- FMain.massImportClick(nil);
+ FMain.RunMassImport(0); //LEC
  BRefreshClick(nil);
 end;
 
@@ -504,6 +515,16 @@ end;
 procedure TFBrowseLECTURERS.ROL_IDChange(Sender: TObject);
 begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
+end;
+
+procedure TFBrowseLECTURERS.SpeedButton1Click(Sender: TObject);
+begin
+  info('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseLECTURERS.SpeedButton3Click(Sender: TObject);
+begin
+  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 end.

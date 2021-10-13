@@ -1199,6 +1199,11 @@ Begin
  m4.Enabled                 := F;
  m5.Enabled                 := F;
  m6.Enabled                 := F;
+ BChild1.Enabled            := F;
+ BChild2.Enabled            := F;
+ BChild3.Enabled            := F;
+ BChild4.Enabled            := F;
+ BChild5.Enabled            := F;
 End;
 
 //Zmienne wykorzystywane w procedure TFBrowseParent.BRefreshClick(Sender: TObject);

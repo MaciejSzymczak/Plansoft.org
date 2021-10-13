@@ -77,6 +77,8 @@ type
     CON_ORGUNI_ID_VALUE: TEdit;
     BSelOU: TBitBtn;
     BitBtn2: TBitBtn;
+    SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -121,6 +123,8 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure CON_RESCAT_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -341,6 +345,7 @@ Var
     pexclusive_parent : shortString;
     t : integer;
     checkSQL : string;
+    currentParent : string;
 begin
   mr := FExclusiveParent.showModal;
   if mr = mrYes then pexclusive_parent := '+';
@@ -370,17 +375,20 @@ begin
       SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
       if parent then begin
         Parameters.ParamByName('pparent_id').value    := keyValue;
-        Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
+         currentParent := keyValue;
+       Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
       end
       else
       begin
         Parameters.ParamByName('pchild_id').value    := keyValue;
         Parameters.ParamByName('pparent_id').value   := query.FieldByName('ID').asString;
+        currentParent := query.FieldByName('ID').asString;
       end;
       Parameters.ParamByName('pexclusive_parent').value     := pexclusive_parent;
       Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
       execSQL;
     end;
+    fmain.propagateDependencyChanges(currentParent, 'R');
    end;
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
    if resultValue <> '' then info (resultValue) else refreshDetails;
@@ -400,6 +408,7 @@ end;
 
 procedure TFBrowseROOMS.delete_str_elem(parent : boolean);
 var id : shortString;
+    parentId : shortString;
 begin
  if parent then id := qparents.FieldByName('id').AsString
            else id := qdetails.FieldByName('id').AsString;
@@ -409,7 +418,9 @@ begin
      dmodule.SingleValue('select ''Podrzêdny: ''|| child_dsp|| chr(13)||chr(10)||''Nadrzêdny: '' ||parent_dsp from str_elems_v where id =' + id )
     ) = id_yes
  then begin
+  parentId := dmodule.SingleValue('select parent_id from str_elems_v where id =' + id );
   dmodule.SQL('delete from str_elems where id = '  + id );
+  fmain.propagateDependencyChanges(parentId, 'G');
   refreshDetails;
  end;
 end;
@@ -581,7 +592,7 @@ end;
 procedure TFBrowseROOMS.BMassImportClick(Sender: TObject);
 begin
  dmodule.CommitTrans;
- FMain.massImportClick(nil);
+ FMain.RunMassImport(2); //ROM
  BRefreshClick(nil);
 end;
 
@@ -683,6 +694,16 @@ procedure TFBrowseROOMS.BUpdChild3Click(Sender: TObject);
 begin
    FSharing.init('U','ROM',ID_.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+procedure TFBrowseROOMS.SpeedButton1Click(Sender: TObject);
+begin
+  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseROOMS.SpeedButton2Click(Sender: TObject);
+begin
+  info('Wpisz wyposa¿enie w formacie "#Rzutnik, #Spetrometr".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<nazwa wyposazenia> w dowolnym miejscu w Aplikacji');
 end;
 
 end.
