@@ -11,8 +11,10 @@ alter table gro_cla_history add (parent_Id number);
 alter table rom_cla_history add (parent_Id number);
 alter table lec_cla_history add (parent_Id number);
 
+alter table helper3 add (day date, hour number, str varchar2(2000));
+
 create or replace package body planner_utils is
-  -- 2021.10.14 changes
+  -- 2021.10.16 changes
   
   deleted_class_id number := null;
 
@@ -852,16 +854,12 @@ create or replace package body planner_utils is
     pchild_names varchar2(4000) := '';
     non_exclusive_parent varchar2(1):='Y';
   begin
+
     select date_from, date_to into vdate_from, vdate_to from periods where id = pper_id;
 
-       --recreate exclusive parent=+
+       --recreate exclusive parent=-
        if (pres_type='R') then
            if  (pcleanUpMode='+') then
-              delete from rom_cla where is_child = 'Y' 
-               --delete only my childs (not any childs!)
-               and (parent_Id = pres_id or parent_Id is null)
-               --parent_Id is null and this condition was added for backward compatibility and can removed in year 2023
-               and cla_id in (select cla_id from rom_cla where rom_id = pres_id and is_child = 'N');
               for rec in (
                   select child_id
                     from str_elems
@@ -871,22 +869,18 @@ create or replace package body planner_utils is
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
+                        delete from rom_cla
+                         where (rom_id, cla_id, day, hour) in (select rec.child_id,cla_id, day, hour from rom_cla where rom_id = pres_id)
+                           and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select romcla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from rom_cla 
-                        where rom_id = pres_id; 
-                         --Refresh all periods
-                         --and day between vdate_from and vdate_to;  
+                        where rom_id = pres_id and no_conflict_flag is null; 
                 end if;
               end loop;
           end if;
       end if;
-       if (pres_type='G') then
+      if (pres_type='G') then
            if  (pcleanUpMode='+') then
-              delete from gro_cla where is_child = 'Y' 
-               --delete only my childs (not any childs!)
-               and (parent_Id = pres_id or parent_Id is null)
-               --parent_Id is null and this condition was added for backward compatibility and can removed in year 2023
-               and cla_id in (select cla_id from gro_cla where gro_id = pres_id and is_child = 'N');
               for rec in (
                   select child_id
                     from str_elems
@@ -896,22 +890,18 @@ create or replace package body planner_utils is
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
+                        delete from gro_cla
+                         where (gro_id, cla_id, day, hour) in (select rec.child_id,cla_id, day, hour from gro_cla where gro_id = pres_id)
+                           and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select grocla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from gro_cla 
-                        where gro_id = pres_id; 
-                         --Refresh all periods
-                         --and day between vdate_from and vdate_to;  
+                        where gro_id = pres_id and no_conflict_flag is null; 
                 end if;
               end loop;
           end if;
       end if;
        if (pres_type='L') then
            if  (pcleanUpMode='+') then
-              delete from lec_cla where is_child = 'Y' 
-                --delete only my childs (not any childs!)
-               and (parent_Id = pres_id or parent_Id is null)
-               --parent_Id is null and this condition was added for backward compatibility and can removed in year 2023
-               and cla_id in (select cla_id from lec_cla where lec_id = pres_id and is_child = 'N');
              for rec in (
                   select child_id
                     from str_elems
@@ -921,41 +911,36 @@ create or replace package body planner_utils is
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
+                        delete from lec_cla
+                         where (lec_id, cla_id, day, hour) in (select rec.child_id,cla_id, day, hour from lec_cla where lec_id = pres_id)
+                           and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select leccla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from lec_cla 
-                        where lec_id = pres_id; 
-                         --Refresh all periods
-                         --and day between vdate_from and vdate_to;  
+                        where lec_id = pres_id and no_conflict_flag is null;   
                 end if;
               end loop;
           end if;
       end if;
 
-
-
-    -- recreate exclusive parent=-
+    -- recreate exclusive parent=+
      delete from helper1;
      insert into helper1 (id, attribs_01)
           --childs
           (select child_id id, 'C'
             from str_elems_v
-            where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '-'
-            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id and exclusive_parent = '-'
+            where level=1 and STR_NAME_LOV='STREAM' 
+            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
             start with parent_id=pres_id)
            union 
           --parents
            (select parent_id id, 'P'
               from str_elems_v
-              where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '-'
-            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id and exclusive_parent = '-'
+              where level=1 and STR_NAME_LOV='STREAM' 
+            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
             start with child_id=pres_id
            );
 
-    if (sql%rowcount=0) then 
-      non_exclusive_parent := 'N';
-    end if;
-
-    if (pres_type='R' and non_exclusive_parent = 'Y') then
+    if (pres_type='R') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -1138,7 +1123,7 @@ create or replace package body planner_utils is
     end if; --if (pres_type='R')
 
     -- very similar code for groups
-    if (pres_type='G'  and non_exclusive_parent = 'Y') then
+    if (pres_type='G') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -1170,11 +1155,8 @@ create or replace package body planner_utils is
               and gro_cla.day between vdate_from and vdate_to;
 
          Xxmsz_Tools.insertIntoEventLog('idc2 '||pres_id);
-         for rec in (
-
-             select existing_dep.id, existing_dep.desc2, correct_desc2.descCorrect, existing_dep.day , correct_desc2.hour
-               from helper2 existing_dep
-                  , (
+         delete from helper3;
+         insert into helper3 (day, hour, str)
                     select day, hour, listagg(gro.abbreviation, '; ') within group (order by gro.abbreviation) descCorrect
                       from gro_cla
                          , groups gro 
@@ -1183,8 +1165,12 @@ create or replace package body planner_utils is
                        and gro_id in 
                             (select id from helper1)
                        and gro_cla.day between vdate_from and vdate_to
-                      group by day, hour      
-                        ) correct_desc2
+                      group by day, hour;      
+         for rec in (
+
+             select existing_dep.id, existing_dep.desc2, correct_desc2.descCorrect, existing_dep.day , correct_desc2.hour
+               from helper2 existing_dep
+                  , (select day, hour, str descCorrect from helper3 ) correct_desc2
            where correct_desc2.day = existing_dep.day and correct_desc2.hour = existing_dep.hour
              and existing_dep.desc2 <> correct_desc2.descCorrect         
          ) 
@@ -1253,16 +1239,8 @@ create or replace package body planner_utils is
          end loop;
 
          Xxmsz_Tools.insertIntoEventLog('idc5');
-         for rec in (
-           --candidate to delete
-           select unique cla_id
-             from gro_cla
-             where no_conflict_flag = '+'
-              and gro_id  = pres_id 
-              and day between vdate_from and vdate_to
-              --dependency no longer exists
-              and (day,hour) not in 
-                (        
+         delete from helper2;
+         insert into helper2 (day, hour)
                   select unique day, hour  
                     from gro_cla 
                   where no_conflict_flag is null
@@ -1274,8 +1252,17 @@ create or replace package body planner_utils is
                   from gro_cla 
                   where gro_id  = pres_id 
                    and no_conflict_flag is null
-                   and day between vdate_from and vdate_to
-               )
+                   and day between vdate_from and vdate_to;
+         for rec in (
+           --candidate to delete
+           select unique cla_id
+             from gro_cla
+             where no_conflict_flag = '+'
+              and gro_id  = pres_id 
+              and day between vdate_from and vdate_to
+              --dependency no longer exists
+              and (day,hour) not in 
+                (select day, hour from helper2)
          ) 
          loop
            delete_class (rec.cla_id);
@@ -1285,7 +1272,7 @@ create or replace package body planner_utils is
     end if; --if (pres_type='G')
 
     -- very similar code for Lecturers
-    if (pres_type='L'  and non_exclusive_parent = 'Y') then
+    if (pres_type='L') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
