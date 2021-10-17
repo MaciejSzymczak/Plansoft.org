@@ -308,7 +308,6 @@ type
     Kategoriezasobw1: TMenuItem;
     Pobierzdanezpliku1: TMenuItem;
     Zapiszdanedopliku1: TMenuItem;
-    N8: TMenuItem;
     N9: TMenuItem;
     Legenda1: TMenuItem;
     Narzdzia2: TMenuItem;
@@ -336,7 +335,6 @@ type
     conRole_VALUE: TEdit;
     MORG_UNITS: TMenuItem;
     Ustawieniakonfiguracyjne1: TMenuItem;
-    N6: TMenuItem;
     mmconsolidation: TMenuItem;
     N14: TMenuItem;
     MMDiagram: TMenuItem;
@@ -596,9 +594,13 @@ type
     LabelReservationType: TLabel;
     Preview: TSpeedButton;
     sqlCheckConflicts: TMemo;
-    N24: TMenuItem;
-    N25: TMenuItem;
-    N26: TMenuItem;
+    N3: TMenuItem;
+    Zarzdzeniedanymi1: TMenuItem;
+    N6: TMenuItem;
+    N8: TMenuItem;
+    N15: TMenuItem;
+    Pokawolneterminy1: TMenuItem;
+    Listazaj1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -3707,12 +3709,12 @@ procedure TFMain.buildMenu;
      end;
 
 begin
- if MM.Items[3].Caption <> '&S³owniki' then begin
+ if MM.Items[3].Caption <> '&Dane' then begin
   SError('B³¹d w procedurze buildMenu. Jest:"'+MM.Items[3].Caption+'". Powinno byæ:"&S³owniki". Zg³oœ problem asyœcie technicznej');
  end;
 
  // usuñ pozycje menu ( je¿eli s¹ )
- While MM.Items[3].Count > 12 do
+ While MM.Items[3].Count > 21 do
    MM.Items[3].Delete(MM.Items[3].count-1);
 
  With DModule do begin

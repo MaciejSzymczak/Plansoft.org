@@ -15,7 +15,7 @@ inherited FMassImport: TFMassImport
     Top = 0
     Width = 481
     Height = 317
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 1
     object TabSheet1: TTabSheet
@@ -41,18 +41,18 @@ inherited FMassImport: TFMassImport
       Caption = '2. Pobierz szablon'
       ImageIndex = 2
       object BTemplate: TBitBtn
-        Left = 16
-        Top = 16
-        Width = 449
+        Left = 8
+        Top = 120
+        Width = 457
         Height = 105
         Caption = 'Kliknij TUTAJ aby pobra'#263' szablon do wype'#322'nienia'
         TabOrder = 0
         OnClick = BTemplateClick
       end
       object BitBtn1: TBitBtn
-        Left = 16
-        Top = 128
-        Width = 449
+        Left = 8
+        Top = 8
+        Width = 457
         Height = 105
         Caption = 'Mam ju'#380' szablon, kontynuuj'
         TabOrder = 1
@@ -63,19 +63,19 @@ inherited FMassImport: TFMassImport
       Caption = '3. Importujemy !'
       ImageIndex = 1
       object BitBtn2: TBitBtn
-        Left = 112
-        Top = 96
-        Width = 265
-        Height = 57
+        Left = 8
+        Top = 120
+        Width = 457
+        Height = 105
         Caption = 'Chc'#281' tylko przetestowa'#263' plik >>'
         TabOrder = 0
         OnClick = BitBtn2Click
       end
       object BitBtn3: TBitBtn
-        Left = 112
-        Top = 32
-        Width = 265
-        Height = 57
+        Left = 8
+        Top = 8
+        Width = 457
+        Height = 105
         Caption = 'Chc'#281' zaimportowa'#263' plik >>'
         TabOrder = 1
         OnClick = BitBtn3Click

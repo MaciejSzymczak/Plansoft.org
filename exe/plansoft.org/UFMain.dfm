@@ -5815,31 +5815,34 @@ inherited FMain: TFMain
       object N11: TMenuItem
         Caption = '-'
       end
-      object mmfreeLGR: TMenuItem
-        Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, grupy, zasobu'
-        OnClick = mmfreeLGRClick
-      end
-      object mmfreeLG: TMenuItem
-        Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, grupy'
-        OnClick = mmfreeLGClick
-      end
-      object mmfreeLR: TMenuItem
-        Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, zasobu'
-        OnClick = mmfreeLRClick
-      end
-      object mmfreeGR: TMenuItem
-        Caption = 'Poka'#380' wolne terminy dla grupy, zasobu'
-        OnClick = mmfreeGRClick
+      object Pokawolneterminy1: TMenuItem
+        Caption = 'Poka'#380' wolne terminy'
+        object mmfreeLGR: TMenuItem
+          Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, grupy, zasobu'
+          OnClick = mmfreeLGRClick
+        end
+        object mmfreeLG: TMenuItem
+          Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, grupy'
+          OnClick = mmfreeLGClick
+        end
+        object mmfreeLR: TMenuItem
+          Caption = 'Poka'#380' wolne terminy dla wyk'#322'adowcy, zasobu'
+          OnClick = mmfreeLRClick
+        end
+        object mmfreeGR: TMenuItem
+          Caption = 'Poka'#380' wolne terminy dla grupy, zasobu'
+          OnClick = mmfreeGRClick
+        end
       end
       object mmfreeFooter: TMenuItem
         Caption = '-'
       end
       object powiksz1: TMenuItem
-        Caption = 'powi'#281'ksz'
+        Caption = 'Powi'#281'ksz'
         OnClick = powiksz1Click
       end
       object pomniejsz1: TMenuItem
-        Caption = 'pomniejsz'
+        Caption = 'Pomniejsz'
         OnClick = pomniejsz1Click
       end
       object N17: TMenuItem
@@ -5879,7 +5882,37 @@ inherited FMain: TFMain
       end
     end
     object Sowniki1: TMenuItem
-      Caption = '&S'#322'owniki'
+      Caption = '&Dane'
+      object Zarzdzeniedanymi1: TMenuItem
+        Caption = 'Zarz'#261'dzanie danymi'
+        object massImport: TMenuItem
+          Caption = 'Pobierz dane z programu Excel'
+          OnClick = massImportClick
+        end
+        object Kopiowaniegrupowe1: TMenuItem
+          Caption = 'Kopiuj rozk'#322'ad'
+          OnClick = Kopiowaniegrupowe1Click
+        end
+        object mmconsolidation: TMenuItem
+          Caption = 'Scalaj'
+          OnClick = mmconsolidationClick
+        end
+        object mmpurge: TMenuItem
+          Caption = 'Usu'#324' dane'
+          OnClick = mmpurgeClick
+        end
+        object N6: TMenuItem
+          Caption = '-'
+        end
+        object Zapiszdanedopliku1: TMenuItem
+          Caption = 'Kopia zapasowa'
+          OnClick = Zapiszdanedopliku1Click
+        end
+        object Pobierzdanezpliku1: TMenuItem
+          Caption = 'Odzyskanie danych'
+          OnClick = Pobierzdanezpliku1Click
+        end
+      end
       object MORG_UNITS: TMenuItem
         Caption = 'Jednostki organizacyjne'
         OnClick = MORG_UNITSClick
@@ -5908,14 +5941,58 @@ inherited FMain: TFMain
         Caption = 'Siatka godzinowa'
         OnClick = Siatkagodzinowa1Click
       end
+      object Kalendarze1: TMenuItem
+        Caption = 'Kalendarze szczeg'#243'lne'
+        OnClick = Kalendarze1Click
+      end
+      object N3: TMenuItem
+        Caption = '-'
+      end
       object mmprofileObjectNamePlanners: TMenuItem
         Caption = 'Plani'#347'ci'
         Hint = 'Autoryzacje Uprawnienia'
         OnClick = mmprofileObjectNamePlannersClick
       end
-      object Kalendarze1: TMenuItem
-        Caption = 'Kalendarze szczeg'#243'lne'
-        OnClick = Kalendarze1Click
+      object Uprawnieniadoobiektw1: TMenuItem
+        Caption = 'Uprawnienia'
+        Hint = 'Autoryzacje Planisci Uprawnienia do obiekt'#243'w'
+        OnClick = Uprawnieniadoobiektw1Click
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object Dozwolonekombinacjetypwzasobw1: TMenuItem
+        Caption = 'Typy ogranicze'#324
+        OnClick = Dozwolonekombinacjetypwzasobw1Click
+      end
+      object Kombinacjezasobw1: TMenuItem
+        Caption = 'Ograniczenia'
+        OnClick = Kombinacjezasobw1Click
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object Listazaj1: TMenuItem
+        Caption = 'Lista zaj'#281#263
+        object Penyprzegld1: TMenuItem
+          Caption = 'Lista zaj'#281#263'- wszystkie'
+          OnClick = Penyprzegld1Click
+        end
+        object Listzajzaznaczoneterminy1: TMenuItem
+          Caption = 'Lista zaj'#281#263'- zaznaczone terminy'
+          OnClick = Listzajzaznaczoneterminy1Click
+        end
+        object Listazajchistoriazmian1: TMenuItem
+          Caption = 'Lista zaj'#281#263' - historia zmian'
+          OnClick = Listazajchistoriazmian1Click
+        end
+      end
+      object N15: TMenuItem
+        Caption = '-'
+      end
+      object Preferowaneterminy1: TMenuItem
+        Caption = 'Preferowane terminy'
+        OnClick = Preferowaneterminy1Click
       end
       object N7: TMenuItem
         Caption = '-'
@@ -5930,69 +6007,8 @@ inherited FMain: TFMain
         OnClick = RESOURCESClick
       end
     end
-    object Finanse1: TMenuItem
-      Caption = 'Finanse'
-      object Osobyfizyczneiprawne1: TMenuItem
-        Caption = 'Osoby fizyczne i prawne'
-        OnClick = Osobyfizyczneiprawne1Click
-      end
-      object Partiedokumentw1: TMenuItem
-        Caption = 'Partie dokument'#243'w'
-        OnClick = Partiedokumentw1Click
-      end
-      object Fakturyrachunkip1: TMenuItem
-        Caption = 'Faktury, rachunki, p'#322'atno'#347'ci'
-        OnClick = Fakturyrachunkip1Click
-      end
-      object Liniedokumentw1: TMenuItem
-        Caption = 'Linie dokument'#243'w'
-        OnClick = Liniedokumentw1Click
-      end
-      object Konfiguracja1: TMenuItem
-        Caption = 'Konfiguracja'
-        OnClick = Konfiguracja1Click
-      end
-    end
     object Narzdzia2: TMenuItem
-      Caption = 'Narz'#281'dzia'
-      object Uprawnieniadoobiektw1: TMenuItem
-        Caption = 'Uprawnienia'
-        Hint = 'Autoryzacje Planisci'
-        OnClick = Uprawnieniadoobiektw1Click
-      end
-      object N25: TMenuItem
-        Caption = '-'
-      end
-      object Dozwolonekombinacjetypwzasobw1: TMenuItem
-        Caption = 'Typy ogranicze'#324
-        OnClick = Dozwolonekombinacjetypwzasobw1Click
-      end
-      object Kombinacjezasobw1: TMenuItem
-        Caption = 'Ograniczenia'
-        OnClick = Kombinacjezasobw1Click
-      end
-      object N4: TMenuItem
-        Caption = '-'
-      end
-      object Penyprzegld1: TMenuItem
-        Caption = 'Lista zaj'#281#263
-        OnClick = Penyprzegld1Click
-      end
-      object Listzajzaznaczoneterminy1: TMenuItem
-        Caption = 'Lista zaj'#281#263'- zaznaczone terminy'
-        OnClick = Listzajzaznaczoneterminy1Click
-      end
-      object Listazajchistoriazmian1: TMenuItem
-        Caption = 'Lista zaj'#281#263' - historia zmian'
-        OnClick = Listazajchistoriazmian1Click
-      end
-      object Preferowaneterminy1: TMenuItem
-        Caption = 'Preferowane terminy'
-        OnClick = Preferowaneterminy1Click
-      end
-      object N24: TMenuItem
-        Caption = '-'
-      end
+      Caption = 'Raporty i publikowanie'
       object Statystyki1: TMenuItem
         Caption = 'Statystyki'
         OnClick = Statystyki1Click
@@ -6113,42 +6129,9 @@ inherited FMain: TFMain
         Caption = 'Eksportuj do iKalendarz'
         OnClick = EksportujdoGoogleKalendarz1Click
       end
-      object N6: TMenuItem
-        Caption = '-'
-      end
-      object massImport: TMenuItem
-        Caption = 'Pobierz dane z programu Excel'
-        OnClick = massImportClick
-      end
-      object mmconsolidation: TMenuItem
-        Caption = 'Scalaj'
-        OnClick = mmconsolidationClick
-      end
-      object Kopiowaniegrupowe1: TMenuItem
-        Caption = 'Kopiuj rozk'#322'ad'
-        OnClick = Kopiowaniegrupowe1Click
-      end
-      object mmpurge: TMenuItem
-        Caption = 'Usu'#324' dane'
-        OnClick = mmpurgeClick
-      end
-      object N26: TMenuItem
-        Caption = '-'
-      end
     end
     object Narzdzia1: TMenuItem
       Caption = 'Narz'#281'dzia administracyjne'
-      object Zapiszdanedopliku1: TMenuItem
-        Caption = 'Kopia zapasowa'
-        OnClick = Zapiszdanedopliku1Click
-      end
-      object Pobierzdanezpliku1: TMenuItem
-        Caption = 'Odzyskanie danych'
-        OnClick = Pobierzdanezpliku1Click
-      end
-      object N8: TMenuItem
-        Caption = '-'
-      end
       object Odwiepolanadmiarowe1: TMenuItem
         Caption = 'Od'#347'wie'#380' pola nadmiarowe'
         OnClick = Odwiepolanadmiarowe1Click
@@ -6178,6 +6161,29 @@ inherited FMain: TFMain
       object MMDiagram: TMenuItem
         Caption = 'Diagram tabel'
         OnClick = MMDiagramClick
+      end
+    end
+    object Finanse1: TMenuItem
+      Caption = 'Finanse'
+      object Osobyfizyczneiprawne1: TMenuItem
+        Caption = 'Osoby fizyczne i prawne'
+        OnClick = Osobyfizyczneiprawne1Click
+      end
+      object Partiedokumentw1: TMenuItem
+        Caption = 'Partie dokument'#243'w'
+        OnClick = Partiedokumentw1Click
+      end
+      object Fakturyrachunkip1: TMenuItem
+        Caption = 'Faktury, rachunki, p'#322'atno'#347'ci'
+        OnClick = Fakturyrachunkip1Click
+      end
+      object Liniedokumentw1: TMenuItem
+        Caption = 'Linie dokument'#243'w'
+        OnClick = Liniedokumentw1Click
+      end
+      object Konfiguracja1: TMenuItem
+        Caption = 'Konfiguracja'
+        OnClick = Konfiguracja1Click
       end
     end
     object Pomoc1: TMenuItem

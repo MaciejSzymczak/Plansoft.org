@@ -9,7 +9,6 @@ uses
 type
   TFImp = class(TFormConfig)
     BitBtn1: TBitBtn;
-    BitBtn3: TBitBtn;
     Label1: TLabel;
     EFilename: TFilenameEdit;
     Label2: TLabel;
@@ -26,7 +25,6 @@ type
     bimp: TEdit;
     Label8: TLabel;
     bplanner: TEdit;
-    procedure BitBtn3Click(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure EFilenameChange(Sender: TObject);
@@ -47,12 +45,6 @@ implementation
 {$R *.DFM}
 
 Uses DM, UUtilityParent;
-
-procedure TFImp.BitBtn3Click(Sender: TObject);
-begin
-  inherited;
-  Close;
-end;
 
 procedure TFImp.BitBtn1Click(Sender: TObject);
 begin

@@ -10,23 +10,21 @@ type
   TFConsolidation = class(TFormConfig)
     PageControl1: TPageControl;
     TabSheet: TTabSheet;
-    consolidationKind: TRadioGroup;
-    BitBtn1: TBitBtn;
     BNext: TBitBtn;
     Memo2: TMemo;
     TabSheetPage2: TTabSheet;
-    BConsolidate: TBitBtn;
-    BitBtn5: TBitBtn;
+    consolidationKind: TRadioGroup;
+    TabSheet2: TTabSheet;
     GroupBox1: TGroupBox;
     Label3: TLabel;
+    Label1: TLabel;
     RECORD1: TEdit;
     RECORD_VALUE1: TEdit;
     SelectRECORD1: TBitBtn;
-    Label1: TLabel;
     RECORD2: TEdit;
     RECORD_VALUE2: TEdit;
     SelectRECORD2: TBitBtn;
-    Memo1: TMemo;
+    BConsolidate: TBitBtn;
     administratorMerging: TCheckBox;
     procedure SelectRECORD1Click(Sender: TObject);
     procedure SelectRECORD2Click(Sender: TObject);
@@ -34,14 +32,16 @@ type
     procedure RECORD2Change(Sender: TObject);
     procedure RECORD_VALUE1DblClick(Sender: TObject);
     procedure RECORD_VALUE2DblClick(Sender: TObject);
-    procedure BNextClick(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
     procedure BConsolidateClick(Sender: TObject);
     procedure consolidationKindClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure RECORD_VALUE1KeyPress(Sender: TObject; var Key: Char);
     procedure RECORD_VALUE2KeyPress(Sender: TObject; var Key: Char);
     procedure administratorMergingClick(Sender: TObject);
+    procedure BNextClick(Sender: TObject);
+    procedure Memo2Click(Sender: TObject);
+    procedure RECORD_VALUE1Click(Sender: TObject);
+    procedure RECORD_VALUE2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -76,7 +76,7 @@ begin
   KeyValue := '';
   If GENERICShowModalAsSelect(KeyValue) = mrOK Then Begin
    If ExistsValue(RECORD1.Text, [';'], KeyValue)
-    Then Info('Nie mo¿na wybraæ ponownie tego samego wyk³adowcy')
+    Then Info('Nie mo¿na wybraæ ponownie tego samego rekordu')
     Else begin
      //ConLecturer.Text := Merge(KeyValue, RECORD1.Text, ';');
      RECORD1.Text := KeyValue;
@@ -90,7 +90,7 @@ begin
   KeyValue := '';
   If GENERICShowModalAsSelect(KeyValue) = mrOK Then Begin
    If ExistsValue(RECORD2.Text, [';'], KeyValue)
-    Then Info('Nie mo¿na wybraæ ponownie tego samego wyk³adowcy')
+    Then Info('Nie mo¿na wybraæ ponownie tego samego rekordu')
     Else begin
      //ConLecturer.Text := Merge(KeyValue, RECORD1.Text, ';');
      RECORD2.Text := KeyValue;
@@ -132,20 +132,6 @@ procedure TFConsolidation.RECORD_VALUE2DblClick(Sender: TObject);
 begin
   inherited;
   SelectRECORD2Click(nil);
-end;
-
-procedure TFConsolidation.BNextClick(Sender: TObject);
-begin
-  if consolidationKind.ItemIndex in [0,1,2,3,4] then
-    PageControl1.ActivePageIndex := 1
-  else
-    info ('Aby przejœæ dalej musisz wybraæ rodzaj scalenia');
-end;
-
-procedure TFConsolidation.BitBtn1Click(Sender: TObject);
-begin
-  inherited;
-  Close;
 end;
 
 procedure TFConsolidation.BConsolidateClick(Sender: TObject);
@@ -208,6 +194,9 @@ begin
 
   record1.Text := '';
   record2.Text := '';
+
+  PageControl1.ActivePageIndex := 2;
+
 end;
 
 procedure TFConsolidation.FormActivate(Sender: TObject);
@@ -242,6 +231,29 @@ begin
       Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
       administratorMerging.Checked := false;
     End;
+end;
+
+procedure TFConsolidation.BNextClick(Sender: TObject);
+begin
+  inherited;
+  PageControl1.ActivePageIndex := 1;
+
+end;
+
+procedure TFConsolidation.Memo2Click(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := 1;
+end;
+
+procedure TFConsolidation.RECORD_VALUE1Click(Sender: TObject);
+begin
+  SelectRECORD1Click(nil);
+
+end;
+
+procedure TFConsolidation.RECORD_VALUE2Click(Sender: TObject);
+begin
+SelectRECORD2Click (nil);
 end;
 
 end.

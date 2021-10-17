@@ -49,11 +49,15 @@ var LCID : Integer;
     c_col1, c_col2, c_col3, c_col4, c_col5, c_col6 : string;
     l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_colour, l_orguni_id, l_entire : string;
     translatedMessage : string;
+    uniqueCheck : TMap;
+    uniqueKey : shortString;
+    uniqueCheckErrorFlag : boolean;
+    uniqueCheckErrorMessage : string;
 
     function verifyHeader ( cols, expectedCols : string ) : boolean;
     begin
       if cols <> expectedCols then begin
-        SError('B³êdny pierwszy wiersz w arkuszu. W komórkach A1, B1, C1, D1, .. powinny znajdowaæ siê nag³ówki: ' + expectedCols + cr+' W wierszach 2,3,.. powinny znajdowaæ siê rekordy');
+        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powininen zawieraæ nag³ówek: '+cr + expectedCols);
         result := false;
         exit;
       end;
@@ -122,9 +126,14 @@ begin
       0:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6, 'Skrót, Tytu³, Imiê, Nazwisko, Przedmioty, S³owa kluczowe'                                                  ) then exit;
       1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe') then exit;
       2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5            , 'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe'                                                     ) then exit;
-      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                         'Skrót, Nazwa, Dodatkowy opis, S³owa kluczowe'                                                              ) then exit;
+      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe'                                                              ) then exit;
       4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezeracji)'                                                    ) then exit;
     end;
+
+    uniqueCheck := Tmap.Create;
+    uniqueCheck.init(false);
+    uniqueCheckErrorFlag := false;
+    uniqueCheckErrorMessage := '';
 
     repeat
       lineNum := lineNum + 1;
@@ -145,6 +154,22 @@ begin
       if c_col5 <> '' then l_entire := l_entire + c_col5 + ':'+ l_col5 + cr;
       if c_col6 <> '' then l_entire := l_entire + c_col6 + ':'+ l_col6 + cr;
       l_entire := l_entire + cr +cr;
+
+      case importType.ItemIndex of
+        0: uniqueKey := l_col1;
+        1: uniqueKey := l_col1;
+        2: uniqueKey := l_col1+', '+l_col2;
+        3: uniqueKey := l_col1;
+        4: uniqueKey := l_col1;
+      end;
+      if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
+        uniqueCheckErrorMessage := merge( uniqueCheckErrorMessage, format('%s', [uniqueKey]), cr);
+        uniqueCheckErrorFlag := true;
+      end
+      else begin
+        uniqueCheck.addKeyValue(uniqueKey, uniqueKey);
+        uniqueCheck.prepare;
+      end;
 
       if l_col1 <> '' then begin
         try
@@ -221,6 +246,16 @@ begin
         end;
       end;
     until l_col1 = '';
+
+    uniqueCheck.Free;
+
+    if (uniqueCheckErrorFlag) then begin
+      uniqueCheckErrorMessage := 'Dane nie zosta³y zapisane, poniewa¿ ka¿dy rekord musi posiadaæ jednoznaczny skrót. Popraw proszê plik excel i spróbuj ponownie.'+cr+'Wartoœci wystêpuj¹ce w pliku wielokrotnie:'+cr+cr+uniqueCheckErrorMessage+cr+cr+'Aby u³atwiæ znalezienie rekordów do poprawienia, skopiowano ten komunikat do schowka.';
+      Info( uniqueCheckErrorMessage );
+      copyToClipboard( uniqueCheckErrorMessage );
+      dmodule.RollbackTrans;
+      Abort;
+    end;
 
     if chbTest.Checked then begin
       dmodule.RollbackTrans;
