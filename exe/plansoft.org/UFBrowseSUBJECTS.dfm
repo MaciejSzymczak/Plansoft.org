@@ -289,7 +289,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           item
             Expanded = False
             FieldName = 'DESC1'
-            Title.Caption = 'Opis'
+            Title.Caption = 'Kierunki'
             Width = 200
             Visible = True
           end
@@ -533,12 +533,12 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         OnMouseUp = Shape1MouseUp
       end
       object Label2: TLabel [5]
-        Left = 35
+        Left = 75
         Top = 81
-        Width = 78
+        Width = 38
         Height = 14
         Alignment = taRightJustify
-        Caption = 'Dodatkowy opis'
+        Caption = 'Kierunki'
       end
       object Label3: TLabel [6]
         Left = 32

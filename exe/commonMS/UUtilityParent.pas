@@ -1742,7 +1742,7 @@ begin
    map[t].key   := ExtractWord(1,tokens.Strings[t],['=']);
    map[t].value := ExtractWord(2,tokens.Strings[t],['=']);
   end;
-  tokens.Free;
+  //tokens.Free;
 end;
 
 function TMap.getIndex(key: string): integer;
@@ -1836,7 +1836,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2021-10-16';
+ VersionOfApplication := '2021-10-17';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

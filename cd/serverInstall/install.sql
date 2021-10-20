@@ -1,20 +1,25 @@
 STEP 0
 ==================================
 
-a. Install Oracle 11g XE (this is free for use)
-	http://plansoft.org/OracleXE112_Win64.zip
+Download
+ORACLE_11G http://plansoft.org/OracleXE112_Win64.zip
+ORACLE_CLIENT http://plansoft.org/win32_11gR2_client.zip
+PLANSOFT.ORG  http://plansoft.org/wp-content/uploads/pdf/install.exe
+SQL_DEVELOPER https://www.oracle.com/tools/downloads/sqldev-downloads.html
 
-b. Install Oracle SQLDeveloper Windows 64-bit with JDK 8 included (this is free for use)
-Use SQLDeveloper to run the installation scripts described below in this file
-	https://www.oracle.com/tools/downloads/sqldev-downloads.html
+a. Install Oracle 11g XE (this is free for use)
+
+b. Install Oracle SQLDeveloper Windows 64-bit with JDK 8 included (tool is free for use)
+	Use SQLDeveloper to run the installation scripts described below in this file
 
 c. Perform the steps described here
 	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
 
-	Note: Do NOT install higher version than oracle11c XE - not tested yet. 
+	!! Note: Do NOT install higher version than oracle11c XE - not tested yet. 
 		Oracle18c XE	http://plansoft.org/OracleXE112_Win64.zip
 		Oracle XE client 32bit NT_180000_client.zip (select 2nd option: RUNTIME) soft.home.pl/oracle18cXE/NT_180000_client.zip
-	
+
+
 	
 STEP 1
 ==================================
@@ -25,6 +30,7 @@ begin
 	execute immediate 'drop role pla_permission'; 
 exception when others then null;
 end;
+/
 create user planner identified by planner DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
 grant dba to planner;
 create role pla_permission identified by XXXALABAMA;
@@ -44,7 +50,7 @@ grant connect to pla_permission with admin option;
 grant resource to pla_permission;
 grant dba to pla_permission;
 grant pla_permission to planner with admin option;
-alter user planner default role all except pla_permission;
+alter user planner default role all except pla_permission
 default tablespace users
 temporary tablespace temp;
 
@@ -59,14 +65,34 @@ grant alter system to planner;
 grant select on sys.GV_$SESSION to planner;
 GRANT EXECUTE ON sys.dbms_crypto TO planner;
 
+create or replace procedure purge_audit_trail (days in number) as
+purge_date date;
+begin
+  purge_date := trunc(sysdate-days);
+  delete from aud$ where ntimestamp# < purge_date;
+  execute immediate 'delete from planner.classes_history where effective_end_date < purge_date and rownum < 10000';
+  commit;
+end;
+/
+
+begin
+  dbms_scheduler.create_job(
+      job_name => 'AUDIT_PURGE'
+     ,job_type => 'PLSQL_BLOCK'
+     ,job_action => 'begin purge_audit_trail(31); end;'
+     ,repeat_interval => 'freq=daily'
+     ,enabled => TRUE
+     );
+end;
+
+prompt select * from dba_scheduler_jobs
+prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;
 
 STEP 2
 ===============
-download and unzip this file 
+Download,unzip and import this file 
 https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/2021.08.09.init.dmp.zip
-
-IMP planner@127.0.0.1:1521/XE
-and import 2021.08.09.init.dmp
+imp PLANNER/planner@127.0.0.1:1521/xe FILE=2021.08.09.init.dmp FULL=Y
 
 STEP 3
 ================
@@ -85,6 +111,7 @@ LOOP
  END LOOP;
 END;
 /
+
 DECLARE
 CURSOR TEMP
 IS
@@ -114,47 +141,6 @@ end;
 /
 
 
-STEP 4
-================
-Connect sys
 
-create or replace procedure purge_audit_trail (days in number) as
-purge_date date;
-begin
-  purge_date := trunc(sysdate-days);
-  delete from aud$ where ntimestamp# < purge_date;
-  delete from planner.classes_history where effective_end_date < purge_date and rownum < 10000;
-  commit;
-end;
-/
 
-begin
-  dbms_scheduler.create_job(
-      job_name => 'AUDIT_PURGE'
-     ,job_type => 'PLSQL_BLOCK'
-     ,job_action => 'begin purge_audit_trail(31); end;'
-     ,repeat_interval => 'freq=daily'
-     ,enabled => TRUE
-     );
-end;
-
-prompt select * from dba_scheduler_jobs
-prompt begin dbms_scheduler.drop_job('AUDIT_PURGE'); end;
-
-STEP 5 - OPTIONAL. REMOVE TEST DATA and setup readOnly user
-================
-connect planner;
-
-truncate table lec_cla;
-truncate table gro_cla;
-truncate table rom_cla;
-delete from classes;
-truncate table classes_history;
-delete from subjects where id > 0;
-delete from groups where id > 0;
-delete from lecturers where id > 0;
-delete from rooms where id > 0;
-delete from form_formulas where id > 0;
-delete from forms where id > 0;
-commit;
 
