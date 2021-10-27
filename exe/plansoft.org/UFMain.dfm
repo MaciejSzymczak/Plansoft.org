@@ -4862,11 +4862,11 @@ inherited FMain: TFMain
         
           '(select m.id from lecturers m, org_units o where m.ORGUNI_ID = o' +
           '.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.abbrevi' +
-          'ation||m.title||m.first_name||m.last_name||m.email|| m.attribs_0' +
-          '1||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.att' +
-          'ribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10|' +
-          '|m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attri' +
-          'bs_15)) like '#39'%var1%'#39')) union'
+          'ation||m.title||m.first_name||m.last_name||m.email||m.desc1||m.d' +
+          'esc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.' +
+          'attribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_' +
+          '09||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.at' +
+          'tribs_14||m.attribs_15)) like '#39'%var1%'#39')) union'
         
           '(select m.id from groups m, org_units o where m.ORGUNI_ID = o.id' +
           '(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.ab' +

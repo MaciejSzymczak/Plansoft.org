@@ -33,6 +33,10 @@ type
     ColorDialog: TColorDialog;
     ttEnabled: TCheckBox;
     BMassImport: TBitBtn;
+    Label2: TLabel;
+    DESC1: TDBEdit;
+    Label1: TLabel;
+    DESC2: TDBEdit;
     procedure CON_TYPE_IDChange(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure CON_TYPE_ID_VALUEDblClick(Sender: TObject);
