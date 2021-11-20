@@ -1,11 +1,4 @@
--- 2013.05.07: 
---LOCAL: YES (but automatic update)
---LOCALPRIV: NO
---ININSTALL: NO 
---WAT  : YES
---WROC : NO 
---PWWA : NO 
---SOPOT: YES 
+
 
 CREATE OR REPLACE package planner_utils is
 

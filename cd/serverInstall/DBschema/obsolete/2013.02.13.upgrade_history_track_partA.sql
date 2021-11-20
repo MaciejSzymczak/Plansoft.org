@@ -1,11 +1,3 @@
--- 2013.05.07: 
---LOCAL: YES (but automatic update)
---LOCALPRIV: NO
---ININSTALL: NO 
---WAT  : YES
---WROC : NO 
---PWWA : NO 
---SOPOT: YES 
 
 -- it is done by new version of package planner_utils
 drop trigger PLANNER.lec_cla_trg;

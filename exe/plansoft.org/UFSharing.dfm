@@ -12,9 +12,10 @@ inherited FSharing: TFSharing
   end
   object CheckListBox: TCheckListBox
     Left = 0
-    Top = 29
+    Top = 41
     Width = 487
-    Height = 499
+    Height = 487
+    OnClickCheck = CheckListBoxClickCheck
     Align = alClient
     ItemHeight = 14
     Items.Strings = (
@@ -22,6 +23,8 @@ inherited FSharing: TFSharing
       'a'
       'b')
     TabOrder = 1
+    OnClick = CheckListBoxClickCheck
+    OnDblClick = CheckListBoxClickCheck
   end
   object Panel1: TPanel
     Left = 0
@@ -141,9 +144,25 @@ inherited FSharing: TFSharing
     Left = 0
     Top = 0
     Width = 487
-    Height = 29
+    Height = 41
     Align = alTop
     TabOrder = 3
+    object Warning: TLabel
+      Left = 8
+      Top = 24
+      Width = 400
+      Height = 14
+      Caption = 
+        'Ostro'#380'nie! Jezeli odznaczysz to pole wyboru, to obiekt zniknie d' +
+        'la Ciebie'
+      Font.Charset = EASTEUROPE_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Visible = False
+    end
     object ChangeAll: TCheckBox
       Left = 7
       Top = 7

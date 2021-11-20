@@ -17,12 +17,15 @@ type
     BitBtn1: TBitBtn;
     BAdv: TBitBtn;
     BitBtn2: TBitBtn;
+    Warning: TLabel;
     procedure ChangeAllClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure BAdvClick(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
+    procedure CheckListBoxClickCheck(Sender: TObject);
   private
     presourceType, presourceId : string;
+    currentUserOrroleID : integer;
   public
     procedure init(cruid, resourceType, resourceId, resourceDsp : string);
     procedure executeSQL(resourceType, resourceId : string);
@@ -95,6 +98,7 @@ begin
      if cruid = 'I' then FSharing.CheckListBox.Checked[t] := true;
      if cruid = 'U' then FSharing.CheckListBox.Checked[t] := tmp.getValue(Fmain.MapPlanners.map[t].key)='FOUND';
      if Fmain.MapPlanners.map[t].key = fmain.getUserOrRoleID then begin
+         currentUserOrroleID := t;
      //    FSharing.CheckListBox.ItemEnabled[t] := false;
          FSharing.CheckListBox.Checked[t] := true;
      end;
@@ -133,6 +137,14 @@ begin
      key := Fmain.MapPlanners.map[t].key;
      FSharing.CheckListBox.Checked[t] := (key=UUtilityParent.UserID) or (StrUtils.AnsiContainsText(roles,'#'+key));
    end;
+end;
+
+procedure TFSharing.CheckListBoxClickCheck(Sender: TObject);
+var t : integer;
+begin
+  t := CheckListBox.ItemIndex;
+  if (t = currentUserOrroleID) then
+      Warning.Visible :=  ((t = currentUserOrroleID) and (not CheckListBox.Checked[t]));
 end;
 
 end.
