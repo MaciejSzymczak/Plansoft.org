@@ -26,7 +26,7 @@ type
     GridHint: TEdit;
     BFontChange: TBitBtn;
     FDialog: TFontDialog;
-    LPrzyklad: TLabel;
+    LGridFont: TLabel;
     Label11: TLabel;
     SortOrder: TMemo;
     BrakUprawnien: TMemo;
@@ -163,8 +163,8 @@ end;
 procedure TFModuleConfigure.BFontChangeClick(Sender: TObject);
 begin
   inherited;
- FDialog.Font := LPrzyklad.Font;
- If FDialog.Execute Then LPrzyklad.Font := FDialog.Font;
+ FDialog.Font := LGridFont.Font;
+ If FDialog.Execute Then LGridFont.Font := FDialog.Font;
 end;
 
 procedure TFModuleConfigure.BCopyToGridClick(Sender: TObject);

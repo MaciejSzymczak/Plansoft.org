@@ -1324,6 +1324,7 @@ Var xp, yp          : Integer;
     priorDayOfWeek  : integer;
     currentDayOfWeek: integer;
     showLine        : boolean;
+    cellPrior       : string;
     cellCurrent     : string;
     cells           : string;
     htmlTable       : thtmlTable;
@@ -1461,11 +1462,26 @@ begin
 
  AssignFile(F, FileName);
  Rewrite(F);
+ Writeln(f, '<!DOCTYPE html>');
  WriteLn(f, '<HTML>');
 
  WriteLn(f, '<HEAD>');
  WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
  WriteLn(f, '<TITLE>Plansoft.org - '+ fprogramSettings.profileObjectNameClassgen.Text +'</TITLE>');
+
+WriteLn(f, ' <style>');
+WriteLn(f, 'table, td, th {');
+WriteLn(f, '  border: 1px solid black;');
+WriteLn(f, '}');
+
+WriteLn(f, 'table {');
+WriteLn(f, '  width: 100%;');
+WriteLn(f, '  border-collapse: collapse;');
+WriteLn(f, '  padding: 0px;');
+WriteLn(f, '  margin:0 auto;');
+WriteLn(f, '}');
+WriteLn(f, '</style>');
+
  WriteLn(f, '</HEAD>');
  WriteLn(f, '<BODY>');
 
@@ -1480,11 +1496,11 @@ begin
 
 
  if (notes_before or notes_after) then begin
-   if not elementEnabled('"Nagłówki rozkładów zajęć"','2015.12.04', true) then begin
-     info('Nie możesz korzystać z funkcji "Nagłówki rozkładów zajęć", skontaktuj się z dostawcą oprogramowania',showOnceaday);
-     notes_before := false;
-     notes_after := false;
-   end;
+   //if not elementEnabled('"Nagłówki rozkładów zajęć"','2015.12.04', true) then begin
+   //  info('Nie możesz korzystać z funkcji "Nagłówki rozkładów zajęć", skontaktuj się z dostawcą oprogramowania',showOnceaday);
+   //  notes_before := false;
+   //  notes_after := false;
+   //end;
     dmodule.openSQL(
          'select id, per_id, res_id, notes_before, notes_after, internal_notes from timetable_notes where per_id=:per_id and res_id=:res_id' ,
          'per_id='+ pPeriodId+
@@ -1499,13 +1515,10 @@ begin
 
  If Assigned(Header) Then WriteLn(F, sHeader);
  if (notes_before) then WriteLn(F, notesBeforeText);
- if addCreationDate=1 then writeLn(f,'<BR><FONT style="font-size:10px;">'+'Data aktualizacji: '+DateTimeToStr(Now())+'</FONT>');
+ if addCreationDate=1 then writeLn(f,'<br/><div style="font-size:10px;">'+'Data aktualizacji: '+DateTimeToStr(Now())+'</div>');
 
- WriteLn(f, '<TABLE border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse; font-size:'+CELLSIZE+'px;">');
- //WriteLn(f, '<TABLE border="1" style="font-size:'+CELLSIZE+'px;">');
+ WriteLn(f, '<table style="font-size:'+CELLSIZE+'px;">');
 
- // doc (checkboxes)
- // invoice
  htmlTable := thtmlTable.create;
  htmlTable.init (CellWIDTH, CellHeight, pspanEmptyCells);
 
@@ -1596,6 +1609,7 @@ begin
                htmlTable.writeCell(cellCurrent);
          end else begin
            cells := '';
+           cellPrior := '';
            for i := 0 to classList.cnt-1 do begin
              Class_ := classList.classes[i];
              cellCurrent :=
@@ -1605,9 +1619,11 @@ begin
                  ,B1, B2, B3, B4, B5
                  , ColoringIndex
                  , CellWIDTH);
+               if cellPrior <> cellCurrent then
                  cells := cells + '<tr>'+cellCurrent+'</tr>';
+             cellPrior := cellCurrent;
            end;
-           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="width:100%">'+cells+'</table></td>');
+           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table border: 0px solid black; style="width:100%">'+cells+'</table></td>');
          end;
        end;
 
@@ -1667,7 +1683,7 @@ begin
  If Assigned(Footer) Then WriteLn(F, sFooter);
  if (notes_after) then WriteLn(F, notesAfterText);
  if addCreationDate=0 then writeLn(f,'<FONT style="font-size:10px;">'+'Data aktualizacji: '+DateTimeToStr(Now())+'</FONT>');
- writeLn(f,'<hr><FONT style="font-size:10px;">'+'Dokument został utworzony za pomocą programu <a href="http://www.plansoft.org">Plansoft.org</a></FONT>');
+ writeLn(f,'<hr/><FONT style="font-size:10px;">'+'Dokument został utworzony za pomocą programu <a href="http://www.plansoft.org">Plansoft.org</a></FONT>');
 
  WriteLn(f, '</BODY></HTML>');
 
@@ -2206,7 +2222,7 @@ var ColoringIndex    : shortString;
       if not fmain.silentMode then begin
           ShowFolder(Folder.Text);
           if defaultBrowserIsChrome then begin
-              info('Zrobione! Otwórz plik index.html za pomocą Internet Explorer lub Firefox lub umieść go na serwerze www. Więcej na ten temat w podręczniku użytkownika');
+              info('Zrobione! Już możesz przeglądać rozkłady. Aby jednak zobaczyć spis treści (plik index.xml) poproś swojego informatyka, aby umieścił zawartość tego folderu na serwerze Uczelni.');
           end;
           uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
       end;

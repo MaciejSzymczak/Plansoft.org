@@ -434,7 +434,7 @@ var t : integer;
         '<body>'+#13#10+
         s+#13#10+
         '<font style="font-size:10px;">'+'Data aktualizacji: '+DateTimeToStr(Now())+'</font>'+#13#10+
-        '<hr><font style="font-size:10px;">'+'Dokument zosta³ utworzony za pomoc¹ programu <a href="http://www.plansoft.org">Plansoft.org</a></font>'+#13#10+
+        '<hr/><font style="font-size:10px;">'+'Dokument zosta³ utworzony za pomoc¹ programu <a href="http://www.plansoft.org">Plansoft.org</a></font>'+#13#10+
         '</body></html>';
     end;
 begin

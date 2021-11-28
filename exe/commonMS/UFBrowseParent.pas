@@ -2,9 +2,6 @@ unit UFBrowseParent;
 
 interface
 
-// 2013.01.27 ShowModalAsBrowser is virtual now
-//            FindFirstVisibleColumns
-
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Grids, DBGrids, RXDBCtrl, StdCtrls, Buttons, DBCtrls, ExtCtrls, Menus, dbTables,
@@ -1623,7 +1620,7 @@ begin
   EFiltr.Text                := Self.BFilter.Hint;
   EOleExport.Text            := Self.BOleExport.Hint;
   ECrossCombination.Text     := Self.BCrossCombination.Hint;
-  LPrzyklad.Font.Assign(Self.Grid.Font);
+  //LGridFont.Font.Assign(Self.Grid.Font);
   GridLayout.Lines.Assign(Self.GridLayout.Strings);
   SortOrder.Lines.Assign(Self.HolderSortOrder.Strings);
   BrakUprawnien.Lines.Assign(Self.Komunikaty.Strings);
@@ -1669,7 +1666,7 @@ begin
   Self.BConfigure.Hint            := Configure.Text;
   Self.Upraw.Hint                 := EUpraw.Text;
 
-  Self.Grid.Font.Assign(LPrzyklad.Font);
+  //Self.Grid.Font.Assign(LGridFont.Font);
   Self.GridLayout.Strings.Assign(GridLayout.Lines);
   Self.HolderSortOrder.Strings.Assign(SortOrder.Lines);
   Self.Komunikaty.Strings.Assign(BrakUprawnien.Lines);
@@ -2014,22 +2011,22 @@ begin
                                                 Else ShowPanel.Down := False;
  If Others.Strings.Values['SecondRatePanelDown'] = 'True' Then BShowChildsPanel.Down := True
                                                           Else BShowChildsPanel.Down := False;
- Grid.Font.Charset := StrToInt(Others.Strings.Values['GRID_FONT_CHARSET']);
- Grid.Font.Color   := StrToInt(Others.Strings.Values['GRID_FONT_COLOR']);
- Grid.Font.Height  := StrToInt(Others.Strings.Values['GRID_FONT_HEIGHT']);
- Grid.Font.Name    := Others.Strings.Values['GRID_FONT_NAME'];
- GRID_FONT_PITCH := Others.Strings.Values['GRID_FONT_PITCH'];
- If  GRID_FONT_PITCH = 'fpDefault' Then Grid.Font.Pitch := fpDefault Else
-  If  GRID_FONT_PITCH = 'fpVariable' Then Grid.Font.Pitch := fpVariable Else
-    Grid.Font.Pitch := fpFixed;
- Grid.Font.Size  := StrToInt(Others.Strings.Values['GRID_FONT_SIZE']);
+ //Grid.Font.Charset := StrToInt(Others.Strings.Values['GRID_FONT_CHARSET']);
+ //Grid.Font.Color   := clWhite; //StrToInt(Others.Strings.Values['GRID_FONT_COLOR']);
+ //Grid.Font.Height  := StrToInt(Others.Strings.Values['GRID_FONT_HEIGHT']);
+ //Grid.Font.Name    := Others.Strings.Values['GRID_FONT_NAME'];
+ //GRID_FONT_PITCH := Others.Strings.Values['GRID_FONT_PITCH'];
+ //If  GRID_FONT_PITCH = 'fpDefault' Then Grid.Font.Pitch := fpDefault Else
+ // If  GRID_FONT_PITCH = 'fpVariable' Then Grid.Font.Pitch := fpVariable Else
+ //   Grid.Font.Pitch := fpFixed;
+ //Grid.Font.Size  := StrToInt(Others.Strings.Values['GRID_FONT_SIZE']);
 
- GRID_FONT_STYLE := StrToInt(Others.Strings.Values['GRID_FONT_STYLE']);
+ //GRID_FONT_STYLE := StrToInt(Others.Strings.Values['GRID_FONT_STYLE']);
 
- If (GRID_FONT_STYLE AND 1) = 1 Then Grid.Font.Style := Grid.Font.Style + [fsBold];
- If (GRID_FONT_STYLE AND 2) = 2 Then Grid.Font.Style := Grid.Font.Style + [fsItalic];
- If (GRID_FONT_STYLE AND 4) = 4 Then Grid.Font.Style := Grid.Font.Style + [fsUnderline];
- If (GRID_FONT_STYLE AND 8) = 8 Then Grid.Font.Style := Grid.Font.Style + [fsStrikeOut];
+ //If (GRID_FONT_STYLE AND 1) = 1 Then Grid.Font.Style := Grid.Font.Style + [fsBold];
+ //If (GRID_FONT_STYLE AND 2) = 2 Then Grid.Font.Style := Grid.Font.Style + [fsItalic];
+ //If (GRID_FONT_STYLE AND 4) = 4 Then Grid.Font.Style := Grid.Font.Style + [fsUnderline];
+ //If (GRID_FONT_STYLE AND 8) = 8 Then Grid.Font.Style := Grid.Font.Style + [fsStrikeOut];
 
  CreateSortOrder;
  CreateGridLayout;
@@ -2471,23 +2468,23 @@ begin
   If ShowPanel.Down        Then Others.Strings.Values['PanelDown'] := 'True'
                            Else Others.Strings.Values['PanelDown'] := 'False';
 
- Others.Strings.Values['GRID_FONT_CHARSET'] := IntToStr(Grid.Font.Charset);
- Others.Strings.Values['GRID_FONT_COLOR']   := IntToStr(Grid.Font.Color);
- Others.Strings.Values['GRID_FONT_HEIGHT']  := IntToStr(Grid.Font.Height);
- Others.Strings.Values['GRID_FONT_NAME']    := Grid.Font.Name;
+ //Others.Strings.Values['GRID_FONT_CHARSET'] := IntToStr(Grid.Font.Charset);
+ //Others.Strings.Values['GRID_FONT_COLOR']   := IntToStr(Grid.Font.Color);
+ //Others.Strings.Values['GRID_FONT_HEIGHT']  := IntToStr(Grid.Font.Height);
+ //Others.Strings.Values['GRID_FONT_NAME']    := Grid.Font.Name;
 
- If Grid.Font.Pitch = fpDefault Then Others.Strings.Values['GRID_FONT_PITCH'] := 'fpDefault' Else
-   If Grid.Font.Pitch = fpVariable Then Others.Strings.Values['GRID_FONT_PITCH'] := 'fpVariable' Else
-     Others.Strings.Values['GRID_FONT_PITCH'] := 'fpFixed';
+ //If Grid.Font.Pitch = fpDefault Then Others.Strings.Values['GRID_FONT_PITCH'] := 'fpDefault' Else
+ //  If Grid.Font.Pitch = fpVariable Then Others.Strings.Values['GRID_FONT_PITCH'] := 'fpVariable' Else
+ //    Others.Strings.Values['GRID_FONT_PITCH'] := 'fpFixed';
 
- Others.Strings.Values['GRID_FONT_SIZE'] := IntToStr(Grid.Font.Size);
+ //Others.Strings.Values['GRID_FONT_SIZE'] := IntToStr(Grid.Font.Size);
 
- GRID_FONT_STYLE := 0;
- If fsBold in Grid.Font.Style      Then GRID_FONT_STYLE := GRID_FONT_STYLE + 1;
- If fsItalic in Grid.Font.Style    Then GRID_FONT_STYLE := GRID_FONT_STYLE + 2;
- If fsUnderline in Grid.Font.Style Then GRID_FONT_STYLE := GRID_FONT_STYLE + 4;
- If fsStrikeOut in Grid.Font.Style Then GRID_FONT_STYLE := GRID_FONT_STYLE + 8;
- Others.Strings.Values['GRID_FONT_STYLE'] := IntToStr(GRID_FONT_STYLE);
+ //GRID_FONT_STYLE := 0;
+ //If fsBold in Grid.Font.Style      Then GRID_FONT_STYLE := GRID_FONT_STYLE + 1;
+ //If fsItalic in Grid.Font.Style    Then GRID_FONT_STYLE := GRID_FONT_STYLE + 2;
+ //If fsUnderline in Grid.Font.Style Then GRID_FONT_STYLE := GRID_FONT_STYLE + 4;
+ //If fsStrikeOut in Grid.Font.Style Then GRID_FONT_STYLE := GRID_FONT_STYLE + 8;
+ //Others.Strings.Values['GRID_FONT_STYLE'] := IntToStr(GRID_FONT_STYLE);
 
  inherited;
 end;
@@ -3594,6 +3591,7 @@ Procedure TFBrowseParent.ExportToHtml(aGrid : TDBGrid );
           AssignFile(F, FileName);
           ReWrite(F);
 
+          Writeln(f, '<!DOCTYPE html>');
           Writeln(f, '<HTML>');
           Writeln(f, '<HEAD>');
           Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');

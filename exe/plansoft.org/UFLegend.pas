@@ -832,6 +832,7 @@ Procedure TFLegend.ExportToHtml(aGrid : TDBGrid );
           AssignFile(F, FileName);
           ReWrite(F);
 
+          Writeln(f, '<!DOCTYPE html>');
           Writeln(f, '<HTML>');
           Writeln(f, '<HEAD>');
           Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
