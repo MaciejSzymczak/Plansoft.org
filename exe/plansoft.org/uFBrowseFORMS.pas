@@ -85,7 +85,7 @@ Var c : Integer;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
  Query['KIND'] :=  CON_TYPE_ID.text;
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
 End;

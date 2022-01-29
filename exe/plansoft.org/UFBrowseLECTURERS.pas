@@ -103,8 +103,8 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -149,7 +149,7 @@ Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
  if CON_ORGUNI_ID.Text <> '' then
    Query['ORGUNI_ID'] := CON_ORGUNI_ID.Text;
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
 End;
@@ -517,14 +517,14 @@ begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
 end;
 
-procedure TFBrowseLECTURERS.SpeedButton1Click(Sender: TObject);
-begin
-  info('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
-end;
-
 procedure TFBrowseLECTURERS.SpeedButton3Click(Sender: TObject);
 begin
   info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseLECTURERS.SpeedButton2Click(Sender: TObject);
+begin
+  info('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
 end;
 
 end.

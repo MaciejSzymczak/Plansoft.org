@@ -24,6 +24,8 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormPaint(Sender: TObject);
@@ -37,6 +39,8 @@ type
     procedure Label4Click(Sender: TObject);
     procedure Label5Click(Sender: TObject);
     procedure Label6Click(Sender: TObject);
+    procedure Label7Click(Sender: TObject);
+    procedure Label8Click(Sender: TObject);
   private
     uchwytDC :HDC; //uchwyt do "display device context (DC)"
     uchwytRC :HGLRC; //uchwyt do "OpenGL rendering context"
@@ -446,6 +450,16 @@ end;
 procedure TFDatabaseLogin.Label6Click(Sender: TObject);
 begin
   webBrowser('https://www.facebook.com/Plansoft.org/');
+end;
+
+procedure TFDatabaseLogin.Label7Click(Sender: TObject);
+begin
+  webBrowser('https://forms.gle/8ebi97weLw4fUBmL8/');
+end;
+
+procedure TFDatabaseLogin.Label8Click(Sender: TObject);
+begin
+  webBrowser('https://forms.gle/SeN3BWMcSu1zYgiZA');
 end;
 
 end.

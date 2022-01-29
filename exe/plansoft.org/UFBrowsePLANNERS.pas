@@ -26,9 +26,7 @@ type
     BClearS: TSpeedButton;
     SpeedButton2: TSpeedButton;
     Label1: TLabel;
-    PARENT_ID: TDBEdit;
-    PARENT_ID_VALUE: TEdit;
-    SpeedButton3: TSpeedButton;
+    PARENT: TDBEdit;
     SpeedButton4: TSpeedButton;
     LRec: TLabel;
     ROL_ID: TDBEdit;
@@ -60,6 +58,7 @@ type
     DBCheckBox12: TDBCheckBox;
     SetPassword: TBitBtn;
     password_sha1: TDBEdit;
+    SelectOwner: TBitBtn;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -75,10 +74,6 @@ type
     procedure CAL_IDChange(Sender: TObject);
     procedure CAL_ID_VALUEClick(Sender: TObject);
     procedure BClearSClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure PARENT_IDChange(Sender: TObject);
-    procedure PARENT_ID_VALUEClick(Sender: TObject);
-    procedure SpeedButton3Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -90,6 +85,7 @@ type
     procedure PLANNERTYPEChange(Sender: TObject);
     procedure BClearLEC_IDClick(Sender: TObject);
     procedure SetPasswordClick(Sender: TObject);
+    procedure SelectOwnerClick(Sender: TObject);
   private
   public
     Function  CheckRecord : Boolean; override;
@@ -111,7 +107,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UFLookupWindow,
-  UFChangePassword;
+  UFChangePassword, UFMain;
 
 function TFBrowsePLANNERS.CanDelete: Boolean;
 begin
@@ -151,7 +147,7 @@ Begin
       WinControls[0] := Name;
       WinControls[1] := password_sha1;
       WinControls[2] := ROL_ID;
-      WinControls[3] := PARENT_ID;
+      WinControls[3] := PARENT;
       WinControls[4] := CAL_ID;
   end
   else begin
@@ -168,7 +164,7 @@ Var c : Integer;
 Begin
  Query['ID']   := DModule.SingleValue('select main_seq.nextval from dual');
  Query['TYPE'] := 'USER';
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
  Query['ACTIVE_FLAG'] := '+';
@@ -326,49 +322,9 @@ begin
   Self.TableName := 'PLANNERS';
 end;
 
-procedure TFBrowsePLANNERS.SpeedButton1Click(Sender: TObject);
-var s1,s2,s3,s4,s5 : string;
-begin
-  try s1 := query.FieldByName('creation_date').AsString;    except s1:=''; end;
-  try s2 := query.FieldByName('created_by').AsString;       except s2:=''; end;
-  try s3 := query.FieldByName('last_update_date').AsString; except s3:=''; end;
-  try s4 := query.FieldByName('last_updated_by').AsString;  except s4:=''; end;
-  s5 :=   'Utworzono:'+#9+#9  +  s1  +#13+#10+
-  'Utworzy³:'+#9+#9+ s2 +#13+#10+
-  'Zaktualizowano:'+#9+#9 +s3 +#13+#10+
-  'Zaktualizowa³:'+#9+#9  + s4;
-
-  info(s5);
-end;
-
-procedure TFBrowsePLANNERS.PARENT_IDChange(Sender: TObject);
-begin
-  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
-end;
-
-procedure TFBrowsePLANNERS.PARENT_ID_VALUEClick(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := PARENT_ID.Text;
-  //If AutoCreate.PLANNERSShowModalAsSelect(KeyValue) = mrOK Then PARENT_ID.Text := KeyValue;
-  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS',KeyValue,'NAME','Nazwa','NAME','0=0','',ID) = mrOK Then PARENT_ID.Text := ID;
-end;
-
-procedure TFBrowsePLANNERS.SpeedButton3Click(Sender: TObject);
-begin
-  PARENT_ID.text := '';
-end;
-
 procedure TFBrowsePLANNERS.SpeedButton4Click(Sender: TObject);
 begin
- info(
-'Osoba nadzoruj¹ca mo¿e wprowadzaæ zmiany w zajêciach zaplanowanych przez tê osobê.'+cr+
-''+cr+
-'Osob¹ nadzoruj¹c¹ jest etatowy planista.'+cr+
-'Osobê nadzoruj¹c¹ nale¿y wskazaæ, kiedy osoba planuj¹ca zajmuje siê planowaniem w ograniczonym zakresie, np.:'+cr+
-'- Pracownik portierni zajmuj¹cy siê rezerwacjami sal.'+cr+
-'- Pracownik sekretariatu planuj¹cy sesje poprawkowe.'
-);
+ info('Cz³onek zespo³u mo¿e zmieniaæ Twoje zajêcia');
 end;
 
 procedure TFBrowsePLANNERS.SpeedButton2Click(Sender: TObject);
@@ -450,6 +406,19 @@ begin
    end;
    fchangepassword.Free;
    fchangepassword := nil;
+end;
+
+procedure TFBrowsePLANNERS.SelectOwnerClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  KeyValue := '';
+
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','Id','NAME','Nazwa','NAME','0=0','',KeyValue) = mrOK Then Begin
+    KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
+    if ExistsValue(PARENT.Text, [';'], KeyValue)
+      then //
+      else PARENT.Text := Merge(PARENT.Text, KeyValue, ';');
+  End;
 end;
 
 end.

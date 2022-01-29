@@ -207,6 +207,8 @@ type
     procedure setColsVisible;
     Procedure SetAccessForButtons;   override;
     Procedure GetTableName;  override;
+    Function  getSearchFilter : string;  override;
+    function  getFindCaption : string;   override;
   end;
 
 var
@@ -314,19 +316,19 @@ end;
 
 procedure TFBrowseTT_COMBINATIONS.QueryAfterScroll(DataSet: TDataSet);
 begin
-
+  //disabled to speed up the application
   with Qtt_resource_lists do begin
    //2011.10.08 to aviod problem "object was open"
-    dmodule.resetConnection ( Qtt_resource_lists );
-    close;
-    open;
+    //dmodule.resetConnection ( Qtt_resource_lists );
+    //close;
+    //open;
   end;
 
   with Qtt_inclusions do begin
     //2011.10.08 to aviod problem "object was open"
-    dmodule.resetConnection ( Qtt_inclusions );
-    close;
-    open;
+    //dmodule.resetConnection ( Qtt_inclusions );
+    //close;
+    //open;
   end;
 
 end;
@@ -1368,5 +1370,24 @@ begin
   GenericFilter.bClearRes1Click(Sender);
   BRefreshClick(nil);
 end;
+
+function TFBrowseTT_COMBINATIONS.getFindCaption: string;
+begin
+ Result := 'Dowolna fraza';
+end;
+
+
+function TFBrowseTT_COMBINATIONS.getSearchFilter: string;
+begin
+ result := '(xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title ||''#''||gro.abbreviation||''#''||rom.name||''#''||substr(rom.attribs_01,1,55)'+
+          '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
+          '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
+          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15'+
+           '||''#''||res.name||''#''||substr(res.attribs_01,1,55)||''#''||sub.name||''#''||xfor.name||''#''||xfor.abbreviation||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+
+
+
+
+ end;
 
 end.

@@ -601,6 +601,7 @@ type
     N15: TMenuItem;
     Pokawolneterminy1: TMenuItem;
     Listazaj1: TMenuItem;
+    USOSIntegracja1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -935,6 +936,7 @@ type
     procedure Przywrckomunikaty1Click(Sender: TObject);
     procedure recreateDependenciesClick(Sender: TObject);
     procedure PreviewClick(Sender: TObject);
+    procedure USOSIntegracja1Click(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -1087,7 +1089,7 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout, UFListOrganizer;
+  UFCellLayout, UFListOrganizer, UFSUSOS;
 
 var dummy : string;
 
@@ -2933,7 +2935,7 @@ Procedure TFMain.insertClasses;
      end;
 
      with dmodule do begin
-       openSQL('select found_tt from tt_check_results where found_tt is not null');
+       openSQL('select unique found_tt from tt_check_results where found_tt is not null');
        while not qwork.eof do begin
          ttCombIds := merge(ttCombIds, qwork.fieldByName('found_tt').AsString, ',');
          qwork.Next;
@@ -2972,12 +2974,12 @@ Procedure TFMain.insertClasses;
       checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden);
       if fShowConflicts.ShowModal <> mrCancel Then
       begin
-        checkConflicts.Insert ( ttCombIds );
+        checkConflicts.checkConflictsInsert ( ttCombIds );
         result := true;
       end;
     end
     else begin
-      checkConflicts.Insert ( ttCombIds );
+      checkConflicts.checkConflictsInsert ( ttCombIds );
       result := true;
     End;
  End;
@@ -4313,7 +4315,7 @@ begin
   //
   dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
-  dmodule.loadMap('select name,(select name from planners x where id=planners.parent_id) from planners', MapPlannerSupervisors, true);
+  dmodule.loadMap('select name,parent from planners', MapPlannerSupervisors, true);
 
   if not isBlank(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
@@ -9014,6 +9016,11 @@ begin
 
       execSQL;
     end;
+end;
+
+procedure TFMain.USOSIntegracja1Click(Sender: TObject);
+begin
+  FUSOS.ShowModal;
 end;
 
 initialization

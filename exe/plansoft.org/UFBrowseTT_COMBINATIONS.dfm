@@ -1,6 +1,6 @@
 inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
-  Left = 106
-  Top = 92
+  Left = 413
+  Top = 198
   Width = 1059
   Height = 717
   Caption = 'Ograniczenia'
@@ -417,7 +417,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         object lCombType: TLabel
           Left = 804
           Top = 1
-          Width = 70
+          Width = 69
           Height = 14
           Caption = 'Typ kombinacji'
         end
@@ -756,6 +756,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
               end
             end
             inherited LPopup: TPopupMenu
+              Left = 32
               inherited mile: TMenuItem
                 OnClick = FGenericFilterMenuItem5Click
               end
@@ -920,6 +921,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         Height = 370
         Align = alRight
         TabOrder = 6
+        Visible = False
         object Splitter2: TSplitter
           Left = 1
           Top = 201
@@ -1015,7 +1017,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         object LRESCAT_COMB_ID: TLabel
           Left = 22
           Top = 4
-          Width = 83
+          Width = 82
           Height = 14
           Caption = 'Typ ograniczenia'
         end
@@ -2224,29 +2226,25 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     StrData = (
       ''
       
-        '5245535f444553435f4c7c57796bb361646f7763617c43415445474f52593a44' +
-        '454641554c54'
-      
-        '5245535f444553435f477c47727570617c43415445474f52593a44454641554c' +
-        '54'
-      
-        '5245535f444553435f524553434154307c53616c617c43415445474f52593a44' +
-        '454641554c54'
-      
-        '5245535f444553435f524553434154317c527a75746e696b7c43415445474f52' +
+        '6c65632e6c6173745f6e616d657c57796bb361646f7763617c43415445474f52' +
         '593a44454641554c54'
       
-        '5245535f444553435f537c50727a65646d696f747c43415445474f52593a4445' +
-        '4641554c54'
+        '67726f2e616262726576696174696f6e7c47727570617c43415445474f52593a' +
+        '44454641554c54'
+      '726f6d2e6e616d657c53616c617c43415445474f52593a44454641554c54'
       
-        '5245535f444553435f467c466f726d617c43415445474f52593a44454641554c' +
+        '7265732e6e616d657c527a75746e696b7c43415445474f52593a44454641554c' +
         '54'
       
-        '5245535f444553435f5045527c53656d657374727c43415445474f52593a4445' +
-        '4641554c54'
+        '7375622e6e616d657c50727a65646d696f747c43415445474f52593a44454641' +
+        '554c54'
+      '78666f722e6e616d657c466f726d617c43415445474f52593a44454641554c54'
       
-        '5245535f444553435f504c417c506c616e697374617c43415445474f52593a44' +
-        '454641554c54'
+        '7065722e6e616d657c53656d657374727c43415445474f52593a44454641554c' +
+        '54'
+      
+        '706c612e6e616d657c506c616e697374617c43415445474f52593a4445464155' +
+        '4c54'
       '49447c49447c43415445474f52593a44454641554c54'
       
         '545950455f4453507c547970206f6772616e69637a656e69617c43415445474f' +
@@ -2285,14 +2283,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       
         '4c4153545f555044415445445f42597c5a6d6f647966696b6f7761b37c434154' +
         '45474f52593a44454641554c54'
-      
-        '2873656c656374202873656c656374206c6173745f6e616d652066726f6d206c' +
-        '6563747572657273207768657265206964203d7265735f6964292066726f6d20' +
-        '74745f7265736f757263655f6c697374732020782077686572652074745f636f' +
-        '6d625f6964203d2074745f636f6d62696e6174696f6e732e696420616e642074' +
-        '745f706c616e6e65722e6765745f7265736361745f696420287265735f696429' +
-        '203d202d3420616e6420726f776e756d203d2031297c57796bb361646f776379' +
-        '207767206e617a7769736b7c43415445474f52593a44454641554c54')
+      '')
   end
   inherited GridLayout: TStrHolder
     Left = 552
@@ -2309,32 +2300,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     Top = 376
   end
   inherited Others: TStrHolder
-    Capacity = 95
-    Macros = <
-      item
-        Name = 'g_lecturer'
-      end
-      item
-        Name = 'g_group'
-      end
-      item
-        Name = 'prescatid0'
-      end
-      item
-        Name = 'prescatid1'
-      end
-      item
-        Name = 'g_subject'
-      end
-      item
-        Name = 'g_form'
-      end
-      item
-        Name = 'g_period'
-      end
-      item
-        Name = 'g_planner'
-      end>
+    Capacity = 76
     Top = 344
     StrData = (
       ''
@@ -2505,78 +2471,6 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       
         '414c4941533a4154545249424e5f31353d54545f434f4d42494e4154494f4e53' +
         '2e4154545249424e5f3135'
-      
-        '414c4941533a7265735f646573635f6c3d2873656c656374202873656c656374' +
-        '206c6173745f6e616d657c7c2720277c7c66697273745f6e616d657c7c272c20' +
-        '277c7c207469746c652066726f6d206c65637475726572732077686572652069' +
-        '64203d7265735f6964292066726f6d2074745f7265736f757263655f6c697374' +
-        '732020782077686572652074745f636f6d625f6964203d2054545f434f4d4249' +
-        '4e4154494f4e532e696420616e642074745f706c616e6e65722e6765745f7265' +
-        '736361745f696420287265735f696429203d2025675f6c656374757265722061' +
-        '6e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f673d2873656c656374202873656c656374' +
-        '20616262726576696174696f6e20202020202020202020202020202020202020' +
-        '202020202020202066726f6d2067726f75707320202020776865726520696420' +
-        '3d7265735f6964292066726f6d2074745f7265736f757263655f6c6973747320' +
-        '20782077686572652074745f636f6d625f6964203d2054545f434f4d42494e41' +
-        '54494f4e532e696420616e642074745f706c616e6e65722e6765745f72657363' +
-        '61745f696420287265735f696429203d2025675f67726f757020202020616e64' +
-        '20726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f726573636174303d2873656c6563742028' +
-        '73656c656374206e616d657c7c2720277c7c7375627374722861747472696273' +
-        '5f30312c312c353529202020202066726f6d20726f6f6d732020202020776865' +
-        '7265206964203d7265735f6964292066726f6d2074745f7265736f757263655f' +
-        '6c697374732020782077686572652074745f636f6d625f6964203d2054545f43' +
-        '4f4d42494e4154494f4e532e696420616e642074745f706c616e6e65722e6765' +
-        '745f7265736361745f696420287265735f696429203d20257072657363617469' +
-        '6430202020616e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f726573636174313d2873656c6563742028' +
-        '73656c656374206e616d657c7c2720277c7c7375627374722861747472696273' +
-        '5f30312c312c353529202020202066726f6d20726f6f6d732020202020776865' +
-        '7265206964203d7265735f6964292066726f6d2074745f7265736f757263655f' +
-        '6c697374732020782077686572652074745f636f6d625f6964203d2054545f43' +
-        '4f4d42494e4154494f4e532e696420616e642074745f706c616e6e65722e6765' +
-        '745f7265736361745f696420287265735f696429203d20257072657363617469' +
-        '6431202020616e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f733d2873656c656374202873656c656374' +
-        '206e616d65202020202020202020202020202020202020202020202020202020' +
-        '202020202020202066726f6d207375626a656374732020776865726520696420' +
-        '3d7265735f6964292066726f6d2074745f7265736f757263655f6c6973747320' +
-        '20782077686572652074745f636f6d625f6964203d2054545f434f4d42494e41' +
-        '54494f4e532e696420616e642074745f706c616e6e65722e6765745f72657363' +
-        '61745f696420287265735f696429203d2025675f7375626a6563742020202061' +
-        '6e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f663d2873656c656374202873656c656374' +
-        '206e616d657c7c2728277c7c616262726576696174696f6e7c7c272927202020' +
-        '202020202020202066726f6d20666f726d732020202020776865726520696420' +
-        '3d7265735f6964292066726f6d2074745f7265736f757263655f6c6973747320' +
-        '20782077686572652074745f636f6d625f6964203d2054545f434f4d42494e41' +
-        '54494f4e532e696420616e642074745f706c616e6e65722e6765745f72657363' +
-        '61745f696420287265735f696429203d2025675f666f726d2020202020202061' +
-        '6e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f7065723d2873656c656374202873656c65' +
-        '6374206e616d6520202020202020202020202020202020202020202020202020' +
-        '2020202020202020202066726f6d20706572696f647320202077686572652069' +
-        '64203d7265735f6964292066726f6d2074745f7265736f757263655f6c697374' +
-        '732020782077686572652074745f636f6d625f6964203d2054545f434f4d4249' +
-        '4e4154494f4e532e696420616e642074745f706c616e6e65722e6765745f7265' +
-        '736361745f696420287265735f696429203d2025675f706572696f6420202020' +
-        '20616e6420726f776e756d203d203129'
-      
-        '414c4941533a7265735f646573635f706c613d2873656c656374202873656c65' +
-        '6374206e616d6520202020202020202020202020202020202020202020202020' +
-        '2020202020202020202066726f6d20706c616e6e657273202077686572652069' +
-        '64203d7265735f6964292066726f6d2074745f7265736f757263655f6c697374' +
-        '732020782077686572652074745f636f6d625f6964203d2054545f434f4d4249' +
-        '4e4154494f4e532e696420616e642074745f706c616e6e65722e6765745f7265' +
-        '736361745f696420287265735f696429203d2025675f706c616e6e6572202020' +
-        '20616e6420726f776e756d203d203129'
       '')
   end
   inherited Messages: TStrHolder
@@ -2634,7 +2528,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       
         '      , tt_planner.get_tt_comb_res_desc (TT_COMBINATIONS.id, %g_' +
         'planner ) res_desc_pla'
-      '      */'
+      '      2022.01.09 Maciej Szymczak optimalization'
       
         '      , (select (select last_name||'#39' '#39'||first_name||'#39', '#39'|| title' +
         ' from lecturers where id =res_id) from tt_resource_lists  x wher' +
@@ -2675,7 +2569,40 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         'rom planners  where id =res_id) from tt_resource_lists  x where ' +
         'tt_comb_id = TT_COMBINATIONS.id and tt_planner.get_rescat_id (re' +
         's_id) = %g_planner    and rownum = 1) res_desc_pla'
+      '      */'
+      
+        '      , lec.last_name||'#39' '#39'||lec.first_name||'#39', '#39'|| lec.title   r' +
+        'es_desc_l'
+      
+        '      , gro.abbreviation                                       r' +
+        'es_desc_g'
+      
+        '      , rom.name||'#39' '#39'||substr(rom.attribs_01,1,55)             r' +
+        'es_desc_rescat0'
+      
+        '      , res.name||'#39' '#39'||substr(res.attribs_01,1,55)             r' +
+        'es_desc_rescat1'
+      
+        '      , sub.name                                               r' +
+        'es_desc_s'
+      
+        '      , xfor.name||'#39'('#39'||xfor.abbreviation||'#39')'#39'                 r' +
+        'es_desc_f'
+      
+        '      , per.name                                               r' +
+        'es_desc_per'
+      
+        '      , pla.name                                               r' +
+        'es_desc_pla'
       'FROM TT_COMBINATIONS'
+      'left join lecturers lec  on lec_id= lec.id'
+      'left join groups    gro  on gro_id= gro.id'
+      'left join rooms     rom  on rom_id= rom.id'
+      'left join rooms     res  on res_id= res.id'
+      'left join subjects  sub  on sub_id= sub.id'
+      'left join forms     xfor on for_id= xfor.id'
+      'left join periods   per  on per_id= per.id'
+      'left join planners  pla  on pla_id= pla.id'
       'WHERE %CONDITIONALS AND %CUSTOMCONDITIONALS AND %SEARCH'
       '%SORTORDER')
     Left = 4

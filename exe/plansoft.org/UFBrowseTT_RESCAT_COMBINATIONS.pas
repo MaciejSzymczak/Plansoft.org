@@ -7,7 +7,7 @@ uses
   Dialogs, UFBrowseParent, DB, ADODB, ImgList, ExtCtrls, StrHlder, Menus,
   ToolEdit, RXDBCtrl, Mask, DBCtrls, StdCtrls, ComCtrls, Grids, DBGrids,
   Buttons, OleServer, ExcelXP;
-
+                                                                             
 type
   TFBrowseTT_RESCAT_COMBINATIONS = class(TFBrowseParent)
     ListBoxAll: TListBox;

@@ -144,7 +144,7 @@ begin
       l_col4 := ExcelApplication.Range['D'+strLineNum,'D'+strLineNum].Value2;
       l_col5 := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
       l_col6 := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
-      l_colour       := intToStr( Random(256) + 256*Random(256) + 256*256*Random(256) );
+      l_colour       := intToStr( getRandomColor );
 
       l_entire       := 'Rekord danych:' + cr+ cr + 'Wiersz:' +  strLineNum + cr;
       if c_col1 <> '' then l_entire := l_entire + c_col1 + ':'+ l_col1 + cr;

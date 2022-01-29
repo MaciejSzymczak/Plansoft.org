@@ -97,6 +97,7 @@ Procedure unLockFormComponents(F : TForm);
 Procedure lockComponents(F : TTabSheet);
 Procedure unLockComponents(F : TTabSheet);
 
+
 Function merge(S1, S2: string; const Sep : String = '') : String;
 Function mergeStrings(Sep : String; const strings : Array Of string ) : String;
 Function isBlank(S : String) : Boolean;
@@ -264,9 +265,17 @@ function Decode64(S: string): string;
 Procedure GridLayoutLoadFromFile (formName : String; Grid: TDBGrid);
 Procedure GridLayoutSaveToFile(formName : String; Grid: TDBGrid);
 
+Function getRandomColor : Integer;
+
 implementation
 
 Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls, EncdDecd;
+
+Function getRandomColor : Integer;
+begin
+ getRandomColor := (127+Random(128)) + 256*(127+Random(128)) + 256*256*(127+Random(128));
+end;
+
 
 //------------------------------------------------------------------
 Procedure GridLayoutLoad (Grid: TDBGrid; Strings : TStrings);
@@ -1836,7 +1845,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2021-11-28';
+ VersionOfApplication := '2022-01-28';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

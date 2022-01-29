@@ -148,7 +148,7 @@ type
     procedure ylkogrupypowizanezwybrangrup1Click(Sender: TObject);
     procedure BUpdChild4Click(Sender: TObject);
     procedure Wicejmoliwo1Click(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -193,7 +193,7 @@ Var c : Integer;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
  Query['GROUP_TYPE'] := CON_GT_ID.text;
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
  if CON_ORGUNI_ID.Text <> '' then
@@ -736,9 +736,11 @@ begin
  FGraphviz.customshowmodal(query.FieldByName('ID').asString);
 end;
 
-procedure TFBrowseGROUPS.SpeedButton1Click(Sender: TObject);
+procedure TFBrowseGROUPS.SpeedButton2Click(Sender: TObject);
 begin
+  inherited;
   info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj grupy przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+
 end;
 
 end.

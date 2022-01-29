@@ -13,7 +13,6 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
   inherited MainPage: TPageControl
     Width = 955
     Height = 697
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 692

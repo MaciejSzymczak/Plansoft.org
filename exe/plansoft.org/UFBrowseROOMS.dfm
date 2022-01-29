@@ -13,6 +13,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1127
     Height = 639
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1084
@@ -1322,7 +1323,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           FF00F6FDFB00FEFEFB00FEFFFE00FEFEFE00FEFEFD00F8FDFA00FCFFFF00FCFB
           FE00EEDDB100E4BD7800DEAE6500DCA85600E4AB5000DAA96200E2B47500EACF
           A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
-        OnClick = SpeedButton1Click
+        OnClick = SpeedButton3Click
       end
       inherited UpdPanel: TPanel
         Top = 575

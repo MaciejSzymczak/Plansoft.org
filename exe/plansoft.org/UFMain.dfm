@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 171
-  Top = 0
+  Left = 131
+  Top = 14
   Width = 1569
   Height = 1033
   Caption = 'Plansoft.org        '
@@ -5726,6 +5726,10 @@ inherited FMain: TFMain
         Caption = 'Ustawienia konfiguracyjne'
         OnClick = Ustawieniakonfiguracyjne1Click
       end
+      object USOSIntegracja1: TMenuItem
+        Caption = 'USOS: Integracja'
+        OnClick = USOSIntegracja1Click
+      end
       object Zmiehas1: TMenuItem
         Caption = 'Zmie'#324' has'#322'o'
         OnClick = Zmiehas1Click
@@ -5967,6 +5971,7 @@ inherited FMain: TFMain
       end
       object Kombinacjezasobw1: TMenuItem
         Caption = 'Ograniczenia'
+        Hint = 'Plan Studi'#243'w ograniczenia'
         OnClick = Kombinacjezasobw1Click
       end
       object N8: TMenuItem

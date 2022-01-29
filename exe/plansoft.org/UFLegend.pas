@@ -489,6 +489,7 @@ Var forms_filter,hours_filter : string;
     orderByClause : string;
     rollUpFilter  : string;
     presId, ChildsAndParents : string;
+    queryString : string;
 begin
   if not refreshAllowed then exit;
   //LTotal.Visible := false;
@@ -676,7 +677,7 @@ begin
 
       periodClauseCLA  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');
       periodClause  := replace(periodClauseCLA,'CLA.','');
-      QueryCOUNTER.SQL.Add(
+      queryString :=
         'select * from ('+cr+
        'SELECT '+mergeStrings(',',[
           iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
@@ -701,7 +702,7 @@ begin
         , iif(groupByLDesc3.Checked, 'NVL(LEC_CLA.DESC3,''--'') "'+fprogramSettings.getClassDescSingular(3)+'"','')
         , iif(groupByLDesc4.Checked, 'NVL(LEC_CLA.DESC4,''--'') "'+fprogramSettings.getClassDescSingular(4)+'"','')
         //
-        ,'SUM (GRIDS.DURATION*FILL/100) "Liczba godzin"'
+        ,'ROUND(SUM (GRIDS.DURATION*FILL/100),1) "Liczba godzin"'
         ])+
     ' FROM '+ CR +'CLASSES  CLA ' + CR +
           ',SUBJECTS SUB ' + CR +
@@ -751,8 +752,10 @@ begin
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
     'ORDER BY '+orderByClause+
-    ')' + cr+ rollUpFilter
-    );
+    ')' + cr+ rollUpFilter;
+
+    //copyToClipBoard(queryString);
+    QueryCOUNTER.SQL.Add( queryString );
 
     //copyToclipboard(QueryCOUNTER.SQL.text);
     QueryCOUNTER.Open;

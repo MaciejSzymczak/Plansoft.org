@@ -123,8 +123,8 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure CON_RESCAT_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -178,7 +178,7 @@ Begin
  Query.FieldByName('RESCAT_ID').AsString := CON_RESCAT_ID.Text;
  if CON_ORGUNI_ID.Text <> '' then
    Query['ORGUNI_ID'] := CON_ORGUNI_ID.Text;
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
 
@@ -696,14 +696,14 @@ begin
    dmodule.CommitTrans;
 end;
 
-procedure TFBrowseROOMS.SpeedButton1Click(Sender: TObject);
-begin
-  info('Wpisz dowolne s這wa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nast瘼nie wyszukuj sale przez wpisanie #<s這wo kluczowe> w dowolnym miejscu w Aplikacji');
-end;
-
 procedure TFBrowseROOMS.SpeedButton2Click(Sender: TObject);
 begin
   info('Wpisz wyposa瞠nie w formacie "#Rzutnik, #Spetrometr".'+cr+'Nast瘼nie wyszukuj sale przez wpisanie #<nazwa wyposazenia> w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseROOMS.SpeedButton3Click(Sender: TObject);
+begin
+  info('Wpisz dowolne s這wa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nast瘼nie wyszukuj sale przez wpisanie #<s這wo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 end.

@@ -133,7 +133,7 @@ Type TCheckConflicts = Class
                Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
              function  empty : Boolean;
-             function  insert ( ttCombIds        : string ) : Boolean;
+             function  checkConflictsInsert ( ttCombIds        : string ) : Boolean;
          End;
 
 Var
@@ -1050,7 +1050,7 @@ Begin
     End;
 End;
 
-Function TCheckConflicts.Insert ( ttCombIds : string ): Boolean;
+Function TCheckConflicts.checkConflictsInsert ( ttCombIds : string ): Boolean;
  Var t            : Integer;
   	 calc_lec_ids : string;
 		 calc_gro_ids : string;
@@ -1435,7 +1435,7 @@ begin
   For t := 1 To WordCount(classOwners, [';']) Do Begin
     classOwner := Trim(ExtractWord(t,classOwners, [';']));
     ClassOwnerSupervisor := Fmain.MapPlannerSupervisors.getValue(classOwner);
-    if ClassOwnerSupervisor = CurrentUserName then begin result := true; exit; end;
+    if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+CurrentUserName+';') then begin result := true; exit; end;
   End
 end;
 
