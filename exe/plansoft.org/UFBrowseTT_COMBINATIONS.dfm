@@ -31,6 +31,15 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           TabOrder = 11
           OnClick = BRecalculateAllClick
         end
+        object BRecalculateAllQuick: TBitBtn
+          Left = 909
+          Top = 30
+          Width = 129
+          Height = 25
+          Caption = 'Turbo (Beta)'
+          TabOrder = 12
+          OnClick = BRecalculateAllQuickClick
+        end
       end
       inherited Grid: TRxDBGrid
         Top = 209

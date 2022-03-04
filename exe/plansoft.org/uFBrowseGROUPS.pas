@@ -357,7 +357,6 @@ end;
 
 procedure TFBrowseGROUPS.refreshDetails;
 begin
-
   QDetails.Close;
   If Query.IsEmpty Then Begin
     QDetails.Parameters.paramByName('ID').value   := '-1';
@@ -456,13 +455,11 @@ end;
 
 procedure TFBrowseGROUPS.AddParentClick(Sender: TObject);
 begin
-  inherited;
  insert_str_elem(true);
 end;
 
 procedure TFBrowseGROUPS.AddDetailClick(Sender: TObject);
 begin
-  inherited;
  insert_str_elem(false);
 end;
 
@@ -487,13 +484,11 @@ end;
 
 procedure TFBrowseGROUPS.DelParentClick(Sender: TObject);
 begin
-  inherited;
   delete_str_elem(true);
 end;
 
 procedure TFBrowseGROUPS.delDetailClick(Sender: TObject);
 begin
-  inherited;
   delete_str_elem(false);
 end;
 

@@ -327,7 +327,7 @@ begin
   groupByDay.checked      := StrToBool( getSystemParam('FLegend.groupByDay.checked','+'));
 
   groupByR.checked      := StrToBool( getSystemParam('FLegend.groupByR.checked' ));
-  SelectedSubOnly.checked := StrToBool( getSystemParam('FLegend.groupByR.SelectedSubOnly' ));
+  SelectedSubOnly.checked := StrToBool( getSystemParam('FLegend.SelectedSubOnly' ));
   groupByLDesc1.checked := StrToBool( getSystemParam('FLegend.groupByLDesc1.checked' ));
   groupByLDesc2.checked := StrToBool( getSystemParam('FLegend.groupByLDesc2.checked' ));
   groupByLDesc3.checked := StrToBool( getSystemParam('FLegend.groupByLDesc3.checked' ));
@@ -652,7 +652,7 @@ begin
         ,iif(groupByCreationDate.Checked,'cla.creation_date','')
         ,iif(groupByG.Checked and chGnewLine.Checked,'GRO.NAME,GRO.ID','')
         ,iif(groupByG.Checked and not chGnewLine.Checked,'cla.calc_groups, cla.CALC_GRO_IDS','')
-        ,iif(groupByR.Checked,'ROM.NAME,ROM.ID','')
+        ,iif(groupByR.Checked, sql_ResCat0NAMEROM+',ROM.ID','')
         ,iif(groupBylDesc1.Checked,'LEC_CLA.DESC1','')
         ,iif(groupBylDesc2.Checked,'LEC_CLA.DESC2','')
         ,iif(groupBylDesc3.Checked,'LEC_CLA.DESC3','')
@@ -691,7 +691,7 @@ begin
         , iif(groupByL.Checked                       , 'NVL(LEC.TITLE||'' ''||LEC.FIRST_NAME||'' ''||LEC.LAST_NAME,''--'') "Wyk³adowca", LEC.ID LEC_ID','')
         , iif(groupByG.Checked and     chGnewLine.Checked, 'NVL(GRO.NAME,''--'') "Grupa", GRO.ID GRO_ID','')
         , iif(groupByG.Checked and not chGnewLine.Checked, 'NVL(cla.calc_groups,''--'') "Grupa", CALC_GRO_IDS','')
-        , iif(groupByR.Checked                       , 'NVL(ROM.NAME,''--'') "Zasób", ROM.ID ROM_ID','')
+        , iif(groupByR.Checked                       , 'NVL(TRIM('+sql_ResCat0NAMEROM+'),''--'') "Zasób", ROM.ID ROM_ID','')
         //
         , iif(groupByCreatedBy.Checked, 'cla.created_by "Utworzy³"','')
         , iif(groupByOwnerName.Checked, 'cla.owner "W³aœciciel"','')

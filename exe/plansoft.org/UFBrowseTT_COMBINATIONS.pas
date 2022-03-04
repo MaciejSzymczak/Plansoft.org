@@ -103,6 +103,7 @@ type
     chbShowPla: TCheckBox;
     BRecalculateAll: TBitBtn;
     chbShowttt: TCheckBox;
+    BRecalculateAllQuick: TBitBtn;
     procedure QueryAfterScroll(DataSet: TDataSet);
     procedure Qtt_resource_listsBeforeOpen(DataSet: TDataSet);
     procedure Qtt_inclusionsBeforeOpen(DataSet: TDataSet);
@@ -183,6 +184,7 @@ type
     procedure GenericFiltermir1aClick(Sender: TObject);
     procedure GenericFilterbClearRes0Click(Sender: TObject);
     procedure GenericFilterbClearRes1Click(Sender: TObject);
+    procedure BRecalculateAllQuickClick(Sender: TObject);
   private
     procedure ValidField (f, f_value : tedit; tableName, fieldName : shortString);
     function getResIds : string;
@@ -1232,6 +1234,8 @@ begin
   end;
   BRecalculateAll.Caption := lRevert;
   //info ('Zawartoœæ kolumny "Do zaplanowania" zosta³a pomyœlnie przeliczona dla wszystkich rekordów aktualnie wyœwietlanych w siatce'+cr+'Przeliczono nastêpuj¹c¹ liczbê rekordów: ' + intToStr(counter));
+  Fmain.Zapisz1Click(nil);
+
   BRefreshClick(nil);
 end;
 
@@ -1389,5 +1393,13 @@ begin
 
 
  end;
+
+procedure TFBrowseTT_COMBINATIONS.BRecalculateAllQuickClick(Sender: TObject);
+begin
+    dmodule.sql('begin tt_planner.recalc_combination122 (:pCleanYpMode ); commit; end;'
+            ,'pCleanYpMode=N'
+    );
+
+end;
 
 end.

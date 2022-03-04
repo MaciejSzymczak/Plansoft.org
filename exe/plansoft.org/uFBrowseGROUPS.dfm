@@ -1,33 +1,32 @@
 inherited FBrowseGROUPS: TFBrowseGROUPS
-  Left = 561
-  Top = 202
-  Width = 996
+  Left = 497
+  Top = 166
+  Width = 1195
   Height = 691
   Caption = 'Grupy'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 640
-    Width = 988
+    Width = 1187
   end
   inherited MainPage: TPageControl
-    Width = 988
+    Width = 1187
     Height = 640
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 612
+        Left = 811
         Top = 145
         Width = 4
         Height = 408
         Align = alRight
       end
       inherited TopPanel: TPanel
-        Width = 980
+        Width = 1179
       end
       inherited Grid: TRxDBGrid
         Top = 145
-        Width = 612
+        Width = 811
         Height = 408
         Columns = <
           item
@@ -337,17 +336,17 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       end
       inherited BottomPanel: TPanel
         Top = 572
-        Width = 980
+        Width = 1179
       end
       inherited Panel: TPanel
         Top = 553
-        Width = 980
+        Width = 1179
         inherited StatusBar: TStatusBar
-          Width = 911
+          Width = 1110
         end
       end
       inherited CustomPanel: TPanel
-        Width = 980
+        Width = 1179
         Height = 58
         object Label5: TLabel
           Left = 8
@@ -511,7 +510,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = B3Click
         end
         object BKonsolidate: TBitBtn
-          Left = 889
+          Left = 1088
           Top = 28
           Width = 82
           Height = 25
@@ -522,7 +521,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = BKonsolidateClick
         end
         object ttEnabled: TCheckBox
-          Left = 551
+          Left = 750
           Top = 34
           Width = 218
           Height = 17
@@ -534,7 +533,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 776
+          Left = 975
           Top = 28
           Width = 107
           Height = 25
@@ -653,7 +652,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 980
+        Width = 1179
         inherited BChild3: TBitBtn
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -670,7 +669,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
       end
       object RightPage: TPageControl
-        Left = 616
+        Left = 815
         Top = 145
         Width = 364
         Height = 408
@@ -1395,7 +1394,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       end
       inherited UpdPanel: TPanel
         Top = 576
-        Width = 980
+        Width = 1179
         TabOrder = 10
         inherited BUpdChild1: TBitBtn
           Caption = 'Zaj'#281'cia'

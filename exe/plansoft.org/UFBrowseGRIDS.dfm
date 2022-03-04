@@ -10,7 +10,6 @@ inherited FBrowseGRIDS: TFBrowseGRIDS
   end
   inherited MainPage: TPageControl
     Width = 780
-    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 772

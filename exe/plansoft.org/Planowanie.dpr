@@ -90,7 +90,8 @@ uses
   UFWarning in 'UFWarning.pas' {FWarning},
   UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent},
   UFListOrganizer in 'UFListOrganizer.pas' {FListOrganizer},
-  UFGraphviz in 'UFGraphviz.pas' {FGraphviz};
+  UFGraphviz in 'UFGraphviz.pas' {FGraphviz},
+  UFSUSOS in 'UFSUSOS.pas' {FUSOS};
 
 {$R *.RES}
 
@@ -175,6 +176,7 @@ begin
   Application.CreateForm(TFListOrganizer, FListOrganizer);
   Application.CreateForm(TFListOrganizer, FListOrganizer);
   Application.CreateForm(TFGraphviz, FGraphviz);
+  Application.CreateForm(TFUSOS, FUSOS);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

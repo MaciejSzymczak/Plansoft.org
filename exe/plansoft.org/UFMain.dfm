@@ -8497,6 +8497,10 @@ inherited FMain: TFMain
       Caption = 'Wska'#378'niki efektywno'#347'ci (wykresy Google)'
       OnClick = WskanikiefektywnociwykresyGoogle1Click
     end
+    object Listaobecno1: TMenuItem
+      Caption = 'Lista obecno'#347'ci'
+      OnClick = Listaobecno1Click
+    end
   end
   object wwwPopup: TPopupMenu
     Left = 1360
@@ -8523,5 +8527,13 @@ inherited FMain: TFMain
     OnTimer = refreshFilterTimer
     Left = 1076
     Top = 272
+  end
+  object attendanceList: TADOQuery
+    AutoCalcFields = False
+    Connection = DModule.ADOConnection
+    CommandTimeout = 1000
+    Parameters = <>
+    Left = 8
+    Top = 88
   end
 end

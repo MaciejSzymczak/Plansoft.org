@@ -196,7 +196,7 @@ type cclassbuffer =
       phour       : integer;
       pday        : string
     ) : boolean;
-    function flush : string;
+    function bflush : string;
     function searchMemory (s : string) : boolean;
   end;
 
@@ -257,7 +257,7 @@ begin
   end;
 end;
 
-function cclassbuffer.flush : string;
+function cclassbuffer.bflush : string;
 begin
   bufferIsEmpty := true;
   result:=
@@ -879,7 +879,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
         classList : TclassList;
         ReservationsCache     : tReservationsCache;
 
-    Var Lgnd : Array Of Record Name, ShortCut : ShortString;  Colour : Integer; End;
+    Var Lgnd : Array Of Record Name, ShortCut : String;  Colour : Integer; End;
         LgndCnt : integer;
 
     //--------------------------------------------------------
@@ -1725,7 +1725,8 @@ var ColoringIndex    : shortString;
         // ------------------------------------------------------
        procedure write(m : string);
        begin
-          WriteLn(outf, UTF8Encode(m));
+          if (trim(m)<>'') then
+             WriteLn(outf, UTF8Encode(trim(m)));
         end;
 
         procedure tableOfContens;
@@ -2097,7 +2098,7 @@ var ColoringIndex    : shortString;
 													 classbuffer.hour  := fieldByName('Hour').AsInteger;
 												   end else begin
 													 //is not continuation
-													 write ( classbuffer.flush );
+                           write ( classbuffer.bflush );
 													 classbuffer.setBuffer(
 													   FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh1-timeZone)+FormatFloat('00',mm1)+FormatFloat('00',0)
 													   ,FormatFloat('0000',yyyy)+FormatFloat('00',mm)+FormatFloat('00',dd)+'T'+ FormatFloat('00',hh2-timeZone)+FormatFloat('00',mm2)+FormatFloat('00',0)
@@ -2117,7 +2118,7 @@ var ColoringIndex    : shortString;
 												Next;
 											  end;
 											  if not classbuffer.bufferIsEmpty then
-												write ( classbuffer.flush );
+                           write ( classbuffer.bflush );
 											end;
 
                 End;
@@ -2185,7 +2186,49 @@ var ColoringIndex    : shortString;
              if GList.Checked[t] then begin
                WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
                ColoringIndex := getCode(FSettings.GViewType);
-               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(GList.Items.Objects[t])), 'GRO', getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked, iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1, gAddCreationDate.itemindex, ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked,Folder.Text+'/'+StringToValidFileName(GList.Items[t])+'.htm', GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked, gtransposition.Checked, gVerticalLines.checked, gnotes_before.Checked, gnotes_after.Checked, gPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked );
+               With FSettings Do CalendarToHTML(
+               currentPeriod.Text
+               , inttostr(integer(GList.Items.Objects[t]))
+               , 'GRO'
+               , getCode(GD1)
+               , getCode(GD2)
+               , getCode(GD3)
+               , getCode(GD4)
+               , getCode(GD5)
+               , GHEADER.Lines
+               , GFOOTER.Lines
+               , gGShowLegend.Checked
+               , iif(glegendAbbr.checked,1,0)*2+iif(glegendSummary.checked,1,0)*1
+               , gAddCreationDate.itemindex
+               , ColoringIndex
+               , GW.Text
+               , GH.Text
+               , GCELLSIZE.Text
+               , GS1.Text
+               , GS2.Text
+               , GS3.Text
+               , GS4.Text
+               , GS5.Text
+               , GB1.Checked
+               , GB2.Checked
+               , GB3.Checked
+               , GB4.Checked
+               , GB5.Checked
+               , Folder.Text+'/'+StringToValidFileName(GList.Items[t])+'.htm'
+               , GRepeatMonthNames.Checked
+               , GHideEmptyRows.Checked
+               , GHideDows
+               , GcomboSpan.itemIndex
+               , gspanEmptyCells.checked
+               , gtransposition.Checked
+               , gVerticalLines.checked
+               , gnotes_before.Checked
+               , gnotes_after.Checked
+               , gPdfprintOut.checked
+               , gpdfg.checked
+               , gpdfl.checked
+               , gpdfo.checked
+               , gpdfs.checked );
              end;
            end;
          end;

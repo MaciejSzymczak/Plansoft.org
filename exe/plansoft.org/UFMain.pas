@@ -602,6 +602,8 @@ type
     Pokawolneterminy1: TMenuItem;
     Listazaj1: TMenuItem;
     USOSIntegracja1: TMenuItem;
+    Listaobecno1: TMenuItem;
+    attendanceList: TADOQuery;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -937,6 +939,7 @@ type
     procedure recreateDependenciesClick(Sender: TObject);
     procedure PreviewClick(Sender: TObject);
     procedure USOSIntegracja1Click(Sender: TObject);
+    procedure Listaobecno1Click(Sender: TObject);
   private
     CanShow   : boolean;
     resizeMode: boolean;
@@ -9020,7 +9023,49 @@ end;
 
 procedure TFMain.USOSIntegracja1Click(Sender: TObject);
 begin
-  FUSOS.ShowModal;
+  if dmodule.dbgetSystemParam('USOS_CYKL') ='' then info('Po³¹czenie z systemem USOS nie zosta³o jeszcze skonfigurowane')
+  else FUSOS.ShowModal;
+end;
+
+procedure TFMain.Listaobecno1Click(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+    dateFrom : string;
+    dateTo : string;
+begin
+  dateFrom := Dialogs.InputBox('Lista obecnoœci (Parametr 1 z 2)','Data od:','2000-01-01');
+  dateTo   := Dialogs.InputBox('Lista obecnoœci (Parametr 2 z 2)','Data do:','3000-01-01');
+
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := format('begin attendance_list.prepare(''%s'', ''%s'' ); end;',
+                 [dateFrom
+                , dateTo
+                ]);
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+
+
+  AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'attendance_list.html');
+  rewrite(tmpFile);
+
+  attendanceList.SQL.Clear;
+  attendanceList.SQL.Add( 'select attendance_list.getList from dual' );
+  attendanceList.Open;
+  writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
+
+  closeFile(tmpFile);
+  ExecuteFile(uutilityParent.ApplicationDocumentsPath +'attendance_list.html','','',SW_SHOWMAXIMIZED);
 end;
 
 initialization

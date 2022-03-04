@@ -7,7 +7,7 @@ inherited FTTCheckResults: TFTTCheckResults
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 426
+    Top = 428
     Width = 588
   end
   object Panel1: TPanel
@@ -29,7 +29,7 @@ inherited FTTCheckResults: TFTTCheckResults
   end
   object Panel2: TPanel
     Left = 0
-    Top = 385
+    Top = 387
     Width = 588
     Height = 41
     Align = alBottom
@@ -43,7 +43,7 @@ inherited FTTCheckResults: TFTTCheckResults
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
-      Caption = 'Anluj'
+      Caption = 'Anuluj'
       TabOrder = 0
       Kind = bkCancel
     end
@@ -72,10 +72,10 @@ inherited FTTCheckResults: TFTTCheckResults
     Left = 0
     Top = 33
     Width = 588
-    Height = 352
+    Height = 354
     Align = alClient
     DataSource = DataSource
-    Options = [dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+    Options = [dgEditing, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
     TabOrder = 3
     TitleFont.Charset = EASTEUROPE_CHARSET
     TitleFont.Color = clWindowText

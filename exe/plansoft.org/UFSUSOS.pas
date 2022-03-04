@@ -32,6 +32,8 @@ type
     BitBtn1: TBitBtn;
     Label4: TLabel;
     USOS_ONLINE: TEdit;
+    BitBtn3: TBitBtn;
+    CleanUpMode: TCheckBox;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -39,6 +41,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure BitBtn3Click(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -52,10 +55,11 @@ implementation
 
 {$R *.dfm}
 
-Uses AutoCreate, DM;
+Uses AutoCreate, DM, UUtilityParent;
 
 procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
+  SaveParams;
   Close;
 end;
 
@@ -82,22 +86,6 @@ begin
   Query.Active := true;
 end;
 
-procedure TFUSOS.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  inherited;
-  SaveParams;
-end;
-
-procedure TFUSOS.BitBtn2Click(Sender: TObject);
-begin
-    SaveParams;
-    dmodule.sql('begin integration_from_usos (:pCleanYpMode ); end;'
-            ,'pCleanYpMode=Y'
-    );
-    Query.Close;
-    Query.Open;
-end;
-
 procedure TFUSOS.SaveParams;
 begin
   dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
@@ -107,11 +95,40 @@ begin
   dmodule.dbSetSystemParam('USOS_ONLINE', USOS_ONLINE.text);
 end;
 
+
+procedure TFUSOS.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  SaveParams;
+end;
+
+procedure TFUSOS.BitBtn2Click(Sender: TObject);
+begin
+    SaveParams;
+    dmodule.sql('begin usos.integration_from_usos_dict (:pCleanYpMode ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+    );
+    Query.Close;
+    Query.Open;
+end;
+
+
 procedure TFUSOS.BitBtn1Click(Sender: TObject);
 begin
     SaveParams;
-    dmodule.sql('begin integration_to_usos (:pCleanYpMode ); end;'
-            ,'pCleanYpMode=Y'
+    dmodule.sql('begin usos.integration_to_usos (:pCleanYpMode ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+    );
+    Query.Close;
+    Query.Open;
+end;
+
+
+procedure TFUSOS.BitBtn3Click(Sender: TObject);
+begin
+    SaveParams;
+    dmodule.sql('begin usos.integration_from_usos_plan (:pCleanYpMode ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     Query.Close;
     Query.Open;

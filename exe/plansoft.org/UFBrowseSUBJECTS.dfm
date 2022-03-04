@@ -1,26 +1,32 @@
 inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   Left = 90
   Top = 151
-  Width = 839
+  Width = 1067
   Height = 700
   Caption = 'Przedmioty'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 649
-    Width = 831
+    Width = 1059
   end
   inherited MainPage: TPageControl
-    Width = 831
+    Width = 1059
     Height = 649
-    ActivePage = Update
     inherited Browse: TTabSheet
+      object Splitter1: TSplitter [0]
+        Left = 683
+        Top = 121
+        Width = 4
+        Height = 441
+        Align = alRight
+      end
       inherited TopPanel: TPanel
-        Width = 823
+        Width = 1051
       end
       inherited Grid: TRxDBGrid
         Top = 121
-        Width = 823
+        Width = 683
         Height = 441
         Columns = <
           item
@@ -304,17 +310,17 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       inherited BottomPanel: TPanel
         Top = 581
-        Width = 823
+        Width = 1051
       end
       inherited Panel: TPanel
         Top = 562
-        Width = 823
+        Width = 1051
         inherited StatusBar: TStatusBar
-          Width = 754
+          Width = 982
         end
       end
       inherited CustomPanel: TPanel
-        Width = 823
+        Width = 1051
         Height = 34
         object Label5: TLabel
           Left = 8
@@ -330,7 +336,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           ParentFont = False
         end
         object ttEnabled: TCheckBox
-          Left = 494
+          Left = 722
           Top = 9
           Width = 203
           Height = 17
@@ -342,7 +348,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 704
+          Left = 932
           Top = 4
           Width = 111
           Height = 25
@@ -461,7 +467,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 823
+        Width = 1051
         inherited BChild3: TBitBtn
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -477,6 +483,501 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
             FFFFFF000000FFFF888FFFFFFFFFFF000000}
         end
       end
+      object RightPage: TPageControl
+        Left = 687
+        Top = 121
+        Width = 364
+        Height = 441
+        ActivePage = Hierarchy
+        Align = alRight
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        HotTrack = True
+        MultiLine = True
+        ParentFont = False
+        TabOrder = 6
+        TabPosition = tpLeft
+        object Hierarchy: TTabSheet
+          Caption = 'Grupy zale'#380'ne'
+          object rightPane: TPanel
+            Left = 0
+            Top = 0
+            Width = 337
+            Height = 433
+            Align = alClient
+            TabOrder = 0
+            object Splitter2: TSplitter
+              Left = 1
+              Top = 186
+              Width = 335
+              Height = 8
+              Cursor = crVSplit
+              Align = alTop
+            end
+            object pparents: TPanel
+              Left = 1
+              Top = 25
+              Width = 335
+              Height = 161
+              Align = alTop
+              Caption = 'pparents'
+              TabOrder = 0
+              object PanelDetails: TPanel
+                Left = 1
+                Top = 1
+                Width = 333
+                Height = 24
+                Align = alTop
+                Caption = 'Zasoby nadrz'#281'dne'
+                TabOrder = 0
+              end
+              object Panel4: TPanel
+                Left = 1
+                Top = 119
+                Width = 333
+                Height = 41
+                Align = alBottom
+                TabOrder = 1
+                object AddParent: TBitBtn
+                  Left = 8
+                  Top = 8
+                  Width = 113
+                  Height = 25
+                  Caption = 'Dodaj nadrz'#281'dny'
+                  TabOrder = 0
+                  OnClick = AddParentClick
+                  Glyph.Data = {
+                    FE040000424DFE04000000000000360000002800000011000000120000000100
+                    200000000000C804000000000000000000000000000000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600000000000000000000000000000000000000
+                    000000000000000000000000000000000000000000000000000000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF000000
+                    000000000000FFFFFF0000000000000000000000000000000000FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFF
+                    FF00000000000000000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF00008482840084828400FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C60000FF000000820000848284000000000000000000FFFF
+                    FF0000000000000000000000000000000000FFFFFF00FFFFFF0000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C60000FF00000082000084828400FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C60000820000848284008482840000FF000000820000848284008482
+                    84008482840084828400FFFFFF00FFFFFF00FFFFFF0000000000000000000000
+                    000000000000C6C3C60000FF0000008200000082000000820000008200000082
+                    0000008200000082000000820000FFFFFF00FFFFFF00FFFFFF0000000000FFFF
+                    FF0000000000C6C3C600C6C3C60000FF000000FF000000FF000000FF00000082
+                    00000082000000FF000000FF000000FF0000FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C60000FF
+                    00000082000084828400FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C60000FF00000082000084828400C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF000000FF000000FF0000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600}
+                end
+                object DelParent: TBitBtn
+                  Left = 128
+                  Top = 8
+                  Width = 57
+                  Height = 25
+                  Caption = 'Usu'#324
+                  TabOrder = 1
+                  OnClick = DelParentClick
+                  Glyph.Data = {
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
+                    200000000000A405000000000000000000000001000000000000000000008080
+                    8000000080000080800000800000808000008000000080008000408080004040
+                    0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
+                    FF0000FF0000FFFF0000FF000000FF00FF0080FFFF0080FF0000FFFF8000FF80
+                    80008000FF004080FF0000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C0000000000000000000000000000000000000000000000000000000
+                    00000000000000000000000000000000000000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFF
+                    FF00FFFFFF000000000000000000FFFFFF000000000000000000000000000000
+                    0000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF000000000000000000FFFFFF00000000000000000000000000FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000FFFFFF00000000000000000000000000FFFFFF0000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    00000000000000000000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000FFFFFF00FFFFFF000000FF000000
+                    800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000000000000000000000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C0000000FF00000080000000FF000000800000008000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF0000000000FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000000080000000
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000000080000000FF000000FF00C0C0C0000000FF000000800000008000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C0000000FF000000FF000000FF00C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
+                end
+              end
+              object GParents: TRxDBGrid
+                Left = 1
+                Top = 25
+                Width = 333
+                Height = 94
+                Align = alClient
+                DataSource = DSParents
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'MS Sans Serif'
+                Font.Style = []
+                Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit]
+                ParentFont = False
+                ParentShowHint = False
+                ShowHint = True
+                TabOrder = 2
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clWindowText
+                TitleFont.Height = -11
+                TitleFont.Name = 'MS Sans Serif'
+                TitleFont.Style = [fsBold]
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'ID'
+                    Visible = False
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'LEVEL'
+                    Title.Caption = 'Poziom'
+                    Width = 0
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'PARENT_DSP'
+                    Title.Caption = 'Nazwa'
+                    Width = 600
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = -1
+                    Visible = False
+                  end>
+              end
+            end
+            object pdetails: TPanel
+              Left = 1
+              Top = 194
+              Width = 335
+              Height = 238
+              Align = alClient
+              Caption = 'pdetails'
+              TabOrder = 1
+              object PanelORDERS: TPanel
+                Left = 1
+                Top = 1
+                Width = 333
+                Height = 16
+                Align = alTop
+                Caption = 'Zasoby podrz'#281'dne'
+                TabOrder = 0
+              end
+              object Panel3: TPanel
+                Left = 1
+                Top = 196
+                Width = 333
+                Height = 41
+                Align = alBottom
+                TabOrder = 1
+                object AddDetail: TBitBtn
+                  Left = 8
+                  Top = 8
+                  Width = 113
+                  Height = 25
+                  Caption = 'Dodaj podrz'#281'dny'
+                  TabOrder = 0
+                  OnClick = AddDetailClick
+                  Glyph.Data = {
+                    FE040000424DFE04000000000000360000002800000011000000120000000100
+                    200000000000C804000000000000000000000000000000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600000000000000000000000000000000000000
+                    000000000000000000000000000000000000000000000000000000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF000000
+                    000000000000FFFFFF0000000000000000000000000000000000FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFF
+                    FF00000000000000000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF00008482840084828400FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C60000FF000000820000848284000000000000000000FFFF
+                    FF0000000000000000000000000000000000FFFFFF00FFFFFF0000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C60000FF00000082000084828400FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C60000820000848284008482840000FF000000820000848284008482
+                    84008482840084828400FFFFFF00FFFFFF00FFFFFF0000000000000000000000
+                    000000000000C6C3C60000FF0000008200000082000000820000008200000082
+                    0000008200000082000000820000FFFFFF00FFFFFF00FFFFFF0000000000FFFF
+                    FF0000000000C6C3C600C6C3C60000FF000000FF000000FF000000FF00000082
+                    00000082000000FF000000FF000000FF0000FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C60000FF
+                    00000082000084828400FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C60000FF00000082000084828400C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF000000FF000000FF0000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600}
+                end
+                object delDetail: TBitBtn
+                  Left = 128
+                  Top = 8
+                  Width = 65
+                  Height = 25
+                  Caption = 'Usu'#324
+                  TabOrder = 1
+                  OnClick = delDetailClick
+                  Glyph.Data = {
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
+                    200000000000A405000000000000000000000001000000000000000000008080
+                    8000000080000080800000800000808000008000000080008000408080004040
+                    0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
+                    FF0000FF0000FFFF0000FF000000FF00FF0080FFFF0080FF0000FFFF8000FF80
+                    80008000FF004080FF0000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C0000000000000000000000000000000000000000000000000000000
+                    00000000000000000000000000000000000000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFF
+                    FF00FFFFFF000000000000000000FFFFFF000000000000000000000000000000
+                    0000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF000000000000000000FFFFFF00000000000000000000000000FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000FFFFFF00000000000000000000000000FFFFFF0000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    00000000000000000000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000FFFFFF00FFFFFF000000FF000000
+                    800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000000000000000000000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C0000000FF00000080000000FF000000800000008000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF0000000000FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000000080000000
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000000080000000FF000000FF00C0C0C0000000FF000000800000008000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C0000000FF000000FF000000FF00C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
+                end
+              end
+              object GDetails: TRxDBGrid
+                Left = 1
+                Top = 17
+                Width = 333
+                Height = 179
+                Align = alClient
+                DataSource = DSDetails
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'MS Sans Serif'
+                Font.Style = []
+                Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit]
+                ParentFont = False
+                ParentShowHint = False
+                ShowHint = True
+                TabOrder = 2
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clWindowText
+                TitleFont.Height = -11
+                TitleFont.Name = 'MS Sans Serif'
+                TitleFont.Style = [fsBold]
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'LEVEL'
+                    Title.Caption = 'Poziom'
+                    Width = 0
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'NAME'
+                    Title.Caption = 'Nazwa'
+                    Width = 600
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'EXCLUSIVE_PARENT'
+                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Width = -1
+                    Visible = False
+                  end>
+              end
+            end
+            object Panel5: TPanel
+              Left = 1
+              Top = 1
+              Width = 335
+              Height = 24
+              Align = alTop
+              TabOrder = 2
+              object Label4: TLabel
+                Left = 8
+                Top = 8
+                Width = 83
+                Height = 14
+                Caption = 'Rodzaj hierarchii:'
+              end
+              object str_name_lov: TComboBox
+                Left = 112
+                Top = 0
+                Width = 145
+                Height = 22
+                Style = csDropDownList
+                ItemHeight = 14
+                ItemIndex = 0
+                TabOrder = 0
+                Text = 'Potok'
+                OnChange = str_name_lovChange
+                Items.Strings = (
+                  'Potok'
+                  'Struktura organizacyjna'
+                  'Inne')
+              end
+            end
+          end
+        end
+      end
     end
     inherited Update: TTabSheet
       object LabelID: TLabel [0]
@@ -485,7 +986,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Width = 163
         Height = 14
         Caption = 'Kol.wpr.:........................................'
-        FocusControl = ID
+        FocusControl = ID_
         Visible = False
       end
       object LabelABBREVIATION: TLabel [1]
@@ -627,7 +1128,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       inherited UpdPanel: TPanel
         Top = 585
-        Width = 823
+        Width = 1051
         TabOrder = 3
         inherited BUpdChild1: TBitBtn
           Caption = 'Finanse'
@@ -659,7 +1160,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Top = 184
         TabOrder = 6
       end
-      object ID: TDBEdit
+      object ID_: TDBEdit
         Left = 649
         Top = 0
         Width = 150
@@ -1113,6 +1614,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   end
   inherited Query: TADOQuery
     BeforeEdit = QueryBeforeEdit
+    AfterScroll = QueryAfterScroll
     SQL.Strings = (
       'SELECT SUBJECTS.*'
       ',      ORG_UNITS.*'
@@ -1133,5 +1635,89 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
     Options = [cdFullOpen, cdPreventFullOpen, cdShowHelp, cdSolidColor, cdAnyColor]
     Left = 468
     Top = 24
+  end
+  object QParents: TADOQuery
+    Connection = DModule.ADOConnection
+    CursorLocation = clUseServer
+    Parameters = <
+      item
+        Name = 'STR_NAME_LOV1'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end
+      item
+        Name = 'STR_NAME_LOV2'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end
+      item
+        Name = 'id'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end>
+    SQL.Strings = (
+      'select id,level, parent_dsp,exclusive_parent'
+      '  from str_elems_v'
+      '  where level=1 and STR_NAME_LOV=:STR_NAME_LOV1'
+      
+        '  CONNECT BY PRIOR STR_NAME_LOV=:STR_NAME_LOV2 and prior parent_' +
+        'id = child_id   '
+      '  start with child_id=:id'
+      'order by level desc')
+    Left = 92
+    Top = 276
+  end
+  object DSParents: TDataSource
+    DataSet = QParents
+    Left = 120
+    Top = 280
+  end
+  object QDetails: TADOQuery
+    Connection = DModule.ADOConnection
+    CursorLocation = clUseServer
+    Parameters = <
+      item
+        Name = 'STR_NAME_LOV1'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end
+      item
+        Name = 'STR_NAME_LOV2'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end
+      item
+        Name = 'id'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end>
+    SQL.Strings = (
+      
+        'select id,level, to_char( substr('#39'                    '#39',1,level*' +
+        '3) || child_dsp) name,exclusive_parent'
+      '  from str_elems_v'
+      '  where level=1 and STR_NAME_LOV=:STR_NAME_LOV1'
+      
+        '  CONNECT BY PRIOR STR_NAME_LOV=:STR_NAME_LOV2 and prior child_i' +
+        'd = parent_id  '
+      '  start with parent_id=:id')
+    Left = 92
+    Top = 308
+  end
+  object DSDetails: TDataSource
+    DataSet = QDetails
+    Left = 120
+    Top = 312
+  end
+  object TimerDetails: TTimer
+    OnTimer = TimerDetailsTimer
+    Left = 156
+    Top = 278
   end
 end

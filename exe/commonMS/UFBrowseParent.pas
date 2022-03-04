@@ -2558,7 +2558,7 @@ Begin
        info('error: '+QWork.Fields[T].FieldName)
      end;
      info('dalej');}
-     If Query.Fields[T].FieldName <> KeyField Then Begin
+     If (Query.Fields[T].FieldName <> KeyField) and (Query.Fields[T].FieldName <> 'INTEGRATION_ID') Then Begin
        If (Trim(Query.Fields[T].AsString) <> '') Then Begin
         If FillNotEmptyFields Then try Query.Fields[T].AsString := GetValue(Query.Fields[T].FieldName); {QWork.FieldByName(Query.Fields[T].FieldName).AsString;} Except end
        End Else
@@ -2629,6 +2629,7 @@ Try
             CopiedRecordId := ID;
             try
              //Query.Insert clears ID
+
              Query.Insert;
             Except
              on E:exception do Begin
@@ -3768,18 +3769,24 @@ begin
 end;
 
 procedure TFBrowseParent.SpeedButton1Click(Sender: TObject);
-var s1,s2,s3,s4,s5 : string;
+var s1,s2,s3,s4,s5,s6, s7 : string;
 begin
   try s1 := query.FieldByName('creation_date').AsString;    except s1:=''; end;
   try s2 := query.FieldByName('created_by').AsString;       except s2:=''; end;
   try s3 := query.FieldByName('last_update_date').AsString; except s3:=''; end;
   try s4 := query.FieldByName('last_updated_by').AsString;  except s4:=''; end;
-  s5 :=   'Utworzono:'+#9+#9  +  s1  +#13+#10+
-  'Utworzy³:'+#9+#9+ s2 +#13+#10+
-  'Zaktualizowano:'+#9+#9 +s3 +#13+#10+
-  'Zaktualizowa³:'+#9+#9  + s4;
+  try s5 := query.FieldByName('Id').AsString;  except s5:=''; end;
+  try s6 := query.FieldByName('Integration_id').AsString;  except s6:=''; end;
+  s7 :=   'Utworzono:'+#9+#9  +  s1  +#13+#10+
+  'Utworzy³:'+#9+#9+ s2 +CR+
+  'Zaktualizowano:'+#9+#9 +s3 +CR+
+  'Zaktualizowa³:'+#9+#9  + s4+ CR+
+  'Tabela:'+#9+#9  + tableName+ CR+
+  'ID:'+#9+#9  + s5+ CR+
+  'Integration ID:'+#9+#9  + s6
+  ;
 
-  info(s5);
+  info(s7);
 end;
 
 End.

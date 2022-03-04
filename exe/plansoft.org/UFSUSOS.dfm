@@ -1,6 +1,6 @@
 inherited FUSOS: TFUSOS
-  Left = 521
-  Top = 223
+  Left = 441
+  Top = 243
   Width = 1003
   Height = 737
   Caption = 'USOS: Integracja'
@@ -84,22 +84,39 @@ inherited FUSOS: TFUSOS
           Text = 'USOS_CYKL'
         end
         object BitBtn2: TBitBtn
-          Left = 152
-          Top = 16
-          Width = 257
+          Left = 376
+          Top = 8
+          Width = 265
           Height = 41
-          Caption = 'Uruchom synchronizacj'#281' USOS --> Plansoft'
+          Caption = 'S'#322'owniki: USOS ====> Plansoft.org'
           TabOrder = 1
           OnClick = BitBtn2Click
         end
         object BitBtn1: TBitBtn
-          Left = 152
-          Top = 64
-          Width = 257
+          Left = 376
+          Top = 88
+          Width = 265
           Height = 41
-          Caption = 'Uruchom synchronizacj'#281' Plansoft --> USOS'
+          Caption = 'Rozk'#322'ad: USOS <==== Plansoft.org'
           TabOrder = 2
           OnClick = BitBtn1Click
+        end
+        object BitBtn3: TBitBtn
+          Left = 376
+          Top = 48
+          Width = 265
+          Height = 41
+          Caption = 'Plan: USOS ====> Plansoft.org'
+          TabOrder = 3
+          OnClick = BitBtn3Click
+        end
+        object CleanUpMode: TCheckBox
+          Left = 648
+          Top = 112
+          Width = 193
+          Height = 17
+          Caption = 'Skasuj poprzednie dane'
+          TabOrder = 4
         end
       end
       object TabSheet2: TTabSheet
@@ -235,7 +252,7 @@ inherited FUSOS: TFUSOS
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit]
+    Options = [dgTitles, dgColLines, dgRowLines, dgAlwaysShowSelection, dgCancelOnExit]
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
@@ -258,7 +275,7 @@ inherited FUSOS: TFUSOS
         Expanded = False
         FieldName = 'MESSAGE'
         Title.Caption = 'Komunikat'
-        Width = 1000
+        Width = 3000
         Visible = True
       end>
   end

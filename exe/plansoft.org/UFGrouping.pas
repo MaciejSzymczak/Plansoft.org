@@ -305,16 +305,16 @@ begin
           if sortOrder<>'' then begin
            columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "Wyk³adowcy-skróty"', ','); columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS', ',');
           end;
-          columnsSelect := Merge(columnsSelect, 'SUBSTR(lecturers.full_name,1,254) "%Ls."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(lecturers.full_name,1,254)', ',');
+          columnsSelect := Merge(columnsSelect, 'SUBSTR(lecturers.full_name,1,500) "%Ls."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(lecturers.full_name,1,500)', ',');
       end;
   End;
 
   If ChG.Checked    Then Begin
-    columnsSelect := Merge(columnsSelect, 'SUBSTR(groups.group_name,1,254) "%Gs."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(groups.group_name,1,254)', ',');
+    columnsSelect := Merge(columnsSelect, 'SUBSTR(groups.group_name,1,500) "%Gs."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(groups.group_name,1,500)', ',');
   End;
 
   If ChR.Checked    Then Begin
-    columnsSelect := Merge(columnsSelect, 'SUBSTR(resources.res_name,1,254) "Zasoby"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(resources.res_name,1,254)', ',');
+    columnsSelect := Merge(columnsSelect, 'SUBSTR(resources.res_name,1,500) "Zasoby"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(resources.res_name,1,500)', ',');
   End;
 
   //columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "%Ls."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS', ',');
@@ -852,7 +852,7 @@ begin
 
   offset := iif(pshowLecNames, 1, 0);
   //sortOrder := 'ORDER BY CALC_LECTURERS, CALC_GROUPS, SUB.NAME, FRM.NAME';
-  sortOrder := 'ORDER BY SUBSTR(lecturers.full_name,1,254),SUBSTR(groups.group_name,1,254), SUB.NAME, FRM.NAME';
+  sortOrder := 'ORDER BY SUBSTR(lecturers.full_name,1,500),SUBSTR(groups.group_name,1,500), SUB.NAME, FRM.NAME';
   BRefreshClick( nil );
 
   if not Query.Active then begin

@@ -13,10 +13,10 @@ Const MaxAllLecturers     =   5000;
       MaxAllGroups        =  10000;
       MaxAllRooms         =   3000;
       MaxAllRoles         =   2000;
-      MaxAllPlanners      =    100;
+      MaxAllPlanners      =    300;
       MaxAllSubjects      =  10000;
       MaxAllForms         =   3000;
-      maxInClass          =     70; //maksymalna liczba obiektow w jednym zajeciu
+      maxInClass          =    150; //maksymalna liczba obiektow w jednym zajeciu
       maxHours            =     60;
 
       gpassString         = 'SoftwareFactory';
@@ -33,6 +33,7 @@ Const MaxAllLecturers     =   5000;
       sql_LECNAMEORG      = 'TITLE||'' ''||LAST_NAME||'' ''||FIRST_NAME||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
       sql_GRONAME         = 'nvl(abbreviation,name)';
       sql_ResCat0NAME     = 'NAME||'' ''||substr(attribs_01,1,55)';
+      sql_ResCat0NAMEROM  = 'ROM.NAME||'' ''||substr(ROM.attribs_01,1,55)';
       sql_ResCat1NAME     = 'NAME';
       sql_SUBNAME         = 'NAME';
       sql_FORNAME         = 'NAME||''(''||abbreviation||'')''';

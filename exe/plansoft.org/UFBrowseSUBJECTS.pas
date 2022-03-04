@@ -10,7 +10,7 @@ uses
 
 type
   TFBrowseSUBJECTS = class(TFBrowseParent)
-    ID: TDBEdit;
+    ID_: TDBEdit;
     LabelID: TLabel;
     ABBREVIATION: TDBEdit;
     LabelABBREVIATION: TLabel;
@@ -36,6 +36,31 @@ type
     BSelOU: TBitBtn;
     BitBtn6: TBitBtn;
     SpeedButton3: TSpeedButton;
+    QParents: TADOQuery;
+    DSParents: TDataSource;
+    QDetails: TADOQuery;
+    DSDetails: TDataSource;
+    TimerDetails: TTimer;
+    RightPage: TPageControl;
+    Hierarchy: TTabSheet;
+    rightPane: TPanel;
+    Splitter2: TSplitter;
+    pparents: TPanel;
+    PanelDetails: TPanel;
+    Panel4: TPanel;
+    AddParent: TBitBtn;
+    DelParent: TBitBtn;
+    GParents: TRxDBGrid;
+    pdetails: TPanel;
+    PanelORDERS: TPanel;
+    Panel3: TPanel;
+    AddDetail: TBitBtn;
+    delDetail: TBitBtn;
+    GDetails: TRxDBGrid;
+    Panel5: TPanel;
+    Label4: TLabel;
+    str_name_lov: TComboBox;
+    Splitter1: TSplitter;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -55,9 +80,22 @@ type
     procedure CON_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure TimerDetailsTimer(Sender: TObject);
+    procedure QueryAfterScroll(DataSet: TDataSet);
+    procedure FormCreate(Sender: TObject);
+    procedure str_name_lovChange(Sender: TObject);
+    procedure AddParentClick(Sender: TObject);
+    procedure DelParentClick(Sender: TObject);
+    procedure AddDetailClick(Sender: TObject);
+    procedure delDetailClick(Sender: TObject);
   private
     { Private declarations }
+    Counter  : Integer;
+    procedure refreshDetails;
+    procedure insert_str_elem(parent : boolean);
+    procedure delete_str_elem(parent : boolean);
+    function  getStrNameLov : shortString;
   public
     Function  CheckRecord : Boolean; override;
     Procedure DefaultValues; override;
@@ -77,7 +115,7 @@ implementation
 {$R *.DFM}
 
 uses DM, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFMassImport, AutoCreate,
-  UFSharing;
+  UFSharing, UFExclusiveParent;
 
 Function  TFBrowseSUBJECTS.CheckRecord : Boolean;
 Begin
@@ -88,7 +126,7 @@ Procedure TFBrowseSUBJECTS.DefaultValues;
 Var c : Integer;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
- c := Random(256) + 256*Random(256) + 256*256*Random(256);
+ c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
  if CON_ORGUNI_ID.Text <> '' then
@@ -255,7 +293,7 @@ end;
 Procedure TFBrowseSUBJECTS.AfterPost;
 Begin
  If CurrOperation in [AInsert,ACopy] Then begin
-    FSharing.init('I','SUB',ID.Text, QUERY.FieldByName('NAME').AsString);
+    FSharing.init('I','SUB',ID_.Text, QUERY.FieldByName('NAME').AsString);
     dmodule.CommitTrans;
  end;
 End;
@@ -263,13 +301,172 @@ End;
 
 procedure TFBrowseSUBJECTS.BUpdChild3Click(Sender: TObject);
 begin
-   FSharing.init('U','SUB',ID.Text, QUERY.FieldByName('NAME').AsString);
+   FSharing.init('U','SUB',ID_.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
 end;
 
-procedure TFBrowseSUBJECTS.SpeedButton1Click(Sender: TObject);
+procedure TFBrowseSUBJECTS.SpeedButton3Click(Sender: TObject);
 begin
   info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj przemioty przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseSUBJECTS.TimerDetailsTimer(Sender: TObject);
+begin
+  inherited;
+  If Counter > 0 Then Counter := Counter - 1;
+  If Counter = 1 Then refreshDetails;
+end;
+
+procedure TFBrowseSUBJECTS.QueryAfterScroll(DataSet: TDataSet);
+begin
+  Counter := 2;
+end;
+
+procedure TFBrowseSUBJECTS.FormCreate(Sender: TObject);
+begin
+  inherited;
+  Counter := 3;
+end;
+
+procedure TFBrowseSUBJECTS.delete_str_elem(parent: boolean);
+var id : shortString;
+    parentId : shortString;
+begin
+ if parent then id := qparents.FieldByName('id').AsString
+           else id := qdetails.FieldByName('id').AsString;
+ if id='' then exit;
+ if question
+    ('Czy na pewno chcesz usun¹æ nastêpuj¹cy rekord ?'+cr+
+     dmodule.SingleValue('select ''Podrzêdny: ''|| child_dsp|| chr(13)||chr(10)||''Nadrzêdny: '' ||parent_dsp from str_elems_v where id =' + id )
+    ) = id_yes
+ then begin
+  parentId := dmodule.SingleValue('select parent_id from str_elems_v where id =' + id );
+  dmodule.SQL('delete from str_elems where id = '  + id );
+  fmain.propagateDependencyChanges(parentId, 'G');
+  refreshDetails;
+ end;
+end;
+
+function TFBrowseSUBJECTS.getStrNameLov: shortString;
+const str_name_lovs : array[0..2] of shortString = ('STREAM','ORG','OTHER');
+begin
+  if str_name_lov.ItemIndex = -1 then str_name_lov.ItemIndex := 0;
+  result := str_name_lovs [ str_name_lov.ItemIndex ];
+end;
+
+procedure TFBrowseSUBJECTS.insert_str_elem(parent: boolean);
+Var
+    keyValues: ShortString;
+    keyValue : ShortString;
+    resultValue : string;
+    mr : tmodalresult;
+    pexclusive_parent : shortString;
+    t : integer;
+    checkSQL : string;
+    currentParent : string;
+begin
+  mr := FExclusiveParent.showModal;
+  if mr = mrYes then pexclusive_parent := '+';
+  if mr = mrNo then  pexclusive_parent := '-';
+  if (mr <> mrNo) and (mr <> mrYes) then exit;
+
+  keyValue := '';
+  If LookupWindow(True, DModule.ADOConnection, 'SUBJECTS SUB, SUB_PLA','SUB.ID','NAME','Nazwa','NAME','SUB_PLA.SUB_ID = SUB.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+
+   {
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+     checkSQL := fmain.sqlCheckConflicts.Lines.Text;
+     checkSQL := Replace(checkSQL,'%RESTYPE','GRO');
+     checkSQL := Replace(checkSQL,':id1',keyValue);
+     checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
+     resultValue := dmodule.SingleValue(checkSQL);
+     if (resultValue<>'') then begin
+       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Przedmiot podrzêdny oraz przedmiot nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       Exit;
+     End;
+   end;
+   }
+
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+   KeyValue := extractWord(t,KeyValues, [',']);
+    with dmodule.QWork do begin
+      SQL.Clear;
+      SQL.Add('begin planner_utils.insert_str_elem (:pparent_id, :pchild_id, :pstr_name_lov, :pexclusive_parent); end;');
+      if parent then begin
+        Parameters.ParamByName('pparent_id').value    := keyValue;
+        currentParent := keyValue;
+        Parameters.ParamByName('pchild_id').value     := query.FieldByName('ID').asString;
+      end
+      else
+      begin
+        Parameters.ParamByName('pchild_id').value    := keyValue;
+        Parameters.ParamByName('pparent_id').value     := query.FieldByName('ID').asString;
+        currentParent := query.FieldByName('ID').asString;
+      end;
+      Parameters.ParamByName('pexclusive_parent').value     := pexclusive_parent;
+      Parameters.ParamByName('pstr_name_lov').value := getStrNameLov;
+      execSQL;
+    end;
+    fmain.propagateDependencyChanges(currentParent, 'G');
+   end;
+
+   resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
+   if resultValue <> '' then info (resultValue) else refreshDetails;
+
+  end;
+end;
+
+procedure TFBrowseSUBJECTS.refreshDetails;
+begin
+  QDetails.Close;
+  If Query.IsEmpty Then Begin
+    QDetails.Parameters.paramByName('ID').value   := '-1';
+  End Else Begin
+    ID := NVL(Query.FieldByName('ID').AsString,'-1');
+    QDetails.Parameters.paramByName('ID').value             := ID;
+    QDetails.Parameters.paramByName('STR_NAME_LOV1').value  := getStrNameLov;
+    QDetails.Parameters.paramByName('STR_NAME_LOV2').value  := getStrNameLov;
+  End;
+  QDetails.Open;
+
+  QParents.Close;
+  If Query.IsEmpty Then Begin
+    QParents.Parameters.paramByName('ID').value   := '-1';
+  End Else Begin
+    ID := NVL(Query.FieldByName('ID').AsString,'-1');
+    QParents.Parameters.paramByName('ID').value             := ID;
+    QParents.Parameters.paramByName('STR_NAME_LOV1').value   := getStrNameLov;
+    QParents.Parameters.paramByName('STR_NAME_LOV2').value   := getStrNameLov;
+  End;
+  QParents.Open;
+
+  Counter := 1;
+end;
+
+procedure TFBrowseSUBJECTS.str_name_lovChange(Sender: TObject);
+begin
+  refreshDetails;
+end;
+
+procedure TFBrowseSUBJECTS.AddParentClick(Sender: TObject);
+begin
+ insert_str_elem(true);
+end;
+
+procedure TFBrowseSUBJECTS.DelParentClick(Sender: TObject);
+begin
+  delete_str_elem(true);
+end;
+
+procedure TFBrowseSUBJECTS.AddDetailClick(Sender: TObject);
+begin
+ insert_str_elem(false);
+end;
+
+procedure TFBrowseSUBJECTS.delDetailClick(Sender: TObject);
+begin
+  delete_str_elem(false);
 end;
 
 end.

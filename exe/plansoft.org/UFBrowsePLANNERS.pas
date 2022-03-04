@@ -324,7 +324,10 @@ end;
 
 procedure TFBrowsePLANNERS.SpeedButton4Click(Sender: TObject);
 begin
- info('Cz³onek zespo³u mo¿e zmieniaæ Twoje zajêcia');
+ info(
+ 'Wybierz planistów, którzy mog¹ zmieniaæ zajêcia planisty. Mo¿esz wybraæ jednego lub wielu planistów.'+cr+
+ 'Co istotne, mo¿esz tak¿e wskazaæ rolê, wybranie której spowoduje ¿e bêdzie mo¿na zmieniaæ zajêcia planisty. Mo¿esz wybraæ jedn¹ rolê lub wiele ról.'
+ );
 end;
 
 procedure TFBrowsePLANNERS.SpeedButton2Click(Sender: TObject);

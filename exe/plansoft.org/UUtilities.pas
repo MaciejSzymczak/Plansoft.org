@@ -1430,12 +1430,15 @@ function isOwnerSupervisor(classOwners : String): boolean;
 var t : integer;
     classOwner : string;
     ClassOwnerSupervisor : string;
+    currentUserRoleName  : string;
 begin
+  currentUserRoleName := nvl(fmain.CONROLE_VALUE.Text,'**NONE**');
   result := false;
   For t := 1 To WordCount(classOwners, [';']) Do Begin
     classOwner := Trim(ExtractWord(t,classOwners, [';']));
     ClassOwnerSupervisor := Fmain.MapPlannerSupervisors.getValue(classOwner);
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+CurrentUserName+';') then begin result := true; exit; end;
+    if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+currentUserRoleName+';') then begin result := true; exit; end;
   End
 end;
 

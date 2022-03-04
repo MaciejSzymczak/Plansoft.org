@@ -24,7 +24,7 @@ Procedure ShowModal;
 
 implementation
 
-uses DM;
+uses DM, UUtilityParent;
 
 {$R *.DFM}
 
@@ -38,14 +38,15 @@ End;
 procedure TFInfo.BOKClick(Sender: TObject);
 begin
   inherited;
-  Close;         
+  Close;
 end;
 
 procedure TFInfo.FormShow(Sender: TObject);
 begin
   inherited;
-  lversion.caption := dmodule.dbGetSystemParam( 'PLANOWANIE.VERSION_INFO' );
+  lversion.caption := VersionOfApplication; // dmodule.dbGetSystemParam( 'PLANOWANIE.VERSION_INFO' );
   mlicencja.Text   := dmodule.dbGetSystemParam( 'PLANOWANIE.LICENCE_FOR'  );
+  caption := 'Plansoft.org - informacje.     U¿ytkownik:'+CurrentUserName;
 end;
 
 end.
