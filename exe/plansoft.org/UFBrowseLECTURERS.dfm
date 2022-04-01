@@ -1,6 +1,6 @@
 inherited FBrowseLECTURERS: TFBrowseLECTURERS
-  Left = 402
-  Top = 201
+  Left = 381
+  Top = 149
   Width = 894
   Height = 724
   Caption = 'Wyk'#322'adowcy'
@@ -13,7 +13,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 673
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 532

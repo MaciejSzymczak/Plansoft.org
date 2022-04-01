@@ -40,6 +40,10 @@ Const MaxAllLecturers     =   5000;
       sql_PERNAME         = 'NAME';
       sql_PLANAME         = 'NAME';
 
+      sql_FOR_SEARCH      = '(xxmsz_tools.erasePolishChars(upper(forms.abbreviation||forms.name||forms.attribs_01||forms.attribs_02||forms.attribs_03||forms.attribs_04'+
+           '||forms.attribs_05||forms.attribs_06||forms.attribs_07||forms.attribs_08||forms.attribs_09||forms.attribs_10||forms.attribs_11||forms.attribs_12||forms.attribs_13||forms.attribs_14||forms.attribs_15'+
+           '||forms.desc1||forms.desc2)) like ''%%%s%%'')';
+
       sql_LECDESC         = 'SELECT '+sql_LECNAME+    ' FROM LECTURERS WHERE ID=';
       sql_GRODESC         = 'SELECT '+sql_GRONAME+    ' FROM groups WHERE ID=';
       sql_ResCat0DESC     = 'SELECT '+sql_ResCat0NAME+' FROM ROOMS WHERE ID=';
@@ -407,13 +411,13 @@ Begin
   //   paramValue := extractWord(2,wholeString,['=']);
   //   parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
   // end;
-
+                                            
    //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+ searchAndReplace ( paramValue , '!chr(61)', '=') +'''');
+     S := searchAndReplace(S,':'+paramName,''''+ searchAndReplace(searchAndReplace ( paramValue , '!chr(61)', '=') , '<scolon>', ';')  +'''');
    end;
    SQL.Add(S);
 
@@ -1000,7 +1004,7 @@ begin
  'when not matched then'+cr+
    'insert (s.name, s.value)'+cr+
    'values (new.name, new.value)'
- , 'name='+name+';value='+value);
+ , 'name='+name+';value='+searchAndReplace(value ,';', '<scolon>'));   
 end;
 
 //----------------------------------------------------------------

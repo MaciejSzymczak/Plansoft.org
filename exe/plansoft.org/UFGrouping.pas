@@ -35,7 +35,6 @@ type
     LL: TLabel;
     LR: TLabel;
     LF: TLabel;
-    CONF: TEdit;
     conResCat0: TEdit;
     CONL: TEdit;
     CONL_VALUE: TEdit;
@@ -122,9 +121,6 @@ type
     SPopup: TPopupMenu;
     MenuItem11: TMenuItem;
     MenuItem12: TMenuItem;
-    FPopup: TPopupMenu;
-    MenuItem13: TMenuItem;
-    MenuItem14: TMenuItem;
     ImageList: TImageList;
     chgorg: TCheckBox;
     chsorg: TCheckBox;
@@ -170,7 +166,6 @@ type
     procedure conResCat0Change(Sender: TObject);
     procedure CONGChange(Sender: TObject);
     procedure CONSChange(Sender: TObject);
-    procedure CONFChange(Sender: TObject);
     procedure CONPERIODChange(Sender: TObject);
     procedure xBitBtnPERClick(Sender: TObject);
     procedure calculateCountClick(Sender: TObject);
@@ -207,11 +202,9 @@ type
     procedure MenuItem7Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
-    procedure MenuItem13Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
-    procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure CONPERIOD_VALUEChange(Sender: TObject);
     procedure CONL_VALUEChange(Sender: TObject);
@@ -387,13 +380,12 @@ begin
   end;
 
   if EmergencyMode.Checked then begin
-    if true then begin
       if ChF.Checked then begin
         dmodule.openSQL(
           'select id, name'+cr+
           'from forms'+cr+
-          'where sort_order_on_reports is not null'+cr+
-          'order by sort_order_on_reports,name'
+          'where '+format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(CONF_VALUE.Text)) ) ])+
+          ' order by sort_order_on_reports,name'
         );
         With dmodule.QWork do begin
           First;
@@ -406,17 +398,15 @@ begin
         end;
       end;
       SUMMARY1 := merge(summary1, ', ROUND(GRIDS.DURATION * (FILL/100),1) "%CLASSes. (suma)"','')+CR;
-    end;
     if chgStudents.Checked    then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
-    if true then begin
       if ChF.Checked then begin
         dmodule.openSQL(
           'select id, name'+cr+
           'from forms'+cr+
-          'where sort_order_on_reports is not null'+cr+
-          'order by sort_order_on_reports'
+          'where '+format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(CONF_VALUE.Text)) ) ])+
+          ' order by sort_order_on_reports'
         );
         With dmodule.QWork do begin
           First;
@@ -429,7 +419,6 @@ begin
         end;
       end;
       SUMMARY1 := merge(summary1, ', ROUND(sum(GRIDS.DURATION * (FILL/100)),1) "%CLASSes. (suma)"','')+CR;
-    end;
     //if S4.Checked then SUMMARY4 := ', SUM ( groups.NOP ) "Liczba studentów"'+CR;
     if chgStudents.Checked    then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
   end;
@@ -460,8 +449,9 @@ begin
   If SSettings.Strings.Values['SQL.Category:DEFAULT'] <> '' then _CONS := 'SUB_ID IN( SELECT ID FROM SUBJECTS WHERE '+SSettings.Strings.Values['SQL.Category:DEFAULT'] + ')';
 
   _CONF := '0=0';
-  If                                       CONF.Text <> '' Then _CONF := 'FOR_ID='+CONF.Text;
-  If FSettings.Strings.Values['SQL.Category:DEFAULT']<> '' Then _CONF := 'FOR_ID IN (SELECT ID FROM FORMS WHERE '+FSettings.Strings.Values['SQL.Category:DEFAULT']+')';
+  //If                                       CONF.Text <> '' Then _CONF := 'FOR_ID='+CONF.Text;
+  //If FSettings.Strings.Values['SQL.Category:DEFAULT']<> '' Then _CONF := 'FOR_ID IN (SELECT ID FROM FORMS WHERE '+FSettings.Strings.Values['SQL.Category:DEFAULT']+')';
+  If CONF_VALUE.Text <> '' Then _CONF := 'FOR_ID IN (SELECT ID FROM FORMS WHERE '+format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(CONF_VALUE.Text)) ) ])+')';
 
   if chbShowAll.Checked then begin
     _permissionsl := '0=0';
@@ -633,13 +623,13 @@ begin
   Query.close;
 end;
 
-procedure TFGrouping.CONFChange(Sender: TObject);
-begin
-  inherited;
-  If Trim(CONF.TEXT) <> '' Then CONF_VALUE.Text := DMOdule.SingleValue('SELECT NAME||''(''||abbreviation||'')'' FROM FORMS WHERE ID='+CONF.TEXT)
-                           Else CONF_VALUE.Text := '';
-  Query.close;
-end;
+//procedure TFGrouping.CONFChange(Sender: TObject);
+//begin
+//  inherited;
+//  If Trim(CONF.TEXT) <> '' Then CONF_VALUE.Text := DMOdule.SingleValue('SELECT NAME||''(''||abbreviation||'')'' FROM FORMS WHERE ID='+CONF.TEXT)
+//                           Else CONF_VALUE.Text := '';
+//  Query.close;
+//end;
 
 procedure TFGrouping.CONPERIODChange(Sender: TObject);
 begin
@@ -661,7 +651,7 @@ begin
  if btn.Name = 'CONG_VALUE'      then GPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'conResCat0_value'then RPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'CONS_VALUE'      then SPopup.Popup(Point.X,Point.Y);
- if btn.Name = 'CONF_VALUE'      then FPopup.Popup(Point.X,Point.Y);
+ //if btn.Name = 'CONF_VALUE'      then FPopup.Popup(Point.X,Point.Y);
 end;
 
 procedure TFGrouping.calculateCountClick(Sender: TObject);
@@ -1242,7 +1232,7 @@ begin
 
   uutilityparent.saveToIni(
             saveDialog.FileName , 'grouping',
-            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
+            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
             , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
@@ -1262,7 +1252,7 @@ begin
   CONG.Text := '';
   conResCat0.Text := '';
   CONS.Text := '';
-  CONF.Text := '';
+  CONF_VALUE.Text := '';
 
   CONPERIOD_VALUE.Text := '';
   CONL_VALUE.Text := '';
@@ -1273,9 +1263,9 @@ begin
 
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
-            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF
+            [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
             , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
-            , sortOrderField, chbShowAll, EmergencyMode   
+            , sortOrderField, chbShowAll, EmergencyMode
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
@@ -1288,7 +1278,7 @@ begin
   if GSettings.Strings.Values['FilterType'] = 'a'   then CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
   if RSettings.Strings.Values['FilterType'] = 'a'   then conResCat0_value.Text := RSettings.Strings.Values['Notes.Category:DEFAULT'];
   if SSettings.Strings.Values['FilterType'] = 'a'   then CONS_VALUE.Text := SSettings.Strings.Values['Notes.Category:DEFAULT'];
-  if FSettings.Strings.Values['FilterType'] = 'a'   then CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
+  //if FSettings.Strings.Values['FilterType'] = 'a'   then CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
 
 end;
 
@@ -1409,8 +1399,8 @@ end;
 procedure TFGrouping.bClearFClick(Sender: TObject);
 begin
   CONF_VALUE.Text := '';
-  FSettings.Strings.Clear;
-  CONF.Text := '';
+  //FSettings.Strings.Clear;
+  //CONF.Text := '';
 end;
 
 procedure TFGrouping.Filtrprosty1Click(Sender: TObject);
@@ -1470,16 +1460,16 @@ begin
   End;
 end;
 
-procedure TFGrouping.MenuItem13Click(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := CONF.Text;
-  If FORMSShowModalAsSelect(KeyValue,'') = mrOK Then Begin
-      FSettings.Strings.Clear;
-      CONF.Text := KeyValue;
-      FSettings.Strings.Values['FilterType'] := 'e';
-  End;
-end;
+//procedure TFGrouping.MenuItem13Click(Sender: TObject);
+//Var KeyValue : ShortString;
+//begin
+//  KeyValue := CONF.Text;
+//  If FORMSShowModalAsSelect(KeyValue,'') = mrOK Then Begin
+//      FSettings.Strings.Clear;
+//      CONF.Text := KeyValue;
+//      FSettings.Strings.Values['FilterType'] := 'e';
+//  End;
+//end;
 
 procedure TFGrouping.Filtrzaawansowany1Click(Sender: TObject);
 begin
@@ -1534,15 +1524,15 @@ begin
   End;
 end;
 
-procedure TFGrouping.MenuItem14Click(Sender: TObject);
-begin
-  autocreate.FORMSCreate;
-  If UFModuleFilter.ShowModal( FSettings.Strings, fBrowseFORMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
-      CONF.Text := '';
-      CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
-      FSettings.Strings.Values['FilterType'] := 'a';
-  End;
-end;
+//procedure TFGrouping.MenuItem14Click(Sender: TObject);
+//begin
+//  autocreate.FORMSCreate;
+//  If UFModuleFilter.ShowModal( FSettings.Strings, fBrowseFORMS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
+//      CONF.Text := '';
+//      CONF_VALUE.Text := FSettings.Strings.Values['Notes.Category:DEFAULT'];
+//      FSettings.Strings.Values['FilterType'] := 'a';
+//  End;
+//end;
 
 procedure TFGrouping.CONPERIOD_VALUEChange(Sender: TObject);
 begin

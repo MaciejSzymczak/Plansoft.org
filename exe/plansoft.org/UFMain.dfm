@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 131
-  Top = 14
+  Left = 190
+  Top = 116
   Width = 1569
   Height = 1033
   Caption = 'Plansoft.org        '
@@ -820,7 +820,6 @@ inherited FMain: TFMain
         ParentShowHint = False
         ShowHint = True
         Visible = False
-        OnClick = NormalClick
       end
       object bReports: TSpeedButton
         Left = 835
@@ -2872,7 +2871,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BTraceHistory: TSpeedButton
-        Left = 1009
+        Left = 1049
         Top = 4
         Width = 39
         Height = 39
@@ -3017,7 +3016,7 @@ inherited FMain: TFMain
         OnClick = BTraceHistoryClick
       end
       object bthpopup: TSpeedButton
-        Left = 1048
+        Left = 1088
         Top = 4
         Width = 15
         Height = 39
@@ -3151,7 +3150,7 @@ inherited FMain: TFMain
         OnClick = SwitchMenuClick
       end
       object BCloseApp: TSpeedButton
-        Left = 967
+        Left = 1007
         Top = 4
         Width = 39
         Height = 39
@@ -3260,6 +3259,117 @@ inherited FMain: TFMain
         ShowHint = True
         Visible = False
         OnClick = BCloseAppClick
+      end
+      object SpeedButton5: TSpeedButton
+        Left = 965
+        Top = 4
+        Width = 39
+        Height = 39
+        Hint = 'Pe'#322'ny ekran'
+        AllowAllUp = True
+        Flat = True
+        Glyph.Data = {
+          360C0000424D360C000000000000360000002800000020000000200000000100
+          180000000000000C0000C40E0000C40E00000000000000000000FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFF9FD09FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFEEF5EEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFF3D9B3D98CA98FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAAD3
+          AA8EC48EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFF2E902E0A730AD2E9D2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6DAB6076F
+          0798C798FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFF2088200896112B852BF4F9F4FFFFFFFFFFFFFFFFFFC1DFC10B750B027A
+          04A7D1A7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC
+          FDFCFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFF13811310B22306860C63AB63FFFFFFFFFFFFCBE6CB0F750F0DA51A047F
+          08B5D9B5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD7DC782E1
+          F1E2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FBFCFB08750813B22913B125037A05A5CFA5D4E9D41478140CA01B12B226047B
+          07C3E0C3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5FBF559AE63178E20FE
+          FEFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          F3F8F303740316B42F13AF2A13AB270F770F197B190F9F1E13AF2914B22B027A
+          04D1E7D1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE8F5E93D954419932E40A348FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          E7F2E701760219B63416AF2E19B5320B8C180A891517B53115AE2C18B5320278
+          03DFEFDFFFFFFFFFFFFFFFFFFFFFFFFFD3ECD6258B302DB85233C35D6BB671FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          D8EAD8027B051CB93A19B2341BB7360F8D1E10942219B53518B1321BB9370177
+          01ECF5ECFFFFFFFFFFFFFFFFFFBAE4C0198A2737C8624BEA8423A74195CB9BFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          CBE2CB04830A1FBB3F1CB5391CB83C11902315A02C1CB7391BB4371DBB3D0479
+          04F7FAF7FFFFFFFFFFFF9BD8A4158D2641D67147E37D49E68018942EC1E1C4FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          BDDBBD09880F22BE451FB83F1FBB4015942A1AA9361FB93E1EB83D22BE440C82
+          0CFEFEFEFCFEFC7AC5871A983149E37D4AE57F47E07A4DEA8410841EEBF6ECFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          AED4AE0A8F1625C14B21BA4522BD46199B321EB33E21BC4420B94422BD471881
+          18F3FAF45AB06A23A4404FEB854CE57F48E17B49E37D4AE8821C8527E6F2E8E7
+          F4E8E7F3E8E7F3E8E7F4E8E6F4E7E7F3E8EDF6EEFFFFFFFFFFFFFFFFFFFFFFFF
+          A0CDA00E961D28C45224BD4A25C04C1EA13C22BB4724BE4A23BD4922BA451780
+          1740A7552FB95352EF894DE6804AE37D4BE57F4EEB85188C2608750F128A2410
+          86200E841E0E831D1085200D7E18107E19A3D1A7FFFFFFFFFFFFFFFFFFFFFFFF
+          92C792129D242BC75627C05027C35223AA4626BF4F28C14E27C25120B644108C
+          273CCC6754F08A4EE7814CE57F4EE8824CE68015851F1E96304FED874CEA844A
+          E8824AE8824EF08A38CB651D8827C3E4C6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          84C08416A32C2DC75C2AC3562AC55528B4502BC5552AC55725B74B17963147DB
+          7657F28C51EB8550E98351EC8649E17B18872131B6504FEE884AE47E46DF7946
+          E07A4BE9832AB14B2D8C35DBEFDDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          76BA761BAB3630CA622DC65C2DC75B2DC15D2FCA5D23B2491C9E3950E98356F2
+          8C52EB8551EA8453EE8847DB7520952F40CF6950EC864BE47E49E37D49E37D4B
+          E98322A33D499E53EDF8EEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          68B26821B24133CD6830C96231CB6331CD6423AE4725AC4759F28C58F28C54ED
+          8753EC8655F08A46D56F2CA6404ADF7951ED874CE57F4BE47E4CE6804CE7811C
+          9B3369B975F9FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          5AAD5A23B74733CB6733CA6532CA6520AA4531BC565EF99359F38D58F18B57F0
+          8A58F18B48D56F39BA5452EA8452EC8650E9834DE6804FEB8549E07A16942C8F
+          D399FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          4CA94C22B3452DC15C2BBD571DA8423ECE6861FB955CF58F59F28C58F28C59F2
+          8C4BD87246D06A55F08A53ED8751EA844FE88253EE8845D8721A942FB0E1B9FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          3EA33E21AD4327B34E20AA444BDF7962FC965DF7915BF48E5AF38D59F38D53E1
+          7B51E27C59F28C54EE8853EC8653ED8756F28C3DCD67279A3CCCECD2FFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          309D301FA93F25B54F56EC8662FC965DF6905DF6905DF6905CF6905BF08A58EE
+          8859F38D57F18B55EE8856EF8959F69033C05A3EA852E2F6E6FFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          30AF4530C25C5DF79161FA945FF8925FF8925FF8925EF7915DF6905EF58F5BF5
+          8F59F28C59F28C59F28C5AF7912DB5505AB86FF2FAF3FFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          34BD5B61FA9562FB9561FA9564FD9763FC9760F9935FF8925EF7915DF6905BF4
+          8E5BF48E5BF58F59F48E26AE467CD090FBFDFBFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          4CC5705CF48E63FC9667FF9B4BE4775CF58E65FE9960F9935FF8925DF6905DF6
+          905EF89256EE8823AB449EE3AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          62CE8455EE8866FF9B3BD45E0EA7271AB33D66FF9A62FB9561FA945FF89262FB
+          954FE57F29AE4ABDEDC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          77D59550E78166FF9B41DA65019A0C10A92567FF9B61FA9461FB9564FF9A46DA
+          7438B457D7F5DEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          8BDDA54DE37E66FF9968FF9E54ED7F62FB9465FE9963FC9665FF9A3ED06A4FBF
+          6CE8F9EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          9EE3B43CD36D5AF28C67FF9B68FF9D66FF9A63FD9766FE9836C6616CCD88F6FD
+          F9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          E5FBEC9DEEB762DF8932C4603ACE694CE27C5BF38D31C35D8DE5A8FDFEFDFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFF4FDF6C1ECCE86D99F4DC571ACEBBFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = SpeedButton5Click
       end
       object sqlCheckConflicts: TMemo
         Left = 1120
@@ -4376,7 +4486,6 @@ inherited FMain: TFMain
         NumGlyphs = 2
       end
       object congroup: TEdit
-        Tag = 67108864
         Left = 80
         Top = 55
         Width = 69
@@ -4387,7 +4496,6 @@ inherited FMain: TFMain
         OnChange = congroupChange
       end
       object CONGROUP_value: TEdit
-        Tag = 67108864
         Left = 88
         Top = 55
         Width = 537
@@ -4400,7 +4508,6 @@ inherited FMain: TFMain
         OnKeyUp = CONGROUP_valueKeyUp
       end
       object conResCat0: TEdit
-        Tag = 67108864
         Left = 80
         Top = 79
         Width = 65
@@ -4411,7 +4518,6 @@ inherited FMain: TFMain
         OnChange = conResCat0Change
       end
       object conResCat0_value: TEdit
-        Tag = 67108864
         Left = 88
         Top = 79
         Width = 537
@@ -4424,7 +4530,6 @@ inherited FMain: TFMain
         OnKeyUp = conResCat0_valueKeyUp
       end
       object CONSUBJECT: TEdit
-        Tag = 67108864
         Left = 896
         Top = 78
         Width = 73
@@ -4435,7 +4540,6 @@ inherited FMain: TFMain
         OnChange = CONSUBJECTChange
       end
       object CONSUBJECT_value: TEdit
-        Tag = 67108864
         Left = 904
         Top = 78
         Width = 297
@@ -4446,7 +4550,6 @@ inherited FMain: TFMain
         OnDblClick = CONSUBJECT_valueDblClick
       end
       object conlecturer: TEdit
-        Tag = 67108864
         Left = 80
         Top = 31
         Width = 65
@@ -4457,7 +4560,6 @@ inherited FMain: TFMain
         OnChange = conlecturerChange
       end
       object CONLECTURER_value: TEdit
-        Tag = 67108864
         Left = 88
         Top = 31
         Width = 537
@@ -4470,7 +4572,6 @@ inherited FMain: TFMain
         OnKeyUp = CONLECTURER_valueKeyUp
       end
       object ShowFreeTermsL: TCheckBox
-        Tag = 67108864
         Left = 678
         Top = 35
         Width = 19
@@ -4496,7 +4597,6 @@ inherited FMain: TFMain
           'Zaj'#281'tych:6,7,8')
       end
       object conPeriod: TEdit
-        Tag = 67108864
         Left = 896
         Top = 31
         Width = 68
@@ -4507,7 +4607,6 @@ inherited FMain: TFMain
         OnChange = conPeriodChange
       end
       object CONPERIOD_VALUE: TEdit
-        Tag = 67108864
         Left = 904
         Top = 31
         Width = 297
@@ -4518,7 +4617,6 @@ inherited FMain: TFMain
         OnDblClick = CONPERIOD_VALUEDblClick
       end
       object ShowFreeTermsG: TCheckBox
-        Tag = 67108864
         Left = 678
         Top = 59
         Width = 19
@@ -4544,7 +4642,6 @@ inherited FMain: TFMain
           'Zaj'#281'tych:6,7,8')
       end
       object ShowFreeTermsR: TCheckBox
-        Tag = 67108864
         Left = 678
         Top = 83
         Width = 19
@@ -4606,7 +4703,6 @@ inherited FMain: TFMain
         OnClick = rorRClick
       end
       object CONFORM: TEdit
-        Tag = 67108864
         Left = 898
         Top = 102
         Width = 73
@@ -4617,7 +4713,6 @@ inherited FMain: TFMain
         OnChange = CONFORMChange
       end
       object CONFORM_VALUE: TEdit
-        Tag = 67108864
         Left = 904
         Top = 102
         Width = 297
@@ -4628,7 +4723,6 @@ inherited FMain: TFMain
         OnDblClick = CONFORM_VALUEDblClick
       end
       object RespectCompletions: TCheckBox
-        Tag = 67108864
         Left = 775
         Top = 13
         Width = 96
@@ -4639,7 +4733,6 @@ inherited FMain: TFMain
         OnClick = ShowFreeTermsLClick
       end
       object conRole: TEdit
-        Tag = 67108864
         Left = 896
         Top = 54
         Width = 68
@@ -4650,7 +4743,6 @@ inherited FMain: TFMain
         OnChange = conRoleChange
       end
       object CONROLE_VALUE: TEdit
-        Tag = 67108864
         Left = 904
         Top = 54
         Width = 297
@@ -4661,7 +4753,6 @@ inherited FMain: TFMain
         OnDblClick = CONROLE_VALUEDblClick
       end
       object conResCat1: TEdit
-        Tag = 67108864
         Left = 80
         Top = 103
         Width = 65
@@ -4672,7 +4763,6 @@ inherited FMain: TFMain
         OnChange = conResCat1Change
       end
       object conResCat1_value: TEdit
-        Tag = 67108864
         Left = 88
         Top = 103
         Width = 537
@@ -4697,7 +4787,6 @@ inherited FMain: TFMain
         OnClick = rorResCat1Click
       end
       object ShowFreeTermsResCat1: TCheckBox
-        Tag = 67108864
         Left = 678
         Top = 107
         Width = 19
@@ -4723,7 +4812,6 @@ inherited FMain: TFMain
           'Zaj'#281'tych:6,7,8')
       end
       object DrawSuppressionS: TCheckBox
-        Tag = 67108864
         Left = 1206
         Top = 78
         Width = 16
@@ -4733,7 +4821,6 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object DrawSuppressionF: TCheckBox
-        Tag = 67108864
         Left = 1206
         Top = 102
         Width = 16
@@ -4743,8 +4830,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 950
-        Top = 68
+        Left = 1102
+        Top = 84
         Width = 497
         Height = 97
         TabOrder = 35
@@ -4999,9 +5086,9 @@ inherited FMain: TFMain
     end
     object TreeView1: TTreeView
       Left = 1
-      Top = 49
+      Top = 89
       Width = 298
-      Height = 772
+      Height = 732
       Align = alClient
       HotTrack = True
       Images = ImageList
@@ -5018,12 +5105,12 @@ inherited FMain: TFMain
       Left = 1
       Top = 1
       Width = 298
-      Height = 48
+      Height = 88
       Align = alTop
       TabOrder = 1
       DesignSize = (
         298
-        48)
+        88)
       object BFastSearchNew: TSpeedButton
         Left = 1
         Top = 4
@@ -5134,7 +5221,7 @@ inherited FMain: TFMain
         ShowHint = True
         OnClick = BFastSearchNewClick
       end
-      object SearchMenu: TEdit
+      object SearchMenu1: TEdit
         Left = 40
         Top = 11
         Width = 249
@@ -5142,9 +5229,33 @@ inherited FMain: TFMain
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         Text = 'Szukaj...'
-        OnChange = SearchMenuChange
-        OnClick = SearchMenuClick
-        OnExit = SearchMenuExit
+        OnChange = SearchMenu1Change
+        OnClick = SearchMenu1Click
+        OnExit = SearchMenu1Exit
+      end
+      object SearchMenu2: TEdit
+        Left = 40
+        Top = 35
+        Width = 249
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 1
+        Text = 'Szukaj...'
+        OnChange = SearchMenu1Change
+        OnClick = SearchMenu1Click
+        OnExit = SearchMenu1Exit
+      end
+      object SearchMenu3: TEdit
+        Left = 40
+        Top = 59
+        Width = 249
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 2
+        Text = 'Szukaj...'
+        OnChange = SearchMenu1Change
+        OnClick = SearchMenu1Click
+        OnExit = SearchMenu1Exit
       end
     end
     object FastQueryString: TMemo
@@ -5157,55 +5268,55 @@ inherited FMain: TFMain
         
           'select '#39'L'#39' type, m.id, m.title ||'#39' '#39'|| m.first_name ||'#39' '#39'|| m.la' +
           'st_name || decode(o.name,null,null,'#39'    ('#39'||o.name||'#39')'#39') name fr' +
-          'om lecturers m, org_units o where (%PERMISSIONS_L) and m.ORGUNI_' +
-          'ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.a' +
-          'bbreviation||m.title||m.first_name||m.last_name||m.email|| m.att' +
-          'ribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05|' +
-          '|m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attri' +
-          'bs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m' +
-          '.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :s1 || '#39'%'#39')'
+          'om lecturers m, org_units o where (%A_PERMISSIONS_L) and m.ORGUN' +
+          'I_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m' +
+          '.abbreviation||m.title||m.first_name||m.last_name||m.email|| m.a' +
+          'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
+          '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
+          'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
+          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sa1 || '#39'%'#39')'
         'union all'
         
           'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
-          '||o.name||'#39')'#39') name from groups m, org_units o where (%PERMISSIO' +
-          'NS_G) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChar' +
-          's(upper(o.name||m.name||m.abbreviation||m.email||m.desc1||m.desc' +
-          '2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.att' +
-          'ribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09|' +
-          '|m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attri' +
-          'bs_14||m.attribs_15)) like '#39'%'#39'|| :s2 || '#39'%'#39' )'
+          '||o.name||'#39')'#39') name from groups m, org_units o where (%A_PERMISS' +
+          'IONS_G) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishCh' +
+          'ars(upper(o.name||m.name||m.abbreviation||m.email||m.desc1||m.de' +
+          'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
+          'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
+          '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
+          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sa2 || '#39'%'#39' )'
         'union all'
         
           'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
           'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
-          ' o where rescat_id=-9 and (%PERMISSIONS_C) and m.ORGUNI_ID = o.i' +
-          'd(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.d' +
-          'esc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_0' +
-          '2||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.att' +
-          'ribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11|' +
-          '|m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39 +
-          '%'#39'|| :s3 || '#39'%'#39')'
+          ' o where rescat_id=-9 and (%A_PERMISSIONS_C) and m.ORGUNI_ID = o' +
+          '.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m' +
+          '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
+          '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
+          'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
+          ' '#39'%'#39'|| :sa3 || '#39'%'#39')'
         'union all'
         
           'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
           'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
-          ' o where rescat_id<>-9 and (%PERMISSIONS_R) and m.ORGUNI_ID = o.' +
-          'id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.' +
-          'desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_' +
-          '02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.at' +
-          'tribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11' +
-          '||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like ' +
-          #39'%'#39'|| :s4 || '#39'%'#39')'
+          ' o where rescat_id<>-9 and (%A_PERMISSIONS_R) and m.ORGUNI_ID = ' +
+          'o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||' +
+          'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
+          's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
+          'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
+          'e '#39'%'#39'|| :sa4 || '#39'%'#39')'
         'union all'
         
           'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
-          '||o.name||'#39')'#39') from subjects m, org_units o where (%PERMISSIONS_' +
-          'S) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars(u' +
-          'pper(o.name||m.abbreviation||m.desc1||m.desc2||m.name|| m.attrib' +
-          's_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.' +
-          'attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_' +
-          '10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.at' +
-          'tribs_15)) like '#39'%'#39'|| :s5 || '#39'%'#39' )'
+          '||o.name||'#39')'#39') from subjects m, org_units o where (%A_PERMISSION' +
+          'S_S) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars' +
+          '(upper(o.name||m.abbreviation||m.desc1||m.desc2||m.name|| m.attr' +
+          'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
+          'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
+          's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
+          'attribs_15)) like '#39'%'#39'|| :sa5 || '#39'%'#39' )'
         'union all'
         
           'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
@@ -5213,7 +5324,135 @@ inherited FMain: TFMain
           '.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs' +
           '_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.a' +
           'ttribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_1' +
-          '5)) like '#39'%'#39'|| :s6 || '#39'%'#39' )'
+          '5)) like '#39'%'#39'|| :sa6 || '#39'%'#39' )'
+        ''
+        'union all'
+        ''
+        
+          'select '#39'L'#39' type, m.id, m.title ||'#39' '#39'|| m.first_name ||'#39' '#39'|| m.la' +
+          'st_name || decode(o.name,null,null,'#39'    ('#39'||o.name||'#39')'#39') name fr' +
+          'om lecturers m, org_units o where (%B_PERMISSIONS_L) and m.ORGUN' +
+          'I_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m' +
+          '.abbreviation||m.title||m.first_name||m.last_name||m.email|| m.a' +
+          'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
+          '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
+          'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
+          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sb1 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
+          '||o.name||'#39')'#39') name from groups m, org_units o where (%B_PERMISS' +
+          'IONS_G) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishCh' +
+          'ars(upper(o.name||m.name||m.abbreviation||m.email||m.desc1||m.de' +
+          'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
+          'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
+          '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
+          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sb2 || '#39'%'#39' )'
+        'union all'
+        
+          'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
+          'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
+          ' o where rescat_id=-9 and (%B_PERMISSIONS_C) and m.ORGUNI_ID = o' +
+          '.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m' +
+          '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
+          '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
+          'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
+          ' '#39'%'#39'|| :sb3 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
+          'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
+          ' o where rescat_id<>-9 and (%B_PERMISSIONS_R) and m.ORGUNI_ID = ' +
+          'o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||' +
+          'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
+          's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
+          'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
+          'e '#39'%'#39'|| :sb4 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
+          '||o.name||'#39')'#39') from subjects m, org_units o where (%B_PERMISSION' +
+          'S_S) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars' +
+          '(upper(o.name||m.abbreviation||m.desc1||m.desc2||m.name|| m.attr' +
+          'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
+          'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
+          's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
+          'attribs_15)) like '#39'%'#39'|| :sb5 || '#39'%'#39' )'
+        'union all'
+        
+          'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
+          'erasePolishChars(upper(m.name||m.desc1||m.desc2||m.attribs_01||m' +
+          '.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs' +
+          '_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.a' +
+          'ttribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_1' +
+          '5)) like '#39'%'#39'|| :sb6 || '#39'%'#39' )'
+        ''
+        'union all'
+        ''
+        ''
+        
+          'select '#39'L'#39' type, m.id, m.title ||'#39' '#39'|| m.first_name ||'#39' '#39'|| m.la' +
+          'st_name || decode(o.name,null,null,'#39'    ('#39'||o.name||'#39')'#39') name fr' +
+          'om lecturers m, org_units o where (%C_PERMISSIONS_L) and m.ORGUN' +
+          'I_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m' +
+          '.abbreviation||m.title||m.first_name||m.last_name||m.email|| m.a' +
+          'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
+          '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
+          'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
+          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sc1 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
+          '||o.name||'#39')'#39') name from groups m, org_units o where (%C_PERMISS' +
+          'IONS_G) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishCh' +
+          'ars(upper(o.name||m.name||m.abbreviation||m.email||m.desc1||m.de' +
+          'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
+          'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
+          '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
+          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sc2 || '#39'%'#39' )'
+        'union all'
+        
+          'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
+          'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
+          ' o where rescat_id=-9 and (%C_PERMISSIONS_C) and m.ORGUNI_ID = o' +
+          '.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m' +
+          '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
+          '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
+          'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
+          ' '#39'%'#39'|| :sc3 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
+          'ame,null,null,'#39'    ('#39'||o.name||'#39')'#39') name from rooms m, org_units' +
+          ' o where rescat_id<>-9 and (%C_PERMISSIONS_R) and m.ORGUNI_ID = ' +
+          'o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||' +
+          'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
+          's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
+          'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
+          'e '#39'%'#39'|| :sc4 || '#39'%'#39')'
+        'union all'
+        
+          'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
+          '||o.name||'#39')'#39') from subjects m, org_units o where (%C_PERMISSION' +
+          'S_S) and m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars' +
+          '(upper(o.name||m.abbreviation||m.desc1||m.desc2||m.name|| m.attr' +
+          'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
+          'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
+          's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
+          'attribs_15)) like '#39'%'#39'|| :sc5 || '#39'%'#39' )'
+        'union all'
+        
+          'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
+          'erasePolishChars(upper(m.name||m.desc1||m.desc2||m.attribs_01||m' +
+          '.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs' +
+          '_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.a' +
+          'ttribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_1' +
+          '5)) like '#39'%'#39'|| :sc6 || '#39'%'#39' )'
+        ''
         ') where rownum <= %LIMIT')
       TabOrder = 2
       Visible = False
@@ -5246,8 +5485,14 @@ inherited FMain: TFMain
         ' where p.id = tt.per_id'
         '   and r.id = tt.res_id'
         
-          '   and xxmsz_tools.erasePolishChars(upper(notes_before||notes_af' +
-          'ter||internal_notes)) like '#39'%'#39'|| :s || '#39'%'#39
+          '   and (xxmsz_tools.erasePolishChars(upper(notes_before||notes_a' +
+          'fter||internal_notes)) like '#39'%'#39'|| :sa || '#39'%'#39
+        
+          '   or xxmsz_tools.erasePolishChars(upper(notes_before||notes_aft' +
+          'er||internal_notes)) like '#39'%'#39'|| :sb || '#39'%'#39
+        
+          '   or xxmsz_tools.erasePolishChars(upper(notes_before||notes_aft' +
+          'er||internal_notes)) like '#39'%'#39'|| :sc || '#39'%'#39')'
         '   and rownum <= %LIMIT')
       TabOrder = 3
       Visible = False
@@ -5883,6 +6128,16 @@ inherited FMain: TFMain
       object Odwie1: TMenuItem
         Caption = 'Od'#347'wie'#380
         GroupIndex = 2
+      end
+      object N24: TMenuItem
+        Caption = '-'
+        GroupIndex = 2
+      end
+      object Pulpit1: TMenuItem
+        Caption = 'Prze'#322#261'cz pulpit'
+        GroupIndex = 3
+        RadioItem = True
+        OnClick = Pulpit1Click
       end
     end
     object Sowniki1: TMenuItem

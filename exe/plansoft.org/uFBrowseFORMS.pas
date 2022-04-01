@@ -63,7 +63,10 @@ type
     Procedure AfterPost; override;
     Function  canEditPermission : Boolean;   override;
     Function  canInsert    : Boolean;        override;
-    Function  canDelete    : Boolean;        override;  end;
+    Function  canDelete    : Boolean;        override;
+    Function  getSearchFilter : string;  override;
+    function getFindCaption: string;    override;
+  end;
 
 var
   FBrowseFORMS: TFBrowseFORMS;
@@ -234,6 +237,16 @@ procedure TFBrowseFORMS.BUpdChild3Click(Sender: TObject);
 begin
    FSharing.init('U','FOR',ID.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+function TFBrowseFORMS.getSearchFilter: string;
+begin
+ result := format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(ESearch.Text)) ) ]);    
+ end;
+
+function TFBrowseFORMS.getFindCaption: string;
+begin
+ Result := 'Dowolna fraza';
 end;
 
 end.

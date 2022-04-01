@@ -4,13 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Buttons, UFMain, UFormConfig;
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Buttons, UFMain, UFormConfig, UCommon;
 
 type
   TFCellLayout = class(TFormConfig)
     GroupBox2: TGroupBox;
     selectFill: TSpeedButton;
-    Coloring: TComboBox;
+    CellColor: TComboBox;
     GroupBox1: TGroupBox;
     Image1: TImage;
     BCellReset: TSpeedButton;
@@ -32,7 +32,7 @@ type
     D8: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure cellTimerTimer(Sender: TObject);
-    procedure ColoringChange(Sender: TObject);
+    procedure CellColorChange(Sender: TObject);
     procedure selectFillClick(Sender: TObject);
     procedure D1Change(Sender: TObject);
     procedure ForceCellWidthClick(Sender: TObject);
@@ -57,6 +57,7 @@ type
     procedure displayCellLayout(immediate : boolean);
     procedure hideCellLayout(immediate : boolean);
     procedure setupWindow;
+    procedure refreshLayout;
   end;
 
 var
@@ -128,7 +129,7 @@ begin
   End;
 end;
 
-procedure TFCellLayout.ColoringChange(Sender: TObject);
+procedure TFCellLayout.CellColorChange(Sender: TObject);
 begin
  Fmain.ColoringChange(sender);
 end;
@@ -140,27 +141,30 @@ end;
 
 procedure TFCellLayout.D1Change(Sender: TObject);
 begin
- fmain.D1Change(sender);
+ refreshLayout;
 end;
 
-procedure TFCellLayout.ForceCellWidthClick(Sender: TObject);
-begin
- fmain.ForceCellHeightClick(sender);
-end;
 
 procedure TFCellLayout.ForcedCellWidthChange(Sender: TObject);
 begin
- fmain.ForcedCellHeightChange(sender);
+ if fmain.CanBuildCalendar then
+   fmain.refreshGrid;
 end;
 
 procedure TFCellLayout.ForcedCellHeightChange(Sender: TObject);
 begin
- fmain.ForcedCellHeightChange(sender);
+ if fmain.CanBuildCalendar then
+   fmain.refreshGrid;
+end;
+
+procedure TFCellLayout.ForceCellWidthClick(Sender: TObject);
+begin
+ refreshLayout;
 end;
 
 procedure TFCellLayout.ForceCellHeightClick(Sender: TObject);
 begin
- fmain.ForceCellHeightClick(sender);
+ refreshLayout;
 end;
 
 procedure TFCellLayout.BCellResetClick(Sender: TObject);
@@ -227,6 +231,36 @@ procedure TFCellLayout.FormClose(Sender: TObject;
 begin
   inherited;
  {.}
+end;
+
+procedure TFCellLayout.refreshLayout;
+begin
+ With FMain do begin
+	 If getCode(D1) = 'NONE' Then Begin D1.ItemIndex := D2.ItemIndex; D2.ItemIndex := getItemIndex(D2, 'NONE'); End;
+	 If getCode(D2) = 'NONE' Then Begin D2.ItemIndex := D3.ItemIndex; D3.ItemIndex := getItemIndex(D3, 'NONE'); End;
+	 If getCode(D3) = 'NONE' Then Begin D3.ItemIndex := D4.ItemIndex; D4.ItemIndex := getItemIndex(D4, 'NONE'); End;
+	 If getCode(D4) = 'NONE' Then Begin D4.ItemIndex := D5.ItemIndex; D5.ItemIndex := getItemIndex(D5, 'NONE'); End;
+	 If getCode(D5) = 'NONE' Then Begin D5.ItemIndex := D6.ItemIndex; D6.ItemIndex := getItemIndex(D6, 'NONE'); End;
+	 If getCode(D6) = 'NONE' Then Begin D6.ItemIndex := D7.ItemIndex; D7.ItemIndex := getItemIndex(D7, 'NONE'); End;
+	 If getCode(D7) = 'NONE' Then Begin D7.ItemIndex := D8.ItemIndex; D8.ItemIndex := getItemIndex(D8, 'NONE'); End;
+
+	 D2.Visible := D1.ItemIndex <> getItemIndex(D1, 'NONE');
+	 D3.Visible := D2.ItemIndex <> getItemIndex(D2, 'NONE');
+	 D4.Visible := D3.ItemIndex <> getItemIndex(D3, 'NONE');
+	 D5.Visible := D4.ItemIndex <> getItemIndex(D4, 'NONE');
+	 D6.Visible := D5.ItemIndex <> getItemIndex(D5, 'NONE');
+	 D7.Visible := D6.ItemIndex <> getItemIndex(D6, 'NONE');
+	 D8.Visible := D7.ItemIndex <> getItemIndex(D7, 'NONE');
+
+   FcellLayout.ForcedCellHeight.Visible := FcellLayout.ForceCellHeight.Checked;
+   FcellLayout.ForcedCellWidth.Visible  := FcellLayout.ForceCellWidth.Checked;
+
+   If CanShow Then Begin
+     RefreshGrid;
+   End;
+
+ end;
+
 end;
 
 end.

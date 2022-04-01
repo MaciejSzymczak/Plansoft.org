@@ -509,7 +509,7 @@ type
     SearchPanel: TPanel;
     TreeView1: TTreeView;
     Panel1: TPanel;
-    SearchMenu: TEdit;
+    SearchMenu1: TEdit;
     SwitchMenu: TSpeedButton;
     FastQuery: TADOQuery;
     FastQueryString: TMemo;
@@ -604,6 +604,11 @@ type
     USOSIntegracja1: TMenuItem;
     Listaobecno1: TMenuItem;
     attendanceList: TADOQuery;
+    N24: TMenuItem;
+    Pulpit1: TMenuItem;
+    SearchMenu2: TEdit;
+    SearchMenu3: TEdit;
+    SpeedButton5: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -619,7 +624,6 @@ type
     procedure conPeriodChange(Sender: TObject);
     procedure zoomInClick(Sender: TObject);
     procedure zoomOutClick(Sender: TObject);
-    procedure NormalClick(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure BAddClassClick(Sender: TObject);
@@ -639,7 +643,6 @@ type
     procedure GridDblClick(Sender: TObject);
     procedure GridSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
-    procedure D1Change(Sender: TObject);
     procedure Ustawieniaprogramu1Click(Sender: TObject);
     procedure mmprofileObjectNamePlannersClick(Sender: TObject);
     procedure Uprawnieniadoobiektw1Click(Sender: TObject);
@@ -805,10 +808,8 @@ type
     procedure rorResCat1Click(Sender: TObject);
     procedure Wicej1Click(Sender: TObject);
     procedure BRescat1Click(Sender: TObject);
-    procedure ForceCellHeightClick(Sender: TObject);
     procedure BRescat0Click(Sender: TObject);
     procedure gridFontApply(Sender: TObject; Wnd: HWND);
-    procedure ForcedCellHeightChange(Sender: TObject);
     procedure Image1Click(Sender: TObject);
     procedure GridMouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
@@ -877,7 +878,7 @@ type
     procedure selectResCat1Click(Sender: TObject);
     procedure CONPERIOD_VALUEClick(Sender: TObject);
     procedure CONROLE_VALUEClick(Sender: TObject);
-    procedure SearchMenuChange(Sender: TObject);
+    procedure SearchMenu1Change(Sender: TObject);
     procedure TreeView1Click(Sender: TObject);
     procedure SwitchMenuClick(Sender: TObject);
     procedure Penyekran1Click(Sender: TObject);
@@ -925,8 +926,8 @@ type
     procedure LeftPanelClick(Sender: TObject);
     procedure GridClick(Sender: TObject);
     procedure TreeModeChange(Sender: TObject);
-    procedure SearchMenuClick(Sender: TObject);
-    procedure SearchMenuExit(Sender: TObject);
+    procedure SearchMenu1Click(Sender: TObject);
+    procedure SearchMenu1Exit(Sender: TObject);
     procedure TreeModeCleanupClick(Sender: TObject);
     procedure BShowCellLayoutClick(Sender: TObject);
     procedure BShowCellLayoutMouseMove(Sender: TObject; Shift: TShiftState;
@@ -940,8 +941,9 @@ type
     procedure PreviewClick(Sender: TObject);
     procedure USOSIntegracja1Click(Sender: TObject);
     procedure Listaobecno1Click(Sender: TObject);
+    procedure Pulpit1Click(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
   private
-    CanShow   : boolean;
     resizeMode: boolean;
     timerShapes : integer;
     GridSelectionLeft : integer;
@@ -954,9 +956,8 @@ type
     SearchCounter   : Integer;
     userLogged : boolean;
     ignoreEvents : boolean;
-    Procedure start;
+    activePulpit : integer;
     Procedure stop;
-    Procedure refreshGrid;
     procedure setPeriod;
     Procedure fillPanel(Col, Row: Integer);
     Procedure setVisibles;
@@ -971,14 +972,15 @@ type
     procedure _selectResCat1 (clearList : boolean);
     procedure onpResCatId1Change;
     procedure onpResCatId0Change;
-    procedure saveFormSettings;
-    procedure loadFormSettings;
     procedure GenerateWWW(pgentype : integer);
     procedure commandLineWwwGenerator (inifilename : string);
     procedure commandLineGrouping     (inifilename : string);
-    Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter : string);
+    Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
     procedure updateLeftPanel;
   public
+    CanShow            : boolean;
+    CanBuildCalendar   : boolean;
+
     MapLecNames : TMap;
     MapLecColors : TMap;
     MapGroColors : TMap;
@@ -1064,6 +1066,12 @@ type
     procedure AddClassToGrid(firstResourceFlag : boolean);
     procedure OpenFGrouping(resourceType : String; resourceId : String);
     procedure propagateDependencyChanges(parentId : String; res_type : String );
+    Procedure refreshGrid;
+    //--
+    procedure LoadPulpit;
+    procedure SavePulpit;
+    procedure ResetPulpit;
+    procedure SetActivePulpit(pulpitIndex : integer; resetPulpitFlag : boolean);
   end;
 
 var
@@ -1092,7 +1100,7 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout, UFListOrganizer, UFSUSOS;
+  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector;
 
 var dummy : string;
 
@@ -1916,13 +1924,6 @@ begin
  end;
 end;
 
-Procedure TFMain.Start;
-Begin
- If GetSystemParam('SAVERESOURCES') = 'No' Then Begin
-  //AutoCreate.LECTURERSCreate;
- End;
-End;
-
 Procedure TFMain.Stop;
 Begin
   AutoCreate.LECTURERSFree;
@@ -1978,6 +1979,7 @@ begin
   init;
 
  CanShow := False;
+ CanBuildCalendar := true;
  resizeMode := false;
  inherited;
  //UUtilities.OpisujKolumneZajec.internalCreate;
@@ -2129,6 +2131,7 @@ var  colCnt, rowCnt : integer;
 
 Begin
   if not canShow Then exit;
+  if not CanBuildCalendar then exit;
   Cursor := crHourGlass;
 
   if instr('L#G#R',triggeredObject)<>0 then
@@ -2251,7 +2254,7 @@ Begin
   LprofileObjectNameC1.Visible   := not isBlank(conPeriod.Text);
   ConSubject_value.Visible       := not isBlank(conPeriod.Text);
   //BitBtnSUB.Visible              := not isBlank(conPeriod.Text);
-  FcellLayout.Coloring.Visible     := not isBlank(conPeriod.Text);
+  FcellLayout.CellColor.Visible     := not isBlank(conPeriod.Text);
   FcellLayout.selectFill.Visible   := not isBlank(conPeriod.Text);
   FcellLayout.DESCRIPTIONS.Visible := not isBlank(conPeriod.Text);
 End;
@@ -2269,30 +2272,6 @@ begin
     gridFont.Font.Size := gridFont.Font.Size - 1;
     RefreshGrid;
   End;
-end;
-
-procedure TFMain.NormalClick(Sender: TObject);
-begin
- If getCode(FcellLayout.D1) = 'NONE' Then Begin FcellLayout.D1.ItemIndex := FcellLayout.D2.ItemIndex; FcellLayout.D2.ItemIndex := getItemIndex(FcellLayout.D2, 'NONE'); End;
- If getCode(FcellLayout.D2) = 'NONE' Then Begin FcellLayout.D2.ItemIndex := FcellLayout.D3.ItemIndex; FcellLayout.D3.ItemIndex := getItemIndex(FcellLayout.D3, 'NONE'); End;
- If getCode(FcellLayout.D3) = 'NONE' Then Begin FcellLayout.D3.ItemIndex := FcellLayout.D4.ItemIndex; FcellLayout.D4.ItemIndex := getItemIndex(FcellLayout.D4, 'NONE'); End;
- If getCode(FcellLayout.D4) = 'NONE' Then Begin FcellLayout.D4.ItemIndex := FcellLayout.D5.ItemIndex; FcellLayout.D5.ItemIndex := getItemIndex(FcellLayout.D5, 'NONE'); End;
- If getCode(FcellLayout.D5) = 'NONE' Then Begin FcellLayout.D5.ItemIndex := FcellLayout.D6.ItemIndex; FcellLayout.D6.ItemIndex := getItemIndex(FcellLayout.D6, 'NONE'); End;
- If getCode(FcellLayout.D6) = 'NONE' Then Begin FcellLayout.D6.ItemIndex := FcellLayout.D7.ItemIndex; FcellLayout.D7.ItemIndex := getItemIndex(FcellLayout.D7, 'NONE'); End;
- If getCode(FcellLayout.D7) = 'NONE' Then Begin FcellLayout.D7.ItemIndex := FcellLayout.D8.ItemIndex; FcellLayout.D8.ItemIndex := getItemIndex(FcellLayout.D8, 'NONE'); End;
-
- FcellLayout.D2.Visible := FcellLayout.D1.ItemIndex <> getItemIndex(FcellLayout.D1, 'NONE');
- FcellLayout.D3.Visible := FcellLayout.D2.ItemIndex <> getItemIndex(FcellLayout.D2, 'NONE');
- FcellLayout.D4.Visible := FcellLayout.D3.ItemIndex <> getItemIndex(FcellLayout.D3, 'NONE');
- FcellLayout.D5.Visible := FcellLayout.D4.ItemIndex <> getItemIndex(FcellLayout.D4, 'NONE');
- FcellLayout.D6.Visible := FcellLayout.D5.ItemIndex <> getItemIndex(FcellLayout.D5, 'NONE');
- FcellLayout.D7.Visible := FcellLayout.D6.ItemIndex <> getItemIndex(FcellLayout.D6, 'NONE');
- FcellLayout.D8.Visible := FcellLayout.D7.ItemIndex <> getItemIndex(FcellLayout.D7, 'NONE');
-
- //Grid.DefaultColWidth := 28;
- If CanShow Then Begin
-   RefreshGrid;
- End;
 end;
 
 procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
@@ -2489,7 +2468,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                    Grid.Canvas.Brush.Color := clWhite;
                    If Counter > 0 Then
                    Begin
-                     If getCode(FcellLayout.Coloring)  <> 'NONE' Then Begin
+                     If getCode(FcellLayout.CellColor)  <> 'NONE' Then Begin
                        Rect.Top    := Rect.Top    + 1;
                        Rect.Left   := Rect.Left   + 1;
                        Rect.Bottom := Rect.Top + Round((Rect.Bottom - Rect.Top) * Class_.FILL/100);
@@ -2660,7 +2639,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 
     //draw rect
     Begin
-      code := getCode(FcellLayout.Coloring);
+      code := getCode(FcellLayout.CellColor);
       if code = 'L'          then DrawL         else
       if code = 'G'          then DrawG         else
       if code = 'S'          then DrawS         else
@@ -3172,7 +3151,6 @@ procedure TFMain.Cofnij1Click(Sender: TObject);
 begin
   Dmodule.RollbackTrans;
   BRefreshClick(nil);
-  RefreshGrid;
   //
   AutoSaveCounterDown := -1;
   StatusBar.Panels[0].Text:=''; //saved
@@ -3180,7 +3158,11 @@ end;
 
 procedure TFMain.Zapisz1Click(Sender: TObject);
 begin
-  dmodule.CommitTrans;
+   if DModule.ADOConnection.Connected then begin
+     DModule.dbSetSystemParam(upperCase(username)+'.ACTIVEPULPIT',  IntToStr(activePulpit) );
+     SavePulpit;
+     dmodule.CommitTrans;
+   end;
   AutoSaveCounterDown := -1;
   StatusBar.Panels[0].Text:=''; //saved
 end;
@@ -3646,6 +3628,11 @@ procedure TFMain.buildMenu;
          Clear;
          AddObject(fprogramSettings.profileObjectNameL.Text, TString.Create('L')         );
          AddObject(fprogramSettings.profileObjectNameG.Text, TString.Create('G')         );
+         AddObject(fprogramSettings.profileObjectNameC1.Text, TString.Create('S')         );
+         AddObject(fprogramSettings.profileObjectNameC2.Text, TString.Create('F')         );
+         AddObject('W³aœciciel', TString.Create('OWNER')     );
+         AddObject('Utworzy³'  , TString.Create('CREATED_BY'));
+         AddObject(fprogramSettings.profileObjectNameClass.Text , TString.Create('CLASS')     );
          //
          dmodule.QWork.first;
          while not dmodule.QWork.Eof do begin
@@ -3653,11 +3640,6 @@ procedure TFMain.buildMenu;
           dmodule.QWork.Next;
          end;
          //
-         AddObject(fprogramSettings.profileObjectNameC1.Text, TString.Create('S')         );
-         AddObject(fprogramSettings.profileObjectNameC2.Text, TString.Create('F')         );
-         AddObject('W³aœciciel', TString.Create('OWNER')     );
-         AddObject('Utworzy³'  , TString.Create('CREATED_BY'));
-         AddObject(fprogramSettings.profileObjectNameClass.Text , TString.Create('CLASS')     );
          //red color for description
          if not isBlank(FProgramSettings.getClassDescPlural(1)) then AddObject(FProgramSettings.getClassDescPlural(1), TString.Create('DESC1') );
          if not isBlank(FProgramSettings.getClassDescPlural(2)) then AddObject(FProgramSettings.getClassDescPlural(2), TString.Create('DESC2') );
@@ -3734,7 +3716,7 @@ begin
     QWork.Next;
    end;
  end;
- synchronizeComboboxColor ( FcellLayout.Coloring );
+ synchronizeComboboxColor ( FcellLayout.CellColor );
  synchronizeComboboxColor ( FSettings.LViewType );
  synchronizeComboboxColor ( FSettings.GViewType );
  synchronizeComboboxColor ( FSettings.RViewType );
@@ -4165,8 +4147,6 @@ Var aUserName, aPassword, aDBName : ShortString;
 
 begin
   inherited;
-  //configuration must be loaded before login otherwise on unsecceussful login configuration would be lost
-  LoadFormConfiguration(FCellLayout);
 
   gProvider         := GetSystemParam('Provider', 'OraOLEDB.Oracle.1');
   CanShow           := False;
@@ -4226,6 +4206,8 @@ begin
 
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
+
+  activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
   If Not Assigned(FLegend) Then FLegend := TFLegend.Create(Application);
   dmodule.pResCatId0 := nvl( getSystemParam('RESOURCE_CATEGORY_ID0')  , dmodule.dbgetSystemParam('RESOURCE_CATEGORY_ID0'));
@@ -4354,12 +4336,10 @@ begin
   DBMap.init;
 
   CanShow := True;
-  //ConFormChange(nil);
-  NormalClick(nil);
-  Start;
+  LoadPulpit;
 
-  //rebuild comboboxes in  FCellLayout
-  fmain.D1Change(FCellLayout.D1);
+  //ConFormChange(nil);
+  FCellLayout.refreshLayout;
 
   commandLineProcessing;
 
@@ -4803,11 +4783,6 @@ begin
   FillPanel(ACol, ARow);
 end;
 
-procedure TFMain.D1Change(Sender: TObject);
-begin
-  NormalClick(nil);
-end;
-
 procedure TFMain.Ustawieniaprogramu1Click(Sender: TObject);
 begin
   FLegend.SaveTimeTableNotes;
@@ -5147,7 +5122,6 @@ begin
    end;
 
    BitBtnCLEARROLE.Visible := not isBlank(conRole.Text);
-   loadFormSettings;
 
    Self.Menu := MM;
 
@@ -5195,6 +5169,7 @@ Var KeyValues : String;
 begin
   KeyValue := '';
   If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+   canShow := false;
    if clearList then ConLecturer.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -5206,6 +5181,8 @@ begin
        ConLecturer.Text := Merge(KeyValue, ConLecturer.Text, ';');
      end;
    end;
+   canShow := true;
+   ConLecturerChange (ConGroup);
   End;
 end;
 
@@ -5217,6 +5194,7 @@ Var KeyValues : String;
 begin
   KeyValue := '';
   If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+   canShow := false;
    if clearList then ConGroup.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -5228,27 +5206,8 @@ begin
         ConGroup.Text := Merge(KeyValue, ConGroup.Text, ';');
       end;
    end;
-  End;
-end;
-
-procedure TFMain._selectResCat1 (clearList : boolean);
-Var KeyValues : String;
-    KeyValue  : string;
-    t         : integer;
-begin
-  KeyValue := '';
-  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId1,'',KeyValues,'0=0','') = mrOK Then  Begin
-   if clearList then conResCat1.Text := '';
-   for t := 1 to wordCount(KeyValues, [',']) do begin
-     KeyValue := extractWord(t,KeyValues, [',']);
-     If existsValue(conResCat1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
-      Else begin
-        TabViewType.TabIndex := 3;
-        //conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
-        conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
-      end;
-   end;
+   canShow := true;
+   ConGroupChange (ConGroup);
   End;
 end;
 
@@ -5259,6 +5218,7 @@ Var KeyValues : String;
 begin
   KeyValue := '';
   If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then  Begin
+   canShow := false;
    if clearList then conResCat0.Text := '';
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -5270,6 +5230,33 @@ begin
         conResCat0.Text := Merge(KeyValue, conResCat0.Text, ';');
       end;
    end;
+   canShow := true;
+   conResCat0Change (conResCat0);
+  End;
+end;
+
+
+procedure TFMain._selectResCat1 (clearList : boolean);
+Var KeyValues : String;
+    KeyValue  : string;
+    t         : integer;
+begin
+  KeyValue := '';
+  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId1,'',KeyValues,'0=0','') = mrOK Then  Begin
+   canShow := false;
+   if clearList then conResCat1.Text := '';
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+     If existsValue(conResCat1.Text, [';'], KeyValue)
+      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Else begin
+        TabViewType.TabIndex := 3;
+        //conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
+        conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
+      end;
+   end;
+   canShow := true;
+   conResCat1Change (conResCat1);
   End;
 end;
 
@@ -6443,7 +6430,6 @@ begin
   ShowFreeTermsLClick(nil);
   BLoginClick(nil);
   if not DModule.ADOConnection.Connected then exit;
-  ForceCellHeightClick(nil);
 
   RefreshAfterOnShow.Enabled := true;
   setupFillButton;
@@ -7074,13 +7060,6 @@ begin
 end;
 
 
-procedure TFMain.ForceCellHeightClick(Sender: TObject);
-begin
- FcellLayout.ForcedCellHeight.Visible := FcellLayout.ForceCellHeight.Checked;
- FcellLayout.ForcedCellWidth.Visible  := FcellLayout.ForceCellWidth.Checked;
- refreshGrid;
-end;
-
 procedure TFMain.BRescat1Click(Sender: TObject);
 Var ID : ShortString;
 begin
@@ -7137,11 +7116,15 @@ begin
 
   inherited;
 
+  if DModule.ADOConnection.Connected then
+    DModule.dbSetSystemParam(upperCase(username)+'.ACTIVEPULPIT',  IntToStr(activePulpit) );
+
+  SavePulpit;
+
  if assigned(flegend) then
    if flegend.Visible then FLegend.saveFormSettings;
  FLegend.SaveTimeTableNotes;
 
- saveFormSettings;
  DModule.CloseDBConnection;
  FcellLayout.Close;
  Stop;
@@ -7152,40 +7135,9 @@ begin
  refreshGrid;
 end;
 
-procedure TFMain.ForcedCellHeightChange(Sender: TObject);
-begin
-  refreshGrid;
-end;
-
 procedure TFMain.Image1Click(Sender: TObject);
 begin
  FcellLayout.ForceCellHeight.Checked := not FcellLayout.ForceCellHeight.Checked;
-end;
-
-procedure TFMain.saveFormSettings;
-begin
- SetSystemParam('gridFont.Size', inttostr(gridFont.Font.Size) );
- SetSystemParam('gridFont.Name', gridFont.Font.name);
-
- SetSystemParam('ForceCellWidth', BoolToStr(FcellLayout.ForceCellWidth.Checked) );
- SetSystemParam('ForceCellHeight', BoolToStr(FcellLayout.ForceCellHeight.Checked) );
-
- SetSystemParam('ForcedCellHeight', intToStr(FcellLayout.ForcedCellHeight.position) );
- SetSystemParam('ForcedCellWidth', intToStr(FcellLayout.ForcedCellWidth.position) );
- setSystemParam('RESOURCE_CATEGORY_ID1', dmodule.pResCatId1);
- setSystemParam('RESOURCE_CATEGORY_ID0', dmodule.pResCatId0);
-end;
-
-procedure TFMain.loadFormSettings;
-begin
-  gridFont.Font.Size          := strToInt( getSystemParam('gridFont.Size',  inttostr(grid.Canvas.Font.size)  ) );
-  gridFont.Font.Name          :=           getSystemParam('gridFont.Name',  grid.Canvas.Font.name  );
-
-  FcellLayout.ForceCellHeight.checked  := StrToBool( getSystemParam('ForceCellWidth','-') );
-  FcellLayout.ForceCellWidth.checked   := StrToBool( getSystemParam('ForceCellHeight','-') );
-
-  FcellLayout.ForcedCellHeight.position := strToInt( getSystemParam('ForcedCellHeight','5') );
-  FcellLayout.ForcedCellWidth.position := strToInt( getSystemParam('ForcedCellWidth','5') );
 end;
 
 procedure TFMain.GridMouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -7244,7 +7196,7 @@ procedure TFMain.setupFillButton;
 Var code : string;
 begin
   FcellLayout.selectFill.Visible := true;
-  code := getCode(FcellLayout.Coloring);
+  code := getCode(FcellLayout.CellColor);
   if code = 'L'          then begin
      FillAddIfEmpty.Visible := true;
      FillAdd.Visible := true;
@@ -7373,13 +7325,6 @@ begin
   setupFillButton;
 
   If CanShow Then Begin
-   {If Assigned(FLegend) Then
-   Case ViewType.ItemIndex of
-    0:FLegend.PageControl.ActivePage := FLegend.TabSheetW;
-    1:FLegend.PageControl.ActivePage := FLegend.TabSheetG;
-    2:FLegend.PageControl.ActivePage := FLegend.TabSheetR;
-    3:FLegend.PageControl.ActivePage := FLegend.TabSheetS;
-   End; }
    RefreshGrid;
   End;
 end;
@@ -7631,12 +7576,15 @@ begin
        qwork.Next;
      end;
      CanShow := true;
+     canBuildCalendar := false;
      ConLecturerChange(conlecturer);
      ConGroupChange   (congroup);
      conrescat0Change (conrescat0);
      conrescat1Change (conrescat1);
      consubjectChange (consubject);
      conformChange    (conform);
+     canBuildCalendar := true;
+     BRefreshClick(nil);
    end;
 end;
 
@@ -7919,7 +7867,7 @@ Begin
   End; { Finally }
 End;
 
-Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter : string);
+Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
   Var
     node : TTreenode;
     nodeSEP: TTreenode;
@@ -7994,7 +7942,9 @@ Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter : strin
         if nodeType='TT' then begin result := 24; end;
     end;
 Begin
-    aFilter := replacePolishChars(AnsiUppercase(aFilter));
+    aFilter1 := nvl( replacePolishChars(AnsiUppercase(aFilter1)), '--nosearch--');
+    aFilter2 := nvl( replacePolishChars(AnsiUppercase(aFilter2)), '--nosearch--');
+    aFilter3 := nvl( replacePolishChars(AnsiUppercase(aFilter3)), '--nosearch--');
     nodeL := nil;
     nodeG := nil;
     nodeR := nil;
@@ -8005,23 +7955,52 @@ Begin
     nodeSEP:= nil;
 
     sqlString := fastQueryString.Lines.Text;
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_L', getWhereClause('LECTURERS','m'), []);
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
-    if isBlank(confineCalendarId) then
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_C', getWhereClause('ROOMS','m'), [])
-    else
-    //disable calendar in search panel
-    sqlString := stringreplace(sqlString, '%PERMISSIONS_C', '0=1', []);
+    sqlString := stringreplace(sqlString, '%A_PERMISSIONS_L', getWhereClause('LECTURERS','m'), []);
+    sqlString := stringreplace(sqlString, '%A_PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
+    sqlString := stringreplace(sqlString, '%A_PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
+    sqlString := stringreplace(sqlString, '%A_PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
+
+    sqlString := stringreplace(sqlString, '%B_PERMISSIONS_L', getWhereClause('LECTURERS','m'), []);
+    sqlString := stringreplace(sqlString, '%B_PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
+    sqlString := stringreplace(sqlString, '%B_PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
+    sqlString := stringreplace(sqlString, '%B_PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
+
+    sqlString := stringreplace(sqlString, '%C_PERMISSIONS_L', getWhereClause('LECTURERS','m'), []);
+    sqlString := stringreplace(sqlString, '%C_PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
+    sqlString := stringreplace(sqlString, '%C_PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
+    sqlString := stringreplace(sqlString, '%C_PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
+
+    if isBlank(confineCalendarId) then begin
+      sqlString := stringreplace(sqlString, '%A_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
+      sqlString := stringreplace(sqlString, '%B_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
+      sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
+    end else begin
+      //disable calendar in search panel
+      sqlString := stringreplace(sqlString, '%A_PERMISSIONS_C', '0=1', []);
+      sqlString := stringreplace(sqlString, '%B_PERMISSIONS_C', '0=1', []);
+      sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', '0=1', []);
+    end;
+
     sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','10'), []);
     dmodule.openSQL(fastQuery, sqlString ,
-     's1='+ aFilter+
-     ';s2='+ aFilter+
-     ';s3='+ aFilter+
-     ';s4='+ aFilter+
-     ';s5='+ aFilter+
-     ';s6='+ aFilter
+     'sa1='+ aFilter1+
+     ';sa2='+ aFilter1+
+     ';sa3='+ aFilter1+
+     ';sa4='+ aFilter1+
+     ';sa5='+ aFilter1+
+     ';sa6='+ aFilter1+
+     ';sb1='+ aFilter2+
+     ';sb2='+ aFilter2+
+     ';sb3='+ aFilter2+
+     ';sb4='+ aFilter2+
+     ';sb5='+ aFilter2+
+     ';sb6='+ aFilter2+
+     ';sc1='+ aFilter3+
+     ';sc2='+ aFilter3+
+     ';sc3='+ aFilter3+
+     ';sc4='+ aFilter3+
+     ';sc5='+ aFilter3+
+     ';sc6='+ aFilter3
      );
     with fastQuery do begin
         first;
@@ -8044,7 +8023,11 @@ Begin
     sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
     sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','10'), []);
-    dmodule.openSQL(sqlString,'s='+afilter);
+    dmodule.openSQL(sqlString,
+     'sa='+ aFilter1+
+     ';sb='+ aFilter2+
+     ';sc='+ aFilter3
+    );
     with dmodule.QWork do begin
         first;
         while not dmodule.QWork.Eof do begin
@@ -8100,7 +8083,7 @@ Begin
     aTreeview.FullExpand;
 End;
 
-procedure clearNotMatchingItems(aTreeview: TTreeview; aFilter : string);
+procedure clearNotMatchingItems(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3  : string);
 var
   CurItem: TTreeNode;
   NextItem : TTreeNode;
@@ -8111,20 +8094,25 @@ var
       result := replacePolishChars( ansiuppercase(s) );
   end;
 begin
+  aFilter1 := nvl(aFilter1,'--nosearch--');
+  aFilter2 := nvl(aFilter2,'--nosearch--');
+  aFilter3 := nvl(aFilter3,'--nosearch--');
   For t := 1 to 5 do begin
     CurItem := aTreeview.Items.GetFirstNode;
-    if aFilter <> '' then
+    if (aFilter1 <> '--nosearch--') or  (aFilter2 <> '--nosearch--') or (aFilter3 <> '--nosearch--') then
     while CurItem <> nil do
     begin
       //form1.Memo1.lines.add(CurItem.Text +'     '+ inttostr(curitem.level+1));
       NextItem := CurItem.GetNext;
-      if (not CurItem.HasChildren) and ( Pos( trivial(aFilter), trivial(curItem.text) )=0 ) then begin
+      if (not CurItem.HasChildren) and ( (Pos( trivial(aFilter1), trivial(curItem.text) )=0) and (Pos( trivial(aFilter2), trivial(curItem.text) )=0) and (Pos( trivial(aFilter3), trivial(curItem.text) )=0) ) then begin
         canDelete := true;
         if CurItem.Parent<>nil then begin
-          if Pos( trivial(aFilter), trivial(CurItem.Parent.Text) )<> 0 then canDelete := false;
+          if (Pos( trivial(aFilter1), trivial(CurItem.Parent.Text) )<> 0) or (Pos( trivial(aFilter2), trivial(CurItem.Parent.Text) )<> 0) or (Pos( trivial(aFilter3), trivial(CurItem.Parent.Text) )<> 0)
+		      then canDelete := false;
 
           if CurItem.Parent.Parent<>nil then begin
-            if Pos( trivial(aFilter), trivial(CurItem.Parent.Parent.Text) )<> 0 then canDelete := false;
+            if (Pos( trivial(aFilter1), trivial(CurItem.Parent.Parent.Text) )<> 0) or (Pos( trivial(aFilter2), trivial(CurItem.Parent.Parent.Text) )<> 0) or (Pos( trivial(aFilter3), trivial(CurItem.Parent.Parent.Text) )<> 0)
+			then canDelete := false;
           end;
 
         end;
@@ -8135,6 +8123,7 @@ begin
     end;
   end;
 end;
+
 
 procedure OnMenuItemClick(aMenu: tmenu; aCaption: string);
     procedure searchItems(anItem: TMenuItem);
@@ -8154,17 +8143,23 @@ begin
   searchItems(aMenu.Items);
 end;
 
-procedure TFMain.SearchMenuChange(Sender: TObject);
-var s : string;
+procedure TFMain.SearchMenu1Change(Sender: TObject);
+var s1, s2, s3 : string;
 begin
-  s := iif(searchMenu.Text = 'Szukaj...', '', searchMenu.Text);
-  if pos(';',s)<>0 then s :=  searchAndReplace(s,';','');
+  s1 := iif(SearchMenu1.Text = 'Szukaj...', '', SearchMenu1.Text);
+  if pos(';',s1)<>0 then s1 :=  searchAndReplace(s1,';','');
+
+  s2 := iif(SearchMenu2.Text = 'Szukaj...', '', SearchMenu2.Text);
+  if pos(';',s2)<>0 then s2 :=  searchAndReplace(s2,';','');
+
+  s3 := iif(SearchMenu3.Text = 'Szukaj...', '', SearchMenu3.Text);
+  if pos(';',s3)<>0 then s3 :=  searchAndReplace(s3,';','');
 
   TreeView1.Items.BeginUpdate;
   CopyMenuToTreeView(mm, TreeView1);
-  clearNotMatchingItems(TreeView1, s);
-  if s <> '' then
-      addDBItemsItemsToTreeView(TreeView1, s);
+  clearNotMatchingItems(TreeView1, s1, s2, s3);
+  if (s1 <> '') or (s2 <> '') or (s3 <> '') then
+      addDBItemsItemsToTreeView(TreeView1, s1, s2, s3);
   TreeView1.Items.EndUpdate;
   if TreeView1.Items.Count > 0 then
       TreeView1.Selected := TreeView1.Items[0];
@@ -8305,7 +8300,7 @@ begin
         //
         if tv.Selected.ImageIndex=19 then begin
             setSystemParam('FastQueryMaxRecords', tnodeInfo(tv.Selected.data).id);
-            SearchMenuChange(nil);
+            SearchMenu1Change(nil);
             exit;
         end;
       end else
@@ -8315,16 +8310,18 @@ begin
 end;
 
 procedure TFMain.SwitchMenuClick(Sender: TObject);
-var s : string;
+var s1, s2, s3 : string;
 begin
   if SwitchMenu.Down then begin
     SearchPanel.width := 255;
     TreeView1.Visible := false;
     CopyMenuToTreeView(mm, TreeView1);
-    s := iif(searchMenu.Text = 'Szukaj...', '', searchMenu.Text);
-    clearNotMatchingItems(TreeView1, s );
-    if s <> '' then
-        addDBItemsItemsToTreeView(TreeView1, s );
+    s1 := iif(SearchMenu1.Text = 'Szukaj...', '', SearchMenu1.Text);
+    s2 := iif(SearchMenu2.Text = 'Szukaj...', '', SearchMenu2.Text);
+    s3 := iif(SearchMenu3.Text = 'Szukaj...', '', SearchMenu3.Text);
+    clearNotMatchingItems(TreeView1, s1, s2, s3 );
+    if (s1 <> '') or (s2 <> '') or (s3 <> '') then
+        addDBItemsItemsToTreeView(TreeView1, s1, s2, s3 );
     TreeView1.Visible := true;
     //Self.Menu := nil;
   end else begin
@@ -8356,7 +8353,7 @@ begin
   //LECTURERSShowModalAsBrowser('');
   dummy := '';
   LECTURERSShowModalAsSingleRecord(ainsert,dummy);
-  SearchMenuChange(nil);
+  SearchMenu1Change(nil);
 end;
 
 procedure TFMain.Nowagrupa1Click(Sender: TObject);
@@ -8365,7 +8362,7 @@ begin
   //GROUPSShowModalAsBrowser('');
   dummy := '';
   GROUPSShowModalAsSingleRecord(ainsert,dummy);
-  SearchMenuChange(nil);
+  SearchMenu1Change(nil);
 end;
 
 procedure TFMain.Nowyprzedmiot1Click(Sender: TObject);
@@ -8374,7 +8371,7 @@ begin
   //SUBJECTSShowModalAsBrowser('');
   dummy := '';
   SUBJECTSShowModalAsSingleRecord(ainsert,dummy);
-  SearchMenuChange(nil);
+  SearchMenu1Change(nil);
 end;
 
 procedure TFMain.Nowysemestr1Click(Sender: TObject);
@@ -8383,7 +8380,7 @@ begin
   //PERIODSShowModalAsBrowser;
   dummy := '';
   PERIODSShowModalAsSingleRecord(ainsert,dummy);
-  SearchMenuChange(nil);
+  SearchMenu1Change(nil);
 end;
 
 procedure TFMain.Nowyzasb1Click(Sender: TObject);
@@ -8895,14 +8892,14 @@ begin
  TreeModeCleanup.Visible := TreeMode.ItemIndex<=1;
 end;
 
-procedure TFMain.SearchMenuClick(Sender: TObject);
+procedure TFMain.SearchMenu1Click(Sender: TObject);
 begin
- if SearchMenu.Text = 'Szukaj...' then  SearchMenu.Text := '';
+ if (Sender as TEdit).Text = 'Szukaj...' then  (Sender as TEdit).Text := '';
 end;
 
-procedure TFMain.SearchMenuExit(Sender: TObject);
+procedure TFMain.SearchMenu1Exit(Sender: TObject);
 begin
- if SearchMenu.Text = '' then  SearchMenu.Text := 'Szukaj...';
+ if (Sender as TEdit).Text = '' then  (Sender as TEdit).Text := 'Szukaj...';
 end;
 
 procedure TFMain.TreeModeCleanupClick(Sender: TObject);
@@ -8948,7 +8945,7 @@ begin
     CONG.Text := '';
     conResCat0.Text := '';
     CONS.Text := '';
-    CONF.Text := '';
+    CONF_VALUE.Text := '';
     CONPERIOD.Text := '';
     //
     CONPERIOD.Text := conPeriod.Text;
@@ -8956,7 +8953,7 @@ begin
     if resourceType = 'G' then CONG.Text := resourceId;
     if resourceType = 'R' then CONResCat0.Text := resourceId;
     if resourceType = 'S' then CONS.Text := resourceId;
-    if resourceType = 'F' then CONF.Text := resourceId;
+    if resourceType = 'F' then CONF_VALUE.Text := resourceId;
     if resourceType = 'P' then CONPERIOD.Text := resourceId;
     ShowModal;
     ignoreIni:=false;
@@ -9066,6 +9063,155 @@ begin
 
   closeFile(tmpFile);
   ExecuteFile(uutilityParent.ApplicationDocumentsPath +'attendance_list.html','','',SW_SHOWMAXIMIZED);
+end;
+
+procedure TFMain.Pulpit1Click(Sender: TObject);
+Var currentChoice : string;
+begin
+  currentChoice := FPulpitSelector.showPulpitSelector (activePulpit);
+
+  if (currentChoice = 'Pulpit1') then SetActivePulpit(1, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit2') then SetActivePulpit(2, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit3') then SetActivePulpit(3, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit4') then SetActivePulpit(4, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit5') then SetActivePulpit(5, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit6') then SetActivePulpit(6, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit7') then SetActivePulpit(7, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit8') then SetActivePulpit(8, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit9') then SetActivePulpit(9, FPulpitSelector.FCopy.Checked);
+  if (currentChoice = 'Pulpit10') then SetActivePulpit(10, FPulpitSelector.FCopy.Checked);
+end;
+
+procedure TFMain.SetActivePulpit(pulpitIndex: integer; resetPulpitFlag : boolean);
+begin
+ SavePulpit;
+ activePulpit := pulpitIndex;
+ if resetPulpitFlag then begin
+   ResetPulpit;
+   FPulpitSelector.FCopy.Checked := false;
+ end;
+ loadPulpit;
+ //rebuild comboboxes in  FCellLayout
+ canShow := false;
+ FCellLayout.refreshLayout;
+ canShow := true;
+ BRefreshClick(nil);
+end;
+
+procedure TFMain.LoadPulpit;
+Var prefix : string;
+var mapValue : string;
+    pulpit : TMap;
+begin
+  CanBuildCalendar := false;
+  Pulpit := Tmap.Create;
+  prefix := upperCase(username)+'.PULPIT'+inttostr(activePulpit);
+  dmodule.loadMap('select name, value from system_parameters where name like '''+prefix+'%'' order by name', Pulpit, false);
+
+  //if there is no saved pulpit yet, just preserve current settings
+  if pulpit.cnt = 0 then begin
+    if FCellLayout.CellColor.ItemIndex = -1 then FCellLayout.CellColor.ItemIndex  := 2;
+    if FCellLayout.D1.ItemIndex        = -1 then FCellLayout.D1.ItemIndex  := 0;
+    if FCellLayout.D2.ItemIndex        = -1 then FCellLayout.D2.ItemIndex  := 1;
+    FcellLayout.ForceCellHeight.checked  := false;
+    FcellLayout.ForceCellWidth.checked   := false;
+    CanBuildCalendar := true;
+    exit;
+  end;
+
+  TabViewType.TabIndex             := StrToInt ( Pulpit.getValue(prefix+'.TABVIEWTYPE.TABINDEX','0') );
+  conlecturer.Text                 := Pulpit.getValue(prefix+'.CONLECTURER','');
+  congroup.Text                    := Pulpit.getValue(prefix+'.CONGROUP','');
+  conResCat0.Text                  := Pulpit.getValue(prefix+'.CONRESCAT0','');
+  conResCat1.Text                  := Pulpit.getValue(prefix+'.CONRESCAT1','');
+  conPeriod.Text                   := Pulpit.getValue(prefix+'.CONPERIOD','');
+  conRole.Text                     := Pulpit.getValue(prefix+'.CONROLE','');
+  CONSUBJECT.Text                  := Pulpit.getValue(prefix+'.CONSUBJECT','');
+  CONFORM.Text                     := Pulpit.getValue(prefix+'.CONFORM','');
+  CONFORM.Text                     := Pulpit.getValue(prefix+'.CONFORM','');
+  FCellLayout.CellColor.ItemIndex  := StrToInt ( Pulpit.getValue(prefix+'.CELL_COLORING','2') );
+  FCellLayout.D1.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D1','0') );
+  FCellLayout.D2.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D2','1') );
+  FCellLayout.D3.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D3','-1') );
+  FCellLayout.D4.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D4','-1') );
+  FCellLayout.D5.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D5','-1') );
+  FCellLayout.D6.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D6','-1') );
+  FCellLayout.D7.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D7','-1') );
+  FCellLayout.D8.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D8','-1') );
+  gridFont.Font.Size               := strToInt( Pulpit.getValue(prefix+'.GRIDFONT.SIZE',  inttostr(grid.Canvas.Font.size)  ) );
+  gridFont.Font.Name               :=           Pulpit.getValue(prefix+'.GRIDFONT.NAME',  grid.Canvas.Font.name  );
+  FcellLayout.ForceCellHeight.checked   := StrToBool( Pulpit.getValue(prefix+'.FORCECELLWIDTH','-') );
+  FcellLayout.ForceCellWidth.checked    := StrToBool( Pulpit.getValue(prefix+'.FORCECELLHEIGHT','-') );
+  FcellLayout.ForcedCellHeight.position := strToInt( Pulpit.getValue(prefix+'.FORCEDCELLHEIGHT','5') );
+  FcellLayout.ForcedCellWidth.position  := strToInt( Pulpit.getValue(prefix+'.FORCEDCELLWIDTH','5') );
+  ShowFreeTermsL.checked                := StrToBool( Pulpit.getValue(prefix+'.SHOWFREETERMSL','-') );
+  ShowFreeTermsG.checked                := StrToBool( Pulpit.getValue(prefix+'.SHOWFREETERMSG','-') );
+  ShowFreeTermsR.checked                := StrToBool( Pulpit.getValue(prefix+'.SHOWFREETERMSR','-') );
+  ShowFreeTermsResCat1.checked          := StrToBool( Pulpit.getValue(prefix+'.SHOWFREETERMSRESCAT1','-') );
+  DrawSuppressionS.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONS','-') );
+  DrawSuppressionF.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONF','-') );
+  RespectCompletions.checked            := StrToBool( Pulpit.getValue(prefix+'.RESPECTCOMPLETIONS','-') );
+
+  CanBuildCalendar := true;
+end;
+
+//reset pulpit
+//begin delete system_parameters where name like '%.PULPIT%'; delete system_parameters where name like '%.ACTIVEPULPIT%'; commit; end;
+
+procedure TFMain.ResetPulpit;
+Var prefix : string;
+begin
+ prefix := upperCase(username)+'.PULPIT'+inttostr(activePulpit);
+ dmodule.SQL('delete system_parameters where name like '''+prefix+'%''');
+end;
+
+procedure TFMain.SavePulpit;
+Var prefix : string;
+begin
+ if DModule.ADOConnection.Connected then begin
+   prefix := upperCase(username)+'.PULPIT'+inttostr(activePulpit);
+   With Dmodule do begin
+   dbSetSystemParam(prefix+'.TABVIEWTYPE.TABINDEX',  IntToStr(TabViewType.TabIndex) );
+   dbSetSystemParam(prefix+'.CONLECTURER',  conlecturer.Text );
+   dbSetSystemParam(prefix+'.CONGROUP',     congroup.Text    );
+   dbSetSystemParam(prefix+'.CONRESCAT0',   conResCat0.Text  );
+   dbSetSystemParam(prefix+'.CONRESCAT1',   conResCat1.Text  );
+   dbSetSystemParam(prefix+'.CONPERIOD',    conPeriod.Text   );
+   dbSetSystemParam(prefix+'.CONROLE',      conRole.Text     );
+   dbSetSystemParam(prefix+'.CONSUBJECT',   consubject.Text  );
+   dbSetSystemParam(prefix+'.CONFORM',      conform.Text     );
+   dbSetSystemParam(prefix+'.CELL_COLORING',      IntToStr(FCellLayout.CellColor.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D1',      IntToStr(FCellLayout.D1.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D2',      IntToStr(FCellLayout.D2.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D3',      IntToStr(FCellLayout.D3.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D4',      IntToStr(FCellLayout.D4.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D5',      IntToStr(FCellLayout.D5.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D6',      IntToStr(FCellLayout.D6.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D7',      IntToStr(FCellLayout.D7.ItemIndex)  );
+   dbSetSystemParam(prefix+'.CELL_D8',      IntToStr(FCellLayout.D8.ItemIndex)  );
+   dbSetSystemParam(prefix+'.GRIDFONT.SIZE'        , inttostr(gridFont.Font.Size) );
+   dbSetSystemParam(prefix+'.GRIDFONT.NAME'        , gridFont.Font.name);
+   dbSetSystemParam(prefix+'.FORCECELLWIDTH'       , BoolToStr(FcellLayout.ForceCellWidth.Checked) );
+   dbSetSystemParam(prefix+'.FORCECELLHEIGHT'      , BoolToStr(FcellLayout.ForceCellHeight.Checked) );
+   dbSetSystemParam(prefix+'.FORCEDCELLHEIGHT'     , intToStr(FcellLayout.ForcedCellHeight.position) );
+   dbSetSystemParam(prefix+'.FORCEDCELLWIDTH'      , intToStr(FcellLayout.ForcedCellWidth.position) );
+   dbSetSystemParam(prefix+'.RESOURCE_CATEGORY_ID1', dmodule.pResCatId1);
+   dbSetSystemParam(prefix+'.RESOURCE_CATEGORY_ID0', dmodule.pResCatId0);
+
+   dbSetSystemParam(prefix+'.SHOWFREETERMSL'       , BoolToStr(ShowFreeTermsL.Checked) );
+   dbSetSystemParam(prefix+'.SHOWFREETERMSG'       , BoolToStr(ShowFreeTermsG.Checked) );
+   dbSetSystemParam(prefix+'.SHOWFREETERMSR'       , BoolToStr(ShowFreeTermsR.Checked) );
+   dbSetSystemParam(prefix+'.SHOWFREETERMSRESCAT1' , BoolToStr(ShowFreeTermsResCat1.Checked) );
+   dbSetSystemParam(prefix+'.DRAWSUPPRESSIONS'     , BoolToStr(DrawSuppressionS.Checked) );
+   dbSetSystemParam(prefix+'.DRAWSUPPRESSIONF'     , BoolToStr(DrawSuppressionF.Checked) );
+   dbSetSystemParam(prefix+'.RESPECTCOMPLETIONS'   , BoolToStr(RespectCompletions.Checked) );
+   End;
+ end;
+end;
+
+procedure TFMain.SpeedButton5Click(Sender: TObject);
+begin
+  Pulpit1Click(nil);
 end;
 
 initialization

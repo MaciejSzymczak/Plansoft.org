@@ -72,10 +72,10 @@ Var TF : TextFile;
     T        : Integer;
     L        : Integer;
 
-Procedure WriteLnTStrings(Var TextF : TextFile; S : TStrings);
-Begin
- WriteLn(TextF, S.CommaText);
-End;
+  Procedure WriteLnTStrings(Var TextF : TextFile; S : TStrings);
+  Begin
+   WriteLn(TextF, S.CommaText);
+  End;
 
 Begin
  FileName := GetFileNameWithExtension(Form,'cfg');
@@ -201,7 +201,7 @@ Begin
      End;
     End;
    End Else
-   If Form.Components[T] is TTabSet Then Begin
+   If (Form.Components[T] is TTabSet) and (TTabSet(Form.Components[T]).Name <> 'TabViewType') Then Begin
     WriteLn(TF, 'TTabSet');
     WriteLn(TF, TTabSet(Form.Components[T]).Name);
     WriteLnTStrings(TF, TTabSet(Form.Components[T]).Tabs);
@@ -456,7 +456,8 @@ try
       End;
     End;
    End Else
-   If Form.Components[T] is TTabSet Then Begin
+   If (Form.Components[T] is TTabSet) and (TTabSet(Form.Components[T]).Name <> 'TabViewType') Then Begin
+    //TabViewType is stored in database
     GetString;
     If NazwaNieZgadzaSie(TTabSet(Form.Components[T]).Name,GetString) Then Exit;
     ReadLnTStrings(TF,TTabSet(Form.Components[T]).Tabs);
@@ -566,7 +567,7 @@ procedure TFormConfig.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i, cavb : -255..255;
 begin
- SaveFormConfiguration(Self);       
+ SaveFormConfiguration(Self);
   if AlphaBlend=true then
   begin
     cavb:=AlphaBlendValue;

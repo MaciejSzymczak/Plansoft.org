@@ -1333,9 +1333,10 @@ Var xp, yp          : Integer;
     tmp             : integer;
     dummy          : integer;
     colCnt, rowCnt : integer;
+    addECTSflag    : boolean;
 
     //--------------------------------------------------------
-    procedure addMonthsRow;
+    procedure addMonthsRow (addECTSflag: boolean);
     Var xp     : Integer;
     Var SPAN   : Integer;
         oldMonthName : ShortString;
@@ -1369,6 +1370,10 @@ Var xp, yp          : Integer;
         if ShowLegend then begin
           htmlTable.newCell('','','0');
           htmlTable.newCellWidth('','','0',NVL(GetSystemParam('CellWidthInLegend'),'100'));
+          if (addECTSflag) then begin
+            htmlTable.newCell('','Spos.<br/>zal.','0');
+            htmlTable.newCell('','ECTS','0');
+          end;
         end;
     end;
 
@@ -1395,7 +1400,7 @@ Var xp, yp          : Integer;
     end;
 
     //--------------------------------------------------------
-    procedure addLegendRow;
+    procedure addLegendRow (addECTSflag : Boolean);
     Begin
       If Lgnd[legendRow].Colour = 0 Then Begin
 		      htmlTable.newCell(
@@ -1423,13 +1428,18 @@ Var xp, yp          : Integer;
 			     ,NVL(GetSystemParam('CellWidthInLegend'),'100')
 		      );
       End;
+      if (addECTSflag) then begin
+          htmlTable.newCell('','','0');
+          htmlTable.newCell('','','0');
+      end;
+
     End;
 
     var     tmpPERName    : string;
     var     tmpLECName    : string;
     var     tmpGROName    : string;
     var     tmpROMName    : string;
-    
+
     function replacePlaceHolders(s : string) : string;
     begin
      result := SearchAndReplace(s,'_','&nbsp;');
@@ -1444,6 +1454,7 @@ Var xp, yp          : Integer;
 
 //-------------------------------------------------------------------------------------------
 begin
+ addECTSflag := (LegendMode and 4 = 4);
  currentChartClasses := tcurrentChartClasses.create();
  ReservationsCache := tReservationsCache.Create;
  //If Not (fmain.TabViewType.TabIndex in [0,1,2,3]) Then Begin
@@ -1522,7 +1533,7 @@ WriteLn(f, '</style>');
  htmlTable := thtmlTable.create;
  htmlTable.init (CellWIDTH, CellHeight, pspanEmptyCells);
 
- if not pRepeatMonthNames then addMonthsRow;
+ if not pRepeatMonthNames then addMonthsRow(addECTSflag);
  if pVerticalLines then calculateVerticalLines;
 
  legendRow := 0;
@@ -1553,7 +1564,7 @@ WriteLn(f, '</style>');
         if convertGrid.ColRowToDate(dummy, TS,Zajecia,0,yp) = ConvDayOfWeek then begin
           currentDayOfWeek := DayOfWeek(TimeStampToDateTime(TS));
           if priorDayOfWeek <> currentDayOfWeek then begin
-            addMonthsRow;
+            addMonthsRow (addECTSflag);
             priorDayOfWeek := currentDayOfWeek;
           end;
         end;
@@ -1633,7 +1644,7 @@ WriteLn(f, '</style>');
   if showLine then
     if ShowLegend Then Begin
       legendRow := legendRow + 1;
-      addLegendRow;
+      addLegendRow(addECTSflag);
     End;
   //Writeln(f, '</TR>');
   end; // if showLine
@@ -1647,7 +1658,7 @@ WriteLn(f, '</style>');
           htmlTable.newCell('','','silver');
        End;
        legendRow := legendRow + 1;
-       AddLegendRow;
+       AddLegendRow(addECTSflag);
   end;
 
 

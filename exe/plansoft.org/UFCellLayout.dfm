@@ -88,8 +88,7 @@ object FCellLayout: TFCellLayout
         FE00FEFEFE00FEFEFE00}
       OnClick = selectFillClick
     end
-    object Coloring: TComboBox
-      Tag = 67108864
+    object CellColor: TComboBox
       Left = 9
       Top = 14
       Width = 112
@@ -102,7 +101,7 @@ object FCellLayout: TFCellLayout
       MaxLength = 255
       TabOrder = 0
       Text = 'Wyk'#322'adowcy'
-      OnChange = ColoringChange
+      OnChange = CellColorChange
       Items.Strings = (
         'Wyk'#322'adowcy'
         'Grupy'
@@ -213,7 +212,6 @@ object FCellLayout: TFCellLayout
     TabOrder = 2
     OnMouseMove = descriptionsMouseMove
     object D1: TComboBox
-      Tag = 67108864
       Left = 8
       Top = 15
       Width = 137
@@ -272,7 +270,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D2: TComboBox
-      Tag = 67108864
       Left = 8
       Top = 39
       Width = 137
@@ -331,7 +328,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D3: TComboBox
-      Tag = 67108864
       Left = 8
       Top = 63
       Width = 137
@@ -390,7 +386,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D4: TComboBox
-      Tag = 67108864
       Left = 8
       Top = 87
       Width = 137
@@ -449,7 +444,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D5: TComboBox
-      Tag = 67108864
       Left = 8
       Top = 111
       Width = 137
@@ -508,7 +502,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D6: TComboBox
-      Tag = 67108864
       Left = 7
       Top = 135
       Width = 137
@@ -567,7 +560,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D7: TComboBox
-      Tag = 67108864
       Left = 7
       Top = 159
       Width = 137
@@ -626,7 +618,6 @@ object FCellLayout: TFCellLayout
         '<dummy>')
     end
     object D8: TComboBox
-      Tag = 67108864
       Left = 7
       Top = 183
       Width = 137

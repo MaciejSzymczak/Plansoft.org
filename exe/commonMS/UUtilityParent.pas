@@ -4,7 +4,7 @@ unit UUtilityParent;
 interface
 
 Uses Forms, Controls, Windows, classes, DBTables, stdctrls, Rxlookup, Rxdbctrl, dbctrls, comctrls, shellapi, SysUtils,
-     bde, rxstrUtils, menus, FileCtrl, graphics, StrHlder, CheckLst, DBGrids;
+     bde, rxstrUtils, menus, FileCtrl, graphics, StrHlder, CheckLst, DBGrids, Buttons;
 
 Type  TCharSet = Set of Char;
 
@@ -29,7 +29,7 @@ type TMap = Class
          procedure addKeyValue(key, value: string);
          procedure prepare;
          function  getIndex (key : string) : integer;
-         function  getValue (pkey : string) : string;
+         function  getValue (pkey : string; defaultValue : string = '--blank--') : string;
      End;
 
 Const showDiagnosticsMessage = False;
@@ -1597,6 +1597,7 @@ begin
       end;
       if (controls[t] is tradiogroup)  then (controls[t] as tradiogroup).itemIndex := readInteger  (sectionName, (controls[t] as tradiogroup).name , (controls[t] as tradiogroup).itemIndex);
       if (controls[t] is tcombobox)  then (controls[t] as tcombobox).itemIndex := readInteger  (sectionName, (controls[t] as tcombobox).name , (controls[t] as tcombobox).itemIndex);
+      if (controls[t] is tspeedButton)  then (controls[t] as tspeedButton).caption := readString  (sectionName, (controls[t] as tspeedButton).name , (controls[t] as tspeedButton).caption);
     end;
   end;
   iniFile.Free;
@@ -1620,6 +1621,7 @@ begin
       if (controls[t] is tmemo)         then  writeString(sectionName, (controls[t] as tmemo).name, encode64((controls[t] as tmemo).Lines.Text));
       if (controls[t] is tcombobox)     then   writeInteger(sectionName, (controls[t] as tcombobox).name, (controls[t] as tcombobox).ItemIndex);
       if (controls[t] is tradiogroup)     then   writeInteger(sectionName, (controls[t] as tradiogroup).name, (controls[t] as tradiogroup).ItemIndex);
+      if (controls[t] is tspeedButton)     then   writeString(sectionName, (controls[t] as tspeedButton).name, (controls[t] as tspeedButton).Caption);
     end;
   end;
   iniFile.Free;
@@ -1789,17 +1791,18 @@ begin
   end;
 end;
 
-function TMap.getValue(pkey: string): string;
+function TMap.getValue(pkey: string; defaultValue : string = '--blank--'): string;
 var i : integer;
     key: string;
 begin
+ if defaultValue = '--blank--' then defaultValue := pkey;
  pkey := searchAndReplace(pkey,'-','/');
  if lpadKey
    then key := LeftPad(pkey,10,'0')
    else key := pkey;
  i := getIndex(key);
  if i = -1 then
-   result := pkey
+   result := defaultValue
  else
    result := map [ i ].value;
 end;
@@ -1845,7 +1848,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2022-03-01';
+ VersionOfApplication := '2022-04-01';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try
