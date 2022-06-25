@@ -351,9 +351,9 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         object Label5: TLabel
           Left = 8
           Top = 12
-          Width = 173
+          Width = 50
           Height = 14
-          Caption = 'Typ grupy.:........................................'
+          Caption = 'Typ grupy.'
           Font.Charset = EASTEUROPE_CHARSET
           Font.Color = clBlack
           Font.Height = -11
@@ -439,7 +439,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             186318631863}
         end
         object BALL: TBitBtn
-          Left = 466
+          Left = 460
           Top = 3
           Width = 89
           Height = 25
@@ -483,7 +483,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             0000}
         end
         object B1: TBitBtn
-          Left = 208
+          Left = 202
           Top = 3
           Width = 89
           Height = 25
@@ -492,7 +492,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = B1Click
         end
         object B2: TBitBtn
-          Left = 296
+          Left = 290
           Top = 3
           Width = 113
           Height = 25
@@ -501,7 +501,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = B2Click
         end
         object B3: TBitBtn
-          Left = 406
+          Left = 400
           Top = 3
           Width = 61
           Height = 25
@@ -609,7 +609,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
         object BitBtn6: TBitBtn
           Left = 200
-          Top = 29
+          Top = 31
           Width = 25
           Height = 24
           ParentShowHint = False
@@ -1422,7 +1422,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
         inherited BUpdChild4: TBitBtn
           Caption = 'Diagram'
-          Visible = True
         end
       end
       inherited FlexPanel: TPanel

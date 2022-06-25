@@ -3265,7 +3265,7 @@ inherited FMain: TFMain
         Top = 4
         Width = 39
         Height = 39
-        Hint = 'Pe'#322'ny ekran'
+        Hint = 'zak'#322'adki'
         AllowAllUp = True
         Flat = True
         Glyph.Data = {
@@ -5974,6 +5974,10 @@ inherited FMain: TFMain
       object USOSIntegracja1: TMenuItem
         Caption = 'USOS: Integracja'
         OnClick = USOSIntegracja1Click
+      end
+      object Integration: TMenuItem
+        Caption = 'Integracja'
+        OnClick = IntegrationClick
       end
       object Zmiehas1: TMenuItem
         Caption = 'Zmie'#324' has'#322'o'

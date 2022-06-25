@@ -615,6 +615,7 @@ begin
     QueryR.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridR);
   end;
+
   if FLegendTabs.ActivePage = TabsheetS       then begin
     if QueryS.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridS);
@@ -631,6 +632,7 @@ begin
     if (fmain.TabViewType.TabIndex = 2) then presId := ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 3) then presId := ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';']);
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
+
 
     if QueryCOUNTER.Active then
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridCounter);

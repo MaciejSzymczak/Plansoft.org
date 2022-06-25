@@ -19,7 +19,7 @@ inherited FProgramSettings: TFProgramSettings
     Align = alBottom
     TabOrder = 1
     object BZamknij: TBitBtn
-      Left = 839
+      Left = 831
       Top = 5
       Width = 75
       Height = 28

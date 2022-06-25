@@ -1135,6 +1135,8 @@ If UFReadString.ReadString(Grid.Columns[findFirstVisibleColumn].Title.Caption, S
 End;
 End;
 
+
+
 //------------------------------------------------------------------
 procedure TFBrowseParent.formKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -1148,7 +1150,10 @@ begin
    Else
    If ActiveControl = Grid Then Begin
     If Char(Key) in ['a'..'z', 'A'..'Z','1'..'9','0'] Then Begin
-      FindWindow(Char(Key));
+      ESearch.Text := Char(Key);
+      ESearch.SetFocus;
+      keybd_event(VK_RIGHT, 0, 0, 0);
+      //FindWindow(Char(Key));
     End;
   End;
  End Else Begin //Update

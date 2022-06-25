@@ -609,6 +609,7 @@ type
     SearchMenu2: TEdit;
     SearchMenu3: TEdit;
     SpeedButton5: TSpeedButton;
+    Integration: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -943,6 +944,7 @@ type
     procedure Listaobecno1Click(Sender: TObject);
     procedure Pulpit1Click(Sender: TObject);
     procedure SpeedButton5Click(Sender: TObject);
+    procedure IntegrationClick(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1100,7 +1102,7 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector;
+  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration;
 
 var dummy : string;
 
@@ -3696,6 +3698,9 @@ procedure TFMain.buildMenu;
      end;
 
 begin
+ Integration.Visible := dmodule.dbgetSystemParam('INT_IS_ACTIVE') = '1';
+ USOSIntegracja1.Visible := dmodule.dbgetSystemParam('USOS_CYKL') <> '';
+
  if MM.Items[3].Caption <> '&Dane' then begin
   SError('B³¹d w procedurze buildMenu. Jest:"'+MM.Items[3].Caption+'". Powinno byæ:"&S³owniki". Zg³oœ problem asyœcie technicznej');
  end;
@@ -9212,6 +9217,12 @@ end;
 procedure TFMain.SpeedButton5Click(Sender: TObject);
 begin
   Pulpit1Click(nil);
+end;
+
+procedure TFMain.IntegrationClick(Sender: TObject);
+begin
+  if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then info('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane')
+  else FIntegration.ShowModal;
 end;
 
 initialization

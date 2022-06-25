@@ -91,7 +91,9 @@ uses
   UFExclusiveParent in 'UFExclusiveParent.pas' {FExclusiveParent},
   UFListOrganizer in 'UFListOrganizer.pas' {FListOrganizer},
   UFGraphviz in 'UFGraphviz.pas' {FGraphviz},
-  UFSUSOS in 'UFSUSOS.pas' {FUSOS};
+  UFSUSOS in 'UFSUSOS.pas' {FUSOS},
+  UFPulpitSelector in 'UFPulpitSelector.pas' {FPulpitSelector},
+  UFIntegration in 'UFIntegration.pas' {FIntegration};
 
 {$R *.RES}
 
@@ -177,6 +179,8 @@ begin
   Application.CreateForm(TFListOrganizer, FListOrganizer);
   Application.CreateForm(TFGraphviz, FGraphviz);
   Application.CreateForm(TFUSOS, FUSOS);
+  Application.CreateForm(TFPulpitSelector, FPulpitSelector);
+  Application.CreateForm(TFIntegration, FIntegration);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;
