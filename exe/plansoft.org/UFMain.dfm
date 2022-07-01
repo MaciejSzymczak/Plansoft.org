@@ -6277,6 +6277,14 @@ inherited FMain: TFMain
         Caption = 'Statystyki'
         OnClick = Statystyki1Click
       end
+      object Listaobecno2: TMenuItem
+        Caption = 'Lista obecno'#347'ci'
+        OnClick = Listaobecno2Click
+      end
+      object Zmianywrozkadziezaj2: TMenuItem
+        Caption = 'Zmiany w rozk'#322'adzie zaj'#281#263
+        OnClick = Zmianywrozkadziezaj2Click
+      end
       object Wydrukiwukadzietygodnia1: TMenuItem
         Caption = 'Tabela przestawna'
         object Innatabelaprzestawna1: TMenuItem
@@ -8742,8 +8750,8 @@ inherited FMain: TFMain
     end
   end
   object reportsPopup: TPopupMenu
-    Left = 1000
-    Top = 8
+    Left = 1144
+    Top = 40
     object Raportowaniezaawansowane1: TMenuItem
       Caption = 'Statystyki'
       OnClick = Raportowaniezaawansowane1Click
@@ -8759,6 +8767,10 @@ inherited FMain: TFMain
     object Listaobecno1: TMenuItem
       Caption = 'Lista obecno'#347'ci'
       OnClick = Listaobecno1Click
+    end
+    object Zmianywrozkadziezaj1: TMenuItem
+      Caption = 'Zmiany w rozk'#322'adzie zaj'#281#263
+      OnClick = Zmianywrozkadziezaj1Click
     end
   end
   object wwwPopup: TPopupMenu

@@ -610,6 +610,9 @@ type
     SearchMenu3: TEdit;
     SpeedButton5: TSpeedButton;
     Integration: TMenuItem;
+    Listaobecno2: TMenuItem;
+    Zmianywrozkadziezaj1: TMenuItem;
+    Zmianywrozkadziezaj2: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -945,6 +948,9 @@ type
     procedure Pulpit1Click(Sender: TObject);
     procedure SpeedButton5Click(Sender: TObject);
     procedure IntegrationClick(Sender: TObject);
+    procedure Listaobecno2Click(Sender: TObject);
+    procedure Zmianywrozkadziezaj1Click(Sender: TObject);
+    procedure Zmianywrozkadziezaj2Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -9223,6 +9229,36 @@ procedure TFMain.IntegrationClick(Sender: TObject);
 begin
   if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then info('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane')
   else FIntegration.ShowModal;
+end;
+
+procedure TFMain.Listaobecno2Click(Sender: TObject);
+begin
+  Listaobecno1Click(nil);
+end;
+
+procedure TFMain.Zmianywrozkadziezaj1Click(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+begin
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+
+  AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'changes.html');
+  rewrite(tmpFile);
+
+  attendanceList.SQL.Clear;
+  attendanceList.SQL.Add( 'select diff_catcher.getDiff from dual' );
+  attendanceList.Open;
+  writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
+
+  closeFile(tmpFile);
+  ExecuteFile(uutilityParent.ApplicationDocumentsPath +'changes.html','','',SW_SHOWMAXIMIZED);
+end;
+
+procedure TFMain.Zmianywrozkadziezaj2Click(Sender: TObject);
+begin
+  Zmianywrozkadziezaj1Click(nil);
 end;
 
 initialization

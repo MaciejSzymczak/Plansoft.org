@@ -1,3 +1,10 @@
+begin
+for rec in (select trigger_name from all_triggers where owner='PLANNER') loop
+execute immediate 'alter trigger '||rec.trigger_name||' disable';
+end loop;
+end;
+/
+
 alter table lecturers add (is_active varchar2(1) default '1');
 alter table lecturers_history add (is_active varchar2(1) default '1');
 alter table groups add (is_active varchar2(1) default '1');
@@ -22,3 +29,10 @@ alter table groups modify abbreviation varchar2(50);
 alter table groups_history modify abbreviation varchar2(50);
 
 alter table TT_INTERFACE add (cycle_name varchar2(100));
+
+begin
+for rec in (select trigger_name from all_triggers where owner='PLANNER') loop
+execute immediate 'alter trigger '||rec.trigger_name||' enable';
+end loop;
+end;
+/
