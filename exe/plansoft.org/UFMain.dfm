@@ -1,8 +1,8 @@
 inherited FMain: TFMain
-  Left = 190
-  Top = 116
-  Width = 1569
-  Height = 1033
+  Left = -4
+  Top = -4
+  Width = 1928
+  Height = 1048
   Caption = 'Plansoft.org        '
   KeyPreview = True
   Menu = MM
@@ -14,17 +14,17 @@ inherited FMain: TFMain
   object Splitter2: TSplitter [0]
     Left = 300
     Top = 0
-    Height = 926
+    Height = 941
   end
   inherited Status: TPanel
-    Top = 962
-    Width = 1561
+    Top = 977
+    Width = 1920
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
-    Top = 926
-    Width = 1561
+    Top = 941
+    Width = 1920
     Height = 36
     Align = alBottom
     TabOrder = 0
@@ -60,7 +60,7 @@ inherited FMain: TFMain
     object StatusBar: TStatusBar
       Left = 1
       Top = 16
-      Width = 1559
+      Width = 1918
       Height = 19
       Panels = <
         item
@@ -99,23 +99,23 @@ inherited FMain: TFMain
   object MainPanel: TPanel
     Left = 303
     Top = 0
-    Width = 1258
-    Height = 926
+    Width = 1617
+    Height = 941
     Align = alClient
     BorderWidth = 1
     Ctl3D = True
     ParentCtl3D = False
     TabOrder = 1
     object VSplitter: TSplitter
-      Left = 1252
+      Left = 1611
       Top = 185
-      Height = 739
+      Height = 754
       Align = alRight
     end
     object Splitter1: TSplitter
       Left = 3
       Top = 185
-      Height = 739
+      Height = 754
       Visible = False
     end
     object Label2: TLabel
@@ -186,7 +186,7 @@ inherited FMain: TFMain
     object TopPanel: TPanel
       Left = 2
       Top = 2
-      Width = 1254
+      Width = 1613
       Height = 47
       Align = alTop
       TabOrder = 0
@@ -3397,7 +3397,7 @@ inherited FMain: TFMain
     object LeftPanel: TPanel
       Left = 2
       Top = 49
-      Width = 1254
+      Width = 1613
       Height = 136
       Align = alTop
       TabOrder = 1
@@ -4888,10 +4888,10 @@ inherited FMain: TFMain
     end
     object pRightDockPanel: TPanel
       Tag = 1
-      Left = 1255
+      Left = 1614
       Top = 185
       Width = 1
-      Height = 739
+      Height = 754
       Align = alRight
       DockSite = True
       TabOrder = 2
@@ -4904,7 +4904,7 @@ inherited FMain: TFMain
       Left = 2
       Top = 185
       Width = 1
-      Height = 739
+      Height = 754
       Align = alLeft
       DockSite = True
       TabOrder = 3
@@ -4994,15 +4994,15 @@ inherited FMain: TFMain
     object gridPanel: TPanel
       Left = 6
       Top = 185
-      Width = 1246
-      Height = 739
+      Width = 1605
+      Height = 754
       Align = alClient
       Caption = 'gridPanel'
       TabOrder = 6
       object filterPanel: TPanel
         Left = 1
         Top = 1
-        Width = 1244
+        Width = 1603
         Height = 24
         Align = alTop
         TabOrder = 0
@@ -5044,8 +5044,8 @@ inherited FMain: TFMain
       object Grid: TDrawGrid
         Left = 1
         Top = 25
-        Width = 1244
-        Height = 713
+        Width = 1603
+        Height = 728
         Align = alClient
         ColCount = 50
         DefaultColWidth = 28
@@ -5072,13 +5072,13 @@ inherited FMain: TFMain
     Left = 0
     Top = 0
     Width = 300
-    Height = 926
+    Height = 941
     Align = alLeft
     Caption = 'SearchPanel'
     TabOrder = 3
     object Splitter3: TSplitter
       Left = 1
-      Top = 821
+      Top = 836
       Width = 298
       Height = 3
       Cursor = crSizeNS
@@ -5088,7 +5088,7 @@ inherited FMain: TFMain
       Left = 1
       Top = 89
       Width = 298
-      Height = 732
+      Height = 747
       Align = alClient
       HotTrack = True
       Images = ImageList
@@ -5500,7 +5500,7 @@ inherited FMain: TFMain
     end
     object PanelRecentlyUsed: TPanel
       Left = 1
-      Top = 824
+      Top = 839
       Width = 298
       Height = 101
       Align = alBottom

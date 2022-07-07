@@ -80,7 +80,7 @@ uses DM, UUtilityParent, UCommon, UFMain, ufLookupWindow, UFMassImport,
 
 Function  TFBrowseFORMS.CheckRecord : Boolean;
 Begin
-  Result := CheckValid.ReducRestrictEmpty(Self, [ ABBREVIATION, KIND ]);
+  Result := CheckValid.ReducRestrictEmpty(Self, [ ABBREVIATION, NAME, KIND ]);
 End;
 
 Procedure TFBrowseFORMS.DefaultValues;
@@ -88,6 +88,7 @@ Var c : Integer;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
  Query['KIND'] :=  CON_TYPE_ID.text;
+ Query['DESC2'] :=  '#Pensum';
  c := getRandomColor;
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;

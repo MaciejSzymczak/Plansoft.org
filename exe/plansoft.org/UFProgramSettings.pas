@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls, UFMain, UUtilityParent,
-  Grids, ValEdit, ComCtrls, autocreate;
+  Grids, ValEdit, ComCtrls, autocreate, ADODB;
 
 type
   TFProgramSettings = class(TFormConfig)
@@ -107,6 +107,13 @@ type
     CopyField4: TComboBox;
     KillSessions: TCheckBox;
     Rotate: TCheckBox;
+    TabSheet2: TTabSheet;
+    Tryb: TLabel;
+    Label33: TLabel;
+    DIFF_MODE: TEdit;
+    DIFF_END_DATE: TEdit;
+    Label32: TLabel;
+    Button2: TButton;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -118,6 +125,7 @@ type
     procedure BGridClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure pClassDesc1GlobalSingularChange(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -231,6 +239,9 @@ begin
   Rotate.checked := StrToBool( GetSystemParam('Rotate', '-' ) );
   MaxNumberOfSheetsChange(nil);
   activeControl := BZamknij;
+  //
+  DIFF_MODE.text     := dmodule.dbgetSystemParam('DIFF_MODE');
+  DIFF_END_DATE.text := dmodule.dbgetSystemParam('DIFF_END_DATE');
 end;
 
 
@@ -527,6 +538,34 @@ begin
    (Sender as TEdit).Text :='';
    exit;
   end;
+end;
+
+procedure TFProgramSettings.Button2Click(Sender: TObject);
+var query : tadoquery;
+    sqlstmt : string;
+begin
+  Button2.Caption := 'Zapisywanie...';
+  Button2.refresh;
+
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := format('begin diff_catcher.setEndDate(''%s''); end;',
+                 [DIFF_END_DATE.text]);
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+
+  dmodule.dbSetSystemParam('DIFF_END_DATE', DIFF_END_DATE.text);
+  Button2.Caption := 'Zatwierdü';
+  Uutilityparent.Info('Zapisano');
 end;
 
 end.

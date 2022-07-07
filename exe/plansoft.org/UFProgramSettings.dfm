@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 604
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange
@@ -652,35 +652,35 @@ inherited FProgramSettings: TFProgramSettings
         Left = 56
         Top = 112
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 3
       end
       object pClassDesc3GlobalPlural: TEdit
         Left = 56
         Top = 88
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 2
       end
       object pClassDesc2GlobalPlural: TEdit
         Left = 56
         Top = 64
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 1
       end
       object pClassDesc1GlobalPlural: TEdit
         Left = 56
         Top = 40
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 0
       end
       object pClassDesc1GlobalSingular: TEdit
         Left = 256
         Top = 40
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 4
         OnChange = pClassDesc1GlobalSingularChange
       end
@@ -688,7 +688,7 @@ inherited FProgramSettings: TFProgramSettings
         Left = 256
         Top = 64
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 5
         OnChange = pClassDesc1GlobalSingularChange
       end
@@ -696,7 +696,7 @@ inherited FProgramSettings: TFProgramSettings
         Left = 256
         Top = 88
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 6
         OnChange = pClassDesc1GlobalSingularChange
       end
@@ -704,7 +704,7 @@ inherited FProgramSettings: TFProgramSettings
         Left = 256
         Top = 112
         Width = 193
-        Height = 24
+        Height = 22
         TabOrder = 7
         OnChange = pClassDesc1GlobalSingularChange
       end
@@ -750,6 +750,7 @@ inherited FProgramSettings: TFProgramSettings
         ItemHeight = 16
         MaxLength = 255
         TabOrder = 10
+        OnChange = BGridClick
         Items.Strings = (
           '<nie dotyczy>'
           'Nazwa kalendarza'
@@ -3072,6 +3073,59 @@ inherited FProgramSettings: TFProgramSettings
         Height = 15
         Caption = 'Przycisk ... rotuje zasoby'
         TabOrder = 6
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Raport: Zmiany w rozk'#322'adach'
+      ImageIndex = 5
+      object Tryb: TLabel
+        Left = 32
+        Top = 32
+        Width = 22
+        Height = 14
+        Caption = 'Tryb'
+      end
+      object Label33: TLabel
+        Left = 32
+        Top = 64
+        Width = 70
+        Height = 14
+        Caption = 'Data ko'#324'cowa'
+      end
+      object Label32: TLabel
+        Left = 248
+        Top = 56
+        Width = 388
+        Height = 14
+        Caption = 
+          'Wpisz dat'#281'  ko'#324'cow'#261' aktuallnie trwaj'#261'cego semestru w formacie YY' +
+          'YY-MM-DD'
+      end
+      object DIFF_MODE: TEdit
+        Left = 120
+        Top = 24
+        Width = 121
+        Height = 22
+        ReadOnly = True
+        TabOrder = 0
+        Text = 'DIFF_MODE'
+      end
+      object DIFF_END_DATE: TEdit
+        Left = 120
+        Top = 56
+        Width = 121
+        Height = 22
+        TabOrder = 1
+        Text = 'DIFF_END_DATE'
+      end
+      object Button2: TButton
+        Left = 120
+        Top = 88
+        Width = 123
+        Height = 25
+        Caption = 'Zatwierd'#378
+        TabOrder = 2
+        OnClick = Button2Click
       end
     end
   end

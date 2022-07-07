@@ -9244,6 +9244,21 @@ begin
   query := tadoquery.Create(self);
   dmodule.resetConnection ( query );
 
+  if dmodule.dbgetSystemParam('DIFF_MODE') <> 'SCHEDULER' then begin
+    sqlstmt := 'begin diff_catcher.diff; end;';
+    try
+     query.SQL.clear;
+     query.SQL.Add(sqlstmt);
+     query.execSQL;
+     query.Free;
+    except
+     on e:exception do begin
+         copyToClipboard( sqlstmt );
+         raise;
+     end;
+    end;
+  end;
+
   AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'changes.html');
   rewrite(tmpFile);
 
