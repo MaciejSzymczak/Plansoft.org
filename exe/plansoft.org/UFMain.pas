@@ -43,38 +43,6 @@ const
 
   calReserved = -9999;
   calConfineOk= -9999;
-// info ( intToStr(sizeOf(TClass_)) );
-Type TClass_    = Record
-                  id              : integer;
-                  day             : TTimeStamp;
-                  hour            : integer;
-                  fill            : integer;
-                  sub_id          : integer;
-                  sub_abbreviation: string[30];
-                  sub_name        : string[100];
-                  sub_colour      : integer;
-                  for_colour      : integer;
-                  owner_colour    : integer;
-                  creator_colour  : integer;
-                  class_colour    : integer;
-                  for_id          : integer;
-                  for_abbreviation: string[30];
-                  for_name        : string[30];
-                  for_kind        : string[1];
-                  calc_lecturers  : string; 
-                  calc_groups     : string;
-                  calc_rooms      : string;
-                  calc_lec_ids    : string;
-                  calc_gro_ids    : string;
-                  calc_rom_ids    : string;
-                  calc_rescat_ids : string;
-                  created_by      : string[30];
-                  owner           : string[255];
-                  desc1           : string[255];
-                  desc2           : string[255];
-                  desc3           : string[255];
-                  desc4           : string[255];
-                 End;
 
 Type TClassBy = procedure     (DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 
@@ -83,7 +51,7 @@ type TClassByChildCache = Class
                      FirstDay : Integer;
                      MaxHours : integer;
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
-                     Data : Array Of  //day
+                     Classes : Array Of  //day
                              Array Of //hour
                                Record
                                 Class_        : TClass_;
@@ -258,7 +226,7 @@ type
     Normal: TSpeedButton;
     bReports: TSpeedButton;
     BAddClass: TSpeedButton;
-    BRefresh: TSpeedButton;
+    DeepRefresh: TSpeedButton;
     Cofnij1: TMenuItem;
     Zapisz1: TMenuItem;
     N1: TMenuItem;
@@ -542,7 +510,6 @@ type
     FillAddIfEmpty: TMenuItem;
     FillAdd: TMenuItem;
     FillDelete: TMenuItem;
-    Listzajzaznaczoneterminy1: TMenuItem;
     reportsPopup: TPopupMenu;
     Raportowaniezaawansowane1: TMenuItem;
     abelaprzestawna1: TMenuItem;
@@ -631,7 +598,7 @@ type
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure BAddClassClick(Sender: TObject);
-    procedure BRefreshClick(Sender: TObject);
+    procedure DeepRefreshClick(Sender: TObject);
     procedure Cofnij1Click(Sender: TObject);
     procedure Zapisz1Click(Sender: TObject);
     procedure GridMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -906,7 +873,6 @@ type
     procedure Ddesc2Click(Sender: TObject);
     procedure Ddesc3Click(Sender: TObject);
     procedure Ddesc4Click(Sender: TObject);
-    procedure Listzajzaznaczoneterminy1Click(Sender: TObject);
     procedure abelaprzestawna1Click(Sender: TObject);
     procedure Raportowaniezaawansowane1Click(Sender: TObject);
     procedure Utwrzwitrynwww2Click(Sender: TObject);
@@ -1033,7 +999,8 @@ type
 
     //Operacje grupowe
       //funkcje generyczne
-    function  modifyClass   (col, row, deltaX, deltaY : integer;
+    function  modifyClass   (classId : string; //provide either classId OR col, row.
+                             col, row, deltaX, deltaY : integer;
                              operation : integer;
                              keyValue : shortString;                // applies to clAttach* only
                              keyValueDsp : shortString;
@@ -1067,7 +1034,7 @@ type
     procedure deleteDescFromSelection(i : integer);
     procedure showAvailableTerms;
     procedure setupFillButton;
-    procedure showClasses(ignoreLgr, selectedDatesOnly : boolean);
+    procedure showClasses(ignoreLgr, selectedDatesOnly, hideEdit : boolean);
     function getWhereFastFilter(filter, tableName : string) : string;
     Procedure refreshRecentlyUsed(aFilter : string);
     procedure UpsertRecentlyUsed(presId : String; presType : String);
@@ -1088,9 +1055,6 @@ var
   dummyTS : TTimeStamp;
   dummyHour : Integer;
 
-Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-Procedure DBGetClassByGroup   (DAY1, DAY2 : String; Zajecia: Integer; GRO_ID        : String; Var Status : Integer; Var Class_ : TClass_);
-Procedure DBGetClassByRoom    (DAY1, DAY2 : String; Zajecia: Integer; ROM_ID        : String; Var Status : Integer; Var Class_ : TClass_);
 
 var
     TS : TTimeStamp;
@@ -1373,201 +1337,15 @@ Begin
  Valid := False;
 End;
 
-Function QWorkToClass : TClass_;
-Var Class_ : TClass_;
-Begin
-   //@@@ komuniat o bledzie, gdy rozmiar pola przekracza rozmiar rekordu
-   Class_.ID                 := DModule.QWork.FieldByName('ID').AsInteger;
-   Class_.DAY                := dateTimeToTimeStamp ( DModule.QWork.FieldByName('DAY').asDateTime );
-   Class_.HOUR               := DModule.QWork.FieldByName('HOUR').AsInteger;
-   Class_.FILL               := DModule.QWork.FieldByName('FILL').AsInteger;
-   Class_.SUB_ID             := DModule.QWork.FieldByName('SUB_ID').AsInteger;
-   Class_.FOR_ID             := DModule.QWork.FieldByName('FOR_ID').AsInteger;
-   Class_.FOR_KIND           := DModule.QWork.FieldByName('FOR_KIND').AsString;
-   CLASS_.SUB_abbreviation   := DModule.QWork.FieldByName('SUB_abbreviation').AsString;
-   CLASS_.SUB_NAME           := DModule.QWork.FieldByName('SUB_NAME').AsString;
-   CLASS_.SUB_COLOUR         := DModule.QWork.FieldByName('SUB_COLOUR').AsInteger;
-   CLASS_.FOR_COLOUR         := DModule.QWork.FieldByName('FOR_COLOUR').AsInteger;
-   CLASS_.OWNER_COLOUR       := DModule.QWork.FieldByName('OWNER_COLOUR').AsInteger;
-   CLASS_.CREATOR_COLOUR     := DModule.QWork.FieldByName('CREATOR_COLOUR').AsInteger;
-   CLASS_.CLASS_COLOUR       := DModule.QWork.FieldByName('CLASS_COLOUR').AsInteger;
-   CLASS_.DESC1              := DModule.QWork.FieldByName('DESC1').AsString;
-   CLASS_.DESC2              := DModule.QWork.FieldByName('DESC2').AsString;
-   CLASS_.DESC3              := DModule.QWork.FieldByName('DESC3').AsString;
-   CLASS_.DESC4              := DModule.QWork.FieldByName('DESC4').AsString;
-   //CLASS_.SUB_DESC1        := DModule.QWork.FieldByName('SUB_DESC1').AsString;
-   //CLASS_.SUB_DESC2        := DModule.QWork.FieldByName('SUB_DESC2').AsString;
-   CLASS_.FOR_abbreviation   := DModule.QWork.FieldByName('FOR_abbreviation').AsString;
-   CLASS_.FOR_NAME           := DModule.QWork.FieldByName('FOR_NAME').AsString;
-   //CLASS_.FOR_DESC1        := DModule.QWork.FieldByName('FOR_DESC1').AsString;
-   //CLASS_.FOR_DESC2        := DModule.QWork.FieldByName('FOR_DESC2').AsString;
-   CLASS_.CALC_LECTURERS     := DModule.QWork.FieldByName('CALC_LECTURERS').AsString;
-   CLASS_.CALC_GROUPS        := DModule.QWork.FieldByName('CALC_GROUPS').AsString;
-   CLASS_.CALC_ROOMS         := DModule.QWork.FieldByName('CALC_ROOMS').AsString;
-   CLASS_.CALC_LEC_IDS       := DModule.QWork.FieldByName('CALC_LEC_IDS').AsString;
-   CLASS_.CALC_GRO_IDS       := DModule.QWork.FieldByName('CALC_GRO_IDS').AsString;
-   CLASS_.CALC_ROM_IDS       := DModule.QWork.FieldByName('CALC_ROM_IDS').AsString;
-   CLASS_.CALC_RESCAT_IDS    := DModule.QWork.FieldByName('CALC_RESCAT_IDS').AsString;
-   CLASS_.Created_by         := DModule.QWork.FieldByName('Created_by').AsString;
-   CLASS_.Owner              := DModule.QWork.FieldByName('Owner').AsString;
-
-   Result := Class_;
-End;
-
-Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-var d1, d2 : string;
-Begin
-   //DModule.SingleValue(
-   //'SELECT count(*) c '+
-   //'FROM CLASSES CLA ');
-   //info ( DModule.QWork.fieldByName('c').AsString);
-
-   d1 := copy(day1,10,10);
-   d2 := copy(day2,10,10);
-
-   if d1<>d2 then
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     LEC_CLA, '+
-   '     subjects SUB,'+
-   '     FORMS FRM,'+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
-   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']))
-   else
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     LEC_CLA, '+
-   '     subjects SUB,'+
-   '     FORMS FRM,'+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
-   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']));
-
-   Class_ := QWorkToClass;
-
-   Case DModule.QWork.RecordCount Of
-    0: Status := ClassNotFound;
-    1: Status := ClassFound;
-   Else begin
-     Status := ClassError;
-     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByLecturer: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'childId='+childId);
-   end;
-   End;
-End;
-
-Procedure DBGetClassByGroup(DAY1, DAY2 : String; Zajecia: Integer; GRO_ID : String; Var Status : Integer; Var Class_ : TClass_);
-var d1, d2 : string;
-Begin
-   d1 := copy(day1,10,10);
-   d2 := copy(day2,10,10);
-
-   if d1<>d2 then
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     GRO_CLA,'+
-   '     subjects SUB,'+
-   '     FORMS FRM, '+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
-   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']))
-   else
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     GRO_CLA,'+
-   '     subjects SUB,'+
-   '     FORMS FRM, '+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
-   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']));
-
-   Class_ := QWorkToClass;
-
-   Case DModule.QWork.RecordCount Of
-    0: Status := ClassNotFound;
-    1: Status := ClassFound;
-   Else begin
-     Status := ClassError;
-     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByGroup: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'GRO_ID='+GRO_ID);
-   end;
-   End;
-End;
-
-Procedure DBGetClassByRoom(DAY1, DAY2 : String; Zajecia: Integer; ROM_ID : String; Var Status : Integer; Var Class_ : TClass_);
-var d1, d2 : string;
-Begin
-   d1 := copy(day1,10,10);
-   d2 := copy(day2,10,10);
-
-   if d1<>d2 then
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     ROM_CLA,'+
-   '     subjects SUB,'+
-   '     FORMS FRM, '+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
-   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']))
-   else
-   DModule.SingleValue(
-   'SELECT CLA.*,'+
-          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
-          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
-   'FROM CLASSES CLA, '+
-   '     ROM_CLA,'+
-   '     subjects SUB,'+
-   '     FORMS FRM, '+
-   '     PLANNERS OWNER, '+
-   '     PLANNERS CREATOR '+
-   'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
-   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']));
-
-   Class_ := QWorkToClass;
-
-   Case DModule.QWork.RecordCount Of
-    0: Status := ClassNotFound;
-    1: Status := ClassFound;
-   Else begin
-     Status := ClassError;
-     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByRoom: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'ROM_ID='+ROM_ID);
-   end;
-   End;
-End;
 
 Procedure TClassByChildCache.ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
 Var t, t2 : Integer;
 Begin
  For t := 0 To Count-1 Do
    For t2 := 1 To MaxHours Do
-    If (Data[t][t2].Class_.ID = CLA_ID) and (Data[t][t2].Class_.hour =phour) and (Data[t][t2].Class_.day.Date=pday.Date) Then
+    If (Classes[t][t2].Class_.ID = CLA_ID) and (Classes[t][t2].Class_.hour =phour) and (Classes[t][t2].Class_.day.Date=pday.Date) Then
       Begin
-       Data[t][t2].Valid := False; Exit;
+       Classes[t][t2].Valid := False; Exit;
       End;
 
  dResetByCLA_IDDone:='Y';
@@ -1578,11 +1356,16 @@ Var t : Integer;
 Begin
  dResetByDayDone := 'Y';
 
+ //you cannot clear something beyound the setting of current period (this period has less hours (maxhours) than Zajecia
+ if Zajecia > Maxhours then exit;
+
  t := TS.Date - FirstDay;
  If t <= Count-1 Then begin
-    Data[t][Zajecia].Valid := False; Exit; end
- else
-    //info ('???');
+    Classes[t][Zajecia].Valid := False;
+    Exit;
+ end;
+
+
 end;
 
 // // // // // //
@@ -1608,7 +1391,7 @@ Begin
    ' ts.date='+intToStr(ts.date)+cr+
    ' firstDay='+intToStr(firstDay)+cr+
    ' t1='+intToStr(t1)+cr+
-   ' high(data)='+ inttostr(high(data))+cr+
+   ' high(Classes)='+ inttostr(high(Classes))+cr+
    ' Zajecia=' + intToStr(zajecia)+cr+
    ' MaxHours=' + intToStr(MaxHours)+cr+
    ' ChildId=' + childId+cr+
@@ -1626,12 +1409,12 @@ Begin
  t1 := TS.Date - FirstDay;
 
  dLastError := '';
- if (t1 > high(data)) or (Zajecia > MaxHours) then begin
+ if (t1 > high(Classes)) or (Zajecia > MaxHours) then begin
    dLastError := 'Przepraszamy! Przytrzymaj naciœniêty przycisk Esc, ¿eby pozbyæ siê tego komunikatu, a nastêpnie naciœnij przycisk odœwie¿. Zg³oœ ten problem serwisowi technicznemu.'+cr+
    ' ts.date='+intToStr(ts.date)+cr+
    ' firstDay='+intToStr(firstDay)+cr+
    ' t1='+intToStr(t1)+cr+
-   ' high(data)='+ inttostr(high(data))+cr+
+   ' high(Classes)='+ inttostr(high(Classes))+cr+
    ' Zajecia=' + intToStr(zajecia)+cr+
    ' MaxHours=' + intToStr(MaxHours)+cr+
    ' ChildId=' + childId+cr+
@@ -1648,9 +1431,9 @@ Begin
 
  d_GetClassByDone := 'Y';
 
- If Data[t1][Zajecia].Valid Then Begin
-   Status := Data[t1][Zajecia].Status;
-   Class_ := Data[t1][Zajecia].Class_;
+ If Classes[t1][Zajecia].Valid Then Begin
+   Status := Classes[t1][Zajecia].Status;
+   Class_ := Classes[t1][Zajecia].Class_;
    Exit;
  End;
 
@@ -1663,9 +1446,9 @@ Begin
 
   With DModule Do Begin
    For L1 := t1 To t2 Do Begin
-     if (L1 <= high(data)) and (Zajecia <= maxHours) then begin // do not perform operation out of the cache buffer
-       Data[L1][Zajecia].Valid  := True;
-       Data[L1][Zajecia].Status := ClassNotFound;
+     if (L1 <= high(Classes)) and (Zajecia <= maxHours) then begin // do not perform operation out of the cache buffer
+       Classes[L1][Zajecia].Valid  := True;
+       Classes[L1][Zajecia].Status := ClassNotFound;
      end;
    End;
 
@@ -1677,9 +1460,9 @@ Begin
 
    t1 := X-FirstDay;
 
-   if (t1 <= high(data)) and (y <= maxHours) then begin // do not perform operation out of the cache buffer
-     Data[t1][y].Status := SuccStatus(Data[t1][y].Status);
-     Data[t1][y].Class_ := QWorkToClass;
+   if (t1 <= high(Classes)) and (y <= maxHours) then begin // do not perform operation out of the cache buffer
+     Classes[t1][y].Status := SuccStatus(Classes[t1][y].Status);
+     Classes[t1][y].Class_ := dm.QWorkToClass;
    end;
 
    QWork.Next;
@@ -1687,9 +1470,9 @@ Begin
   End;
 
  t1 := TS.Date - FirstDay;
- If Data[t1][Zajecia].Valid Then Begin
-     Status := Data[t1][Zajecia].Status;
-     Class_ := Data[t1][Zajecia].Class_;
+ If Classes[t1][Zajecia].Valid Then Begin
+     Status := Classes[t1][Zajecia].Status;
+     Class_ := Classes[t1][Zajecia].Class_;
      Exit;
  End;
  Info('Sytuacja niemo¿liwa! Zajecia='+IntToStr(Zajecia)+' TS.Date='+DateTimeToStr(TimeStampToDateTime(TS)));
@@ -1732,7 +1515,7 @@ begin
 
  for t := 0 to maxLength - 1 do begin
    if Data[t].childId = childId then begin
-     Data[t].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
+     Data[t].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,dm.DBGetClassByLecturer);
      exit;
    end;
  end;
@@ -1996,13 +1779,13 @@ end;
 procedure TFMain.BDICTLECClick(Sender: TObject);
 begin
   LECTURERSShowModalAsBrowser('');
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.BDICTGROClick(Sender: TObject);
 begin
   GROUPSShowModalAsBrowser('');
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.BDICTSUBClick(Sender: TObject);
@@ -2050,7 +1833,7 @@ procedure TFMain.RefreshGrid;
   bDeleteClass.Enabled := canDelete;
   bdelpopup.Visible := V;
   beditpopup.Visible := V;
-  bRefresh.Visible := V;
+  DeepRefresh.Visible := V;
   bcopyarea.Visible := V;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
@@ -2232,7 +2015,7 @@ begin
    if isBlank(conPeriod.Text) then exit;
    SetVisibles;
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
-   BRefreshClick(nil);
+   DeepRefreshClick(nil);
   End;
 end;
 
@@ -2244,7 +2027,7 @@ begin
    SetVisibles;
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
-   BRefreshClick(nil);
+   DeepRefreshClick(nil);
   End;
 end;
 
@@ -2823,6 +2606,7 @@ Procedure TFMain.insertClasses;
      resourceList                : string;
      ttCombIds                   : string;
      currentPatternId            : string;
+     subjectIds                  : string;
  Begin
     For t := 1 To maxInClass Do Begin
       PLecturers[t] :=0;
@@ -2890,12 +2674,24 @@ Procedure TFMain.insertClasses;
       PRoomsWithChilds[t] := StrToInt(Value)
      End;
 
+     subjectIds :='';
+     if s <>0 then
+     with dmodule do
+     begin
+       openSQL('select child_id from str_elems where parent_id = '+intToStr(S));
+       While Not QWork.EOF Do Begin
+         subjectIds := merge(subjectIds, QWork.FieldByName('child_id').AsString, ',');
+         QWork.Next;
+       End;
+       if subjectIds = '' then subjectIds := intToStr(S);
+     end;
+
      resourceList := replace(
         iif(CONPERIOD.Text='','',CONPERIOD.Text+',')+
         iif(L='','',L+',')+
         iif(G='','',G+',')+
         iif(R='','',R+',')+
-        iif(S=0,'',intToStr(S)+',')+
+        iif(S=0,'',subjectIds+',')+
         intToStr(FormId)+','+
         UserID // =in this context user=owner.
                         // Not "getUserOrRoleID" - class belongs to user, but not to his role
@@ -3127,7 +2923,7 @@ begin
      FLegend.BRefreshClick(nil);
 end;
 
-procedure TFMain.BRefreshClick(Sender: TObject);
+procedure TFMain.DeepRefreshClick(Sender: TObject);
 var pCol, pRow : integer;
 begin
   //pCol := grid.Col;
@@ -3158,7 +2954,7 @@ end;
 procedure TFMain.Cofnij1Click(Sender: TObject);
 begin
   Dmodule.RollbackTrans;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
   //
   AutoSaveCounterDown := -1;
   StatusBar.Panels[0].Text:=''; //saved
@@ -3414,6 +3210,35 @@ procedure TFMain.BDeleteClassClick(Sender: TObject);
 Var xp, yp  : Integer;
     Class_ : TClass_;
     Status : Integer;
+    pId : String;
+
+	function deleteChildsAndParents (objectType :integer) : boolean;
+			var childsAndParents : String;
+			currentChildOrParent : String;
+			t : integer;
+	begin
+			result := true;
+			childsAndParents := getChildsAndParents(pId, '', true, true);
+
+			For t := 1 To WordCount(childsAndParents,[';']) Do Begin
+					currentChildOrParent := ExtractWord(t, childsAndParents, [';']);
+
+					//compare to Function TCheckConflicts.DeleteConflictClasses : Boolean;
+          Case TabViewType.TabIndex Of
+           0: dm.DBGetClassByLecturer(TSDateToOracle(TS), TSDateToOracle(TS), Zajecia, currentChildOrParent,Status,Class_);
+           1: dm.DBGetClassByGroup(TSDateToOracle(TS), TSDateToOracle(TS), Zajecia, currentChildOrParent,Status,Class_);
+           2: dm.DBGetClassByRoom(TSDateToOracle(TS), TSDateToOracle(TS), Zajecia, currentChildOrParent,Status,Class_);
+           3: dm.DBGetClassByRoom(TSDateToOracle(TS), TSDateToOracle(TS), Zajecia, currentChildOrParent,Status,Class_);
+          end;
+
+					Case Status Of
+					ClassNotFound : Begin End;
+					ClassFound    : If Result Then Result := Result And DeleteClass(Class_, -1);
+					ClassError    : If Result Then Result := Result And DeleteClass(Class_, -1);
+			End;
+
+			End;
+	end;
 
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
@@ -3424,27 +3249,30 @@ begin
   Exit;
  End;
 
-    With Grid Do
-     Begin
-      dmodule.CommitTrans;
-      For xp:=Selection.Left To Selection.Right Do
-       For yp:=Selection.Top To Selection.Bottom Do
-          If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then Begin
-           Case TabViewType.TabIndex Of
-            0: ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
-            1: ClassByGroupCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, ConGroup.Text, intToStr(AObjectId)), Status, Class_);
-            2: ClassByRoomCaches.GetClass(TS, Zajecia, iif(AObjectId = -1, conResCat0.Text, intToStr(AObjectId)), Status, Class_);
-            3: ClassByResCat1Caches.GetClass(TS, Zajecia, iif(AObjectId = -1, CONResCat1.Text, intToStr(AObjectId)), Status, Class_);
-           End;
-           Case Status Of
-            ClassNotFound : Begin End;
-            ClassFound    : DeleteClass(Class_,-1);
-            ClassError    : DeleteClass(Class_,-1);
-           End;
-          End;
-      Refresh;
-     End;
-  refreshPanels;
+ With Grid Do
+ Begin
+   dmodule.CommitTrans;
+   For xp:=Selection.Left To Selection.Right Do
+    For yp:=Selection.Top To Selection.Bottom Do
+       If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then Begin
+        Case TabViewType.TabIndex Of
+         0: begin pId := iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)); ClassByLecturerCaches.LGetClass(TS, Zajecia, pId, Status, Class_); end;
+         1: begin pId := iif(AObjectId = -1, ConGroup.Text, intToStr(AObjectId));    ClassByGroupCaches.GetClass(TS, Zajecia, pId, Status, Class_);     end;
+         2: begin pId := iif(AObjectId = -1, conResCat0.Text, intToStr(AObjectId));  ClassByRoomCaches.GetClass(TS, Zajecia, pId, Status, Class_);      end;
+         3: begin pId := iif(AObjectId = -1, CONResCat1.Text, intToStr(AObjectId));  ClassByResCat1Caches.GetClass(TS, Zajecia, pId, Status, Class_);   end;
+        End;
+        Case Status Of
+         ClassNotFound : Begin End;
+         ClassFound    : begin
+           if Class_.owner ='AUTO'  then begin if not deleteChildsAndParents (TabViewType.TabIndex) then Dmodule.RollbackTrans; end
+                                    else DeleteClass(Class_,-1);
+         end;
+         ClassError    : DeleteClass(Class_,-1);
+        End;
+       End;
+   Refresh;
+ End;
+ DeepRefreshClick(nil);
 end;
 
 procedure TFMain.Rodzajerezerwacji1Click(Sender: TObject);
@@ -3454,7 +3282,7 @@ begin
   BuildCalendar('X');
 end;
 
-procedure TFMain.showClasses(ignoreLgr, selectedDatesOnly : boolean);
+procedure TFMain.showClasses(ignoreLgr, selectedDatesOnly, hideEdit : boolean);
 var l,g,r : shortString;
 begin
   l := '';
@@ -3468,7 +3296,7 @@ begin
      3: r := ExtractWord(1, conResCat1.Text ,  [';'])
     end;
 
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES',l,g,r, CONPERIOD.Text,'','','',selectedDatesOnly);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES',l,g,r, '' {CONPERIOD.Text},'','','',selectedDatesOnly, true);
 end;
 
 procedure TFMain.LegendClick(Sender: TObject);
@@ -3517,16 +3345,16 @@ Var t : Integer;
     Var t, t2 : Integer;
     Begin
       MaxHours := aMaxHours;
-      SetLength(Data, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
+      SetLength(Classes, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
       for t := 0 to aCount -1 do     // ... i to samo dla kazdej tabeli zagniezdzonej
-        setLength(Data[t], MaxHours+1);
+        setLength(Classes[t], MaxHours+1);
 
       FirstDay := aFirstDay;
       Count    := aCount;
 
      For t := 0 To Count-1 Do
       For t2 := 1 To MaxHours Do
-        Data[t][t2].Valid := False;
+        Classes[t][t2].Valid := False;
     End;
 
 begin
@@ -3570,8 +3398,8 @@ begin
 
    For L1 := 0 To Count -1 Do Begin
      For L2 := 1 To MaxHours Do Begin
-       Data[L1][L2].Valid  := True;
-       Data[L1][L2].Status := ClassNotFound;
+       Classes[L1][L2].Valid  := True;
+       Classes[L1][L2].Status := ClassNotFound;
       End;
    End;
 
@@ -3594,24 +3422,24 @@ begin
 
    t := X-FirstDay;
 
-   if  (t < 0) or (t >high(data)) then SError('Wyst¹pi³o zdarzenie "3 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
+   if  (t < 0) or (t >high(Classes)) then SError('Wyst¹pi³o zdarzenie "3 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
    if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: '+'1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
    else begin
      //dGeneralDebug := 'Status='+inttostr(Data[t][y].Status) + 'day='+ dateToYYYYMMDD_HHMMSSMI(QWork.FieldByName('DAY').AsDateTime) +'hour='+ QWork.FieldByName('HOUR').AsString + ' ' + qwork.SQL.Text; //@@@@
-     Data[t][y].Status := SuccStatus(Data[t][y].Status);
+     Classes[t][y].Status := SuccStatus(Classes[t][y].Status);
      //if (Data[t][y].Status=classError) then begin
      // info('@@@@ ERROR4 ' + dGeneralDebug);
      // fmain.Memo1.Lines.Text := dGeneralDebug;
      // copyToClipboard('@@@@ ERROR4 ' + dGeneralDebug);
      // end;
-     Data[t][y].Class_ := QWorkToClass;
+     Classes[t][y].Class_ := QWorkToClass;
    end;
 
    QWork.Next;
   End;
   End;
 
-  dHighData := high(data);
+  dHighData := high(Classes);
   dInitDone := 'Y';
 end;
 
@@ -4413,6 +4241,7 @@ begin
 	end;
 	//move
 	modifyClasses ( dx, dy, iif(gridSelectionMode = clRed,clMove,clCopy),'','');
+  grid.Refresh;
 end;
 
 procedure TFMain.clearSelection;
@@ -4533,7 +4362,6 @@ begin
     for t := 1 to wordCount(KeyValues, [',']) do begin
       KeyValue := extractWord(t,KeyValues, [',']);
       modifyClasses(0,0,clAttachLec,KeyValue,'', exitIfAnyExists);
-      if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
     end;
     grid.Refresh;
   end;
@@ -4656,7 +4484,7 @@ begin
   13:GridDblClick(nil);
   32:begin
        FMain.set_tmp_selected_dates;
-       showClasses(true,true);
+       showClasses(true,true, true);
      end;
   46:if canDelete then BDeleteClassClick(nil);
   {c}67:if ssCtrl in Shift then copyArea;
@@ -4691,7 +4519,7 @@ begin
    if Class_.owner ='AUTO' then begin
       FMain.set_tmp_selected_dates;
       classForEdition := -1;
-      showClasses(false,true);
+      showClasses(false,true, false);
       if (classForEdition <> -1) then begin
         convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Grid.Selection.Left,Grid.Selection.Top);
 
@@ -4721,7 +4549,7 @@ begin
         end;
         InsertClasses;
       end;
-      BRefreshClick(nil);
+      DeepRefreshClick(nil);
    end
    else
    begin
@@ -5164,7 +4992,7 @@ begin
  End;
 
  DModule.SQL('BEGIN PLANNER_UTILS.UPDATE_LGRS; END;');
- BRefreshClick(nil);
+ DeepRefreshClick(nil);
  Info('Pola zosta³y odœwie¿one');
 end;
 
@@ -5496,7 +5324,7 @@ procedure TFMain.Ustawieniaprogramu2Click(Sender: TObject);
 begin
   inherited;
   FProgramSettings.ShowModal;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.Kategoriezasobw1Click(Sender: TObject);
@@ -5552,7 +5380,8 @@ end;
 procedure TFMain.Penyprzegld1Click(Sender: TObject);
 begin
   FMain.set_tmp_selected_dates;
-  showClasses(false,false);
+  showClasses(true,false, true);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.UtwrzwitrynWWW1Click(Sender: TObject);
@@ -5674,7 +5503,7 @@ procedure TFMain.Ustawieniakonfiguracyjne1Click(Sender: TObject);
 begin
   FProgramSettings.ShowModal;
   buildMenu;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.mmconsolidationClick(Sender: TObject);
@@ -5686,7 +5515,7 @@ begin
 
   GridPanel.Visible := false;
   CONSOLIDATIONShowModalAsBrowser(-1);
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.MMDiagramClick(Sender: TObject);
@@ -5697,11 +5526,11 @@ end;
 procedure TFMain.AutoSaverTimer(Sender: TObject);
 begin
   If AutoSaveCounterDown >= 0 then  AutoSaveCounterDown := AutoSaveCounterDown -1;
-  if AutoSaveCounterDown <> -1 then StatusBar.Panels[0].Text:='Nie zapisane ' + inttostr(AutoSaveCounterDown); 
+  if AutoSaveCounterDown <> -1 then StatusBar.Panels[0].Text:='Nie zapisane ' + inttostr(AutoSaveCounterDown);
   if AutoSaveCounterDown <> 0 then exit;
   If (DModule.ADOConnection.Connected) and (DModule.ADOConnection.InTransaction) Then Begin
     dmodule.CommitTrans;
-    StatusBar.Panels[0].Text:=''; //saved 
+    StatusBar.Panels[0].Text:=''; //saved
   end;
 end;
 
@@ -5714,6 +5543,7 @@ function TFMain.modifyClass;
 		 pttCombIds         : string;
 		 cellStatus         : integer;
 		 calendarSelected   : boolean;
+     Status             : Integer;
 
 	   // unplugValue('1;2;3;4','4') --> '1;2;3'
 	   // unplugValue('1;2;3;4','3') --> '1;2;4'
@@ -5743,38 +5573,46 @@ function TFMain.modifyClass;
 	   end;
 
 
-	begin
+	begin //internalModifyClass
 	  result := false;
-	  If convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row) <> ConvClass Then
-	  begin
-	   //info ('Zaznacz rekord, który zamierzasz przesun¹æ');
-	   // skoro komorka nie zawiera zajecia do przesuniecia, to po prostu zignoruj ten fakt
-	   result := true;
-	   exit;
-	  end;
 
-	  If GetClassByRowCol(Col, Row, oldClass) <> ClassFound Then
-	  begin
-	   // skoro nie ma zajecia to przesuwania, to po prostu zignoruj ten fakt
-	   result := true;
-	   exit;
-	  end;
+    //find class by col/row (used by FMain)
+    if classId = 'N/A' then begin
+	    If convertGrid.ColRowToDate(AObjectId, newTS, newZajecia, Col, Row) <> ConvClass Then
+	    begin
+	     // nothing to do, exit
+	     result := true;
+	     exit;
+	    end;
+
+	    If GetClassByRowCol(Col, Row, oldClass) <> ClassFound Then
+	    begin
+	     // nothing to do, exit
+	     result := true;
+	     exit;
+	    end;
+    //find class by classId (used by FBrowseClasses)
+    end else begin
+       DBGetClassByClassId(classId, Status, oldClass);
+    end;
 
 	  //do not check combinations. just use old ones
 	  pttCombIds := dmodule.SingleValue('select tt_planner.get_tt_cla ( :id ) from dual', 'id=' + intToStr(oldClass.id) );
 
-	  repeat
-		  col := col + deltaX;
-		  row := row + deltaY;
-		  cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
-	  until  (cellStatus = ConvClass) or (cellStatus = convOutOfRange);
+    if ( deltaX <> 0) or (deltaY <> 0) then begin
+		  repeat
+			  col := col + deltaX;
+			  row := row + deltaY;
+			  cellStatus := convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row);
+		  until  (cellStatus = ConvClass) or (cellStatus = convOutOfRange);
 
-	  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
-	  Then
-	  begin
-	   info ('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
-	   exit;
-	  end;
+		  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
+		  Then
+		  begin
+		   info ('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
+		   exit;
+		  end;
+    end;
 
 	  newClass      := oldClass;
 
@@ -6210,16 +6048,13 @@ begin
     xp := xstart;
     repeat
      xp := xp + dx;
-     if not modifyClass ( xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
+     if not modifyClass ('N/A', xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
      if successFlag then cellsSucceed    := cellsSucceed +1
                     else cellsNotSucceed := cellsNotSucceed +1;
     until xp = xend;
   until yp = yend;
 
   moveSelection ( deltaX, deltaY);
-
-  //odswiezenie zawartosci siatki
-  grid.Refresh;
 
   {
   case operation of
@@ -6249,22 +6084,26 @@ end;
 procedure TFMain.bmoveUpClick(Sender: TObject);
 begin
   modifyClasses ( 0, -1, clMove,'','' );
+  grid.Refresh;
 end;
 
 procedure TFMain.bmoveDownClick(Sender: TObject);
 begin
   inherited;
   modifyClasses ( 0, +1, clMove,'','' );
+  grid.Refresh;
 end;
 
 procedure TFMain.bmoveLeftClick(Sender: TObject);
 begin
   modifyClasses ( -1, 0, clMove,'','' );
+  grid.Refresh;
 end;
 
 procedure TFMain.bmoverightClick(Sender: TObject);
 begin
   modifyClasses ( +1, 0, clMove,'','' );
+  grid.Refresh;
 end;
 
 procedure TFMain.Zestawywarto1Click(Sender: TObject);
@@ -6284,7 +6123,7 @@ begin
    Application.CreateForm(TFChangePassword, FChangePassword);
    if fchangepassword.showmodal = mrOK then begin
     dmodule.SQL('alter user '+DM.UserName+' identified by "'+fchangepassword.ENewPassword.Text+'"');
-    info ('Has³o dla u¿ytkownika '+DM.UserName+' zosta³o poprawnie zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
+    info ('Has³o u¿ytkownika '+DM.UserName+' zosta³o zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
    end;
    fchangepassword.Free;
    fchangepassword := nil;
@@ -6696,13 +6535,13 @@ begin
   end;
 
   if FCopyClasses = nil then Application.CreateForm(TFCopyClasses, FCopyClasses);
-  if FCopyClasses.showModal = mrOK then BRefreshClick(nil);
+  if FCopyClasses.showModal = mrOK then DeepRefreshClick(nil);
 end;
 
 procedure TFMain.mmpurgeClick(Sender: TObject);
 begin
  if FPurgeData = nil then Application.CreateForm(TFPurgeData, FPurgeData);
- if fpurgedata.showmodal = mrOK then BRefreshClick(nil);
+ if fpurgedata.showmodal = mrOK then DeepRefreshClick(nil);
 end;
 
 procedure TFMain.Atrybuty1Click(Sender: TObject);
@@ -6881,20 +6720,20 @@ procedure TFMain.FavSelectedClick(
   Sender: TObject);
 begin
   FavSelected.Checked := true;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.FavOffClick(Sender: TObject);
 begin
   FavOff.Checked := true;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.FavAllClick(Sender: TObject);
 begin
   inherited;
   FavAll.Checked := true;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 function TFMain.getCurrentObjectId : integer;
@@ -7477,7 +7316,7 @@ end;
 procedure TFMain.Siatkagodzinowa1Click(Sender: TObject);
 begin
   GRIDSShowModalAsBrowser;
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 
@@ -7489,7 +7328,7 @@ begin
   KeyValue := conPeriod.Text;
   If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
    conPeriod.Text := KeyValue;
-   BRefreshClick(nil);
+   DeepRefreshClick(nil);
   End else
     if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
 
@@ -7595,14 +7434,13 @@ begin
      consubjectChange (consubject);
      conformChange    (conform);
      canBuildCalendar := true;
-     BRefreshClick(nil);
+     DeepRefreshClick(nil);
    end;
 end;
 
 procedure TFMain.Listazajchistoriazmian1Click(Sender: TObject);
 begin
-  if not trackHistoryInstalled then begin info('Element "Historia zmian" nie zosta³ zainstalowany'); exit; end;
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES_HISTORY','','','', '','','','',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES_HISTORY','','','', '','','','',false, true);
 end;
 
 procedure TFMain.BTraceHistoryClick(Sender: TObject);
@@ -7992,7 +7830,7 @@ Begin
       sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', '0=1', []);
     end;
 
-    sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','10'), []);
+    sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), []);
     dmodule.openSQL(fastQuery, sqlString ,
      'sa1='+ aFilter1+
      ';sa2='+ aFilter1+
@@ -8033,7 +7871,7 @@ Begin
     sqlString := stringreplace(sqlString, '%PERMISSIONS_L', getWhereClause('LECTURERS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','m'), []);
     sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
-    sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','10'), []);
+    sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), []);
     dmodule.openSQL(sqlString,
      'sa='+ aFilter1+
      ';sb='+ aFilter2+
@@ -8466,12 +8304,6 @@ begin
 
 end;
 
-procedure TFMain.Listzajzaznaczoneterminy1Click(Sender: TObject);
-begin
-    FMain.set_tmp_selected_dates;
-    showClasses(false,true);
-end;
-
 procedure TFMain.abelaprzestawna1Click(Sender: TObject);
 begin
   Innatabelaprzestawna1Click(sender);
@@ -8576,7 +8408,7 @@ begin
   If SearchCounter > 0 Then SearchCounter := SearchCounter - 1;
   If SearchCounter = 1 Then Begin
     refreshFilter.Enabled := false;
-    BRefreshClick(nil);
+    DeepRefreshClick(nil);
   end;
 end;
 
@@ -8620,7 +8452,7 @@ procedure TFMain.CALIDChange(Sender: TObject);
 begin
   if ignoreEvents then exit;
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-  BRefreshClick(nil);
+  DeepRefreshClick(nil);
 end;
 
 procedure TFMain.updateLeftPanel;
@@ -8815,14 +8647,14 @@ Begin
     if TreeMode.ItemIndex = 0 then begin
         sqlString := recentlyUsedQuery.Lines.Text;
         dmodule.openSQL(fastQuery, sqlString ,
-         'LIMIT='+ getSystemParam('FastQueryMaxRecords','100')+
+         'LIMIT='+ getSystemParam('FastQueryMaxRecords','1000')+
          ';PLA_ID='+ getUserOrRoleID
          );
     end;
     if TreeMode.ItemIndex = 1 then begin
         sqlString := mostlyUsedQuery.Lines.Text;
         dmodule.openSQL(fastQuery, sqlString ,
-         'LIMIT='+ getSystemParam('FastQueryMaxRecords','100')+
+         'LIMIT='+ getSystemParam('FastQueryMaxRecords','1000')+
          ';PLA_ID='+ getUserOrRoleID
          );
     end;
@@ -8833,7 +8665,7 @@ Begin
         sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','ROM_CLA','ROM_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_S', getWhereClause('SUBJECTS','CLASSES','SUB_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_F', getWhereClause('FORMS','CLASSES','FOR_ID'), []);
-        sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','100'), [rfReplaceAll]);
+        sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
     end;
     if TreeMode.ItemIndex = 3 then begin
@@ -8844,7 +8676,7 @@ Begin
         sqlString := stringreplace(sqlString, '%PERMISSIONS_R', getWhereClause('ROOMS','ROM_CLA','ROM_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_S', getWhereClause('SUBJECTS','CLASSES','SUB_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_F', getWhereClause('FORMS','CLASSES','FOR_ID'), []);
-        sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','100'), [rfReplaceAll]);
+        sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), [rfReplaceAll]);
         sqlString := stringreplace(sqlString, '%PERIOD_CLAUSE',  getWhereClausefromPeriod('ID='+conPeriod.text,'')   , [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
         //copytoclipboard(  sqlString); info ('debug');
@@ -9106,7 +8938,7 @@ begin
  canShow := false;
  FCellLayout.refreshLayout;
  canShow := true;
- BRefreshClick(nil);
+ DeepRefreshClick(nil);
 end;
 
 procedure TFMain.LoadPulpit;
@@ -9275,6 +9107,7 @@ procedure TFMain.Zmianywrozkadziezaj2Click(Sender: TObject);
 begin
   Zmianywrozkadziezaj1Click(nil);
 end;
+
 
 initialization
   Randomize;

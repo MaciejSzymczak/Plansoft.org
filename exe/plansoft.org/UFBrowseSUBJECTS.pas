@@ -213,7 +213,7 @@ end;
 
 procedure TFBrowseSUBJECTS.BUpdChild2Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '',Query['Id'],'','',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '',Query['Id'],'','',false, true);
 end;
 
 procedure TFBrowseSUBJECTS.ORGUNI_IDChange(Sender: TObject);
@@ -266,8 +266,7 @@ end;
 
 function TFBrowseSUBJECTS.getSearchFilter: string;
 begin
- result := '(xxmsz_tools.erasePolishChars(upper(org_units.name||subjects.abbreviation||subjects.desc1||subjects.desc2||subjects.name|| subjects.attribs_01||subjects.attribs_02||subjects.attribs_03||subjects.attribs_04||subjects.attribs_05'+
-           '||subjects.attribs_06||subjects.attribs_07||subjects.attribs_08||subjects.attribs_09||subjects.attribs_10||subjects.attribs_11||subjects.attribs_12||subjects.attribs_13||subjects.attribs_14||subjects.attribs_15)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+ result := format(sql_SUB_SEARCH, [ replacePolishChars( ansiuppercase(trim(ESearch.Text)) ) ]);
 end;
 
 function TFBrowseSUBJECTS.getFindCaption: string;

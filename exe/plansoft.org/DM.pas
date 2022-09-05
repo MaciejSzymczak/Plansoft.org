@@ -40,9 +40,13 @@ Const MaxAllLecturers     =   5000;
       sql_PERNAME         = 'NAME';
       sql_PLANAME         = 'NAME';
 
+      sql_SUB_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||subjects.abbreviation||subjects.desc1||subjects.desc2||subjects.name|| subjects.attribs_01||subjects.attribs_02||subjects.attribs_03||subjects.attribs_04||subjects.attribs_05'+
+          '||subjects.attribs_06||subjects.attribs_07||subjects.attribs_08||subjects.attribs_09||subjects.attribs_10||subjects.attribs_11||'
+          +'subjects.attribs_12||subjects.attribs_13||subjects.attribs_14||subjects.attribs_15||''#''||subjects.integration_id||''#'')) like ''%%%s%%'')';
+
       sql_FOR_SEARCH      = '(xxmsz_tools.erasePolishChars(upper(forms.abbreviation||forms.name||forms.attribs_01||forms.attribs_02||forms.attribs_03||forms.attribs_04'+
            '||forms.attribs_05||forms.attribs_06||forms.attribs_07||forms.attribs_08||forms.attribs_09||forms.attribs_10||forms.attribs_11||forms.attribs_12||forms.attribs_13||forms.attribs_14||forms.attribs_15'+
-           '||forms.desc1||forms.desc2)) like ''%%%s%%'')';
+           '||forms.desc1||forms.desc2||''#''||forms.integration_id||''#'')) like ''%%%s%%'')';
 
       sql_LECDESC         = 'SELECT '+sql_LECNAME+    ' FROM LECTURERS WHERE ID=';
       sql_GRODESC         = 'SELECT '+sql_GRONAME+    ' FROM groups WHERE ID=';
@@ -65,6 +69,39 @@ Const MaxAllLecturers     =   5000;
 
 Type
      TColors = Array[0..maxInClass] Of integer;
+
+// info ( intToStr(sizeOf(TClass_)) );
+Type TClass_    = Record
+                  id              : integer;
+                  day             : TTimeStamp;
+                  hour            : integer;
+                  fill            : integer;
+                  sub_id          : integer;
+                  sub_abbreviation: string[30];
+                  sub_name        : string[100];
+                  sub_colour      : integer;
+                  for_colour      : integer;
+                  owner_colour    : integer;
+                  creator_colour  : integer;
+                  class_colour    : integer;
+                  for_id          : integer;
+                  for_abbreviation: string[30];
+                  for_name        : string[30];
+                  for_kind        : string[1];
+                  calc_lecturers  : string;
+                  calc_groups     : string;
+                  calc_rooms      : string;
+                  calc_lec_ids    : string;
+                  calc_gro_ids    : string;
+                  calc_rom_ids    : string;
+                  calc_rescat_ids : string;
+                  created_by      : string[30];
+                  owner           : string[255];
+                  desc1           : string[255];
+                  desc2           : string[255];
+                  desc3           : string[255];
+                  desc4           : string[255];
+                 End;
 
 type
   TDModule = class(TDataModule)
@@ -99,6 +136,8 @@ type
     Function  SingleValue (S : String; const pparams : String = '') : String;
     Function  SingleValue2(S : String; const pparams : String = '') : String;
     Function  SingleValueParamDateTime(S : String; const paramName : String ; paramValue : tDateTime) : String;
+
+    //--
     Function  recordSetIsEmpty(S : String) : Boolean;
 
     Procedure InsertIntoEventLog(OWNER, KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME  : String);
@@ -121,7 +160,15 @@ type
     procedure generateGrid ( pnos, phours_from, phours_to : array of string );
     function  CustomdateRange(s : string):string;
     Procedure ExportToExcel(aGrid : TDBGrid );
+    Procedure ExportToHtml(aGrid : TDBGrid );
   end;
+
+Function QWorkToClass : TClass_;
+Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
+Procedure DBGetClassByGroup   (DAY1, DAY2 : String; Zajecia: Integer; GRO_ID        : String; Var Status : Integer; Var Class_ : TClass_);
+Procedure DBGetClassByRoom    (DAY1, DAY2 : String; Zajecia: Integer; ROM_ID        : String; Var Status : Integer; Var Class_ : TClass_);
+Procedure DBGetClassByClassId (classId : String; Var Status : Integer; Var Class_ : TClass_);
+
 
 type TMacros = class ( Tobject )
        QueriesCnt : integer;
@@ -1270,6 +1317,389 @@ Begin
  aQuery.DisableControls;
  doExport;
  aQuery.EnableControls;
+End;
+
+
+procedure TDModule.ExportToHtml(aGrid: TDBGrid);
+    var FileName : string;
+        F : TextFile;
+        aQuery : TADOQuery;
+
+    Procedure doExport;
+    var LineNumber : Integer;
+        LineString : string;
+        t : integer;
+        index : integer;
+        headers : array of String;
+        {------------------------------------}
+        procedure flush(tag : string);
+        var t : integer;
+        begin
+          Writeln(f, '<tr>');
+          for t := 0 to index-1 do begin
+              writeLn(f, '<'+tag+'>'+headers[t]+'</'+tag+'>');
+          end;
+          Writeln(f, '</tr>');
+        end;
+    begin
+          DeleteFile( FileName );
+
+          AssignFile(F, FileName);
+          ReWrite(F);
+
+          Writeln(f, '<!DOCTYPE html>');
+          Writeln(f, '<HTML>');
+          Writeln(f, '<HEAD>');
+          Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
+          Writeln(f, '<TITLE>Plansoft.org - eksport danych</TITLE>');
+          Writeln(f, '<style type="text/css" media="screen">');
+          Writeln(f, '@import "filtergrid.css";');
+          Writeln(f, 'h2{ margin-top: 50px; }');
+          Writeln(f, '.mytable{');
+          Writeln(f, '	width:100%; font-size:12px;');
+          Writeln(f, '	border:1px solid #ccc;');
+          Writeln(f, '}');
+          Writeln(f, 'th{ background-color:#003366; color:#FFF; padding:2px; border:1px solid #ccc; }');
+          Writeln(f, 'td{ padding:2px; border-bottom:1px solid #ccc; border-right:1px solid #ccc; }');
+          Writeln(f, '</style>');
+          Writeln(f, '<script language="javascript" type="text/javascript" src="actb.js"></script>');
+          Writeln(f, '<script language="javascript" type="text/javascript" src="tablefilter.js"></script>');
+          Writeln(f, '</HEAD>');
+          Writeln(f, '<BODY>');
+
+          WriteLn(F, '<TABLE ID="mytable">');
+
+              index := 0;
+              for t := 0 to agrid.Columns.Count-1 do
+                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
+                    inc ( index );
+                end;
+              setlength(headers, index);
+
+              index := 0;
+              for t := 0 to agrid.Columns.Count-1 do
+                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
+                    headers[index] := agrid.Columns[t].Title.Caption;
+                    inc ( index );
+                end;
+              flush('th');
+
+              LineNumber := 1;
+              aQuery.First;
+              While not aQuery.Eof do
+              begin
+                Inc(lineNumber);
+
+                index := 0;
+                for t := 0 to agrid.Columns.Count-1 do
+                  if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
+                  if aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).IsNull then
+                    headers[index] := ''
+                  else
+                    Case aGrid.Columns.Items[t].Field.DataType of
+                      //ftUnknown    : ;
+                      ftString     : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
+                      //ftSmallint   : ;
+                      //ftInteger    : ;
+                      //ftWord       : ;
+                      //ftBoolean    : ;
+                      //ftFloat      : ;
+                      //ftCurrency   : ;
+                      //ftBCD        : ;
+                      //ftDate       : ;
+                      //ftTime       : ;
+                      ftDateTime   : headers[index] := FormatDateTime('yyyy-mm-dd', aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value );
+                      //ftBytes      : ;
+                      //ftVarBytes   : ;
+                      //ftAutoInc    : ;
+                      //ftBlob       : ;
+                      //ftMemo       : ;
+                      //ftGraphic    : ;
+                      //ftFmtMemo    : ;
+                      //ftParadoxOle : ;
+                      //ftDBaseOle   : ;
+                      //ftTypedBinary: ;
+                      //ftCursor     : ;
+                      //ftFixedChar  : ;
+                      ftWideString : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
+                      //ftLargeint   : ;
+                      //ftADT        : ;
+                      //ftArray      : ;
+                      //ftReference  : ;
+                      //ftDataSet    : ;
+                      //ftOraBlob    : ;
+                      //ftOraClob    : ;
+                      //ftVariant    : ;
+                      //ftInterface  : ;
+                      //ftIDispatch  : ;
+                      //ftGuid       : ;
+                      //ftTimeStamp  : ;
+                      else headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
+                     End;
+                  inc(index);
+                  end;
+
+                LineString := IntToStr(LineNumber);
+                flush('td');
+                aQuery.Next;
+              end;
+              LineString := IntToStr(LineNumber);
+
+     WriteLn(F, '</TABLE>');
+
+     Writeln(f, '<script language="javascript" type="text/javascript">');
+     Writeln(f, '//<![CDATA[');
+
+     Writeln(f, '	var table2_Props = 	{');
+     Writeln(f, '		sort_select: true,');
+     Writeln(f, '		loader: true,');
+     Writeln(f, '		col_0: "select",');
+     Writeln(f, '		on_change: true,');
+     Writeln(f, '		display_all_text: " [ Wszystkie ] ",');
+     Writeln(f, '		rows_counter: true,');
+     Writeln(f, '		btn_reset: true,');
+     Writeln(f, '		rows_counter_text: "Liczba wierszy: ",');
+     Writeln(f, '		alternate_rows: true,');
+     Writeln(f, '		btn_reset_text: "Czyœæ filtr",');
+     //Writeln(f, '		col_width: ["220px",null,"280px"]');
+     Writeln(f, '		};');
+
+     Writeln(f, '	setFilterGrid( "mytable",table2_Props );');
+     Writeln(f, '//]]>');
+     Writeln(f, '</script>');
+
+     Writeln(f, '</BODY></HTML>');
+     CloseFile(F);
+
+     ExecuteFile(FileName,'','',SW_SHOWMAXIMIZED);
+    end;
+
+Begin
+ FProgramSettings.generateJsFiles;
+ FileName:= uutilityParent.ApplicationDocumentsPath + '\temp.html';
+ aQuery  := TADOQuery( aGrid.DataSource.DataSet );
+
+ If Not aQuery.Active Then Begin
+  Exit;
+ End;
+
+ aQuery.DisableControls;
+ doExport;
+ aQuery.EnableControls;
+End;
+
+
+Function QWorkToClass : TClass_;
+Var Class_ : TClass_;
+Begin
+   //@@@ komuniat o bledzie, gdy rozmiar pola przekracza rozmiar rekordu
+   Class_.ID                 := DModule.QWork.FieldByName('ID').AsInteger;
+   Class_.DAY                := dateTimeToTimeStamp ( DModule.QWork.FieldByName('DAY').asDateTime );
+   Class_.HOUR               := DModule.QWork.FieldByName('HOUR').AsInteger;
+   Class_.FILL               := DModule.QWork.FieldByName('FILL').AsInteger;
+   Class_.SUB_ID             := DModule.QWork.FieldByName('SUB_ID').AsInteger;
+   Class_.FOR_ID             := DModule.QWork.FieldByName('FOR_ID').AsInteger;
+   Class_.FOR_KIND           := DModule.QWork.FieldByName('FOR_KIND').AsString;
+   CLASS_.SUB_abbreviation   := DModule.QWork.FieldByName('SUB_abbreviation').AsString;
+   CLASS_.SUB_NAME           := DModule.QWork.FieldByName('SUB_NAME').AsString;
+   CLASS_.SUB_COLOUR         := DModule.QWork.FieldByName('SUB_COLOUR').AsInteger;
+   CLASS_.FOR_COLOUR         := DModule.QWork.FieldByName('FOR_COLOUR').AsInteger;
+   CLASS_.OWNER_COLOUR       := DModule.QWork.FieldByName('OWNER_COLOUR').AsInteger;
+   CLASS_.CREATOR_COLOUR     := DModule.QWork.FieldByName('CREATOR_COLOUR').AsInteger;
+   CLASS_.CLASS_COLOUR       := DModule.QWork.FieldByName('CLASS_COLOUR').AsInteger;
+   CLASS_.DESC1              := DModule.QWork.FieldByName('DESC1').AsString;
+   CLASS_.DESC2              := DModule.QWork.FieldByName('DESC2').AsString;
+   CLASS_.DESC3              := DModule.QWork.FieldByName('DESC3').AsString;
+   CLASS_.DESC4              := DModule.QWork.FieldByName('DESC4').AsString;
+   //CLASS_.SUB_DESC1        := DModule.QWork.FieldByName('SUB_DESC1').AsString;
+   //CLASS_.SUB_DESC2        := DModule.QWork.FieldByName('SUB_DESC2').AsString;
+   CLASS_.FOR_abbreviation   := DModule.QWork.FieldByName('FOR_abbreviation').AsString;
+   CLASS_.FOR_NAME           := DModule.QWork.FieldByName('FOR_NAME').AsString;
+   //CLASS_.FOR_DESC1        := DModule.QWork.FieldByName('FOR_DESC1').AsString;
+   //CLASS_.FOR_DESC2        := DModule.QWork.FieldByName('FOR_DESC2').AsString;
+   CLASS_.CALC_LECTURERS     := DModule.QWork.FieldByName('CALC_LECTURERS').AsString;
+   CLASS_.CALC_GROUPS        := DModule.QWork.FieldByName('CALC_GROUPS').AsString;
+   CLASS_.CALC_ROOMS         := DModule.QWork.FieldByName('CALC_ROOMS').AsString;
+   CLASS_.CALC_LEC_IDS       := DModule.QWork.FieldByName('CALC_LEC_IDS').AsString;
+   CLASS_.CALC_GRO_IDS       := DModule.QWork.FieldByName('CALC_GRO_IDS').AsString;
+   CLASS_.CALC_ROM_IDS       := DModule.QWork.FieldByName('CALC_ROM_IDS').AsString;
+   CLASS_.CALC_RESCAT_IDS    := DModule.QWork.FieldByName('CALC_RESCAT_IDS').AsString;
+   CLASS_.Created_by         := DModule.QWork.FieldByName('Created_by').AsString;
+   CLASS_.Owner              := DModule.QWork.FieldByName('Owner').AsString;
+
+   Result := Class_;
+End;
+
+Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
+var d1, d2 : string;
+Begin
+   //DModule.SingleValue(
+   //'SELECT count(*) c '+
+   //'FROM CLASSES CLA ');
+   //info ( DModule.QWork.fieldByName('c').AsString);
+
+   d1 := copy(day1,10,10);
+   d2 := copy(day2,10,10);
+
+   if d1<>d2 then
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     LEC_CLA, '+
+   '     subjects SUB,'+
+   '     FORMS FRM,'+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
+   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']))
+   else
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     LEC_CLA, '+
+   '     subjects SUB,'+
+   '     FORMS FRM,'+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE LEC_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
+   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']));
+
+   Class_ := dm.QWorkToClass;
+
+   Case DModule.QWork.RecordCount Of
+    0: Status := ClassNotFound;
+    1: Status := ClassFound;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByLecturer: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'childId='+childId);
+   end;
+   End;
+End;
+
+Procedure DBGetClassByGroup(DAY1, DAY2 : String; Zajecia: Integer; GRO_ID : String; Var Status : Integer; Var Class_ : TClass_);
+var d1, d2 : string;
+Begin
+   d1 := copy(day1,10,10);
+   d2 := copy(day2,10,10);
+
+   if d1<>d2 then
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     GRO_CLA,'+
+   '     subjects SUB,'+
+   '     FORMS FRM, '+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
+   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']))
+   else
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     GRO_CLA,'+
+   '     subjects SUB,'+
+   '     FORMS FRM, '+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
+   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']));
+
+   Class_ := dm.QWorkToClass;
+
+   Case DModule.QWork.RecordCount Of
+    0: Status := ClassNotFound;
+    1: Status := ClassFound;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByGroup: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'GRO_ID='+GRO_ID);
+   end;
+   End;
+End;
+
+Procedure DBGetClassByRoom(DAY1, DAY2 : String; Zajecia: Integer; ROM_ID : String; Var Status : Integer; Var Class_ : TClass_);
+var d1, d2 : string;
+Begin
+   d1 := copy(day1,10,10);
+   d2 := copy(day2,10,10);
+
+   if d1<>d2 then
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     ROM_CLA,'+
+   '     subjects SUB,'+
+   '     FORMS FRM, '+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
+   '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']))
+   else
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     ROM_CLA,'+
+   '     subjects SUB,'+
+   '     FORMS FRM, '+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE ROM_CLA.CLA_ID = CLA.ID AND SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+   '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
+   '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']));
+
+   Class_ := dm.QWorkToClass;
+
+   Case DModule.QWork.RecordCount Of
+    0: Status := ClassNotFound;
+    1: Status := ClassFound;
+   Else begin
+     Status := ClassError;
+     //copyToClipboard('Wyslij te informacje na email soft@home.pl: DBGetClassByRoom: DAY1='+DAY1+' DAY2='+DAY2+' Zajecia='+intToStr(Zajecia)+'ROM_ID='+ROM_ID);
+   end;
+   End;
+End;
+
+procedure DBGetClassByClassId(classId: String; var Status: Integer; var Class_: TClass_);
+Begin
+   DModule.SingleValue(
+   'SELECT CLA.*,'+
+          'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
+          'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+   'FROM CLASSES CLA, '+
+   '     subjects SUB,'+
+   '     FORMS FRM,'+
+   '     PLANNERS OWNER, '+
+   '     PLANNERS CREATOR '+
+   'WHERE SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID'+
+   '  AND CLA.ID =:classId'
+   ,'classId='+classId);
+
+   Class_ := dm.QWorkToClass;
+
+   Case DModule.QWork.RecordCount Of
+    0: Status := ClassNotFound;
+    1: Status := ClassFound;
+   Else begin
+     Status := ClassError;
+   end;
+   End;
 End;
 
 

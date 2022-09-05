@@ -3,7 +3,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
   Top = 198
   Width = 1059
   Height = 717
-  Caption = 'Ograniczenia'
+  Caption = 'Plan Studi'#243'w (Ograniczenia)'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
@@ -407,6 +407,13 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             FieldName = 'LAST_UPDATED_BY'
             Title.Caption = 'Zmodyfikowa'#322
             Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Width = 100
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
@@ -835,6 +842,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Width = 17
             Height = 22
             Hint = 'Poka'#380' w siatce'
+            Checked = True
+            State = cbChecked
             TabOrder = 0
             OnClick = chbShowLClick
           end
@@ -845,6 +854,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Width = 17
             Height = 17
             Hint = 'Poka'#380' w siatce'
+            Checked = True
+            State = cbChecked
             TabOrder = 1
             OnClick = chbShowLClick
           end
@@ -855,6 +866,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Width = 17
             Height = 22
             Hint = 'Poka'#380' w siatce'
+            Checked = True
+            State = cbChecked
             TabOrder = 2
             OnClick = chbShowLClick
           end
@@ -865,6 +878,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Width = 17
             Height = 17
             Hint = 'Poka'#380' w siatce'
+            Checked = True
+            State = cbChecked
             TabOrder = 3
             OnClick = chbShowLClick
           end
@@ -885,6 +900,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Width = 17
             Height = 17
             Hint = 'Poka'#380' w siatce'
+            Checked = True
+            State = cbChecked
             TabOrder = 5
             OnClick = chbShowLClick
           end
@@ -930,62 +947,114 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         Height = 370
         Align = alRight
         TabOrder = 6
-        Visible = False
-        object Splitter2: TSplitter
-          Left = 1
-          Top = 201
-          Width = 328
-          Height = 3
-          Cursor = crVSplit
-          Align = alTop
-        end
         object DetPanel1: TPanel
           Left = 1
           Top = 1
           Width = 328
           Height = 24
           Align = alTop
-          Caption = 'Dozwolone zasoby'
+          Caption = 'Powi'#261'zane zaj'#281'cia'
           TabOrder = 0
         end
         object Gridtt_resource_lists: TDBGrid
           Left = 1
           Top = 25
           Width = 328
-          Height = 176
-          Align = alTop
+          Height = 344
+          Align = alClient
           DataSource = DStt_resource_lists
-          Options = [dgEditing, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           TabOrder = 1
           TitleFont.Charset = EASTEUROPE_CHARSET
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'Arial'
           TitleFont.Style = []
-        end
-        object DetPanel2: TPanel
-          Left = 1
-          Top = 204
-          Width = 328
-          Height = 29
-          Align = alTop
-          Caption = 'Dodatkowe informacje'
-          TabOrder = 2
-        end
-        object Gridtt_inclusions: TDBGrid
-          Left = 1
-          Top = 233
-          Width = 328
-          Height = 136
-          Align = alClient
-          DataSource = DStt_inclusions
-          Options = [dgEditing, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
-          TabOrder = 3
-          TitleFont.Charset = EASTEUROPE_CHARSET
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -11
-          TitleFont.Name = 'Arial'
-          TitleFont.Style = []
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'DAY'
+              Title.Caption = 'Dzie'#324
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NO_FROM'
+              Title.Caption = 'Od'
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NO_TO'
+              Title.Caption = 'Do'
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CALC_ROOMS'
+              Title.Caption = 'Sala'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CALC_GROUPS'
+              Title.Caption = 'Grupa'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNITS'
+              Title.Caption = 'Trwanie'
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'FILL'
+              Title.Caption = 'Wypelnienie'
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'INFO_PLA'
+              Title.Caption = 'Info dla planist'#243'w'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'INFO_STU'
+              Title.Caption = 'Info dla student'#243'w'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CREATED_BY'
+              Title.Caption = 'Utworzone przez'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CREATION_DATE'
+              Title.Caption = 'Data utworzenia'
+              Width = 150
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CLA_ID'
+              Title.Caption = 'Id zaj'#281'cia'
+              Width = 55
+              Visible = True
+            end>
         end
       end
     end
@@ -2621,57 +2690,48 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     Left = 56
     Top = 296
   end
-  object Qtt_resource_lists: TADOQuery
+  object QClasses: TADOQuery
     Connection = DModule.ADOConnection
     CursorLocation = clUseServer
-    BeforeOpen = Qtt_resource_listsBeforeOpen
+    CursorType = ctStatic
+    BeforeOpen = QClassesBeforeOpen
     Parameters = <
       item
         Name = 'tt_comb_id'
-        DataType = ftString
-        Size = 2
-        Value = '-1'
+        Size = -1
+        Value = Null
       end>
     SQL.Strings = (
-      
-        'select tt_planner.get_res_desc ( res_id, tt_planner.get_rescat_i' +
-        'd (res_id) ) description'
-      '  from tt_resource_lists  '
-      '  where tt_comb_id = :tt_comb_id'
-      'order by 1')
+      'select cla_id'
+      '     , units'
+      '     , cla.day'
+      '     , grids.hour_from no_from'
+      '     , grids.hour_to no_to'
+      '     , cla.fill'
+      '     , cla.calc_rooms'
+      '     , cla.calc_groups'
+      '     , cla.desc1 info_pla'
+      '     , cla.desc2 info_stu'
+      '     , cla.created_by'
+      '     , cla.creation_date'
+      '  from tt_cla'
+      '    , classes cla'
+      '    , grids'
+      'where cla.id = cla_id'
+      '  and cla.hour = grids.no'
+      '  and tt_comb_id = :tt_comb_id'
+      'order by 3 desc,4,5')
     Left = 724
     Top = 299
-  end
-  object Qtt_inclusions: TADOQuery
-    Connection = DModule.ADOConnection
-    CursorLocation = clUseServer
-    BeforeOpen = Qtt_inclusionsBeforeOpen
-    Parameters = <
-      item
-        Name = 'tt_comb_id'
-        DataType = ftString
-        Size = 2
-        Value = '-1'
-      end>
-    SQL.Strings = (
-      
-        'select decode(INCLUSION_TYPE,'#39'LIST'#39','#39'Lista: '#39','#39'ALL'#39','#39'WSZYSCY: '#39',' +
-        ' INCLUSION_TYPE) ||'#39' '#39'|| tt_planner.get_rescat_desc (rescat_id) ' +
-        'description'
-      '  from tt_inclusions'
-      '  where tt_comb_id = :tt_comb_id and INCLUSION_TYPE <> '#39'LIST'#39
-      'order by 1')
-    Left = 724
-    Top = 467
   end
   object DStt_resource_lists: TDataSource
-    DataSet = Qtt_resource_lists
+    DataSet = QClasses
     Left = 764
     Top = 299
   end
-  object DStt_inclusions: TDataSource
-    DataSet = Qtt_inclusions
-    Left = 764
-    Top = 467
+  object TimerDetails: TTimer
+    OnTimer = TimerDetailsTimer
+    Left = 276
+    Top = 294
   end
 end

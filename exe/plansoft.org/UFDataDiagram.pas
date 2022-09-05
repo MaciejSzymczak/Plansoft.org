@@ -131,7 +131,7 @@ end;
 
 procedure TFDataDiagram.BitBtn4Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES','','','', '','','','',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES','','','', '','','','',false, true);
 end;
 
 procedure TFDataDiagram.BitBtn8Click(Sender: TObject);

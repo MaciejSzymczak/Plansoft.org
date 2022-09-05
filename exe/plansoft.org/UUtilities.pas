@@ -180,6 +180,10 @@ function isOwnerSupervisor(classOwners : String): boolean;
 
 function LROR (S : String; WordDelim : Char) : String;
 
+// quickInsertMode disables the clear cache and this speeds up the insertion.
+// once enabled remember to finalize the operation by Fmain.DeepRefresh(nil);
+var quickInsertMode : boolean;
+
 implementation
 
 Uses UFProgramSettings, StrUtils;
@@ -968,7 +972,7 @@ Begin
   For L := 1 To maxInClass Do
     If GroupsWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(GroupsWithChilds[L]),Status,Class_);
+      dm.DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(GroupsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass('G');
@@ -980,7 +984,7 @@ Begin
   For L := 1 To maxInClass Do
     If LecturersWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(LecturersWithChilds[L]),Status,Class_);
+      dm.DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(LecturersWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass('W');
@@ -991,7 +995,7 @@ Begin
   For L := 1 To maxInClass Do
     If RoomsWithChilds[L] <> 0 Then
     Begin
-      DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(RoomsWithChilds[L]),Status,Class_);
+      dm.DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(RoomsWithChilds[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : AddSingleClass('S');
@@ -1018,7 +1022,7 @@ Begin
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Groups[L] <> 0 Then
     Begin
-      DBGetClassByGroup(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
+      dm.DBGetClassByGroup(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
@@ -1030,7 +1034,7 @@ Begin
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Lecturers[L] <> 0 Then
     Begin
-      DBGetClassByLecturer(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
+      dm.DBGetClassByLecturer(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
@@ -1041,7 +1045,7 @@ Begin
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Rooms[L] <> 0 Then
     Begin
-      DBGetClassByRoom(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
+      dm.DBGetClassByRoom(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
        ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
@@ -1796,13 +1800,14 @@ begin
     end;
   end;
 
-  with fmain do begin
-    classByLecturerCaches.ResetByDay(myClass.day, myClass.hour);
-    classByGroupCaches.ResetByDay(myClass.day, myClass.hour);
-    classByRoomCaches.ResetByDay(myClass.day, myClass.hour);
-    classByResCat1Caches.ResetByDay(myClass.day, myClass.hour);
-    busyClassesCache.ClearCache;
-  end;
+  if quickInsertMode=false then
+    with fmain do begin
+      classByLecturerCaches.ResetByDay(myClass.day, myClass.hour);
+      classByGroupCaches.ResetByDay(myClass.day, myClass.hour);
+      classByRoomCaches.ResetByDay(myClass.day, myClass.hour);
+      classByResCat1Caches.ResetByDay(myClass.day, myClass.hour);
+      busyClassesCache.ClearCache;
+    end;
 end;
 
 procedure TConvertGrid.setupGrid(periodId: String;  singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt: integer);
@@ -1875,6 +1880,7 @@ Begin
 End;
 
 initialization
+  quickInsertMode    := false;
   CheckConflicts     := tCheckConflicts.create;
   convertGrid        := tConvertGrid.create;
   OpisujKolumneZajec := tOpisujKolumneZajec.create;

@@ -13,7 +13,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1127
     Height = 639
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1084
@@ -303,6 +302,13 @@ inherited FBrowseROOMS: TFBrowseROOMS
             Expanded = False
             FieldName = 'ID'
             Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Width = 100
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel

@@ -1,18 +1,18 @@
 inherited FBrowseCLASSES: TFBrowseCLASSES
-  Left = 430
-  Top = 218
-  Width = 1134
-  Caption = 'Zaj'#281'cia'
+  Left = 259
+  Top = 216
+  Width = 1315
+  Caption = 'Lista Zaj'#281#263
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Width = 1126
+    Width = 1307
   end
   inherited MainPage: TPageControl
-    Width = 1126
+    Width = 1307
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
-        Width = 1118
+        Width = 1299
         object Label1: TLabel [5]
           Left = 806
           Top = 8
@@ -40,15 +40,17 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
       end
       inherited Grid: TRxDBGrid
-        Top = 241
-        Width = 1118
-        Height = 260
+        Top = 273
+        Width = 1299
+        Height = 228
+        Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
+        MultiSelect = True
         Columns = <
           item
             Expanded = False
             FieldName = 'DAY'
             Title.Caption = 'Dzie'#324
-            Width = 60
+            Width = 80
             Visible = True
           end
           item
@@ -62,7 +64,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             Expanded = False
             FieldName = 'SUB_NAME'
             Title.Caption = 'Przedmiot'
-            Width = 150
+            Width = 300
             Visible = True
           end
           item
@@ -75,22 +77,22 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           item
             Expanded = False
             FieldName = 'CALC_LECTURERS'
-            Title.Caption = 'Wyk'#322'adowcy'
-            Width = 150
+            Title.Caption = 'Wyk'#322'adowca'
+            Width = 300
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'CALC_GROUPS'
             Title.Caption = 'Grupy'
-            Width = 150
+            Width = 200
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'CALC_ROOMS'
             Title.Caption = 'Zasoby'
-            Width = 150
+            Width = 200
             Visible = True
           end
           item
@@ -98,6 +100,34 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             FieldName = 'FILL'
             Title.Caption = 'Wyp.'
             Width = 40
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DESC1'
+            Title.Caption = 'Opis1'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DESC2'
+            Title.Caption = 'Opis2'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DESC3'
+            Title.Caption = 'Opis3'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DESC4'
+            Title.Caption = 'Opis4'
+            Width = 100
             Visible = True
           end
           item
@@ -165,34 +195,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end
           item
             Expanded = False
-            FieldName = 'DESC1'
-            Title.Caption = 'Opis1'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DESC2'
-            Title.Caption = 'Opis2'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DESC3'
-            Title.Caption = 'Opis3'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'DESC4'
-            Title.Caption = 'Opis4'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'ID'
             Title.Caption = 'Id'
             Width = 100
@@ -200,23 +202,81 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end>
       end
       inherited BottomPanel: TPanel
-        Width = 1118
+        Width = 1299
+        object BMassEdit: TBitBtn
+          Left = 88
+          Top = 5
+          Width = 153
+          Height = 28
+          Caption = 'Edytuj zestaw zaj'#281#263
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 10
+          OnClick = BMassEditClick
+          Glyph.Data = {
+            8A050000424D8A05000000000000360400002800000013000000110000000100
+            0800000000005401000000000000000000000001000000010000000000008080
+            8000000080000080800000800000808000008000000080008000408080004040
+            0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
+            FF0000FF0000FFFF0000FF000000FF00FF0080FFFF0080FF0000FFFF8000FF80
+            80008000FF004080FF0000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000000000000000000000000000000000000000000000F0F0F0F0F0F
+            0F0F0F0F0F0F0F0F0F0F0F0F0F810F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F
+            0F810F0F0F0F0F0F00000000000000000000000F0F810F0F0F0F0F0E0E0E0E0E
+            0E0E0E0E0E0E000F0F810F0F0F0F0F0E0000010E0100000E0E0E000F0F810F0F
+            0F0F0F0E0E0E0E00000E010E0E0E000F0F810F0F0F0F0F0E0E0E00031101010E
+            0E0E000F0F810F0F0F0F0F0E0E0003110E010E01000E000F0F810F0F0F0F0F0E
+            0003110E010E0E0E0E0E000F0F810F0F0F0F0F0003110E010E010000000E000F
+            0F810F0F0F0F0003110E010E0E0E0E0E0E0E000F0F810F0F0F0003110E010E01
+            00000E0E0E0E000F0F810F0F0003110E010E0E0E0E0E0E000000000F0F810F07
+            07000E010E01000000000E0000000F0F0F810F071010010E0E0E0E0E0E0E0E00
+            000F0F0F0F810F0110100F0E0E0E0E0E0E0E0E000F0F0F0F0F810F0F0F0F0F0F
+            0F0F0F0F0F0F0F0F0F0F0F0F0F81}
+        end
       end
       inherited Panel: TPanel
-        Width = 1118
+        Width = 1299
         inherited StatusBar: TStatusBar
-          Width = 1049
+          Width = 1230
         end
       end
       inherited CustomPanel: TPanel
         Top = 97
-        Width = 1118
-        Height = 144
+        Width = 1299
+        Height = 176
         inline GenericFilter: TFGenericFilter
           Left = 1
-          Top = 42
-          Width = 1430
-          Height = 103
+          Top = 81
+          Width = 1297
+          Height = 101
+          Align = alTop
           TabOrder = 1
           inherited bClearS: TSpeedButton
             Top = 61
@@ -421,15 +481,15 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             end
           end
         end
-        object PanelHistory: TPanel
+        object PanelDates: TPanel
           Left = 1
-          Top = 1
-          Width = 1116
-          Height = 41
+          Top = 42
+          Width = 1297
+          Height = 39
           Align = alTop
           TabOrder = 0
-          object historyLabel: TLabel
-            Left = 427
+          object LDAYTO_Label: TLabel
+            Left = 171
             Top = 6
             Width = 12
             Height = 14
@@ -438,27 +498,132 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           object Label2: TLabel
             Left = 8
             Top = 6
+            Width = 33
+            Height = 14
+            Caption = 'Kiedy: '
+          end
+          object ChSelectedDates: TCheckBox
+            Left = 360
+            Top = 6
+            Width = 241
+            Height = 17
+            Caption = 'Terminy zaznaczone w siatce'
+            TabOrder = 0
+            OnClick = ChSelectedDatesClick
+          end
+          object FHOUR: TComboBox
+            Left = 312
+            Top = 3
+            Width = 42
+            Height = 22
+            Style = csOwnerDrawFixed
+            DropDownCount = 25
+            ItemHeight = 16
+            MaxLength = 255
+            TabOrder = 1
+            OnChange = FDAY_FROMChange
+            Items.Strings = (
+              ''
+              '1'
+              '2'
+              '3'
+              '4'
+              '5'
+              '6'
+              '7'
+              '8'
+              '9'
+              '10'
+              '11'
+              '12'
+              '13'
+              '14'
+              '15'
+              '16'
+              '17'
+              '18'
+              '19'
+              '20'
+              '21'
+              '22'
+              '23'
+              '24'
+              '25'
+              '26'
+              '27'
+              '28'
+              '29'
+              '30'
+              '31'
+              '32'
+              '33'
+              '34'
+              '35'
+              '36'
+              '37'
+              '38'
+              '39'
+              '40'
+              '41'
+              '42'
+              '43'
+              '44'
+              '45'
+              '46'
+              '47'
+              '48'
+              '49'
+              '50'
+              '51'
+              '52'
+              '53'
+              '54'
+              '55'
+              '56'
+              '57'
+              '58'
+              '59'
+              '60')
+          end
+          object FDAY_TO: TDateEdit
+            Left = 192
+            Top = 4
+            Width = 121
+            Height = 21
+            NumGlyphs = 2
+            TabOrder = 2
+            OnChange = FDAY_FROMChange
+          end
+          object FDAY_FROM: TDateEdit
+            Left = 48
+            Top = 4
+            Width = 121
+            Height = 21
+            NumGlyphs = 2
+            TabOrder = 3
+            OnChange = FDAY_FROMChange
+          end
+        end
+        object PanelHistory: TPanel
+          Left = 1
+          Top = 1
+          Width = 1297
+          Height = 41
+          Align = alTop
+          TabOrder = 2
+          object Label3: TLabel
+            Left = 427
+            Top = 6
+            Width = 12
+            Height = 14
+            Caption = 'do'
+          end
+          object historyLabel: TLabel
+            Left = 8
+            Top = 6
             Width = 73
             Height = 14
             Caption = 'Historia zmian: '
-          end
-          object historyFrom: TDateEdit
-            Left = 296
-            Top = 6
-            Width = 121
-            Height = 21
-            NumGlyphs = 2
-            TabOrder = 0
-            OnChange = historyFromChange
-          end
-          object historyTo: TDateEdit
-            Left = 448
-            Top = 6
-            Width = 121
-            Height = 21
-            NumGlyphs = 2
-            TabOrder = 1
-            OnChange = historyToChange
           end
           object HistoryMode: TComboBox
             Left = 109
@@ -470,7 +635,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             ItemHeight = 16
             ItemIndex = 0
             MaxLength = 255
-            TabOrder = 2
+            TabOrder = 0
             Text = 'Wszystkie zmiany'
             OnChange = ComboSortOrderChange
             Items.Strings = (
@@ -485,114 +650,28 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
               'Zmiany - ostatnich 30 dni'
               'Zmiany w innym okresie')
           end
-        end
-        object FDAY: TDateEdit
-          Left = 936
-          Top = 66
-          Width = 121
-          Height = 21
-          NumGlyphs = 2
-          TabOrder = 2
-          OnChange = FDAYChange
-        end
-        object ShowRESCAT1: TEdit
-          Left = 936
-          Top = 44
-          Width = 121
-          Height = 15
-          BevelInner = bvNone
-          BevelOuter = bvNone
-          BorderStyle = bsNone
-          ReadOnly = True
-          TabOrder = 3
-          Text = 'Dzie'#324' i zaj'#281'cia'
-        end
-        object FHOUR: TComboBox
-          Left = 1056
-          Top = 66
-          Width = 42
-          Height = 22
-          Style = csOwnerDrawFixed
-          DropDownCount = 25
-          ItemHeight = 16
-          MaxLength = 255
-          TabOrder = 4
-          OnChange = FDAYChange
-          Items.Strings = (
-            ''
-            '1'
-            '2'
-            '3'
-            '4'
-            '5'
-            '6'
-            '7'
-            '8'
-            '9'
-            '10'
-            '11'
-            '12'
-            '13'
-            '14'
-            '15'
-            '16'
-            '17'
-            '18'
-            '19'
-            '20'
-            '21'
-            '22'
-            '23'
-            '24'
-            '25'
-            '26'
-            '27'
-            '28'
-            '29'
-            '30'
-            '31'
-            '32'
-            '33'
-            '34'
-            '35'
-            '36'
-            '37'
-            '38'
-            '39'
-            '40'
-            '41'
-            '42'
-            '43'
-            '44'
-            '45'
-            '46'
-            '47'
-            '48'
-            '49'
-            '50'
-            '51'
-            '52'
-            '53'
-            '54'
-            '55'
-            '56'
-            '57'
-            '58'
-            '59'
-            '60')
-        end
-        object ChSelectedDates: TCheckBox
-          Left = 936
-          Top = 90
-          Width = 273
-          Height = 17
-          Caption = 'Terminy zaznaczone w siatce'
-          TabOrder = 5
-          OnClick = ChSelectedDatesClick
+          object historyFrom: TDateEdit
+            Left = 296
+            Top = 6
+            Width = 121
+            Height = 21
+            NumGlyphs = 2
+            TabOrder = 1
+            OnChange = historyFromChange
+          end
+          object historyTo: TDateEdit
+            Left = 448
+            Top = 6
+            Width = 121
+            Height = 21
+            NumGlyphs = 2
+            TabOrder = 2
+            OnChange = historyToChange
+          end
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 1118
+        Width = 1299
         Height = 40
       end
       object fastQueryString: TMemo
@@ -603,29 +682,33 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Lines.Strings = (
           '('
           
-            '(LEC_CLA.LEC_ID in (select m.id from lecturers m, org_units o wh' +
-            'ere m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars(uppe' +
-            'r(o.name||m.abbreviation||m.title||m.first_name||m.last_name||m.' +
-            'email|| m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||' +
-            'm.attribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attrib' +
-            's_09||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.' +
-            'attribs_14||m.attribs_15)) like '#39'%var1%'#39'))) OR'
+            '(CLASSES.ID IN (select cla_id from lec_cla where lec_id in (sele' +
+            'ct m.id from lecturers m, org_units o where m.ORGUNI_ID = o.id(+' +
+            ') and (xxmsz_tools.erasePolishChars(upper(o.name||m.abbreviation' +
+            '||m.title||m.first_name||m.last_name||m.email||m.desc1||m.desc2|' +
+            '| m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attr' +
+            'ibs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||' +
+            'm.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attrib' +
+            's_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%var1%'#39'))' +
+            ')) OR'
           
-            '(GRO_CLA.GRO_ID in (select m.id from groups m, org_units o where' +
-            ' m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o' +
-            '.name||m.name||m.abbreviation||m.email||m.desc1||m.desc2||m.attr' +
-            'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
-            'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
-            's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
-            'attribs_15)) like '#39'%var2%'#39' ))) OR'
+            '(CLASSES.ID IN (select cla_id from gro_cla where gro_id in(selec' +
+            't m.id from groups m, org_units o where m.ORGUNI_ID = o.id(+) an' +
+            'd (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.abbrevia' +
+            'tion||m.email||m.desc1||m.desc2||m.attribs_01||m.attribs_02||m.a' +
+            'ttribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attribs_0' +
+            '7||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m.att' +
+            'ribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||m.integr' +
+            'ation_id||'#39'#'#39')) like '#39'%var2%'#39' )))) OR'
           
-            '(ROM_CLA.ROM_ID in (select m.id from rooms m, org_units o where ' +
-            'm.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper(o.' +
-            'name||m.name||m.desc1||m.desc2||m.attribs_01||m.email|| m.attrib' +
-            's_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.' +
-            'attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_' +
-            '10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.at' +
-            'tribs_15)) like '#39'%var3%'#39'))) OR'
+            '(CLASSES.ID IN (select cla_id from rom_cla where rom_id in (sele' +
+            'ct m.id from rooms m, org_units o where m.ORGUNI_ID = o.id(+) an' +
+            'd (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.desc1||m' +
+            '.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_02||m.at' +
+            'tribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attribs_07' +
+            '||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m.attr' +
+            'ibs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||m.integra' +
+            'tion_id||'#39'#'#39')) like '#39'%var3%'#39')))) OR'
           
             '(CLASSES.SUB_ID in (select m.id from subjects m, org_units o whe' +
             're m.ORGUNI_ID = o.id(+) and (xxmsz_tools.erasePolishChars(upper' +
@@ -633,14 +716,15 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             '||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attr' +
             'ibs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||' +
             'm.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attrib' +
-            's_15)) like '#39'%var4%'#39' ))) OR'
+            's_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%var4%'#39' ))) OR'
           
             '(CLASSES.FOR_ID in (select m.id from forms m where (xxmsz_tools.' +
             'erasePolishChars(upper(m.abbreviation||m.desc1||m.desc2||m.name|' +
             '|m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attri' +
             'bs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m' +
             '.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs' +
-            '_14||m.attribs_15)) like '#39'%var5%'#39' ))) OR'
+            '_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%var5%'#39' ))' +
+            ') OR'
           
             '(xxmsz_tools.erasePolishChars(upper(CLASSES.DESC1)) like '#39'%var6%' +
             #39') OR'
@@ -652,7 +736,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             #39') OR'
           
             '(xxmsz_tools.erasePolishChars(upper(CLASSES.DESC4)) like '#39'%var9%' +
-            #39')'
+            #39') OR'
+          '(GRIDS.CAPTION like '#39'%var10%'#39')'
           ')'
           '')
         TabOrder = 6
@@ -751,7 +836,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         FocusControl = DESC2
       end
       inherited UpdPanel: TPanel
-        Width = 1118
+        Width = 1299
       end
       inherited FlexPanel: TPanel
         TabOrder = 12
@@ -880,7 +965,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
     Top = 24
   end
   inherited PMenu: TPopupMenu
-    Left = 472
+    Left = 688
     Top = 104
   end
   inherited HolderSortOrder: TStrHolder
@@ -890,32 +975,54 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
     StrData = (
       ''
       
-        '5355425f4e414d457c50727a65646d696f747c43415445474f52593a44454641' +
-        '554c54'
-      '46524d5f4e414d457c466f726d617c43415445474f52593a44454641554c54'
-      
         '434f4e43415428746f5f63686172284441592c27797979792d6d6d2d64642729' +
         '2c484f55522920444553437c447a6965f1206920476f647a696e61206d616c65' +
         '6ab9636f7c43415445474f52593a44454641554c54'
       
-        '746f5f6368617228434c41535345532e4441592c27647927297c447a6965f120' +
-        '7479676f646e69617c43415445474f52593a44454641554c54'
+        '5355425f4e414d452c434f4e43415428746f5f63686172284441592c27797979' +
+        '792d6d6d2d646427292c484f55522920444553437c50727a65646d696f747c43' +
+        '415445474f52593a44454641554c54'
       
-        '43414c435f4c45435455524552537c57796bb361646f7763797c43415445474f' +
-        '52593a44454641554c54'
+        '46524d5f4e414d452c434f4e43415428746f5f63686172284441592c27797979' +
+        '792d6d6d2d646427292c484f55522920444553437c466f726d617c4341544547' +
+        '4f52593a44454641554c54'
       
-        '43414c435f47524f5550537c47727570797c43415445474f52593a4445464155' +
-        '4c54'
+        '746f5f6368617228434c41535345532e4441592c27647927292c434f4e434154' +
+        '28746f5f63686172284441592c27797979792d6d6d2d646427292c484f555229' +
+        '20444553437c447a6965f1207479676f646e69617c43415445474f52593a4445' +
+        '4641554c54'
       
-        '43414c435f524f4f4d537c5a61736f62797c43415445474f52593a4445464155' +
-        '4c54'
+        '6c65637475726572732e66756c6c5f6e616d652c434f4e43415428746f5f6368' +
+        '6172284441592c27797979792d6d6d2d646427292c484f55522920444553437c' +
+        '57796bb361646f7763617c43415445474f52593a44454641554c54'
       
-        '46494c4c7c57797065b36e69656e69657c43415445474f52593a44454641554c' +
-        '54'
-      '44455343317c4f706973317c43415445474f52593a44454641554c54'
-      '44455343327c4f706973327c43415445474f52593a44454641554c54'
-      '44455343337c4f706973337c43415445474f52593a44454641554c54'
-      '44455343347c4f706973347c43415445474f52593a44454641554c54'
+        '43414c435f47524f5550532c434f4e43415428746f5f63686172284441592c27' +
+        '797979792d6d6d2d646427292c484f55522920444553437c47727570797c4341' +
+        '5445474f52593a44454641554c54'
+      
+        '43414c435f524f4f4d532c434f4e43415428746f5f63686172284441592c2779' +
+        '7979792d6d6d2d646427292c484f55522920444553437c5a61736f62797c4341' +
+        '5445474f52593a44454641554c54'
+      
+        '46494c4c2c434f4e43415428746f5f63686172284441592c27797979792d6d6d' +
+        '2d646427292c484f55522920444553437c57797065b36e69656e69657c434154' +
+        '45474f52593a44454641554c54'
+      
+        '44455343312c434f4e43415428746f5f63686172284441592c27797979792d6d' +
+        '6d2d646427292c484f55522920444553437c4f706973317c43415445474f5259' +
+        '3a44454641554c54'
+      
+        '44455343322c434f4e43415428746f5f63686172284441592c27797979792d6d' +
+        '6d2d646427292c484f55522920444553437c4f706973327c43415445474f5259' +
+        '3a44454641554c54'
+      
+        '44455343332c434f4e43415428746f5f63686172284441592c27797979792d6d' +
+        '6d2d646427292c484f55522920444553437c4f706973337c43415445474f5259' +
+        '3a44454641554c54'
+      
+        '44455343342c434f4e43415428746f5f63686172284441592c27797979792d6d' +
+        '6d2d646427292c484f55522920444553437c4f706973347c43415445474f5259' +
+        '3a44454641554c54'
       '49647c49447c43415445474f52593a44454641554c54')
   end
   inherited GridLayout: TStrHolder
@@ -1185,7 +1292,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '     , CLASSES.DESC2'
       '     , CLASSES.DESC3'
       '     , CLASSES.DESC4'
-      '     , CLASSES.CALC_LECTURERS'
+      '     , SUBSTR(lecturers.full_name,1,500) CALC_LECTURERS'
       '     , CLASSES.CALC_GROUPS'
       '     , CLASSES.CALC_ROOMS'
       '     , CLASSES.CALC_LEC_IDS'
@@ -1210,7 +1317,173 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '   , SUBJECTS SUB'
       '   , FORMS FRM'
       '   , ORG_UNITS OUS'
-      'WHERE SUB.ID (+)= SUB_ID'
+      
+        ',(select trim('#39';'#39'  from max(v1)||'#39';'#39'||max(v2)||'#39';'#39'||max(v3)||'#39';'#39 +
+        '||max(v4)||'#39';'#39'||max(v5)||'#39';'#39'||max(v6)||'#39';'#39'||max(v7)||'#39';'#39'||max(v8' +
+        ')||'#39';'#39'||max(v9)||'#39';'#39'||max(v10)||'#39';'#39'||max(v11)||'#39';'#39'||max(v12)||'#39';' +
+        #39'||max(v13)||'#39';'#39'||max(v14)||'#39';'#39'||max(v15)||'#39';'#39'||max(v16)||'#39';'#39'||m' +
+        'ax(v17)||'#39';'#39'||max(v18)||'#39';'#39'||max(v19)||'#39';'#39'||max(v20)) full_name'
+      
+        '     , trim('#39';'#39' from max(u1)||'#39';'#39'||max(u2)||'#39';'#39'||max(u3)||'#39';'#39'||m' +
+        'ax(u4)||'#39';'#39'||max(u5)||'#39';'#39'||max(u6)||'#39';'#39'||max(u7)||'#39';'#39'||max(u8)||' +
+        #39';'#39'||max(u9)||'#39';'#39'||max(u10)||'#39';'#39'||max(u11)||'#39';'#39'||max(u12)||'#39';'#39'||' +
+        'max(u13)||'#39';'#39'||max(u14)||'#39';'#39'||max(u15)||'#39';'#39'||max(u16)||'#39';'#39'||max(' +
+        'u17)||'#39';'#39'||max(u18)||'#39';'#39'||max(u19)||'#39';'#39'||max(u20)) orguni'
+      '     , cla_id Id'
+      'from'
+      '('
+      
+        'select case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=1 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v1'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=2 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v2'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=3 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v3'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=4 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v4'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=5 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v5'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=6 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v6'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=7 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v7'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=8 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v8'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=9 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else ' +
+        'null end v9'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=10 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v10'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=11 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v11'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=12 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v12'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=13 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v13'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=14 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v14'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=15 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v15'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=16 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v16'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=17 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v17'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=18 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v18'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=19 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v19'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=20 then title ||'#39' '#39'||first_name||'#39' '#39'||last_name else' +
+        ' null end v20'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=1 then o.name else null end u1'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=2 then o.name else null end u2'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=3 then o.name else null end u3'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=4 then o.name else null end u4'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=5 then o.name else null end u5'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=6 then o.name else null end u6'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=7 then o.name else null end u7'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=8 then o.name else null end u8'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=9 then o.name else null end u9'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=10 then o.name else null end u10'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=11 then o.name else null end u11'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=12 then o.name else null end u12'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=13 then o.name else null end u13'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=14 then o.name else null end u14'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=15 then o.name else null end u15'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=16 then o.name else null end u16'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=17 then o.name else null end u17'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=18 then o.name else null end u18'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=19 then o.name else null end u19'
+      
+        '     , case when (row_number() over (partition by cla_id  order ' +
+        'by lec_id))=20 then o.name else null end u20'
+      '     , cla_id'
+      '  from lec_cla'
+      '      , lecturers'
+      '      , org_units o'
+      '  where lec_cla.lec_id = lecturers.id'
+      '    and o.id(+) = lecturers.orguni_id'
+      '    and %DAY_FILTER1'
+      ')'
+      'group by cla_id'
+      ') lecturers'
+      'WHERE lecturers.id(+) = classes.id'
+      '  AND SUB.ID (+)= SUB_ID'
       '  AND FRM.ID = FOR_ID'
       '  AND GRIDS.NO = CLASSES.HOUR'
       '  AND SUB.ORGUNI_ID = OUS.ID(+)'
@@ -1219,8 +1492,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         'NG AND %CONRESCAT0 AND %CONRESCAT1 AND %CONS AND %CONF AND %CONP' +
         'LA'
       
-        '  AND %HIST_FILTER  AND %RESERVATIONS_FILTER AND %DAY_FILTER AND' +
-        ' %HOUR_FILTER AND %SELECTED_DATES'
+        '  AND %HIST_FILTER  AND %RESERVATIONS_FILTER AND %DAY_FILTER2 AN' +
+        'D %HOUR_FILTER AND %SELECTED_DATES'
       '  AND CLASSES.OWNER <> '#39'AUTO'#39
       '%SORTORDER')
     Left = 448
@@ -1233,5 +1506,21 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
   inherited ppexport: TPopupMenu
     Left = 24
     Top = 312
+  end
+  object PPMassEdit: TPopupMenu
+    Left = 788
+    Top = 380
+    object ActionLEC_ADD: TMenuItem
+      Caption = 'Przypisz wyk'#322'adowc'#281
+      OnClick = ActionLEC_ADDClick
+    end
+    object ActionLEC_DEL: TMenuItem
+      Caption = 'Usu'#324' wybranego wyk'#322'adowc'#281
+      OnClick = ActionLEC_DELClick
+    end
+    object ActionLEC_DEL_ALL: TMenuItem
+      Caption = 'Usu'#324' wszystkich wyk'#322'adowc'#243'w'
+      OnClick = ActionLEC_DEL_ALLClick
+    end
   end
 end

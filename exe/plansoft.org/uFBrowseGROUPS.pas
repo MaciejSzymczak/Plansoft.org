@@ -385,7 +385,6 @@ end;
 
 procedure TFBrowseGROUPS.TimerDetailsTimer(Sender: TObject);
 begin
-  inherited;
   If Counter > 0 Then Counter := Counter - 1;
   If Counter = 1 Then refreshDetails;
 end;
@@ -523,7 +522,7 @@ end;
 
 procedure TFBrowseGROUPS.BUpdChild1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES','', Query['Id'], '', '','','','',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES','', Query['Id'], '', '','','','',false, true);
 end;
 
 procedure TFBrowseGROUPS.ttEnabledClick(Sender: TObject);
@@ -656,7 +655,7 @@ end;
 function TFBrowseGROUPS.getSearchFilter: string;
 begin
  result := '(xxmsz_tools.erasePolishChars(upper(org_units.name||groups.name||groups.abbreviation||groups.email||groups.desc1||groups.desc2||groups.attribs_01||groups.attribs_02||groups.attribs_03||groups.attribs_04||groups.attribs_05||groups.attribs_06'+
- '||groups.attribs_07||groups.attribs_08||groups.attribs_09||groups.attribs_10||groups.attribs_11||groups.attribs_12||groups.attribs_13||groups.attribs_14||groups.attribs_15)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+ '||groups.attribs_07||groups.attribs_08||groups.attribs_09||groups.attribs_10||groups.attribs_11||groups.attribs_12||groups.attribs_13||groups.attribs_14||groups.attribs_15||''#''||groups.integration_id||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
 end;
 
 function TFBrowseGROUPS.getFindCaption: string;

@@ -14,13 +14,7 @@ type
     Splitter1: TSplitter;
     DetPanel1: TPanel;
     Gridtt_resource_lists: TDBGrid;
-    DetPanel2: TPanel;
-    Splitter2: TSplitter;
-    Gridtt_inclusions: TDBGrid;
-    Qtt_resource_lists: TADOQuery;
-    Qtt_inclusions: TADOQuery;
     DStt_resource_lists: TDataSource;
-    DStt_inclusions: TDataSource;
     Panel2: TPanel;
     AVAIL_TYPE: TDBCheckBox;
     ENABLED: TDBCheckBox;
@@ -104,8 +98,10 @@ type
     BRecalculateAll: TBitBtn;
     chbShowttt: TCheckBox;
     BRecalculateAllQuick: TBitBtn;
+    QClasses: TADOQuery;
+    TimerDetails: TTimer;
     procedure QueryAfterScroll(DataSet: TDataSet);
-    procedure Qtt_resource_listsBeforeOpen(DataSet: TDataSet);
+    procedure QClassesBeforeOpen(DataSet: TDataSet);
     procedure Qtt_inclusionsBeforeOpen(DataSet: TDataSet);
     procedure selectLecClick(Sender: TObject);
     procedure selectGroClick(Sender: TObject);
@@ -185,7 +181,10 @@ type
     procedure GenericFilterbClearRes0Click(Sender: TObject);
     procedure GenericFilterbClearRes1Click(Sender: TObject);
     procedure BRecalculateAllQuickClick(Sender: TObject);
+    procedure TimerDetailsTimer(Sender: TObject);
   private
+    Counter  : Integer;
+    procedure refreshDetails;
     procedure ValidField (f, f_value : tedit; tableName, fieldName : shortString);
     function getResIds : string;
     function getRescatIts : string;
@@ -318,35 +317,21 @@ end;
 
 procedure TFBrowseTT_COMBINATIONS.QueryAfterScroll(DataSet: TDataSet);
 begin
-  //disabled to speed up the application
-  with Qtt_resource_lists do begin
-   //2011.10.08 to aviod problem "object was open"
-    //dmodule.resetConnection ( Qtt_resource_lists );
-    //close;
-    //open;
-  end;
-
-  with Qtt_inclusions do begin
-    //2011.10.08 to aviod problem "object was open"
-    //dmodule.resetConnection ( Qtt_inclusions );
-    //close;
-    //open;
-  end;
-
+  Counter := 2;
 end;
 
-procedure TFBrowseTT_COMBINATIONS.Qtt_resource_listsBeforeOpen(
+procedure TFBrowseTT_COMBINATIONS.QClassesBeforeOpen(
   DataSet: TDataSet);
 begin
-  If not Query.Active Then exit;
-  (DataSet as tadoquery).Parameters.ParamByName('tt_comb_id').Value := Query['Id'];
+  //If not Query.Active Then exit;
+  //(DataSet as tadoquery).Parameters.ParamByName('tt_comb_id').Value := Query['Id'];
 end;
 
 procedure TFBrowseTT_COMBINATIONS.Qtt_inclusionsBeforeOpen(
   DataSet: TDataSet);
 begin
-  If not Query.Active Then exit;
-   (DataSet as tadoquery).Parameters.ParamByName('tt_comb_id').Value := Query['Id'];
+  //If not Query.Active Then exit;
+  // (DataSet as tadoquery).Parameters.ParamByName('tt_comb_id').Value := Query['Id'];
 end;
 
 procedure TFBrowseTT_COMBINATIONS.setColsVisible;
@@ -1151,6 +1136,7 @@ begin
   end;
   inherited;
   SetNotUpdatable([RESCAT_COMB_ID, RESCAT_COMB_ID_VALUE, RESCAT_COMB_IDSel, RESCAT_COMB_IDClear], [LRESCAT_COMB_ID]);
+  Counter := 3;
 end;
 
 procedure TFBrowseTT_COMBINATIONS.FGenericFilterbClearLClick(
@@ -1383,14 +1369,12 @@ end;
 
 function TFBrowseTT_COMBINATIONS.getSearchFilter: string;
 begin
- result := '(xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title ||''#''||gro.abbreviation||''#''||rom.name||''#''||substr(rom.attribs_01,1,55)'+
+ result := '(xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title||''#''||lec.integration_id ||''#''||gro.abbreviation||''#''||gro.integration_id||''#''||rom.name||'' ''||substr(rom.attribs_01,1,55)||''#''||rom.integration_id'+
           '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
           '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
-          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15'+
-           '||''#''||res.name||''#''||substr(res.attribs_01,1,55)||''#''||sub.name||''#''||xfor.name||''#''||xfor.abbreviation||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
-
-
-
+          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15||''#''||TT_COMBINATIONS.integration_id'+
+           '||''#''||res.name||'' ''||substr(res.attribs_01,1,55)||''#''||res.integration_id||''#''||sub.name||''#''||sub.integration_id'+
+           '||''#''||xfor.name||''#''||xfor.abbreviation||''#''||xfor.integration_id||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
 
  end;
 
@@ -1400,6 +1384,42 @@ begin
             ,'pCleanYpMode=N'
     );
 
+end;
+
+
+{
+select tt_planner.get_res_desc ( res_id, tt_planner.get_rescat_id (res_id) ) description
+  from tt_resource_lists
+  where tt_comb_id = :tt_comb_id
+order by 1
+
+
+select decode(INCLUSION_TYPE,'LIST','Lista: ','ALL','WSZYSCY: ', INCLUSION_TYPE) ||' '|| tt_planner.get_rescat_desc (rescat_id) description
+  from tt_inclusions
+  where tt_comb_id = :tt_comb_id and INCLUSION_TYPE <> 'LIST'
+order by 1
+}
+
+
+
+procedure TFBrowseTT_COMBINATIONS.refreshDetails;
+begin
+  QClasses.Close;
+  If Query.IsEmpty Then Begin
+    QClasses.Parameters.paramByName('tt_comb_id').value   := '-1';
+  End Else Begin
+    ID := NVL(Query.FieldByName('ID').AsString,'-1');
+    QClasses.Parameters.paramByName('tt_comb_id').value             := ID;
+  End;
+  QClasses.Open;
+
+  Counter := 1;
+end;
+
+procedure TFBrowseTT_COMBINATIONS.TimerDetailsTimer(Sender: TObject);
+begin
+  If Counter > 0 Then Counter := Counter - 1;
+  If Counter = 1 Then refreshDetails;
 end;
 
 end.

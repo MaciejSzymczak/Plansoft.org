@@ -207,7 +207,7 @@ end;
 
 procedure TFBrowseFORMS.BUpdChild2Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '','',Query['Id'],'',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '','',Query['Id'],'',false, true);
 end;
 
 function TFBrowseFORMS.canDelete: Boolean;
@@ -243,7 +243,7 @@ end;
 function TFBrowseFORMS.getSearchFilter: string;
 begin
  result := format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(ESearch.Text)) ) ]);    
- end;
+end;
 
 function TFBrowseFORMS.getFindCaption: string;
 begin

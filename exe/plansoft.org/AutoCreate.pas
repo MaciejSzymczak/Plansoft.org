@@ -82,7 +82,7 @@ Function RESERVATIONS_KINDSShowModalAsSelect(var ID : ShortString) : TModalResul
 Procedure RESERVATIONS_KINDSFree;
 
 procedure CLASSESCreate;
-Procedure CLASSESShowModalAsBrowser(aclassesTableName, aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates : boolean);
+Procedure CLASSESShowModalAsBrowser(aclassesTableName, aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
 Function  CLASSESShowModalAsSelect(var ID : ShortString) : TModalResult;
 Procedure CLASSESFree;
 
@@ -147,7 +147,7 @@ implementation
 Uses UUtilityParent, UFBrowseLECTURERS, UFBrowseGROUPS, UFBrowseROOMS, UFBrowseSUBJECTS, UFBrowseFORMS, UFBrowsePERIODS, UFBrowseRESERVATIONS_KINDS,
      UFBrowseCLASSES, UFBrowsePLANNERS, UFBrowseRESOURCE_CATEGORIES, UFBrowseORG_UNITS, UFBrowseFORM_FORMULAS, UFConsolidation, UFDataDiagram, UFBrowseVALUE_SETS
      ,UFBrowseLOOKUPS, UFBrowseFLEX_COL_USAGE, UFBrowseTT_RESCAT_COMBINATIONS, UFBrowseTT_COMBINATIONS, UFBrowseFIN_PARTIES, UFBrowseFIN_BATCHES, UFBrowseFIN_DOCS, UFBrowseFIN_LINES, UFBrowseFIN_LOOKUP_VALUES, dm,
-     UFBrowseGRIDS, UFBrowseRES_HINTS;
+     UFBrowseGRIDS, UFBrowseRES_HINTS, SysUtils;
 
 procedure RES_HINTSCreate;
 begin
@@ -645,10 +645,27 @@ begin
 If Not Assigned(FBrowseCLASSES) Then FBrowseCLASSES := TFBrowseCLASSES.Create(Application);
 end;
 
-Procedure CLASSESShowModalAsBrowser;
+Procedure CLASSESShowModalAsBrowser(aclassesTableName, aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
+var IsBlankDateFrom : boolean;
+var IsBlankDateTo : boolean;
 Begin
  CLASSESCreate;
  With FBrowseCLASSES do begin
+
+  CanRefresh := false;
+  historyFrom.Date := now();
+  historyTo.Date := now();
+
+  IsBlankDateFrom := DateToOracle(FDAY_FROM.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+  IsBlankDateTo   := DateToOracle(FDAY_TO.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+
+  if IsBlankDateFrom then FDAY_FROM.Date := now();
+  if IsBlankDateTo then FDAY_TO.Date := now();
+
+  ComboSortOrderChange(nil);
+  CanRefresh := true;
+
+
   GenericFilter.CONL.Text := aLEC_ID;
   GenericFilter.CONG.Text := aGRO_ID;
   GenericFilter.conResCat1.Text := aROM_ID;
@@ -666,6 +683,9 @@ Begin
   classesTableName := aclassesTableName;
   ChSelectedDates.checked := aSelectedDates;
   GetTableName;
+
+  PanelHistory.visible := aclassesTableName = 'CLASSES_HISTORY';
+  HideEdit := aHideEdit;
   ShowModalAsBrowser('');
  end;
  If GetSystemParam('SAVERESOURCES') = 'Yes' Then CLASSESFree;

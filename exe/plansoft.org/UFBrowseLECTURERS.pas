@@ -426,7 +426,7 @@ end;
 
 procedure TFBrowseLECTURERS.BUpdChild1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', Query['Id'] ,'', '', '','','','',false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', Query['Id'] ,'', '', '','','','',false, true);
 end;
 
 procedure TFBrowseLECTURERS.ttEnabledClick(Sender: TObject);
@@ -475,7 +475,7 @@ function TFBrowseLECTURERS.getSearchFilter: string;
 begin
  result := '(xxmsz_tools.erasePolishChars(upper(org_units.name||lecturers.abbreviation||lecturers.title||'' ''||lecturers.first_name||'' ''||lecturers.last_name||lecturers.email|| lecturers.attribs_01||lecturers.attribs_02||lecturers.attribs_03||lecturers.attribs_04'+
            '||lecturers.attribs_05||lecturers.attribs_06||lecturers.attribs_07||lecturers.attribs_08||lecturers.attribs_09||lecturers.attribs_10||lecturers.attribs_11||lecturers.attribs_12||lecturers.attribs_13||lecturers.attribs_14||lecturers.attribs_15'+
-           '||lecturers.desc1||lecturers.desc2)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+           '||lecturers.desc1||lecturers.desc2||''#''||lecturers.integration_id||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
 end;
 
 function TFBrowseLECTURERS.getFindCaption: string;

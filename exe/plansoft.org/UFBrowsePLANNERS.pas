@@ -292,7 +292,7 @@ end;
 
 procedure TFBrowsePLANNERS.BUpdChild2Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '','','',Query['ID'],false);
+  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '','','',Query['ID'],false, true);
 end;
 
 procedure TFBrowsePLANNERS.BPlannerPermissionsClick(Sender: TObject);

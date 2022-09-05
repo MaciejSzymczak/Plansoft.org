@@ -174,7 +174,6 @@ type
     HoursListIds : Array of string;
     Procedure SetWheres(aCondL, aCondG, aCondR : String);
     procedure saveFormSettings;
-    Procedure ExportToHtml(aGrid : TDBGrid );
     procedure getFilters(var forms_filter : string; var hours_filter : string);
     Procedure SaveTimeTableNotes;
     procedure RefreshLockButtons;
@@ -809,175 +808,6 @@ begin
  ppexport.Popup(Point.X,Point.Y);
 end;
 
-{*** @@@!!! Exact copy from FBrowseParent, should be consolidated ***}
-Procedure TFLegend.ExportToHtml(aGrid : TDBGrid );
-    var FileName : string;
-        F : TextFile;
-        aQuery : TADOQuery;
-
-    Procedure doExport;
-    var LineNumber : Integer;
-        LineString : string;
-        t : integer;
-        index : integer;
-        headers : array of String;
-        {------------------------------------}
-        procedure flush(tag : string);
-        var t : integer;
-        begin
-          Writeln(f, '<tr>');
-          for t := 0 to index-1 do begin
-              writeLn(f, '<'+tag+'>'+headers[t]+'</'+tag+'>');
-          end;
-          Writeln(f, '</tr>');
-        end;
-    begin
-          DeleteFile( FileName );
-
-          AssignFile(F, FileName);
-          ReWrite(F);
-
-          Writeln(f, '<!DOCTYPE html>');
-          Writeln(f, '<HTML>');
-          Writeln(f, '<HEAD>');
-          Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
-          Writeln(f, '<TITLE>Plansoft.org - eksport danych</TITLE>');
-          Writeln(f, '<style type="text/css" media="screen">');
-          Writeln(f, '@import "filtergrid.css";');
-          Writeln(f, 'h2{ margin-top: 50px; }');
-          Writeln(f, '.mytable{');
-          Writeln(f, '	width:100%; font-size:12px;');
-          Writeln(f, '	border:1px solid #ccc;');
-          Writeln(f, '}');
-          Writeln(f, 'th{ background-color:#003366; color:#FFF; padding:2px; border:1px solid #ccc; }');
-          Writeln(f, 'td{ padding:2px; border-bottom:1px solid #ccc; border-right:1px solid #ccc; }');
-          Writeln(f, '</style>');
-          Writeln(f, '<script language="javascript" type="text/javascript" src="actb.js"></script>');
-          Writeln(f, '<script language="javascript" type="text/javascript" src="tablefilter.js"></script>');
-          Writeln(f, '</HEAD>');
-          Writeln(f, '<BODY>');
-
-          WriteLn(F, '<TABLE ID="mytable">');
-
-              index := 0;
-              for t := 0 to agrid.Columns.Count-1 do
-                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                    inc ( index );
-                end;
-              setlength(headers, index);
-
-              index := 0;
-              for t := 0 to agrid.Columns.Count-1 do
-                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                    headers[index] := agrid.Columns[t].Title.Caption;
-                    inc ( index );
-                end;
-              flush('th');
-
-              LineNumber := 1;
-              aQuery.First;
-              While not aQuery.Eof do
-              begin
-                Inc(lineNumber);
-
-                index := 0;
-                for t := 0 to agrid.Columns.Count-1 do
-                  if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                  if aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).IsNull then
-                    headers[index] := ''
-                  else
-                    Case aGrid.Columns.Items[t].Field.DataType of
-                      //ftUnknown    : ;
-                      ftString     : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                      //ftSmallint   : ;
-                      //ftInteger    : ;
-                      //ftWord       : ;
-                      //ftBoolean    : ;
-                      //ftFloat      : ;
-                      //ftCurrency   : ;
-                      //ftBCD        : ;
-                      //ftDate       : ;
-                      //ftTime       : ;
-                      ftDateTime   : headers[index] := FormatDateTime('yyyy-mm-dd', aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value );
-                      //ftBytes      : ;
-                      //ftVarBytes   : ;
-                      //ftAutoInc    : ;
-                      //ftBlob       : ;
-                      //ftMemo       : ;
-                      //ftGraphic    : ;
-                      //ftFmtMemo    : ;
-                      //ftParadoxOle : ;
-                      //ftDBaseOle   : ;
-                      //ftTypedBinary: ;
-                      //ftCursor     : ;
-                      //ftFixedChar  : ;
-                      ftWideString : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                      //ftLargeint   : ;
-                      //ftADT        : ;
-                      //ftArray      : ;
-                      //ftReference  : ;
-                      //ftDataSet    : ;
-                      //ftOraBlob    : ;
-                      //ftOraClob    : ;
-                      //ftVariant    : ;
-                      //ftInterface  : ;
-                      //ftIDispatch  : ;
-                      //ftGuid       : ;
-                      //ftTimeStamp  : ;
-                      else headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                     End;
-                  inc(index);
-                  end;
-
-                LineString := IntToStr(LineNumber);
-                flush('td');
-                aQuery.Next;
-              end;
-              LineString := IntToStr(LineNumber);
-
-     WriteLn(F, '</TABLE>');
-
-     Writeln(f, '<script language="javascript" type="text/javascript">');
-     Writeln(f, '//<![CDATA[');
-
-     Writeln(f, '	var table2_Props = 	{');
-     Writeln(f, '		sort_select: true,');
-     Writeln(f, '		loader: true,');
-     Writeln(f, '		col_0: "select",');
-     Writeln(f, '		on_change: true,');
-     Writeln(f, '		display_all_text: " [ Wszystkie ] ",');
-     Writeln(f, '		rows_counter: true,');
-     Writeln(f, '		btn_reset: true,');
-     Writeln(f, '		rows_counter_text: "Liczba wierszy: ",');
-     Writeln(f, '		alternate_rows: true,');
-     Writeln(f, '		btn_reset_text: "Czyœæ filtr",');
-     //Writeln(f, '		col_width: ["220px",null,"280px"]');
-     Writeln(f, '		};');
-
-     Writeln(f, '	setFilterGrid( "mytable",table2_Props );');
-     Writeln(f, '//]]>');
-     Writeln(f, '</script>');
-
-     Writeln(f, '</BODY></HTML>');
-     CloseFile(F);
-
-     ExecuteFile(FileName,'','',SW_SHOWMAXIMIZED);
-    end;
-
-Begin
- FProgramSettings.generateJsFiles;
- FileName:= uutilityParent.ApplicationDocumentsPath + '\temp.html';
- aQuery  := TADOQuery( aGrid.DataSource.DataSet );
-
- If Not aQuery.Active Then Begin
-  Exit;
- End;
-
- aQuery.DisableControls;
- doExport;
- aQuery.EnableControls;
-End;
-
 procedure TFLegend.ExportEasyClick(Sender: TObject);
 var aGrid : TDBGrid;
 begin
@@ -997,7 +827,7 @@ begin
  if FLegendTabs.ActivePage = TabsheetG then aGrid := gridG;
  if FLegendTabs.ActivePage = TabsheetR then aGrid := gridR;
  if FLegendTabs.ActivePage = TabsheetS then aGrid := gridS;
- ExportToHTML(aGrid);
+ dmodule.ExportToHTML(aGrid);
 end;
 
 procedure TFLegend.RMoreClick(Sender: TObject);

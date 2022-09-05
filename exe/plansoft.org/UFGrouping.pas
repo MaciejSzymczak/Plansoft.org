@@ -161,6 +161,8 @@ type
     chgcount: TCheckBox;
     chrcount: TCheckBox;
     chlcountHelp: TSpeedButton;
+    ChIntegration_Id: TCheckBox;
+    SpeedButton1: TSpeedButton;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -224,6 +226,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure chlcountHelpClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
      sortOrder : string[255];
      defaultText : string;
@@ -249,7 +252,7 @@ implementation
 uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
   UFProgramSettings, UFIN_LINESGenerator, UFBrowseLECTURERS,
   uFBrowseGROUPS, uFBrowsePERIODS, UFBrowseSUBJECTS, uFBrowseFORMS,
-  UFBrowseROOMS, ActiveX, TlHelp32, Variants;
+  UFBrowseROOMS, ActiveX, TlHelp32, Variants, UFMessageBox;
 
 {$R *.DFM}
 
@@ -292,6 +295,7 @@ begin
           columnsSelect := Merge(columnsSelect, 'title "Tytu³"', ',');        columnsGroupBy := Merge(columnsGroupBy, 'title', ',');
           columnsSelect := Merge(columnsSelect, 'first_name "Imiê"', ',');    columnsGroupBy := Merge(columnsGroupBy, 'first_name', ',');
           columnsSelect := Merge(columnsSelect, 'last_name "Nazwisko"', ','); columnsGroupBy := Merge(columnsGroupBy, 'last_name', ',');
+          if ChIntegration_Id.checked then columnsSelect := Merge(columnsSelect, 'lecturers.integration_id "LEC Integration Id"', ','); columnsGroupBy := Merge(columnsGroupBy, 'lecturers.integration_id', ',');
       end
       else begin
           //this is needed by report (report sets sortOrder)
@@ -304,10 +308,16 @@ begin
 
   If ChG.Checked    Then Begin
     columnsSelect := Merge(columnsSelect, 'SUBSTR(groups.group_name,1,500) "%Gs."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(groups.group_name,1,500)', ',');
+    if ChIntegration_Id.checked and chGnewLine.Checked then begin
+      columnsSelect := Merge(columnsSelect, 'groups.integration_id "GRO Integration Id"', ','); columnsGroupBy := Merge(columnsGroupBy, 'groups.integration_id', ',');
+    end;
   End;
 
   If ChR.Checked    Then Begin
     columnsSelect := Merge(columnsSelect, 'SUBSTR(resources.res_name,1,500) "Zasoby"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'SUBSTR(resources.res_name,1,500)', ',');
+    if (ChIntegration_Id.checked) and (chRnewLine.Checked) then begin
+      columnsSelect := Merge(columnsSelect, 'resources.integration_id "RES Integration Id"', ','); columnsGroupBy := Merge(columnsGroupBy, 'resources.integration_id', ',');
+    end;
   End;
 
   //columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "%Ls."', ',');  columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS', ',');
@@ -320,11 +330,19 @@ begin
   If ChDesc4.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'CLASSES.DESC4 "'+chdesc4.Caption+'"', ',');  columnsGroupBy := Merge(columnsGroupBy, 'CLASSES.DESC4', ',');            End;
 
   If ChFILL.Checked Then Begin columnsSelect := Merge(columnsSelect, 'FILL "Wype³nienie"', ',');     columnsGroupBy := Merge(columnsGroupBy, 'FILL', ',');           End;
-  If ChS.Checked    Then Begin columnsSelect := Merge(columnsSelect, 'SUB.NAME "%C1."', ',');        columnsGroupBy := Merge(columnsGroupBy, 'SUB.NAME', ',');       End;
+  If ChS.Checked    Then Begin
+    columnsSelect := Merge(columnsSelect, 'SUB.NAME "%C1."', ',');        columnsGroupBy := Merge(columnsGroupBy, 'SUB.NAME', ',');
+    if ChIntegration_Id.checked then begin
+      columnsSelect := Merge(columnsSelect, 'SUB.integration_id "SUB Integration Id"', ','); columnsGroupBy := Merge(columnsGroupBy, 'SUB.integration_id', ',');
+    end;
+  End;
 
   //this is needed by report (report sets sortOrder)
   if sortOrder<>'' then begin
      If ChF.Checked    Then Begin columnsSelect := Merge(columnsSelect, 'FRM.NAME "%C2."', ',');        columnsGroupBy := Merge(columnsGroupBy, 'FRM.NAME', ',');       End;
+     //if ChIntegration_Id.checked then begin
+     //  columnsSelect := Merge(columnsSelect, 'FRM.integration_id "FRM Integration Id"', ','); columnsGroupBy := Merge(columnsGroupBy, 'FRM.integration_id', ',');
+     //end;
      //columnsSelect := Merge(columnsSelect, 'CALC_LECTURERS "Wykladowcy do obciazenia", CALC_GROUPS "Grupy do obciazenia"', ',');
      //columnsGroupBy := Merge(columnsGroupBy, 'CALC_LECTURERS, CALC_GROUPS', ',');
   end;
@@ -799,6 +817,7 @@ begin
   ChDay.Checked       := false;
   ChCreationDate.checked := false;
   ChMonth.Checked     := false;
+  ChIntegration_Id.Checked := false;
   ChDayOfWeek.Checked := false;
   ChCreatedBy.Checked   := false;
   ChOwnerName.Checked       := false;
@@ -1233,7 +1252,7 @@ begin
   uutilityparent.saveToIni(
             saveDialog.FileName , 'grouping',
             [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
@@ -1264,7 +1283,7 @@ begin
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
             [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
             , sortOrderField, chbShowAll, EmergencyMode
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
@@ -1643,5 +1662,18 @@ begin
    '2) Czasami po prostu nie chcemy, by dzieliæ liczbê zajêæ przez liczbê wyk³adowców');
 
 end;
+
+procedure TFGrouping.SpeedButton1Click(Sender: TObject);
+begin
+  FMessageBox.Message.Text :=
+'Dodaje do raportu kolumne INTEGRATION ID wyk³adowcy, grupy, sali, przedmiotu'+cr+cr+
+  ' Aby zobaczyæ integration id WYK£ADOWCY, zaznacz pole wyboru "Wyk³adowcy" ***ORAZ "Ka¿dy w oddzielnej linii"'+cr+
+  ' Aby zobaczyæ integration id GRUPY, zaznacz pole wyboru "Grupy" ***ORAZ "Ka¿dy w oddzielnej linii"'+cr+
+  ' Aby zobaczyæ integration id SALI/ZASOBU, zaznacz pole wyboru "Zasoby" ***ORAZ "Kazdy w oddzielnej linii"'+cr+
+  ' Aby zobaczyc integration id PRZEDMIOTU, zaznacz pole wyboru "Przedmioty"';
+  FMessageBox.showModal;
+
+end;
+
 
 end.

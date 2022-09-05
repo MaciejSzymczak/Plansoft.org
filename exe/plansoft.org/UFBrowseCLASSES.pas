@@ -33,19 +33,27 @@ type
     DESC2: TDBEdit;
     LabelDESC2: TLabel;
     GenericFilter: TFGenericFilter;
-    PanelHistory: TPanel;
-    historyFrom: TDateEdit;
-    historyTo: TDateEdit;
-    HistoryMode: TComboBox;
-    historyLabel: TLabel;
-    Label2: TLabel;
+    PanelDates: TPanel;
     ConflictWithReservations: TComboBox;
     Label1: TLabel;
-    FDAY: TDateEdit;
-    ShowRESCAT1: TEdit;
-    FHOUR: TComboBox;
-    ChSelectedDates: TCheckBox;
     fastQueryString: TMemo;
+    PanelHistory: TPanel;
+    HistoryMode: TComboBox;
+    historyFrom: TDateEdit;
+    Label3: TLabel;
+    historyTo: TDateEdit;
+    historyLabel: TLabel;
+    ChSelectedDates: TCheckBox;
+    FHOUR: TComboBox;
+    FDAY_TO: TDateEdit;
+    LDAYTO_Label: TLabel;
+    FDAY_FROM: TDateEdit;
+    Label2: TLabel;
+    BMassEdit: TBitBtn;
+    PPMassEdit: TPopupMenu;
+    ActionLEC_ADD: TMenuItem;
+    ActionLEC_DEL: TMenuItem;
+    ActionLEC_DEL_ALL: TMenuItem;
     procedure CONPERIODChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FGenericFilter1conlChange(Sender: TObject);
@@ -82,12 +90,18 @@ type
     procedure GenericFiltermir1eClick(Sender: TObject);
     procedure GenericFiltermir1aClick(Sender: TObject);
     procedure FHOURChange(Sender: TObject);
-    procedure FDAYChange(Sender: TObject);
+    procedure FDAY_FROMChange(Sender: TObject);
     procedure ChSelectedDatesClick(Sender: TObject);
+    procedure ActionLEC_ADDClick(Sender: TObject);
+    procedure BMassEditClick(Sender: TObject);
+    procedure ActionLEC_DELClick(Sender: TObject);
+    procedure ActionLEC_DEL_ALLClick(Sender: TObject);
   private
     { Private declarations }
   public
    ClassesTableName : string[30];
+   SkipRefresh : boolean;
+   HideEdit   : boolean;
    Function  CanEditIntegrity : Boolean;          override;
    Function  CanEditPermission : Boolean;         override;
    Function  CanInsert    : Boolean;              override;
@@ -278,8 +292,7 @@ begin
 end;
 
 Procedure TFBrowseCLASSES.CustomConditions;
-Var DateFrom, DateTo : string;
-    tablePostfix     : string;
+Var tablePostfix     : string;
     sqll             : string;
     sqlg             : string;
     sqls             : string;
@@ -287,6 +300,10 @@ Var DateFrom, DateTo : string;
     sqlp             : string;
     sqlr0            : string;
     sqlr1            : string;
+    IsBlankDateFrom : boolean;
+    IsBlankDateTo   : boolean;
+    DAY_FILTER      : string;
+
   Function getPeriod ( pdateFrom, pdateTo : String ) : string;
   var c : string;
   begin
@@ -345,20 +362,44 @@ Begin
  DM.macros.setMacro(query, 'CONRESCAT0', sqlr0);
  DM.macros.setMacro(query, 'CONRESCAT1', sqlr1);
 
- if DateToOracle(FDAY.Date) <> 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')' then
-   DM.macros.setMacro(query, 'DAY_FILTER', 'CLASSES.DAY='+DateToOracle(FDAY.Date))
- else
-   DM.macros.setMacro(query, 'DAY_FILTER', '0=0');
+ if ChSelectedDates.Checked then begin
+   DM.macros.setMacro(query, 'SELECTED_DATES', '( CLASSES.DAY,CLASSES.HOUR ) in ( select day,hour from tmp_selected_dates where sessionid = userenv(''SESSIONID'') )');
+   FDAY_FROM.Visible := false;
+   FDAY_TO.Visible := false;
+   LDAYTO_Label.Visible := false;
+   FHOUR.Visible := false;
+   SkipRefresh := true; FDAY_FROM.Clear;
+   SkipRefresh := true; FDAY_TO.Clear;
+   FHOUR.ItemIndex:=-1;
+ end
+ else begin
+   DM.macros.setMacro(query, 'SELECTED_DATES', '0=0');
+   FDAY_FROM.Visible := true;
+   FDAY_TO.Visible := true;
+   LDAYTO_Label.Visible := true;
+   FHOUR.Visible := true;
+ end;
+
+ //IsBlankDateFrom := DateToOracle(FDAY_FROM.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+ //IsBlankDateTo   := DateToOracle(FDAY_TO.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+ //if (IsBlankDateFrom=false) and (IsBlankDateTo=true)  then begin SkipRefresh := true; FDAY_TO.Text :=  FDAY_FROM.Text;  end;
+ //if (IsBlankDateFrom=true) and (IsBlankDateTo=false)  then begin SkipRefresh := true; FDAY_FROM.Text :=  FDAY_TO.Text;  end;
+
+ IsBlankDateFrom := DateToOracle(FDAY_FROM.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+ IsBlankDateTo   := DateToOracle(FDAY_TO.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
+ SkipRefresh := false;
+ if (IsBlankDateFrom=false) and (IsBlankDateTo=false) then DAY_FILTER:= 'DAY BETWEEN '+DateToOracle(FDAY_FROM.Date)+' AND '+DateToOracle(FDAY_TO.Date);
+ if (IsBlankDateFrom=false) and (IsBlankDateTo=true)  then begin DAY_FILTER:= 'DAY >= '+DateToOracle(FDAY_FROM.Date);  end;
+ if (IsBlankDateFrom=true) and (IsBlankDateTo=false)  then begin DAY_FILTER:= 'DAY <= '+DateToOracle(FDAY_TO.Date);   end;
+ if (IsBlankDateFrom=true) and (IsBlankDateTo=true)   then DAY_FILTER:= '0=0';
+ DM.macros.setMacro(query, 'DAY_FILTER1', DAY_FILTER);
+ DM.macros.setMacro(query, 'DAY_FILTER2', DAY_FILTER);
+
 
  if FHOUR.Text<>'' then
    DM.macros.setMacro(query, 'HOUR_FILTER', 'CLASSES.HOUR='+FHOUR.Text)
  else
    DM.macros.setMacro(query, 'HOUR_FILTER', '0=0');
-
- if ChSelectedDates.Checked then
-   DM.macros.setMacro(query, 'SELECTED_DATES', '( CLASSES.DAY,CLASSES.HOUR ) in ( select day,hour from tmp_selected_dates where sessionid = userenv(''SESSIONID'') )')
- else
-   DM.macros.setMacro(query, 'SELECTED_DATES', '0=0');
 
  If GenericFilter.CONPLA.Text = '' Then DM.macros.setMacro(query, 'CONPLA', '0=0')
                    Else DM.macros.setMacro(query, 'CONPLA',  GetCLASSESforPLA(GenericFilter.CONPLA.Text) );
@@ -400,14 +441,17 @@ procedure TFBrowseCLASSES.FormShow(Sender: TObject);
 
 begin
   inherited;
+
+  BMassEdit.Enabled := CanEditL and CanEditG and CanEditR;
+  BEdit.Visible :=  HideEdit = false;
+  BAdd.Visible :=  false;
+  BCopy.Visible :=  HideEdit = false;
+
+  SkipRefresh := false;
   with fprogramSettings do begin
     self.Caption := capitalize(profileObjectNameClasses.Text);
   end;
-  CanRefresh := false;
-  historyFrom.Date := now();
-  historyTo.Date := now();
-  ComboSortOrderChange(nil);
-  CanRefresh := true;
+
 end;
 
 procedure TFBrowseCLASSES.FGenericFilter1conlChange(Sender: TObject);
@@ -612,9 +656,13 @@ begin
   BRefreshClick(nil);
 end;
 
-procedure TFBrowseCLASSES.FDAYChange(Sender: TObject);
+procedure TFBrowseCLASSES.FDAY_FROMChange(Sender: TObject);
 begin
-  BRefreshClick(nil);
+  if SkipRefresh then begin
+   SkipRefresh := false;
+   exit;
+  end;
+  SearchCounter := 3;
 end;
 
 procedure TFBrowseCLASSES.ChSelectedDatesClick(Sender: TObject);
@@ -639,6 +687,7 @@ begin
     result := stringreplace(result, 'var7', searchText, []);
     result := stringreplace(result, 'var8', searchText, []);
     result := stringreplace(result, 'var9', searchText, []);
+    result := stringreplace(result, 'var10', searchText, []);
   end;
   //select id from periods m where (xxmsz_tools.erasePolishChars(upper(m.name||m.desc1||m.desc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%' )
 end;
@@ -653,6 +702,94 @@ procedure TFBrowseCLASSES.editClick;
 begin
   fmain.classForEdition := Query['Id'];
   close;
+end;
+
+procedure TFBrowseCLASSES.BMassEditClick(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ PPMassEdit.Popup(Point.X,Point.Y);
+end;
+
+procedure TFBrowseCLASSES.ActionLEC_ADDClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    //Dmodule.RollbackTrans: TFMain.modifyClass calls Dmodule.RollbackTranson on error
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachLec,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachLec,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshClick(nil);
+    BRefreshClick(nil);
+  end;
+end;
+
+
+procedure TFBrowseCLASSES.ActionLEC_DELClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    //Dmodule.RollbackTrans: TFMain.modifyClass calls Dmodule.RollbackTranson on error
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshClick(nil);
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionLEC_DEL_ALLClick(Sender: TObject);
+Var tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  dmodule.CommitTrans;
+  //Dmodule.RollbackTrans: TFMain.modifyClass calls Dmodule.RollbackTranson on error
+
+  if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  end;
+  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+	      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  End;
+  Fmain.DeepRefreshClick(nil);
+  BRefreshClick(nil);
 end;
 
 end.

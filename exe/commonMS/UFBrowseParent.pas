@@ -15,17 +15,12 @@ uses
 type
   TFBrowseParent = class(TFormConfig)
     PMenu: TPopupMenu;
-    PPAdd: TMenuItem;
-    PPEdit: TMenuItem;
-    PPDelete: TMenuItem;
     Source: TDataSource;
     PPSelect: TMenuItem;
     PPCancel: TMenuItem;
     N1: TMenuItem;
     HolderSortOrder: TStrHolder;
     GridLayout: TStrHolder;
-    PPSearch: TMenuItem;
-    PPCopy: TMenuItem;
     Komunikaty: TStrHolder;
     ConditionsWhereClause: TStrHolder;
     AvailColumnsWhereClause: TStrHolder;
@@ -66,11 +61,6 @@ type
     BUpdChild2: TBitBtn;
     BUpdChild3: TBitBtn;
     CustomPanel: TPanel;
-    N2: TMenuItem;
-    m1: TMenuItem;
-    m2: TMenuItem;
-    m3: TMenuItem;
-    m4: TMenuItem;
     BOleExport: TBitBtn;
     BUpdChild4: TBitBtn;
     BUpdChild5: TBitBtn;
@@ -81,7 +71,6 @@ type
     BShowRecords: TSpeedButton;
     SearchTimer: TTimer;
     m5: TMenuItem;
-    m6: TMenuItem;
     N3: TMenuItem;
     PPChild1: TMenuItem;
     PPChild2: TMenuItem;
@@ -236,10 +225,8 @@ type
     ppexport: TPopupMenu;
     ExportEasy: TMenuItem;
     ExportHtml: TMenuItem;
-    EksportujdoExcela1: TMenuItem;
     BConfigure: TBitBtn;
     BRefresh: TBitBtn;
-    BCrossCombination: TSpeedButton;
     bexportpopup: TSpeedButton;
     SpeedButton1: TSpeedButton;
     procedure BAddClick(Sender: TObject);
@@ -433,7 +420,6 @@ type
    Procedure SwitchQueryToDetails;
    Procedure SwitchFormToGrid;
    Procedure SwitchFormToDetails;
-   Procedure ExportToHtml(aGrid : TDBGrid );
    function findFirstVisibleColumn : integer;
 
    Procedure CreateGridLayout;
@@ -448,7 +434,7 @@ implementation
 
 uses DM, DBUtils, UUtilityParent, UFModuleConfigure,
   UFModuleFilter, UFModuleCrossCombination, UFFlexNewAttribute, autocreate, rxStrUtils,
-  UFProgramSettings;
+  UFProgramSettings, UFMessageBox;
 
 {$R *.DFM}
 
@@ -1178,29 +1164,18 @@ Begin
  F := Not Query.IsEmpty;
 
  BAdd.Enabled               := Query.Active;
- PPAdd.Enabled              := Query.Active;
  BEdit.Enabled              := F;
  BCopy.Enabled              := F;
  BDelete.Enabled            := F;
- PPEdit.Enabled             := F;
- PPCopy.Enabled             := F;
- PPDelete.Enabled           := F;
  BSelect.Enabled            := F;
  BSearch.Enabled            := F;
- PPSearch.Enabled           := F;
  BFirst.Enabled             := F;
  BPrev.Enabled              := F;
  BNext.Enabled              := F;
  BLast.Enabled              := F;
  BOleExport.Enabled         := F;
- BCrossCombination.Enabled  := F;
  BCountRecords.Enabled      := F;
- m1.Enabled                 := F;
- m2.Enabled                 := F;
- m3.Enabled                 := F;
- m4.Enabled                 := F;
  m5.Enabled                 := F;
- m6.Enabled                 := F;
  BChild1.Enabled            := F;
  BChild2.Enabled            := F;
  BChild3.Enabled            := F;
@@ -1399,6 +1374,7 @@ begin
  Try
    ServerStartTime := Now;
    Query.Close;
+   //CopyToClipboard( Query.SQL.Text); 
    Query.Open;
 
    //it is required query.active before flexRefreshListView
@@ -1572,14 +1548,8 @@ Begin
  Else Self.Caption := Others.Strings.Values['FormCaption'];
 
  If Not SingleMode Then Begin
-  PPEdit.Caption   := BEdit.Caption;
-  PPAdd.Caption    := BAdd.Caption;
-  PPCopy.Caption   := BCopy.Caption;
-  PPdelete.Caption := BDelete.Caption;
   PPSelect.Caption := BSelect.Caption;
   PPCancel.Caption := BCancel.Caption;
-  PPSearch.Caption := BSearch.Caption;
-  M1.Caption       := BFilter.Hint;
  End;
  GridRelayoutRequired := true;
 End;
@@ -1624,7 +1594,6 @@ begin
   EUpraw.Text                := Self.Upraw.Hint;
   EFiltr.Text                := Self.BFilter.Hint;
   EOleExport.Text            := Self.BOleExport.Hint;
-  ECrossCombination.Text     := Self.BCrossCombination.Hint;
   //LGridFont.Font.Assign(Self.Grid.Font);
   GridLayout.Lines.Assign(Self.GridLayout.Strings);
   SortOrder.Lines.Assign(Self.HolderSortOrder.Strings);
@@ -1665,7 +1634,6 @@ begin
   Self.BLast.Hint                 := TLast.Text;
   Self.BFilter.Hint               := EFiltr.Text;
   Self.BOleExport.Hint            := EOleExport.Text;
-  Self.BCrossCombination.Hint     := ECrossCombination.Text;
 
   Self.BRefresh.Hint              := Odswiez.Text;
   Self.BConfigure.Hint            := Configure.Text;
@@ -1682,7 +1650,7 @@ begin
   ConditionsWhereClause.Strings.Clear;
   ApplyGridLayout;
   UpdateStaticLayout;
-  BRefreshClick(nil);
+  SearchCounter := 3;
   RefreshHotKeys;
  End;
  End;
@@ -1967,6 +1935,7 @@ procedure TFBrowseParent.formCreate(Sender: TObject);
      not_updatable_labels.C := -1;
   End;
   //-------------------------
+  {
   Procedure OpenLookups;
   Var T : Integer;
   Begin
@@ -1974,6 +1943,7 @@ procedure TFBrowseParent.formCreate(Sender: TObject);
       If (Self.Components[t] is TADOQuery) Then
        If Self.Components[t].Name <> 'Query' Then (Self.Components[t] As TADOQuery).Open;
   End;
+  }
   //-------------------------
   //adds standard sort orders, compare with FlexCreateSortOrder;
   Procedure CreateSortOrder;
@@ -2040,7 +2010,7 @@ begin
 
  If Query.Active   Then Info('Query nie powinno byæ aktywne !');
 
- OpenLookups;
+ //OpenLookups;
 
  CanRefresh := True;
  UpdateStaticLayout;
@@ -3569,176 +3539,6 @@ begin
   info ( Status.Caption );
 end;
 
-Procedure TFBrowseParent.ExportToHtml(aGrid : TDBGrid );
-    var FileName : string;
-        F : TextFile;
-        aQuery : TADOQuery;
-
-    Procedure doExport;
-    var LineNumber : Integer;
-        LineString : string;
-        t : integer;
-        index : integer;
-        rangeTo : string;
-        headers : array of String;
-        {------------------------------------}
-        procedure flush(tag : string);
-        var t : integer;
-        begin
-          Writeln(f, '<tr>');
-          for t := 0 to index-1 do begin
-              writeLn(f, '<'+tag+'>'+headers[t]+'</'+tag+'>');
-          end;
-          Writeln(f, '</tr>');
-        end;
-    begin
-          DeleteFile( FileName );
-
-          AssignFile(F, FileName);
-          ReWrite(F);
-
-          Writeln(f, '<!DOCTYPE html>');
-          Writeln(f, '<HTML>');
-          Writeln(f, '<HEAD>');
-          Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
-          Writeln(f, '<TITLE>Plansoft.org - eksport danych</TITLE>');
-          Writeln(f, '<style type="text/css" media="screen">');
-          Writeln(f, '@import "filtergrid.css";');
-          Writeln(f, 'h2{ margin-top: 50px; }');
-          Writeln(f, '.mytable{');
-          Writeln(f, '	width:100%; font-size:12px;');
-          Writeln(f, '	border:1px solid #ccc;');
-          Writeln(f, '}');
-          Writeln(f, 'th{ background-color:#003366; color:#FFF; padding:2px; border:1px solid #ccc; }');
-          Writeln(f, 'td{ padding:2px; border-bottom:1px solid #ccc; border-right:1px solid #ccc; }');
-          Writeln(f, '</style>');
-          Writeln(f, '<script language="javascript" type="text/javascript" src="actb.js"></script>');
-          Writeln(f, '<script language="javascript" type="text/javascript" src="tablefilter.js"></script>');
-          Writeln(f, '</HEAD>');
-          Writeln(f, '<BODY>');
-
-          WriteLn(F, '<TABLE ID="mytable">');
-
-              index := 0;
-              for t := 0 to agrid.Columns.Count-1 do
-                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                    inc ( index );
-                end;
-              setlength(headers, index);
-
-              index := 0;
-              for t := 0 to agrid.Columns.Count-1 do
-                if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                    headers[index] := agrid.Columns[t].Title.Caption;
-                    inc ( index );
-                end;
-              flush('th');
-
-              LineNumber := 1;
-              aQuery.First;
-              While not aQuery.Eof do
-              begin
-                Inc(lineNumber);
-
-                index := 0;
-                for t := 0 to agrid.Columns.Count-1 do
-                  if (aGrid.Columns.Items[t].Visible) and (aGrid.Columns.Items[t].Width>1) then begin
-                  if aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).IsNull then
-                    headers[index] := ''
-                  else
-                    Case aGrid.Columns.Items[t].Field.DataType of
-                      //ftUnknown    : ;
-                      ftString     : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                      //ftSmallint   : ;
-                      //ftInteger    : ;
-                      //ftWord       : ;
-                      //ftBoolean    : ;
-                      //ftFloat      : ;
-                      //ftCurrency   : ;
-                      //ftBCD        : ;
-                      //ftDate       : ;
-                      //ftTime       : ;
-                      ftDateTime   : headers[index] := FormatDateTime('yyyy-mm-dd', aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value );
-                      //ftBytes      : ;
-                      //ftVarBytes   : ;
-                      //ftAutoInc    : ;
-                      //ftBlob       : ;
-                      //ftMemo       : ;
-                      //ftGraphic    : ;
-                      //ftFmtMemo    : ;
-                      //ftParadoxOle : ;
-                      //ftDBaseOle   : ;
-                      //ftTypedBinary: ;
-                      //ftCursor     : ;
-                      //ftFixedChar  : ;
-                      ftWideString : headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                      //ftLargeint   : ;
-                      //ftADT        : ;
-                      //ftArray      : ;
-                      //ftReference  : ;
-                      //ftDataSet    : ;
-                      //ftOraBlob    : ;
-                      //ftOraClob    : ;
-                      //ftVariant    : ;
-                      //ftInterface  : ;
-                      //ftIDispatch  : ;
-                      //ftGuid       : ;
-                      //ftTimeStamp  : ;
-                      else headers[index] := aQuery.FieldByName(aGrid.Columns.Items[t].FieldName).Value;
-                     End;
-                  inc(index);
-                  end;
-
-                LineString := IntToStr(LineNumber);
-                flush('td');
-                aQuery.Next;
-              end;
-              LineString := IntToStr(LineNumber);
-
-     WriteLn(F, '</TABLE>');
-
-     Writeln(f, '<script language="javascript" type="text/javascript">');
-     Writeln(f, '//<![CDATA[');
-
-     Writeln(f, '	var table2_Props = 	{');
-     Writeln(f, '		sort_select: true,');
-     Writeln(f, '		loader: true,');
-     Writeln(f, '		col_0: "select",');
-     Writeln(f, '		on_change: true,');
-     Writeln(f, '		display_all_text: " [ Wszystkie ] ",');
-     Writeln(f, '		rows_counter: true,');
-     Writeln(f, '		btn_reset: true,');
-     Writeln(f, '		rows_counter_text: "Liczba wierszy: ",');
-     Writeln(f, '		alternate_rows: true,');
-     Writeln(f, '		btn_reset_text: "Czyœæ filtr",');
-     //Writeln(f, '		col_width: ["220px",null,"280px"]');
-     Writeln(f, '		};');
-
-     Writeln(f, '	setFilterGrid( "mytable",table2_Props );');
-     Writeln(f, '//]]>');
-     Writeln(f, '</script>');
-
-     Writeln(f, '</BODY></HTML>');
-     CloseFile(F);
-
-     ExecuteFile(FileName,'','',SW_SHOWMAXIMIZED);
-    end;
-
-Begin
- FProgramSettings.generateJsFiles;
- FileName:= uutilityParent.ApplicationDocumentsPath + '\temp.html';
- aQuery  := TADOQuery( aGrid.DataSource.DataSet );
-
- If Not aQuery.Active Then Begin
-  Exit;
- End;
-
- aQuery.DisableControls;
- doExport;
- aQuery.EnableControls;
-End;
-
-
 procedure TFBrowseParent.bexportpopupClick(Sender: TObject);
 var point : tpoint;
     btn   : tcontrol;
@@ -3752,14 +3552,12 @@ end;
 
 procedure TFBrowseParent.ExportEasyClick(Sender: TObject);
 begin
- if not elementEnabled('"Prosty eksport do Excela"','2014.02.01', false) then exit;
  Dmodule.ExportToExcel(grid);
 end;
 
 procedure TFBrowseParent.ExportHtmlClick(Sender: TObject);
 begin
- if not elementEnabled('"Prosty eksport do pliku"','2014.03.15', false) then exit;
- ExportToHTML(grid);
+ dmodule.ExportToHTML(grid);
 end;
 
 procedure TFBrowseParent.EksportujdoExcela1Click(Sender: TObject);
@@ -3791,7 +3589,8 @@ begin
   'Integration ID:'+#9+#9  + s6
   ;
 
-  info(s7);
+  FMessagebox.Message.text := s7;
+  FMessagebox.ShowModal;
 end;
 
 End.

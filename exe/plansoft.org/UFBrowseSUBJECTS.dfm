@@ -306,6 +306,13 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
             Title.Caption = 'S'#322'owa kluczowe'
             Width = 200
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Width = 100
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
@@ -728,7 +735,6 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
                     Expanded = False
                     FieldName = 'EXCLUSIVE_PARENT'
                     Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
-                    Width = -1
                     Visible = False
                   end>
               end
@@ -939,7 +945,6 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
                     Expanded = False
                     FieldName = 'EXCLUSIVE_PARENT'
                     Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
-                    Width = -1
                     Visible = False
                   end>
               end

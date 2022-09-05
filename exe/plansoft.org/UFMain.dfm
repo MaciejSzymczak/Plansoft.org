@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = -4
-  Top = -4
+  Left = 90
+  Top = 34
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -1067,7 +1067,7 @@ inherited FMain: TFMain
         OnDblClick = BAddClassDblClick
         OnMouseMove = BAddClassMouseMove
       end
-      object BRefresh: TSpeedButton
+      object DeepRefresh: TSpeedButton
         Left = 790
         Top = 4
         Width = 39
@@ -1208,7 +1208,7 @@ inherited FMain: TFMain
           0000000000000000000000000000000000000000000000000000}
         ParentShowHint = False
         ShowHint = True
-        OnClick = BRefreshClick
+        OnClick = DeepRefreshClick
       end
       object BDeleteClass: TSpeedButton
         Left = 202
@@ -4953,39 +4953,40 @@ inherited FMain: TFMain
           'esc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.' +
           'attribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_' +
           '09||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.at' +
-          'tribs_14||m.attribs_15)) like '#39'%var1%'#39')) union'
+          'tribs_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%var1' +
+          '%'#39')) union'
         
           '(select m.id from groups m, org_units o where m.ORGUNI_ID = o.id' +
           '(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.ab' +
           'breviation||m.email||m.desc1||m.desc2||m.attribs_01||m.attribs_0' +
           '2||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.att' +
           'ribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11|' +
-          '|m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39 +
-          '%var2%'#39' )) union'
+          '|m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||m.' +
+          'integration_id||'#39'#'#39')) like '#39'%var2%'#39' )) union'
         
           '(select m.id from rooms m, org_units o where m.ORGUNI_ID = o.id(' +
           '+) and ((xxmsz_tools.erasePolishChars(upper(o.name||m.name||m.de' +
           'sc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs_02' +
           '||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attr' +
           'ibs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||' +
-          'm.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39'%' +
-          'var3%'#39') or xxmsz_tools.erasePolishChars(upper('#39'#'#39'||m.attribs_01)' +
-          ') like '#39'var6%'#39') ) union'
+          'm.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||m.i' +
+          'ntegration_id||'#39'#'#39')) like '#39'%var3%'#39') or xxmsz_tools.erasePolishCh' +
+          'ars(upper('#39'#'#39'||m.attribs_01)) like '#39'var6%'#39') ) union'
         
           '(select m.id from forms m where (xxmsz_tools.erasePolishChars(up' +
           'per(m.name||m.desc1||m.desc2||m.attribs_01||m.attribs_01||m.attr' +
           'ibs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||' +
           'm.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attrib' +
-          's_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) l' +
-          'ike '#39'%var4%'#39')) union'
+          's_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#' +
+          #39'||m.integration_id||'#39'#'#39')) like '#39'%var4%'#39')) union'
         
           '(select m.id from subjects m, org_units o where m.ORGUNI_ID = o.' +
           'id(+) and (xxmsz_tools.erasePolishChars(upper(o.name||m.abbrevia' +
           'tion||m.desc1||m.desc2||m.name|| m.attribs_01||m.attribs_02||m.a' +
           'ttribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attribs_0' +
           '7||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m.att' +
-          'ribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '#39'%var5%' +
-          #39' ))'
+          'ribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||m.integr' +
+          'ation_id||'#39'#'#39')) like '#39'%var5%'#39' ))'
         ')')
       TabOrder = 5
       Visible = False
@@ -5274,7 +5275,8 @@ inherited FMain: TFMain
           'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
           '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
           'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
-          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sa1 || '#39'%'#39')'
+          '|m.attribs_15||m.desc1||m.desc2||'#39'#'#39'||m.integration_id||'#39'#'#39')) li' +
+          'ke '#39'%'#39'|| :sa1 || '#39'%'#39')'
         'union all'
         
           'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5284,7 +5286,8 @@ inherited FMain: TFMain
           'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
           'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
           '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
-          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sa2 || '#39'%'#39' )'
+          'ribs_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :' +
+          'sa2 || '#39'%'#39' )'
         'union all'
         
           'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5294,8 +5297,8 @@ inherited FMain: TFMain
           '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
           '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
           'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
-          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
-          ' '#39'%'#39'|| :sa3 || '#39'%'#39')'
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||' +
+          'm.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sa3 || '#39'%'#39')'
         'union all'
         
           'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5305,8 +5308,8 @@ inherited FMain: TFMain
           'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
           's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
           'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
-          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
-          'e '#39'%'#39'|| :sa4 || '#39'%'#39')'
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'|' +
+          '|m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sa4 || '#39'%'#39')'
         'union all'
         
           'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5316,7 +5319,8 @@ inherited FMain: TFMain
           'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
           'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
           's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
-          'attribs_15)) like '#39'%'#39'|| :sa5 || '#39'%'#39' )'
+          'attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sa5 || '#39'%'#39' ' +
+          ')'
         'union all'
         
           'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
@@ -5337,7 +5341,8 @@ inherited FMain: TFMain
           'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
           '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
           'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
-          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sb1 || '#39'%'#39')'
+          '|m.attribs_15||m.desc1||m.desc2||'#39'#'#39'||m.integration_id||'#39'#'#39')) li' +
+          'ke '#39'%'#39'|| :sb1 || '#39'%'#39')'
         'union all'
         
           'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5347,7 +5352,8 @@ inherited FMain: TFMain
           'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
           'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
           '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
-          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sb2 || '#39'%'#39' )'
+          'ribs_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :' +
+          'sb2 || '#39'%'#39' )'
         'union all'
         
           'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5357,8 +5363,8 @@ inherited FMain: TFMain
           '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
           '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
           'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
-          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
-          ' '#39'%'#39'|| :sb3 || '#39'%'#39')'
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||' +
+          'm.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sb3 || '#39'%'#39')'
         'union all'
         
           'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5368,8 +5374,8 @@ inherited FMain: TFMain
           'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
           's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
           'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
-          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
-          'e '#39'%'#39'|| :sb4 || '#39'%'#39')'
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'|' +
+          '|m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sb4 || '#39'%'#39')'
         'union all'
         
           'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5379,7 +5385,8 @@ inherited FMain: TFMain
           'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
           'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
           's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
-          'attribs_15)) like '#39'%'#39'|| :sb5 || '#39'%'#39' )'
+          'attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sb5 || '#39'%'#39' ' +
+          ')'
         'union all'
         
           'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
@@ -5401,7 +5408,8 @@ inherited FMain: TFMain
           'ttribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_0' +
           '5||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.att' +
           'ribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14|' +
-          '|m.attribs_15||m.desc1||m.desc2)) like '#39'%'#39'|| :sc1 || '#39'%'#39')'
+          '|m.attribs_15||m.desc1||m.desc2||'#39'#'#39'||m.integration_id||'#39'#'#39')) li' +
+          'ke '#39'%'#39'|| :sc1 || '#39'%'#39')'
         'union all'
         
           'select '#39'G'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5411,7 +5419,8 @@ inherited FMain: TFMain
           'sc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.a' +
           'ttribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_0' +
           '9||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.att' +
-          'ribs_14||m.attribs_15)) like '#39'%'#39'|| :sc2 || '#39'%'#39' )'
+          'ribs_14||m.attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :' +
+          'sc2 || '#39'%'#39' )'
         'union all'
         
           'select '#39'C'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5421,8 +5430,8 @@ inherited FMain: TFMain
           '.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attribs' +
           '_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.a' +
           'ttribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_1' +
-          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like' +
-          ' '#39'%'#39'|| :sc3 || '#39'%'#39')'
+          '1||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'||' +
+          'm.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sc3 || '#39'%'#39')'
         'union all'
         
           'select '#39'R'#39' type, m.id, m.name ||'#39' '#39'|| m.attribs_01 || decode(o.n' +
@@ -5432,8 +5441,8 @@ inherited FMain: TFMain
           'm.desc1||m.desc2||m.attribs_01||m.email|| m.attribs_01||m.attrib' +
           's_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.' +
           'attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_' +
-          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) lik' +
-          'e '#39'%'#39'|| :sc4 || '#39'%'#39')'
+          '11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15||'#39'#'#39'|' +
+          '|m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sc4 || '#39'%'#39')'
         'union all'
         
           'select '#39'S'#39' type, m.id, m.name || decode(o.name,null,null,'#39'    ('#39 +
@@ -5443,7 +5452,8 @@ inherited FMain: TFMain
           'ibs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||' +
           'm.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attrib' +
           's_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.' +
-          'attribs_15)) like '#39'%'#39'|| :sc5 || '#39'%'#39' )'
+          'attribs_15||'#39'#'#39'||m.integration_id||'#39'#'#39')) like '#39'%'#39'|| :sc5 || '#39'%'#39' ' +
+          ')'
         'union all'
         
           'select '#39'P'#39' type, m.id, m.name from periods m where (xxmsz_tools.' +
@@ -6229,7 +6239,7 @@ inherited FMain: TFMain
         OnClick = Dozwolonekombinacjetypwzasobw1Click
       end
       object Kombinacjezasobw1: TMenuItem
-        Caption = 'Ograniczenia'
+        Caption = 'Plan Studi'#243'w (Ograniczenia)'
         Hint = 'Plan Studi'#243'w ograniczenia'
         OnClick = Kombinacjezasobw1Click
       end
@@ -6239,12 +6249,8 @@ inherited FMain: TFMain
       object Listazaj1: TMenuItem
         Caption = 'Lista zaj'#281#263
         object Penyprzegld1: TMenuItem
-          Caption = 'Lista zaj'#281#263'- wszystkie'
+          Caption = 'Lista zaj'#281#263
           OnClick = Penyprzegld1Click
-        end
-        object Listzajzaznaczoneterminy1: TMenuItem
-          Caption = 'Lista zaj'#281#263'- zaznaczone terminy'
-          OnClick = Listzajzaznaczoneterminy1Click
         end
         object Listazajchistoriazmian1: TMenuItem
           Caption = 'Lista zaj'#281#263' - historia zmian'

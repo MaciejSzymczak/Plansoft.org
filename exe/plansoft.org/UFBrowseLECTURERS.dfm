@@ -335,6 +335,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             Title.Caption = 'S'#322'owa kluczowe'
             Width = 200
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Width = 100
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel

@@ -93,7 +93,8 @@ uses
   UFGraphviz in 'UFGraphviz.pas' {FGraphviz},
   UFSUSOS in 'UFSUSOS.pas' {FUSOS},
   UFPulpitSelector in 'UFPulpitSelector.pas' {FPulpitSelector},
-  UFIntegration in 'UFIntegration.pas' {FIntegration};
+  UFIntegration in 'UFIntegration.pas' {FIntegration},
+  UFMessageBox in 'UFMessageBox.pas' {FMessageBox};
 
 {$R *.RES}
 
@@ -181,6 +182,7 @@ begin
   Application.CreateForm(TFUSOS, FUSOS);
   Application.CreateForm(TFPulpitSelector, FPulpitSelector);
   Application.CreateForm(TFIntegration, FIntegration);
+  Application.CreateForm(TFMessageBox, FMessageBox);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;
