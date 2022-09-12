@@ -13,6 +13,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 673
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 532
@@ -341,6 +342,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             FieldName = 'INTEGRATION_ID'
             Title.Caption = 'Integration Id'
             Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DIFF_NOTIFICATIONS'
+            Title.Caption = 'Email o zmianach'
+            Width = 105
             Visible = True
           end>
       end
@@ -1154,16 +1162,15 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Caption = 'Email'
         FocusControl = EMAIL
         Font.Charset = EASTEUROPE_CHARSET
-        Font.Color = clRed
+        Font.Color = clBlack
         Font.Height = -11
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
-        Visible = False
       end
       object LabelROL_ID: TLabel [12]
         Left = 526
-        Top = 67
+        Top = 83
         Width = 27
         Height = 13
         Alignment = taRightJustify
@@ -1473,11 +1480,10 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataField = 'EMAIL'
         DataSource = Source
         TabOrder = 1
-        Visible = False
       end
       object ROL_ID: TDBEdit
         Left = 577
-        Top = 64
+        Top = 80
         Width = 150
         Height = 22
         Hint = 'DOMY'#346'LNA AUTORYZACJA'
@@ -1490,7 +1496,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       object ROL_ID_VALUE: TEdit
         Left = 584
-        Top = 64
+        Top = 80
         Width = 249
         Height = 22
         Hint = 'RODZAJ'
@@ -1498,7 +1504,27 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 14
         Visible = False
       end
+      object DIFF_NOTIFICATIONS: TDBCheckBox
+        Left = 584
+        Top = 64
+        Width = 129
+        Height = 17
+        Hint = 
+          'Wysy'#322'aj do tego wyk'#322'adowcy email o zmianach w rozk'#322'adach zaj'#281#263'. ' +
+          #13#10'Mo'#380'esz te'#380' zaznaczy'#263' to pole dla planisty aby wysy'#322'a'#263' emaile d' +
+          'o wszystkich wyk'#322'adowc'#243'w.'
+        Caption = 'Email o zmianach'
+        DataField = 'DIFF_NOTIFICATIONS'
+        DataSource = Source
+        TabOrder = 15
+        ValueChecked = '+'
+        ValueUnchecked = '-'
+      end
     end
+  end
+  inherited PMenu: TPopupMenu
+    Left = 472
+    Top = 208
   end
   inherited HolderSortOrder: TStrHolder
     Capacity = 12

@@ -73,6 +73,7 @@ type
     AvailableDsp: TLabel;
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
+    DIFF_NOTIFICATIONS: TDBCheckBox;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -140,7 +141,10 @@ uses DM, UUtilityParent, UFMain, AutoCreate, ufLookupWindow,
 
 Function  TFBrowseLECTURERS.CheckRecord : Boolean;
 Begin
-  Result := CheckValid.ReducRestrictEmpty(Self, [ABBREVIATION, TITLE, FIRST_NAME, LAST_NAME, ORGUNI_ID]);
+ CheckValid.Init(Self);
+ CheckValid.RestrictEmpty([ABBREVIATION, TITLE, FIRST_NAME, LAST_NAME, ORGUNI_ID]);
+ if (DIFF_NOTIFICATIONS.Checked) and (EMAIL.Text='') then  CheckValid.addError('EMAIL jest polem wymaganym, gdy zaznaczono pole wyboru POWIADOMIENIA EMAIL');
+ Result := CheckValid.ShowMessage;
 End;
 
 Procedure TFBrowseLECTURERS.DefaultValues;

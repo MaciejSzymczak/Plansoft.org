@@ -1,6 +1,6 @@
 inherited FBrowsePLANNERS: TFBrowsePLANNERS
-  Left = 639
-  Top = 181
+  Left = 502
+  Top = 169
   Width = 993
   Height = 703
   Caption = 'Plani'#347'ci oraz autoryzacje'
@@ -13,7 +13,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
   inherited MainPage: TPageControl
     Width = 985
     Height = 652
-    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 977
@@ -348,6 +347,13 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             FieldName = 'PARENT'
             Title.Caption = 'M'#243'j zesp'#243#322
             Width = 300
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DIFF_NOTIFICATIONS'
+            Title.Caption = 'Email o zmianach'
+            Width = 105
             Visible = True
           end>
       end
@@ -1389,6 +1395,22 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           0000000000000000000000000000000000000000000000000000000000000000
           0000000000000000000000000000000000000000000000000000}
       end
+      object DIFF_NOTIFICATIONS: TDBCheckBox
+        Left = 728
+        Top = 192
+        Width = 129
+        Height = 17
+        Hint = 
+          'Wysy'#322'aj email o zmianach w rozk'#322'adach zaj'#281#263' w wszystkich wyk'#322'ado' +
+          'wc'#243'w. '#13#10'Mo'#380'esz te'#380' zaznaczy'#263' to pole na poziomie wyk'#322'adowcy aby ' +
+          'wysy'#322'a'#263' emaile tylko do wybranych wyk'#322'adowc'#243'w.'
+        Caption = 'Email o zmianach'
+        DataField = 'DIFF_NOTIFICATIONS'
+        DataSource = Source
+        TabOrder = 17
+        ValueChecked = '+'
+        ValueUnchecked = '-'
+      end
     end
   end
   inherited Source: TDataSource
@@ -1668,6 +1690,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       
         '    ,(select name from planners r where id = planners.rol_id) ro' +
         'l_dsp'
+      '    ,DIFF_NOTIFICATIONS'
       'FROM PLANNERS'
       'WHERE %CONDITIONALS'
       '   AND %SEARCH'

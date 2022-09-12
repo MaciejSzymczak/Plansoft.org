@@ -59,6 +59,7 @@ type
     SetPassword: TBitBtn;
     password_sha1: TDBEdit;
     SelectOwner: TBitBtn;
+    DIFF_NOTIFICATIONS: TDBCheckBox;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
