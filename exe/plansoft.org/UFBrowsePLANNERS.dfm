@@ -353,8 +353,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             Expanded = False
             FieldName = 'DIFF_NOTIFICATIONS'
             Title.Caption = 'Email o zmianach'
-            Width = 105
-            Visible = True
+            Width = -1
+            Visible = False
           end>
       end
       inherited BottomPanel: TPanel
@@ -1410,6 +1410,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         TabOrder = 17
         ValueChecked = '+'
         ValueUnchecked = '-'
+        Visible = False
       end
     end
   end

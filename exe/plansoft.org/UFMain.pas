@@ -1042,6 +1042,7 @@ type
     procedure OpenFGrouping(resourceType : String; resourceId : String);
     procedure propagateDependencyChanges(parentId : String; res_type : String );
     Procedure refreshGrid;
+    function LecToNames (lec_ids : string) : string;
     //--
     procedure LoadPulpit;
     procedure SavePulpit;
@@ -2297,10 +2298,12 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                    For t := 1 To 5 Do begin
                      code := getCode(ComboBoxes[t]);
                      if  code= 'L'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_LECTURERS )                                  else
+                     if  code= 'L+'         then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), LecToNames (Class_.calc_lec_ids)  )                      else
                      if  code= 'G'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_GROUPS )                                     else
                      if  code= 'S'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.SUB_abbreviation )                                else
                      if  code= 'F'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.FOR_abbreviation )                                else
                      if  code= 'SF'         then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')') else
+                     if  code= 'SF+'        then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.sub_name+'('+Class_.FOR_abbreviation+')') else
                      if  code= 'OWNER'      then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.Owner )                                           else
                      if  code= 'CREATED_BY' then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.Created_by )                                      else
                      if  code= 'NONE'       then {}                                                                                                                 else
@@ -2973,19 +2976,20 @@ end;
 
 Var PrevCol, PrevRow : Integer;
 
+function TFMain.LecToNames (lec_ids : string) : string;
+var t : integer;
+	id : string;
+begin
+  result := '';
+  for t :=1 to WordCount(lec_ids,[';']) do begin
+	id := ExtractWord(t,lec_ids,[';']);
+	result := merge(result, MapLecNames.getValue(id),'; ');
+  end;
+end;
+
+
 Procedure TFMain.FillPanel(Col, Row: Integer);
 var drawDone : boolean;
-
-    function LecToNames (lec_ids : string; substitute : string) : string;
-    var t : integer;
-        id : string;
-    begin
-      result := '';
-      for t :=1 to WordCount(lec_ids,[';']) do begin
-        id := ExtractWord(t,lec_ids,[';']);
-        result := merge(result, MapLecNames.getValue(id),'; ');
-      end;
-    end;
 
     Procedure DrawP(Class_ : TClass_);
      var point : tpoint;
@@ -3009,7 +3013,7 @@ var drawDone : boolean;
 
        uutilityparent.ShowBaloonHint(Point, self.Handle,
        CenterString( Class_.SUB_NAME + ' ('+ Class_.FOR_NAME +')', 97) ,
-       fprogramsettings.profileObjectNameLs.text+':  '        + LecToNames (Class_.calc_lec_ids, Class_.CALC_LECTURERS) + cr+
+       fprogramsettings.profileObjectNameLs.text+':  '        + LecToNames (Class_.calc_lec_ids) + cr+
        fprogramsettings.profileObjectNameGs.text+':             '  + Class_.CALC_GROUPS +  cr+
        dmodule.pResCatName0+':          ' + ucommon.getResourcesByType(dmodule.pResCatId0, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS ) + cr+
        dmodule.pResCatName1+':          ' + ucommon.getResourcesByType(dmodule.pResCatId1, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS ) + cr+
@@ -3505,7 +3509,8 @@ procedure TFMain.buildMenu;
          end;
          Clear;
 
-         AddObject(fprogramSettings.profileObjectNameL.Text, TString.Create('L')         );
+         AddObject(fprogramSettings.profileObjectNameL.Text+' Skrót', TString.Create('L')         );
+         AddObject(fprogramSettings.profileObjectNameL.Text+' Nazwa', TString.Create('L+')         );
          AddObject(fprogramSettings.profileObjectNameG.Text, TString.Create('G')         );
          //
          dmodule.QWork.first;
@@ -3516,7 +3521,8 @@ procedure TFMain.buildMenu;
          //
          AddObject(fprogramSettings.profileObjectNameC1.Text, TString.Create('S')         );
          AddObject(fprogramSettings.profileObjectNameC2.Text, TString.Create('F')         );
-         AddObject(fprogramSettings.profileObjectNameC1.Text+'+'+fprogramSettings.profileObjectNameC2.Text, TString.Create('SF')        );
+         AddObject(fprogramSettings.profileObjectNameC1.Text+'+'+fprogramSettings.profileObjectNameC2.Text+' Skrót', TString.Create('SF')        );
+         AddObject(fprogramSettings.profileObjectNameC1.Text+'+'+fprogramSettings.profileObjectNameC2.Text+' Nazwa', TString.Create('SF+')       );
          AddObject('Utworzy³'          , TString.Create('CREATED_BY'));
          AddObject('W³aœciciel'        , TString.Create('OWNER')     );
          AddObject('Zasoby - wszystkie', TString.Create('ALL_RES')   );
@@ -4032,6 +4038,7 @@ begin
    Try
      //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaCommitRetaining];
      //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaAbortRetaining];
+     dmodule.ADOConnection.CommandTimeout := 60000;
      dmodule.ADOConnection.Open;
      dmodule.ADOConnection.BeginTrans;
    Except
@@ -8874,8 +8881,18 @@ var tmpFile : textfile;
     dateFrom : string;
     dateTo : string;
 begin
-  dateFrom := Dialogs.InputBox('Lista obecnoœci (Parametr 1 z 2)','Data od:','2000-01-01');
-  dateTo   := Dialogs.InputBox('Lista obecnoœci (Parametr 2 z 2)','Data do:','3000-01-01');
+
+  if FDatesSelector = nil then Application.CreateForm(TFDatesSelector, FDatesSelector);
+  With FDatesSelector do begin
+    FDatesSelector.Caption := 'Lista obecnoœci';
+    source_date_from.DateTime := today()-1;
+    source_date_to.DateTime := EncodeDate(3000,01,01);
+    if FDatesSelector.showModal <> mrOK then begin
+      exit;
+    end;
+    dateFrom := DateToYYYYMMDD(source_date_from.Datetime);
+    dateTo   := DateToYYYYMMDD(source_date_to.Datetime);
+  end;
 
   query := tadoquery.Create(self);
   dmodule.resetConnection ( query );
@@ -8983,8 +9000,8 @@ begin
   FCellLayout.D8.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D8','-1') );
   gridFont.Font.Size               := strToInt( Pulpit.getValue(prefix+'.GRIDFONT.SIZE',  inttostr(grid.Canvas.Font.size)  ) );
   gridFont.Font.Name               :=           Pulpit.getValue(prefix+'.GRIDFONT.NAME',  grid.Canvas.Font.name  );
-  FcellLayout.ForceCellHeight.checked   := StrToBool( Pulpit.getValue(prefix+'.FORCECELLWIDTH','-') );
-  FcellLayout.ForceCellWidth.checked    := StrToBool( Pulpit.getValue(prefix+'.FORCECELLHEIGHT','-') );
+  FcellLayout.ForceCellHeight.checked   := StrToBool( Pulpit.getValue(prefix+'.FORCECELLHEIGHT','-') );
+  FcellLayout.ForceCellWidth.checked    := StrToBool( Pulpit.getValue(prefix+'.FORCECELLWIDTH','-') );
   FcellLayout.ForcedCellHeight.position := strToInt( Pulpit.getValue(prefix+'.FORCEDCELLHEIGHT','5') );
   FcellLayout.ForcedCellWidth.position  := strToInt( Pulpit.getValue(prefix+'.FORCEDCELLWIDTH','5') );
   ShowFreeTermsL.checked                := StrToBool( Pulpit.getValue(prefix+'.SHOWFREETERMSL','-') );

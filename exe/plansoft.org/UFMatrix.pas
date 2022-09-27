@@ -253,7 +253,7 @@ end;
 
 procedure TFMatrix.CONPERIODChange(Sender: TObject);
 begin
-  If Not DModule.ADOConnection.Connected Then exit;  // = omit this event during onCreate form
+  If Not DModule.ADOConnection.Connected Then exit;  // = ignore this event during onCreate form
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
   Query.close;
 end;

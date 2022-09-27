@@ -445,6 +445,7 @@ Procedure TDModule.SQL(S : String; const pparams : String = '');
      paramValue  : String;
      t : integer;
 Begin
+ try
  logSQLStart ('SQL', S);
  With Dmodule.QWork Do Begin
   SQL.Clear;
@@ -458,7 +459,7 @@ Begin
   //   paramValue := extractWord(2,wholeString,['=']);
   //   parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
   // end;
-                                            
+
    //terrible workaround for an error ORA-01036 on Oracle 18 XE
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
@@ -474,6 +475,11 @@ Begin
   ParamCheck := true;
  End;
  logSQLStop;
+ except
+  //Set DModule.ADOConnection.Connected = false
+  CloseDBConnection;
+  raise;
+ End;
 End;
 
 //----------------------------------------------------------------
@@ -483,6 +489,7 @@ Procedure TDModule.SQL(var query : tadoquery; S : String; const pparams : String
      paramValue  : String;
      t : integer;
 Begin
+ try
  logSQLStart ('SQL', S);
  query.Connection      := ADOConnection;
  query.CursorLocation  := clUseServer;
@@ -509,6 +516,10 @@ Begin
   ExecSQL;
  End;
  logSQLStop;
+ except
+  CloseDBConnection;
+  raise;
+ End;
 End;
 
 //----------------------------------------------------------------

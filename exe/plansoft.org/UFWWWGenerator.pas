@@ -983,10 +983,12 @@ Procedure TFWWWGenerator.CalendarToHTML(
        For t := 1 To 5 Do Begin
          Token := '';
          if  descCodes[t]= 'L'          then Token := Copy(Class_.CALC_LECTURERS,   1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_LECTURERS'),'1000')))    else
+         if  descCodes[t]= 'L+'         then Token := fmain.LecToNames (Class_.calc_lec_ids)    else
          if  descCodes[t]= 'G'          then Token := Copy(Class_.CALC_GROUPS,      1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_GROUPS'),'1000')))       else
          if  descCodes[t]= 'S'          then Token := Copy(Class_.SUB_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000')))  else
          if  descCodes[t]= 'F'          then Token := Copy(Class_.FOR_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000')))  else
          if  descCodes[t]= 'SF'         then Token := Copy(Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')', 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000'))) else
+         if  descCodes[t]= 'SF+'        then Token := Class_.SUB_name+'('+Class_.FOR_abbreviation+')' else
          if  descCodes[t]= 'OWNER'      then Token := Copy(Class_.Owner,            1, StrToInt(NVL(GetSystemParam('MaxLengthOwner'),'1000')))             else
          if  descCodes[t]= 'CREATED_BY' then Token := Copy(Class_.Created_by,       1, StrToInt(NVL(GetSystemParam('MaxLengthCreated_by'),'1000')))        else
          if  descCodes[t]= 'NONE'       then {}                                                                                                            else
@@ -1170,7 +1172,12 @@ Procedure TFWWWGenerator.CalendarToHTML(
        setLength(Lgnd, MaxLegendPositions+1);
       end;
       Lgnd[t].Name     := QWork.Fields[1].AsString;
-      Lgnd[t].ShortCut := QWork.Fields[2].AsString;
+
+      if (D1='SF+') OR (D2='SF+') OR (D3='SF+') OR (D4='SF+') OR (D5='SF+') then
+        Lgnd[t].ShortCut := ''
+      else
+        Lgnd[t].ShortCut := QWork.Fields[2].AsString;
+
       Lgnd[t].Colour   := QWork.Fields[3].AsInteger;
 
       t := t + 1;
@@ -1858,12 +1865,13 @@ var ColoringIndex    : shortString;
         begin
 
          For t := 0 To high(codes) Do Begin
-           Token := '';
            if  codes[t]= 'L'          then Token := combovalues[t] + ': ' + plecturers        else
+           if  codes[t]= 'L+'         then Token := combovalues[t] + ': ' + plecturers        else
            if  codes[t]= 'G'          then Token := combovalues[t] + ': ' + pgroups           else
            if  codes[t]= 'S'          then Token := combovalues[t] + ': ' + Class_.SUB_NAME   else
            if  codes[t]= 'F'          then Token := combovalues[t] + ': ' + Class_.FOR_NAME   else
            if  codes[t]= 'SF'         then Token := combovalues[t] + ': ' + Class_.SUB_NAME+'('+Class_.FOR_NAME+')' else
+           if  codes[t]= 'SF+'         then Token := combovalues[t] + ': ' + Class_.SUB_NAME+'('+Class_.FOR_NAME+')' else
            if  codes[t]= 'OWNER'      then Token := combovalues[t] + ': ' + Class_.Owner      else
            if  codes[t]= 'CREATED_BY' then Token := combovalues[t] + ': ' + Class_.Created_by else
            if  codes[t]= 'NONE'       then {}                                else
@@ -1886,10 +1894,12 @@ var ColoringIndex    : shortString;
         begin
            Token := '';
            if  code= 'L'          then Token := plecturers        else
+           if  code= 'L+'          then Token := plecturers        else
            if  code= 'G'          then Token := pgroups           else
            if  code= 'S'          then Token := Class_.SUB_NAME   else
            if  code= 'F'          then Token := Class_.FOR_NAME   else
            if  code= 'SF'         then Token := Class_.SUB_NAME+'('+Class_.FOR_NAME+')' else
+           if  code= 'SF+'        then Token := Class_.SUB_NAME+'('+Class_.FOR_NAME+')' else
            if  code= 'OWNER'      then Token := Class_.Owner      else
            if  code= 'CREATED_BY' then Token := Class_.Created_by else
            if  code= 'NONE'       then {}                         else
@@ -2477,24 +2487,6 @@ begin
     label12.Caption := iif(genType.ItemIndex =0, 'Zawartoœæ             Wielk.  Pogr.','Zawartoœæ');
     label13.Caption := iif(genType.ItemIndex =0, 'Zawartoœæ             Wielk.  Pogr.','Zawartoœæ');
     label14.Caption := iif(genType.ItemIndex =0, 'Zawartoœæ             Wielk.  Pogr.','Zawartoœæ');
-
-    LD1.Width       := iif(genType.ItemIndex =0, 90, 153);
-    LD2.Width       := iif(genType.ItemIndex =0, 90, 153);
-    LD3.Width       := iif(genType.ItemIndex =0, 90, 153);
-    LD4.Width       := iif(genType.ItemIndex =0, 90, 153);
-    LD5.Width       := iif(genType.ItemIndex =0, 90, 153);
-
-    GD1.Width       := iif(genType.ItemIndex =0, 90, 153);
-    GD2.Width       := iif(genType.ItemIndex =0, 90, 153);
-    GD3.Width       := iif(genType.ItemIndex =0, 90, 153);
-    GD4.Width       := iif(genType.ItemIndex =0, 90, 153);
-    GD5.Width       := iif(genType.ItemIndex =0, 90, 153);
-
-    RD1.Width       := iif(genType.ItemIndex =0, 90, 153);
-    RD2.Width       := iif(genType.ItemIndex =0, 90, 153);
-    RD3.Width       := iif(genType.ItemIndex =0, 90, 153);
-    RD4.Width       := iif(genType.ItemIndex =0, 90, 153);
-    RD5.Width       := iif(genType.ItemIndex =0, 90, 153);
 
     LDescGroup.Left := iif(genType.ItemIndex =0, 1, 290);
     GDescGroup.Left := iif(genType.ItemIndex =0, 1, 290);

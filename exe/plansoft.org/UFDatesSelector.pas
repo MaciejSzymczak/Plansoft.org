@@ -38,7 +38,7 @@ end;
 
 procedure TFDatesSelector.source_date_fromChange(Sender: TObject);
 begin
-  source_date_to.DateTime := source_date_from.DateTime;
+  //source_date_to.DateTime := source_date_from.DateTime;
 end;
 
 end.
