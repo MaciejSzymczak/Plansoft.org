@@ -820,6 +820,7 @@ begin
                and GODZINA_KONCA =  to_hour 
                and MINUTA_KONCA =  to_min      
       );
+    commit;
     --  
     insert into dz_terminy_grup@usos (gr_nr, sl_id, zaj_cyk_id, trm_id, czestotliwosc)
     select UNIQUE 

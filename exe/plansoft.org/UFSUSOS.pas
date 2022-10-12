@@ -182,7 +182,12 @@ begin
 
   if (activeTab=1) then begin
    QueryNotSent.Close;
+   try
    QueryNotSent.Open;
+   except
+     copyToClipboard(  QueryNotSent.SQL.Text);
+     raise;
+   end;
   end;
 end;
 
