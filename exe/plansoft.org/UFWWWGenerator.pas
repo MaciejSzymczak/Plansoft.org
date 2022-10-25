@@ -1864,6 +1864,9 @@ var ColoringIndex    : shortString;
             Status : Integer;
         begin
 
+         //Remove EOLS from the subject Name
+         Class_.SUB_NAME := SearchAndReplace(Class_.SUB_NAME,char(10),'');
+
          For t := 0 To high(codes) Do Begin
            if  codes[t]= 'L'          then Token := combovalues[t] + ': ' + plecturers        else
            if  codes[t]= 'L+'         then Token := combovalues[t] + ': ' + plecturers        else
@@ -1892,6 +1895,9 @@ var ColoringIndex    : shortString;
         var Token  : string;
             Status : Integer;
         begin
+           //Remove EOLS from the subject Name
+           Class_.SUB_NAME := SearchAndReplace(Class_.SUB_NAME,char(10),'');
+
            Token := '';
            if  code= 'L'          then Token := plecturers        else
            if  code= 'L+'          then Token := plecturers        else

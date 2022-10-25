@@ -995,7 +995,8 @@ begin
   with dmodule do begin
     DModule.openSQL(sqlString);
     while not QWork.Eof do begin
-      map.addKeyValue(qwork.Fields[0].AsString, qwork.Fields[1].AsString);
+      //the map is not working for _ char correctly. Replace with 'UNDERSCORE'
+      map.addKeyValue( replace(qwork.Fields[0].AsString,'_','UNDERSCORE'), qwork.Fields[1].AsString);
       qwork.Next;
     end;
     map.prepare;

@@ -738,7 +738,7 @@ begin
         quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachLec,keyValue,'',successFlag,false); quickInsertMode := false;
 			 End;
     end;
-    Fmain.DeepRefreshClick(nil);
+    Fmain.DeepRefreshImmediate('ActionLEC_ADDClick');
     BRefreshClick(nil);
   end;
 end;
@@ -767,7 +767,7 @@ begin
         quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,keyValue,'',successFlag,false); quickInsertMode := false;
 			 End;
     end;
-    Fmain.DeepRefreshClick(nil);
+    Fmain.DeepRefreshImmediate('ActionLEC_DELClick');
     BRefreshClick(nil);
   end;
 end;
@@ -788,7 +788,7 @@ begin
 	      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
         quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteLec,'' {keyValue},'',successFlag,false); quickInsertMode := false;
   End;
-  Fmain.DeepRefreshClick(nil);
+  Fmain.DeepRefreshImmediate('ActionLEC_DEL_ALLClick');
   BRefreshClick(nil);
 end;
 

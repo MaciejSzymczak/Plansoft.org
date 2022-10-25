@@ -1795,6 +1795,7 @@ function TMap.getValue(pkey: string; defaultValue : string = '--blank--'): strin
 var i : integer;
     key: string;
 begin
+ pkey := replace(pkey, '_', 'UNDERSCORE');
  if defaultValue = '--blank--' then defaultValue := pkey;
  pkey := searchAndReplace(pkey,'-','/');
  if lpadKey
@@ -1848,7 +1849,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2022-09-30';
+ VersionOfApplication := '2022-10-25';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

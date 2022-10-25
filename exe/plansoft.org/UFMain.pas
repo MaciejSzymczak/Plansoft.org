@@ -226,7 +226,7 @@ type
     Normal: TSpeedButton;
     bReports: TSpeedButton;
     BAddClass: TSpeedButton;
-    DeepRefresh: TSpeedButton;
+    DeepRefreshButton: TSpeedButton;
     Cofnij1: TMenuItem;
     Zapisz1: TMenuItem;
     N1: TMenuItem;
@@ -598,7 +598,7 @@ type
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure BAddClassClick(Sender: TObject);
-    procedure DeepRefreshClick(Sender: TObject);
+    procedure DeepRefreshButtonClick(Sender: TObject);
     procedure Cofnij1Click(Sender: TObject);
     procedure Zapisz1Click(Sender: TObject);
     procedure GridMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -1048,6 +1048,8 @@ type
     procedure SavePulpit;
     procedure ResetPulpit;
     procedure SetActivePulpit(pulpitIndex : integer; resetPulpitFlag : boolean);
+    procedure deepRefreshDelayed;
+    procedure deepRefreshImmediate( reason : String);
   end;
 
 var
@@ -1780,13 +1782,13 @@ end;
 procedure TFMain.BDICTLECClick(Sender: TObject);
 begin
   LECTURERSShowModalAsBrowser('');
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.BDICTGROClick(Sender: TObject);
 begin
   GROUPSShowModalAsBrowser('');
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.BDICTSUBClick(Sender: TObject);
@@ -1834,7 +1836,7 @@ procedure TFMain.RefreshGrid;
   bDeleteClass.Enabled := canDelete;
   bdelpopup.Visible := V;
   beditpopup.Visible := V;
-  DeepRefresh.Visible := V;
+  DeepRefreshButton.Visible := V;
   bcopyarea.Visible := V;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
@@ -2016,7 +2018,7 @@ begin
    if isBlank(conPeriod.Text) then exit;
    SetVisibles;
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
-   DeepRefreshClick(nil);
+   DeepRefreshImmediate('setPeriod');
   End;
 end;
 
@@ -2028,7 +2030,7 @@ begin
    SetVisibles;
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
-   DeepRefreshClick(nil);
+   DeepRefreshDelayed;
   End;
 end;
 
@@ -2926,38 +2928,15 @@ begin
      FLegend.BRefreshClick(nil);
 end;
 
-procedure TFMain.DeepRefreshClick(Sender: TObject);
-var pCol, pRow : integer;
+procedure TFMain.DeepRefreshButtonClick(Sender: TObject);
 begin
-  //pCol := grid.Col;
-  //pRow := grid.Row;
-
-  //grid.ColCount:=1;
-  //grid.rowCount:=1;
-  ValidLClick(nil);
-  ValidGClick(nil);
-  ValidRClick(nil);
-
-  If (Not isBlank(ConLecturer.Text)) And (Not isBlank(conPeriod.Text)) Then ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_reloadFromDatbase);
-  If (Not isBlank(ConGroup.Text))    And (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
-  If (Not isBlank(conResCat0.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
-  If (Not isBlank(conResCat1.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
-  If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
-  If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
-  BusyClassesCache.ClearCache;
-
-  OpisujKolumneZajec.internalCreate;
-  BuildCalendar('X');
-
-  //grid.Col := pCol;
-  //grid.Row := pRow;
-
+ DeepRefreshImmediate('DeepRefreshButtonClick');
 end;
 
 procedure TFMain.Cofnij1Click(Sender: TObject);
 begin
   Dmodule.RollbackTrans;
-  DeepRefreshClick(nil);
+  DeepRefreshImmediate('Cofnij1Click');
   //
   AutoSaveCounterDown := -1;
   StatusBar.Panels[0].Text:=''; //saved
@@ -3276,7 +3255,7 @@ begin
        End;
    Refresh;
  End;
- DeepRefreshClick(nil);
+ deepRefreshDelayed;
 end;
 
 procedure TFMain.Rodzajerezerwacji1Click(Sender: TObject);
@@ -3538,6 +3517,7 @@ procedure TFMain.buildMenu;
      end;
 
 begin
+ // -- buildMenu --
  Integration.Visible := dmodule.dbgetSystemParam('INT_IS_ACTIVE') = '1';
  USOSIntegracja1.Visible := dmodule.dbgetSystemParam('USOS_CYKL') <> '';
 
@@ -4146,7 +4126,7 @@ begin
   //
   dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
-  dmodule.loadMap('select name,parent from planners', MapPlannerSupervisors, true);
+  dmodule.loadMap('select name, parent from planners', MapPlannerSupervisors, true);
 
   if not isBlank(confineCalendarId) then begin
     Kalendarze1.Enabled := false;
@@ -4556,7 +4536,7 @@ begin
         end;
         InsertClasses;
       end;
-      DeepRefreshClick(nil);
+      deepRefreshDelayed;
    end
    else
    begin
@@ -4999,7 +4979,7 @@ begin
  End;
 
  DModule.SQL('BEGIN PLANNER_UTILS.UPDATE_LGRS; END;');
- DeepRefreshClick(nil);
+ deepRefreshDelayed;
  Info('Pola zosta³y odœwie¿one');
 end;
 
@@ -5331,7 +5311,7 @@ procedure TFMain.Ustawieniaprogramu2Click(Sender: TObject);
 begin
   inherited;
   FProgramSettings.ShowModal;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.Kategoriezasobw1Click(Sender: TObject);
@@ -5388,7 +5368,7 @@ procedure TFMain.Penyprzegld1Click(Sender: TObject);
 begin
   FMain.set_tmp_selected_dates;
   showClasses(true,false, true);
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.UtwrzwitrynWWW1Click(Sender: TObject);
@@ -5510,7 +5490,7 @@ procedure TFMain.Ustawieniakonfiguracyjne1Click(Sender: TObject);
 begin
   FProgramSettings.ShowModal;
   buildMenu;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.mmconsolidationClick(Sender: TObject);
@@ -5522,7 +5502,7 @@ begin
 
   GridPanel.Visible := false;
   CONSOLIDATIONShowModalAsBrowser(-1);
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.MMDiagramClick(Sender: TObject);
@@ -6542,13 +6522,13 @@ begin
   end;
 
   if FCopyClasses = nil then Application.CreateForm(TFCopyClasses, FCopyClasses);
-  if FCopyClasses.showModal = mrOK then DeepRefreshClick(nil);
+  if FCopyClasses.showModal = mrOK then deepRefreshDelayed;
 end;
 
 procedure TFMain.mmpurgeClick(Sender: TObject);
 begin
  if FPurgeData = nil then Application.CreateForm(TFPurgeData, FPurgeData);
- if fpurgedata.showmodal = mrOK then DeepRefreshClick(nil);
+ if fpurgedata.showmodal = mrOK then deepRefreshDelayed;
 end;
 
 procedure TFMain.Atrybuty1Click(Sender: TObject);
@@ -6727,20 +6707,20 @@ procedure TFMain.FavSelectedClick(
   Sender: TObject);
 begin
   FavSelected.Checked := true;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.FavOffClick(Sender: TObject);
 begin
   FavOff.Checked := true;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.FavAllClick(Sender: TObject);
 begin
   inherited;
   FavAll.Checked := true;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 function TFMain.getCurrentObjectId : integer;
@@ -7323,7 +7303,7 @@ end;
 procedure TFMain.Siatkagodzinowa1Click(Sender: TObject);
 begin
   GRIDSShowModalAsBrowser;
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 
@@ -7335,7 +7315,7 @@ begin
   KeyValue := conPeriod.Text;
   If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
    conPeriod.Text := KeyValue;
-   DeepRefreshClick(nil);
+   deepRefreshDelayed;
   End else
     if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
 
@@ -7441,7 +7421,7 @@ begin
      consubjectChange (consubject);
      conformChange    (conform);
      canBuildCalendar := true;
-     DeepRefreshClick(nil);
+     deepRefreshDelayed;
    end;
 end;
 
@@ -8361,8 +8341,7 @@ end;
 
 procedure TFMain.FilterChange(Sender: TObject);
 begin
-  SearchCounter := 3;
-  refreshFilter.Enabled := true;
+ deepRefreshDelayed;
 end;
 
 procedure TFMain.CustomPeriodChange(Sender: TObject);
@@ -8387,13 +8366,11 @@ begin
           d1 := DateUtils.DaysBetween(today(), source_date_from.Datetime) + iif(today()<source_date_from.Datetime,0,1);
           d2 := DateUtils.DaysBetween(source_date_from.Datetime, source_date_to.Datetime);
           dmodule.dateRange:='TODAY:'+iif(today()<source_date_from.Datetime,'+','-')+IntToStr(abs(d1))+':+'+IntToStr(abs(d2));
-          SearchCounter := 3;
-          refreshFilter.Enabled := true;
+          deepRefreshDelayed;
         end;
     end else exit;
   end;
-  SearchCounter := 3;
-  refreshFilter.Enabled := true;
+  deepRefreshDelayed;
 {
 0 Przedwczoraj
 1 Wczoraj
@@ -8408,15 +8385,6 @@ begin
 10 Za miesi¹c
 11 Bie¿¹cy semestr
 }
-end;
-
-procedure TFMain.refreshFilterTimer(Sender: TObject);
-begin
-  If SearchCounter > 0 Then SearchCounter := SearchCounter - 1;
-  If SearchCounter = 1 Then Begin
-    refreshFilter.Enabled := false;
-    DeepRefreshClick(nil);
-  end;
 end;
 
 procedure TFMain.Generatorslajdw1Click(Sender: TObject);
@@ -8459,7 +8427,7 @@ procedure TFMain.CALIDChange(Sender: TObject);
 begin
   if ignoreEvents then exit;
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-  DeepRefreshClick(nil);
+  deepRefreshDelayed;
 end;
 
 procedure TFMain.updateLeftPanel;
@@ -8955,7 +8923,7 @@ begin
  canShow := false;
  FCellLayout.refreshLayout;
  canShow := true;
- DeepRefreshClick(nil);
+ deepRefreshDelayed;
 end;
 
 procedure TFMain.LoadPulpit;
@@ -8980,12 +8948,12 @@ begin
   end;
 
   TabViewType.TabIndex             := StrToInt ( Pulpit.getValue(prefix+'.TABVIEWTYPE.TABINDEX','0') );
+  conPeriod.Text                   := Pulpit.getValue(prefix+'.CONPERIOD','');
+  conRole.Text                     := Pulpit.getValue(prefix+'.CONROLE','');
   conlecturer.Text                 := Pulpit.getValue(prefix+'.CONLECTURER','');
   congroup.Text                    := Pulpit.getValue(prefix+'.CONGROUP','');
   conResCat0.Text                  := Pulpit.getValue(prefix+'.CONRESCAT0','');
   conResCat1.Text                  := Pulpit.getValue(prefix+'.CONRESCAT1','');
-  conPeriod.Text                   := Pulpit.getValue(prefix+'.CONPERIOD','');
-  conRole.Text                     := Pulpit.getValue(prefix+'.CONROLE','');
   CONSUBJECT.Text                  := Pulpit.getValue(prefix+'.CONSUBJECT','');
   CONFORM.Text                     := Pulpit.getValue(prefix+'.CONFORM','');
   CONFORM.Text                     := Pulpit.getValue(prefix+'.CONFORM','');
@@ -9123,6 +9091,41 @@ end;
 procedure TFMain.Zmianywrozkadziezaj2Click(Sender: TObject);
 begin
   Zmianywrozkadziezaj1Click(nil);
+end;
+
+procedure TFMain.refreshFilterTimer(Sender: TObject);
+begin
+  If SearchCounter > 0 Then SearchCounter := SearchCounter - 1;
+  If SearchCounter = 1 Then Begin
+    refreshFilter.Enabled := false;
+    DeepRefreshImmediate('refreshFilterTimer');
+  end;
+end;
+
+procedure TFMain.deepRefreshDelayed;
+begin
+  SearchCounter := 2;
+  refreshFilter.Enabled := true;
+end;
+
+procedure TFMain.deepRefreshImmediate( reason : String);
+var pCol, pRow : integer;
+begin
+ refreshFilter.Enabled := false;
+ //info('DeepRefreshImmediate: '+ reason);
+  ValidLClick(nil);
+  ValidGClick(nil);
+  ValidRClick(nil);
+
+  If (Not isBlank(ConLecturer.Text)) And (Not isBlank(conPeriod.Text)) Then ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_reloadFromDatbase);
+  If (Not isBlank(ConGroup.Text))    And (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
+  If (Not isBlank(conResCat0.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
+  If (Not isBlank(conResCat1.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
+  If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
+  If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
+  BusyClassesCache.ClearCache;
+  OpisujKolumneZajec.internalCreate;
+  BuildCalendar('X');
 end;
 
 

@@ -1067,7 +1067,7 @@ inherited FMain: TFMain
         OnDblClick = BAddClassDblClick
         OnMouseMove = BAddClassMouseMove
       end
-      object DeepRefresh: TSpeedButton
+      object DeepRefreshButton: TSpeedButton
         Left = 790
         Top = 4
         Width = 39
@@ -1208,7 +1208,7 @@ inherited FMain: TFMain
           0000000000000000000000000000000000000000000000000000}
         ParentShowHint = False
         ShowHint = True
-        OnClick = DeepRefreshClick
+        OnClick = DeepRefreshButtonClick
       end
       object BDeleteClass: TSpeedButton
         Left = 202

@@ -421,7 +421,7 @@ begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     if ExistsValue(PARENT.Text, [';'], KeyValue)
       then //
-      else PARENT.Text := Merge(PARENT.Text, KeyValue, ';');
+      else Query.FieldByName('PARENT').AsString := Merge(PARENT.Text, KeyValue, ';');
   End;
 end;
 

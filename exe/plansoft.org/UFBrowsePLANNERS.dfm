@@ -346,14 +346,13 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             Expanded = False
             FieldName = 'PARENT'
             Title.Caption = 'M'#243'j zesp'#243#322
-            Width = 300
+            Width = 1000
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'DIFF_NOTIFICATIONS'
             Title.Caption = 'Email o zmianach'
-            Width = -1
             Visible = False
           end>
       end
@@ -1069,7 +1068,6 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         Height = 22
         DataField = 'PARENT'
         DataSource = Source
-        MaxLength = 10
         TabOrder = 8
       end
       object ROL_ID: TDBEdit
