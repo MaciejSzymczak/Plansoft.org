@@ -82,6 +82,15 @@ inherited FIntegration: TFIntegration
           TabOrder = 0
           Text = 'INT_PERIOD_NAME'
         end
+        object BReport: TBitBtn
+          Left = 24
+          Top = 64
+          Width = 265
+          Height = 41
+          Caption = 'Raport: Co NIE zostanie wys'#322'ane do Bazusa?'
+          TabOrder = 1
+          OnClick = BReportClick
+        end
       end
       object TabSheet2: TTabSheet
         Caption = 'Konfiguracja'
@@ -235,8 +244,8 @@ inherited FIntegration: TFIntegration
   end
   object Source: TDataSource
     DataSet = Query
-    Left = 760
-    Top = 112
+    Left = 512
+    Top = 80
   end
   object Query: TADOQuery
     Connection = DModule.ADOConnection
@@ -248,7 +257,7 @@ inherited FIntegration: TFIntegration
         'select message, to_char(created,'#39'yyyy-mm-dd hh24:mi:ss'#39') created' +
         ' from xxmsztools_eventlog where module_name in  ('#39'INT_TO_PLANSOF' +
         'T'#39','#39'INT_FROM_PLANSOFT'#39') order by id desc')
-    Left = 700
-    Top = 116
+    Left = 476
+    Top = 84
   end
 end

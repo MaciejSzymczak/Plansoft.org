@@ -1443,7 +1443,6 @@ begin
     ClassOwnerSupervisor := Fmain.MapPlannerSupervisors.getValue( classOwner );
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+CurrentUserName+';') then begin result := true; exit; end;
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+currentUserRoleName+';') then begin result := true; exit; end;
-    info('oops..')
   End
 end;
 

@@ -28,6 +28,7 @@ type
     BitBtn4: TBitBtn;
     BitBtn3: TBitBtn;
     CleanUpMode: TCheckBox;
+    BReport: TBitBtn;
     procedure INT_RESCAT_COMB_IDChange(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -35,6 +36,7 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
+    procedure BReportClick(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -106,6 +108,46 @@ end;
 procedure TFIntegration.BitBtn3Click(Sender: TObject);
 begin
   info('Ten element nie zostal jeszcze wykonany, przepraszamy');
+end;
+
+procedure TFIntegration.BReportClick(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+    backup : string;
+begin
+  backup := BReport.Caption;
+  BReport.Caption := 'Trwa generowanie....';
+  BReport.refresh;
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := 'begin rep_bazus.prepare(); end;';
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+
+
+  AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'Bazus_errors.html');
+  rewrite(tmpFile);
+
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  query.SQL.Clear;
+  query.SQL.Add( 'select rep_Bazus.getList from dual' );
+  query.Open;
+  writeln(tmpFile, UTF8Encode (query.Fields[0].AsString));
+
+  closeFile(tmpFile);
+  BReport.Caption :=  backup;
+  ExecuteFile(uutilityParent.ApplicationDocumentsPath +'Bazus_errors.html','','',SW_SHOWMAXIMIZED);
 end;
 
 end.
