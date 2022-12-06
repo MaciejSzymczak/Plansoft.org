@@ -1,24 +1,24 @@
 inherited FIntegration: TFIntegration
   Left = 460
   Top = 199
-  Width = 906
+  Width = 1274
   Height = 682
   Caption = 'Integracja'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 590
-    Width = 898
+    Width = 1266
   end
   object Panel2: TPanel
     Left = 0
     Top = 610
-    Width = 898
+    Width = 1266
     Height = 41
     Align = alBottom
     TabOrder = 1
     object BZamknij: TBitBtn
-      Left = 815
+      Left = 7
       Top = 5
       Width = 75
       Height = 28
@@ -53,14 +53,14 @@ inherited FIntegration: TFIntegration
   object Panel3: TPanel
     Left = 0
     Top = 0
-    Width = 898
+    Width = 1266
     Height = 169
     Align = alTop
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 1
       Top = 1
-      Width = 896
+      Width = 1264
       Height = 167
       ActivePage = TabSheet1
       Align = alClient
@@ -68,28 +68,78 @@ inherited FIntegration: TFIntegration
       object TabSheet1: TTabSheet
         Caption = 'Podstawowe'
         object Label1: TLabel
-          Left = 24
-          Top = 16
+          Left = 16
+          Top = 8
           Width = 40
           Height = 14
           Caption = 'Semestr'
         end
+        object BConfirmation2: TLabel
+          Left = 504
+          Top = 48
+          Width = 390
+          Height = 14
+          Caption = 
+            'Zlecenie wys'#322'ania rozk'#322'adu zaj'#281#263' zosta'#322'o przyj'#281'te i zostanie wkr' +
+            #243'tce wykonane.'
+          Font.Charset = EASTEUROPE_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
+          Visible = False
+        end
+        object BConfirmation1: TLabel
+          Left = 504
+          Top = 24
+          Width = 373
+          Height = 14
+          Caption = 
+            'Zlecenie pobrania planu zaj'#281#263' zosta'#322'o przyj'#281'te i zostanie wkr'#243'tc' +
+            'e wykonane.'
+          Font.Charset = EASTEUROPE_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
+          Visible = False
+        end
         object INT_PERIOD_NAME: TEdit
-          Left = 24
-          Top = 32
+          Left = 16
+          Top = 24
           Width = 169
           Height = 22
           TabOrder = 0
           Text = 'INT_PERIOD_NAME'
         end
         object BReport: TBitBtn
-          Left = 24
-          Top = 64
+          Left = 232
+          Top = 80
           Width = 265
-          Height = 41
+          Height = 33
           Caption = 'Raport: Co NIE zostanie wys'#322'ane do Bazusa?'
           TabOrder = 1
           OnClick = BReportClick
+        end
+        object RunIntFromPlansoft: TBitBtn
+          Left = 232
+          Top = 48
+          Width = 265
+          Height = 33
+          Caption = 'Wy'#347'lij Rozk'#322'ad'
+          TabOrder = 2
+          OnClick = RunIntFromPlansoftClick
+        end
+        object RunIntToPlansoftPlan: TBitBtn
+          Left = 232
+          Top = 16
+          Width = 265
+          Height = 33
+          Caption = 'Pobierz Plan'
+          TabOrder = 3
+          OnClick = RunIntToPlansoftPlanClick
         end
       end
       object TabSheet2: TTabSheet
@@ -166,39 +216,14 @@ inherited FIntegration: TFIntegration
           OnChange = INT_RESCAT_COMB_IDChange
         end
         object BitBtn2: TBitBtn
-          Left = 600
-          Top = 8
-          Width = 265
-          Height = 41
+          Left = 40
+          Top = 32
+          Width = 113
+          Height = 33
           Caption = 'Pobierz S'#322'owniki'
           TabOrder = 3
+          Visible = False
           OnClick = BitBtn2Click
-        end
-        object BitBtn4: TBitBtn
-          Left = 600
-          Top = 48
-          Width = 265
-          Height = 41
-          Caption = 'Pobierz Plan'
-          TabOrder = 4
-          OnClick = BitBtn4Click
-        end
-        object BitBtn3: TBitBtn
-          Left = 600
-          Top = 88
-          Width = 265
-          Height = 41
-          Caption = 'Wy'#347'lij Rozk'#322'ad'
-          TabOrder = 5
-          OnClick = BitBtn3Click
-        end
-        object CleanUpMode: TCheckBox
-          Left = 400
-          Top = 112
-          Width = 193
-          Height = 17
-          Caption = 'Skasuj poprzednie dane'
-          TabOrder = 6
         end
       end
     end
@@ -206,7 +231,7 @@ inherited FIntegration: TFIntegration
   object Grid: TRxDBGrid
     Left = 0
     Top = 169
-    Width = 898
+    Width = 1266
     Height = 421
     Align = alClient
     DataSource = Source
@@ -259,5 +284,12 @@ inherited FIntegration: TFIntegration
         'T'#39','#39'INT_FROM_PLANSOFT'#39') order by id desc')
     Left = 476
     Top = 84
+  end
+  object Refresh: TTimer
+    Enabled = False
+    Interval = 60000
+    OnTimer = RefreshTimer
+    Left = 916
+    Top = 40
   end
 end

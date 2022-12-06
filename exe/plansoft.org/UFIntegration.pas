@@ -25,18 +25,21 @@ type
     Source: TDataSource;
     Query: TADOQuery;
     BitBtn2: TBitBtn;
-    BitBtn4: TBitBtn;
-    BitBtn3: TBitBtn;
-    CleanUpMode: TCheckBox;
     BReport: TBitBtn;
+    RunIntFromPlansoft: TBitBtn;
+    BConfirmation2: TLabel;
+    Refresh: TTimer;
+    RunIntToPlansoftPlan: TBitBtn;
+    BConfirmation1: TLabel;
     procedure INT_RESCAT_COMB_IDChange(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn2Click(Sender: TObject);
-    procedure BitBtn4Click(Sender: TObject);
-    procedure BitBtn3Click(Sender: TObject);
+    procedure RunIntFromPlansoftClick(Sender: TObject);
     procedure BReportClick(Sender: TObject);
+    procedure RefreshTimer(Sender: TObject);
+    procedure RunIntToPlansoftPlanClick(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -69,6 +72,9 @@ begin
   INT_RESCAT_COMB_ID.text  := dmodule.dbgetSystemParam('INT_RESCAT_COMB_ID');
   INT_PERIOD_NAME.text     := dmodule.dbgetSystemParam('INT_PERIOD_NAME');
   Query.Active := true;
+
+  RefreshTimer(nil);
+  Refresh.Enabled := true;
 end;
 
 procedure TFIntegration.SaveParams;
@@ -86,29 +92,38 @@ end;
 
 procedure TFIntegration.BitBtn2Click(Sender: TObject);
 begin
-    SaveParams;
-    dmodule.sql('begin integration.int_to_plansoft_dict (:pCleanYpMode ); end;'
-            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
-    Query.Close;
-    Query.Open;
+    //SaveParams;
+    //dmodule.sql('begin integration.int_to_plansoft_dict (:pCleanYpMode ); end;'
+    //        ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+    //);
+    //Query.Close;
+    //Query.Open;
 end;
 
 
-procedure TFIntegration.BitBtn4Click(Sender: TObject);
+procedure TFIntegration.RunIntFromPlansoftClick(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
 begin
-    SaveParams;
-    dmodule.sql('begin integration.int_to_plansoft_plan (:pCleanYpMode ); end;'
-            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
-    Query.Close;
-    Query.Open;
+  RunIntFromPlansoft.Enabled := false;
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := 'begin insert into system_parameters (name, value) values(''RUN_INT_FROM_PLANSOFT'',''YES''); commit; end;';
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+  BConfirmation2.Visible := true;
 end;
 
-procedure TFIntegration.BitBtn3Click(Sender: TObject);
-begin
-  info('Ten element nie zostal jeszcze wykonany, przepraszamy');
-end;
 
 procedure TFIntegration.BReportClick(Sender: TObject);
 var tmpFile : textfile;
@@ -148,6 +163,45 @@ begin
   closeFile(tmpFile);
   BReport.Caption :=  backup;
   ExecuteFile(uutilityParent.ApplicationDocumentsPath +'Bazus_errors.html','','',SW_SHOWMAXIMIZED);
+end;
+
+procedure TFIntegration.RefreshTimer(Sender: TObject);
+var flag : String;
+begin
+  //
+  flag := dmodule.SingleValue('select Value from system_parameters where name = ''RUN_INT_TO_PLANSOFT_PLAN'' and value=''YES''');
+  RunIntToPlansoftPlan.Enabled := flag <> 'YES';
+  BConfirmation1.Visible := flag = 'YES';
+  //
+  flag := dmodule.SingleValue('select Value from system_parameters where name = ''RUN_INT_FROM_PLANSOFT'' and value=''YES''');
+  RunIntFromPlansoft.Enabled := flag <> 'YES';
+  BConfirmation2.Visible := flag = 'YES';
+  //
+  Query.Close;
+  Query.Open;
+end;
+
+procedure TFIntegration.RunIntToPlansoftPlanClick(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+begin
+  RunIntToPlansoftPlan.Enabled := false;
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := 'begin insert into system_parameters (name, value) values(''RUN_INT_TO_PLANSOFT_PLAN'',''YES''); commit; end;';
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+  BConfirmation1.Visible := true;
 end;
 
 end.
