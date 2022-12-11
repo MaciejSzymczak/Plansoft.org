@@ -4301,11 +4301,10 @@ begin
 
   keyValue := '';
   if not unplugAll then begin
-    If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValue,'0=0','') = mrOK Then begin
+    If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then begin
       for t := 1 to wordCount(KeyValues, [',']) do begin
         KeyValue := extractWord(t,KeyValues, [',']);
         modifyClasses(0,0,clDeleteRes,keyValue,'');
-        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
       end;
     end;
   end else

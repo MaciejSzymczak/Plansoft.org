@@ -1,0 +1,40 @@
+STEP 0
+==================================
+
+Download
+ORACLE_11G			 http://plansoft.org/installServer.zip
+ORACLE_CLIENT		 http://plansoft.org/installClient.zip
+SQL_DEVELOPER		 http://plansoft.org/installDev.zip
+Schema				 http://plansoft.org/installSchema.zip
+					 Password: !OpenPassword!
+PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
+
+a. Install installServer.zip ( free for use Oracle DB)
+	!! Note: Do NOT install higher version than oracle11c XE - not tested yet. 
+
+b. Install installDev.zip (tool is free for use)
+	Use SQLDeveloper to run the installation scripts described below in this file
+
+c. Perform the steps described here
+	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
+
+	
+STEP 1
+==================================
+Connect as sys to 127.0.0.1:1521/XE (Oracle 18c: 127.0.0.1:1521/XEPDB1)
+run install_Step1.sql
+
+STEP 2
+===============
+Import this file 
+imp PLANNER/planner@127.0.0.1:1521/xe FILE=schema.dmp FULL=Y
+
+STEP 3
+================
+Sqlplus planner
+
+
+
+
+
+
