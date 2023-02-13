@@ -23,7 +23,7 @@ type
     DESC1: TDBEdit;
     Label3: TLabel;
     DESC2: TDBEdit;
-    ttEnabled: TCheckBox;
+    ttEnabledFlag: TCheckBox;
     BMassImport: TBitBtn;
     LabelORGUNI_ID: TLabel;
     ORGUNI_ID: TDBEdit;
@@ -61,12 +61,13 @@ type
     Label4: TLabel;
     str_name_lov: TComboBox;
     Splitter1: TSplitter;
+    DIFF_NOTIFICATIONS: TDBCheckBox;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
-    procedure ttEnabledClick(Sender: TObject);
+    procedure ttEnabledFlagClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure BMassImportClick(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
@@ -171,7 +172,7 @@ Procedure TFBrowseSUBJECTS.CustomConditions;
 Begin
  DM.macros.setMacro(query, 'CONPERMISSIONS', getWhereClause(tableName));
 
- if ttEnabled.Checked then DM.macros.setMacro( Query, 'TTENABLED', '(SUBJECTS.ID IN (SELECT ID FROM TT_IDS WHERE TT_FOUND IS NOT NULL) OR (SELECT COUNT(1) FROM TT_IDS)=0)')
+ if ttEnabledFlag.Checked then DM.macros.setMacro( Query, 'TTENABLED', '(SUBJECTS.ID IN (SELECT ID FROM TT_IDS WHERE TT_FOUND IS NOT NULL) OR (SELECT COUNT(1) FROM TT_IDS)=0)')
                       else DM.macros.setMacro( Query, 'TTENABLED', '0=0');
 
  If CON_ORGUNI_ID.Text = '' Then DM.macros.setMacro( Query, 'CON_ORGUNI_ID', '0=0')
@@ -179,7 +180,7 @@ Begin
 
 End;
 
-procedure TFBrowseSUBJECTS.ttEnabledClick(Sender: TObject);
+procedure TFBrowseSUBJECTS.ttEnabledFlagClick(Sender: TObject);
 begin
   BRefreshClick(nil);
 end;

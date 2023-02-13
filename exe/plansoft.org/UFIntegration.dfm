@@ -119,8 +119,9 @@ inherited FIntegration: TFIntegration
           Top = 80
           Width = 265
           Height = 33
-          Caption = 'Raport: Co NIE zostanie wys'#322'ane do Bazusa?'
+          Caption = 'Raport: Zaj'#281'cia bez planu studi'#243'w'
           TabOrder = 1
+          Visible = False
           OnClick = BReportClick
         end
         object RunIntFromPlansoft: TBitBtn

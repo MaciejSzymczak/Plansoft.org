@@ -313,6 +313,13 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
             Title.Caption = 'Integration Id'
             Width = 100
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DIFF_NOTIFICATIONS'
+            Title.Caption = 'Email o zmianach'
+            Width = 105
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
@@ -342,7 +349,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Font.Style = []
           ParentFont = False
         end
-        object ttEnabled: TCheckBox
+        object ttEnabledFlag: TCheckBox
           Left = 722
           Top = 9
           Width = 203
@@ -352,7 +359,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           Checked = True
           State = cbChecked
           TabOrder = 0
-          OnClick = ttEnabledClick
+          OnClick = ttEnabledFlagClick
         end
         object BMassImport: TBitBtn
           Left = 932
@@ -1313,6 +1320,22 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           1863186318631863186318631863186318631863000018631863186318631863
           1863186318631863186318631863186318631863186318631863186318631863
           0000}
+      end
+      object DIFF_NOTIFICATIONS: TDBCheckBox
+        Left = 120
+        Top = 144
+        Width = 129
+        Height = 17
+        Hint = 
+          'Wysy'#322'aj do tego wyk'#322'adowcy email o zmianach w rozk'#322'adach zaj'#281#263'. ' +
+          #13#10'Mo'#380'esz te'#380' zaznaczy'#263' to pole dla planisty aby wysy'#322'a'#263' emaile d' +
+          'o wszystkich wyk'#322'adowc'#243'w.'
+        Caption = 'Email o zmianach'
+        DataField = 'DIFF_NOTIFICATIONS'
+        DataSource = Source
+        TabOrder = 11
+        ValueChecked = '+'
+        ValueUnchecked = '-'
       end
     end
   end

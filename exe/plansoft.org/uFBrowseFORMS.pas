@@ -31,7 +31,7 @@ type
     Shape1: TShape;
     LabelCOLOUR: TLabel;
     ColorDialog: TColorDialog;
-    ttEnabled: TCheckBox;
+    ttEnabledFlag: TCheckBox;
     BMassImport: TBitBtn;
     Label2: TLabel;
     DESC1: TDBEdit;
@@ -48,7 +48,7 @@ type
     procedure QueryBeforeEdit(DataSet: TDataSet);
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
-    procedure ttEnabledClick(Sender: TObject);
+    procedure ttEnabledFlagClick(Sender: TObject);
     procedure BMassImportClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
@@ -98,7 +98,7 @@ Procedure TFBrowseFORMS.CustomConditions;
 Begin
  DM.macros.setMacro(query, 'CONPERMISSIONS', getWhereClause(tableName));
 
- if ttEnabled.Checked then DM.macros.setMacro( Query, 'TTENABLED', '(FORMS.ID IN (SELECT  ID FROM TT_IDS WHERE TT_FOUND IS NOT NULL) OR (SELECT COUNT(1) FROM TT_IDS)=0)')
+ if ttEnabledFlag.Checked then DM.macros.setMacro( Query, 'TTENABLED', '(FORMS.ID IN (SELECT  ID FROM TT_IDS WHERE TT_FOUND IS NOT NULL) OR (SELECT COUNT(1) FROM TT_IDS)=0)')
                       else DM.macros.setMacro( Query, 'TTENABLED', '0=0');
 
  If CON_TYPE_ID.Text = '' Then DM.macros.setMacro(query, 'CON_TYPE', '0=0')
@@ -171,7 +171,7 @@ begin
   End;
 end;
 
-procedure TFBrowseFORMS.ttEnabledClick(Sender: TObject);
+procedure TFBrowseFORMS.ttEnabledFlagClick(Sender: TObject);
 begin
   BRefreshClick(nil);
 end;

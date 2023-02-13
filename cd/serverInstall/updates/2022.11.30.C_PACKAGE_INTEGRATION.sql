@@ -885,6 +885,8 @@ begin
             , (select integration_id from groups where id = gro_id)
         from gro_cla
         where gro_id>0
+         --2023.02.10 do not transfer child records
+         and is_child = 'N'
          and day between pDate_from and pDate_to;
         --
         insert into int_class_members 
@@ -981,4 +983,3 @@ exception
 end;
 
 end;
-/

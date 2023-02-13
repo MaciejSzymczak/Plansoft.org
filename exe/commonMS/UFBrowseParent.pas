@@ -1089,6 +1089,8 @@ begin
    BSelect.Left    := BottomPanel.Width - 2*80;
    BSearch.Left    := BottomPanel.Width - 80*3;
    BAdd.Left       := BottomPanel.Width - 80*4;
+   BCopy.Left      := BottomPanel.Width - 80*5;
+   BEdit.Left      := BottomPanel.Width - 80*6;
  End;
 end;
 
@@ -1687,9 +1689,9 @@ begin
  Begin
    BClose.Visible    := False;
    BDelete.Visible   := False;
-   BAdd.Visible      := True;
-   BCopy.Visible     := False;
-   BEdit.Visible     := False;
+   BAdd.Visible      := True And ((Not Upraw.Down) Or CanInsert);
+   BCopy.Visible     := True And ((Not Upraw.Down) Or CanInsert);
+   BEdit.Visible     := True And ((Not Upraw.Down) Or CanEditPermission);
    BCancel.Visible   := True;
    BSelect.Visible   := True;
    PPSelect.Visible  := True;

@@ -439,7 +439,7 @@ end;
 
 procedure TFDatabaseLogin.Label4Click(Sender: TObject);
 begin
-  webBrowser('http://www.plansoft.org/wp-content/uploads/Podrecznik_aplikacji_Plansoft.org-web/index.html');
+  webBrowser('http://plansoft.org/wp-content/uploads/pdf/Podrecznik%20uzytkownika.pdf');
 end;
 
 procedure TFDatabaseLogin.Label5Click(Sender: TObject);

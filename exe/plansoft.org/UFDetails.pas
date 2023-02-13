@@ -479,7 +479,8 @@ Var KeyValues : String;
     t         : integer;
 begin
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId0) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId0) );
   If ROOMSShowModalAsMultiselect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -496,7 +497,8 @@ Var KeyValues : String;
     t         : integer;
 begin
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId1) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId1) );
   If ROOMSShowModalAsMultiselect(dmodule.pResCatId1,'',KeyValues,'0=0','') = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -560,7 +562,8 @@ Var KeyValues : String;
 begin
   GetEnabledLGR('', '', ResCat0_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId0) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId0) );
   if ROOMSShowModalAsMultiselect(dmodule.pResCatId0,'',KeyValues,CONDR, getText(pctAvailable) ) = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -579,7 +582,8 @@ Var KeyValues : String;
 begin
   GetEnabledLGR('', '', ResCat1_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId1) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId1) );
   if ROOMSShowModalAsMultiselect(dmodule.pResCatId1,'',KeyValues,CONDR, getText(pctAvailable) ) = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -1186,7 +1190,8 @@ Var KeyValues : String;
     t         : integer;
 begin
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId0) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId0) );
   If ROOMSShowModalAsMultiselect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
@@ -1225,7 +1230,8 @@ procedure TFDetails.SelectOwnerClick(Sender: TObject);
 Var KeyValue : ShortString;
 begin
   KeyValue := '';
-  setResLimitation(g_planner);
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation(g_planner);
   If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     if ExistsValue(Owner_.Text, [';'], KeyValue)
@@ -1429,7 +1435,8 @@ procedure TFDetails.selectResCat1_2Click(Sender: TObject);
 Var KeyValue  : shortstring;
 begin
   KeyValue := '';
-  setResLimitation( strToInt(dmodule.pResCatId1) );
+  //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
+  //setResLimitation( strToInt(dmodule.pResCatId1) );
   If ROOMSShowModalAsSelect(dmodule.pResCatId1,'',KeyValue,'0=0','') = mrOK Then  Begin
    If ExistsValue(rescat1_2.Text, [';'], KeyValue)
     Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
@@ -1464,7 +1471,7 @@ begin
   if wordCount(getResIds,[','])>=16 then
     info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu' , showOnceaday)
   else
-    dmodule.sql('begin tt_planner.set_res_limitation (:p_pla_id, :p_res_ids, :p_rescat_id ); end;'
+    dmodule.sql('begin tt_planner.set_res_limitation122 (:p_pla_id, :p_res_ids, :p_rescat_id ); end;'
                ,'p_pla_id='+fmain.getUserOrRoleId+';p_res_ids='+getResIds+';p_rescat_id='+intToStr(p_rescat_id)
     );
 end;

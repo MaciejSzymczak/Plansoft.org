@@ -2,10 +2,10 @@ STEP 0
 ===================================
 
 Download
-ORACLE_11G			 http://plansoft.org/installServer.zip
-ORACLE_CLIENT		 http://plansoft.org/installClient.zip
-SQL_DEVELOPER		 http://plansoft.org/installDev.zip
-Schema				 http://plansoft.org/installSchema.zip
+ORACLE_11G			 http://plansoft.org/InstallServer.zip
+ORACLE_CLIENT		 http://plansoft.org/InstallClient.zip
+SQL_DEVELOPER		 http://plansoft.org/InstallDev.zip
+Schema				 http://plansoft.org/InstallSchema.zip
 					 Password: !OpenPassword!
 PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
 

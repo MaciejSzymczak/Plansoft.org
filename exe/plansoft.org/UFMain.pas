@@ -7677,7 +7677,7 @@ Procedure CopyMenuToTreeView( aMenu: TMenu; aTreeview: TTreeview);
     itemCaption: string;
   Begin
     For i:= 0 To anItem.Count -1 Do Begin
-        if anItem.Items[i].Enabled then begin
+        if (anItem.Items[i].Enabled) and (anItem.Items[i].Visible) then begin
             itemCaption := StringReplace(anItem.Items[i].Caption, '&', '', []);
             if itemCaption = '-' then itemCaption := '_____';
             node:= aTreeview.Items.AddChild(
