@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 604
-    ActivePage = TabSheet1
+    ActivePage = TabNumbering
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange

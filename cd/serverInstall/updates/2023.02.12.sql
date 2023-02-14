@@ -13,7 +13,8 @@ end;
 
 alter table subjects_history add (DIFF_NOTIFICATIONS varchar2(1) default '+');
 alter table subjects add (DIFF_NOTIFICATIONS varchar2(1) default '+');
-
+update subjects set DIFF_NOTIFICATIONS = '+';
+commit;
 
 begin
 for rec in (select trigger_name from all_triggers where owner='PLANNER') loop

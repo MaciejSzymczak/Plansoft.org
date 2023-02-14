@@ -5487,6 +5487,11 @@ end;
 
 procedure TFMain.Ustawieniakonfiguracyjne1Click(Sender: TObject);
 begin
+  If not isAdmin Then Begin
+   Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+   Exit;
+  End;
+
   FProgramSettings.ShowModal;
   buildMenu;
   deepRefreshDelayed;
