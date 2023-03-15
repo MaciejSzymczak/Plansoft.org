@@ -62,6 +62,7 @@ type
     str_name_lov: TComboBox;
     Splitter1: TSplitter;
     DIFF_NOTIFICATIONS: TDBCheckBox;
+    BMassEdit: TBitBtn;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -90,6 +91,7 @@ type
     procedure DelParentClick(Sender: TObject);
     procedure AddDetailClick(Sender: TObject);
     procedure delDetailClick(Sender: TObject);
+    procedure BMassEditClick(Sender: TObject);
   private
     { Private declarations }
     Counter  : Integer;
@@ -116,7 +118,7 @@ implementation
 {$R *.DFM}
 
 uses DM, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFMassImport, AutoCreate,
-  UFSharing, UFExclusiveParent;
+  UFSharing, UFExclusiveParent, UFMassUpdateSUB;
 
 Function  TFBrowseSUBJECTS.CheckRecord : Boolean;
 Begin
@@ -362,7 +364,6 @@ Var
     mr : tmodalresult;
     pexclusive_parent : shortString;
     t : integer;
-    checkSQL : string;
     currentParent : string;
 begin
   mr := FExclusiveParent.showModal;
@@ -467,6 +468,17 @@ end;
 procedure TFBrowseSUBJECTS.delDetailClick(Sender: TObject);
 begin
   delete_str_elem(false);
+end;
+
+procedure TFBrowseSUBJECTS.BMassEditClick(Sender: TObject);
+begin
+
+  With FMassUpdateSUB Do begin
+    LCnt.Caption :=  IntToStr(Grid.SelectedRows.Count);
+    mrYes.Enabled :=  Grid.SelectedRows.Count > 1;
+    mrNo.Enabled :=  Grid.SelectedRows.Count > 1;
+    if (execute(getSelectedIds)  ) then BRefreshClick(nil);
+  End;
 end;
 
 end.

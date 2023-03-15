@@ -94,7 +94,8 @@ uses
   UFSUSOS in 'UFSUSOS.pas' {FUSOS},
   UFPulpitSelector in 'UFPulpitSelector.pas' {FPulpitSelector},
   UFIntegration in 'UFIntegration.pas' {FIntegration},
-  UFMessageBox in 'UFMessageBox.pas' {FMessageBox};
+  UFMessageBox in 'UFMessageBox.pas' {FMessageBox},
+  UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB};
 
 {$R *.RES}
 
@@ -183,6 +184,7 @@ begin
   Application.CreateForm(TFPulpitSelector, FPulpitSelector);
   Application.CreateForm(TFIntegration, FIntegration);
   Application.CreateForm(TFMessageBox, FMessageBox);
+  Application.CreateForm(TFMassUpdateSUB, FMassUpdateSUB);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

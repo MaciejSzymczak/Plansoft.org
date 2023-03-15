@@ -13,6 +13,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 673
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 532
@@ -1508,10 +1509,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Top = 64
         Width = 129
         Height = 17
-        Hint = 
-          'Wysy'#322'aj do tego wyk'#322'adowcy email o zmianach w rozk'#322'adach zaj'#281#263'. ' +
-          #13#10'Mo'#380'esz te'#380' zaznaczy'#263' to pole dla planisty aby wysy'#322'a'#263' emaile d' +
-          'o wszystkich wyk'#322'adowc'#243'w.'
+        Hint = 'Wysy'#322'aj do tego wyk'#322'adowcy email o zmianach w rozk'#322'adach zaj'#281#263'. '
         Caption = 'Email o zmianach'
         DataField = 'DIFF_NOTIFICATIONS'
         DataSource = Source
@@ -1801,8 +1799,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   end
   object DSParents: TDataSource [15]
     DataSet = QParents
-    Left = 80
-    Top = 224
+    Left = 144
+    Top = 240
   end
   object TimerDetails: TTimer [16]
     OnTimer = TimerDetailsTimer
@@ -1836,6 +1834,10 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       '%SORTORDER')
     Left = 32
     Top = 64
+  end
+  inherited ExcelApplication1: TExcelApplication
+    Left = 48
+    Top = 256
   end
   inherited ppexport: TPopupMenu
     Top = 104
@@ -1871,8 +1873,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         'id = child_id   '
       '  start with child_id=:id'
       'order by level desc')
-    Left = 52
-    Top = 228
+    Left = 100
+    Top = 252
   end
   object QDetails: TADOQuery
     Connection = DModule.ADOConnection

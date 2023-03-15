@@ -424,6 +424,9 @@ type
 
    Procedure CreateGridLayout;
    Procedure ApplyGridLayout;
+
+   function getSelectedIds : string;
+
   end;
 
 var
@@ -3593,6 +3596,18 @@ begin
 
   FMessagebox.Message.text := s7;
   FMessagebox.ShowModal;
+end;
+
+function TFBrowseParent.getSelectedIds: string;
+var tgrid   : integer;
+    ids : string;
+begin
+  ids := '';
+  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+    Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+    ids := merge(ids, Query.FieldByName('ID').AsString, ',');
+  End;
+  result := ids;
 end;
 
 End.
