@@ -409,6 +409,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           ParentFont = False
         end
         object ttEnabledFlag: TCheckBox
+          Tag = 67108864
           Left = 722
           Top = 9
           Width = 203

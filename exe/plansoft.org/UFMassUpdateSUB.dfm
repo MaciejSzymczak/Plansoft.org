@@ -3,15 +3,15 @@ inherited FMassUpdateSUB: TFMassUpdateSUB
   Top = 426
   Width = 615
   Height = 122
-  Caption = 'Aktualizacja zestawu przedmiot'#243'w'
+  Caption = 'Aktualizacja zestawu rekord'#243'w'
   PixelsPerInch = 96
   TextHeight = 14
   object Label1: TLabel [0]
     Left = 16
     Top = 16
-    Width = 186
+    Width = 170
     Height = 14
-    Caption = 'Wybrano przedmiot'#243'w do aktualizacji: '
+    Caption = 'Wybrano rekord'#243'w do aktualizacji: '
   end
   object LCnt: TLabel [1]
     Left = 208

@@ -1080,7 +1080,7 @@ begin
  If Height < MaxMinH Then Height := MaxMinH;
 
  If Mode = 0 Then Begin
-   BClose.Left   := BottomPanel.Width - 80*1;
+   BClose.Left   := BottomPanel.Width   - 80*1;
    BSearch.Left    := BottomPanel.Width - 80*2;
    BDelete.Left    := BottomPanel.Width - 80*3;
    BAdd.Left       := BottomPanel.Width - 80*4;
@@ -1088,12 +1088,13 @@ begin
    BEdit.Left      := BottomPanel.Width - 80*6;
  End Else
  Begin
-   BCancel.Left    := BottomPanel.Width - 1*80;
-   BSelect.Left    := BottomPanel.Width - 2*80;
+   BCancel.Left    := BottomPanel.Width - 80*1;
+   BSelect.Left    := BottomPanel.Width - 80*2;
    BSearch.Left    := BottomPanel.Width - 80*3;
-   BAdd.Left       := BottomPanel.Width - 80*4;
-   BCopy.Left      := BottomPanel.Width - 80*5;
-   BEdit.Left      := BottomPanel.Width - 80*6;
+   BDelete.Left    := BottomPanel.Width - 80*4;
+   BAdd.Left       := BottomPanel.Width - 80*5;
+   BCopy.Left      := BottomPanel.Width - 80*6;
+   BEdit.Left      := BottomPanel.Width - 80*7;
  End;
 end;
 
@@ -1173,7 +1174,7 @@ Begin
  BCopy.Enabled              := F;
  BDelete.Enabled            := F;
  BSelect.Enabled            := F;
- BSearch.Enabled            := F;
+ //BSearch.Enabled            := F;
  BFirst.Enabled             := F;
  BPrev.Enabled              := F;
  BNext.Enabled              := F;
@@ -1691,7 +1692,7 @@ begin
  End Else
  Begin
    BClose.Visible    := False;
-   BDelete.Visible   := False;
+   BDelete.Visible   := True And ((Not Upraw.Down) Or CanDelete);;
    BAdd.Visible      := True And ((Not Upraw.Down) Or CanInsert);
    BCopy.Visible     := True And ((Not Upraw.Down) Or CanInsert);
    BEdit.Visible     := True And ((Not Upraw.Down) Or CanEditPermission);

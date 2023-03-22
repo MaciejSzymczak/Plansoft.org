@@ -472,12 +472,11 @@ end;
 
 procedure TFBrowseSUBJECTS.BMassEditClick(Sender: TObject);
 begin
-
   With FMassUpdateSUB Do begin
     LCnt.Caption :=  IntToStr(Grid.SelectedRows.Count);
     mrYes.Enabled :=  Grid.SelectedRows.Count > 1;
     mrNo.Enabled :=  Grid.SelectedRows.Count > 1;
-    if (execute(getSelectedIds)  ) then BRefreshClick(nil);
+    if (execute('SUBJECTS', getSelectedIds)  ) then BRefreshClick(nil);
   End;
 end;
 

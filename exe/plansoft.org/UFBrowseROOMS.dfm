@@ -475,6 +475,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             0000}
         end
         object ttEnabled: TCheckBox
+          Tag = 67108864
           Left = 744
           Top = 37
           Width = 217

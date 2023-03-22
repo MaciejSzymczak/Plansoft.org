@@ -74,6 +74,7 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     DIFF_NOTIFICATIONS: TDBCheckBox;
+    BMassEdit: TBitBtn;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -106,6 +107,7 @@ type
     procedure ROL_IDChange(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure BMassEditClick(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -135,7 +137,8 @@ var
 implementation
 
 uses DM, UUtilityParent, UFMain, AutoCreate, ufLookupWindow,
-  UFProgramSettings, UFMassImport, UFSharing, UFExclusiveParent;
+  UFProgramSettings, UFMassImport, UFSharing, UFExclusiveParent,
+  UFMassUpdateSUB;
 
 {$R *.DFM}
 
@@ -529,6 +532,16 @@ end;
 procedure TFBrowseLECTURERS.SpeedButton2Click(Sender: TObject);
 begin
   info('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseLECTURERS.BMassEditClick(Sender: TObject);
+begin
+  With FMassUpdateSUB Do begin
+    LCnt.Caption :=  IntToStr(Grid.SelectedRows.Count);
+    mrYes.Enabled :=  Grid.SelectedRows.Count > 1;
+    mrNo.Enabled :=  Grid.SelectedRows.Count > 1;
+    if (execute('LECTURERS', getSelectedIds)  ) then BRefreshClick(nil);
+  End;
 end;
 
 end.

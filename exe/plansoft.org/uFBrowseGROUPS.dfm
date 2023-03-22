@@ -528,6 +528,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           OnClick = BKonsolidateClick
         end
         object ttEnabled: TCheckBox
+          Tag = 67108864
           Left = 750
           Top = 34
           Width = 218

@@ -1,8 +1,9 @@
+INSERT INTO system_parameters (name,value) VALUES ('VERSION 2023.02.12', 'INSTALLED');
+commit;
+
 alter table lecturers modify (diff_notifications default '+');
 alter table planners modify (DIFF_NOTIFICATIONS varchar2(1) default '+');
 
-INSERT INTO system_parameters (name,value) VALUES ('VERSION 2023.02.12', 'INSTALLED');
-commit;
 
 begin
 for rec in (select trigger_name from all_triggers where owner='PLANNER') loop

@@ -20,7 +20,8 @@ type
     successFlag : boolean;
   public
     ids : string;
-    function execute (pids : string) : boolean;
+    tableName: string;
+    function execute (ptableName: string; pids : string) : boolean;
     procedure doUpdate(newVal : string);
   end;
 
@@ -35,16 +36,17 @@ uses DM, UUtilityParent;
 
 { TFMassUpdateSUB }
 
-function TFMassUpdateSUB.execute(pids: string) : boolean;
+function TFMassUpdateSUB.execute(ptableName: string; pids: string) : boolean;
 begin
   ids := pids;
+  tableName := ptableName;
   showModal;
   result := successFlag;
 end;
 
 procedure TFMassUpdateSUB.doUpdate(newVal: string);
 begin
- dmodule.SQL('begin update subjects set DIFF_NOTIFICATIONS=:newVal where id in ('+ids+'); commit; end;', 'newVal='+newVal);
+ dmodule.SQL('begin update '+tableName+' set DIFF_NOTIFICATIONS=:newVal where id in ('+ids+'); commit; end;', 'newVal='+newVal);
 end;
 
 procedure TFMassUpdateSUB.mrYesClick(Sender: TObject);
