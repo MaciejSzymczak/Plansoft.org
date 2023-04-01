@@ -1,6 +1,6 @@
 inherited FConsolidation: TFConsolidation
-  Left = 323
-  Top = 133
+  Left = 623
+  Top = 308
   Width = 741
   Height = 506
   Caption = 'Scalanie'
@@ -173,17 +173,12 @@ inherited FConsolidation: TFConsolidation
           'W'#243'wczas zaj'#281'cia przypisane do rekordu B zostan'#261' usuni'#281'te.'
           'Przed usuni'#281'ciem zostanie jednak wy'#347'wietlone ostrze'#380'enie.'
           ''
-          
-            'Funkcja scalania wykonuje opisane czynno'#347'ci automatycznie. Upraw' +
-            'nienia dost'#281'pu w tym przypadku nie s'#261' sprawdzane.'
-          
-            'Czynno'#347#263' scalania mo'#380'e zosta'#263' wykonana tylko z poziomu u'#380'ytkowni' +
-            'ka Planner.'
+          'Funkcja scalania wykonuje opisane czynno'#347'ci automatycznie.'
+          'Scalanie mo'#380'e wykonac Administrator.'
           
             'Je'#380'eli wyk'#322'adowca zosta'#322' zarejestrowany w systemie trzy- lub wie' +
             'lokrotnie, to czynno'#347#263' scalania nale'#380'y powt'#243'rzy'#263' odpowiedni'#261' ilo' +
             #347#263' razy.'
-          'Uwaga:'
           'Czynno'#347#263' scalania jest nieodwracalna.'
           '')
         ReadOnly = True
@@ -406,6 +401,38 @@ inherited FConsolidation: TFConsolidation
           'ych planist'#243'w'
         TabOrder = 2
         OnClick = administratorMergingClick
+      end
+      object BCancel: TBitBtn
+        Left = 58
+        Top = 264
+        Width = 75
+        Height = 28
+        Hint = 'Anuluj'
+        Cancel = True
+        Caption = 'Anuluj'
+        ModalResult = 2
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+        OnClick = BCancelClick
+        Glyph.Data = {
+          DE010000424DDE01000000000000760000002800000024000000120000000100
+          0400000000006801000000000000000000001000000010000000000000000000
+          80000080000000808000800000008000800080800000C0C0C000808080000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+          333333333333333333333333000033338833333333333333333F333333333333
+          0000333911833333983333333388F333333F3333000033391118333911833333
+          38F38F333F88F33300003339111183911118333338F338F3F8338F3300003333
+          911118111118333338F3338F833338F3000033333911111111833333338F3338
+          3333F8330000333333911111183333333338F333333F83330000333333311111
+          8333333333338F3333383333000033333339111183333333333338F333833333
+          00003333339111118333333333333833338F3333000033333911181118333333
+          33338333338F333300003333911183911183333333383338F338F33300003333
+          9118333911183333338F33838F338F33000033333913333391113333338FF833
+          38F338F300003333333333333919333333388333338FFF830000333333333333
+          3333333333333333333888330000333333333333333333333333333333333333
+          0000}
+        NumGlyphs = 2
       end
     end
   end

@@ -26,6 +26,7 @@ type
     SelectRECORD2: TBitBtn;
     BConsolidate: TBitBtn;
     administratorMerging: TCheckBox;
+    BCancel: TBitBtn;
     procedure SelectRECORD1Click(Sender: TObject);
     procedure SelectRECORD2Click(Sender: TObject);
     procedure RECORD1Change(Sender: TObject);
@@ -42,6 +43,7 @@ type
     procedure Memo2Click(Sender: TObject);
     procedure RECORD_VALUE1Click(Sender: TObject);
     procedure RECORD_VALUE2Click(Sender: TObject);
+    procedure BCancelClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -254,6 +256,11 @@ end;
 procedure TFConsolidation.RECORD_VALUE2Click(Sender: TObject);
 begin
 SelectRECORD2Click (nil);
+end;
+
+procedure TFConsolidation.BCancelClick(Sender: TObject);
+begin
+  Close;
 end;
 
 end.
