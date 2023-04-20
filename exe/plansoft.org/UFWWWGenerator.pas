@@ -1117,21 +1117,21 @@ Procedure TFWWWGenerator.CalendarToHTML(
     //--------------------------------------------------------
     function RefreshLegend : integer;
       var periodClause : String;
-          t : Integer;
+          LegendRowNumber : Integer;
           MaxL : Integer;
           ChildsAndParents : string;
     begin
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
-    For t := 1 To High(Lgnd) Do Begin
-     Lgnd[t].Name     := '';
-     Lgnd[t].ShortCut := '';
-     Lgnd[t].Colour   := 0;
+    For LegendRowNumber := 1 To High(Lgnd) Do Begin
+     Lgnd[LegendRowNumber].Name     := '';
+     Lgnd[LegendRowNumber].ShortCut := '';
+     Lgnd[LegendRowNumber].Colour   := 0;
     End;
 
     setLength(Lgnd, MaxLegendPositions+1);
-    t := 0;
+    LegendRowNumber := 0;
     With DModule Do Begin
 
      periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + pPeriodId ,'CLA.');
@@ -1165,30 +1165,29 @@ Procedure TFWWWGenerator.CalendarToHTML(
 
      //writeLog (GetNowMarker + ' before loop ');
      While Not QWork.Eof Do Begin
-      t := t + 1;
-      if t > MaxLegendPositions then begin
+      LegendRowNumber := LegendRowNumber + 1;
+      if LegendRowNumber > MaxLegendPositions then begin
        //SError('Wyst¹pi³o zdarzenie "t > MaxLegendPositions"(1). t = '+inttostr(t)+', zg³oœ problem serwisowi');
        MaxLegendPositions := MaxLegendPositions + 100;
        setLength(Lgnd, MaxLegendPositions+1);
       end;
-      Lgnd[t].Name     := QWork.Fields[1].AsString;
+      Lgnd[LegendRowNumber].Name     := QWork.Fields[1].AsString;
 
       if (D1='SF+') OR (D2='SF+') OR (D3='SF+') OR (D4='SF+') OR (D5='SF+') then
-        Lgnd[t].ShortCut := ''
+        Lgnd[LegendRowNumber].ShortCut := ''
       else
-        Lgnd[t].ShortCut := QWork.Fields[2].AsString;
+        Lgnd[LegendRowNumber].ShortCut := QWork.Fields[2].AsString;
 
-      Lgnd[t].Colour   := QWork.Fields[3].AsInteger;
+      Lgnd[LegendRowNumber].Colour   := QWork.Fields[3].AsInteger;
 
-      t := t + 1;
-      if t > MaxLegendPositions then begin
-       //SError('Wyst¹pi³o zdarzenie "t > MaxLegendPositions"(2). t = '+inttostr(t)+', zg³oœ problem serwisowi');
+      LegendRowNumber := LegendRowNumber + 1;
+      if LegendRowNumber > MaxLegendPositions then begin
        MaxLegendPositions := MaxLegendPositions + 100;
        setLength(Lgnd, MaxLegendPositions+1);
       end;
-      Lgnd[t].Name     := '';
-      Lgnd[t].ShortCut := '';
-      Lgnd[t].Colour   := 0;
+      Lgnd[LegendRowNumber].Name     := '';
+      Lgnd[LegendRowNumber].ShortCut := '';
+      Lgnd[LegendRowNumber].Colour   := 0;
 
       //no summary mode
       if (LegendMode and 1 = 0) then begin
@@ -1299,29 +1298,40 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 , 'SUB_ID='+QWork.Fields[0].AsString);
       end;
 
+
       fuse := 1;
       While Not QWork2.Eof Do Begin
-        Lgnd[t].Name     := Merge(Lgnd[t].Name,QWork2.Fields[1].AsString,'<BR>');
+
+        //2023.04.03 Split (rather than aggregate) the list of lecturers in the legend
+        if (fuse > 1) then begin
+          LegendRowNumber := LegendRowNumber + 1;
+          if LegendRowNumber > MaxLegendPositions then begin
+           MaxLegendPositions := MaxLegendPositions + 100;
+           setLength(Lgnd, MaxLegendPositions+1);
+          end;
+        end;
+
+        Lgnd[LegendRowNumber].Name     := Merge(Lgnd[LegendRowNumber].Name,QWork2.Fields[1].AsString,'<BR>');
 
         if (LegendMode and 2 = 2) then
-            Lgnd[t].shortcut := Merge(Lgnd[t].shortcut,QWork2.Fields[0].AsString,'<BR>');
+            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[0].AsString,'<BR>');
 
         if (LegendMode and 1 = 1) then
-            Lgnd[t].shortcut := Merge(Lgnd[t].shortcut,QWork2.Fields[2].AsString,'<BR>');
+            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[2].AsString,'<BR>');
 
         Qwork2.Next;
         fuse := fuse + 1;
-        If fuse > MaxL Then Begin Lgnd[t].Name := Lgnd[t].Name + ' ...'; Break; End;
+        If fuse > MaxL Then Begin Lgnd[LegendRowNumber].Name := Lgnd[LegendRowNumber].Name + ' ...'; Break; End;
       End;
 
       Qwork.Next;
      End;
     End;
 
-    result := t;
+    result := LegendRowNumber;
 
-    For t := 1 To High(Lgnd) Do Begin
-     If Not isBlank(Lgnd[t].Name) Then Lgnd[t].Name     := '<P align=left>'+Lgnd[t].Name+'</P>';
+    For LegendRowNumber := 1 To High(Lgnd) Do Begin
+     If Not isBlank(Lgnd[LegendRowNumber].Name) Then Lgnd[LegendRowNumber].Name     := '<P align=left>'+Lgnd[LegendRowNumber].Name+'</P>';
     End;
     end; //RefreshLegend
 
