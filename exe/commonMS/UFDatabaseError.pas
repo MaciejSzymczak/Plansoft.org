@@ -8,23 +8,15 @@ uses
 
 type
   TFDatabaseError = class(TFormConfig)
-    Memo: TMemo;
-    BZaawansowane: TBitBtn;
-    Image1: TImage;
     bZamknij: TBitBtn;
     Error: TMemo;
-    SQL: TMemo;
-    Zalecenia: TMemo;
     Messages: TStrHolder;
-    BNaprawAutomatycznie: TBitBtn;
-    procedure BZaawansowaneClick(Sender: TObject);
+    fileName: TLabel;
     procedure bZamknijClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure BNaprawAutomatycznieClick(Sender: TObject);
   private
     { Private declarations }
   public
-   _P : Pointer
 end;
 
 var
@@ -39,44 +31,31 @@ implementation
 Uses UFBrowseParent, DM;
 
 Procedure ShowModal(aAction : Integer; P : Pointer; ErrorMessage : String);
-Var  _MEMO, _ZALECENIA : String;
-     B : TFBrowseParent;
+Var B : TFBrowseParent;
+    StartPos : integer;
+    EndPos : integer;
 Begin
   B := P;
   With FDatabaseError Do Begin
    FDatabaseError := TFDatabaseError.Create(Application);
-   _P := P;
-   //BNaprawAutomatycznie.Visible := Action = AOpen;
-
-   Case aAction Of
-    AOpen  : Begin _MEMO := Messages.Strings[0];   _ZALECENIA := Messages.Strings[1]; End;
-    ADelete: Begin _MEMO := Messages.Strings[2];   _ZALECENIA := Messages.Strings[3]; End;
-    AInsert: Begin _MEMO := Messages.Strings[4];   _ZALECENIA := Messages.Strings[5]; End;
-    AEdit  : Begin _MEMO := Messages.Strings[6];   _ZALECENIA := Messages.Strings[7]; End;
-    APost  :  Begin _MEMO := Messages.Strings[8];  _ZALECENIA := Messages.Strings[9]; End;
-    Else ShowMessage('UFDatabaseError.ShowModal: Action za zakresem');
-   End;
-
-   Caption := GetFileNameWithExtension(B,'');
-   Memo.Lines.Clear;
-   Memo.Lines.Add(_MEMO);
    Error.Lines.Clear;
+
+   StartPos := Pos('ORA-20000',ErrorMessage);
+   if StartPos > 0 then begin
+     StartPos := StartPos + 10;
+     EndPos := Pos('ORA-06512',ErrorMessage);
+     if EndPos = 0 then EndPos := Pos('.',ErrorMessage);
+     ErrorMessage :=    Copy(ErrorMessage, StartPos, EndPos-StartPos);
+   end;
+
    Error.Lines.Add(ErrorMessage);
-   SQL.Lines.Clear;
-   SQL.Lines.Text := B.Query.SQL.Text;
-   Zalecenia.Lines.Clear;
-   Zalecenia.Lines.Add(_ZALECENIA);
-   DModule.InsertIntoEventLog(CurrentUserName,ActionNames[aAction]+'_ERROR',Application.Title + '.' + B.Name,'',_MEMO,ErrorMessage,_ZALECENIA,B.Query.SQL.Text,CurrentUserName);
+   fileName.Caption := GetFileNameWithExtension(B,'');
    ShowModal;
    Free;
   End;
 End;
 
-procedure TFDatabaseError.BZaawansowaneClick(Sender: TObject);
-begin
- Height := 460;
- BZaawansowane.Enabled := False;
-end;
+
 
 procedure TFDatabaseError.BZamknijClick(Sender: TObject);
 begin
@@ -84,18 +63,11 @@ begin
 end;
 
 
-procedure TFDatabaseError.FormCreate(Sender: TObject);
-begin
- Inherited;
- Top    := 100;
- Height := 290;
-end;
-
 procedure TFDatabaseError.BNaprawAutomatycznieClick(Sender: TObject);
 begin
   inherited;
   If Question(Messages.Strings[10]) = ID_YES Then Begin
-   SetSystemParam(GetFormName(_P),'Restore');
+   //SetSystemParam(GetFormName(_P),'Restore');
    Info(Messages.Strings[11]);
   End;
 end;

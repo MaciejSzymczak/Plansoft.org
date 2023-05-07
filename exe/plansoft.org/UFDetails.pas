@@ -129,10 +129,6 @@ type
     BCopy: TBitBtn;
     BPaste: TBitBtn;
     Panel3: TPanel;
-    Label1: TLabel;
-    CPattern: TEdit;
-    Label2: TLabel;
-    CCounter: TComboBox;
     BOK: TBitBtn;
     BitBtn1: TBitBtn;
     LCal: TLabel;
@@ -225,7 +221,6 @@ type
     procedure F_value1Click(Sender: TObject);
     procedure F_value2Click(Sender: TObject);
     procedure CWeeksChange(Sender: TObject);
-    procedure CPatternClick(Sender: TObject);
     procedure CALIDChange(Sender: TObject);
     procedure CALID_VALUEClick(Sender: TObject);
     procedure BClearCalClick(Sender: TObject);
@@ -298,8 +293,7 @@ implementation
 
 {$R *.DFM}
 
-Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings,
-  UFPattern, UUtilities;
+Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities;
 
 procedure TFDetails.DisplayWarning(L, G, R : String);
 begin
@@ -988,8 +982,6 @@ begin
   formChange('formShow');
   subjectChange('formShow');
 
-  CCounter.Enabled :=  elementEnabled('"Kalendarze szczególne"','2015.07.05', true);
-  CPattern.Enabled :=  elementEnabled('"Kalendarze szczególne"','2015.07.05', true);
 end;
 
 procedure TFDetails.FormCreate(Sender: TObject);
@@ -1656,9 +1648,6 @@ procedure TFDetails.CWeeksChange(Sender: TObject);
   end;
   //--------------------------------------------
 begin
-  if extractWord(1,CPattern.Text,[' '])='1' then
-    CCounter.ItemIndex := 0;
-
   stringTokenizer := TStringTokenizer.Create;
   copyValue(Fprogramsettings.CopyField1.itemindex, desc1);
   copyValue(Fprogramsettings.CopyField2.itemindex, desc2);
@@ -1666,29 +1655,6 @@ begin
   copyValue(Fprogramsettings.CopyField4.itemindex, desc4);
   stringTokenizer.free;
 
-end;
-
-procedure TFDetails.CPatternClick(Sender: TObject);
-var point : tpoint;
-    btn   : tcontrol;
-begin
-  btn     := sender as tedit;
-  Point.x := 0;
-  Point.y := btn.Height;
-  Point   := btn.ClientToScreen(Point);
-  if FPattern = nil then Application.CreateForm(TFPattern, FPattern);
-  FPattern.Left := Point.X;
-  FPattern.Top := Point.Y;
-  FPattern.showModal;
-  if FPattern.modalResult = 1 then
-   CPattern.Text := FPattern.CustomText.Text;
-
-  if CPattern.Text='1' then CPattern.Text := '1 Wszystkie tygodnie';
-  if CPattern.Text='01' then CPattern.Text := '01 Parzyste tygodnie';
-  if CPattern.Text='10' then CPattern.Text := '10 Nieparzyste tygodnie';
-  if CPattern.Text='100' then CPattern.Text := '100 Co trzeci tydzieñ';
-  if CPattern.Text='110' then CPattern.Text := '110 Cyklicznie';
-  if CPattern.Text='011' then CPattern.Text := '001 Cyklicznie';
 end;
 
 procedure TFDetails.CALIDChange(Sender: TObject);

@@ -373,17 +373,6 @@ begin
     end;
     close;
   end;
-  //
-  dmodule.openSQL('select pattern_code, id from forms where pattern_code is not null');
-  with dmodule.QWork do begin
-    first;
-    while not Eof do
-    begin
-      DBMap.addMessage( fieldByName('pattern_code').AsString  , fieldByName('id').AsString );
-      next;
-    end;
-    close;
-  end;
 end;
 
 //----------------------------------------------------------------

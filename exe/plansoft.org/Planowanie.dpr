@@ -80,7 +80,6 @@ uses
   UFDatesSelector in 'UFDatesSelector.pas' {FDatesSelector},
   UFGoogleOrgChart in 'UFGoogleOrgChart.pas' {FGoogleOrgChart},
   UFSlideshowGenerator in 'UFSlideshowGenerator.pas' {FSlideshowGenerator},
-  UFPattern in 'UFPattern.pas' {FPattern},
   UFBrowseRES_HINTS in 'UFBrowseRES_HINTS.pas' {FBrowseRES_HINTS},
   UFActionTree in 'UFActionTree.pas' {FActionTree},
   UFCellLayout in 'UFCellLayout.pas' {FCellLayout},
@@ -198,7 +197,6 @@ begin
   FAbolitionTime := nil;
   Application.CreateForm(TFGrouping, FGrouping);
   FDatesSelector := nil;
-  FPattern := nil;
   Application.CreateForm(TFActionTree, FActionTree);
   Application.CreateForm(TFCellLayout, FCellLayout);
   FSelectDaysOfWeek := nil;

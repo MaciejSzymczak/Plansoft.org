@@ -2598,7 +2598,7 @@ end;
 
 Procedure TFMain.insertClasses;
 
- function AddClass(currentPattern : string) : boolean;
+ function AddClass : boolean;
  var t : Integer;
      PLecturers, PGroups, PRooms : TPointers;
      PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
@@ -2610,7 +2610,6 @@ Procedure TFMain.insertClasses;
      checkResult                 : shortString;
      resourceList                : string;
      ttCombIds                   : string;
-     currentPatternId            : string;
      subjectIds                  : string;
  Begin
     For t := 1 To maxInClass Do Begin
@@ -2627,11 +2626,6 @@ Procedure TFMain.insertClasses;
 
     With FDetails Do Begin
      GetValues(L, G, R, S, FormId, Fill, colour, created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4 );
-
-     if currentPattern<>'1' then
-       if DBMap.get (currentPattern, currentPatternId)
-         then FormId := strToInt(currentPatternId)
-         else info('U¿yty kod jest nieprawid³owy:'+currentPattern);
 
      For t := 1 To WordCount(L,[';']) Do Begin
       value := ExtractWord(t, L, [';']);
@@ -2777,21 +2771,17 @@ Procedure TFMain.insertClasses;
 
 Var xp, yp           : Integer;
     classesCount     : integer;
-    pattern          : shortString;
-    patternLen       : integer;
     classesToAdd     : integer;
     calendarSelected : boolean;
     addedFlag        : boolean;
 
     procedure processPattern (x0,xp : integer);
-     var currentPattern : string;
-         canInsertClass : boolean;
+     var canInsertClass : boolean;
     begin
       // passing parameters via procedure worked sometimes badly !
       UFmain.dummyTS.time := TS.time;
       UFmain.dummyTS.date := TS.date;
       UFmain.dummyHour    := Zajecia;
-      currentPattern := pattern[((xp-x0) mod patternLen)+1];
 
       if calendarSelected then
        canInsertClass := not (otherCalendar.getRatio(TS, Zajecia)=calReserved)
@@ -2802,32 +2792,14 @@ Var xp, yp           : Integer;
          if not canInsertClass then info('Nie mo¿esz planowaæ zajêæ w zaznaczonym terminie');
       end;
 
-      //info( inttostr( OtherCalendar.getRatio(TS, Zajecia)) );
-      //info( inttostr( calReserved) );
-
       addedFlag := false;
-      if (currentPattern<>'0') and (canInsertClass) then begin
-        addedFlag := AddClass(currentPattern);
+      if (canInsertClass) then begin
+        addedFlag := AddClass();
       end;
 
-      if (addedFlag)
-          //!
-          or (FDetails.CCounter.ItemIndex=1) then begin
+      if (addedFlag) then begin
         inc(classesCount);
-        //info(inttostr(xp));
       end;
-
-      {
-      easier to understand version:
-        xp     = 01 23 45 67
-        modulo2= 01 01 01 01
-                 01 01 01 01  <-- even
-
-        xp     = 012 345 678
-        modulo3= 012 012 012
-                 101 101 101
-      end;
-      }
     end;
 
 //-------------------------------- insertClasses ------------------------------------------------------
@@ -2845,17 +2817,13 @@ begin
       //now the OtherCalendar.IsReserved(TS, Zajecia) is available
     end;
 
-    pattern := extractWord(1,FDetails.CPattern.Text,[' ']);
-    patternLen := length(pattern);
 
     With Grid Do
     Begin
       dmodule.CommitTrans;
 
       classesCount := 0;
-      if FDetails.CCounter.ItemIndex=0 then classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
-      if FDetails.CCounter.ItemIndex=1 then classesToAdd := patternLen * (Selection.Bottom-Selection.Top+1);
-      if FDetails.CCounter.ItemIndex>1 then classesToAdd := FDetails.CCounter.ItemIndex-1;
+      classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
 
       For xp:=Selection.Left To Selection.Right Do
        For yp:=Selection.Top To Selection.Bottom Do
