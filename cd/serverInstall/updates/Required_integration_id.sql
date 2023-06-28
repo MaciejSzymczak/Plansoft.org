@@ -1,3 +1,9 @@
+drop TRIGGER for_required_integration_id;
+drop TRIGGER gro_required_integration_id;
+drop TRIGGER lec_required_integration_id;
+drop TRIGGER rom_required_integration_id;
+drop TRIGGER sub_required_integration_id;
+
 create or replace TRIGGER sub_required_integration_id
 before INSERT ON subjects
 REFERENCING NEW AS NEW
@@ -5,7 +11,7 @@ FOR EACH ROW
 DECLARE
 BEGIN
   if :new.integration_id is null then
-    raise_application_error(-20000, 'Wprowadzanie ręczne przedmiotów zostało zabronione.');
+    raise_application_error(-20000, 'Wprowadzanie ręczne przedmiotów zostało wyłączone, rekordy są pobierane z systemu Bazus/Usos.');
   end if;
 END;
 /
@@ -17,7 +23,7 @@ FOR EACH ROW
 DECLARE
 BEGIN
   if :new.integration_id is null then
-    raise_application_error(-20000, 'Wprowadzanie ręczne grup zostało zabronione.');
+    raise_application_error(-20000, 'Wprowadzanie ręczne grup zostało zabronione, rekordy są pobierane z systemu Bazus/Usos.');
   end if;
 END;
 /
@@ -29,7 +35,7 @@ FOR EACH ROW
 DECLARE
 BEGIN
   if :new.integration_id is null then
-    raise_application_error(-20000, 'Wprowadzanie ręczne sal zostało zabronione.');
+    raise_application_error(-20000, 'Wprowadzanie ręczne sal zostało zabronione, rekordy są pobierane z systemu Bazus/Usos.');
   end if;
 END;
 /
@@ -42,7 +48,7 @@ FOR EACH ROW
 DECLARE
 BEGIN
   if :new.integration_id is null then
-    raise_application_error(-20000, 'Wprowadzanie ręczne wykładowców zostało zabronione.');
+    raise_application_error(-20000, 'Wprowadzanie ręczne wykładowców zostało zabronione, rekordy są pobierane z systemu Bazus/Usos.');
   end if;
 END;
 /
@@ -54,7 +60,7 @@ FOR EACH ROW
 DECLARE
 BEGIN
   if :new.integration_id is null then
-    raise_application_error(-20000, 'Wprowadzanie ręczne form zostało zabronione.');
+    raise_application_error(-20000, 'Wprowadzanie ręczne form zostało zabronione, rekordy są pobierane z systemu Bazus/Usos.');
   end if;
 END;
 /

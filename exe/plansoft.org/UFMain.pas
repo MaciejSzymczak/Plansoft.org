@@ -920,10 +920,13 @@ type
   private
     resizeMode: boolean;
     timerShapes : integer;
+    //used by Copy-Cut-Paste
     GridSelectionLeft : integer;
     GridSelectionRight : integer;
     GridSelectionTop : integer;
     GridSelectionBottom : integer;
+    //Used by HighlightSelection
+    GridLastSelection : shortString;
     GridSelectionMode   : integer;
     StartUp : boolean;
     dockingPanel  : integer;
@@ -951,6 +954,7 @@ type
     procedure commandLineGrouping     (inifilename : string);
     Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
     procedure updateLeftPanel;
+    procedure HighLightGrid;
   public
     CanShow            : boolean;
     CanBuildCalendar   : boolean;
@@ -1769,6 +1773,8 @@ begin
   GridSelectionBottom := -1;
   gridSelectionMode   := clNone;
 
+  GridLastSelection := '';
+
   timerShapes := 2;
   init;
 
@@ -2104,6 +2110,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	Begin
 	 grid.Canvas.Pen.Color := clGray;
    grid.Canvas.Brush.Color := clGray;
+   grid.Canvas.Font.Color := clWhite;
    //orig := Grid.Canvas.Pen.Mode;
    //Grid.Canvas.Pen.Mode  := pmXor;
    grid.Canvas.Rectangle(Rect);
@@ -2522,10 +2529,26 @@ begin
 
    Case convertGrid.ColRowToDate(AObjectId, TS, Zajecia, ACol, ARow) Of
     //ConvDayOfWeek:   If Zajecia=0 Then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,NumToDayOfWeek(ARow div (ConvertDateColRow.MaxIloscGodzin+1))+DateTimeToStr(TimeStampToDateTime(TS)));
-    ConvDayOfWeek   :if TS.Date<>-1 then if Zajecia=0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
-    ConvNumeryZajec :if Zajecia<>0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,OpisujKolumneZajec.Str(Zajecia));
+    ConvDayOfWeek   :begin
+                       if (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
+                       if TS.Date<>-1 then if Zajecia=0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
+
+                       //to do:
+                       //    - za czeste odswiezanie (moze odswiezaj tylko gdy zmienie sie aktywna komorka?)
+                       //    - zaznaczaj takze gdy nie uzywasz klawiatury
+
+                     end;
+    ConvNumeryZajec :begin
+                       if  (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
+                       if Zajecia<>0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,OpisujKolumneZajec.Str(Zajecia));
+                     end;
     convOutOfRange  :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); DrawCross(Rect); End;
-    ConvHeader      :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,GetDate(TS.Date)); End;
+    ConvHeader      :begin
+                       Grid.Canvas.Brush.Color := clMenu;
+                       Grid.Canvas.FillRect(Rect);
+                       if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (Rect);
+                       Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,GetDate(TS.Date));
+                     End;
     ConvClass:
      Begin
       If TabViewType.TabIndex<4 Then BusyClasses;
@@ -3093,7 +3116,6 @@ Var Col, Row   : Integer;
     distance   : real;
     xabs, yabs : integer;
     cursorPos       : TPoint;
-
 begin
  FCellLayout.hideCellLayout(false);
   //“A call to an OS function failed” problem
@@ -3142,6 +3164,8 @@ begin
 
  Grid.MouseToCell(X, Y, Col, Row);
  FillPanel(Col, Row);
+
+ HighLightGrid;
 end;
 
 procedure TFMain.TabViewTypeClick(Sender: TObject);
@@ -6626,6 +6650,7 @@ end;
 procedure TFMain.GridKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  HighLightGrid;
   refreshLegend;
 end;
 
@@ -9100,6 +9125,17 @@ begin
   BuildCalendar('X');
 end;
 
+
+procedure TFMain.HighLightGrid;
+Var  GridCurrentSelection : shortString;
+begin
+ GridCurrentSelection := IntToStr(grid.Selection.Left) +','+ IntToStr(grid.Selection.Right) +','+ IntToStr(grid.Selection.Top) +','+ IntToStr(grid.Selection.Bottom);
+ if (GridCurrentSelection <>  GridLastSelection ) then begin
+   GridLastSelection := GridCurrentSelection;
+   //Refresh entire grid, call HighLight(Rect) for each rect. No database reload is needed.
+   Grid.refresh;
+ end;
+end;
 
 initialization
   Randomize;
