@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls, DB, ADODB, Grids,
-  DBGrids, RXDBCtrl, ComCtrls;
+  DBGrids, RXDBCtrl, ComCtrls, Menus;
 
 type
   TFIntegration = class(TFormConfig)
@@ -21,9 +21,8 @@ type
     INT_RESCAT_COMB_ID_VALUE: TEdit;
     RESCAT_COMB_IDSel: TBitBtn;
     INT_RESCAT_COMB_ID: TEdit;
-    Grid: TRxDBGrid;
     Source: TDataSource;
-    Query: TADOQuery;
+    QueryLog: TADOQuery;
     BitBtn2: TBitBtn;
     BReport: TBitBtn;
     RunIntFromPlansoft: TBitBtn;
@@ -31,6 +30,18 @@ type
     Refresh: TTimer;
     RunIntToPlansoftPlan: TBitBtn;
     BConfirmation1: TLabel;
+    PageControl2: TPageControl;
+    TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    GridDuplicates: TRxDBGrid;
+    Panel4: TPanel;
+    BitBtn4: TBitBtn;
+    Grid: TRxDBGrid;
+    QDuplicates: TADOQuery;
+    DSDuplicates: TDataSource;
+    ppexport: TPopupMenu;
+    ExportEasy: TMenuItem;
+    ExportHtml: TMenuItem;
     procedure INT_RESCAT_COMB_IDChange(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -40,6 +51,10 @@ type
     procedure BReportClick(Sender: TObject);
     procedure RefreshTimer(Sender: TObject);
     procedure RunIntToPlansoftPlanClick(Sender: TObject);
+    procedure ExportEasyClick(Sender: TObject);
+    procedure ExportHtmlClick(Sender: TObject);
+    procedure BitBtn4Click(Sender: TObject);
+    procedure PageControl2Change(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -71,7 +86,7 @@ procedure TFIntegration.FormShow(Sender: TObject);
 begin
   INT_RESCAT_COMB_ID.text  := dmodule.dbgetSystemParam('INT_RESCAT_COMB_ID');
   INT_PERIOD_NAME.text     := dmodule.dbgetSystemParam('INT_PERIOD_NAME');
-  Query.Active := true;
+  QueryLog.Active := true;
 
   RefreshTimer(nil);
   Refresh.Enabled := true;
@@ -177,8 +192,8 @@ begin
   RunIntFromPlansoft.Enabled := flag <> 'YES';
   BConfirmation2.Visible := flag = 'YES';
   //
-  Query.Close;
-  Query.Open;
+  QueryLog.Close;
+  QueryLog.Open;
 end;
 
 procedure TFIntegration.RunIntToPlansoftPlanClick(Sender: TObject);
@@ -202,6 +217,48 @@ begin
    end;
   end;
   BConfirmation1.Visible := true;
+end;
+
+procedure TFIntegration.ExportEasyClick(Sender: TObject);
+begin
+ dmodule.ExportToExcel(GridDuplicates);
+end;
+
+procedure TFIntegration.ExportHtmlClick(Sender: TObject);
+begin
+ dmodule.ExportToHtml(GridDuplicates);
+end;
+
+procedure TFIntegration.BitBtn4Click(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ ppexport.Popup(Point.X,Point.Y);
+end;
+
+procedure TFIntegration.PageControl2Change(Sender: TObject);
+Var activeTab : integer;
+begin
+  activeTab := PageControl2.TabIndex;
+
+  if (activeTab=0) then begin
+   QueryLog.Close;
+   QueryLog.Open;
+  end;
+
+  if (activeTab=1) then begin
+   QDuplicates.Close;
+   try
+   QDuplicates.Open;
+   except
+     copyToClipboard(  QDuplicates.SQL.Text);
+     raise;
+   end;
+  end;
 end;
 
 end.

@@ -1419,9 +1419,11 @@ Var xp, yp          : Integer;
     //--------------------------------------------------------
     procedure addLegendRow (addECTSflag : Boolean);
     Begin
+
       If Lgnd[legendRow].Colour = 0 Then Begin
 		      htmlTable.newCell(
-			      'WIDTH='+CellWIDTH
+            //mergeWith attribute is to avoid merge for cells inside legend
+			      'WIDTH="'+CellWIDTH +'" mergeWith="'+Lgnd[legendRow].Name+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,'0'
 		      );
@@ -1434,7 +1436,8 @@ Var xp, yp          : Integer;
       End
       Else Begin
 		      htmlTable.newCell(
-			       'WIDTH='+CellWIDTH
+            //mergeWith attribute is to avoid merge for cells inside legend
+			       'WIDTH="'+CellWIDTH +'" mergeWith="'+Lgnd[legendRow].Name+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,DelphiColourToHTML(Lgnd[legendRow].Colour)
 		      );

@@ -580,6 +580,7 @@ type
     Listaobecno2: TMenuItem;
     Zmianywrozkadziezaj1: TMenuItem;
     Zmianywrozkadziezaj2: TMenuItem;
+    gridRefresh: TTimer;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -917,6 +918,7 @@ type
     procedure Listaobecno2Click(Sender: TObject);
     procedure Zmianywrozkadziezaj1Click(Sender: TObject);
     procedure Zmianywrozkadziezaj2Click(Sender: TObject);
+    procedure gridRefreshTimer(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -931,6 +933,7 @@ type
     StartUp : boolean;
     dockingPanel  : integer;
     SearchCounter   : Integer;
+    gridRefreshCounter   : Integer;
     userLogged : boolean;
     ignoreEvents : boolean;
     activePulpit : integer;
@@ -9133,8 +9136,18 @@ begin
  if (GridCurrentSelection <>  GridLastSelection ) then begin
    GridLastSelection := GridCurrentSelection;
    //Refresh entire grid, call HighLight(Rect) for each rect. No database reload is needed.
-   Grid.refresh;
+   gridRefreshCounter := 2;
+   gridRefresh.Enabled := true;
  end;
+end;
+
+procedure TFMain.gridRefreshTimer(Sender: TObject);
+begin
+  If gridRefreshCounter > 0 Then gridRefreshCounter := gridRefreshCounter - 1;
+  If gridRefreshCounter = 1 Then Begin
+    gridRefresh.Enabled := false;
+    Grid.refresh;
+  end;
 end;
 
 initialization

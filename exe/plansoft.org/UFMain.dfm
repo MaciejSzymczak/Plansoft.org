@@ -8813,4 +8813,11 @@ inherited FMain: TFMain
     Left = 8
     Top = 88
   end
+  object gridRefresh: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = gridRefreshTimer
+    Left = 1108
+    Top = 272
+  end
 end

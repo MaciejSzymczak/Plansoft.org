@@ -229,51 +229,209 @@ inherited FIntegration: TFIntegration
       end
     end
   end
-  object Grid: TRxDBGrid
+  object PageControl2: TPageControl
     Left = 0
     Top = 169
     Width = 1266
     Height = 421
+    ActivePage = TabSheet3
     Align = alClient
-    DataSource = Source
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    Options = [dgTitles, dgColLines, dgRowLines, dgAlwaysShowSelection, dgCancelOnExit]
-    ParentFont = False
-    ParentShowHint = False
-    ShowHint = True
     TabOrder = 3
-    TitleFont.Charset = DEFAULT_CHARSET
-    TitleFont.Color = clWindowText
-    TitleFont.Height = -11
-    TitleFont.Name = 'MS Sans Serif'
-    TitleFont.Style = [fsBold]
-    TitleButtons = True
-    Columns = <
-      item
-        Expanded = False
-        FieldName = 'CREATED'
-        Title.Caption = 'Uruchomiono'
-        Width = 171
-        Visible = True
+    OnChange = PageControl2Change
+    object TabSheet3: TTabSheet
+      Caption = 'Dziennik zdarze'#324
+      object Grid: TRxDBGrid
+        Left = 0
+        Top = 0
+        Width = 1258
+        Height = 392
+        Align = alClient
+        DataSource = Source
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        Options = [dgTitles, dgColLines, dgRowLines, dgAlwaysShowSelection, dgCancelOnExit]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = [fsBold]
+        TitleButtons = True
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'CREATED'
+            Title.Caption = 'Uruchomiono'
+            Width = 171
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'MESSAGE'
+            Title.Caption = 'Komunikat'
+            Width = 3000
+            Visible = True
+          end>
       end
-      item
-        Expanded = False
-        FieldName = 'MESSAGE'
-        Title.Caption = 'Komunikat'
-        Width = 3000
-        Visible = True
-      end>
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Duplikaty'
+      ImageIndex = 1
+      object GridDuplicates: TRxDBGrid
+        Left = 0
+        Top = 41
+        Width = 1258
+        Height = 351
+        Align = alClient
+        DataSource = DSDuplicates
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        Options = [dgTitles, dgColLines, dgRowLines, dgAlwaysShowSelection, dgCancelOnExit]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = [fsBold]
+        TitleButtons = True
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'TYPE'
+            Title.Caption = 'Typ'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ID'
+            Title.Caption = 'Id'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ABBREVIATION'
+            Title.Caption = 'Skr'#243't'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'NAME'
+            Title.Caption = 'Nazwa'
+            Width = 400
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CREATION_DATE'
+            Title.Caption = 'Utworzono dnia'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CREATED_BY'
+            Title.Caption = 'Utworzyl'
+            Visible = True
+          end>
+      end
+      object Panel4: TPanel
+        Left = 0
+        Top = 0
+        Width = 1258
+        Height = 41
+        Align = alTop
+        TabOrder = 1
+        object BitBtn4: TBitBtn
+          Left = 4
+          Top = 4
+          Width = 37
+          Height = 33
+          Hint = 'Eksportuj do pakietu Office/ html'
+          TabOrder = 0
+          OnClick = BitBtn4Click
+          Glyph.Data = {
+            AE060000424DAE06000000000000360000002800000017000000170000000100
+            18000000000078060000C40E0000C40E0000000000000000000130640D35650B
+            35660B35660B35660C35660C35660C35660C35660C36670D37670E38680E3868
+            0F35660C35660C35660C35660C35660C35660C35660C35660B34650F386A0000
+            00004273234971214A72224A72224A73234C73244C74264C74234B7321477220
+            416E193E6A173B6A1148721F4A73204971224A72234971224A72224A72234971
+            214971254C75150000003F701E456E1E477020446F1C406B183C681239650E39
+            640C3D69104973205B813C7495568DA6794F762847711C4971214A7222497121
+            4A72224A7222497121466F224872100000003E701F456F1C406C17456F1E597F
+            347190518DA674B0C09ED0D8C4E7EBE0F9FAF9FFFFFFFDFBFB48722230620536
+            640B36650C34630A35640B35640B38660E446D204973110000004072213B6810
+            9AB388E5E9E0F6F6F0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFDFDFDE5EA
+            E17998629EB38A9BB28896AF849BB38A9BB38A9AB2898BA6754A722648711000
+            000041732239670CBFCFB2FFFFFFFDFDFDFCFCFCFBFCFBFCFCFBFCFBFCFCFDFC
+            FDFDFDFEFEFEE4E9E09AB289DDE2D6D8E1D3F0F2EEDAE2D3D7DFCFE5E9E0FBFC
+            F950782D446F0A0000004072213A680EB8C8AAFDFDFDFBFCFBFCFDFCFCFDFBFE
+            FEFEFDFCFDFCFDFCFEFEFDFEFEFEF1F4ED426F1C2659003060088FAB7E2C5F00
+            225800527A30ECF2EA50782C45700A00000041732239670DB9CAABFFFFFFFBFC
+            FBFFFFFFFFFFFFF9FAFAFFFFFFFFFFFFFAFAFAFFFFFFEAEEE7709057849F6988
+            A371C1CFB286A36B7F9D649DB38AEFF1EB50782B456F0A0000004173223A680E
+            BACAACFFFFFFFEFEFEDBE3D4A4B893FFFFFFBBCCAE87A26EF9FAF8FEFDFEEBEF
+            E8668A49718E4F739459B5C7A9709254698D4B8DA475EFF2EC50782B45700A00
+            00004173223A680EBACAACFFFFFFFEFEFEE4ECDE3A6912D5DDCB5F823B91A775
+            FFFFFFFEFCFDEFF2EB527A30486F1D4E792CA0B892497427406D1A6F8D51EFF4
+            EC50772C45700A0000004173223A680EBACAACFFFFFFF9FBF8FFFFFF99AD8254
+            7A315E823BEFF3EDFDFCFDFFFEFEE8ECE47F9C6AA5B699A4B897D0D9C6A5B995
+            9FB48FB4C4AAEFF1EB50782C45700A0000004173223A680EBACAACFFFFFFFAFB
+            F9FEFEFDE4E8DF2D61038CA679FFFFFFFAFAF9FEFFFEF0F3ED4771202E5D0039
+            671097B08334620A2A5B00588034EFF3ED50782B45700A0000004173223A680E
+            BACAACFFFFFFF9FAF8FFFFFFB5C7A43E6B17698D4AFAFBF9FDFDFDFFFFFFE9ED
+            E577975F98AE8098AD82C9D4BE97AF7F91A97BACBD9BEFF2ED50782C45700A00
+            00004173223A680EBACAACFFFFFFFCFCFBF6F8F44B7527A7BD975D823BAFBF9B
+            FFFFFFFCFCFCEEF0EA598139577F3A5F8542A9BD9E5B813C537A33799762EFF2
+            ED50772B45700A0000004172213A680EB9C9ACFFFFFFFEFEFEE0E6D978965CF7
+            F8F8A9BD98729058FCFCFCFEFEFDEDF0EA5C8039587D325D823DAABD9C5B8138
+            527A2E78995FF0F3EE50782C45700A00000041732239670DB9CAABFFFEFFFBFC
+            FBFFFEFFFFFFFFFFFEFFFFFFFFF7FBF6FCFCFCFFFFFFE9ECE576986398B0819A
+            B287C9D5C299B08394AC7CADBE9DF0F1EC50782B446F0A0000004072213A680E
+            B8C8AAFDFDFCFBFCFBFDFDFDFCFDFCFEFEFEFEFDFEFFFFFFFEFEFEFEFEFEF0F3
+            EE416E1A2257002F5F068EA97A295B0020540052772CECF1EA50772C45700A00
+            00004172213A660EC1CFB3FFFFFFFDFDFDFDFDFDFBFCFBFBFBFBFCFCFBFCFDFB
+            FDFDFDFEFEFEE7EAE28FA877C0CFB2BECCB4E1E8DDBFCEB1BACBADCBD9C4FBFB
+            F652792F4570090000004071203C6A1294AE82DEE3D4F0F2ECFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFEFDE7EBE278985F9BB28598AF8394AC7D99B082
+            9AB08397B18084A16C4A722748730D0000003E701E466F1E406917446D195479
+            30698C4883A16BA5BA96C4D2B9E0E5D9F4F5F1FFFFFFF9FAF94B722131610436
+            640A36640C35630A36630B36630B38650F456D214973110000003F711F456E1D
+            48702047701F426D183C6A1337680E37660D396810446F1A567C326F8F5085A2
+            6D4E76264871204971224971224972214A72224A7222487121466F2248721000
+            00004173224871214A72224972214A72244B73254C74254D74274C7326497222
+            456F1D406B173D6A124871204A72234972224972224972224972224972224871
+            214871254C751400000031670E39650D39650E39650D39650E39660E39660E39
+            660E39660E3A660F3B66103C67113C67123A660F39650E39660E39660E39650E
+            39650E39650E38650D3964113B6900000000}
+        end
+      end
+    end
   end
   object Source: TDataSource
-    DataSet = Query
+    DataSet = QueryLog
     Left = 512
     Top = 80
   end
-  object Query: TADOQuery
+  object QueryLog: TADOQuery
     Connection = DModule.ADOConnection
     CursorLocation = clUseServer
     CursorType = ctStatic
@@ -292,5 +450,82 @@ inherited FIntegration: TFIntegration
     OnTimer = RefreshTimer
     Left = 916
     Top = 40
+  end
+  object QDuplicates: TADOQuery
+    Connection = DModule.ADOConnection
+    CursorLocation = clUseServer
+    CursorType = ctStatic
+    Parameters = <>
+    SQL.Strings = (
+      'select * from ('
+      
+        'select '#39'LEC_NAME_UI'#39' type, Id, ABBREVIATION, FIRST_NAME||'#39' '#39'||LA' +
+        'ST_NAME||'#39' '#39'||TITLE as name , integration_id, to_char(creation_d' +
+        'ate,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+      
+        'from LECTURERS where (FIRST_NAME, LAST_NAME, TITLE) in (select F' +
+        'IRST_NAME, LAST_NAME, TITLE from LECTURERS group by FIRST_NAME, ' +
+        'LAST_NAME, TITLE having count(1)>1)'
+      'union all'
+      
+        'select '#39'LEC_ABBREVIATION_I'#39' type, Id, ABBREVIATION, FIRST_NAME||' +
+        #39' '#39'||LAST_NAME||'#39' '#39'||TITLE as name, integration_id, to_char(crea' +
+        'tion_date,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+      
+        'from LECTURERS where (ABBREVIATION) in (select ABBREVIATION from' +
+        ' LECTURERS group by ABBREVIATION having count(1)>1)'
+      'union all'
+      
+        'select '#39'SUB_NAME_I'#39' type, id, abbreviation, name, integration_id' +
+        ', to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+      
+        'from subjects where name in (select name from subjects group by ' +
+        'name having count(1)>1) '
+      'union all'
+      
+        'select '#39'GRO_ABBREVIATION_I'#39' type,  Id, ABBREVIATION, name ||'#39' '#39' ' +
+        '|| group_type as name, integration_id, to_char(creation_date,'#39'yy' +
+        'yy-mm-dd'#39') creation_date, created_by '
+      
+        'from groups where ABBREVIATION in (select ABBREVIATION from grou' +
+        'ps group by ABBREVIATION having count(1)>1)'
+      'union all'
+      
+        'select '#39'SUB_ABBREVIATION_I'#39' type, id, ABBREVIATION, name, integr' +
+        'ation_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, cre' +
+        'ated_by '
+      
+        'from subjects where (ABBREVIATION) in (select ABBREVIATION from ' +
+        'subjects group by ABBREVIATION having count(1)>1) '
+      'union all'
+      
+        'select '#39'ROOM_UK'#39' type, id, '#39#39' as ABBREVIATION, attribs_01 || '#39' '#39 +
+        ' || name as name, integration_id, to_char(creation_date,'#39'yyyy-mm' +
+        '-dd'#39') creation_date, created_by '
+      
+        'from rooms where (name, attribs_01) in (select name, ATTRIBS_01 ' +
+        'from rooms group by name, ATTRIBS_01 having count(1)>1)'
+      ') order by type, name, ABBREVIATION')
+    Left = 244
+    Top = 292
+  end
+  object DSDuplicates: TDataSource
+    DataSet = QDuplicates
+    Left = 280
+    Top = 296
+  end
+  object ppexport: TPopupMenu
+    Left = 112
+    Top = 200
+    object ExportEasy: TMenuItem
+      Caption = 'Eksportuj do Excela'
+      ImageIndex = 16
+      OnClick = ExportEasyClick
+    end
+    object ExportHtml: TMenuItem
+      Caption = 'Eksportuj do pliku'
+      ImageIndex = 15
+      OnClick = ExportHtmlClick
+    end
   end
 end
