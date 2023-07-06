@@ -523,7 +523,7 @@ type
     fastQueryGenericString: TMemo;
     gridPanel: TPanel;
     filterPanel: TPanel;
-    Filter: TEdit;
+    CrossFilter: TEdit;
     Grid: TDrawGrid;
     CustomPeriod: TComboBox;
     refreshFilter: TTimer;
@@ -581,6 +581,7 @@ type
     Zmianywrozkadziezaj1: TMenuItem;
     Zmianywrozkadziezaj2: TMenuItem;
     gridRefresh: TTimer;
+    BCrossTableMaxRows: TButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -880,7 +881,7 @@ type
     procedure EksportujdoGoogleKalendarz2Click(Sender: TObject);
     procedure WskanikiefektywnociwykresyGoogle1Click(Sender: TObject);
     procedure MapaGooglezzasobami3Click(Sender: TObject);
-    procedure FilterChange(Sender: TObject);
+    procedure CrossFilterChange(Sender: TObject);
     procedure CustomPeriodChange(Sender: TObject);
     procedure refreshFilterTimer(Sender: TObject);
     procedure Generatorslajdw1Click(Sender: TObject);
@@ -919,6 +920,7 @@ type
     procedure Zmianywrozkadziezaj1Click(Sender: TObject);
     procedure Zmianywrozkadziezaj2Click(Sender: TObject);
     procedure gridRefreshTimer(Sender: TObject);
+    procedure BCrossTableMaxRowsClick(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1964,7 +1966,7 @@ Begin
   TabViewType.Tabs[2] := iif( BViewByWeek.down,  dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';'])                      , dmodule.pResCatName0 );
   TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
 
-  convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, filter.text, colCnt, rowCnt);
+  convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
   Grid.ColCount := colCnt;
   Grid.RowCount := rowCnt;
 
@@ -3621,9 +3623,9 @@ begin
 
    //legend
    with FLegend do begin
-     TabsheetL.caption     := profileObjectNameLs.Text;
-     TabsheetG.caption     := profileObjectNameGs.Text;
-     TabsheetS.caption     := profileObjectNameC1s.Text;
+     //TabsheetL.caption     := profileObjectNameLs.Text;
+     //TabsheetG.caption     := profileObjectNameGs.Text;
+     //TabsheetS.caption     := profileObjectNameC1s.Text;
      groupByForm.Caption   := profileObjectNameC2s.Text;
      groupByDesc1.Caption  := getClassDescPlural(1);
      groupByDesc2.Caption  := getClassDescPlural(2);
@@ -5295,6 +5297,7 @@ end;
 
 procedure TFMain.BViewByCrossTableClick(Sender: TObject);
 begin
+  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
   Preview.Enabled := false;
   dmodule.dateRange:='TODAY:+0:+0';
   CustomPeriod.ItemIndex:=2;
@@ -8339,7 +8342,7 @@ function TFMain.getWhereFastFilter(filter, tableName : string) : string;
 end;
 
 
-procedure TFMain.FilterChange(Sender: TObject);
+procedure TFMain.CrossFilterChange(Sender: TObject);
 begin
  deepRefreshDelayed;
 end;
@@ -9148,6 +9151,16 @@ begin
     gridRefresh.Enabled := false;
     Grid.refresh;
   end;
+end;
+
+procedure TFMain.BCrossTableMaxRowsClick(Sender: TObject);
+Var rows : String;
+begin
+  rows := GetSystemParam('CrossTableMaxRows','20');
+  rows := InputBox('Liczba wierszy', 'Zbyt du¿a liczba wierszy spowoduje wolniejsze dzia³anie programu. Mo¿esz u¿yæ s³ów kluczowych w celu ograniczenia liczby rekordów.',rows);
+  SetSystemParam('CrossTableMaxRows',intToStr(strToint(rows)));
+  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
+  DeepRefreshImmediate('DeepRefreshButtonClick');
 end;
 
 initialization

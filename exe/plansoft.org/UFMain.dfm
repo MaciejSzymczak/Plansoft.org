@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 90
-  Top = 34
+  Left = 68
+  Top = 40
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -5007,17 +5007,17 @@ inherited FMain: TFMain
         Height = 24
         Align = alTop
         TabOrder = 0
-        object Filter: TEdit
-          Left = 120
+        object CrossFilter: TEdit
+          Left = 191
           Top = 0
-          Width = 1089
+          Width = 985
           Height = 22
           TabOrder = 0
-          OnChange = FilterChange
+          OnChange = CrossFilterChange
         end
         object CustomPeriod: TComboBox
           Left = 1
-          Top = -1
+          Top = 0
           Width = 121
           Height = 22
           Style = csOwnerDrawFixed
@@ -5040,6 +5040,15 @@ inherited FMain: TFMain
             'Za 30dni'
             'Aktywny semestr'
             '<Wybierz daty>')
+        end
+        object BCrossTableMaxRows: TButton
+          Left = 120
+          Top = 0
+          Width = 73
+          Height = 24
+          Caption = 'Wiersze: 20'
+          TabOrder = 2
+          OnClick = BCrossTableMaxRowsClick
         end
       end
       object Grid: TDrawGrid

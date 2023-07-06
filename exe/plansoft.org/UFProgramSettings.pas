@@ -114,6 +114,9 @@ type
     DIFF_END_DATE: TEdit;
     Label32: TLabel;
     Button2: TButton;
+    GroupBox3: TGroupBox;
+    Label34: TLabel;
+    CrossTableMaxRows: TEdit;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -180,6 +183,7 @@ begin
      SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
      SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
      SetSystemParam('Rotate', BoolToStr(Rotate.checked) );
+     SetSystemParam('CrossTableMaxRows',intToStr(strToint(CrossTableMaxRows.Text)));
 
   except
    SError('Maksymalna liczba buforowanych arkuszy musi byæ liczb¹. Rozmiary czcionek musz¹ byæ liczbami');
@@ -234,6 +238,9 @@ procedure TFProgramSettings.FormShow(Sender: TObject);
 begin
   inherited;
   EditFontSize.Text := GetSystemParam('Form.DefaultEditFontSize','8');
+
+  CrossTableMaxRows.Text := GetSystemParam('CrossTableMaxRows','20');
+
   FontSize.Text     := GetSystemParam('Form.DefaultFontSize','8');
   KillSessions.checked := StrToBool( GetSystemParam('KillSessions', '+' ) );
   Rotate.checked := StrToBool( GetSystemParam('Rotate', '-' ) );

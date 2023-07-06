@@ -1829,28 +1829,28 @@ Begin
            OPENSQL2(
              'SELECT   ID, '+sql_LECNAME+' NAME' + CR +
              'FROM LECTURERS ' + CR +
-             'WHERE ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
              'AND '+fmain.getWhereFastFilter(searchText,'LECTURERS')+CR+
              'ORDER BY ABBREVIATION');
      1:With DModule do
            OPENSQL2(
              'SELECT   ID, '+sql_GRONAME+' NAME' + CR +
              'FROM GROUPS ' + CR +
-             'WHERE ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
              'AND '+fmain.getWhereFastFilter(searchText,'GROUPS')+CR+
              'ORDER BY ABBREVIATION ');
      2:With DModule do
            OPENSQL2(
              'SELECT   ID, '+sql_ResCat0NAME+' NAME' + CR +
              'FROM ROOMS ' + CR +
-             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
              'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
              'ORDER BY NAME ');
      3:With DModule do
            OPENSQL2(
              'SELECT   ID, '+sql_ResCat1NAME+' NAME' + CR +
              'FROM ROOMS ' + CR +
-             'WHERE ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
+             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
                'AND RESCAT_ID='+nvl( dmodule.pResCatId1 ,'-1') + CR +
              'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
              'ORDER BY NAME ');
