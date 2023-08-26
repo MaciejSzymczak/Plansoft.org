@@ -117,6 +117,7 @@ type
     groupByCreationDate: TCheckBox;
     groupByDay: TCheckBox;
     chGnewLine: TCheckBox;
+    AdminMessage: TLabel;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -1125,14 +1126,17 @@ begin
 end;
 
 procedure TFLegend.RefreshLockButtons;
+Var canForceUnlock : boolean;
 Begin
-  LockTimeTable.Visible := locked_by.text='';
-  UnlockTimeTable.Visible := inStr(';'+locked_by.text,';'+currentUsername)<>0;
-  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0);
-  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0);
+  canForceUnlock := isAdmin;
+  LockTimeTable.Visible := locked_by.text ='';
+  UnlockTimeTable.Visible := (inStr(';'+locked_by.text,';'+currentUsername)<>0) OR (canForceUnlock and (LockTimeTable.Visible=false));
+  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0) and (canForceUnlock=false);
+  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0) and (canForceUnlock=false);
   if locked_reason.ReadOnly then locked_reason.Color := clBtnFace else locked_reason.Color := clWindow;
   if locked_by.ReadOnly then locked_by.Color := clBtnFace else locked_by.Color := clWindow;
   SelectAnotherLocker.Visible := not locked_by.ReadOnly;
+  AdminMessage.Visible := (canForceUnlock) and (locked_by.text<>'');
 End;
 
 procedure TFLegend.LockTimeTableClick(Sender: TObject);
