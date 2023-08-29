@@ -46,8 +46,8 @@ procedure TFMassImport.RunImport(Sender: TObject);
 var LCID : Integer;
     lineNum : integer;
     strLineNum : shortString;
-    c_col1, c_col2, c_col3, c_col4, c_col5, c_col6 : string;
-    l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_colour, l_orguni_id, l_entire : string;
+    c_col1, c_col2, c_col3, c_col4, c_col5, c_col6, c_col7 : string;
+    l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_col7, l_colour, l_orguni_id, l_entire : string;
     translatedMessage : string;
     uniqueCheck : TMap;
     uniqueKey : shortString;
@@ -56,8 +56,8 @@ var LCID : Integer;
 
     function verifyHeader ( cols, expectedCols : string ) : boolean;
     begin
-      if cols <> expectedCols then begin
-        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powininen zawieraæ nag³ówek: '+cr + expectedCols);
+      if lowercase(cols) <> lowercase(expectedCols) then begin
+        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powininen zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedCols+cr + 'JEST:'+ cols);
         result := false;
         exit;
       end;
@@ -118,16 +118,17 @@ begin
     c_col4    := ExcelApplication.Range['D'+strLineNum,'D'+strLineNum].Value2;
     c_col5    := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
     c_col6    := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
+    c_col7    := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
 
     l_orguni_id    := dmodule.SingleValue('select min(id) from org_units');
 
     //check file header
     case importType.ItemIndex of
-      0:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6, 'Skrót, Tytu³, Imiê, Nazwisko, Przedmioty, S³owa kluczowe'                                                  ) then exit;
-      1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe') then exit;
-      2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5            , 'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe'                                                     ) then exit;
-      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe'                                                              ) then exit;
-      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezeracji)'                                                    ) then exit;
+      0:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7, 'Skrót, Tytu³, Imiê, Nazwisko, Przedmioty, S³owa kluczowe, Integration Id'                                                  ) then exit;
+      1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe, Integration Id') then exit;
+      2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6,             'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe, Integration Id'                                                     ) then exit;
+      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe, Integration Id'                                                                    ) then exit;
+      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezeracji), Integration Id'                                                    ) then exit;
     end;
 
     uniqueCheck := Tmap.Create;
@@ -144,6 +145,7 @@ begin
       l_col4 := ExcelApplication.Range['D'+strLineNum,'D'+strLineNum].Value2;
       l_col5 := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
       l_col6 := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
+      l_col7 := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
       l_colour       := intToStr( getRandomColor );
 
       l_entire       := 'Rekord danych:' + cr+ cr + 'Wiersz:' +  strLineNum + cr;
@@ -153,6 +155,7 @@ begin
       if c_col4 <> '' then l_entire := l_entire + c_col4 + ':'+ l_col4 + cr;
       if c_col5 <> '' then l_entire := l_entire + c_col5 + ':'+ l_col5 + cr;
       if c_col6 <> '' then l_entire := l_entire + c_col6 + ':'+ l_col6 + cr;
+      if c_col7 <> '' then l_entire := l_entire + c_col7 + ':'+ l_col7 + cr;
       l_entire := l_entire + cr +cr;
 
       case importType.ItemIndex of
@@ -177,9 +180,9 @@ begin
             0: begin
                  dmodule.SQL(myQuery,
                              'merge into lecturers m using dual on (Abbreviation = :abbreviation)'+
-	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2)'+
-                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2'
-                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6);
+	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id)'+
+                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
+                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
                  addPermission ('LEC');
                end;
             1: begin
@@ -188,25 +191,25 @@ begin
                  end;
                  dmodule.SQL(myQuery
                            , 'merge into groups m using dual on (Abbreviation = :abbreviation)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2 ) values (main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2)'+
-                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';desc1='+l_col5+';desc2='+l_col6);
+                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, integration_id ) values (main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :integration_id)'+
+                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
                  addPermission ('GRO');
                end;
             2: begin
                  dmodule.SQL(myQuery
                             , 'merge into rooms m using dual on (name = :name and attribs_01 = :attribs_01)'+
-	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2)'+
-		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2'
-                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';desc1='+l_col4+';desc2='+l_col5);
+	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :integration_id)'+
+		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
+                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+l_col6);
                  addPermission ('ROM');
                end;
             3: begin
                  dmodule.SQL(myQuery
                            , 'merge into subjects m using dual on (Abbreviation = :abbreviation)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2)'+
-                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';desc2='+l_col4);
+                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :integration_id)'+
+                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';desc2='+l_col4+';integration_id='+l_col5);
                  addPermission ('SUB');
                end;
             4: begin
@@ -215,9 +218,9 @@ begin
                  end;
                  dmodule.SQL(myQuery
                            , 'merge into forms m using dual on (Abbreviation = :abbreviation)'+
-                             ' when not matched then insert (id, abbreviation, name, kind, colour) values (main_seq.nextval, :abbreviation, :name, :kind, :colour)'+
-                             ' when matched then update set name=:name, kind=:kind'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour);
+                             ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation, :name, :kind, :colour, :integration_id)'+
+                             ' when matched then update set name=:name, kind=:kind, integration_id = :integration_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+l_col4);
                  addPermission ('FOR');
                end;
           end;
