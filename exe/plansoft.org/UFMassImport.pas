@@ -128,7 +128,7 @@ begin
       1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe, Integration Id') then exit;
       2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6,             'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe, Integration Id'                                                     ) then exit;
       3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe, Integration Id'                                                                    ) then exit;
-      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezeracji), Integration Id'                                                    ) then exit;
+      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezerwacji), Integration Id'                                                    ) then exit;
     end;
 
     uniqueCheck := Tmap.Create;
@@ -186,12 +186,17 @@ begin
                  addPermission ('LEC');
                end;
             1: begin
+                 if l_col4 = 'stacjonarne' then l_col4 := 'STATIONARY';
+                 if l_col4 = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
+                 if l_col4 = 'inne' then l_col4 := 'OTHER';
+                 if l_col4 = 'podyplomowe' then l_col4 := 'OTHER';
                  if (l_col4<>'STATIONARY') and (l_col4<>'EXTRAMURAL') and (l_col4<>'OTHER') then begin
                    SError('W kolumnie 3 dozwolone wartoœci to: "STATIONARY" lub "EXTRAMURAL" lub "OTHER". Wartoœci te oznaczaj¹ odpowiednio: stacjonarne, niestacjonarne, inne');
+                   exit;
                  end;
                  dmodule.SQL(myQuery
                            , 'merge into groups m using dual on (Abbreviation = :abbreviation)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, integration_id ) values (main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :integration_id)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :orguni_id, :integration_id)'+
                              ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
                            , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
                  addPermission ('GRO');
@@ -199,7 +204,7 @@ begin
             2: begin
                  dmodule.SQL(myQuery
                             , 'merge into rooms m using dual on (name = :name and attribs_01 = :attribs_01)'+
-	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :integration_id)'+
+	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :orguni_id, :integration_id)'+
 		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
                             , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+l_col6);
                  addPermission ('ROM');
@@ -207,7 +212,7 @@ begin
             3: begin
                  dmodule.SQL(myQuery
                            , 'merge into subjects m using dual on (Abbreviation = :abbreviation)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :integration_id)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :orguni_id, :integration_id)'+
                              ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
                            , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';desc2='+l_col4+';integration_id='+l_col5);
                  addPermission ('SUB');
