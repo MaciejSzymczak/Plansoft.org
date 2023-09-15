@@ -21,6 +21,8 @@ type
     chartHeaderIneractive: TMemo;
     chartFooterInteractive: TMemo;
     Interactive: TCheckBox;
+    chartHeaderVer2: TMemo;
+    chartFooterVer2: TMemo;
     procedure BCloseClick(Sender: TObject);
     procedure BCreateClick(Sender: TObject);
   private
@@ -100,6 +102,36 @@ begin
   if (Interactive.Checked=false) then begin
 	  htmlContent := '';
 	  while not generateChart.Eof do begin
+		 htmlContent := htmlContent +  '"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
+			 + ' ['
+			 + iif(generateChart.Fields[2].AsString='+','penwidth=3','penwidth=1')
+			 + ',color="'+delphiColourToHTML(generateChart.Fields[3].AsInteger)+'"'
+			 +'];<br/>'  + cr;
+		 generateChart.Next;
+	  end;
+	  generateChart.Close;
+	  Dmodule.RollbackTrans;
+
+	  tmpFileName := uutilityParent.ApplicationDocumentsPath +'Plansoft.org.groups.html';
+
+	  AssignFile(tmpFile, tmpFileName );
+	  rewrite(tmpFile);
+
+	  pchartHeader := chartHeaderVer2.text;
+	  case orientation of
+	   0:begin pchartHeader := searchAndReplace(pchartHeader, '%orientation', 'rankdir=LR;'); end;
+	   1:begin pchartHeader := searchAndReplace(pchartHeader, '%orientation', ''); end;
+	  end;
+
+	  writeln(tmpFile, pchartHeader+  htmlContent + chartFooterVer2.text);
+	  closeFile(tmpFile);
+    Dmodule.RollbackTrans;
+  end;
+
+  { version 1
+  if (Interactive.Checked=false) then begin
+	  htmlContent := '';
+	  while not generateChart.Eof do begin
 		 htmlContent := htmlContent +  'gt += ''"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
 			 + ' ['
 			 + iif(generateChart.Fields[2].AsString='+','penwidth=3','penwidth=1')
@@ -125,6 +157,7 @@ begin
 	  closeFile(tmpFile);
     Dmodule.RollbackTrans;
   end;
+  }
 
   //interactive chart
   if (Interactive.Checked=true) then begin

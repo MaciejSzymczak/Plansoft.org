@@ -194,6 +194,44 @@ inherited FGraphviz: TFGraphviz
     Caption = 'Interaktywny'
     TabOrder = 8
   end
+  object chartHeaderVer2: TMemo
+    Left = 424
+    Top = 280
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      '<html>'
+      
+        '<script type="text/javascript" src="http://viz-js.com/bower_comp' +
+        'onents/viz.js/viz.js"></script>'
+      '<body>'
+      ''
+      '<p>Prawie gotowe.</p>'
+      
+        '<p>Kliknij <a href=" https://viz-js.com/" target="_blank" >TUTAJ' +
+        '</a> aby uruchomi'#263' program Viz-js.com i skopiuj tam poni'#380'sz'#261' zaw' +
+        'arto'#347#263'. Viz-js.com jest programem graficznym.</p>'
+      ''
+      '<br/>'
+      'digraph G { %orientation'
+      '<br/>')
+    TabOrder = 9
+    Visible = False
+    WordWrap = False
+  end
+  object chartFooterVer2: TMemo
+    Left = 616
+    Top = 280
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      '}'
+      '</body>'
+      '</html>')
+    TabOrder = 10
+    Visible = False
+    WordWrap = False
+  end
   object generateChart: TADOQuery
     AutoCalcFields = False
     Connection = DModule.ADOConnection
