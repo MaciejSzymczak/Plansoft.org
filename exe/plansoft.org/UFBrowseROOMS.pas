@@ -79,6 +79,8 @@ type
     BitBtn2: TBitBtn;
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
+    LINTEGRATION_ID: TLabel;
+    INTEGRATION_ID: TDBEdit;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -125,6 +127,7 @@ type
     procedure BUpdChild3Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -704,6 +707,13 @@ end;
 procedure TFBrowseROOMS.SpeedButton3Click(Sender: TObject);
 begin
   info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+end;
+
+procedure TFBrowseROOMS.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  INTEGRATION_ID.Visible := true;
+  LINTEGRATION_ID.Visible := true;
 end;
 
 end.

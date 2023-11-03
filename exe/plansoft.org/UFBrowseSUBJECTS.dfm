@@ -1,32 +1,33 @@
 inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
-  Left = 463
-  Top = 190
-  Width = 1067
+  Left = 381
+  Top = 210
+  Width = 1195
   Height = 700
   Caption = 'Przedmioty'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 649
-    Width = 1059
+    Width = 1187
   end
   inherited MainPage: TPageControl
-    Width = 1059
+    Width = 1187
     Height = 649
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 683
+        Left = 811
         Top = 121
         Width = 4
         Height = 441
         Align = alRight
       end
       inherited TopPanel: TPanel
-        Width = 1051
+        Width = 1179
       end
       inherited Grid: TRxDBGrid
         Top = 121
-        Width = 683
+        Width = 811
         Height = 441
         Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
@@ -326,7 +327,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       inherited BottomPanel: TPanel
         Top = 581
-        Width = 1051
+        Width = 1179
         object BMassEdit: TBitBtn
           Left = 88
           Top = 5
@@ -387,13 +388,13 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
       end
       inherited Panel: TPanel
         Top = 562
-        Width = 1051
+        Width = 1179
         inherited StatusBar: TStatusBar
-          Width = 982
+          Width = 1110
         end
       end
       inherited CustomPanel: TPanel
-        Width = 1051
+        Width = 1179
         Height = 34
         object Label5: TLabel
           Left = 8
@@ -410,7 +411,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         end
         object ttEnabledFlag: TCheckBox
           Tag = 67108864
-          Left = 722
+          Left = 850
           Top = 9
           Width = 203
           Height = 17
@@ -422,7 +423,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           OnClick = ttEnabledFlagClick
         end
         object BMassImport: TBitBtn
-          Left = 932
+          Left = 1060
           Top = 4
           Width = 111
           Height = 25
@@ -541,7 +542,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 1051
+        Width = 1179
         inherited BChild3: TBitBtn
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -558,7 +559,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         end
       end
       object RightPage: TPageControl
-        Left = 687
+        Left = 815
         Top = 121
         Width = 364
         Height = 441
@@ -1198,9 +1199,24 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
           A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
         OnClick = SpeedButton3Click
       end
+      object LINTEGRATION_ID: TLabel [9]
+        Left = 864
+        Top = 1
+        Width = 9
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'ID'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Visible = False
+      end
       inherited UpdPanel: TPanel
         Top = 585
-        Width = 1051
+        Width = 1179
         TabOrder = 3
         inherited BUpdChild1: TBitBtn
           Caption = 'Finanse'
@@ -1395,6 +1411,17 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         TabOrder = 11
         ValueChecked = '+'
         ValueUnchecked = '-'
+      end
+      object INTEGRATION_ID: TDBEdit
+        Left = 879
+        Top = 1
+        Width = 300
+        Height = 22
+        Hint = 'SKR'#211'T'
+        DataField = 'INTEGRATION_ID'
+        DataSource = Source
+        TabOrder = 12
+        Visible = False
       end
     end
   end

@@ -75,6 +75,8 @@ type
     SpeedButton3: TSpeedButton;
     DIFF_NOTIFICATIONS: TDBCheckBox;
     BMassEdit: TBitBtn;
+    INTEGRATION_ID: TDBEdit;
+    LINTEGRATION_ID: TLabel;
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -108,6 +110,7 @@ type
     procedure SpeedButton3Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure BMassEditClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -542,6 +545,13 @@ begin
     mrNo.Enabled :=  Grid.SelectedRows.Count > 1;
     if (execute('LECTURERS', getSelectedIds)  ) then BRefreshClick(nil);
   End;
+end;
+
+procedure TFBrowseLECTURERS.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  INTEGRATION_ID.Visible := true;
+  LINTEGRATION_ID.Visible := true;
 end;
 
 end.

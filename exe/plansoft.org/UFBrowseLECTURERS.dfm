@@ -13,6 +13,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 886
     Height = 673
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 532
@@ -1090,11 +1091,11 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
     end
     inherited Update: TTabSheet
       object LabelID: TLabel [0]
-        Left = 552
+        Left = 88
         Top = 8
-        Width = 164
+        Width = 8
         Height = 14
-        Caption = 'Kol. wpr:........................................'
+        Caption = 'Id'
         FocusControl = ID_
         Visible = False
       end
@@ -1365,6 +1366,22 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
         OnClick = SpeedButton3Click
       end
+      object LINTEGRATION_ID: TLabel [15]
+        Left = 560
+        Top = 0
+        Width = 9
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'ID'
+        FocusControl = EMAIL
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Visible = False
+      end
       inherited UpdPanel: TPanel
         Top = 609
         Width = 878
@@ -1397,8 +1414,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             FFFFFF000000FFFF888FFFFFFFFFFF000000}
         end
       end
-      object ID_: TDBEdit [16]
-        Left = 665
+      object ID_: TDBEdit [17]
+        Left = 113
         Top = 0
         Width = 150
         Height = 22
@@ -1411,7 +1428,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 9
         Visible = False
       end
-      object TITLE: TDBEdit [17]
+      object TITLE: TDBEdit [18]
         Left = 120
         Top = 80
         Width = 300
@@ -1421,7 +1438,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 2
       end
-      object ABBREVIATION: TDBEdit [18]
+      object ABBREVIATION: TDBEdit [19]
         Left = 120
         Top = 32
         Width = 300
@@ -1431,7 +1448,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 0
       end
-      object FIRST_NAME: TDBEdit [19]
+      object FIRST_NAME: TDBEdit [20]
         Left = 120
         Top = 104
         Width = 300
@@ -1441,7 +1458,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 3
       end
-      object LAST_NAME: TDBEdit [20]
+      object LAST_NAME: TDBEdit [21]
         Left = 120
         Top = 128
         Width = 300
@@ -1451,7 +1468,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 4
       end
-      object DESC1: TDBEdit [21]
+      object DESC1: TDBEdit [22]
         Left = 120
         Top = 176
         Width = 617
@@ -1460,7 +1477,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 10
       end
-      object DESC2: TDBEdit [22]
+      object DESC2: TDBEdit [23]
         Left = 120
         Top = 200
         Width = 617
@@ -1469,7 +1486,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         DataSource = Source
         TabOrder = 11
       end
-      object ORGUNI_ID: TDBEdit [23]
+      object ORGUNI_ID: TDBEdit [24]
         Left = 113
         Top = 152
         Width = 150
@@ -1482,7 +1499,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Visible = False
         OnChange = ORGUNI_IDChange
       end
-      object ORGUNI_ID_VALUE: TEdit [24]
+      object ORGUNI_ID_VALUE: TEdit [25]
         Left = 120
         Top = 152
         Width = 257
@@ -1492,7 +1509,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 6
         OnClick = ORGUNI_ID_VALUEClick
       end
-      object BSelectORGUNI_ID: TBitBtn [25]
+      object BSelectORGUNI_ID: TBitBtn [26]
         Left = 376
         Top = 152
         Width = 24
@@ -1575,6 +1592,17 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         TabOrder = 15
         ValueChecked = '+'
         ValueUnchecked = '-'
+      end
+      object INTEGRATION_ID: TDBEdit
+        Left = 576
+        Top = 0
+        Width = 300
+        Height = 22
+        Hint = 'SKR'#211'T'
+        DataField = 'INTEGRATION_ID'
+        DataSource = Source
+        TabOrder = 16
+        Visible = False
       end
     end
   end

@@ -1,32 +1,33 @@
 inherited FBrowseROOMS: TFBrowseROOMS
-  Left = 224
-  Top = 105
-  Width = 1135
+  Left = 382
+  Top = 240
+  Width = 1193
   Height = 690
   Caption = 'Zasoby'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 639
-    Width = 1127
+    Width = 1185
   end
   inherited MainPage: TPageControl
-    Width = 1127
+    Width = 1185
     Height = 639
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 1084
+        Left = 1142
         Top = 145
         Width = 4
         Height = 407
         Align = alRight
       end
       inherited TopPanel: TPanel
-        Width = 1119
+        Width = 1177
       end
       inherited Grid: TRxDBGrid
         Top = 145
-        Width = 1084
+        Width = 1142
         Height = 407
         Columns = <
           item
@@ -313,17 +314,17 @@ inherited FBrowseROOMS: TFBrowseROOMS
       end
       inherited BottomPanel: TPanel
         Top = 571
-        Width = 1119
+        Width = 1177
       end
       inherited Panel: TPanel
         Top = 552
-        Width = 1119
+        Width = 1177
         inherited StatusBar: TStatusBar
-          Width = 1050
+          Width = 1108
         end
       end
       inherited CustomPanel: TPanel
-        Width = 1119
+        Width = 1177
         Height = 58
         object CategoryLabel: TLabel
           Left = 11
@@ -476,7 +477,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         end
         object ttEnabled: TCheckBox
           Tag = 67108864
-          Left = 744
+          Left = 802
           Top = 37
           Width = 217
           Height = 17
@@ -488,7 +489,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           OnClick = ttEnabledClick
         end
         object btools: TBitBtn
-          Left = 984
+          Left = 1042
           Top = 32
           Width = 105
           Height = 25
@@ -622,7 +623,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 1119
+        Width = 1177
         inherited BChild3: TBitBtn
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -639,7 +640,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         end
       end
       object RightPage: TPageControl
-        Left = 1088
+        Left = 1146
         Top = 145
         Width = 31
         Height = 407
@@ -1332,9 +1333,24 @@ inherited FBrowseROOMS: TFBrowseROOMS
           A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
         OnClick = SpeedButton3Click
       end
+      object LINTEGRATION_ID: TLabel [10]
+        Left = 864
+        Top = 1
+        Width = 9
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'ID'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Visible = False
+      end
       inherited UpdPanel: TPanel
         Top = 575
-        Width = 1119
+        Width = 1177
         TabOrder = 6
         inherited BUpdChild1: TBitBtn
           Caption = 'Zaj'#281'cia'
@@ -1361,7 +1377,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             FFFFFF000000FFFF888FFFFFFFFFFF000000}
         end
       end
-      object ID_: TDBEdit [11]
+      object ID_: TDBEdit [12]
         Left = 529
         Top = 544
         Width = 150
@@ -1375,7 +1391,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         TabOrder = 5
         Visible = False
       end
-      object NAME_: TDBEdit [12]
+      object NAME_: TDBEdit [13]
         Left = 137
         Top = 56
         Width = 300
@@ -1384,7 +1400,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         DataSource = Source
         TabOrder = 4
       end
-      object DESC1: TDBEdit [13]
+      object DESC1: TDBEdit [14]
         Left = 136
         Top = 104
         Width = 673
@@ -1393,7 +1409,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         DataSource = Source
         TabOrder = 7
       end
-      object DESC2: TDBEdit [14]
+      object DESC2: TDBEdit [15]
         Left = 136
         Top = 128
         Width = 673
@@ -1402,7 +1418,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         DataSource = Source
         TabOrder = 8
       end
-      object RESCAT_ID: TDBEdit [15]
+      object RESCAT_ID: TDBEdit [16]
         Left = 129
         Top = 32
         Width = 150
@@ -1415,7 +1431,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Visible = False
         OnChange = RESCAT_IDChange
       end
-      object RESCAT_ID_VALUE: TEdit [16]
+      object RESCAT_ID_VALUE: TEdit [17]
         Left = 136
         Top = 32
         Width = 257
@@ -1425,7 +1441,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         TabOrder = 1
         OnDblClick = RESCAT_ID_VALUEDblClick
       end
-      object BSelectRESCAT_ID: TBitBtn [17]
+      object BSelectRESCAT_ID: TBitBtn [18]
         Left = 392
         Top = 32
         Width = 24
@@ -1470,7 +1486,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
           0000000000000000000000000000000000000000000000000000000000000000
           0000000000000000000000000000000000000000000000000000}
       end
-      object BClearRESCAT_ID: TBitBtn [18]
+      object BClearRESCAT_ID: TBitBtn [19]
         Left = 416
         Top = 32
         Width = 25
@@ -1624,6 +1640,17 @@ inherited FBrowseROOMS: TFBrowseROOMS
           18631863186318631863186318631863FF03F702F702F702F702000018631863
           18631863186318631863186318631863FF03FF03FF03FF03FF03FF0318631863
           186318631863}
+      end
+      object INTEGRATION_ID: TDBEdit
+        Left = 877
+        Top = 1
+        Width = 300
+        Height = 22
+        Hint = 'SKR'#211'T'
+        DataField = 'INTEGRATION_ID'
+        DataSource = Source
+        TabOrder = 15
+        Visible = False
       end
     end
   end

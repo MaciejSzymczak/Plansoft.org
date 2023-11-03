@@ -1651,10 +1651,10 @@ WriteLn(f, '</style>');
                  , ColoringIndex
                  , CellWIDTH);
                if cellPrior <> cellCurrent then
-                 cells := cells + '<tr>'+cellCurrent+'</tr>';
+                 cells := cells + '<td_removed>'+cellCurrent+'</td_removed>';
              cellPrior := cellCurrent;
            end;
-           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table border: 0px solid black; style="width:100%">'+cells+'</table></td>');
+           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="border: 0px; width:100%"><tr>'+cells+'</tr></table></td>');
          end;
        end;
 

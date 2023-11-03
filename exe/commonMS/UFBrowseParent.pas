@@ -3591,8 +3591,8 @@ begin
   'Zaktualizowano:'+#9+#9 +s3 +CR+
   'Zaktualizowa³:'+#9+#9  + s4+ CR+
   'Tabela:'+#9+#9  + tableName+ CR+
-  'ID:'+#9+#9  + s5+ CR+
-  'Integration ID:'+#9+#9  + s6
+  'Plansoft.org ID:'+#9+#9  + s5+ CR+
+  'ID:'+#9+#9  + s6
   ;
 
   FMessagebox.Message.text := s7;

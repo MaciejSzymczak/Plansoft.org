@@ -38,7 +38,7 @@ var
 
 implementation
 
-uses DM, UFMain, StrUtils;
+uses DM, UFMain, StrUtils, UFMessageBox;
 
 {$R *.dfm}
 
@@ -179,11 +179,11 @@ begin
           case importType.ItemIndex of
             0: begin
                  dmodule.SQL(myQuery,
-                             'merge into lecturers m using dual on (Abbreviation = :abbreviation)'+
+                             'merge into lecturers m using dual on (integration_id = :integration_id)'+
 	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id)'+
-                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
+                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
                            , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
-                 addPermission ('LEC');
+                 addPermission ('LEC');                                                            
                end;
             1: begin
                  if l_col4 = 'stacjonarne' then l_col4 := 'STATIONARY';
@@ -195,10 +195,10 @@ begin
                    exit;
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into groups m using dual on (Abbreviation = :abbreviation)'+
+                           , 'merge into groups m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
+                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
                  addPermission ('GRO');
                end;
             2: begin
@@ -206,15 +206,15 @@ begin
                             , 'merge into rooms m using dual on (name = :name and attribs_01 = :attribs_01)'+
 	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :orguni_id, :integration_id)'+
 		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
-                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+l_col6);
+                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+l_col6);
                  addPermission ('ROM');
                end;
             3: begin
                  dmodule.SQL(myQuery
-                           , 'merge into subjects m using dual on (Abbreviation = :abbreviation)'+
+                           , 'merge into subjects m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';desc2='+l_col4+';integration_id='+l_col5);
+                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+l_col5);
                  addPermission ('SUB');
                end;
             4: begin
@@ -222,9 +222,9 @@ begin
                    SError('W kolumnie 3 dozwolone wartoœci to: "C" lub "R". C=rodzaj zajêcia. R=rodzaj rezerwacji');
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into forms m using dual on (Abbreviation = :abbreviation)'+
+                           , 'merge into forms m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation, :name, :kind, :colour, :integration_id)'+
-                             ' when matched then update set name=:name, kind=:kind, integration_id = :integration_id'
+                             ' when matched then update set name=:name, kind=:kind, abbreviation = :abbreviation'
                            , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+l_col4);
                  addPermission ('FOR');
                end;
@@ -234,22 +234,30 @@ begin
           If Pos(sKeyViolation, E.Message)<>0 Then Begin
            if DBMap.get (E.Message, translatedMessage) then begin
              dmodule.RollbackTrans;
-             SError(l_entire + translatedMessage);
+             //SError(l_entire + translatedMessage);
+             FMessagebox.Message.text := l_entire + translatedMessage;
+             FMessagebox.ShowModal;
              abort;
            end;
            dmodule.RollbackTrans;
-           SError(l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message);
+           //SError(l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message);
+           FMessagebox.Message.text := l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message;
+           FMessagebox.ShowModal;
            abort;
           End
           else begin
            dmodule.RollbackTrans;
-           SError(l_entire + 'Komunikat z bazy danych: ' + E.Message);
+           //SError(l_entire + 'Komunikat z bazy danych: ' + E.Message);
+           FMessagebox.Message.text := l_entire + 'Komunikat z bazy danych: ' + E.Message;
+           FMessagebox.ShowModal;
            Abort;
           end;
         End
           Else begin
             dmodule.RollbackTrans;
-            SError(l_entire + 'Wyst¹pi³ inny b³¹d');
+            //SError(l_entire + 'Wyst¹pi³ inny b³¹d');
+            FMessagebox.Message.text := l_entire + 'Wyst¹pi³ inny b³¹d';
+            FMessagebox.ShowModal;
           end;
         end;
       end;

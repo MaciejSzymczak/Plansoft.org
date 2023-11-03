@@ -94,6 +94,8 @@ type
     ylkogrupypowizanezwybrangrup1: TMenuItem;
     Wicejmoliwo1: TMenuItem;
     SpeedButton2: TSpeedButton;
+    LINTEGRATION_ID: TLabel;
+    INTEGRATION_ID: TDBEdit;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -149,6 +151,7 @@ type
     procedure BUpdChild4Click(Sender: TObject);
     procedure Wicejmoliwo1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -735,6 +738,13 @@ begin
   inherited;
   info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj grupy przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 
+end;
+
+procedure TFBrowseGROUPS.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  INTEGRATION_ID.Visible := true;
+  LINTEGRATION_ID.Visible := true;
 end;
 
 end.

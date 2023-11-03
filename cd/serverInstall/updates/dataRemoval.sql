@@ -5,6 +5,7 @@ connect planner;
 truncate table lec_cla;
 truncate table gro_cla;
 truncate table rom_cla;
+truncate table xxmsztools_eventlog;
 delete from classes;
 truncate table classes_history;
 delete from subjects where id > 0;

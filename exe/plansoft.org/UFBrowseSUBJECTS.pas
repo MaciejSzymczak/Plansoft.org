@@ -63,6 +63,8 @@ type
     Splitter1: TSplitter;
     DIFF_NOTIFICATIONS: TDBCheckBox;
     BMassEdit: TBitBtn;
+    LINTEGRATION_ID: TLabel;
+    INTEGRATION_ID: TDBEdit;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -92,6 +94,7 @@ type
     procedure AddDetailClick(Sender: TObject);
     procedure delDetailClick(Sender: TObject);
     procedure BMassEditClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     { Private declarations }
     Counter  : Integer;
@@ -478,6 +481,13 @@ begin
     mrNo.Enabled :=  Grid.SelectedRows.Count > 1;
     if (execute('SUBJECTS', getSelectedIds)  ) then BRefreshClick(nil);
   End;
+end;
+
+procedure TFBrowseSUBJECTS.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  INTEGRATION_ID.Visible := true;
+  LINTEGRATION_ID.Visible := true;
 end;
 
 end.

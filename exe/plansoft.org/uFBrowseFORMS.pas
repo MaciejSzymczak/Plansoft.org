@@ -37,6 +37,8 @@ type
     DESC1: TDBEdit;
     Label1: TLabel;
     DESC2: TDBEdit;
+    INTEGRATION_ID: TDBEdit;
+    LINTEGRATION_ID: TLabel;
     procedure CON_TYPE_IDChange(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure CON_TYPE_ID_VALUEDblClick(Sender: TObject);
@@ -54,6 +56,7 @@ type
     procedure BUpdChild1Click(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -248,6 +251,13 @@ end;
 function TFBrowseFORMS.getFindCaption: string;
 begin
  Result := 'Dowolna fraza';
+end;
+
+procedure TFBrowseFORMS.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  INTEGRATION_ID.Visible := true;
+  LINTEGRATION_ID.Visible := true;
 end;
 
 end.

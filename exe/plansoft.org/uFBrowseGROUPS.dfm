@@ -1,6 +1,6 @@
 inherited FBrowseGROUPS: TFBrowseGROUPS
-  Left = 497
-  Top = 166
+  Left = 381
+  Top = 181
   Width = 1195
   Height = 691
   Caption = 'Grupy'
@@ -13,6 +13,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   inherited MainPage: TPageControl
     Width = 1187
     Height = 640
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 811
@@ -1400,6 +1401,22 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
         OnClick = SpeedButton2Click
       end
+      object LINTEGRATION_ID: TLabel [14]
+        Left = 864
+        Top = 1
+        Width = 9
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'ID'
+        FocusControl = EMAIL
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Visible = False
+      end
       inherited UpdPanel: TPanel
         Top = 576
         Width = 1179
@@ -1783,6 +1800,17 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           18631863186318631863186318631863FF03F702F702F702F702000018631863
           18631863186318631863186318631863FF03FF03FF03FF03FF03FF0318631863
           186318631863}
+      end
+      object INTEGRATION_ID: TDBEdit
+        Left = 879
+        Top = 1
+        Width = 300
+        Height = 22
+        Hint = 'SKR'#211'T'
+        DataField = 'INTEGRATION_ID'
+        DataSource = Source
+        TabOrder = 23
+        Visible = False
       end
     end
   end
