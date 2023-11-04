@@ -194,9 +194,9 @@ end;
 //------------------------------------------------------------------------------
 function tweeklyTable.getTitle : string;
 begin
-    result := titleCategory + ':' +title + #13#10 + '<br>';
+    result := titleCategory + ':' +title + #13#10 + '<br/>';
     if (subtitleCategory<>'') and (subtitle<>'') then
-        result := result + subtitleCategory + ':' +subtitle + #13#10 + '<br>';
+        result := result + subtitleCategory + ':' +subtitle + #13#10 + '<br/>';
 end;
 
 //------------------------------------------------------------------------------
@@ -441,7 +441,7 @@ begin
     res := '';
     for t := 0 to length(weeklyTables)-1 do begin
         if assigned(weeklyTables[t]) then
-            res := res + weeklyTables[t].getTitle + weeklyTables[t].getBody(forceSpan)+'<br><br>';
+            res := res + weeklyTables[t].getTitle + weeklyTables[t].getBody(forceSpan)+'<br/><br/>';
     end;
     result := htmlEnvelope( res );
 end;
@@ -479,8 +479,8 @@ end;
 //       ,['ALABAMA','8-9','9-10','11-12']);
 //
 //    for t3 := 1 to 1000 do
-//    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="red" border="5" style="border:solid white;"','TEST<br>test');
-//    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST<br>test');
+//    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="red" border="5" style="border:solid white;"','TEST<br/>test');
+//    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST<br/>test');
 //    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
@@ -491,7 +491,7 @@ end;
 //    weeklyTable.addCell('Sobota','','9-10','BGCOLOR="purple" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Œroda' ,'','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Œroda' ,'','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST');
-//    weeklyTable.addCell('Œroda' ,'','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST<br>test');
+//    weeklyTable.addCell('Œroda' ,'','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST<br/>test');
 //    weeklyTable.addCell('Wtorek','','9-10','BGCOLOR="black" border="5" style="border:solid white;"','TEST');
 //
 //    weeklyTable :=
@@ -503,8 +503,8 @@ end;
 //       ,['ALABAMA','8-9','9-10','11-12']);
 //
 //    for t3 := 1 to 1000 do
-//    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="red" border="5" style="border:solid white;"','TEST<br>test');
-//    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST<br>test');
+//    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="red" border="5" style="border:solid white;"','TEST<br/>test');
+//    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST<br/>test');
 //    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Sobota','C11','9-10','BGCOLOR="yellow" border="5" style="border:solid white;"','TEST');
@@ -515,7 +515,7 @@ end;
 //    weeklyTable.addCell('Sobota','C12','9-10','BGCOLOR="purple" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Œroda' ,'C12','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST');
 //    weeklyTable.addCell('Œroda' ,'C12','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST');
-//    weeklyTable.addCell('Œroda' ,'C12','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST<br>test');
+//    weeklyTable.addCell('Œroda' ,'C12','9-10','BGCOLOR="green" border="5" style="border:solid white;"','TEST<br/>test');
 //    weeklyTable.addCell('Wtorek','C12','9-10','BGCOLOR="black" border="5" style="border:solid white;"','TEST');
 //
 //    end;

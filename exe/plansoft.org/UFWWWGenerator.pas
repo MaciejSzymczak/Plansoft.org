@@ -1003,7 +1003,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
            Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
            If Bolds[t] Then Token := '<B>'+Token+'</B>';
          End;
-         S := Merge(S, Token, '<BR>');
+         S := Merge(S, Token, '<BR/>');
        End;
 
        If Class_.FILL <> 100 Then AddCell('BORDERCOLORDARK=red BORDERCOLORLIGHT=RED',S,DelphiColourToHTML(Colour))
@@ -1311,13 +1311,13 @@ Procedure TFWWWGenerator.CalendarToHTML(
           end;
         end;
 
-        Lgnd[LegendRowNumber].Name     := Merge(Lgnd[LegendRowNumber].Name,QWork2.Fields[1].AsString,'<BR>');
+        Lgnd[LegendRowNumber].Name     := Merge(Lgnd[LegendRowNumber].Name,QWork2.Fields[1].AsString,'<BR/>');
 
         if (LegendMode and 2 = 2) then
-            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[0].AsString,'<BR>');
+            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[0].AsString,'<BR/>');
 
         if (LegendMode and 1 = 1) then
-            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[2].AsString,'<BR>');
+            Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[2].AsString,'<BR/>');
 
         Qwork2.Next;
         fuse := fuse + 1;
@@ -1469,7 +1469,7 @@ Var xp, yp          : Integer;
      result := SearchAndReplace(result,'%ROOM',tmpROMName);
      //pure txt text
      if (pos('<',result)=0) and (pos('>',result)=0) then
-       result := SearchAndReplace(result,#13#10, '<br>');
+       result := SearchAndReplace(result,#13#10, '<br/>');
     end;
 
 //-------------------------------------------------------------------------------------------
@@ -1510,6 +1510,9 @@ WriteLn(f, '  width: 100%;');
 WriteLn(f, '  border-collapse: collapse;');
 WriteLn(f, '  padding: 0px;');
 WriteLn(f, '  margin:0 auto;');
+//the combination of height: 1px; (parent table) and height: 100% (child table) streaches the child table to entire available area
+//see https://limebrains.com/blog/2021-03-02T13:00-heigh-100-inside-table-td/
+WriteLn(f, '  height: 1px;');
 WriteLn(f, '}');
 WriteLn(f, '</style>');
 
@@ -1654,7 +1657,7 @@ WriteLn(f, '</style>');
                  cells := cells + '<td_removed>'+cellCurrent+'</td_removed>';
              cellPrior := cellCurrent;
            end;
-           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="border: 0px; width:100%"><tr>'+cells+'</tr></table></td>');
+           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="border: 0px; width:100%; height: 100%"><tr>'+cells+'</tr></table></td>');
          end;
        end;
 
@@ -2636,9 +2639,9 @@ begin
           end;
 
             weeklyTable.addCell(trim(adotest.FieldByName('day_in_say_pl').asstring),'',adotest.FieldByName('hour_dsp').asstring,'BGCOLOR="red" border="5" style="border:solid white;"',
-                adotest.FieldByName('form').asstring+'<br>'+
-                adotest.FieldByName('group_name').asstring+'<br>'+
-                adotest.FieldByName('resource_name').asstring+'<br>'+
+                adotest.FieldByName('form').asstring+'<br/>'+
+                adotest.FieldByName('group_name').asstring+'<br/>'+
+                adotest.FieldByName('resource_name').asstring+'<br/>'+
                 adotest.FieldByName('lecturer_name').asstring
             );
             //@@@color!

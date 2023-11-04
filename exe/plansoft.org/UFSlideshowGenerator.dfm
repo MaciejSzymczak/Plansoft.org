@@ -4,43 +4,43 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
   Width = 611
   Height = 466
   Caption = 'Generator slajd'#243'w'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 407
+    Top = 415
     Width = 603
   end
   object Panel1: TPanel
     Left = 0
-    Top = 360
+    Top = 374
     Width = 603
-    Height = 47
+    Height = 41
     Align = alBottom
     TabOrder = 1
     object BitBtn1: TBitBtn
-      Left = 594
-      Top = 9
-      Width = 86
-      Height = 29
+      Left = 520
+      Top = 8
+      Width = 75
+      Height = 25
       Caption = 'Utw'#243'rz >>'
       TabOrder = 0
       OnClick = BitBtn1Click
     end
     object BitBtn2: TBitBtn
-      Left = 9
-      Top = 9
-      Width = 86
-      Height = 29
+      Left = 8
+      Top = 8
+      Width = 75
+      Height = 25
       Caption = '<< Anuluj'
       TabOrder = 1
       OnClick = BitBtn2Click
     end
   end
   object MHeaderNoCustomColors: TMemo
-    Left = 293
-    Top = 55
-    Width = 211
-    Height = 102
+    Left = 256
+    Top = 48
+    Width = 185
+    Height = 89
     Lines.Strings = (
       '<!DOCTYPE html>'
       '<html lang="en">'
@@ -78,10 +78,10 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
     WordWrap = False
   end
   object MFooter: TMemo
-    Left = 411
-    Top = 384
-    Width = 212
-    Height = 102
+    Left = 360
+    Top = 336
+    Width = 185
+    Height = 89
     Lines.Strings = (
       #9'</div>'
       ''
@@ -113,10 +113,10 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
     WordWrap = False
   end
   object MItemEasy: TMemo
-    Left = 293
-    Top = 274
-    Width = 211
-    Height = 102
+    Left = 256
+    Top = 240
+    Width = 185
+    Height = 89
     Lines.Strings = (
       '      <div class="%CLASSNAME%">'
       
@@ -132,10 +132,10 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
     WordWrap = False
   end
   object MAdvanced: TMemo
-    Left = 402
-    Top = 165
-    Width = 212
-    Height = 101
+    Left = 352
+    Top = 144
+    Width = 185
+    Height = 89
     Lines.Strings = (
       '<!-- Fixed navbar -->'
       '<nav class="navbar navbar-inverse navbar-fixed-top">'
@@ -223,10 +223,10 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
     WordWrap = False
   end
   object MItemAdv: TMemo
-    Left = 512
-    Top = 274
-    Width = 211
-    Height = 102
+    Left = 448
+    Top = 240
+    Width = 185
+    Height = 89
     Lines.Strings = (
       '      <div class="%CLASSNAME%">'
       
@@ -266,17 +266,17 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
     Left = 0
     Top = 0
     Width = 603
-    Height = 360
+    Height = 374
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 7
     object TabSheet1: TTabSheet
       Caption = 'Prosty'
       object Image1: TImage
-        Left = 9
+        Left = 8
         Top = 0
-        Width = 669
-        Height = 394
+        Width = 585
+        Height = 345
         Picture.Data = {
           07544269746D6170D6030B00424DD6030B000000000036000000280000004802
           0000350100000100200000000000A0030B000000000000000000000000000000
@@ -22844,10 +22844,10 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
       Caption = 'Zaawansowany'
       ImageIndex = 1
       object Image2: TImage
-        Left = 9
+        Left = 8
         Top = 0
-        Width = 669
-        Height = 394
+        Width = 585
+        Height = 345
         Picture.Data = {
           07544269746D6170A64A0C00424DA64A0C000000000036000000280000004602
           00005A0100000100200000000000704A0C000000000000000000000000000000
@@ -48025,20 +48025,20 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
           220022222200222222002222220022222200}
       end
       object CustomColors: TCheckBox
-        Left = 27
-        Top = 55
-        Width = 221
-        Height = 19
+        Left = 24
+        Top = 48
+        Width = 193
+        Height = 17
         Caption = 'W'#322'asne kolory etykiet'
         TabOrder = 0
       end
     end
   end
   object MHeaderCustomColors: TMemo
-    Left = 512
-    Top = 55
-    Width = 211
-    Height = 102
+    Left = 448
+    Top = 48
+    Width = 185
+    Height = 89
     Lines.Strings = (
       '<!DOCTYPE html>'
       '<html lang="en">'

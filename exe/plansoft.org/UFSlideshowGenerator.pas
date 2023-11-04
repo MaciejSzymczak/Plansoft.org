@@ -101,7 +101,7 @@ begin
        iif(CustomColors.checked, MHeaderCustomColors.lines.Text,MHeaderNoCustomColors.lines.Text)+
        iif(ModeSwitch.ActivePageIndex=1, MAdvanced.lines.Text,'')+
        '<div class="container">'+#13#10+
-       '  <br>'+#13#10+
+       '  <br/>'+#13#10+
        '  <div id="myCarousel" class="carousel slide" data-ride="carousel">'+#13#10+
        '    <!-- Indicators -->'+#13#10+
        '    <ol class="carousel-indicators">'+#13#10+

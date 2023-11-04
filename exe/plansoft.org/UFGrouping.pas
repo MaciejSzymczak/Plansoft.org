@@ -1057,9 +1057,9 @@ begin
   Writeln(f, '<BODY>');
 
   WriteLn(F,'<H2>'+Self.Caption+'</H2>');
-  WriteLn(F,'<BR>');
+  WriteLn(F,'<BR/>');
   If Query.Active Then OutputQuery(Query,20);
-  WriteLn(F,'<BR>');
+  WriteLn(F,'<BR/>');
 
   Writeln(f, '<script language="javascript" type="text/javascript">');
   Writeln(f, '//<![CDATA[');

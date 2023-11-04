@@ -1,29 +1,28 @@
 inherited FBrowseLECTURERS: TFBrowseLECTURERS
-  Left = 381
-  Top = 149
-  Width = 894
+  Left = 392
+  Top = 265
+  Width = 1197
   Height = 724
   Caption = 'Wyk'#322'adowcy'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 673
-    Width = 886
+    Width = 1189
   end
   inherited MainPage: TPageControl
-    Width = 886
+    Width = 1189
     Height = 673
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 532
+        Left = 835
         Top = 121
         Width = 8
         Height = 465
         Align = alRight
       end
       inherited TopPanel: TPanel
-        Width = 878
+        Width = 1181
         object AvailableDsp: TLabel [5]
           Left = 344
           Top = 6
@@ -40,7 +39,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited Grid: TRxDBGrid
         Top = 121
-        Width = 532
+        Width = 835
         Height = 465
         Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
@@ -356,7 +355,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited BottomPanel: TPanel
         Top = 605
-        Width = 878
+        Width = 1181
         object BMassEdit: TBitBtn
           Left = 88
           Top = 5
@@ -417,13 +416,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited Panel: TPanel
         Top = 586
-        Width = 878
+        Width = 1181
         inherited StatusBar: TStatusBar
-          Width = 809
+          Width = 1112
         end
       end
       inherited CustomPanel: TPanel
-        Width = 878
+        Width = 1181
         Height = 34
         object Label5: TLabel
           Left = 8
@@ -547,7 +546,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             0000}
         end
         object BKonsolidate: TBitBtn
-          Left = 550
+          Left = 853
           Top = 4
           Width = 82
           Height = 25
@@ -559,7 +558,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
         object ttEnabled: TCheckBox
           Tag = 67108864
-          Left = 232
+          Left = 535
           Top = 2
           Width = 203
           Height = 17
@@ -571,7 +570,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           OnClick = ttEnabledClick
         end
         object BMassImport: TBitBtn
-          Left = 441
+          Left = 744
           Top = 4
           Width = 104
           Height = 25
@@ -582,7 +581,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 878
+        Width = 1181
         inherited BChild3: TBitBtn
           Glyph.Data = {
             4E010000424D4E01000000000000760000002800000012000000120000000100
@@ -599,7 +598,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         end
       end
       object RightPage: TPageControl
-        Left = 540
+        Left = 843
         Top = 121
         Width = 338
         Height = 465
@@ -1367,8 +1366,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         OnClick = SpeedButton3Click
       end
       object LINTEGRATION_ID: TLabel [15]
-        Left = 560
-        Top = 0
+        Left = 864
+        Top = 1
         Width = 9
         Height = 14
         Alignment = taRightJustify
@@ -1384,7 +1383,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       end
       inherited UpdPanel: TPanel
         Top = 609
-        Width = 878
+        Width = 1181
         TabOrder = 8
         inherited BUpdChild1: TBitBtn
           Left = 88
@@ -1594,8 +1593,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         ValueUnchecked = '-'
       end
       object INTEGRATION_ID: TDBEdit
-        Left = 576
-        Top = 0
+        Left = 880
+        Top = 1
         Width = 300
         Height = 22
         Hint = 'SKR'#211'T'

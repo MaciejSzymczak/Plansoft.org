@@ -1287,11 +1287,11 @@ begin
             end;
 
             weeklyTable.addCell(true, colColumnValue, colSubColumnValue, colRowValue, bgcolor,
-                iif(colCell1='DUMMY_NULL','',mainQuery.FieldByName(colCell1).asstring+'<br>')+
-                iif(colCell2='DUMMY_NULL','',mainQuery.FieldByName(colCell2).asstring+'<br>')+
-                iif(colCell3='DUMMY_NULL','',mainQuery.FieldByName(colCell3).asstring+'<br>')+
-                iif(colCell4='DUMMY_NULL','',mainQuery.FieldByName(colCell4).asstring+'<br>')+
-                iif(colCell5='DUMMY_NULL','',mainQuery.FieldByName(colCell5).asstring+'<br>')+
+                iif(colCell1='DUMMY_NULL','',mainQuery.FieldByName(colCell1).asstring+'<br/>')+
+                iif(colCell2='DUMMY_NULL','',mainQuery.FieldByName(colCell2).asstring+'<br/>')+
+                iif(colCell3='DUMMY_NULL','',mainQuery.FieldByName(colCell3).asstring+'<br/>')+
+                iif(colCell4='DUMMY_NULL','',mainQuery.FieldByName(colCell4).asstring+'<br/>')+
+                iif(colCell5='DUMMY_NULL','',mainQuery.FieldByName(colCell5).asstring+'<br/>')+
                 iif(colCell6='DUMMY_NULL','',mainQuery.FieldByName(colCell6).asstring)
             ,colSubColumn <> 'DUMMY_NULL', mainQuery.FieldByName('Duration').asFloat  * mainQuery.FieldByName('Fill').asFloat/100 );
 
