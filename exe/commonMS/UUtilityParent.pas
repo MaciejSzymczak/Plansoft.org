@@ -269,7 +269,7 @@ Function getRandomColor : Integer;
 
 implementation
 
-Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls, EncdDecd;
+Uses Dialogs, registry, messages, commCtrl, inifiles, ToolEdit, ExtCtrls, EncdDecd, UFMessageBox;
 
 Function getRandomColor : Integer;
 begin
@@ -818,11 +818,13 @@ Begin
 End;
 
 Procedure SError(S : String);
-Var H : String;
+//Var H : String;
 Begin
- S := S + Char(0);
- H := sBLAD;
- MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONERROR + MB_TASKMODAL);
+  FMessagebox.Message.text := s;
+  FMessagebox.ShowModal;
+ //S := S + Char(0);
+ //H := sBLAD;
+ //MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONERROR + MB_TASKMODAL);
 End;
 
 Function Question(S : String) : Integer;

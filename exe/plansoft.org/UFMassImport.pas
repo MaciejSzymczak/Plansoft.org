@@ -46,11 +46,11 @@ procedure TFMassImport.RunImport(Sender: TObject);
 var LCID : Integer;
     lineNum : integer;
     strLineNum : shortString;
-    c_col1, c_col2, c_col3, c_col4, c_col5, c_col6, c_col7 : string;
-    l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_col7, l_colour, l_orguni_id, l_entire : string;
+    c_col1, c_col2, c_col3, c_col4, c_col5, c_col6, c_col7, c_col8 : string;
+    l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_col7, l_col8, l_colour, l_orguni, l_orguni_id, l_orguni_id_default, l_entire : string;
     translatedMessage : string;
     uniqueCheck : TMap;
-    uniqueKey : shortString;
+    uniqueKey, integrationId : shortString;
     uniqueCheckErrorFlag : boolean;
     uniqueCheckErrorMessage : string;
 
@@ -115,20 +115,22 @@ begin
     c_col1 := ExcelApplication.Range['A'+strLineNum,'A'+strLineNum].Value2;
     c_col2 := ExcelApplication.Range['B'+strLineNum,'B'+strLineNum].Value2;
     c_col3 := ExcelApplication.Range['C'+strLineNum,'C'+strLineNum].Value2;
-    c_col4    := ExcelApplication.Range['D'+strLineNum,'D'+strLineNum].Value2;
-    c_col5    := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
-    c_col6    := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
-    c_col7    := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
+    c_col4 := ExcelApplication.Range['D'+strLineNum,'D'+strLineNum].Value2;
+    c_col5 := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
+    c_col6 := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
+    c_col7 := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
+    c_col8 := ExcelApplication.Range['H'+strLineNum,'H'+strLineNum].Value2;
 
-    l_orguni_id    := dmodule.SingleValue('select min(id) from org_units');
+    l_orguni_id_default := dmodule.SingleValue('select min(id) from org_units');
+
 
     //check file header
     case importType.ItemIndex of
-      0:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7, 'Skrót, Tytu³, Imiê, Nazwisko, Przedmioty, S³owa kluczowe, Integration Id'                                                  ) then exit;
-      1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe, Integration Id') then exit;
-      2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6,             'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe, Integration Id'                                                     ) then exit;
-      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe, Integration Id'                                                                    ) then exit;
-      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezerwacji), Integration Id'                                                    ) then exit;
+      0:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7+', '+c_col8, 'Skrót, Tytu³, Imiê, Nazwisko, Przedmioty, S³owa kluczowe, Integration Id, Jednostka organizacyjna'                                                  ) then exit;
+      1:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7+', '+c_col8, 'Skrót, Nazwa, Liczba studentów, Typ grupy(stacjonarne/niestacjonarne/inne), Dodatkowy opis, S³owa kluczowe, Integration Id, Jednostka organizacyjna') then exit;
+      2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7,             'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe, Integration Id, Jednostka organizacyjna'                                                     ) then exit;
+      3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe, Integration Id, Jednostka organizacyjna'                                                                    ) then exit;
+      4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezerwacji), Integration Id'                                                                            ) then exit;
     end;
 
     uniqueCheck := Tmap.Create;
@@ -146,6 +148,7 @@ begin
       l_col5 := ExcelApplication.Range['E'+strLineNum,'E'+strLineNum].Value2;
       l_col6 := ExcelApplication.Range['F'+strLineNum,'F'+strLineNum].Value2;
       l_col7 := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
+      l_col8 := ExcelApplication.Range['H'+strLineNum,'H'+strLineNum].Value2;
       l_colour       := intToStr( getRandomColor );
 
       l_entire       := 'Rekord danych:' + cr+ cr + 'Wiersz:' +  strLineNum + cr;
@@ -156,15 +159,30 @@ begin
       if c_col5 <> '' then l_entire := l_entire + c_col5 + ':'+ l_col5 + cr;
       if c_col6 <> '' then l_entire := l_entire + c_col6 + ':'+ l_col6 + cr;
       if c_col7 <> '' then l_entire := l_entire + c_col7 + ':'+ l_col7 + cr;
+      if c_col8 <> '' then l_entire := l_entire + c_col8 + ':'+ l_col8 + cr;
       l_entire := l_entire + cr +cr;
 
       case importType.ItemIndex of
-        0: uniqueKey := l_col1;
-        1: uniqueKey := l_col1;
-        2: uniqueKey := l_col1+', '+l_col2;
-        3: uniqueKey := l_col1;
-        4: uniqueKey := l_col1;
+        0: begin uniqueKey := l_col1;             integrationId := nvl(l_col7, uniqueKey); end;
+        1: begin uniqueKey := l_col1;             integrationId := nvl(l_col7, uniqueKey); end;
+        2: begin uniqueKey := l_col1+', '+l_col2; integrationId := nvl(l_col6, uniqueKey); end;
+        3: begin uniqueKey := l_col1;             integrationId := nvl(l_col5, uniqueKey); end;
+        4: begin uniqueKey := l_col1;             integrationId := nvl(l_col4, uniqueKey); end;
       end;
+
+      //l_orguni_id
+      case importType.ItemIndex of
+        0: l_orguni := l_col8;
+        1: l_orguni := l_col8;
+        2: l_orguni := l_col7;
+        3: l_orguni := l_col6;
+      end;
+      if (l_orguni='') then
+        l_orguni_id :=  l_orguni_id_default
+      else
+        l_orguni_id :=  dmodule.SingleValue('select id from org_units where name = '''+l_orguni+'''');
+      l_orguni_id := nvl(l_orguni_id, l_orguni_id_default);
+
       if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
         uniqueCheckErrorMessage := merge( uniqueCheckErrorMessage, format('%s', [uniqueKey]), cr);
         uniqueCheckErrorFlag := true;
@@ -181,14 +199,14 @@ begin
                  dmodule.SQL(myQuery,
                              'merge into lecturers m using dual on (integration_id = :integration_id)'+
 	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id)'+
-                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
-                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
-                 addPermission ('LEC');                                                            
+                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
+                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
+                 addPermission ('LEC');
                end;
             1: begin
-                 if l_col4 = 'stacjonarne' then l_col4 := 'STATIONARY';
-                 if l_col4 = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
-                 if l_col4 = 'inne' then l_col4 := 'OTHER';
+                 if upperCase(l_col4) = 'stacjonarne' then l_col4 := 'STATIONARY';
+                 if upperCase(l_col4) = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
+                 if upperCase(l_col4) = 'inne' then l_col4 := 'OTHER';
                  if l_col4 = 'podyplomowe' then l_col4 := 'OTHER';
                  if (l_col4<>'STATIONARY') and (l_col4<>'EXTRAMURAL') and (l_col4<>'OTHER') then begin
                    SError('W kolumnie 3 dozwolone wartoœci to: "STATIONARY" lub "EXTRAMURAL" lub "OTHER". Wartoœci te oznaczaj¹ odpowiednio: stacjonarne, niestacjonarne, inne');
@@ -197,24 +215,24 @@ begin
                  dmodule.SQL(myQuery
                            , 'merge into groups m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+l_col7);
+                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
                  addPermission ('GRO');
                end;
             2: begin
                  dmodule.SQL(myQuery
                             , 'merge into rooms m using dual on (name = :name and attribs_01 = :attribs_01)'+
 	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :orguni_id, :integration_id)'+
-		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id'
-                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+l_col6);
+		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id, orguni_id = :orguni_id'
+                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+integrationId);
                  addPermission ('ROM');
                end;
             3: begin
                  dmodule.SQL(myQuery
                            , 'merge into subjects m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+l_col5);
+                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+integrationId);
                  addPermission ('SUB');
                end;
             4: begin
@@ -225,7 +243,7 @@ begin
                            , 'merge into forms m using dual on (integration_id = :integration_id)'+
                              ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation, :name, :kind, :colour, :integration_id)'+
                              ' when matched then update set name=:name, kind=:kind, abbreviation = :abbreviation'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+l_col4);
+                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+integrationId);
                  addPermission ('FOR');
                end;
           end;
@@ -234,30 +252,22 @@ begin
           If Pos(sKeyViolation, E.Message)<>0 Then Begin
            if DBMap.get (E.Message, translatedMessage) then begin
              dmodule.RollbackTrans;
-             //SError(l_entire + translatedMessage);
-             FMessagebox.Message.text := l_entire + translatedMessage;
-             FMessagebox.ShowModal;
+             SError(l_entire + translatedMessage);
              abort;
            end;
            dmodule.RollbackTrans;
-           //SError(l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message);
-           FMessagebox.Message.text := l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message;
-           FMessagebox.ShowModal;
+           SError(l_entire + 'Taki rekord ju¿ wprowadzono. Komunikat z bazy danych: ' + E.Message);
            abort;
           End
           else begin
            dmodule.RollbackTrans;
-           //SError(l_entire + 'Komunikat z bazy danych: ' + E.Message);
-           FMessagebox.Message.text := l_entire + 'Komunikat z bazy danych: ' + E.Message;
-           FMessagebox.ShowModal;
+           SError(l_entire + 'Komunikat z bazy danych: ' + E.Message);
            Abort;
           end;
         End
           Else begin
             dmodule.RollbackTrans;
-            //SError(l_entire + 'Wyst¹pi³ inny b³¹d');
-            FMessagebox.Message.text := l_entire + 'Wyst¹pi³ inny b³¹d';
-            FMessagebox.ShowModal;
+            SError(l_entire + 'Wyst¹pi³ inny b³¹d');
           end;
         end;
       end;

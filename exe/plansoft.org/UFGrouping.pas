@@ -1665,13 +1665,12 @@ end;
 
 procedure TFGrouping.SpeedButton1Click(Sender: TObject);
 begin
-  FMessageBox.Message.Text :=
+  SError(
 'Dodaje do raportu kolumne INTEGRATION ID wyk³adowcy, grupy, sali, przedmiotu'+cr+cr+
   ' Aby zobaczyæ integration id WYK£ADOWCY, zaznacz pole wyboru "Wyk³adowcy" ***ORAZ "Ka¿dy w oddzielnej linii"'+cr+
   ' Aby zobaczyæ integration id GRUPY, zaznacz pole wyboru "Grupy" ***ORAZ "Ka¿dy w oddzielnej linii"'+cr+
   ' Aby zobaczyæ integration id SALI/ZASOBU, zaznacz pole wyboru "Zasoby" ***ORAZ "Kazdy w oddzielnej linii"'+cr+
-  ' Aby zobaczyc integration id PRZEDMIOTU, zaznacz pole wyboru "Przedmioty"';
-  FMessageBox.showModal;
+  ' Aby zobaczyc integration id PRZEDMIOTU, zaznacz pole wyboru "Przedmioty"');
 
 end;
 

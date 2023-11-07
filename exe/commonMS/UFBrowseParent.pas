@@ -3595,8 +3595,7 @@ begin
   'ID:'+#9+#9  + s6
   ;
 
-  FMessagebox.Message.text := s7;
-  FMessagebox.ShowModal;
+  SError(s7);
 end;
 
 function TFBrowseParent.getSelectedIds: string;

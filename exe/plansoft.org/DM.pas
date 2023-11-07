@@ -504,7 +504,7 @@ Begin
 
   ExecSQL;
  End;
- logSQLStop;
+  logSQLStop;
  except
   CloseDBConnection;
   raise;

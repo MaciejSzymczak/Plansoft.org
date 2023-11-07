@@ -2,6 +2,7 @@ inherited FMessageBox: TFMessageBox
   Left = 366
   Top = 253
   Width = 988
+  ActiveControl = BClose
   Caption = 'Informacja'
   PixelsPerInch = 96
   TextHeight = 14
@@ -23,6 +24,7 @@ inherited FMessageBox: TFMessageBox
       Hint = 'Zamknij bie'#380#261'ce okno'
       Cancel = True
       Caption = 'Zamknij'
+      Default = True
       ModalResult = 1
       ParentShowHint = False
       ShowHint = True
