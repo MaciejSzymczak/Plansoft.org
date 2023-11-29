@@ -20,7 +20,6 @@ type
     LSortDesc2: TLabel;
     SORT_ORDER_ON_REPORTS: TDBEdit;
     Label3: TLabel;
-    LSortDesc1: TLabel;
     Label5: TLabel;
     CON_TYPE_ID: TEdit;
     CON_TYPE_ID_VALUE: TEdit;
@@ -39,6 +38,7 @@ type
     DESC2: TDBEdit;
     INTEGRATION_ID: TDBEdit;
     LINTEGRATION_ID: TLabel;
+    Label4: TLabel;
     procedure CON_TYPE_IDChange(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure CON_TYPE_ID_VALUEDblClick(Sender: TObject);
@@ -195,7 +195,6 @@ begin
    //BUpdChild1.Caption     := profileObjectNameClasses.Text;
    if profileType.ItemIndex <> 0 then begin
      BMassImport.Visible := false;
-     LSortDesc1.Visible  := false;
      BC.Caption          := profileObjectNameC2.Text;
      kind.Items[0]       := profileObjectNameC2.Text;
    end;

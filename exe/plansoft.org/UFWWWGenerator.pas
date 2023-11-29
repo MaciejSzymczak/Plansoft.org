@@ -72,7 +72,7 @@ type
     lfilter: TLabel;
     LECfilerSettings_dsp: TEdit;
     LECFilterClick: TSpeedButton;
-    Gselector: TCheckBox;
+    Gselector: TCheckBox;                                                          
     rselector: TCheckBox;
     lselector: TCheckBox;
     adotest: TADOQuery;

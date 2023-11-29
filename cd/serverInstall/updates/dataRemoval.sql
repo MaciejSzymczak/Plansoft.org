@@ -1,3 +1,14 @@
+DISABLE / ENABLE INTEGRATIONS
+======================================================
+
+update system_parameters set value=null where name = 'USOS_CYKL';
+update system_parameters set value=null where name = 'INT_IS_ACTIVE';
+commit;
+
+--update system_parameters set value='1' where name = 'INT_IS_ACTIVE';
+--update system_parameters set value='' where name = 'USOS_CYKL';
+
+
 REMOVE ALL (TEST DATA)
 ======================================================
 connect planner;
