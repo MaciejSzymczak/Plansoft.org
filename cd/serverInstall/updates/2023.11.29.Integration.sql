@@ -213,6 +213,20 @@ create or replace package body integration_diff_catcher is
         select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'INSERT' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='PRIOR'
         );  
         commit;
+  
+        --the diffs beyond current time frame can be ignored (can happen when the period changes!). remove it.
+        declare
+         pDate_From date;
+         pDate_To date;
+         pperiod_name varchar2(200);
+        begin
+            select value into pperiod_name from system_parameters where name = 'INT_PERIOD_NAME';
+            select date_from,date_to into pDate_From, pDate_To from periods where name=pperiod_name;
+            delete from int_classes_diff where day > pDate_To;
+            delete from int_classes_diff where day < pDate_From;
+            -- we can end up with orphaned members, we do not carry about it
+            delete from int_class_members_diff;
+        end;
 
         xxmsz_tools.insertIntoEventLog('STOP ', 'I', 'INTEGRATION_DIFF_CATCHER' );
         delete from xxmsztools_eventlog where module_name = 'INTEGRATION_DIFF_CATCHER' and created < sysdate - 14;
@@ -226,7 +240,7 @@ end;
 
 
 ========================================================================================================
-UPDATE INTEGRATION AND GET INTO THIS FILE !!! 
+UPDATE package INTEGRATION AND GET INTO THIS FILE and install on master !!! 
 
 IT WAS:
 ,integration_id_sub  = (select sub_form_integration_id from bazus_sub_map where sub_integration_id=tt.integration_id_sub and form_name=(select name from forms where id = tt.for_id))
