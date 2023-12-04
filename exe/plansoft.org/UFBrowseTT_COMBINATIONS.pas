@@ -1219,7 +1219,6 @@ begin
     BRecalculateAll.Refresh;
   end;
   BRecalculateAll.Caption := lRevert;
-  //info ('Zawartoœæ kolumny "Do zaplanowania" zosta³a pomyœlnie przeliczona dla wszystkich rekordów aktualnie wyœwietlanych w siatce'+cr+'Przeliczono nastêpuj¹c¹ liczbê rekordów: ' + intToStr(counter));
   Fmain.Zapisz1Click(nil);
 
   BRefreshClick(nil);
@@ -1384,7 +1383,7 @@ begin
     dmodule.sql('begin tt_planner.recalc_combination122 (:pCleanYpMode ); commit; end;'
             ,'pCleanYpMode=N'
     );
-
+  BRefreshClick(nil);
 end;
 
 
