@@ -103,6 +103,144 @@ create sequence INT_SEQ;
 
 alter table int_plan add (creation_date date default sysdate);
 
+create or replace package  integration_diff_catcher is  
+    
+    /* Difference catcher 
+       @author Maciej Szymczak
+       @version 2023-12-04
+     */
+    procedure diff;  
+    procedure fill (pdim varchar2);
+
+end;
+/
+
+create or replace package body integration_diff_catcher is  
+
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    procedure fill (pdim varchar2) is
+    begin
+        delete from int_classes_diff where dim = pdim;
+        delete from int_class_members_diff where dim = pdim;        
+        insert into int_classes_diff (id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids, dim, creation_date)
+        select
+              id
+            , day
+            , hour_from
+            , hour_to
+            , no_from
+            , no_to
+            , sub_id
+            , for_id
+            , integration_id_sub
+            , integration_id_for
+            , plan_integration_id --tt_combinations.integration_id (unique)
+            , plan_integration_id2 --tt_combinations.plan_id (not unique)
+            , tt_comb_cnt
+            , sum
+            , desc1
+            , desc2
+            , merged_id
+            , calc_lec_ids
+            , calc_gro_ids
+            , calc_rom_ids
+            , pdim dim
+            , sysdate creation_date
+        from  int_classes;
+        commit;  
+        insert into int_class_members_diff (cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id, dim, creation_date)
+        select
+              cla_id
+            , lec_gro_rom
+            , lec_gro_rom_id
+            , integration_id
+            , pdim dim
+            , sysdate creation_date
+        from  int_class_members;
+        commit;  
+    end fill;
+
+
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    procedure diff  is
+     trace varchar2(1000);
+    begin 
+        xxmsz_tools.insertIntoEventLog('START', 'I', 'INTEGRATION_DIFF_CATCHER' );
+        delete from int_classes_diff where dim in ('PRIOR','DIFF-7');
+        delete from int_class_members_diff where dim in ('PRIOR','DIFF-7');
+        -- keep last 7 DIFFs
+        update int_classes_diff set dim = 'DIFF-7' where dim = 'DIFF-6';
+        update int_classes_diff set dim = 'DIFF-6' where dim = 'DIFF-5';
+        update int_classes_diff set dim = 'DIFF-5' where dim = 'DIFF-4';
+        update int_classes_diff set dim = 'DIFF-4' where dim = 'DIFF-3';
+        update int_classes_diff set dim = 'DIFF-3' where dim = 'DIFF-2';
+        update int_classes_diff set dim = 'DIFF-2' where dim = 'DIFF-1';
+        update int_classes_diff set dim = 'DIFF-1' where dim = 'DIFF';
+        update int_class_members_diff set dim = 'DIFF-7' where dim = 'DIFF-6';
+        update int_class_members_diff set dim = 'DIFF-6' where dim = 'DIFF-5';
+        update int_class_members_diff set dim = 'DIFF-5' where dim = 'DIFF-4';
+        update int_class_members_diff set dim = 'DIFF-4' where dim = 'DIFF-3';
+        update int_class_members_diff set dim = 'DIFF-3' where dim = 'DIFF-2';
+        update int_class_members_diff set dim = 'DIFF-2' where dim = 'DIFF-1';
+        update int_class_members_diff set dim = 'DIFF-1' where dim = 'DIFF';
+        --
+        update int_classes_diff set dim = 'PRIOR' where dim = 'CURRENT';
+        update int_class_members_diff set dim = 'PRIOR' where dim = 'CURRENT';
+        fill('CURRENT');
+
+        insert into int_classes_diff (id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,diff_flag, dim)
+        (
+        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids, 'DELETE' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='PRIOR'
+        minus
+        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'DELETE' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='CURRENT'
+        )
+        union all
+        (
+        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'INSERT' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='CURRENT'
+        minus
+        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'INSERT' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='PRIOR'
+        );  
+        commit;
+
+        insert into int_class_members_diff (cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,diff_flag, dim)
+        (
+        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'DELETE' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='PRIOR'
+        minus
+        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'DELETE' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='CURRENT'
+        )
+        union all
+        (
+        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'INSERT' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='CURRENT'
+        minus
+        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'INSERT' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='PRIOR'
+        );  
+        commit;
+
+        --the diffs beyond current time frame can be ignored (can happen when the period changes!). remove it.
+        declare
+         pDate_From date;
+         pDate_To date;
+         pperiod_name varchar2(200);
+        begin
+            select value into pperiod_name from system_parameters where name = 'INT_PERIOD_NAME';
+            select date_from,date_to into pDate_From, pDate_To from periods where name=pperiod_name;
+            delete from int_classes_diff where day > pDate_To;
+            delete from int_classes_diff where day < pDate_From;
+            -- we can end up with orphaned members, we do not care about it
+            delete from int_class_members_diff where cla_id in (
+             select cla_id from int_class_members_diff
+             minus 
+             select id from int_classes_diff
+            );
+        end;
+
+        xxmsz_tools.insertIntoEventLog('STOP ', 'I', 'INTEGRATION_DIFF_CATCHER' );
+        delete from xxmsztools_eventlog where module_name = 'INTEGRATION_DIFF_CATCHER' and created < sysdate - 14;
+        commit;
+    end;
+end;
+/
+
 create or replace package integration is 
 
    /***************************************************************************************************************************** 
@@ -1089,140 +1227,3 @@ end;
 end;
 /
 
-create or replace package  integration_diff_catcher is  
-    
-    /* Difference catcher 
-       @author Maciej Szymczak
-       @version 2023-12-04
-     */
-    procedure diff;  
-    procedure fill (pdim varchar2);
-
-end;
-/
-
-create or replace package body integration_diff_catcher is  
-
-    ------------------------------------------------------------------------------------------------------------------------------------------------------- 
-    procedure fill (pdim varchar2) is
-    begin
-        delete from int_classes_diff where dim = pdim;
-        delete from int_class_members_diff where dim = pdim;        
-        insert into int_classes_diff (id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids, dim, creation_date)
-        select
-              id
-            , day
-            , hour_from
-            , hour_to
-            , no_from
-            , no_to
-            , sub_id
-            , for_id
-            , integration_id_sub
-            , integration_id_for
-            , plan_integration_id --tt_combinations.integration_id (unique)
-            , plan_integration_id2 --tt_combinations.plan_id (not unique)
-            , tt_comb_cnt
-            , sum
-            , desc1
-            , desc2
-            , merged_id
-            , calc_lec_ids
-            , calc_gro_ids
-            , calc_rom_ids
-            , pdim dim
-            , sysdate creation_date
-        from  int_classes;
-        commit;  
-        insert into int_class_members_diff (cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id, dim, creation_date)
-        select
-              cla_id
-            , lec_gro_rom
-            , lec_gro_rom_id
-            , integration_id
-            , pdim dim
-            , sysdate creation_date
-        from  int_class_members;
-        commit;  
-    end fill;
-
-
-    ------------------------------------------------------------------------------------------------------------------------------------------------------- 
-    procedure diff  is
-     trace varchar2(1000);
-    begin 
-        xxmsz_tools.insertIntoEventLog('START', 'I', 'INTEGRATION_DIFF_CATCHER' );
-        delete from int_classes_diff where dim in ('PRIOR','DIFF-7');
-        delete from int_class_members_diff where dim in ('PRIOR','DIFF-7');
-        -- keep last 7 DIFFs
-        update int_classes_diff set dim = 'DIFF-7' where dim = 'DIFF-6';
-        update int_classes_diff set dim = 'DIFF-6' where dim = 'DIFF-5';
-        update int_classes_diff set dim = 'DIFF-5' where dim = 'DIFF-4';
-        update int_classes_diff set dim = 'DIFF-4' where dim = 'DIFF-3';
-        update int_classes_diff set dim = 'DIFF-3' where dim = 'DIFF-2';
-        update int_classes_diff set dim = 'DIFF-2' where dim = 'DIFF-1';
-        update int_classes_diff set dim = 'DIFF-1' where dim = 'DIFF';
-        update int_class_members_diff set dim = 'DIFF-7' where dim = 'DIFF-6';
-        update int_class_members_diff set dim = 'DIFF-6' where dim = 'DIFF-5';
-        update int_class_members_diff set dim = 'DIFF-5' where dim = 'DIFF-4';
-        update int_class_members_diff set dim = 'DIFF-4' where dim = 'DIFF-3';
-        update int_class_members_diff set dim = 'DIFF-3' where dim = 'DIFF-2';
-        update int_class_members_diff set dim = 'DIFF-2' where dim = 'DIFF-1';
-        update int_class_members_diff set dim = 'DIFF-1' where dim = 'DIFF';
-        --
-        update int_classes_diff set dim = 'PRIOR' where dim = 'CURRENT';
-        update int_class_members_diff set dim = 'PRIOR' where dim = 'CURRENT';
-        fill('CURRENT');
-
-        insert into int_classes_diff (id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,diff_flag, dim)
-        (
-        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids, 'DELETE' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='PRIOR'
-        minus
-        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'DELETE' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='CURRENT'
-        )
-        union all
-        (
-        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'INSERT' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='CURRENT'
-        minus
-        select id, day, hour_from, hour_to, no_from, no_to, sub_id, for_id, integration_id_sub, integration_id_for, plan_integration_id, plan_integration_id2, tt_comb_cnt, sum, desc1, desc2, merged_id, calc_lec_ids, calc_gro_ids, calc_rom_ids,'INSERT' DIFF_FLAG, 'DIFF' dim from int_classes_diff where dim ='PRIOR'
-        );  
-        commit;
-
-        insert into int_class_members_diff (cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,diff_flag, dim)
-        (
-        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'DELETE' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='PRIOR'
-        minus
-        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'DELETE' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='CURRENT'
-        )
-        union all
-        (
-        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'INSERT' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='CURRENT'
-        minus
-        select cla_id,  lec_gro_rom, lec_gro_rom_id, integration_id,'INSERT' DIFF_FLAG, 'DIFF' dim from int_class_members_diff where dim ='PRIOR'
-        );  
-        commit;
-
-        --the diffs beyond current time frame can be ignored (can happen when the period changes!). remove it.
-        declare
-         pDate_From date;
-         pDate_To date;
-         pperiod_name varchar2(200);
-        begin
-            select value into pperiod_name from system_parameters where name = 'INT_PERIOD_NAME';
-            select date_from,date_to into pDate_From, pDate_To from periods where name=pperiod_name;
-            delete from int_classes_diff where day > pDate_To;
-            delete from int_classes_diff where day < pDate_From;
-            -- we can end up with orphaned members, we do not care about it
-            delete from int_class_members_diff where cla_id in (
-             select cla_id from int_class_members_diff
-             minus 
-             select id from int_classes_diff
-            );
-        end;
-
-        xxmsz_tools.insertIntoEventLog('STOP ', 'I', 'INTEGRATION_DIFF_CATCHER' );
-        delete from xxmsztools_eventlog where module_name = 'INTEGRATION_DIFF_CATCHER' and created < sysdate - 14;
-        commit;
-    end;
-end;
-/
