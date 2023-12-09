@@ -39,9 +39,18 @@ type
     Grid: TRxDBGrid;
     QDuplicates: TADOQuery;
     DSDuplicates: TDataSource;
-    ppexport: TPopupMenu;
+    PPDuplicates: TPopupMenu;
     ExportEasy: TMenuItem;
     ExportHtml: TMenuItem;
+    TabSheet5: TTabSheet;
+    Panel1: TPanel;
+    BitBtn1: TBitBtn;
+    GridNotSent: TRxDBGrid;
+    QNotSent: TADOQuery;
+    DSNotSent: TDataSource;
+    PPNotSent: TPopupMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
     procedure INT_RESCAT_COMB_IDChange(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -55,6 +64,9 @@ type
     procedure ExportHtmlClick(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure PageControl2Change(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -237,7 +249,7 @@ begin
  Point.x := 0;
  Point.y := btn.Height;
  Point   := btn.ClientToScreen(Point);
- ppexport.Popup(Point.X,Point.Y);
+ PPDuplicates.Popup(Point.X,Point.Y);
 end;
 
 procedure TFIntegration.PageControl2Change(Sender: TObject);
@@ -259,6 +271,39 @@ begin
      raise;
    end;
   end;
+
+  if (activeTab=2) then begin
+   QNotSent.Close;
+   try
+   QNotSent.Open;
+   except
+     copyToClipboard(  QNotSent.SQL.Text);
+     raise;
+   end;
+  end;
+
+
+end;
+
+procedure TFIntegration.MenuItem1Click(Sender: TObject);
+begin
+ dmodule.ExportToExcel(GridNotSent);
+end;
+
+procedure TFIntegration.MenuItem2Click(Sender: TObject);
+begin
+ dmodule.ExportToHtml(GridNotSent);
+end;
+
+procedure TFIntegration.BitBtn1Click(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ PPNotSent.Popup(Point.X,Point.Y);
 end;
 
 end.

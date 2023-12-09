@@ -245,7 +245,7 @@ inherited FUSOS: TFUSOS
     Top = 169
     Width = 995
     Height = 476
-    ActivePage = TabSheet3
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
