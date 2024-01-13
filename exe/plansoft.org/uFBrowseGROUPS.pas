@@ -96,6 +96,7 @@ type
     SpeedButton2: TSpeedButton;
     LINTEGRATION_ID: TLabel;
     INTEGRATION_ID: TDBEdit;
+    StructCleanUp: TMemo;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -479,6 +480,11 @@ begin
  then begin
   parentId := dmodule.SingleValue('select parent_id from str_elems_v where id =' + id );
   dmodule.SQL('delete from str_elems where id = '  + id );
+
+  //@@@todo:limit the cleanups to specific child and parent
+  //@@@todo: do the same for lec and rom
+  dmodule.SQL( structCleanUp.Lines.Text );
+
   fmain.propagateDependencyChanges(parentId, 'G');
   refreshDetails;
  end;

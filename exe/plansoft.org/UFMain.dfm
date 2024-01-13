@@ -6183,6 +6183,13 @@ inherited FMain: TFMain
           Caption = 'Usu'#324' dane'
           OnClick = mmpurgeClick
         end
+        object N25: TMenuItem
+          Caption = '-'
+        end
+        object RaportZdrowieSystemu1: TMenuItem
+          Caption = 'Raport: Zdrowie Systemu'
+          OnClick = RaportZdrowieSystemu1Click
+        end
         object N6: TMenuItem
           Caption = '-'
         end

@@ -582,6 +582,8 @@ type
     Zmianywrozkadziezaj2: TMenuItem;
     gridRefresh: TTimer;
     BCrossTableMaxRows: TButton;
+    RaportZdrowieSystemu1: TMenuItem;
+    N25: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -921,6 +923,7 @@ type
     procedure Zmianywrozkadziezaj2Click(Sender: TObject);
     procedure gridRefreshTimer(Sender: TObject);
     procedure BCrossTableMaxRowsClick(Sender: TObject);
+    procedure RaportZdrowieSystemu1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -9161,6 +9164,26 @@ begin
   SetSystemParam('CrossTableMaxRows',intToStr(strToint(rows)));
   BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
   DeepRefreshImmediate('DeepRefreshButtonClick');
+end;
+
+procedure TFMain.RaportZdrowieSystemu1Click(Sender: TObject);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+begin
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+
+  AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'HealthCheck.html');
+  rewrite(tmpFile);
+
+  attendanceList.SQL.Clear;
+  attendanceList.SQL.Add( 'select healthCheck.getList from dual' );
+  attendanceList.Open;
+  writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
+
+  closeFile(tmpFile);
+  ExecuteFile(uutilityParent.ApplicationDocumentsPath +'HealthCheck.html','','',SW_SHOWMAXIMIZED);
 end;
 
 initialization

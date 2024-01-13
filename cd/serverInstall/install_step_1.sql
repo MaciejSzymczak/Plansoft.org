@@ -38,6 +38,9 @@ grant select on SYS.USER$ to planner;
 grant alter system to planner;
 grant select on sys.GV_$SESSION to planner;
 GRANT EXECUTE ON sys.dbms_crypto TO planner;
+GRANT SELECT ON GV_$LOCK TO planner;
+GRANT SELECT ON V_$SESSION TO planner;
+
 
 create or replace procedure purge_audit_trail (days in number) as
 purge_date date;

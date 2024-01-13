@@ -777,16 +777,18 @@ inherited FIntegration: TFIntegration
       
         ' when length(PLAN_INTEGRATION_ID2)>36 then '#39'Plan studi'#243'w: wi'#281'cej' +
         ' ni'#380' jeden rekord'#39
-      ' when  length(integration_id_ROM)<36 then '#39'Sala: Brak'#39
       
         ' when  length(integration_id_ROM)>36 then '#39'Sala: Wi'#281'cej ni'#380' jedn' +
         'a sala'#39
       
-        ' when  calc_lec_ids is not null and integration_id_LEC is null t' +
-        'hen '#39'Wyk'#322'adowca wprowadzony r'#281'cznie'#39
+        ' when  length(calc_lec_ids)>2 and integration_id_LEC is null the' +
+        'n '#39'Wyk'#322'adowca wprowadzony r'#281'cznie'#39
       
-        ' when  calc_gro_ids is not null and integration_id_gro is null t' +
-        'hen '#39'Grupa wprowadzony r'#281'cznie'#39
+        ' when  length(calc_gro_ids)>2 and integration_id_gro is null the' +
+        'n '#39'Grupa wprowadzony r'#281'cznie'#39
+      
+        ' when  length(calc_rom_ids)>2  and integration_id_rom is null th' +
+        'en '#39'Sala wprowadzona r'#281'cznie'#39
       
         ' when  sub_id is not null and integration_id_sub is null then '#39'P' +
         'rzedmiot wprowadzony r'#281'cznie'#39
@@ -835,12 +837,12 @@ inherited FIntegration: TFIntegration
       '   , PLAN_INTEGRATION_ID2'
       '   , id'
       '   , merged_id'
-      ' from int_classes '
+      ' from int_classes'
       ' ) int_classes'
       ' where length(PLAN_INTEGRATION_ID2)<>36'
-      ' or length(integration_id_ROM)<>36'
-      ' or (calc_lec_ids is not null and integration_id_LEC is null)'
-      ' or (calc_gro_ids is not null and integration_id_gro is null)'
+      ' or (length(calc_lec_ids)>2 and integration_id_LEC is null)'
+      ' or (length(calc_gro_ids)>2 and integration_id_gro is null)'
+      ' or (length(calc_rom_ids)>2 and integration_id_rom is null)'
       ' or (sub_id is not null and integration_id_sub is null)'
       ' or (for_id is not null and integration_id_for is null)'
       ' order by date_from')

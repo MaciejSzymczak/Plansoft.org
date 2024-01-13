@@ -13,6 +13,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   inherited MainPage: TPageControl
     Width = 1187
     Height = 640
+    ActivePage = Browse
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 811
@@ -23,6 +24,51 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       end
       inherited TopPanel: TPanel
         Width = 1179
+        object StructCleanUp: TMemo
+          Left = 880
+          Top = 24
+          Width = 185
+          Height = 89
+          Lines.Strings = (
+            'begin'
+            
+              'for rec in (select unique gro_id child_id, parent_id from gro_cl' +
+              'a where is_child='#39'Y'#39' and no_conflict_flag is null) loop'
+            '  declare'
+            '   cnt number;'
+            '   child_name varchar2(200);'
+            '   parent_name varchar2(200);'
+            '  begin'
+            
+              '   select count(1) into cnt from str_elems where parent_id = rec' +
+              '.parent_id and child_id = rec.child_id;'
+            '   --the relation does not exist'
+            '   if (cnt=0) then'
+            
+              '     delete from gro_cla where is_child='#39'Y'#39' and no_conflict_flag' +
+              ' is null and gro_id = rec.child_id and parent_id = rec.parent_id' +
+              ';'
+            
+              '     select name into child_name from groups where id = rec.chil' +
+              'd_id;'
+            
+              '     select name into parent_name from groups where id = rec.par' +
+              'ent_id;'
+            
+              '     xxmsz_tools.insertIntoEventLog ( REPLACE(REPLACE('#39'REMOVED: ' +
+              'PARENTID:{1}     CHILDID:{2}'#39','#39'{1}'#39',child_name || '#39' ['#39' ||rec.chi' +
+              'ld_id|| '#39']'#39'),'#39'{2}'#39',parent_name || '#39' ['#39' ||rec.parent_id|| '#39']'#39'), '#39 +
+              'I'#39', '#39'STR_ELEMS_CLEANUP'#39');'
+            '     commit;'
+            '   end if;'
+            '  end;'
+            'end loop;'
+            'commit;'
+            'end;')
+          TabOrder = 11
+          Visible = False
+          WordWrap = False
+        end
       end
       inherited Grid: TRxDBGrid
         Top = 145
