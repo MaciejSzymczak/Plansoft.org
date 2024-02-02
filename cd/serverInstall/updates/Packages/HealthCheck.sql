@@ -135,17 +135,17 @@ WriteToClob(res,'
  WriteToClob(res, '<tr><th>Typ</th><th>Nazwa</th><th>Id</th><th>Utworzył</th></tr>'||chr(13)||chr(10));
  for rec in (
     select * from (
-    select 'WYKŁADOWCA' type, id, TITLE||' '||LAST_NAME||' '||FIRST_NAME||'   ('||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||')' Name, created_by from lecturers where creation_date > sysdate - 365 and COUNT5Y =0
+    select 'WYKŁADOWCA' type, id, TITLE||' '||LAST_NAME||' '||FIRST_NAME||'   ('||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||')' Name, created_by from lecturers where creation_date < sysdate - 5*365 and COUNT5Y =0
     union all
-    select 'GRUPA',id, nvl(abbreviation,name), created_by from groups where creation_date > sysdate - 365  and COUNT5Y =0
+    select 'GRUPA',id, nvl(abbreviation,name), created_by from groups where creation_date < sysdate - 5*365  and COUNT5Y =0
     union all
-    select 'SALA', id, name || ' ' || substr(attribs_01,1,55), created_by from rooms where creation_date > sysdate - 365 and COUNT5Y =0
+    select 'SALA', id, name || ' ' || substr(attribs_01,1,55), created_by from rooms where creation_date < sysdate - 5*365 and COUNT5Y =0
     union all
-    select 'FORMA' Typ, id, name, created_by  from forms where creation_date > sysdate - 365  and COUNT5Y =0
+    select 'FORMA' Typ, id, name, created_by  from forms where creation_date < sysdate - 5*365  and COUNT5Y =0
     union all
-    select 'PRZEDMIOT' Typ, id, name, created_by  from subjects where creation_date > sysdate - 365  and COUNT5Y =0
+    select 'PRZEDMIOT' Typ, id, name, created_by  from subjects where creation_date < sysdate - 5*365  and COUNT5Y =0
     union all
-    select 'PLANISTA' Typ, id, name, created_by  from planners where type='USER' and creation_date > sysdate - 365  and COUNT5Y =0
+    select 'PLANISTA' Typ, id, name, created_by  from planners where type='USER' and creation_date < sysdate - 5*365  and COUNT5Y =0
     ) 
     where id >0
     order by type, created_by, Name

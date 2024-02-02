@@ -204,12 +204,12 @@ begin
                  addPermission ('LEC');
                end;
             1: begin
-                 if upperCase(l_col4) = 'stacjonarne' then l_col4 := 'STATIONARY';
-                 if upperCase(l_col4) = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
-                 if upperCase(l_col4) = 'inne' then l_col4 := 'OTHER';
+                 if lowerCase(l_col4) = 'stacjonarne' then l_col4 := 'STATIONARY';
+                 if lowerCase(l_col4) = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
+                 if lowerCase(l_col4) = 'inne' then l_col4 := 'OTHER';
                  if l_col4 = 'podyplomowe' then l_col4 := 'OTHER';
                  if (l_col4<>'STATIONARY') and (l_col4<>'EXTRAMURAL') and (l_col4<>'OTHER') then begin
-                   SError('W kolumnie 3 dozwolone wartoœci to: "STATIONARY" lub "EXTRAMURAL" lub "OTHER". Wartoœci te oznaczaj¹ odpowiednio: stacjonarne, niestacjonarne, inne');
+                   SError('W kolumnie 4 dozwolone wartoœci to: "stacjonarne" lub "niestacjonarne" lub "inne". Jest: "'+l_col4+'"');
                    exit;
                  end;
                  dmodule.SQL(myQuery

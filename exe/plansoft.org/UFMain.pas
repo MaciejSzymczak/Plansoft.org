@@ -1062,6 +1062,7 @@ type
     procedure SetActivePulpit(pulpitIndex : integer; resetPulpitFlag : boolean);
     procedure deepRefreshDelayed;
     procedure deepRefreshImmediate( reason : String);
+    procedure changePassword(WindowLabel : String );
   end;
 
 var
@@ -4930,6 +4931,9 @@ begin
  dmodule.CommitTrans;
  If Logon Then
  Begin
+   if (password = username) and (uppercase(username)<>'PLANNER') then begin
+     changePassword('NAZWA U¯YTKOWNIKA I HAS£O NIE MOG¥ BYÆ TAKIE SAME');
+   end;
    UnLockFormComponents(Self);
    try
     app_version_info  := '5.0';
@@ -6110,15 +6114,22 @@ begin
   LOOKUPSShowModalAsBrowser('');
 end;
 
-procedure TFMain.Zmiehas1Click(Sender: TObject);
+procedure TFMain.changePassword(WindowLabel : String );
 begin
    Application.CreateForm(TFChangePassword, FChangePassword);
+   if (WindowLabel <>'') then fchangepassword.Caption := WindowLabel;
    if fchangepassword.showmodal = mrOK then begin
     dmodule.SQL('alter user '+DM.UserName+' identified by "'+fchangepassword.ENewPassword.Text+'"');
     info ('Has³o u¿ytkownika '+DM.UserName+' zosta³o zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
    end;
    fchangepassword.Free;
    fchangepassword := nil;
+end;
+
+
+procedure TFMain.Zmiehas1Click(Sender: TObject);
+begin
+   changePassword('');
 end;
 
 procedure TFMain.BAddClassMouseMove(Sender: TObject; Shift: TShiftState; X,

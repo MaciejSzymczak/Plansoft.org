@@ -21,13 +21,15 @@ c. Perform the steps described here
 	
 STEP 1
 ==================================
-Connect as sys to 127.0.0.1:1521/XE (Oracle 18c: 127.0.0.1:1521/XEPDB1)
+Connect as sys to 127.0.0.1:1521/XE 
+(Oracle 21c: 127.0.0.1:1521/XEPDB1)
 run install_Step1.sql
 
 STEP 2
 ===============
 Import this file 
 imp PLANNER/planner@127.0.0.1:1521/xe FILE=schema.dmp FULL=Y
+(imp PLANNER/planner@127.0.0.1:1521/XEPDB1 FILE=schema.dmp FULL=Y)
 
 STEP 3
 ================

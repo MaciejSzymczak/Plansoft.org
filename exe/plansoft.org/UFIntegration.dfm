@@ -691,53 +691,61 @@ inherited FIntegration: TFIntegration
     SQL.Strings = (
       'select * from ('
       
-        'select '#39'LEC_NAME_UI'#39' type, Id, ABBREVIATION, FIRST_NAME||'#39' '#39'||LA' +
-        'ST_NAME||'#39' '#39'||TITLE as name , integration_id, to_char(creation_d' +
-        'ate,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+        'select '#39'LEC_NAME_UI'#39' type, Id, ABBREVIATION, decode(is_active, 0' +
+        ', '#39'NIEAKTYWNY '#39', '#39#39')||FIRST_NAME||'#39' '#39'||LAST_NAME||'#39' '#39'||TITLE as ' +
+        'name , integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creat' +
+        'ion_date, created_by'
       
         'from LECTURERS where (FIRST_NAME, LAST_NAME, TITLE) in (select F' +
         'IRST_NAME, LAST_NAME, TITLE from LECTURERS group by FIRST_NAME, ' +
         'LAST_NAME, TITLE having count(1)>1)'
       'union all'
       
-        'select '#39'LEC_ABBREVIATION_I'#39' type, Id, ABBREVIATION, FIRST_NAME||' +
-        #39' '#39'||LAST_NAME||'#39' '#39'||TITLE as name, integration_id, to_char(crea' +
-        'tion_date,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+        'select '#39'LEC_ABBREVIATION_I'#39' type, Id, ABBREVIATION, decode(is_ac' +
+        'tive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||FIRST_NAME||'#39' '#39'||LAST_NAME||'#39' '#39'||TI' +
+        'TLE as name, integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39')' +
+        ' creation_date, created_by'
       
         'from LECTURERS where (ABBREVIATION) in (select ABBREVIATION from' +
         ' LECTURERS group by ABBREVIATION having count(1)>1)'
       'union all'
       
-        'select '#39'SUB_NAME_I'#39' type, id, abbreviation, name, integration_id' +
-        ', to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, created_by '
+        'select '#39'SUB_NAME_I'#39' type, id, abbreviation, decode(is_active, 0,' +
+        ' '#39'NIEAKTYWNY '#39', '#39#39')||name, integration_id, to_char(creation_date' +
+        ','#39'yyyy-mm-dd'#39') creation_date, created_by'
       
         'from subjects where name in (select name from subjects group by ' +
-        'name having count(1)>1) '
+        'name having count(1)>1)'
       'union all'
       
-        'select '#39'GRO_ABBREVIATION_I'#39' type,  Id, ABBREVIATION, name ||'#39' '#39' ' +
-        '|| group_type as name, integration_id, to_char(creation_date,'#39'yy' +
-        'yy-mm-dd'#39') creation_date, created_by '
+        'select '#39'GRO_ABBREVIATION_I'#39' type,  Id, ABBREVIATION, decode(is_a' +
+        'ctive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||name ||'#39' '#39' || group_type as name, ' +
+        'integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_dat' +
+        'e, created_by'
       
         'from groups where ABBREVIATION in (select ABBREVIATION from grou' +
         'ps group by ABBREVIATION having count(1)>1)'
       'union all'
       
-        'select '#39'SUB_ABBREVIATION_I'#39' type, id, ABBREVIATION, name, integr' +
-        'ation_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, cre' +
-        'ated_by '
+        'select '#39'SUB_ABBREVIATION_I'#39' type, id, ABBREVIATION, decode(is_ac' +
+        'tive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||name, integration_id, to_char(creat' +
+        'ion_date,'#39'yyyy-mm-dd'#39') creation_date, created_by'
       
         'from subjects where (ABBREVIATION) in (select ABBREVIATION from ' +
-        'subjects group by ABBREVIATION having count(1)>1) '
+        'subjects group by ABBREVIATION having count(1)>1)'
       'union all'
       
-        'select '#39'ROOM_UK'#39' type, id, '#39#39' as ABBREVIATION, attribs_01 || '#39' '#39 +
-        ' || name as name, integration_id, to_char(creation_date,'#39'yyyy-mm' +
-        '-dd'#39') creation_date, created_by '
+        'select '#39'ROOM_UK'#39' type, id, '#39#39' as ABBREVIATION, decode(is_active,' +
+        ' 0, '#39'NIEAKTYWNY '#39', '#39#39')|| attribs_01 || '#39' '#39' || name as name, inte' +
+        'gration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, c' +
+        'reated_by'
       
         'from rooms where (name, attribs_01) in (select name, ATTRIBS_01 ' +
         'from rooms group by name, ATTRIBS_01 having count(1)>1)'
-      ') order by type, name, ABBREVIATION')
+      ') order by type, name, ABBREVIATION'
+      ''
+      ''
+      '')
     Left = 244
     Top = 292
   end
