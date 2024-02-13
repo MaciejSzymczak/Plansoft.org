@@ -154,7 +154,7 @@ END CNT;
 
 begin
   dbms_scheduler.create_job(
-      job_name => 'CNT'
+      job_name => 'CNT2'
      ,job_type => 'PLSQL_BLOCK'
      ,job_action => 'begin cnt.run; end;'
     , repeat_interval    =>  'FREQ=DAILY;BYHOUR=3;BYMINUTE=00'

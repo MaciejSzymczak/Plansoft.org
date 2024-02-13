@@ -41,7 +41,6 @@ GRANT EXECUTE ON sys.dbms_crypto TO planner;
 GRANT SELECT ON GV_$LOCK TO planner;
 GRANT SELECT ON V_$SESSION TO planner;
 
-
 create or replace procedure purge_audit_trail (days in number) as
 purge_date date;
 begin
@@ -62,5 +61,35 @@ begin
      ,repeat_interval => 'freq=daily'
      ,enabled => TRUE
      );
+end;
+
+begin
+  dbms_scheduler.create_job(
+      job_name => 'CNT2'
+     ,job_type => 'PLSQL_BLOCK'
+     ,job_action => 'begin cnt.run; end;'
+    , repeat_interval    =>  'FREQ=DAILY;BYHOUR=3;BYMINUTE=00'
+    , enabled            =>  true              
+     ,comments => '');
+--DISPLAY SCHEDULED JOBS:  select * from dba_scheduler_jobs
+--DROP JOB              :  begin dbms_scheduler.drop_job('CNT'); end;
+end; 
+
+insert into system_parameters (name, value) values ('DIFF_MODE', 'SCHEDULER');
+Commit;
+
+begin
+  dbms_scheduler.create_job(
+	  job_name => 'DIFF_CATCHER_JOB'
+	 ,job_type => 'PLSQL_BLOCK'
+	 ,job_action => 'begin diff_catcher.diff; end;'
+	 ,repeat_interval => 'freq=daily; byhour=20'
+	 --,repeat_interval => 'freq=minutely'
+	 ,enabled => TRUE
+	 ,comments => '');
+--EXECUTE NOW           :  begin diff_catcher.diff; end;
+--DIS'PLAY SCHEDULED JOBS:  select * from dba_scheduler_jobs
+--DROP JOB              :  begin dbms_scheduler.drop_job('DIFF_CATCHER_JOB'); end;
+--LOG: select to_char(created,'yyyy-mm-dd hh24:mi:ss'), message from xxmsztools_eventlog where module_name = 'DIFF_CATCHER' order by id desc
 end;
 
