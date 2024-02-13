@@ -802,7 +802,7 @@ create or replace package body planner_utils is
         lecdesc2 := getLecDesc(desc2Cnt, pdesc2, t);
         lecdesc3 := getLecDesc(desc3Cnt, pdesc3, t);
         lecdesc4 := getLecDesc(desc4Cnt, pdesc4, t);
-         Xxmsz_Tools.insertIntoEventLog('!!!!'||cla_seq_nextval);
+         --Xxmsz_Tools.insertIntoEventLog('!!!!'||cla_seq_nextval);
         insert into lec_cla (id, lec_id, cla_id, is_child, day, hour, desc1, desc2, desc3, desc4,no_conflict_flag) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', pday, phour
         , lecdesc1, lecdesc2, lecdesc3, lecdesc4, pno_conflict_flag);    
 
@@ -1341,7 +1341,7 @@ create or replace package body planner_utils is
          end if;    
 
          -- delete dependency classes with wrong description 
-         Xxmsz_Tools.insertIntoEventLog('idc1');
+         --Xxmsz_Tools.insertIntoEventLog('idc1');
          delete from helper2;
          insert into helper2
              select unique cla.id, desc2, cla.day, cla.hour
@@ -1352,7 +1352,7 @@ create or replace package body planner_utils is
               and gro_id  = pres_id 
               and gro_cla.day between vdate_from and vdate_to;
 
-         Xxmsz_Tools.insertIntoEventLog('idc2 '||pres_id);
+         --Xxmsz_Tools.insertIntoEventLog('idc2 '||pres_id);
          delete from helper3;
          insert into helper3 (day, hour, str)
                     select day, hour, listagg(gro.abbreviation, '; ') within group (order by gro.abbreviation) descCorrect
@@ -1377,7 +1377,7 @@ create or replace package body planner_utils is
            delete_class (rec.id);
          end loop;
 
-         Xxmsz_Tools.insertIntoEventLog('idc3');
+         --Xxmsz_Tools.insertIntoEventLog('idc3');
          --create child dependencies
          for rec in (
             --classes of childs
@@ -1402,7 +1402,7 @@ create or replace package body planner_utils is
          ) 
          loop
             if (instr(rec.child_parent_flag,'C')>0) then
-                Xxmsz_Tools.insertIntoEventLog('.');
+                --Xxmsz_Tools.insertIntoEventLog('.');
                 insert_classes(rec.day
                    ,rec.hour
                    ,100
@@ -1418,7 +1418,7 @@ create or replace package body planner_utils is
                    ,null            
                    ,null);         
             else
-                Xxmsz_Tools.insertIntoEventLog('..');
+                --Xxmsz_Tools.insertIntoEventLog('..');
                 insert_classes(rec.day
                    ,rec.hour
                    ,100
@@ -1436,7 +1436,7 @@ create or replace package body planner_utils is
             end if;
          end loop;
 
-         Xxmsz_Tools.insertIntoEventLog('idc5');
+         --Xxmsz_Tools.insertIntoEventLog('idc5');
          delete from helper2;
          insert into helper2 (day, hour)
                   select unique day, hour  
@@ -1465,7 +1465,7 @@ create or replace package body planner_utils is
          loop
            delete_class (rec.cla_id);
          end loop;
-         Xxmsz_Tools.insertIntoEventLog('idc6');
+         --Xxmsz_Tools.insertIntoEventLog('idc6');
 
     end if; --if (pres_type='G')
 
@@ -2216,7 +2216,7 @@ create or replace package body planner_utils is
  procedure delete_class ( pid number ) is
   l_sum_units number;
  begin 
- Xxmsz_Tools.insertIntoEventLog('delete_class !!!!'||pid);
+ --Xxmsz_Tools.insertIntoEventLog('delete_class !!!!'||pid);
    --debug('delete_class:'||pid);   
    for rec in (select tt_comb_id from tt_cla where cla_id = pid) loop
      select sum(units) into l_sum_units from tt_cla where cla_id = pid and tt_comb_id = rec.tt_comb_id;

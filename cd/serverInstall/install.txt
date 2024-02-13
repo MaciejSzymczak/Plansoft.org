@@ -5,8 +5,8 @@ Download
 ORACLE_11G			 http://plansoft.org/InstallServer.zip
 ORACLE_CLIENT		 http://plansoft.org/InstallClient.zip
 SQL_DEVELOPER		 http://plansoft.org/InstallDev.zip
-Schema				 http://plansoft.org/InstallSchema.zip
 					 Password: !OpenPassword!
+Schema				 https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/updates/schema.dmp
 PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
 
 a. Install installServer.zip ( free for use Oracle DB)
