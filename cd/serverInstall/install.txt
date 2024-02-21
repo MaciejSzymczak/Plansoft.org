@@ -12,13 +12,9 @@ PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
 a. Install installServer.zip ( free for use Oracle DB)
 	!! Note: Do NOT install higher version than oracle11c XE - not tested yet. 
 
-b. Install installDev.zip (the tool is free for use)
-	Use SQLDeveloper to run the installation scripts described below in this file
-
-c. Perform the steps described here
-	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
-
-	
+b. Use SQLDeveloper to run the installation scripts described below in this file
+   Use installDev.zip (the tool is free for use)
+   
 STEP 1
 ==================================
 Connect as sys to 127.0.0.1:1521/XE 
@@ -36,7 +32,6 @@ STEP 3
 Connect as planner
 run install_Step3.sql
 
-
-
-
+c. Perform the steps described here
+	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
 

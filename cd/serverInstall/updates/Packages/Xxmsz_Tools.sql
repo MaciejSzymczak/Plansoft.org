@@ -2650,7 +2650,7 @@ create or replace package body Xxmsz_Tools as
 
  ---------------------------------------------------------------------------------------------------------------------------------------------------------
   function erasePolishChars(S varchar2) return varchar2 is
-   S2 varchar2(3000);
+   S2 varchar2(6000);
   begin
     S2 := S;
     S2 := replace(S2,'Ę','E');
