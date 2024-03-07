@@ -781,9 +781,18 @@ inherited FProgramSettings: TFProgramSettings
         Left = 8
         Top = 8
         Width = 553
-        Height = 41
+        Height = 73
         Caption = 'Diagnostyka'
         TabOrder = 0
+        object OpenFolder: TSpeedButton
+          Left = 472
+          Top = 36
+          Width = 25
+          Height = 21
+          Caption = '...'
+          Flat = True
+          OnClick = OpenFolderClick
+        end
         object SQLLog: TCheckBox
           Left = 8
           Top = 16
@@ -793,10 +802,21 @@ inherited FProgramSettings: TFProgramSettings
           TabOrder = 0
           OnClick = SQLLogClick
         end
+        object LogFileDir: TEdit
+          Left = 8
+          Top = 35
+          Width = 465
+          Height = 22
+          Color = clBtnFace
+          ReadOnly = True
+          TabOrder = 1
+          Text = 'LogFileDir'
+          Visible = False
+        end
       end
       object GroupBox2: TGroupBox
         Left = 8
-        Top = 56
+        Top = 80
         Width = 553
         Height = 209
         Caption = 'Rozmiar czcionki'
@@ -894,7 +914,7 @@ inherited FProgramSettings: TFProgramSettings
       object tablefilterjs: TMemo
         Left = 567
         Top = 176
-        Width = 89
+        Width = 306
         Height = 73
         Lines.Strings = (
           '/*===================================================='
@@ -2267,7 +2287,7 @@ inherited FProgramSettings: TFProgramSettings
       object filtergridcss: TMemo
         Left = 567
         Top = 96
-        Width = 89
+        Width = 306
         Height = 73
         Lines.Strings = (
           '/*===================================================='
@@ -2333,7 +2353,7 @@ inherited FProgramSettings: TFProgramSettings
       object actbjs: TMemo
         Left = 567
         Top = 16
-        Width = 89
+        Width = 306
         Height = 73
         Lines.Strings = (
           'function addEvent(obj,event_name,func_name){'
@@ -3058,7 +3078,7 @@ inherited FProgramSettings: TFProgramSettings
       end
       object KillSessions: TCheckBox
         Left = 7
-        Top = 273
+        Top = 297
         Width = 491
         Height = 15
         Caption = 'Kasuj poprzednie sesje'
@@ -3068,7 +3088,7 @@ inherited FProgramSettings: TFProgramSettings
       end
       object Rotate: TCheckBox
         Left = 7
-        Top = 289
+        Top = 313
         Width = 491
         Height = 15
         Caption = 'Przycisk ... rotuje zasoby'
@@ -3076,7 +3096,7 @@ inherited FProgramSettings: TFProgramSettings
       end
       object GroupBox3: TGroupBox
         Left = 8
-        Top = 312
+        Top = 344
         Width = 553
         Height = 57
         Caption = 'Widok wielu zasob'#243'w'

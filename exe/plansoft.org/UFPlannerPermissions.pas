@@ -184,23 +184,23 @@ Var x, y : Integer;
   Procedure LoadCells(Descriptor : String; Grid : TStringGrid; sqlWhereClause : string);
   Var x, y : Integer;
   Begin
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells : Begin');
+   fmain.wlog ('FplannerPermissions.LoadCells : Begin');
    For y := 1 To Grid.RowCount Do  For x := 1 To Grid.ColCount Do Grid.Cells[x,y] := '';
    With DModule Do Begin
-    if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells : from '+Descriptor);
+    fmain.wlog ('FplannerPermissions.LoadCells : from '+Descriptor);
     OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
 
     QWork.First;
     While Not QWork.EOF Do Begin
 
-     if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells.XXX_IDtoY Start');
+     fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY Start');
      If Descriptor = 'LEC' Then begin y:= LEC_IDtoY(QWork.FieldByName('LEC_ID').AsInteger); end;
      If Descriptor = 'GRO' Then begin y:= GRO_IDtoY(QWork.FieldByName('GRO_ID').AsInteger); end;
      If Descriptor = 'ROM' Then begin y:= ROM_IDtoY(QWork.FieldByName('ROM_ID').AsInteger); end;
      If Descriptor = 'ROL' Then begin y:= ROL_IDtoY(QWork.FieldByName('ROL_ID').AsInteger); end;
      If Descriptor = 'SUB' Then begin y:= SUB_IDtoY(QWork.FieldByName('SUB_ID').AsInteger); end;
      If Descriptor = 'FOR' Then begin y:= FOR_IDtoY(QWork.FieldByName('FOR_ID').AsInteger); end;
-     if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells.XXX_IDtoY End');
+     fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY End');
 
      if y <> -1 then begin
        x := IDtoX(QWork.FieldByName('PLA_ID').AsInteger);
@@ -211,13 +211,13 @@ Var x, y : Integer;
      QWork.Next;
     End;
    End;
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions.LoadCells : End');
+   fmain.wlog ('FplannerPermissions.LoadCells : End');
   End;
 
 begin
   if not mainPage.Visible then exit;
 
-  if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : planners');
+  fmain.wlog ('FplannerPermissions : planners');
   With DModule Do Begin
    OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
    //info (  inttostr(QWork.RecordCount+1) );
@@ -237,12 +237,12 @@ begin
     inc(x);
    End;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : planners2');
+   fmain.wlog ('FplannerPermissions : planners2');
    //zmniejszenie liczby wierszy dla ostatniej siatki
    OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
    ROLGrid.ColCount := QWork.RecordCount+1;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : LECTURERS');
+   fmain.wlog ('FplannerPermissions : LECTURERS');
    OPENSQL2('SELECT ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%'') ORDER BY LAST_NAME, FIRST_NAME');
    LGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -255,7 +255,7 @@ begin
     inc(y);
    End;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : GROUPS');
+   fmain.wlog ('FplannerPermissions : GROUPS');
    OPENSQL2('SELECT ID, '+sql_GRONAME+' NAME FROM GROUPS where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getrowSearch+'%'') ORDER BY '+sql_GRONAME);
    GGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -268,7 +268,7 @@ begin
     inc(y);
    End;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : ROOMS');
+   fmain.wlog ('FplannerPermissions : ROOMS');
    OPENSQL2('SELECT ID, '+sql_ResCat0NAME+' FROM ROOMS where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_ResCat0NAME);
    RGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -281,7 +281,7 @@ begin
     inc(y);
    End;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : SUBJECTS');
+   fmain.wlog ('FplannerPermissions : SUBJECTS');
    OPENSQL2('SELECT ID, '+sql_SUBNAME+' FROM SUBJECTS where nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_SUBNAME);
    SubGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -295,14 +295,14 @@ begin
    End;
 
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : FORMS');
+   fmain.wlog ('FplannerPermissions : FORMS');
    OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_FORNAME);
    FORGrid.RowCount := QWork2.RecordCount+1;
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : cnt=' + inttostr(QWork2.RecordCount+1));
+   fmain.wlog ('FplannerPermissions : cnt=' + inttostr(QWork2.RecordCount+1));
    y := 1;
    QWork2.First;
    While Not QWork2.EOF Do Begin
-    if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : y=' + inttostr(y));
+    fmain.wlog ('FplannerPermissions : y=' + inttostr(y));
     FORS[y].ID := QWork2.Fields[0].AsInteger;
     FORS[y].NAME := QWork2.Fields[1].AsString;
     FORGrid.Cells[0,y] := QWork2.Fields[1].AsString;
@@ -310,7 +310,7 @@ begin
     inc(y);
    End;
 
-   if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : PLANNERS');
+   fmain.wlog ('FplannerPermissions : PLANNERS');
    OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
    ROLGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -325,14 +325,14 @@ begin
 
   End;
 
-  if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : before LoadCells');
+  fmain.wlog ('FplannerPermissions : before LoadCells');
   LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
   LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
   LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : after LoadCells');
+  fmain.wlog ('FplannerPermissions : after LoadCells');
 
   LChanged := False;
   GChanged := False;
@@ -342,7 +342,7 @@ begin
   FORChanged := False;
 
   Krtkieopisy1Click(nil);
-  if FProgramSettings.SQLLog.checked then writeLog (GetNowMarker + ' FplannerPermissions : done');
+  fmain.wlog ('FplannerPermissions : done');
 end;
 
 procedure TFPlannerPermissions.FormShow(Sender: TObject);

@@ -2,26 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   2004.11.21 usuniecie problemu zwiazanego z nie dodawaniem rezerwacji dla sali
-   2005.04.19 dodanie funkcji get_class_coeffficient
-   2005.05.15 rozwiazanie problemu zwiazanego z konwersja number -> string (,.)
-   2007.05.05 zmiany, wersja 3.4
-   2010.03.14 flexs
-   2010.11.01 copy_data - bugfix   
-   2012.03.17 periods.locked_flag   
-   2012.06.17 update_lgr, copy_data - changes ( user sorting demand)   
-   2012.06.18 insert_classes - changes ( desc1..desc4)   
-   2013.03.06 track history - changes  
-   2013.11.03 bugfixing  
-   2017.01.02 function killSessions return varchar2
-   2017.04.05 merged version
-   2018.04.21 check_locks
-   2018.06.22 AUTHID CURRENT_USER
-   2018.01.12 NAD-POD
-   2018.01.28 NAD-POD improvement
-   2019.03.21 update_lgrs optimized
-   2019.12.13 Optimalization
-
+   @version 2024.03.07
    @author Maciej Szymczak
    */
 
@@ -207,10 +188,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
 end planner_utils;
 /
-
 create or replace package body planner_utils is
-  -- 2021.10.16 changes
-  
   deleted_class_id number := null;
 
   function killSessions return varchar2 is
@@ -673,11 +651,36 @@ create or replace package body planner_utils is
     --  insert into xxmsztools_eventlog (id, message) values (xxmsztools_eventlog_seq.nextval, m);
     --  commit;
     --end;
+      ----------------------------------------------
+    procedure IdsIntoHelper (lec varchar2, gro varchar2, res varchar2, sub varchar2, frm varchar2) is
+      ids  t_number_list := NEW t_number_list();
+      cnt  number;
+      tmp  varchar2(4000);
+    begin
+      delete from helper1;          
+      tmp := Xxmsz_Tools.merge(lec, gro, ';');
+      tmp := Xxmsz_Tools.merge(tmp, res, ';');
+      tmp := Xxmsz_Tools.merge(tmp, sub, ';');
+      tmp := Xxmsz_Tools.merge(tmp, frm, ';');          
+      for t in 1 .. xxmsz_tools.wordcount(tmp, ';') loop
+          cnt:=nvl(ids.last,0)+1;
+          ids.extend;
+          ids(cnt) := xxmsz_tools.extractword(t,tmp,';');
+      end loop;          
+      insert into helper1 (id)
+      select value(x) from table(ids) x;
+      ids.delete;
+    end;
+    ----------------------------------------------
     procedure check_locks is 
     begin
+      IdsIntoHelper (pcalc_lec_ids, pcalc_gro_ids,pcalc_rom_ids,'','' );
       for t in 1 .. xxmsz_tools.wordcount(pcalc_lec_ids, ';') loop
            for rec in (
-                select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) name 
+                select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) 
+                    || (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id)
+                    || (select name from rooms where id=timetable_notes.res_id)
+                       name 
                      , LOCKED_BY
                      , locked_reason 
                      , (select name from periods where id = timetable_notes.per_id) period_name
@@ -685,44 +688,31 @@ create or replace package body planner_utils is
                  where locked_by is not null
                    --time table found by pday
                    and per_id in (select id from periods where pday between date_from and date_to)
-                   and res_id = xxmsz_tools.extractword(t,pcalc_lec_ids,';') 
+                   and res_id in (select id from helper1) 
                    -- user is not the locker
                    and instr(';'||locked_by,';'||user)=0                 
                 ) loop
              raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
            end loop;   
       end loop;
-      for t in 1 .. xxmsz_tools.wordcount(pcalc_gro_ids, ';') loop
-           for rec in (
-                select (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id) name 
-                     , LOCKED_BY
-                     , locked_reason 
-                     , (select name from periods where id = timetable_notes.per_id) period_name
-                  from timetable_notes 
-                 where locked_by is not null
-                   and per_id in (select id from periods where pday between date_from and date_to)
-                   and res_id = xxmsz_tools.extractword(t,pcalc_gro_ids,';') 
-                   and instr(';'||locked_by,';'||user)=0   
-                   ) loop
-             raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
-           end loop;   
-      end loop;
-      for t in 1 .. xxmsz_tools.wordcount(pcalc_rom_ids, ';') loop
-           for rec in (
-                select (select name from rooms where id=timetable_notes.res_id) name 
-                     , LOCKED_BY
-                     , locked_reason 
-                     , (select name from periods where id = timetable_notes.per_id) period_name
-                  from timetable_notes 
-                 where locked_by is not null
-                   and per_id in (select id from periods where pday between date_from and date_to)
-                   and res_id = xxmsz_tools.extractword(t,pcalc_rom_ids,';') 
-                   and instr(';'||locked_by,';'||user)=0   
-                   ) loop
-             raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
-           end loop;    
-      end loop;
     end;
+    
+
+  ----------------------------------------------
+  function addOwners (owners varchar2, lec varchar2, gro varchar2, res varchar2, sub varchar2, frm varchar2) return varchar2 is 
+    out_owners varchar2(1000) := owners;
+  begin
+      IdsIntoHelper(lec, gro, res, sub, frm);
+      out_owners := replace(';'||owners,' ','');
+      for rec in (select unique pla.name from owners, planners pla where owners.pla_id = pla.id and res_id in (select id from helper1)) loop
+        if INSTR(out_owners, ';'||rec.name) = 0 then
+          out_owners := out_owners || ';' || rec.name;
+        end if;
+      end loop;
+      select substr(out_owners,2,2000) into out_owners from dual;
+    return out_owners;
+  end addOwners;
+    
   ----------------------------------------------------------------------------------------  
   begin
 
@@ -795,14 +785,13 @@ create or replace package body planner_utils is
              else return null;
         end case;     
       end;
-    begin      
+    begin       
       for t in 1 .. lecsCnt loop
         plec_id := xxmsz_tools.extractword(t,pcalc_lec_ids,';');
         lecdesc1 := getLecDesc(desc1Cnt, pdesc1, t);
         lecdesc2 := getLecDesc(desc2Cnt, pdesc2, t);
         lecdesc3 := getLecDesc(desc3Cnt, pdesc3, t);
         lecdesc4 := getLecDesc(desc4Cnt, pdesc4, t);
-         --Xxmsz_Tools.insertIntoEventLog('!!!!'||cla_seq_nextval);
         insert into lec_cla (id, lec_id, cla_id, is_child, day, hour, desc1, desc2, desc3, desc4,no_conflict_flag) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', pday, phour
         , lecdesc1, lecdesc2, lecdesc3, lecdesc4, pno_conflict_flag);    
 
@@ -866,10 +855,13 @@ create or replace package body planner_utils is
     end loop;
 
     if prefreshLGR = 'Y' then calculate_lgr(cla_seq_nextval, vcalc_lecturers, vcalc_groups, vcalc_rooms, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_rescat_ids); end if;
+    declare
+     xowners varchar2(4000) := addOwners (powner, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, psub_id, pfor_id);
+    begin
     insert into classes
                 (id             , day  ,hour  ,fill  ,sub_id  ,for_id  ,owner  ,calc_lec_ids , calc_gro_ids , calc_rom_ids , calc_lecturers , calc_groups , calc_rooms , created_by        , colour  , desc1, desc2, desc3, desc4, calc_rescat_ids)
-         values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,powner ,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
-
+         values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,xowners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
+    end;
     if ptt_comb_ids is not null then
       declare
        l_tt_comb_ids  varchar2(4000) := replace(ptt_comb_ids,';',',');

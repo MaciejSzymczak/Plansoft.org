@@ -388,7 +388,7 @@ type
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     respopup: TPopupMenu;
-    MenuItem7: TMenuItem;
+    MenuItem7: TMenuItem;                                                                      
     MenuItem8: TMenuItem;
     ppchangeClass: TMenuItem;
     ColorDialog: TColorDialog;
@@ -1063,6 +1063,7 @@ type
     procedure deepRefreshDelayed;
     procedure deepRefreshImmediate( reason : String);
     procedure changePassword(WindowLabel : String );
+    procedure wlog(messageText : string);
   end;
 
 var
@@ -1937,20 +1938,34 @@ end;
 
 Procedure TFMain.BuildCalendar (triggeredObject : String);
 var  colCnt, rowCnt : integer;
+     rId : string;
+     rName : string;
 
 Begin
   if not canShow Then exit;
   if not CanBuildCalendar then exit;
   Cursor := crHourGlass;
 
-  if instr('L#G#R',triggeredObject)<>0 then
+  if instr('L#G#R',triggeredObject)<>0 then begin
   if not BViewByCrossTable.Down then begin
     Case TabViewType.TabIndex Of
-      0:With DModule do UpsertRecentlyUsed(ExtractWord(1, ConLecturer.Text,  [';']),'L');
-      1:With DModule do UpsertRecentlyUsed(ExtractWord(1, ConGroup.Text,  [';']),'G');
-      2:With DModule do UpsertRecentlyUsed(ExtractWord(1, conResCat0.Text,  [';']),'R');
-      3:With DModule do UpsertRecentlyUsed(ExtractWord(1, conResCat1.Text,  [';']),'R');
+      0:With DModule do begin rId := ExtractWord(1, ConLecturer.Text,  [';']); UpsertRecentlyUsed(rId,'L');   end;
+      1:With DModule do begin rId := ExtractWord(1, ConGroup.Text,  [';']);    UpsertRecentlyUsed(rId,'G');   end;
+      2:With DModule do begin rId := ExtractWord(1, conResCat0.Text,  [';']);  UpsertRecentlyUsed(rId,'R');  end;
+      3:With DModule do begin rId := ExtractWord(1, conResCat1.Text,  [';']);  UpsertRecentlyUsed(rId,'R');  end;
+      4:begin self.Caption := 'Edycja kalendarza dni wolnych'+', Plansoft.org'; end;
+      5:begin self.Caption := 'Edycja kalendarza szczególnego'+', Plansoft.org'; end;
     end;
+  end;
+  end;
+
+  Case TabViewType.TabIndex Of
+    0:With DModule do begin rName := ExtractWord(1, ConLecturer_value.Text,  [';']);  self.Caption := rname;  end;
+    1:With DModule do begin rName := ExtractWord(1, ConGroup_value.Text,  [';']);  self.Caption := rname;  end;
+    2:With DModule do begin rName := ExtractWord(1, conResCat0_value.Text,  [';']);  self.Caption := rname; end;
+    3:With DModule do begin rName := ExtractWord(1, conResCat1_value.Text,  [';']);  self.Caption := rname; end;
+    4:begin self.Caption := 'Edycja kalendarza dni wolnych'; end;
+    5:begin self.Caption := 'Edycja kalendarza szczególnego'; end;
   end;
 
   refreshPanels;
@@ -3846,10 +3861,13 @@ begin
      with fsettings do begin
        Show;
        if pPrintSettingsFileName <> '' then Load(pPrintSettingsFileName);
-       BOKClick(nil);
+       BCloseSettingsClick(nil);
      end;
 
+     fmain.wlog('BCreateClick: Start');
      BCreateClick(nil);
+     fmain.wlog('BCreateClick: Stop');
+
      Free;
  end;
 end;
@@ -3867,6 +3885,9 @@ Var aUserName, aPassword, aDBName : ShortString;
             initype     : string;
             iniFile     : TIniFile;
       begin
+        paramString := paramStr(5);
+        if ( UpperCase(paramString)='DEBUG_ON') then FProgramSettings.SQLLog.Checked := true;
+
         paramString := paramStr(4);
         command     := upperCase(ExtractWord(1,paramString,['=']));
         arguments   := extractWord(2,paramString,['=']);
@@ -3896,8 +3917,11 @@ Var aUserName, aPassword, aDBName : ShortString;
 
         if initype = 'wwwgenerator' then
         begin
+          fmain.wlog('commandLineWwwGenerator: Start');
           commandLineWwwGenerator ( arguments );
+          fmain.wlog('commandLineWwwGenerator: Stop');
           close;
+          fmain.wlog('commandLineWwwGenerator: Done');
         end;
 
         if initype = 'grouping' then
@@ -4008,6 +4032,8 @@ begin
   Begin
    if upperCase(aDBName) = 'WAT'  then aDBName := 'planner.wat.edu.pl:1522/planner';
    if upperCase(aDBName) = 'DOK'  then aDBName := 'prddokplanner.wat.edu.pl:1521/xe';
+   if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
+   if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
    if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
 
    DM.UserName  := aUserName;
@@ -4168,8 +4194,7 @@ begin
   //ConFormChange(nil);
   FCellLayout.refreshLayout;
 
-  commandLineProcessing;
-
+  fmain.wlog('killSessions: Start');
   try
   if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
      if not silentMode then info('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
@@ -4177,6 +4202,9 @@ begin
     on E:exception  do
       info('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
   End;
+  fmain.wlog('killSessions: Done');
+
+  commandLineProcessing;
 
   if not silentMode then begin
       Timer1.Enabled := True;
@@ -4184,6 +4212,7 @@ begin
       AutoSaveCounterDown := -1;
       AutoSaver.Enabled := True;
   end;
+  fmain.wlog('Logon: Done');
 end;
 
 
@@ -4620,7 +4649,6 @@ begin
     2: PageControl.ActivePage := TabSheetR;
     3: PageControl.ActivePage := TabSheetR;
    End;
-   BOK.Caption   := 'Anuluj';
    ShowModal;
   End;
 end;
@@ -4927,9 +4955,14 @@ end;
 procedure TFMain.BLoginClick(Sender: TObject);
 var  db_version_info  : string[255];
      app_version_info : string[255];
+     logonOK : boolean;
 begin
+ fmain.wlog('BLoginClick: Start');
  dmodule.CommitTrans;
- If Logon Then
+ logonOK := Logon;
+ if silentMode then exit;
+
+ If logonOK Then
  Begin
    if (password = username) and (uppercase(username)<>'PLANNER') then begin
      changePassword('NAZWA U¯YTKOWNIKA I HAS£O NIE MOG¥ BYÆ TAKIE SAME');
@@ -4954,7 +4987,7 @@ begin
 
    Self.Menu := MM;
 
-   //default values in case of the lgr was is not selected (first call after the upgrade)                             
+   //default values in case of the lgr was is not selected (first call after the upgrade)
    if conLecturer.Text='' then conLecturer.Text := dmodule.SingleValue('Select max(id) from lecturers where id in (select lec_id from lec_pla where pla_id = '+UserID+')');
    if conGroup.Text=''    then conGroup.Text    := dmodule.SingleValue('Select max(id) from groups where id in (select gro_id from gro_pla where pla_id = '+UserID+')');
    if conResCat0.Text=''  then conResCat0.Text  := dmodule.SingleValue('Select max(id) from rooms where rescat_id='+dmodule.pResCatId0+' and id in (select rom_id from rom_pla where pla_id = '+UserID+')');
@@ -4971,6 +5004,7 @@ begin
    //BIMP.Enabled := True;
    //BEXP.Enabled := True;
  End;
+ fmain.wlog('BLoginClick: Stop');
 end;
 
 procedure TFMain.Odwiepolanadmiarowe1Click(Sender: TObject);
@@ -5003,7 +5037,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ConLecturer.Text, [';'], KeyValue)
-     Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
+     Then Info('Nie wybieraj ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
      Else begin
        TabViewType.TabIndex := 0;
        //ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
@@ -9195,6 +9229,12 @@ begin
 
   closeFile(tmpFile);
   ExecuteFile(uutilityParent.ApplicationDocumentsPath +'HealthCheck.html','','',SW_SHOWMAXIMIZED);
+end;
+
+procedure TFMain.wlog;
+begin
+ if NOT FProgramSettings.SQLLog.checked then exit;
+ writelog(GetNowMarker +' '+ messageText);
 end;
 
 initialization

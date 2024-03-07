@@ -9,7 +9,7 @@ uses
 type
   TFSettings = class(TFormConfig)
     BottomPanel: TPanel;
-    BOK: TBitBtn;
+    BCloseSettings: TBitBtn;
     PageControl: TPageControl;
     TabSheetL: TTabSheet;
     TabSheetG: TTabSheet;
@@ -220,7 +220,7 @@ type
     procedure BWordClick(Sender: TObject);
     procedure LHideEmptyRowsClick(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
-    procedure BOKClick(Sender: TObject);
+    procedure BCloseSettingsClick(Sender: TObject);
     procedure lLegendModeClick(Sender: TObject);
     procedure LLShowLegendClick(Sender: TObject);
     procedure gGShowLegendClick(Sender: TObject);
@@ -747,21 +747,21 @@ end;
 procedure TFSettings.FormShow(Sender: TObject);
 begin
   inherited;
-  MaxLecturersInLegend.Text      := GetSystemParam('MaxLecturersInLegend','');         // maksymalna liczba wyk³adowców przy jednym przedmiocie w legendzie.
-  MaxLengthCALC_GROUPS.Text      := GetSystemParam('MaxLengthCALC_GROUPS','');         // maksymalna liczba znaków w pojedynczej komórce oznaczaj¹ca grupê
-  MaxLengthCALC_LECTURERS.Text   := GetSystemParam('MaxLengthCALC_LECTURERS','');      // jw. Dla wyk³adowcy
-  MaxLengthCALC_ROOMS.Text       := GetSystemParam('MaxLengthCALC_ROOMS','');          // jw dla sali
-  MaxLengthCreated_by.Text       := GetSystemParam('MaxLengthCreated_by','');          // jw dla "utworzono przez"
-  MaxLengthFOR_abbreviation.Text := GetSystemParam('MaxLengthFOR_abbreviation','');    // jw. Dla formy zajêæ
-  MaxLengthOwner.Text            := GetSystemParam('MaxLengthOwner','');               // jw. Dla "w³aœciciel zajêcia"
-  MaxLengthSUB_abbreviation.Text := GetSystemParam('MaxLengthSUB_abbreviation','');    // jw. Dla przedmiotu
-  CellWidthInLegend.Text         := GetSystemParam('CellWidthInLegend','');            // szerokoœæ legendy w pikselach (punktach ekranu)
+  MaxLecturersInLegend.Text      := GetSystemParam('MaxLecturersInLegend','1000');         // maksymalna liczba wyk³adowców przy jednym przedmiocie w legendzie.
+  MaxLengthCALC_GROUPS.Text      := GetSystemParam('MaxLengthCALC_GROUPS','1000');         // maksymalna liczba znaków w pojedynczej komórce oznaczaj¹ca grupê
+  MaxLengthCALC_LECTURERS.Text   := GetSystemParam('MaxLengthCALC_LECTURERS','1000');      // jw. Dla wyk³adowcy
+  MaxLengthCALC_ROOMS.Text       := GetSystemParam('MaxLengthCALC_ROOMS','1000');          // jw dla sali
+  MaxLengthCreated_by.Text       := GetSystemParam('MaxLengthCreated_by','1000');          // jw dla "utworzono przez"
+  MaxLengthFOR_abbreviation.Text := GetSystemParam('MaxLengthFOR_abbreviation','1000');    // jw. Dla formy zajêæ
+  MaxLengthOwner.Text            := GetSystemParam('MaxLengthOwner','1000');               // jw. Dla "w³aœciciel zajêcia"
+  MaxLengthSUB_abbreviation.Text := GetSystemParam('MaxLengthSUB_abbreviation','1000');    // jw. Dla przedmiotu
+  CellWidthInLegend.Text         := GetSystemParam('CellWidthInLegend','100');            // szerokoœæ legendy w pikselach (punktach ekranu)
   CellWidthDay.Text              := GetSystemParam('CellWidthDay','');                 // szerokoœæ pierwszej kolumny (dzieñ tygodnia) w pikselach
   CellWidthHour.Text             := GetSystemParam('CellWidthHour','');                // szerokoœæ drugiej kolumny (godziny) w pikselach
-  MaxLengthDesc1.Text      := GetSystemParam('MaxLengthDesc1','');  // Maksymalna d³ugoœæ opisu w znakach
-  MaxLengthDesc2.Text      := GetSystemParam('MaxLengthDesc2','');  // Maksymalna d³ugoœæ opisu w znakach
-  MaxLengthDesc3.Text      := GetSystemParam('MaxLengthDesc3','');  // Maksymalna d³ugoœæ opisu w znakach
-  MaxLengthDesc4.Text      := GetSystemParam('MaxLengthDesc4','');  // Maksymalna d³ugoœæ opisu w znakach
+  MaxLengthDesc1.Text      := GetSystemParam('MaxLengthDesc1','1000');  // Maksymalna d³ugoœæ opisu w znakach
+  MaxLengthDesc2.Text      := GetSystemParam('MaxLengthDesc2','1000');  // Maksymalna d³ugoœæ opisu w znakach
+  MaxLengthDesc3.Text      := GetSystemParam('MaxLengthDesc3','1000');  // Maksymalna d³ugoœæ opisu w znakach
+  MaxLengthDesc4.Text      := GetSystemParam('MaxLengthDesc4','1000');  // Maksymalna d³ugoœæ opisu w znakach
 
   If PaperSize.ItemIndex = -1 Then PaperSize.ItemIndex := 0;
 
@@ -833,7 +833,7 @@ begin
   info('Zmiany zosta³y zapisane');
 end;
 
-procedure TFSettings.BOKClick(Sender: TObject);
+procedure TFSettings.BCloseSettingsClick(Sender: TObject);
 begin
   {}
 end;

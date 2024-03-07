@@ -117,6 +117,8 @@ type
     GroupBox3: TGroupBox;
     Label34: TLabel;
     CrossTableMaxRows: TEdit;
+    LogFileDir: TEdit;
+    OpenFolder: TSpeedButton;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -129,6 +131,7 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure pClassDesc1GlobalSingularChange(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure OpenFolderClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -146,7 +149,7 @@ implementation
 
 {$R *.dfm}
 
-uses dm;
+uses dm, UFMessageBox;
 
 procedure TFProgramSettings.BRunMonitorClick(Sender: TObject);
 begin
@@ -256,7 +259,9 @@ end;
 procedure TFProgramSettings.SQLLogClick(Sender: TObject);
 begin
   inherited;
- if SQLLog.Checked then uutilityparent.info('W lokalizacji '+uutilityParent.ApplicationDocumentsPath + ' zostanie utworzony log SQL');
+  LogFileDir.Visible :=  SQLLog.Checked;
+  OpenFolder.Visible :=  SQLLog.Checked;
+  if SQLLog.Checked then LogFileDir.text := uutilityParent.ApplicationDocumentsPath;
 end;
 
 procedure TFProgramSettings.profileTypeChange(Sender: TObject);
@@ -573,6 +578,11 @@ begin
   dmodule.dbSetSystemParam('DIFF_END_DATE', DIFF_END_DATE.text);
   Button2.Caption := 'Zatwierdü';
   Uutilityparent.Info('Zapisano');
+end;
+
+procedure TFProgramSettings.OpenFolderClick(Sender: TObject);
+begin
+ShowFolder(LogFileDir.Text);
 end;
 
 end.

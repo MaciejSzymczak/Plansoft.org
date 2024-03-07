@@ -402,8 +402,7 @@ Procedure logSQLStart (pprocedureName : string; pSQL : string);
 begin
  //if not assigned ( FProgramSettings ) then exit;
   StartTime := Now;
- if FProgramSettings.SQLLog.checked then
-  writeLog (GetNowMarker + ' start : ' + pprocedureName + ' : ' + pSQL + ' ');
+  fmain.wlog ('start : ' + pprocedureName + ' : ' + pSQL + ' ');
 end;
 
 //----------------------------------------------------------------
@@ -422,8 +421,7 @@ procedure logSQLStop;
 begin
  //if not assigned ( FProgramSettings ) then exit;
  EndTime := Now;
- if FProgramSettings.SQLLog.checked then
-  writeLog (GetNowMarker + ' stop : ' + AsString(EndTime - StartTime) );
+ fmain.wlog ('stop : ' + AsString(EndTime - StartTime) );
 end;
 
 

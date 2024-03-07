@@ -1163,7 +1163,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
 
-     //writeLog (GetNowMarker + ' before loop ');
      While Not QWork.Eof Do Begin
       LegendRowNumber := LegendRowNumber + 1;
       if LegendRowNumber > MaxLegendPositions then begin
@@ -1789,7 +1788,7 @@ var ColoringIndex    : shortString;
           WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
           WriteLn(f, '<xml>');
           WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-          WriteLn(f, '<period name="'+XMLescapeChars(currentPeriod_VALUE.Text)+'"></period>');     
+          WriteLn(f, '<period name="'+XMLescapeChars(currentPeriod_VALUE.Text)+'"></period>');
           WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
           WriteLn(f, '<data>');
              If Groups.Checked Then Begin
@@ -2185,7 +2184,9 @@ var ColoringIndex    : shortString;
             googleExport ( Groups.Checked    , GList , fprogramsettings.profileObjectNameG.Text  , 'GRO', getCode(GViewType), getCode (GD1),  [ getCode (GD2),getCode (GD3),getCode (GD4),getCode (GD5) ], [ getValue(GD2),getValue(GD3),getValue(GD4),getValue(GD5) ] );
             googleExport ( Resources.Checked , RList , 'Zasób'                                   , 'ROM', getCode(RViewType), getCode (RD1),  [ getCode (RD2),getCode (RD3),getCode (RD4),getCode (RD5) ], [ getValue(RD2),getValue(RD3),getValue(RD4),getValue(RD5) ] );
             googleExport ( Lecturers.Checked , LList , fprogramsettings.profileObjectNameL.Text  , 'LEC', getCode(LViewType), getCode (LD1),  [ getCode (LD2),getCode (LD3),getCode (LD4),getCode (LD5) ], [ getValue(LD2),getValue(LD3),getValue(LD4),getValue(LD5) ] );
+            fmain.wlog('tableOfContens : Start');
             tableOfContens;
+            fmain.wlog('tableOfContens : End');
           end;
       end;
       setStatus('');
@@ -2318,7 +2319,7 @@ begin
   if not settingsLoaded then
       with fsettings do begin
           Show;
-          BOKClick(nil);
+          BCloseSettingsClick(nil);
           Close;
       end;
 
@@ -2326,7 +2327,9 @@ begin
   case genType.ItemIndex of
    0:generateWebPage;
    1:begin
+       fmain.wlog('generateIcsCalendars: Start');
        generateIcsCalendars;
+       fmain.wlog('generateIcsCalendars: Stop');
      end;
   end;
 end;
@@ -2399,7 +2402,7 @@ begin
     revertCaption := caption;
     BWord.Visible := False;
     BHtml.Visible := False;
-    BOK.Caption   := 'Zamknij';
+    BCloseSettings.Caption   := 'Zamknij';
     caption       := 'Ustawienia eksportu';
     tsAdvanced.TabVisible := genType.ItemIndex =0;
     LCellSizes.Visible    := genType.ItemIndex =0;
