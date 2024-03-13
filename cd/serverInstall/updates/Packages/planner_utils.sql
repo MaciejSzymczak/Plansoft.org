@@ -2,7 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   @version 2024.03.07
+   @version 2024.03.13
    @author Maciej Szymczak
    */
 
@@ -188,6 +188,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
 end planner_utils;
 /
+
 create or replace package body planner_utils is
   deleted_class_id number := null;
 
@@ -651,13 +652,14 @@ create or replace package body planner_utils is
     --  insert into xxmsztools_eventlog (id, message) values (xxmsztools_eventlog_seq.nextval, m);
     --  commit;
     --end;
+
       ----------------------------------------------
     procedure IdsIntoHelper (lec varchar2, gro varchar2, res varchar2, sub varchar2, frm varchar2) is
       ids  t_number_list := NEW t_number_list();
       cnt  number;
       tmp  varchar2(4000);
     begin
-      delete from helper1;          
+      delete from HELPER_RES;          
       tmp := Xxmsz_Tools.merge(lec, gro, ';');
       tmp := Xxmsz_Tools.merge(tmp, res, ';');
       tmp := Xxmsz_Tools.merge(tmp, sub, ';');
@@ -667,7 +669,7 @@ create or replace package body planner_utils is
           ids.extend;
           ids(cnt) := xxmsz_tools.extractword(t,tmp,';');
       end loop;          
-      insert into helper1 (id)
+      insert into HELPER_RES (id)
       select value(x) from table(ids) x;
       ids.delete;
     end;
@@ -688,7 +690,7 @@ create or replace package body planner_utils is
                  where locked_by is not null
                    --time table found by pday
                    and per_id in (select id from periods where pday between date_from and date_to)
-                   and res_id in (select id from helper1) 
+                   and res_id in (select id from HELPER_RES) 
                    -- user is not the locker
                    and instr(';'||locked_by,';'||user)=0                 
                 ) loop
@@ -704,7 +706,7 @@ create or replace package body planner_utils is
   begin
       IdsIntoHelper(lec, gro, res, sub, frm);
       out_owners := replace(';'||owners,' ','');
-      for rec in (select unique pla.name from owners, planners pla where owners.pla_id = pla.id and res_id in (select id from helper1)) loop
+      for rec in (select unique pla.name from owners, planners pla where owners.pla_id = pla.id and res_id in (select id from HELPER_RES)) loop
         if INSTR(out_owners, ';'||rec.name) = 0 then
           out_owners := out_owners || ';' || rec.name;
         end if;
@@ -712,7 +714,7 @@ create or replace package body planner_utils is
       select substr(out_owners,2,2000) into out_owners from dual;
     return out_owners;
   end addOwners;
-    
+
   ----------------------------------------------------------------------------------------  
   begin
 
@@ -785,7 +787,7 @@ create or replace package body planner_utils is
              else return null;
         end case;     
       end;
-    begin       
+    begin      
       for t in 1 .. lecsCnt loop
         plec_id := xxmsz_tools.extractword(t,pcalc_lec_ids,';');
         lecdesc1 := getLecDesc(desc1Cnt, pdesc1, t);
@@ -855,13 +857,15 @@ create or replace package body planner_utils is
     end loop;
 
     if prefreshLGR = 'Y' then calculate_lgr(cla_seq_nextval, vcalc_lecturers, vcalc_groups, vcalc_rooms, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_rescat_ids); end if;
+
     declare
-     xowners varchar2(4000) := addOwners (powner, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, psub_id, pfor_id);
+     eOwners varchar2(4000) := addOwners (powner, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, psub_id, pfor_id);
     begin
-    insert into classes
-                (id             , day  ,hour  ,fill  ,sub_id  ,for_id  ,owner  ,calc_lec_ids , calc_gro_ids , calc_rom_ids , calc_lecturers , calc_groups , calc_rooms , created_by        , colour  , desc1, desc2, desc3, desc4, calc_rescat_ids)
-         values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,xowners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
+        insert into classes
+                    (id             , day  ,hour  ,fill  ,sub_id  ,for_id  ,owner  ,calc_lec_ids , calc_gro_ids , calc_rom_ids , calc_lecturers , calc_groups , calc_rooms , created_by        , colour  , desc1, desc2, desc3, desc4, calc_rescat_ids)
+             values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,eOwners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
     end;
+
     if ptt_comb_ids is not null then
       declare
        l_tt_comb_ids  varchar2(4000) := replace(ptt_comb_ids,';',',');
@@ -2208,7 +2212,6 @@ create or replace package body planner_utils is
  procedure delete_class ( pid number ) is
   l_sum_units number;
  begin 
- --Xxmsz_Tools.insertIntoEventLog('delete_class !!!!'||pid);
    --debug('delete_class:'||pid);   
    for rec in (select tt_comb_id from tt_cla where cla_id = pid) loop
      select sum(units) into l_sum_units from tt_cla where cla_id = pid and tt_comb_id = rec.tt_comb_id;

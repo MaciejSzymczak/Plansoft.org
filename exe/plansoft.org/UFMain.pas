@@ -1123,11 +1123,13 @@ Begin
  If Not Valid then
    _LoadPeriod( StrToInt(NVL(FMain.conPeriod.text,'-1')));
 
+try
  t1 := TS.Date - FirstDay;
  out_isbusy  := global[t1][Zajecia].isBusy;
  out_busyCnt := global[t1][Zajecia].busyCnt;
  out_ratio   := ratio[t1][Zajecia].ratio;
  out_claIds  := global[t1][Zajecia].claids;
+except end;
 End;
 
 
@@ -1672,7 +1674,6 @@ var t : integer;
 begin
  childId := ExtractWord(1,childId,[';']); // get first from the list
 
- //2018.02.22
  if childId='' then begin
      Status := ClassNotFound;
      Exit;
@@ -2058,6 +2059,10 @@ begin
    if isBlank(conPeriod.Text) then exit;
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
    SetVisibles;
+
+   //invalid period id, deleted period?
+   If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
+
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
    DeepRefreshDelayed;
