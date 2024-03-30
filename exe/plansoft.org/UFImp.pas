@@ -62,7 +62,7 @@ end;
 procedure TFImp.FormCreate(Sender: TObject);
 begin
   inherited;
-  dmodule.CloseDBConnection;
+  dmodule.CloseDBConnection(true);
   RefreshFields;
 end;
 

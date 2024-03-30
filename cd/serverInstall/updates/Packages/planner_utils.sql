@@ -1852,6 +1852,51 @@ create or replace package body planner_utils is
    return userenv('sessionid');
   end get_session_id;
 
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------
+  procedure merge_helper_owners (save_id number, delete_id number) is begin
+    delete owners x
+     where res_id = delete_id
+       and exists ( select 1 from owners where res_id = save_id and pla_id = x.pla_id);
+    update owners set res_id = save_id where res_id = delete_id;    
+  end;
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------
+  procedure merge_helper_smart (save_id number, delete_id number) is begin
+    update lecturers
+      set desc1 = nvl(desc1, (select desc1 from lecturers where id=delete_id ))
+        , desc2 = nvl(desc2, (select desc2 from lecturers where id=delete_id ))
+        , email = nvl(email, (select email from lecturers where id=delete_id ))
+        , integration_id = nvl(integration_id, (select integration_id from lecturers where id=delete_id ))
+    where id = save_id;  
+    
+    update groups
+      set desc1 = nvl(desc1, (select desc1 from groups where id=delete_id ))
+        , desc2 = nvl(desc2, (select desc2 from groups where id=delete_id ))
+        , email = nvl(email, (select email from groups where id=delete_id ))
+        , integration_id = nvl(integration_id, (select integration_id from groups where id=delete_id ))
+    where id = save_id;  
+    
+    update rooms
+      set desc1 = nvl(desc1, (select desc1 from rooms where id=delete_id ))
+        , desc2 = nvl(desc2, (select desc2 from rooms where id=delete_id ))
+        , email = nvl(email, (select email from rooms where id=delete_id ))
+        , integration_id = nvl(integration_id, (select integration_id from rooms where id=delete_id ))
+    where id = save_id;  
+    
+    update subjects
+      set desc1 = nvl(desc1, (select desc1 from subjects where id=delete_id ))
+        , desc2 = nvl(desc2, (select desc2 from subjects where id=delete_id ))
+        , integration_id = nvl(integration_id, (select integration_id from subjects where id=delete_id ))
+    where id = save_id;  
+    
+    update forms
+      set desc1 = nvl(desc1, (select desc1 from forms where id=delete_id ))
+        , desc2 = nvl(desc2, (select desc2 from forms where id=delete_id ))
+        , integration_id = nvl(integration_id, (select integration_id from forms where id=delete_id ))
+    where id = save_id;  
+  end;
+
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure merge_res (save_id number, delete_id number, administrator_merging varchar2) is
    TYPE tcla_id_list IS TABLE OF NUMBER(15);
@@ -1874,6 +1919,7 @@ create or replace package body planner_utils is
        end if;  
       end;           
     end if;
+    merge_helper_smart(save_id, delete_id);
     -- delete record which would make conflicts after merging
     delete rom_pla x
      where rom_id = delete_id
@@ -1908,6 +1954,7 @@ create or replace package body planner_utils is
     end loop;    
     delete from rooms where id = delete_id;
     output_param_num5 := sql%rowcount;
+    merge_helper_owners (save_id, delete_id);
   end merge_res;                   
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1932,6 +1979,7 @@ create or replace package body planner_utils is
        end if;  
       end;           
     end if;
+    merge_helper_smart(save_id, delete_id);    
     delete lec_pla x
      where lec_id = delete_id
        and exists ( select 1 from lec_pla where lec_id = save_id and pla_id = x.pla_id);
@@ -1963,6 +2011,7 @@ create or replace package body planner_utils is
     end loop;
     delete from lecturers where id = delete_id;
     output_param_num5 := sql%rowcount;
+    merge_helper_owners (save_id, delete_id);
   end merge_lec;                   
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1987,6 +2036,7 @@ create or replace package body planner_utils is
        end if;  
       end;           
     end if;
+    merge_helper_smart(save_id, delete_id);
     delete gro_pla x
      where gro_id = delete_id
        and exists ( select 1 from gro_pla where gro_id = save_id and pla_id = x.pla_id);
@@ -2018,6 +2068,7 @@ create or replace package body planner_utils is
     end loop;
     delete from groups where id = delete_id;
     output_param_num5 := sql%rowcount;
+    merge_helper_owners (save_id, delete_id);
   end merge_gro;                   
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2038,6 +2089,7 @@ create or replace package body planner_utils is
        end if;  
       end;           
     end if;
+    merge_helper_smart(save_id, delete_id);
     delete sub_pla x
      where sub_id = delete_id
        and exists ( select 1 from sub_pla where sub_id = save_id and pla_id = x.pla_id);
@@ -2049,6 +2101,7 @@ create or replace package body planner_utils is
     output_param_num4 := sql%rowcount;
     delete from subjects where id = delete_id;
     output_param_num5 := sql%rowcount;
+    merge_helper_owners (save_id, delete_id);
   end merge_SUB;                   
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2069,6 +2122,7 @@ create or replace package body planner_utils is
        end if;  
       end;           
     end if;
+    merge_helper_smart(save_id, delete_id);
     delete for_pla x
      where for_id = delete_id
        and exists ( select 1 from for_pla where for_id = save_id and pla_id = x.pla_id);
@@ -2081,6 +2135,7 @@ create or replace package body planner_utils is
     output_param_num4 := sql%rowcount;
     delete from forms where id = delete_id;
     output_param_num5 := sql%rowcount;
+    merge_helper_owners (save_id, delete_id);
   end merge_FOR;                   
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------

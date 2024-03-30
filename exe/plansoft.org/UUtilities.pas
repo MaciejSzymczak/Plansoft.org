@@ -527,7 +527,7 @@ Procedure TConvertSingleObject.Init(StartDate, EndDate : Integer; Var LiczbaKolu
      If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
      If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
      If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
-     If fuse = 8 Then Begin SError('Semestr musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection; Halt; End;
+     If fuse = 8 Then Begin SError('Semestr musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection (true); halt; End;
     Until Changed = False;
   End;
 
@@ -578,7 +578,7 @@ Begin
 
   if Len > high(ColRowDate) then begin
     SError('1.Wyst¹pi³o zdarzenie "4 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len) + ' high(data)=' + intToStr(high(ColRowDate)) );
-    dmodule.CloseDBConnection;
+    dmodule.CloseDBConnection (true);
     halt;
   end;
 
@@ -1291,7 +1291,7 @@ procedure TConvertManyObjects.init(StartDate, EndDate : Integer; Var LiczbaKolum
      If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
      If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
      If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
-     If fuse = 8 Then Begin SError(fprogramSettings.profileObjectNamePeriod.text+' musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection; Halt; End;
+     If fuse = 8 Then Begin SError(fprogramSettings.profileObjectNamePeriod.text+' musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection(true); halt; End;
     Until Changed = False;
   End;
 
@@ -1327,7 +1327,7 @@ Begin
 
     if Len > high ( ColDate ) then begin
       SError('2.Wyst¹pi³o zdarzenie "5 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len)+' hdata='+ intToStr( high(ColDate) ));
-      dmodule.CloseDBConnection;
+      dmodule.CloseDBConnection(true);
       halt;
     end;
 

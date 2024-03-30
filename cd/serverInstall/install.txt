@@ -2,30 +2,27 @@ STEP 0
 ===================================
 
 Download
-ORACLE_11G			 http://plansoft.org/InstallServer.zip
-ORACLE_CLIENT		 http://plansoft.org/InstallClient.zip
-SQL_DEVELOPER		 http://plansoft.org/InstallDev.zip
-					 Password: !OpenPassword!
-Schema				 https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/updates/schema.dmp
-PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
+	http://plansoft.org/wp-content/uploads/pdf/installServer_21C.zip
+	http://plansoft.org/wp-content/uploads/pdf/installClient_21C.zip
+	Password: !OpenPassword!
+	Schema				 https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/updates/schema.dmp
+	PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
 
-a. Install installServer.zip ( free for use Oracle DB)
-	!! Note: Do NOT install higher version than oracle11c XE - not tested yet. 
+a. Install free for use Oracle DB, installServer_21C.zip
 
 b. Use SQLDeveloper to run the installation scripts described below in this file
-   Use installDev.zip (the tool is free for use)
    
 STEP 1
 ==================================
-Connect as sys to 127.0.0.1:1521/XE 
-(Oracle 21c: 127.0.0.1:1521/XEPDB1)
+Connect as sys to 127.0.0.1:1521/XEPDB1 
+(Oracle 11g: 127.0.0.1:1521/XE)
 run install_Step1.sql
 
 STEP 2
 ===============
-Import this file 
-imp PLANNER/planner@127.0.0.1:1521/xe FILE=schema.dmp FULL=Y
-(imp PLANNER/planner@127.0.0.1:1521/XEPDB1 FILE=schema.dmp FULL=Y)
+Import schema.dmp file 
+imp PLANNER/planner@127.0.0.1:1521/XEPDB1 FILE=schema.dmp FULL=Y
+(imp PLANNER/planner@127.0.0.1:1521/XE FILE=schema.dmp FULL=Y)
 
 STEP 3
 ================
@@ -35,3 +32,8 @@ run install_Step3.sql
 c. Perform the steps described here
 	http://www.plansoft.org/wp-content/uploads/pdf/InstrukcjaInstalacjiStacjaRobocza.pdf
 
+
+--- obsolete, ignore it --------------
+ORACLE_11G			 http://plansoft.org/InstallServer.zip
+ORACLE_11G_CLIENT		 http://plansoft.org/InstallClient.zip
+ORACLE_11G_SQL_DEVELOPER		 http://plansoft.org/InstallDev.zip

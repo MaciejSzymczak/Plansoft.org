@@ -50,7 +50,7 @@ var LCID : Integer;
     l_col1, l_col2, l_col3, l_col4, l_col5, l_col6, l_col7, l_col8, l_colour, l_orguni, l_orguni_id, l_orguni_id_default, l_entire : string;
     translatedMessage : string;
     uniqueCheck : TMap;
-    uniqueKey, integrationId : shortString;
+    uniqueKey, integrationId,pId : shortString;
     uniqueCheckErrorFlag : boolean;
     uniqueCheckErrorMessage : string;
 
@@ -64,20 +64,17 @@ var LCID : Integer;
       result := true;
     end;
 
-    procedure addPermission( pObjectAlias : string );
+    procedure addPermission( pObjectAlias : string; pId : String );
+      procedure add(pwhoId : String);
+      begin
+       dmodule.SQL(myQuery,
+         'merge into '+pObjectAlias+'_PLA m using dual on (PLA_ID = :ppla_id and '+pObjectAlias+'_ID=:pobj_id)'+
+        ' when not matched then insert (id, PLA_ID, '+pObjectAlias+'_ID) values '+'('+pObjectAlias+'PLA_SEQ.NEXTVAL, :ppla_id, :pobj_id)'
+       , 'ppla_id='+pwhoId+';pobj_id='+pId);
+      end;
     begin
-      try
-      //LEC_PLA
-      DModule.SQL(myQuery, 'INSERT INTO '+pObjectAlias+'_PLA (ID, PLA_ID, '+pObjectAlias+'_ID) VALUES ('+pObjectAlias+'PLA_SEQ.NEXTVAL, '+UserID+',main_seq.currval)');
-      if not isBlank(FMain.conrole.Text) then begin
-        DModule.SQL(myQuery, 'INSERT INTO '+pObjectAlias+'_PLA (ID, PLA_ID, '+pObjectAlias+'_ID) VALUES ('+pObjectAlias+'PLA_SEQ.NEXTVAL, '+FMain.CONROLE.Text+',main_seq.currval)');
-      end;
-
-      Except
-       on E:exception do begin
-           if AnsiContainsText(E.Message, pObjectAlias+'PLA_'+pObjectAlias+'_FK') then exit;
-         End;
-      end;
+      add(UserID);
+      if not isBlank(FMain.conrole.Text) then add(FMain.CONROLE.Text);
     end;
 
 begin
@@ -88,6 +85,13 @@ begin
 
   myQuery := tadoquery.Create(self);
   dmodule.resetConnection(myQuery);
+  dmodule.commitTrans;  //=beginTrans
+
+  //if dmodule.ADOConnection.InTransaction=false
+  //  then begin
+  //   dModule.ADOConnection.open;
+  //   dmodule.ADOConnection.BeginTrans;
+  //  end;
 
   if openDialog.Execute then begin
     LCID := GetUserDefaultLCID;
@@ -180,7 +184,7 @@ begin
       if (l_orguni='') then
         l_orguni_id :=  l_orguni_id_default
       else
-        l_orguni_id :=  dmodule.SingleValue('select id from org_units where name = '''+l_orguni+'''');
+        l_orguni_id :=  dmodule.SingleValue('select id from org_units where name = '''+l_orguni+''' or code = '''+l_orguni+'''');
       l_orguni_id := nvl(l_orguni_id, l_orguni_id_default);
 
       if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
@@ -201,7 +205,8 @@ begin
 	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id)'+
                              ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
                            , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
-                 addPermission ('LEC');
+                 pId := dmodule.SingleValue('select id from lecturers where integration_id = :integration_id','integration_id='+integrationId);
+                 addPermission ('LEC', pId);
                end;
             1: begin
                  if lowerCase(l_col4) = 'stacjonarne' then l_col4 := 'STATIONARY';
@@ -217,7 +222,8 @@ begin
                              ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :orguni_id, :integration_id)'+
                              ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
                            , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
-                 addPermission ('GRO');
+                 pId := dmodule.SingleValue('select id from groups where integration_id = :integration_id','integration_id='+integrationId);
+                 addPermission ('GRO', pId);
                end;
             2: begin
                  dmodule.SQL(myQuery
@@ -225,7 +231,8 @@ begin
 	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :orguni_id, :integration_id)'+
 		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id, orguni_id = :orguni_id'
                             , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+integrationId);
-                 addPermission ('ROM');
+                 pId := dmodule.SingleValue('select id from rooms where integration_id = :integration_id','integration_id='+integrationId);
+                 addPermission ('ROM', pId);
                end;
             3: begin
                  dmodule.SQL(myQuery
@@ -233,7 +240,8 @@ begin
                              ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :orguni_id, :integration_id)'+
                              ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
                            , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+integrationId);
-                 addPermission ('SUB');
+                 pId := dmodule.SingleValue('select id from subjects where integration_id = :integration_id','integration_id='+integrationId);
+                 addPermission ('SUB', pId);
                end;
             4: begin
                  if (l_col3<>'C') and (l_col3<>'R') then begin
@@ -244,7 +252,8 @@ begin
                              ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation, :name, :kind, :colour, :integration_id)'+
                              ' when matched then update set name=:name, kind=:kind, abbreviation = :abbreviation'
                            , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+integrationId);
-                 addPermission ('FOR');
+                 pId := dmodule.SingleValue('select id from forms where integration_id = :integration_id','integration_id='+integrationId);
+                 addPermission ('FOR', pId);
                end;
           end;
         except
@@ -285,7 +294,7 @@ begin
 
     if chbTest.Checked then begin
       dmodule.RollbackTrans;
-      info('Rekordy s¹ prawid³owe, dane nie zosta³y zapisane w bazie danych (uruchomienie testowe).'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+      info('Rekordy s¹ prawid³owe, dane nie zosta³y zapisane w bazie danych (uruchomienie testowe).'+cr+cr+' Liczba rekordów:' + intToStr(lineNum-2) );
     end
     else
     begin

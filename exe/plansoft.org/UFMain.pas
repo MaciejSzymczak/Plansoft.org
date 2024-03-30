@@ -992,6 +992,13 @@ type
     trackHistoryInstalled : boolean;
     MouseOverLeftPanel : boolean;
     AutoSaveCounterDown : integer;
+
+    PriorText : String;
+    PriorCol : Integer;
+    PriorRow : Integer;
+    //
+    emergencyExit : boolean;
+
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
     function  getCurrentObjectType : string;
@@ -2263,6 +2270,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                          Top, Left : Integer;
                          ComboBoxes : Array[1..8] Of TComboBox;
                          colR, colG, colB : ShortString;
+                         currText : string;
 
                      procedure ColorToRGB(I : Integer);
                      Var s: ShortString;
@@ -2333,8 +2341,36 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 
                    fontHeightInPixels := grid.Canvas.TextHeight('X');
 
+                   currText := '';
+
+                    For t := 1 To 5 Do begin
+                     code := getCode(ComboBoxes[t]);
+                     if  code= 'NONE'       then {}                                                                              else
+                     if  code= 'L'          then currText := currText + Class_.CALC_LECTURERS                                  else
+                     if  code= 'L+'         then currText := currText +  LecToNames (Class_.calc_lec_ids)                       else
+                     if  code= 'G'          then currText := currText + Class_.CALC_GROUPS                                      else
+                     if  code= 'S'          then currText := currText +  Class_.SUB_abbreviation                                 else
+                     if  code= 'F'          then currText := currText +  Class_.FOR_abbreviation                                 else
+                     if  code= 'SF'         then currText := currText +  Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')' else
+                     if  code= 'SF+'        then currText := currText +  Class_.sub_name+'('+Class_.FOR_abbreviation+')' else
+                     if  code= 'OWNER'      then currText := currText +  Class_.Owner                                            else
+                     if  code= 'CREATED_BY' then currText := currText +  Class_.Created_by                                       else
+                     if  code= 'DESC1'      then currText := currText +  Class_.desc1                                            else
+                     if  code= 'DESC2'      then currText := currText +  Class_.desc2                                            else
+                     if  code= 'DESC3'      then currText := currText +  Class_.desc3                                            else
+                     if  code= 'DESC4'      then currText := currText +  Class_.desc4                                            else
+                     if  code= 'ALL_RES'    then currText := currText +  Class_.CALC_ROOMS
+                   end;
+
+
+                   if (PriorRow = arow) and (PriorCol +1 = acol) and (currText = PriorText) then
+                   begin
+                    //Grid.Canvas.TextOut(Left, Top+((1-1)*fontHeightInPixels), inttostr(acol) + inttostr(arow) + currText + ':' + PriorText  )
+                   end
+                   else
                    For t := 1 To 5 Do begin
                      code := getCode(ComboBoxes[t]);
+                     if  code= 'NONE'       then {}                                                                                                                 else
                      if  code= 'L'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_LECTURERS )                                  else
                      if  code= 'L+'         then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), LecToNames (Class_.calc_lec_ids)  )                      else
                      if  code= 'G'          then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_GROUPS )                                     else
@@ -2344,7 +2380,6 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                      if  code= 'SF+'        then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.sub_name+'('+Class_.FOR_abbreviation+')') else
                      if  code= 'OWNER'      then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.Owner )                                           else
                      if  code= 'CREATED_BY' then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.Created_by )                                      else
-                     if  code= 'NONE'       then {}                                                                                                                 else
                      if  code= 'DESC1'      then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.desc1 )                                           else
                      if  code= 'DESC2'      then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.desc2 )                                           else
                      if  code= 'DESC3'      then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.desc3 )                                           else
@@ -2352,6 +2387,10 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                      if  code= 'ALL_RES'    then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_ROOMS )
                      else TextOutResource (t);
                    end;
+
+                   PriorText := currText;
+                   PriorCol := acol;
+                   PriorRow := arow;
                  End; // Generic
 
                  Var Colors : TColors;
@@ -4002,12 +4041,13 @@ Var aUserName, aPassword, aDBName : ShortString;
 
 begin
   inherited;
+  emergencyExit := false;
 
   gProvider         := GetSystemParam('Provider', 'OraOLEDB.Oracle.1');
   CanShow           := False;
   GridPanel.Visible := False;
 
-  DModule.CloseDBConnection;
+  DModule.CloseDBConnection(true);
 
   Result    := False;
   aUserName := nvl(getSystemParam('LoginUserName'),'PLANNER');
@@ -5374,7 +5414,7 @@ procedure TFMain.Pobierzdanezpliku1Click(Sender: TObject);
 begin
   CanShow := False;
   GridPanel.Visible := False;
-  dmodule.CloseDBConnection;
+  dmodule.CloseDBConnection(true);
   LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
   if FImp = nil then Application.CreateForm(TFImp, FImp);
   FIMP.ShowModal;
@@ -6993,6 +7033,7 @@ begin
       self.AlphaBlendValue := 255;
     end;
 
+    wlog('Closing');
     //CanClose and form was actually open
     if (CanClose) and (userLogged) then begin
       setSystemParam('SwitchMenu.Down', BoolToStr(SwitchMenu.Down));
@@ -7004,6 +7045,10 @@ end;
 
 procedure TFMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+try
+  //do not save data, just exit
+  if emergencyExit then exit;
+
   //save user from long queries
   if TreeMode.ItemIndex > 1 then TreeMode.ItemIndex := 0;
 
@@ -7018,9 +7063,16 @@ begin
    if flegend.Visible then FLegend.saveFormSettings;
  FLegend.SaveTimeTableNotes;
 
- DModule.CloseDBConnection;
+ DModule.CloseDBConnection(true);
  FcellLayout.Close;
  Stop;
+except
+ //error? closing the dbconnection try closing again
+ on e:exception do begin
+   emergencyExit :=true
+ end;
+end;
+
 end;
 
 procedure TFMain.gridFontApply(Sender: TObject; Wnd: HWND);

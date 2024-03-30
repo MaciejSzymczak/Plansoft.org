@@ -110,14 +110,14 @@ begin
 
   if extractFileName(SysUtils.lowercase(Application.exeName)) <> 'planowanie.exe' then begin
    serror('Wykryto próbê ominiêcia zabezpieczeñ programu (1). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. Application.exeName= ' + Application.exeName );
-   dmodule.CloseDBConnection;
-   halt;
+   dmodule.CloseDBConnection(true);
+   Application.Terminate;
   end;
 
   if lastDateRun > UUtilityParent.DateToYYYYMMDD_HHMMSSMI(now)  then begin
     serror('Zmieniono datê systemow¹ na tym komputerze, uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia');
-    dmodule.CloseDBConnection;
-    halt;
+    dmodule.CloseDBConnection(true);
+    Application.Terminate;
   end else begin
     encSetSystemParam('lastDateRun',UUtilityParent.DateToYYYYMMDD_HHMMSSMI(now));
     todayMarker := datetimeToTimeStamp ( DateUtils.Today ).Date;
@@ -133,8 +133,8 @@ begin
 
     if getTerminalName <> extractWord(2,licenseType,[';']) then begin
      serror('Wykryto próbê ominiêcia zabezpieczeñ programu (2). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. getTerminalName='+getTerminalName+' licenseType=' + licenseType);
-     dmodule.CloseDBConnection;
-     halt;
+     dmodule.CloseDBConnection(true);
+     Application.Terminate;
     end;
 
     licenseType := extractWord(1, encGetSystemParam('licenseType'),[';']);
@@ -145,8 +145,8 @@ begin
 
        if getTerminalName <> extractWord(2,installMarker,[';']) then begin
         serror('Wykryto próbê ominiêcia zabezpieczeñ programu (3). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. getTerminalName='+getTerminalName+' installMarker='+installMarker);
-        dmodule.CloseDBConnection;
-        halt;
+        dmodule.CloseDBConnection(true);
+        Application.Terminate;
        end;
 
       installDate := strToInt ( nvl( extractWord(1,installMarker,[';']), '0') );
@@ -155,7 +155,6 @@ begin
         info('Uruchomiono demonstracyjn¹ wersjê programu Planowanie. Mo¿esz korzystaæ z tej wersji programu jeszcze przez nastêpuj¹c¹ liczbê dni: ' + intToStr(daysRemaining));
       end else begin
         warning('Uruchomiono demonstracyjn¹ wersjê programu Planowanie. Nie mo¿esz ju¿ korzystaæ z tej wersji programu, poniewa¿ minê³o 120 dni od dnia, kiedy program zosta³ zainstalowany. Skontaktuj siê z dostawc¹ oprogramowania');
-        //dmodule.CloseDBConnection;
         Application.Terminate;
       end;
     end;

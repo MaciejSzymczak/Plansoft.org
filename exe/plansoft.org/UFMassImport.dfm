@@ -24,7 +24,7 @@ inherited FMassImport: TFMassImport
         Left = 112
         Top = 19
         Width = 252
-        Height = 238
+        Height = 150
         Caption = 'Jakie dane importujemy?'
         Items.Strings = (
           'Wyk'#322'adowcy'

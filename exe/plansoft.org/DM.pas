@@ -144,7 +144,7 @@ type
     Procedure RefreshLookupEdit(S : TForm; DBEditName, DisplayField, TableName, WhereClause : String);
     function  getDBType : string;
 
-    procedure CloseDBConnection;
+    procedure CloseDBConnection (CommitFlag : Boolean);
     function  commitTrans : boolean;
     procedure RollbackTrans;
 
@@ -237,8 +237,8 @@ begin
     if dmodule.pAbolitionTime <> '' then begin
       if copy(dmodule.pAbolitionTime,5,1) <> '.' then begin
         serror('Wykryto próbê ominiêcia zabezpieczeñ programu - abolition time. Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia');
-        dmodule.CloseDBConnection;
-        halt;
+        dmodule.CloseDBConnection(true);
+        Application.Terminate;
       end;
       if toDate < dmodule.pAbolitionTime then exit; //yyyy.mm.dd
     end;
@@ -247,8 +247,8 @@ begin
 
     if getTerminalName <> extractWord(2,installMarker,[';']) then begin
       serror('Wykryto próbê ominiêcia zabezpieczeñ programu (4). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia getTerminalName='+getTerminalName+' installMarker=' + installMarker);
-      dmodule.CloseDBConnection;
-      halt;
+      dmodule.CloseDBConnection(true);
+      Application.Terminate;
     end;
 
     //installDate := strToInt ( nvl( extractWord(1,installMarker,[';']), '0') );
@@ -463,9 +463,14 @@ Begin
  End;
  logSQLStop;
  except
-  //Set DModule.ADOConnection.Connected = false
-  CloseDBConnection;
-  raise;
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     //cases issues in FMassImport
+     //CloseDBConnection (false);
+     //dModule.ADOConnection.open;
+     //dmodule.ADOConnection.BeginTrans;
+     raise;
+   end;
  End;
 End;
 
@@ -504,8 +509,14 @@ Begin
  End;
   logSQLStop;
  except
-  CloseDBConnection;
-  raise;
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     //cases issues in FMassImport
+     //CloseDBConnection (false);
+     //dModule.ADOConnection.open;
+     //dmodule.ADOConnection.BeginTrans;
+     raise;
+   end;
  End;
 End;
 
@@ -925,15 +936,19 @@ Begin
 End;
 
 //----------------------------------------------------------------
-procedure tdmodule.CloseDBConnection;
+procedure tdmodule.CloseDBConnection (CommitFlag : Boolean);
 begin
  with dmodule.ADOConnection do
  begin
   if dmodule.ADOConnection.InTransaction then begin
    try
-     CommitTrans;
+     if CommitFlag then
+       Dmodule.CommitTrans
+     else
+       Dmodule.RollbackTrans;
    except
-     info('Brak po³¹czenia z baz¹ danych, zmiany mog³y zostaæ nie zapisane. Proszê ponownie uruchomiæ program');
+     fmain.emergencyExit := true;  
+     info('Ups, utracono po³¹czenie z baz¹ danych. Proszê ponownie uruchomiæ program');
    end;
    //Attributes :=  dmodule.ADOConnection.Attributes - [xaCommitRetaining];
    //Attributes :=  dmodule.ADOConnection.Attributes - [xaAbortRetaining];

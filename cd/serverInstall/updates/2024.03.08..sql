@@ -9,6 +9,7 @@ create sequence owner_seq;
 create or replace type t_number_list is table of number;
 create public synonym owners for owners;
 CREATE GLOBAL TEMPORARY TABLE HELPER_RES (ID NUMBER) ON COMMIT DELETE ROWS;
+create public synonym HELPER_RES for HELPER_RES;
 
 *** PACKAGES INSTALLATION: PLANNER_UTILS
 
