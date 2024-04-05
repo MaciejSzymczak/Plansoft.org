@@ -2359,7 +2359,8 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                      if  code= 'DESC2'      then currText := currText +  Class_.desc2                                            else
                      if  code= 'DESC3'      then currText := currText +  Class_.desc3                                            else
                      if  code= 'DESC4'      then currText := currText +  Class_.desc4                                            else
-                     if  code= 'ALL_RES'    then currText := currText +  Class_.CALC_ROOMS
+                     if  code= 'ALL_RES'    then currText := currText +  Class_.CALC_ROOMS  else
+                     currText := currText + ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
                    end;
 
 
@@ -2387,6 +2388,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                      if  code= 'ALL_RES'    then Grid.Canvas.TextOut(Left, Top+((T-1)*fontHeightInPixels), Class_.CALC_ROOMS )
                      else TextOutResource (t);
                    end;
+
 
                    PriorText := currText;
                    PriorCol := acol;
