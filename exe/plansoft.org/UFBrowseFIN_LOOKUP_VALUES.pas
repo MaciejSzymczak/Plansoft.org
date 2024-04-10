@@ -137,11 +137,7 @@ end;
 
 function TFBrowseFIN_LOOKUP_VALUES.getSearchFilter: string;
 begin
- result := '(xxmsz_tools.erasePolishChars(upper(fin_lookup_values.lookup_type||fin_lookup_values.description||fin_lookup_values.str_key||'' ''||fin_lookup_values.aux_desc1||'' ''||fin_lookup_values.aux_desc2'+
-           '|| fin_lookup_values.attribs_01||fin_lookup_values.attribs_02||fin_lookup_values.attribs_03||fin_lookup_values.attribs_04'+
-           '||fin_lookup_values.attribs_05||fin_lookup_values.attribs_06||fin_lookup_values.attribs_07||fin_lookup_values.attribs_08'+
-           '||fin_lookup_values.attribs_09||fin_lookup_values.attribs_10||fin_lookup_values.attribs_11||fin_lookup_values.attribs_12||fin_lookup_values.attribs_13||fin_lookup_values.attribs_14||fin_lookup_values.attribs_15'+
-           ')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+ result := buildFilter(sql_LOOKUP_SEARCH, ESearch.Text);
 end;
 
 end.

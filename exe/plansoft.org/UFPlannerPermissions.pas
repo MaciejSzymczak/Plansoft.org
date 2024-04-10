@@ -243,7 +243,7 @@ begin
    ROLGrid.ColCount := QWork.RecordCount+1;
 
    fmain.wlog ('FplannerPermissions : LECTURERS');
-   OPENSQL2('SELECT ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%'') ORDER BY LAST_NAME, FIRST_NAME');
+   OPENSQL2('SELECT ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS where id>0 and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%'') ORDER BY LAST_NAME, FIRST_NAME');
    LGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -256,7 +256,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : GROUPS');
-   OPENSQL2('SELECT ID, '+sql_GRONAME+' NAME FROM GROUPS where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getrowSearch+'%'') ORDER BY '+sql_GRONAME);
+   OPENSQL2('SELECT ID, '+sql_GRONAME+' NAME FROM GROUPS where id>0 and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getrowSearch+'%'') ORDER BY '+sql_GRONAME);
    GGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -269,7 +269,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : ROOMS');
-   OPENSQL2('SELECT ID, '+sql_ResCat0NAME+' FROM ROOMS where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_ResCat0NAME);
+   OPENSQL2('SELECT ID, '+sql_ResCat0NAME+' FROM ROOMS where id>0 and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_ResCat0NAME);
    RGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -282,7 +282,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : SUBJECTS');
-   OPENSQL2('SELECT ID, '+sql_SUBNAME+' FROM SUBJECTS where nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_SUBNAME);
+   OPENSQL2('SELECT ID, '+sql_SUBNAME+' FROM SUBJECTS where id>0 and nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_SUBNAME);
    SubGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -296,7 +296,7 @@ begin
 
 
    fmain.wlog ('FplannerPermissions : FORMS');
-   OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_FORNAME);
+   OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_FORNAME);
    FORGrid.RowCount := QWork2.RecordCount+1;
    fmain.wlog ('FplannerPermissions : cnt=' + inttostr(QWork2.RecordCount+1));
    y := 1;
@@ -326,12 +326,12 @@ begin
   End;
 
   fmain.wlog ('FplannerPermissions : before LoadCells');
-  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
-  LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where id>0 and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where id>0 and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where id>0 and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
+  LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where id>0 and nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where id>0 and nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   fmain.wlog ('FplannerPermissions : after LoadCells');
 
   LChanged := False;

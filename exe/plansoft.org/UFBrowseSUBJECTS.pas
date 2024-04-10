@@ -270,9 +270,10 @@ begin
 
 end;
 
+
 function TFBrowseSUBJECTS.getSearchFilter: string;
 begin
- result := format(sql_SUB_SEARCH, [ replacePolishChars( ansiuppercase(trim(ESearch.Text)) ) ]);
+ result := buildFilter(sql_SUB_SEARCH, ESearch.Text);
 end;
 
 function TFBrowseSUBJECTS.getFindCaption: string;

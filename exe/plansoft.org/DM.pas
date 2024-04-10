@@ -40,6 +40,11 @@ Const MaxAllLecturers     =   5000;
       sql_PERNAME         = 'NAME';
       sql_PLANAME         = 'NAME';
 
+      sql_LEC_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||lecturers.abbreviation||lecturers.title||'' ''||lecturers.first_name||'' ''||lecturers.last_name'+
+           '||lecturers.email||lecturers.diff_message|| lecturers.attribs_01||lecturers.attribs_02||lecturers.attribs_03||lecturers.attribs_04'+
+           '||lecturers.attribs_05||lecturers.attribs_06||lecturers.attribs_07||lecturers.attribs_08||lecturers.attribs_09||lecturers.attribs_10||lecturers.attribs_11||lecturers.attribs_12||lecturers.attribs_13||lecturers.attribs_14||lecturers.attribs_15'+
+           '||lecturers.desc1||lecturers.desc2||''#''||lecturers.integration_id||''#'')) like ''%%%s%%'')';
+
       sql_SUB_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||subjects.abbreviation||subjects.desc1||subjects.desc2||subjects.name|| subjects.attribs_01||subjects.attribs_02||subjects.attribs_03||subjects.attribs_04||subjects.attribs_05'+
           '||subjects.attribs_06||subjects.attribs_07||subjects.attribs_08||subjects.attribs_09||subjects.attribs_10||subjects.attribs_11||'
           +'subjects.attribs_12||subjects.attribs_13||subjects.attribs_14||subjects.attribs_15||''#''||subjects.integration_id||''#'')) like ''%%%s%%'')';
@@ -47,6 +52,33 @@ Const MaxAllLecturers     =   5000;
       sql_FOR_SEARCH      = '(xxmsz_tools.erasePolishChars(upper(forms.abbreviation||forms.name||forms.attribs_01||forms.attribs_02||forms.attribs_03||forms.attribs_04'+
            '||forms.attribs_05||forms.attribs_06||forms.attribs_07||forms.attribs_08||forms.attribs_09||forms.attribs_10||forms.attribs_11||forms.attribs_12||forms.attribs_13||forms.attribs_14||forms.attribs_15'+
            '||forms.desc1||forms.desc2||''#''||forms.integration_id||''#'')) like ''%%%s%%'')';
+
+      sql_GRO_SEARCH     =  '(xxmsz_tools.erasePolishChars(upper(org_units.name||groups.name||groups.abbreviation||groups.email||groups.desc1||groups.desc2||groups.attribs_01||groups.attribs_02||groups.attribs_03||groups.attribs_04||groups.attribs_05||groups.attribs_06'+
+           '||groups.attribs_07||groups.attribs_08||groups.attribs_09||groups.attribs_10||groups.attribs_11||groups.attribs_12||groups.attribs_13||groups.attribs_14||groups.attribs_15||''#''||groups.integration_id||''#'')) like ''%%%s%%'')';
+
+      sql_ROM_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(org_units.name||rooms.name||rooms.desc1||rooms.desc2||rooms.attribs_01||rooms.email||rooms.attribs_01||rooms.attribs_02||rooms.attribs_03||rooms.attribs_04||rooms.attribs_05||rooms.attribs_06'+
+           '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15||''#''||rooms.integration_id||''#'')) like ''%%%s%%'''+
+           ' OR ''#''||xxmsz_tools.erasePolishChars(upper(rooms.attribs_01)) like ''%%%s%%'')';
+
+      sql_PER_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(periods.created_by||periods.name||periods.desc1||periods.desc2||periods.attribs_01||periods.attribs_02||periods.attribs_03||periods.attribs_04||periods.attribs_05||periods.attribs_06||periods.attribs_07'+
+           '||periods.attribs_08||periods.attribs_09||periods.attribs_10||periods.attribs_11||periods.attribs_12||periods.attribs_13||periods.attribs_14||periods.attribs_15||''#''||periods.integration_id||''#'')) like ''%%%s%%'')';
+
+      sql_COM_SEARCH     ='(TT_COMBINATIONS.Id||''#''||xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title||''#''||lec.integration_id '+
+          '||''#''||gro.abbreviation||''#''||gro.integration_id||''#''||rom.name||'' ''||substr(rom.attribs_01,1,55)||''#''||rom.integration_id'+
+          '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
+          '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
+          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15||''#''||TT_COMBINATIONS.integration_id'+
+           '||''#''||res.name||'' ''||substr(res.attribs_01,1,55)||''#''||res.integration_id||''#''||sub.name||''#''||sub.integration_id'+
+           '||''#''||xfor.name||''#''||xfor.abbreviation||''#''||xfor.integration_id||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%%%s%%'')';
+
+      sql_LOOKUP_SEARCH     ='(xxmsz_tools.erasePolishChars(upper(fin_lookup_values.lookup_type||fin_lookup_values.description||fin_lookup_values.str_key||'' ''||fin_lookup_values.aux_desc1||'' ''||fin_lookup_values.aux_desc2'+
+           '|| fin_lookup_values.attribs_01||fin_lookup_values.attribs_02||fin_lookup_values.attribs_03||fin_lookup_values.attribs_04'+
+           '||fin_lookup_values.attribs_05||fin_lookup_values.attribs_06||fin_lookup_values.attribs_07||fin_lookup_values.attribs_08'+
+           '||fin_lookup_values.attribs_09||fin_lookup_values.attribs_10||fin_lookup_values.attribs_11||fin_lookup_values.attribs_12||fin_lookup_values.attribs_13||fin_lookup_values.attribs_14||fin_lookup_values.attribs_15'+
+           ')) like ''%%%s%%'')';
+
+      sql_HINTS_SEARCH = '(xxmsz_tools.erasePolishChars(upper(to_char(res_hints.day,''yyyy-mm-dd'')||grids.caption||res_hints.ratio||resources.name||res_hints.created_by||res_hints.last_updated_by)) like ''%%%s%%'')';
+
 
       sql_LECDESC         = 'SELECT '+sql_LECNAME+    ' FROM LECTURERS WHERE ID=';
       sql_GRODESC         = 'SELECT '+sql_GRONAME+    ' FROM groups WHERE ID=';

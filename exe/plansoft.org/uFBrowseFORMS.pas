@@ -244,7 +244,7 @@ end;
 
 function TFBrowseFORMS.getSearchFilter: string;
 begin
- result := format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(ESearch.Text)) ) ]);    
+ result := buildFilter(sql_FOR_SEARCH, ESearch.Text);
 end;
 
 function TFBrowseFORMS.getFindCaption: string;

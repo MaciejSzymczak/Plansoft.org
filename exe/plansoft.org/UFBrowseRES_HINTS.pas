@@ -28,7 +28,7 @@ implementation
 
 {$R *.dfm}
 
-Uses UUtilityParent;
+Uses UUtilityParent, DM;
 
 { TFBrowseRES_HINTS }
 
@@ -59,7 +59,7 @@ end;
 
 function TFBrowseRES_HINTS.getSearchFilter: string;
 begin
- result := '(xxmsz_tools.erasePolishChars(upper(to_char(res_hints.day,''yyyy-mm-dd'')||grids.caption||res_hints.ratio||resources.name||res_hints.created_by||res_hints.last_updated_by)) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
+ result := buildFilter(sql_HINTS_SEARCH, ESearch.Text);
 end;
 
 end.

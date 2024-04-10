@@ -1368,15 +1368,8 @@ end;
 
 function TFBrowseTT_COMBINATIONS.getSearchFilter: string;
 begin
- result := '(TT_COMBINATIONS.Id||''#''||xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title||''#''||lec.integration_id '+
-          '||''#''||gro.abbreviation||''#''||gro.integration_id||''#''||rom.name||'' ''||substr(rom.attribs_01,1,55)||''#''||rom.integration_id'+
-          '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
-          '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
-          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15||''#''||TT_COMBINATIONS.integration_id'+
-           '||''#''||res.name||'' ''||substr(res.attribs_01,1,55)||''#''||res.integration_id||''#''||sub.name||''#''||sub.integration_id'+
-           '||''#''||xfor.name||''#''||xfor.abbreviation||''#''||xfor.integration_id||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%'')';
-
- end;
+ result := buildFilter(sql_COM_SEARCH, ESearch.Text);
+end;
 
 procedure TFBrowseTT_COMBINATIONS.BRecalculateAllQuickClick(Sender: TObject);
 begin

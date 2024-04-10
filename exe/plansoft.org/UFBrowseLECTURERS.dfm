@@ -77,7 +77,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             Expanded = False
             FieldName = 'LAST_NAME'
             Title.Caption = 'Nazwisko'
-            Width = 133
+            Width = 200
             Visible = True
           end
           item
@@ -351,6 +351,20 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
             FieldName = 'DIFF_NOTIFICATIONS'
             Title.Caption = 'Email o zmianach'
             Width = 105
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'EMAIL'
+            Title.Caption = 'Email'
+            Width = 400
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DIFF_MESSAGE'
+            Title.Caption = 'B'#322#261'd podczas powiadamiania'
+            Width = 800
             Visible = True
           end>
       end
@@ -1961,7 +1975,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       '  start with child_id=:id'
       'order by level desc')
     Left = 100
-    Top = 252
+    Top = 276
   end
   object QDetails: TADOQuery
     Connection = DModule.ADOConnection
@@ -1996,6 +2010,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         'd = parent_id  '
       '  start with parent_id=:ID')
     Left = 52
-    Top = 260
+    Top = 292
   end
 end

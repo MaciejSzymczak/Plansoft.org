@@ -426,7 +426,7 @@ type
    Procedure ApplyGridLayout;
 
    function getSelectedIds : string;
-
+   function buildFilter(sql_SEARCH : string; searchString : string) : string;
   end;
 
 var
@@ -3608,6 +3608,24 @@ begin
     ids := merge(ids, Query.FieldByName('ID').AsString, ',');
   End;
   result := ids;
+end;
+
+function TFBrowseParent.buildFilter(sql_SEARCH : string; searchString : string) : string;
+  Var normalizedSearchString : string;
+  var t : Integer;
+  var tmpStr, currentToken : string;
+begin
+  tmpStr := '';
+  normalizedSearchString :=  replacePolishChars( ansiuppercase(trim(searchString)) );
+     for t := 1 to wordCount(normalizedSearchString,[',']) do
+     begin
+        currentToken := extractWord(t,normalizedSearchString,[',']);
+        if currentToken <> '' then
+          tmpStr := merge(tmpStr, format(sql_SEARCH, [ currentToken ]) ,' or ')
+     end;
+
+ result :=
+     '(' +  tmpStr + ')';
 end;
 
 End.
