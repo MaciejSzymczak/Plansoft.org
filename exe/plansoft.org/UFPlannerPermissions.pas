@@ -358,7 +358,7 @@ begin
 
  FindPane.Enabled := true;
  brefresh.Visible := not chRefresh.Checked;
- Psearch.Text := CurrentUserName;
+ //Psearch.Text := CurrentUserName;
  LoadGrid;
 end;
 

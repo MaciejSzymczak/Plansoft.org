@@ -30,6 +30,7 @@ type
     D6: TComboBox;
     D7: TComboBox;
     D8: TComboBox;
+    HideTheSameDesc: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure cellTimerTimer(Sender: TObject);
     procedure CellColorChange(Sender: TObject);
@@ -49,6 +50,7 @@ type
     procedure descriptionsMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure HideTheSameDescClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -261,6 +263,11 @@ begin
 
  end;
 
+end;
+
+procedure TFCellLayout.HideTheSameDescClick(Sender: TObject);
+begin
+ refreshLayout;
 end;
 
 end.

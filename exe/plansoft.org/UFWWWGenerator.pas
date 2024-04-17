@@ -1121,7 +1121,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
           MaxL : Integer;
           ChildsAndParents : string;
     begin
-    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';  //!!bookmark!!
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
     For LegendRowNumber := 1 To High(Lgnd) Do Begin

@@ -5,8 +5,8 @@ object FCellLayout: TFCellLayout
   AlphaBlendValue = 250
   BorderStyle = bsNone
   Caption = 'FCellLayout'
-  ClientHeight = 276
-  ClientWidth = 387
+  ClientHeight = 294
+  ClientWidth = 392
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,7 +24,7 @@ object FCellLayout: TFCellLayout
     Left = 0
     Top = 0
     Width = 377
-    Height = 273
+    Height = 289
     Pen.Mode = pmMask
     Shape = stRoundRect
   end
@@ -97,10 +97,10 @@ object FCellLayout: TFCellLayout
       Style = csOwnerDrawFixed
       DropDownCount = 25
       ItemHeight = 16
-      ItemIndex = 0
+      ItemIndex = 2
       MaxLength = 255
       TabOrder = 0
-      Text = 'Wyk'#322'adowcy'
+      Text = 'Zasoby'
       OnChange = CellColorChange
       Items.Strings = (
         'Wyk'#322'adowcy'
@@ -219,8 +219,10 @@ object FCellLayout: TFCellLayout
       Style = csOwnerDrawFixed
       DropDownCount = 25
       ItemHeight = 16
+      ItemIndex = 10
       MaxLength = 255
       TabOrder = 0
+      Text = '<dummy>'
       OnChange = D1Change
       Items.Strings = (
         '<dummy>'
@@ -277,8 +279,10 @@ object FCellLayout: TFCellLayout
       Style = csOwnerDrawFixed
       DropDownCount = 25
       ItemHeight = 16
+      ItemIndex = 0
       MaxLength = 255
       TabOrder = 1
+      Text = '<dummy>'
       OnChange = D1Change
       Items.Strings = (
         '<dummy>'
@@ -335,8 +339,10 @@ object FCellLayout: TFCellLayout
       Style = csOwnerDrawFixed
       DropDownCount = 25
       ItemHeight = 16
+      ItemIndex = 2
       MaxLength = 255
       TabOrder = 2
+      Text = '<dummy>'
       OnChange = D1Change
       Items.Strings = (
         '<dummy>'
@@ -393,8 +399,10 @@ object FCellLayout: TFCellLayout
       Style = csOwnerDrawFixed
       DropDownCount = 25
       ItemHeight = 16
+      ItemIndex = 6
       MaxLength = 255
       TabOrder = 3
+      Text = '<dummy>'
       OnChange = D1Change
       Items.Strings = (
         '<dummy>'
@@ -675,6 +683,17 @@ object FCellLayout: TFCellLayout
         '<dummy>'
         '<dummy>')
     end
+  end
+  object HideTheSameDesc: TCheckBox
+    Left = 96
+    Top = 264
+    Width = 193
+    Height = 17
+    Caption = 'Ukryj takie same opisy'
+    Checked = True
+    State = cbChecked
+    TabOrder = 3
+    OnClick = HideTheSameDescClick
   end
   object cellTimer: TTimer
     Enabled = False

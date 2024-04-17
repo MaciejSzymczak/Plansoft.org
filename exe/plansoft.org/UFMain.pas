@@ -1805,13 +1805,15 @@ end;
 
 procedure TFMain.BDICTLECClick(Sender: TObject);
 begin
-  LECTURERSShowModalAsBrowser('');
+  _selectL (true);
+  //LECTURERSShowModalAsBrowser('');
   deepRefreshDelayed;
 end;
 
 procedure TFMain.BDICTGROClick(Sender: TObject);
 begin
-  GROUPSShowModalAsBrowser('');
+  _selectG (true);
+  //GROUPSShowModalAsBrowser('');
   deepRefreshDelayed;
 end;
 
@@ -2363,8 +2365,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                      currText := currText + ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
                    end;
 
-
-                   if (PriorRow = arow) and (PriorCol +1 = acol) and (currText = PriorText) then
+                   if (FCellLayout.HideTheSameDesc.Checked) and (PriorRow = arow) and (PriorCol +1 = acol) and (currText = PriorText) then
                    begin
                     //Grid.Canvas.TextOut(Left, Top+((1-1)*fontHeightInPixels), inttostr(acol) + inttostr(arow) + currText + ':' + PriorText  )
                    end
@@ -9076,6 +9077,7 @@ begin
   FCellLayout.D6.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D6','-1') );
   FCellLayout.D7.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D7','-1') );
   FCellLayout.D8.ItemIndex         := StrToInt ( Pulpit.getValue(prefix+'.CELL_D8','-1') );
+  FCellLayout.HideTheSameDesc.Checked   := StrToBool( Pulpit.getValue(prefix+'.HideTheSameDesc','-') );
   gridFont.Font.Size               := strToInt( Pulpit.getValue(prefix+'.GRIDFONT.SIZE',  inttostr(grid.Canvas.Font.size)  ) );
   gridFont.Font.Name               :=           Pulpit.getValue(prefix+'.GRIDFONT.NAME',  grid.Canvas.Font.name  );
   FcellLayout.ForceCellHeight.checked   := StrToBool( Pulpit.getValue(prefix+'.FORCECELLHEIGHT','-') );
@@ -9089,6 +9091,7 @@ begin
   DrawSuppressionS.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONS','-') );
   DrawSuppressionF.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONF','-') );
   RespectCompletions.checked            := StrToBool( Pulpit.getValue(prefix+'.RESPECTCOMPLETIONS','-') );
+
 
   CanBuildCalendar := true;
 end;
@@ -9127,6 +9130,7 @@ begin
    dbSetSystemParam(prefix+'.CELL_D6',      IntToStr(FCellLayout.D6.ItemIndex)  );
    dbSetSystemParam(prefix+'.CELL_D7',      IntToStr(FCellLayout.D7.ItemIndex)  );
    dbSetSystemParam(prefix+'.CELL_D8',      IntToStr(FCellLayout.D8.ItemIndex)  );
+   dbSetSystemParam(prefix+'.HideTheSameDesc'       , BoolToStr(FCellLayout.HideTheSameDesc.Checked) );
    dbSetSystemParam(prefix+'.GRIDFONT.SIZE'        , inttostr(gridFont.Font.Size) );
    dbSetSystemParam(prefix+'.GRIDFONT.NAME'        , gridFont.Font.name);
    dbSetSystemParam(prefix+'.FORCECELLWIDTH'       , BoolToStr(FcellLayout.ForceCellWidth.Checked) );

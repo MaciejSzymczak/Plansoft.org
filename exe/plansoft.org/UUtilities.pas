@@ -228,7 +228,7 @@ begin
   //childs
   'select child_id id'+cr+
   '  from str_elems_v'+cr+
-  '  where level=1 and STR_NAME_LOV=''STREAM'''+cr+
+  '  where level=1 and STR_NAME_LOV=''STREAM'''+exclParent+cr+        //!!bookmark!!
   '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
   '  start with parent_id=:id2'+cr+
   ')';

@@ -163,6 +163,7 @@ type
     chlcountHelp: TSpeedButton;
     ChIntegration_Id: TCheckBox;
     SpeedButton1: TSpeedButton;
+    OtwrzwExcel1: TMenuItem;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -227,6 +228,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure chlcountHelpClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure OtwrzwExcel1Click(Sender: TObject);
   private
      sortOrder : string[255];
      defaultText : string;
@@ -1135,9 +1137,6 @@ end;
 procedure TFGrouping.SaveCsvClick(Sender: TObject);
 begin
   if not query.Active then BRefreshClick(BRefresh);
-  //SaveAsCsv is obsolete and replaced by ExportToExcel
-  //@@@!!! todo: merge  ExportToExcel (the same code is this module and in BrowseParent)
-  //SaveAsCsv( applicationDocumentsPath + 'temp.csv' );
   Dmodule.ExportToExcel(grid);
 end;
 
@@ -1674,5 +1673,11 @@ begin
 
 end;
 
+
+procedure TFGrouping.OtwrzwExcel1Click(Sender: TObject);
+begin
+  if not query.Active then BRefreshClick(BRefresh);
+  SaveAsCsv( applicationDocumentsPath + 'temp.csv' );
+end;
 
 end.

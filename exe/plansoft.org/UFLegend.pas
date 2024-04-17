@@ -746,10 +746,10 @@ begin
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
-      iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where is_child=''N'' and lec_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where is_child=''N'' and gro_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where is_child=''N'' and rom_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where is_child=''N'' and rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where lec_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
       iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
