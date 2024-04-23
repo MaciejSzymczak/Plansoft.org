@@ -57,8 +57,8 @@ Const MaxAllLecturers     =   5000;
            '||groups.attribs_07||groups.attribs_08||groups.attribs_09||groups.attribs_10||groups.attribs_11||groups.attribs_12||groups.attribs_13||groups.attribs_14||groups.attribs_15||''#''||groups.integration_id||''#'')) like ''%%%s%%'')';
 
       sql_ROM_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(org_units.name||rooms.name||rooms.desc1||rooms.desc2||rooms.attribs_01||rooms.email||rooms.attribs_01||rooms.attribs_02||rooms.attribs_03||rooms.attribs_04||rooms.attribs_05||rooms.attribs_06'+
-           '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15||''#''||rooms.integration_id||''#'')) like ''%%%s%%'''+
-           ' OR ''#''||xxmsz_tools.erasePolishChars(upper(rooms.attribs_01)) like ''%%%s%%'')';
+           '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15||''#''||rooms.integration_id||''#'')) like ''%%%s%%'')';
+           //' OR ''#''||xxmsz_tools.erasePolishChars(upper(rooms.attribs_01)) like ''%%%s%%'')';
 
       sql_PER_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(periods.created_by||periods.name||periods.desc1||periods.desc2||periods.attribs_01||periods.attribs_02||periods.attribs_03||periods.attribs_04||periods.attribs_05||periods.attribs_06||periods.attribs_07'+
            '||periods.attribs_08||periods.attribs_09||periods.attribs_10||periods.attribs_11||periods.attribs_12||periods.attribs_13||periods.attribs_14||periods.attribs_15||''#''||periods.integration_id||''#'')) like ''%%%s%%'')';
