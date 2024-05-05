@@ -409,7 +409,7 @@ end;
 procedure TFDatabaseLogin.Label1DblClick(Sender: TObject);
 begin
   inherited;
-  DatabaseName.Text := '127.0.0.1:1521/xe';
+  DatabaseName.Text := '127.0.0.1:1521/XEPDB1';
   //DatabaseName.Text := '127.0.0.1:1521/XEPDB1';
   //info('Najnowsza baza danych Oracle: wpisz XEPDB1.'+cr+'Starsze wersje bazy danych Oracle: wpisz XE')
 end;

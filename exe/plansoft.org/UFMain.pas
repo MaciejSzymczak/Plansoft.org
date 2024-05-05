@@ -4078,7 +4078,6 @@ begin
 
   if loginParamsDelivered then
   Begin
-   if upperCase(aDBName) = 'WAT'  then aDBName := 'planner.wat.edu.pl:1522/planner';
    if upperCase(aDBName) = 'DOK'  then aDBName := 'prddokplanner.wat.edu.pl:1521/xe';
    if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
    if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
@@ -4107,6 +4106,7 @@ begin
 
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
+  DModule.SQL('ALTER SESSION SET NLS_SORT=POLISH');
 
   activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
