@@ -309,7 +309,7 @@ begin
     insert into rom_pla (id, rom_id, pla_id)
         select rompla_seq.nextval, rom_id, pla_id
         from (
-        select rom.id rom_id, p.id pla_id from rooms rom, planners p
+        select rom.id rom_id, p.id pla_id from rooms rom, planners p where upper(rom.name) not like '%STREAMING%'
         minus
         select rom_id, pla_id from rom_pla
         );
