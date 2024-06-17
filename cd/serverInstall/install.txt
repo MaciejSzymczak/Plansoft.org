@@ -37,3 +37,13 @@ c. Perform the steps described here
 ORACLE_11G			 http://plansoft.org/InstallServer.zip
 ORACLE_11G_CLIENT		 http://plansoft.org/InstallClient.zip
 ORACLE_11G_SQL_DEVELOPER		 http://plansoft.org/InstallDev.zip
+
+STEP 4 BACKUPS
+================
+Install 7zip
+Install Winscp
+	Setup and save stored session
+	Winscp : Options : Preferrences : Updates : Disable automatic updates
+Create plansoftOrgbackup.bat script for data export, zip and ftp transfer, like this one:
+	https://github.com/MaciejSzymczak/Plansoft.org/blob/master/exe/RelatedApplications/script_export_db/export_zip_and_send.bat
+Schedule the plansoftOrgbackup.bat using taskManager.

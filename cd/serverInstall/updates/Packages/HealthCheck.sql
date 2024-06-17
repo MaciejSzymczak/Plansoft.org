@@ -60,9 +60,9 @@ table, th, td {
 ');    
 
 WriteToClob(res,'
-  <h1>Nie wysłane powiadomienia EMAIL</h1>
+  <h1>Nie wyslane powiadomienia EMAIL</h1>
   <table>');  
- WriteToClob(res, '<tr><th>Id</th><th>Email</th><th>Tytuł</th><th>Imię</th><th>Nazwisko</th><th>Utworzył</th><th>Komunikat</th></tr>'||chr(13)||chr(10));
+ WriteToClob(res, '<tr><th>Id</th><th>Email</th><th>Tytul</th><th>Imie</th><th>Nazwisko</th><th>Utworzyl</th><th>Komunikat</th></tr>'||chr(13)||chr(10));
  for rec in (
      select id, email, title, first_name, last_name, created_by, diff_message 
        from lecturers 
@@ -85,10 +85,10 @@ WriteToClob(res,'
 WriteToClob(res,'
   <h1>Blokady</h1>
   <table>');  
- WriteToClob(res, '<tr><th>Blokujący/Oczekujący</th><th>Kill</th><th>Terminal</th><th>Szczególy</th></tr>'||chr(13)||chr(10));
+ WriteToClob(res, '<tr><th>Blokujacy/Oczekujacy</th><th>Kill</th><th>Terminal</th><th>Szczególy</th></tr>'||chr(13)||chr(10));
  for rec in (
     select 
-       substr(decode (l.request, 0, 'Blokujący: ','Oczekujący: ')||''''||l.sid||','||s.serial#||'''',1,20) sess
+       substr(decode (l.request, 0, 'Blokujacy: ','Oczekujacy: ')||''''||l.sid||','||s.serial#||'''',1,20) sess
        , (SELECT 'ALTER SYSTEM KILL SESSION '''|| SID ||',' ||SERIAL#||'''' FROM SYS.V_$SESSION WHERE SID = L.SID) KILL_STATEMENT
        , terminal
        , program         
@@ -130,12 +130,12 @@ WriteToClob(res,'
 
 
 WriteToClob(res,'
-  <h1>Do usunięcia (Utworzone min. pięć lat temu i brak zajęć od pięciu lat)</h1>
+  <h1>Do usuniecia (Utworzone min. piec lat temu i brak zajec od pieciu lat)</h1>
   <table>');  
- WriteToClob(res, '<tr><th>Typ</th><th>Nazwa</th><th>Id</th><th>Utworzył</th></tr>'||chr(13)||chr(10));
+ WriteToClob(res, '<tr><th>Typ</th><th>Nazwa</th><th>Id</th><th>Utworzyl</th></tr>'||chr(13)||chr(10));
  for rec in (
     select * from (
-    select 'WYKŁADOWCA' type, id, TITLE||' '||LAST_NAME||' '||FIRST_NAME||'   ('||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||')' Name, created_by from lecturers where creation_date < sysdate - 5*365 and COUNT5Y =0
+    select 'WYKLADOWCA' type, id, TITLE||' '||LAST_NAME||' '||FIRST_NAME||'   ('||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||')' Name, created_by from lecturers where creation_date < sysdate - 5*365 and COUNT5Y =0
     union all
     select 'GRUPA',id, nvl(abbreviation,name), created_by from groups where creation_date < sysdate - 5*365  and COUNT5Y =0
     union all
@@ -159,13 +159,12 @@ WriteToClob(res,'
 WriteToClob(res,'
   </table>');  
 
-
 WriteToClob(res,'
-  <h1>Zajęcia do skasowania / zarchiwizowania</h1>
+  <h1>Zajecia do skasowania / zarchiwizowania</h1>
   <table>');  
- WriteToClob(res, '<tr><th>Liczba zajęć</th><th>Rok</th><th>Alert</th></tr>'||chr(13)||chr(10));
+ WriteToClob(res, '<tr><th>Liczba zajec</th><th>Rok</th><th>Alert</th></tr>'||chr(13)||chr(10));
  for rec in (
-    select count, yyyy, case when to_char(sysdate,'yyyy')- yyyy >5 then '*** Zarchiwizuj lub skasuj te zajęcia' else 'W porządku' end alert from
+    select count, yyyy, case when to_char(sysdate,'yyyy')- yyyy >5 then '*** Zarchiwizuj lub skasuj te zajecia' else 'W porzadku' end alert from
     (
     select count(1) count, to_char(day,'yyyy') yyyy from classes group by to_char(day,'yyyy')
     )
@@ -179,6 +178,28 @@ WriteToClob(res,'
  end loop;
 WriteToClob(res,'
   </table>');  
+
+
+WriteToClob(res,'
+  <h1>Ulubione terminy do skasowania / zarchiwizowania</h1>
+  <table>');  
+ WriteToClob(res, '<tr><th>Liczba rekordów</th><th>Rok</th><th>Alert</th></tr>'||chr(13)||chr(10));
+ for rec in (
+    select count, yyyy, case when to_char(sysdate,'yyyy')- yyyy >5 then '*** Zarchiwizuj lub skasuj te zajecia' else 'W porzadku' end alert from
+    (
+    select count(1) count, to_char(day,'yyyy') yyyy from res_hints group by to_char(day,'yyyy')
+    )
+    order by yyyy
+ ) loop
+     WriteToClob(res, '<tr>'
+       || '<td>' || rec.count
+       || '</td><td>' || rec.yyyy
+       || '</td><td>' || rec.alert
+       ||'</td></tr>'||chr(13)||chr(10));
+ end loop;
+WriteToClob(res,'
+  </table>');  
+
 
 WriteToClob(res,'
   </body>

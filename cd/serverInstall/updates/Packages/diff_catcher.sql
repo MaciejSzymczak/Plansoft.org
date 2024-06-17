@@ -152,19 +152,46 @@ create or replace package body diff_catcher is
      PRIORCnt number;
      CURRENTCnt number;
     begin 
-        pDateFrom := trunc(sysdate);
+        begin
+          select (trunc(sysdate) - to_number(value)) into pDateFrom from system_parameters where name ='DIFF_DAYS_IN_PAST';
+        exception when others then 
+          pDateFrom := trunc(sysdate);
+        end;
         select to_date(value,'yyyy-mm-dd') into pDateTo from system_parameters where name ='DIFF_END_DATE';
         --
         xxmsz_tools.insertIntoEventLog('START', 'I', 'DIFF_CATCHER' );
-        delete from DIFF_CATCHER_HELPER where dim in ('PRIOR','DIFF-7');
+        delete from DIFF_CATCHER_HELPER where dim in ('PRIOR','DIFF-30');
         -- keep last 7 DIFFs
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-7' where dim = 'DIFF-6';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-6' where dim = 'DIFF-5';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-5' where dim = 'DIFF-4';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-4' where dim = 'DIFF-3';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-3' where dim = 'DIFF-2';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-2' where dim = 'DIFF-1';
-        update DIFF_CATCHER_HELPER set dim = 'DIFF-1' where dim = 'DIFF';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-30' where dim = 'DIFF-29';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-29' where dim = 'DIFF-28';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-28' where dim = 'DIFF-27';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-27' where dim = 'DIFF-26';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-26' where dim = 'DIFF-25';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-25' where dim = 'DIFF-24';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-24' where dim = 'DIFF-23';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-23' where dim = 'DIFF-22';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-22' where dim = 'DIFF-21';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-21' where dim = 'DIFF-20';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-20' where dim = 'DIFF-19';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-19' where dim = 'DIFF-18';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-18' where dim = 'DIFF-17';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-17' where dim = 'DIFF-16';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-16' where dim = 'DIFF-15';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-15' where dim = 'DIFF-14';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-14' where dim = 'DIFF-13';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-13' where dim = 'DIFF-12';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-12' where dim = 'DIFF-11';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-11' where dim = 'DIFF-10';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-10' where dim = 'DIFF-09';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-09' where dim = 'DIFF-08';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-08' where dim = 'DIFF-07';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-07' where dim = 'DIFF-06';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-06' where dim = 'DIFF-05';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-05' where dim = 'DIFF-04';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-04' where dim = 'DIFF-03';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-03' where dim = 'DIFF-02';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-02' where dim = 'DIFF-01';
+        update DIFF_CATCHER_HELPER set dim = 'DIFF-01' where dim = 'DIFF';
         --
         update DIFF_CATCHER_HELPER set dim = 'PRIOR' where dim = 'CURRENT';
         diff_catcher.fill( pDateFrom, pDateTo, 'CURRENT');
@@ -248,10 +275,12 @@ table, th, td {
   <title>Zmiany w rozkładzie zajęć</title>
 </head>
   <body>
+  <h1>Zmiany w rozkładzie zajęć</h1>
   <table>
 ');    
 
          WriteToClob(res, '<tr>
+<th>kiedy wykonano zmianę</th>
 <th>Planista</th>
 <th>Tytuł</th>
 <th>Imię</th>
@@ -265,7 +294,7 @@ table, th, td {
 <th>Sala</th>
 <th>Opis</th>
 <th>Suma</th>
-<th>Różnica</th></tr>'||chr(13)||chr(10));
+<th>Róznica</th></tr>'||chr(13)||chr(10));
          for rec in ( 
                     select owner
                          , lec.title
@@ -282,7 +311,8 @@ table, th, td {
                          , calc_rooms
                          , DIFF_CATCHER_HELPER.desc2
                          , rtrim(to_char(sum, 'FM0.99'), '.')  sum
-                         , decode(diff_flag,'DELETE','Usunięcie','Wstawienie') diff_flag
+                         , decode(diff_flag,'DELETE','Usuniecie','Wstawienie') diff_flag
+                         , replace(dim,'DIFF','Ostatnio') dim
                       from DIFF_CATCHER_HELPER
                          , lecturers lec
                          , subjects sub
@@ -290,9 +320,12 @@ table, th, td {
                       where lec_id = lec.id
                         and sub_id = sub.id(+)
                         and for_id = frm.id
-                        and dim = 'DIFF' 
-                      order by  
-                           owner
+                        and dim in ('DIFF','DIFF-01','DIFF-02','DIFF-03','DIFF-04','DIFF-05','DIFF-06','DIFF-07','DIFF-08','DIFF-09'
+                        ,'DIFF-10','DIFF-11','DIFF-12','DIFF-13','DIFF-14','DIFF-15','DIFF-16','DIFF-17','DIFF-18','DIFF-19'
+                        ,'DIFF-20','DIFF-21','DIFF-22','DIFF-23','DIFF-24','DIFF-25','DIFF-26','DIFF-27','DIFF-28','DIFF-29','DIFF-30') 
+                      order by
+                           dim
+                         , owner
                          , lec.title
                          , lec.first_name
                          , lec.last_name
@@ -310,7 +343,8 @@ table, th, td {
                          , diff_flag
                     ) loop
              WriteToClob(res, '<tr><td>'
-               || rec.owner 
+               || rec.dim 
+               || '</td><td>' || rec.owner 
                || '</td><td>' || rec.title 
                || '</td><td>' || rec.first_name 
                || '</td><td>' || rec.last_name 

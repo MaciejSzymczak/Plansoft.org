@@ -286,7 +286,7 @@ begin
 
   If ChDay.Checked        Then Begin columnsSelect := Merge(columnsSelect, 'DAY "Dzieñ"', ',');                            columnsGroupBy := Merge(columnsGroupBy, 'DAY', ',');            End;
   If ChMonth.Checked      Then Begin columnsSelect := Merge(columnsSelect, 'TO_CHAR(DAY,''YYYY-MM'') "Miesi¹c"', ',');     columnsGroupBy := Merge(columnsGroupBy, 'TO_CHAR(DAY,''YYYY-MM'')', ',');            End;
-  If ChDayOfWeek.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'to_char(DAY,''dy'') "Dzieñ tyg."', ',');       columnsGroupBy := Merge(columnsGroupBy, 'to_char(DAY,''dy'')', ','); End;
+  If ChDayOfWeek.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'to_char(DAY,''dy'',''NLS_DATE_LANGUAGE=polish'') "Dzieñ tyg."', ',');       columnsGroupBy := Merge(columnsGroupBy, 'to_char(DAY,''dy'',''NLS_DATE_LANGUAGE=polish'')', ','); End;
   If ChHOUR.Checked       Then Begin columnsSelect := Merge(columnsSelect, 'GRIDS.CAPTION "Godzina"', ',');                columnsGroupBy := Merge(columnsGroupBy, 'GRIDS.CAPTION', ',');  End;
   If ChCreatedBy.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'CLASSES.created_by "Utworzy³"', ',');          columnsGroupBy := Merge(columnsGroupBy, 'CLASSES.created_by', ','); End;
   If ChOwnerName.Checked  Then Begin columnsSelect := Merge(columnsSelect, 'CLASSES.owner "W³aœciciel"', ',');             columnsGroupBy := Merge(columnsGroupBy, 'CLASSES.owner', ','); End;
