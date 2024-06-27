@@ -731,7 +731,7 @@ begin
         where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'); 
         select value into pUsosOnline from system_parameters where name = 'USOS_ONLINE';
         execute immediate 'truncate table usos_temp';
-        insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, for_id, gr_nr, sl_id, zaj_cyk_id)
+        insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, for_id, gr_nr, sl_id, zaj_cyk_id, desc2)
             select classes.day
                 ,  classes.hour
                 ,  classes.hour
@@ -744,6 +744,7 @@ begin
                , ttc.usos_gr_nr gr_nr
                , nvl(rooms.integration_id,pUsosOnline) sl_id
                , ttc.usos_zaj_cyk_id zaj_cyk_id
+               , classes.desc2
              from classes
                , tt_cla
                , tt_combinations ttc
@@ -755,6 +756,10 @@ begin
              and rom_cla.rom_id = rooms.id(+)
              and ttc.integration_id is not null--ignore those created manually in Plansoft (no reference in USOS)
              and classes.DAY BETWEEN pDate_from AND pDate_to;  
+         --    
+         update usos_temp 
+           set rom_id = nvl( (select streaming_id from usos_streaming_room_map where id=rom_id) , rom_id)
+         where upper(desc2) like '%STREAMING%';
          --
          update usos_temp set lec_id = -1 where lec_id is null;
          update usos_temp set gro_id = -1 where gro_id is null;

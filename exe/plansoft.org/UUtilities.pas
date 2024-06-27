@@ -184,6 +184,7 @@ function LROR (S : String; WordDelim : Char) : String;
 // once enabled remember to finalize the operation by Fmain.DeepRefresh(nil);
 var quickInsertMode : boolean;
 
+
 implementation
 
 Uses UFProgramSettings, StrUtils;

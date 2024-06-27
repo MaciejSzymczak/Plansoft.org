@@ -40,9 +40,6 @@ type
     CONL_VALUE: TEdit;
     CONR_VALUE: TEdit;
     CONF_VALUE: TEdit;
-    CONPERIOD: TEdit;
-    CONPERIOD_VALUE: TEdit;
-    Lperiod: TLabel;
     LS: TLabel;
     CONS: TEdit;
     CONS_VALUE: TEdit;
@@ -53,7 +50,6 @@ type
     Query: TADOQuery;
     optionsPopup: TPopupMenu;
     chbShowAll: TMenuItem;
-    Clean1: TSpeedButton;
     Clean2: TSpeedButton;
     Clean3: TSpeedButton;
     Clean4: TSpeedButton;
@@ -140,6 +136,19 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
+    Label1: TLabel;
+    source_date_from: TDateTimePicker;
+    Label10: TLabel;
+    source_date_to: TDateTimePicker;
+    BitBtn1: TBitBtn;
+    SelectDates: TPopupMenu;
+    MenuItem3: TMenuItem;
+    Cdesc3: TMenuItem;
+    Cdesc4: TMenuItem;
+    Wczoraj1: TMenuItem;
+    Przedwczoraj1: TMenuItem;
+    Wybierzsemestr1: TMenuItem;
+    N2: TMenuItem;
     procedure CONLChange(Sender: TObject);
     procedure CONRChange(Sender: TObject);
     procedure CONGChange(Sender: TObject);
@@ -150,14 +159,11 @@ type
     procedure FormShow(Sender: TObject);
     procedure ButtonOptionsClick(Sender: TObject);
     procedure chbShowAllClick(Sender: TObject);
-    procedure Clean1Click(Sender: TObject);
     procedure Clean2Click(Sender: TObject);
     procedure Clean3Click(Sender: TObject);
     procedure Clean4Click(Sender: TObject);
     procedure Clean5Click(Sender: TObject);
     procedure Clean6Click(Sender: TObject);
-    procedure Filtrprosty1Click(Sender: TObject);
-    procedure Filtrzaawansowany1Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem7Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
@@ -168,7 +174,6 @@ type
     procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
-    procedure CONPERIOD_VALUEChange(Sender: TObject);
     procedure CONL_VALUEChange(Sender: TObject);
     procedure CONG_VALUEChange(Sender: TObject);
     procedure CONR_VALUEChange(Sender: TObject);
@@ -184,6 +189,13 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BUstawieniaFormularzaClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure MenuItem3Click(Sender: TObject);
+    procedure Wczoraj1Click(Sender: TObject);
+    procedure Przedwczoraj1Click(Sender: TObject);
+    procedure Cdesc3Click(Sender: TObject);
+    procedure Cdesc4Click(Sender: TObject);
+    procedure Wybierzsemestr1Click(Sender: TObject);
   private
      defaultText : string;
      sqlFlexColumns : string;
@@ -404,6 +416,7 @@ begin
         v[ 4] := '<Nie dotyczy>';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Forma zajêæ';
         v[ 7] := 'Grupa';
@@ -421,6 +434,7 @@ begin
         v[ 4] := 'Przedmiot';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Forma zajêæ';
         v[ 7] := 'Grupa';
@@ -439,6 +453,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -456,6 +471,7 @@ begin
         v[ 4] := 'Wyk³adowca';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -474,6 +490,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -491,6 +508,7 @@ begin
         v[ 4] := 'Grupa';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -509,6 +527,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -526,6 +545,7 @@ begin
         v[ 4] := 'Zasób';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -545,6 +565,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -562,6 +583,7 @@ begin
         v[ 4] := 'Forma zajêæ';
         // row
         v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -580,6 +602,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Grupa';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -598,6 +621,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Wyk³adowca';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -616,6 +640,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Zasób';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -634,6 +659,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Grupa';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -652,6 +678,7 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Zasób';
+        v[12] := '<Nie Dotyczy>';
         // cell
         v[ 6] := 'Przedmiot';
         v[ 7] := 'Forma zajêæ';
@@ -659,6 +686,63 @@ begin
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
         v[11] := 'Przedmiot';
+    end;
+
+    if defaultSchema = 'R_Availibility' then begin
+        // title
+        v[ 1] := '<Nie Dotyczy>';
+        v[ 2] := '<Nie Dotyczy>';
+        // columns
+        v[ 3] := 'Dzieñ';
+        v[ 4] := 'Godzina';
+        // row
+        v[ 5] := 'Zasób';
+        v[12] := '<Nie Dotyczy>';
+        // cell
+        v[ 6] := 'Forma zajêæ';
+        v[ 7] := '<Nie Dotyczy>';
+        v[ 8] := '<Nie Dotyczy>';
+        v[ 9] := '<Nie Dotyczy>';
+        v[10] := '<Nie Dotyczy>';
+        v[11] := 'Forma';
+    end;
+
+     if defaultSchema = 'G_Availibility' then begin
+        // title
+        v[ 1] := '<Nie Dotyczy>';
+        v[ 2] := '<Nie Dotyczy>';
+        // columns
+        v[ 3] := 'Dzieñ';
+        v[ 4] := 'Godzina';
+        // row
+        v[ 5] := 'Grupa';
+        v[12] := '<Nie Dotyczy>';
+        // cell
+        v[ 6] := 'Forma zajêæ';
+        v[ 7] := '<Nie Dotyczy>';
+        v[ 8] := '<Nie Dotyczy>';
+        v[ 9] := '<Nie Dotyczy>';
+        v[10] := '<Nie Dotyczy>';
+        v[11] := 'Forma';
+    end;
+
+    if defaultSchema = 'L_Availibility' then begin
+        // title
+        v[ 1] := '<Nie Dotyczy>';
+        v[ 2] := '<Nie Dotyczy>';
+        // columns
+        v[ 3] := 'Dzieñ';
+        v[ 4] := 'Godzina';
+        // row
+        v[ 5] := 'Wyk³adowca';
+        v[12] := '<Nie Dotyczy>';
+        // cell
+        v[ 6] := 'Forma zajêæ';
+        v[ 7] := '<Nie Dotyczy>';
+        v[ 8] := '<Nie Dotyczy>';
+        v[ 9] := '<Nie Dotyczy>';
+        v[10] := '<Nie Dotyczy>';
+        v[11] := 'Forma';
     end;
 
     if defaultSchema = 'CUSTOM' then begin
@@ -674,13 +758,14 @@ begin
         v[ 4] := '<Nie Dotyczy>';
         // row
         v[ 5] := 'Zasób';
+        v[12] := '<Nie Dotyczy>';
         // cell
-        v[ 6] := 'Przedmiot';
-        v[ 7] := 'Forma zajêæ';
-        v[ 8] := 'Grupa';
-        v[ 9] := 'Zasób';
-        v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[ 6] := '<Nie Dotyczy>';
+        v[ 7] := '<Nie Dotyczy>';
+        v[ 8] := '<Nie Dotyczy>';
+        v[ 9] := '<Nie Dotyczy>';
+        v[10] := '<Nie Dotyczy>';
+        v[11] := 'Forma zajêæ';
         end;
     end;
 
@@ -690,7 +775,7 @@ begin
     column.ItemIndex := column.items.IndexOf(v[3]);
     subcolumn.ItemIndex := column.items.IndexOf(v[4]);
     row.ItemIndex := column.items.IndexOf(v[5]);
-    row2.ItemIndex := column.items.IndexOf('<Nie Dotyczy>');
+    row2.ItemIndex := column.items.IndexOf(v[12]);
     row3.ItemIndex := column.items.IndexOf('<Nie Dotyczy>');
     row4.ItemIndex := column.items.IndexOf('<Nie Dotyczy>');
     row5.ItemIndex := column.items.IndexOf('<Nie Dotyczy>');
@@ -706,7 +791,6 @@ begin
 
     with fprogramsettings do begin
         //self.Caption           := fprogramsettings.profileObjectNameGs.Text;
-        LPeriod.Caption := profileObjectNamePeriod.Text;
         LL     .Caption := profileObjectNameL.Text;
         LG     .Caption := profileObjectNameG.Text;
         LS     .Caption := profileObjectNameC1.Text;
@@ -737,13 +821,6 @@ procedure TFMatrix.chbShowAllClick(Sender: TObject);
 begin
  (sender as tmenuItem).Checked := not (sender as tmenuItem).Checked;
  ButtonOptionsClick(ButtonOptions);
-end;
-
-procedure TFMatrix.Clean1Click(Sender: TObject);
-begin
-  CONPERIOD_VALUE.Text := '';
-  PerSettings.Strings.Clear;
-  CONPERIOD.Text := '';
 end;
 
 procedure TFMatrix.Clean2Click(Sender: TObject);
@@ -779,17 +856,6 @@ begin
   CONF_VALUE.Text := '';
   FSettings.Strings.Clear;
   CONF.Text := '';
-end;
-
-procedure TFMatrix.Filtrprosty1Click(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := CONPERIOD.Text;
-  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
-      PerSettings.Strings.Clear;
-      CONPERIOD.Text := KeyValue;
-  End;
-  PERFilterType.text := 'e';
 end;
 
 procedure TFMatrix.MenuItem5Click(Sender: TObject);
@@ -849,17 +915,6 @@ begin
   FFilterType.text := 'e';
 end;
 
-procedure TFMatrix.Filtrzaawansowany1Click(Sender: TObject);
-begin
-  autocreate.PERIODSCreate;
-
-  If UFModuleFilter.ShowModal( PerSettings.Strings, fBrowsePERIODS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
-      CONPERIOD.Text := '';
-      CONPERIOD_VALUE.Text := PERSettings.Strings.Values['Notes.Category:DEFAULT'];
-  End;
-  PERFilterType.text := 'a';
-end;
-
 procedure TFMatrix.MenuItem6Click(Sender: TObject);
 begin
   autocreate.LECTURERSCreate;
@@ -912,11 +967,6 @@ begin
   FFilterType.text := 'a';
 end;
 
-procedure TFMatrix.CONPERIOD_VALUEChange(Sender: TObject);
-begin
-  Clean1.Visible := (sender as tedit).Text <> '';
-end;
-
 procedure TFMatrix.CONL_VALUEChange(Sender: TObject);
 begin
   Clean2.Visible := (sender as tedit).Text <> '';
@@ -963,11 +1013,6 @@ var
     colRow5       : shortstring;
     colRow6       : shortstring;
     colRowValue  : shortstring;
-    colRowValue2  : shortstring;
-    colRowValue3  : shortstring;
-    colRowValue4  : shortstring;
-    colRowValue5  : shortstring;
-    colRowValue6  : shortstring;
     colTitle     : shortstring;
     colSubTitle  : shortstring;
     colCell1     : shortstring;
@@ -1082,16 +1127,9 @@ begin
     // ----------------- set where clause -------------------------
 
     UpdStatus('Budowanie warunków zapytañ');
-    _CONPERIOD := '0=0';
-    If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
-    Begin
-        With DModule Do Begin
-            Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM FROM PERIODS WHERE '+ NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text) );
-            DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-            DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
-        End;
-        _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
-    End;
+    dateFrom := DateToOracle(source_date_from.Datetime);
+    dateTo   := DateToOracle(source_date_to.Datetime);
+    _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
 
     _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text);
     _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text);
@@ -1326,7 +1364,7 @@ procedure TFMatrix.LoadFromIni ( inifilename : tfilename );
 begin
   uutilityparent.LoadFromIni(
             inifilename , 'pivot',
-            [ CONPERIOD, CONL, CONG, CONR, CONS, CONF, CONL_value, CONG_value, CONR_value, CONS_value, CONF_value
+            [ source_date_from, source_date_to, CONL, CONG, CONR, CONS, CONF, CONL_value, CONG_value, CONR_value, CONS_value, CONF_value
             , PERFilterType, LFilterType, GFilterType, RFilterType, SFilterType, FFilterType
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
@@ -1339,7 +1377,7 @@ procedure TFMatrix.saveToIni ( inifilename : tfilename );
 begin
   uutilityparent.saveToIni(
             inifilename , 'pivot',
-            [ CONPERIOD, CONL, CONG, CONR, CONS, CONF, CONL_value, CONG_value, CONR_value, CONS_value, CONF_value
+            [ source_date_from, source_date_to, CONL, CONG, CONR, CONS, CONF, CONL_value, CONG_value, CONR_value, CONS_value, CONF_value
             , PERFilterType, LFilterType, GFilterType, RFilterType, SFilterType, FFilterType
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
@@ -1415,6 +1453,62 @@ begin
   inherited;
   deleteFile (defSettingsFileName);
   ignoreSave := true;
+end;
+
+procedure TFMatrix.BitBtn1Click(Sender: TObject);
+var point : tpoint;
+    btn   : tcontrol;
+begin
+ btn     := sender as tcontrol;
+ Point.x := 0;
+ Point.y := btn.Height;
+ Point   := btn.ClientToScreen(Point);
+ SelectDates.Popup(Point.X,Point.Y);
+end;
+
+procedure TFMatrix.MenuItem3Click(Sender: TObject);
+begin
+  source_date_from.Date := now;
+  source_date_to.Date := now;
+end;
+
+procedure TFMatrix.Wczoraj1Click(Sender: TObject);
+begin
+  source_date_from.Date := now-1;
+  source_date_to.Date := now-1;
+end;
+
+procedure TFMatrix.Przedwczoraj1Click(Sender: TObject);
+begin
+  source_date_from.Date := now-2;
+  source_date_to.Date := now-2;
+end;
+
+procedure TFMatrix.Cdesc3Click(Sender: TObject);
+begin
+  source_date_from.Date := now+1;
+  source_date_to.Date := now+1;
+end;
+
+procedure TFMatrix.Cdesc4Click(Sender: TObject);
+begin
+  source_date_from.Date := now+2;
+  source_date_to.Date := now+2;
+end;
+
+procedure TFMatrix.Wybierzsemestr1Click(Sender: TObject);
+Var KeyValue : ShortString;
+    roleId : shortString;
+begin
+  inherited;
+  KeyValue := fmain.conPeriod.Text;
+  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    With DModule do begin
+        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
+        source_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+        source_date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+    End;
+  End;
 end;
 
 end.

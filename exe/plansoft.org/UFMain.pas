@@ -584,6 +584,17 @@ type
     BCrossTableMaxRows: TButton;
     RaportZdrowieSystemu1: TMenuItem;
     N25: TMenuItem;
+    N26: TMenuItem;
+    Znajjdwolnsal1: TMenuItem;
+    Zajto1: TMenuItem;
+    Zajtoscwyk1: TMenuItem;
+    N27: TMenuItem;
+    FindRGL: TPopupMenu;
+    N28: TMenuItem;
+    Uk1: TMenuItem;
+    Zajtosal1: TMenuItem;
+    Zajtogrup1: TMenuItem;
+    Zajtowykadowcw1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -651,7 +662,6 @@ type
     procedure mmplanRClick(Sender: TObject);
     procedure Czysty1Click(Sender: TObject);
     procedure BViewByWeekClick(Sender: TObject);
-    procedure BViewByCrossTableClick(Sender: TObject);
     procedure Ustawieniaprogramu2Click(Sender: TObject);
     procedure Kategoriezasobw1Click(Sender: TObject);
     procedure RESOURCESClick(Sender: TObject);
@@ -924,6 +934,14 @@ type
     procedure gridRefreshTimer(Sender: TObject);
     procedure BCrossTableMaxRowsClick(Sender: TObject);
     procedure RaportZdrowieSystemu1Click(Sender: TObject);
+    procedure Znajjdwolnsal1Click(Sender: TObject);
+    procedure Zajto1Click(Sender: TObject);
+    procedure Zajtoscwyk1Click(Sender: TObject);
+    procedure Uk1Click(Sender: TObject);
+    procedure Zajtosal1Click(Sender: TObject);
+    procedure Zajtogrup1Click(Sender: TObject);
+    procedure Zajtowykadowcw1Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1096,7 +1114,7 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration;
+  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices;
 
 var dummy : string;
 
@@ -5351,7 +5369,7 @@ procedure TFMain.Ukadtabelikrzyowej1Click(Sender: TObject);
 begin
   inherited;
   BViewByCrossTable.Down := true;
-  BViewByCrossTableClick(sender);
+  Uk1Click(sender);
 end;
 
 procedure TFMain.mmplanLClick(Sender: TObject);
@@ -5381,15 +5399,6 @@ procedure TFMain.BViewByWeekClick(Sender: TObject);
 begin
   Preview.Enabled := true;
   dmodule.dateRange:='';
-  setPeriod;
-end;
-
-procedure TFMain.BViewByCrossTableClick(Sender: TObject);
-begin
-  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
-  Preview.Enabled := false;
-  dmodule.dateRange:='TODAY:+0:+0';
-  CustomPeriod.ItemIndex:=2;
   setPeriod;
 end;
 
@@ -6472,6 +6481,7 @@ begin
  if btn.Name = 'selectr'       then fmain.respopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectResCat1' then fmain.ResCat1popup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectFill'    then fmain.FillPopup.Popup(Point.X,Point.Y); 
+ if btn.Name = 'BViewByCrossTable' then fmain.FindRGL.Popup(Point.X,Point.Y); 
 end;
 
 procedure TFMain.MenuItem1Click(Sender: TObject);
@@ -9298,6 +9308,62 @@ procedure TFMain.wlog;
 begin
  if NOT FProgramSettings.SQLLog.checked then exit;
  writelog(GetNowMarker +' '+ messageText);
+end;
+
+procedure TFMain.Znajjdwolnsal1Click(Sender: TObject);
+begin
+  fmatrix.Caption := 'Zajêtoœæ sal';
+  fmatrix.defaultSchema := 'R_Availibility';
+  FMatrix.ShowModal;
+end;
+
+procedure TFMain.Zajto1Click(Sender: TObject);
+begin
+  fmatrix.Caption := 'Zajêtoœæ grup';
+  fmatrix.defaultSchema := 'G_Availibility';
+  FMatrix.ShowModal;
+end;
+
+procedure TFMain.Zajtoscwyk1Click(Sender: TObject);
+begin
+  fmatrix.Caption := 'Zajêtoœæ wyk³adowców';
+  fmatrix.defaultSchema := 'L_Availibility';
+  FMatrix.ShowModal;
+end;
+
+procedure TFMain.Uk1Click(Sender: TObject);
+begin
+  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
+  Preview.Enabled := false;
+  dmodule.dateRange:='TODAY:+0:+0';
+  CustomPeriod.ItemIndex:=2;
+  setPeriod;
+end;
+
+procedure TFMain.Zajtosal1Click(Sender: TObject);
+begin
+  BViewByWeek.Down := true;
+  Znajjdwolnsal1Click(nil);
+end;
+
+procedure TFMain.Zajtogrup1Click(Sender: TObject);
+begin
+  BViewByWeek.Down := true;
+  Zajto1Click(nil);
+end;
+
+procedure TFMain.Zajtowykadowcw1Click(Sender: TObject);
+begin
+  BViewByWeek.Down := true;
+  Zajtoscwyk1Click(nil);
+end;
+
+procedure TFMain.Button1Click(Sender: TObject);
+var
+  Response: string;
+begin
+  //UWebServices.HttpGet('https://soft.home.pl', Response);
+  //Memo1.Lines.Text := Response;
 end;
 
 initialization

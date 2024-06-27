@@ -72,7 +72,7 @@ type
     SpeedButton9: TSpeedButton;
     groupByG: TCheckBox;
     groupByR: TCheckBox;
-    groupByS: TCheckBox;
+    groupByS_Name: TCheckBox;
     GroupBoxLock: TGroupBox;
     Label4: TLabel;
     LockTimeTable: TButton;
@@ -118,6 +118,8 @@ type
     groupByDay: TCheckBox;
     chGnewLine: TCheckBox;
     AdminMessage: TLabel;
+    groupByS_Abbr: TCheckBox;
+    groupByHour: TCheckBox;
     procedure GridLDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure GRIDGDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -323,8 +325,10 @@ begin
   groupByG.checked      := StrToBool( getSystemParam('FLegend.groupByG.checked' ));
   chGnewLine.checked      := StrToBool( getSystemParam('FLegend.chGnewLine.checked' ));
 
-  groupByS.checked      := StrToBool( getSystemParam('FLegend.groupByS.checked','+'));
+  groupByS_Name.checked      := StrToBool( getSystemParam('FLegend.groupByS_Name.checked','+'));
+  groupByS_Abbr.checked      := StrToBool( getSystemParam('FLegend.groupByS_Abbr.checked','+'));
   groupByDay.checked      := StrToBool( getSystemParam('FLegend.groupByDay.checked','+'));
+  groupByHour.checked      := StrToBool( getSystemParam('FLegend.groupByHour.checked','+'));
 
   groupByR.checked      := StrToBool( getSystemParam('FLegend.groupByR.checked' ));
   SelectedSubOnly.checked := StrToBool( getSystemParam('FLegend.SelectedSubOnly' ));
@@ -404,6 +408,7 @@ begin
     fName := gridCounter.columns[i].FieldName;
     //info(fName);
     if fName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
+    if fName = 'SUB_ID2' then gridCounter.Columns[i].Width := 0;
     if fName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
     if fName = 'LEC_ID' then gridCounter.Columns[i].Width := 0;
     if fName = 'GRO_ID' then gridCounter.Columns[i].Width := 0;
@@ -463,8 +468,10 @@ begin
   setSystemParam('FLegend.groupByG.checked',BoolToStr ( FLegend.groupByG.checked ) );
   setSystemParam('FLegend.chGnewLine.checked',BoolToStr ( FLegend.chGnewLine.checked ) );
 
-  setSystemParam('FLegend.groupByS.checked',BoolToStr ( FLegend.groupByS.checked ) );
+  setSystemParam('FLegend.groupByS_Name.checked',BoolToStr ( FLegend.groupByS_Name.checked ) );
+  setSystemParam('FLegend.groupByS_Abbr.checked',BoolToStr ( FLegend.groupByS_Abbr.checked ) );
   setSystemParam('FLegend.groupByDay.checked',BoolToStr ( FLegend.groupByDay.checked ) );
+  setSystemParam('FLegend.groupByHour.checked',BoolToStr ( FLegend.groupByHour.checked ) );
 
   setSystemParam('FLegend.groupByR.checked',BoolToStr ( FLegend.groupByR.checked ) );
   setSystemParam('FLegend.SelectedSubOnly.checked',BoolToStr ( FLegend.SelectedSubOnly.checked ) );
@@ -505,8 +512,10 @@ begin
   groupByG.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   chGnewLine.Visible    := (FLegendTabs.ActivePage = tabSheetCounter) and groupByG.Checked;
 
-  groupByS.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
-  groupByDay.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByS_Name.Visible := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByS_Abbr.Visible := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByDay.Visible    := (FLegendTabs.ActivePage = tabSheetCounter);
+  groupByHour.Visible    := (FLegendTabs.ActivePage = tabSheetCounter);
 
   groupByR.Visible      := (FLegendTabs.ActivePage = tabSheetCounter);
   groupByLDesc1.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescSingular(1)<>'');
@@ -525,8 +534,10 @@ begin
   if manySubjectsFlag then begin
     groupByForm.Visible := false;
     groupByForm.checked := false;
-    groupByS.Visible := false;
-    groupByS.checked := false;
+    groupByS_Name.Visible := false;
+    groupByS_Abbr.Visible := false;
+    groupByS_Name.checked := false;
+    groupByS_Abbr.checked := false;
     SelectedSubOnly.Visible := false;
     SelectedSubOnly.Checked := false;
   end;
@@ -641,7 +652,9 @@ begin
       QueryCOUNTER.SQL.Clear;
       groupbyClause := mergeStrings(',',[
         iif(groupByDay.Checked,'CLA.DAY','')
-        ,iif(groupByS.Checked,'SUB.NAME,SUB.ID ','')
+        ,iif(groupByHour.Checked,'GRIDS.CAPTION','')
+        ,iif(groupByS_Name.Checked,'SUB.NAME,SUB.ID ','')
+        ,iif(groupByS_Abbr.Checked,'SUB.ABBREVIATION,SUB.ID ','')
         ,iif(groupByForm.Checked,'FR.NAME,FR.ID','')
         ,iif(groupByDesc1.Checked,'CLA.DESC1','')
         ,iif(groupByDesc2.Checked,'CLA.DESC2','')
@@ -669,7 +682,8 @@ begin
       if addRollUp.checked then rollUpFilter := ' where '+
        mergeStrings(' and ',[
           '0=0'
-        , iif(groupByS.Checked                       , '(("Przedmiot" is not null and SUB_ID is not null) or ("Przedmiot"=''--'' and SUB_ID is null))','')
+        , iif(groupByS_Name.Checked                       , '(("Przedmiot" is not null and SUB_ID is not null) or ("Przedmiot"=''--'' and SUB_ID is null))','')
+        , iif(groupByS_Abbr.Checked                       , '(("Przedmiot_Skrot" is not null and SUB_ID2 is not null) or ("Przedmiot_Skrot"=''--'' and SUB_ID2 is null))','')
         , iif(groupByForm.Checked                    , '(("Forma" is not null and FOR_ID is not null) or ("Forma"=''--'' and FOR_ID is null))','')
         , iif(groupByL.Checked                       , '(("Wyk³adowca" is not null and LEC_ID is not null) or ("Wyk³adowca"=''--'' and LEC_ID is null))','')
         , iif(groupByG.Checked and     chGnewLine.Checked, '(("Grupa" is not null and GRO_ID is not null) or ("Grupa"=''--'' and GRO_ID is null))','')
@@ -682,8 +696,10 @@ begin
       queryString :=
         'select * from ('+cr+
        'SELECT '+mergeStrings(',',[
-          iif(groupByS.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
+          iif(groupByS_Name.Checked, 'NVL(SUB.NAME,''--'') "Przedmiot", SUB.ID SUB_ID','')
+        , iif(groupByS_Abbr.Checked, 'NVL(SUB.ABBREVIATION,''--'') "Przedmiot_Skrot", SUB.ID SUB_ID2','')
         , iif(groupByDay.Checked, 'CLA.DAY "Dzieñ"','')
+        , iif(groupByHour.Checked, 'GRIDS.CAPTION "Godz."','')
         , iif(groupByForm.Checked, 'NVL(FR.NAME,''--'') "Forma", FR.ID FOR_ID','')
         , iif(groupByDesc1.Checked, 'NVL(CLA.DESC1,''--'') "'+fprogramSettings.getClassDescPlural(1)+'"','')
         , iif(groupByDesc2.Checked, 'NVL(CLA.DESC2,''--'') "'+fprogramSettings.getClassDescPlural(2)+'"','')
@@ -756,7 +772,6 @@ begin
     'ORDER BY '+orderByClause+
     ')' + cr+ rollUpFilter;
 
-    //copyToClipBoard(queryString);
     QueryCOUNTER.SQL.Add( queryString );
 
     //copyToclipboard(QueryCOUNTER.SQL.text);
@@ -1006,7 +1021,7 @@ begin
 end;
 
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
-var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS: ShortString;
+var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS_Name, dspS_Abbr: ShortString;
 begin
   idL := '';
   idG := '';
@@ -1017,7 +1032,8 @@ begin
   dspG := '';
   dspR := '';
   dspF := '';
-  dspS := '';
+  dspS_Name := '';
+  dspS_Abbr := '';
   if (groupByL.Checked) and  (QueryCounter.FieldByName('LEC_ID').AsString<>'') then begin
      idL :=  QueryCounter.FieldByName('LEC_ID').AsString;
      dspL := QueryCounter.FieldByName('Wyk³adowca').AsString;
@@ -1034,16 +1050,20 @@ begin
      idR := QueryCounter.FieldByName('ROM_ID').AsString;
      dspR := QueryCounter.FieldByName('Zasób').AsString;
   end;
-  if (groupByS.Checked) and  (QueryCounter.FieldByName('SUB_ID').AsString<>'') then begin
+  if (groupByS_Name.Checked) and  (QueryCounter.FieldByName('SUB_ID').AsString<>'') then begin
      idS := QueryCounter.FieldByName('SUB_ID').AsString;
-     dspS := QueryCounter.FieldByName('Przedmiot').AsString;
+     dspS_Name := QueryCounter.FieldByName('Przedmiot').AsString;
+  end;
+  if (groupByS_Abbr.Checked) and  (QueryCounter.FieldByName('SUB_ID2').AsString<>'') then begin
+     idS := QueryCounter.FieldByName('SUB_ID2').AsString;
+     dspS_Abbr := QueryCounter.FieldByName('Przedmiot_Skrot').AsString;
   end;
   if (groupByForm.Checked) and  (QueryCounter.FieldByName('FOR_ID').AsString<>'') then begin;
      idF := QueryCounter.FieldByName('FOR_ID').AsString;
      dspF :=  QueryCounter.FieldByName('Forma').AsString;
   end;
   FLegendNavigation.open(
-    idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS
+    idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS_Name +' '+ dspS_Abbr
   );
 
   if FLegendNavigation.selectedOption='dspL' then begin fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := uutilities.getChildsAndParents(idL, '', true, false); end;

@@ -1945,7 +1945,7 @@ inherited FMain: TFMain
           FDFFFFF8FFFFF7FFFFFBFFFAFFFFF8FFFFFAFFFFFBFFFEFFFFFE}
         ParentShowHint = False
         ShowHint = True
-        OnClick = BViewByCrossTableClick
+        OnClick = bdelpopupClick
         OnMouseMove = BViewByWeekMouseMove
       end
       object bmoveUp: TSpeedButton
@@ -6313,6 +6313,24 @@ inherited FMain: TFMain
           Caption = 'Tabela przestawna'
           OnClick = Innatabelaprzestawna1Click
         end
+        object N27: TMenuItem
+          Caption = '-'
+        end
+        object Znajjdwolnsal1: TMenuItem
+          Caption = 'Zaj'#281'to'#347#263' sal'
+          OnClick = Znajjdwolnsal1Click
+        end
+        object Zajto1: TMenuItem
+          Caption = 'Zaj'#281'to'#347#263' grup'
+          OnClick = Zajto1Click
+        end
+        object Zajtoscwyk1: TMenuItem
+          Caption = 'Zaj'#281'to'#347#263' wyk'#322'adowc'#243'w'
+          OnClick = Zajtoscwyk1Click
+        end
+        object N26: TMenuItem
+          Caption = '-'
+        end
         object Zajciawgprzedmiotwukadtygodniowy1: TMenuItem
           Caption = 'Przedmioty - uk'#322'ad tygodniowy'
           object Kadyprzedmiotwoddzielnejtabeli1: TMenuItem
@@ -8835,5 +8853,28 @@ inherited FMain: TFMain
     OnTimer = gridRefreshTimer
     Left = 1108
     Top = 272
+  end
+  object FindRGL: TPopupMenu
+    Left = 936
+    Top = 416
+    object Zajtosal1: TMenuItem
+      Caption = 'Zaj'#281'to'#347#263' sal'
+      OnClick = Zajtosal1Click
+    end
+    object Zajtogrup1: TMenuItem
+      Caption = 'Zaj'#281'to'#347#263' grup'
+      OnClick = Zajtogrup1Click
+    end
+    object Zajtowykadowcw1: TMenuItem
+      Caption = 'Zaj'#281'to'#347#263' wyk'#322'adowc'#243'w'
+      OnClick = Zajtowykadowcw1Click
+    end
+    object N28: TMenuItem
+      Caption = '-'
+    end
+    object Uk1: TMenuItem
+      Caption = 'Poka'#380' wiele wyk'#322'adowc'#243'w, grup, sal'
+      OnClick = Uk1Click
+    end
   end
 end

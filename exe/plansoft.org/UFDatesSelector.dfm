@@ -1,6 +1,6 @@
 inherited FDatesSelector: TFDatesSelector
-  Left = 355
-  Top = 291
+  Left = 808
+  Top = 423
   Width = 292
   Height = 149
   Caption = 'Wyb'#243'r dat'

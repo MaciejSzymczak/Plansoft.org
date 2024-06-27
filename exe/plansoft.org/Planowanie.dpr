@@ -94,7 +94,8 @@ uses
   UFPulpitSelector in 'UFPulpitSelector.pas' {FPulpitSelector},
   UFIntegration in 'UFIntegration.pas' {FIntegration},
   UFMessageBox in 'UFMessageBox.pas' {FMessageBox},
-  UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB};
+  UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB},
+  UWebServices in 'UWebServices.pas';
 
 {$R *.RES}
 
