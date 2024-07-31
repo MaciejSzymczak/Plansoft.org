@@ -642,7 +642,7 @@ begin
     if (fmain.TabViewType.TabIndex = 1) then presId := ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 2) then presId := ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 3) then presId := ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';']);
-    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false),';',',')+')';   //2024.07.25
 
 
     if QueryCOUNTER.Active then
@@ -762,6 +762,7 @@ begin
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
+      ' AND GRO_CLA.IS_CHILD = ''N''' + CR +
       iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where lec_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
@@ -774,7 +775,7 @@ begin
 
     QueryCOUNTER.SQL.Add( queryString );
 
-    //copyToclipboard(QueryCOUNTER.SQL.text);
+    //copyToclipboard(QueryCOUNTER.SQL.text);     // 2024.07.25 
     QueryCOUNTER.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
   end;

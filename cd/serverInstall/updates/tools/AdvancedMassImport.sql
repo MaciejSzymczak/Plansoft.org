@@ -4,27 +4,27 @@ select * from subjects where name like 'XX%'
 
 --mass merge
 declare
-procedure merge (pName varchar2) is
-psave_id number;
-pdelete_id number;
+	procedure merge (pName varchar2) is
+		psave_id number;
+		pdelete_id number;
+	begin
+		select count(id) into psave_id from subjects where name = pName;
+		if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select count(id) into pdelete_id from subjects where name = 'XX'||pName;
+		if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select id into psave_id from subjects where name = pName;
+		select id into pdelete_id from subjects where name = 'XX'||pName;
+		--TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
+		planner_utils.merge_SUB (psave_id, pdelete_id, 'Y');
+		Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
+	end;
 begin
-select count(id) into psave_id from subjects where name = pName;
-if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select count(id) into pdelete_id from subjects where name = 'XX'||pName;
-if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select id into psave_id from subjects where name = pName;
-select id into pdelete_id from subjects where name = 'XX'||pName;
---TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
-planner_utils.merge_SUB (psave_id, pdelete_id, 'Y');
-Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
-end;
-begin
-Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
-for rec in (select replace(name,'XX','') name, count(1) from subjects group by replace(name,'XX','') having count(1)>1) loop
-merge (rec.Name);
-end loop;
-commit;
-Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
+	Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
+	for rec in (select replace(name,'XX','') name, count(1) from subjects group by replace(name,'XX','') having count(1)>1) loop
+		merge (rec.Name);
+	end loop;
+	commit;
+	Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
 end;
 
 --check results
@@ -46,27 +46,27 @@ select * from groups where name like 'XX%'
 
 --mass merge
 declare
-procedure merge (pName varchar2) is
-psave_id number;
-pdelete_id number;
+	procedure merge (pName varchar2) is
+		psave_id number;
+		pdelete_id number;
+	begin
+		select count(id) into psave_id from groups where name = pName;
+		if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select count(id) into pdelete_id from groups where name = 'XX'||pName;
+		if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select id into psave_id from groups where name = pName;
+		select id into pdelete_id from groups where name = 'XX'||pName;
+		--TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
+		planner_utils.merge_GRO (psave_id, pdelete_id, 'Y');
+		Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
+	end;
 begin
-select count(id) into psave_id from groups where name = pName;
-if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select count(id) into pdelete_id from groups where name = 'XX'||pName;
-if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select id into psave_id from groups where name = pName;
-select id into pdelete_id from groups where name = 'XX'||pName;
---TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
-planner_utils.merge_GRO (psave_id, pdelete_id, 'Y');
-Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
-end;
-begin
-Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
-for rec in (select replace(name,'XX','') name, count(1) from groups group by replace(name,'XX','') having count(1)>1) loop
-merge (rec.Name);
-end loop;
-Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
-commit;
+	Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
+	for rec in (select replace(name,'XX','') name, count(1) from groups group by replace(name,'XX','') having count(1)>1) loop
+	merge (rec.Name);
+	end loop;
+	Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
+	commit;
 end;
 
 --check results
@@ -87,29 +87,31 @@ LECTURERS
 =====================================================
 select * from lecturers where abbreviation like 'XX%'
 
+!!!We use abbreviation here. Why not to use TITLE, FIRST_NAME, LAST_NAME?
+
 --mass merge
 declare
-procedure merge (pabbreviation varchar2) is
-psave_id number;
-pdelete_id number;
+	procedure merge (pabbreviation varchar2) is
+		psave_id number;
+		pdelete_id number;
+	begin
+		select count(id) into psave_id from lecturers where abbreviation = pabbreviation;
+		if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pabbreviation, 'I', 'MassMerge'); return; end if;
+		select count(id) into pdelete_id from lecturers where abbreviation = 'XX'||pabbreviation;
+		if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pabbreviation, 'I', 'MassMerge'); return; end if;
+		select id into psave_id from lecturers where abbreviation = pabbreviation;
+		select id into pdelete_id from lecturers where abbreviation = 'XX'||pabbreviation;
+		--TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
+		planner_utils.merge_LEC (psave_id, pdelete_id, 'Y');
+		Xxmsz_Tools.insertIntoEventLog('Merged:'||pabbreviation, 'I', 'MassMerge');
+	end;
 begin
-select count(id) into psave_id from lecturers where abbreviation = pabbreviation;
-if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pabbreviation, 'I', 'MassMerge'); return; end if;
-select count(id) into pdelete_id from lecturers where abbreviation = 'XX'||pabbreviation;
-if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pabbreviation, 'I', 'MassMerge'); return; end if;
-select id into psave_id from lecturers where abbreviation = pabbreviation;
-select id into pdelete_id from lecturers where abbreviation = 'XX'||pabbreviation;
---TO DO: update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
-planner_utils.merge_LEC (psave_id, pdelete_id, 'Y');
-Xxmsz_Tools.insertIntoEventLog('Merged:'||pabbreviation, 'I', 'MassMerge');
-end;
-begin
-Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
-for rec in (select replace(abbreviation,'XX','') abbreviation, count(1) from lecturers group by replace(abbreviation,'XX','') having count(1)>1) loop
-merge (rec.abbreviation);
-end loop;
-Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
-commit;
+	Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
+	for rec in (select replace(abbreviation,'XX','') abbreviation, count(1) from lecturers group by replace(abbreviation,'XX','') having count(1)>1) loop
+	merge (rec.abbreviation);
+	end loop;
+	Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
+	commit;
 end;
 
 --check results
@@ -142,29 +144,32 @@ ROOMS
 =====================================================
 select * from ROOMS where name like 'XX%'
 
+!!!IS NAME
+!!!SHOULD BE NAME, attribs_01
+
 --mass merge
 declare
-procedure merge (pName varchar2) is
-psave_id number;
-pdelete_id number;
+	procedure merge (pName varchar2) is
+		psave_id number;
+		pdelete_id number;
+	begin
+		select count(id) into psave_id from rooms where name = pName;
+		if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select count(id) into pdelete_id from rooms where name = 'XX'||pName;
+		if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
+		select id into psave_id from rooms where name = pName;
+		select id into pdelete_id from rooms where name = 'XX'||pName;
+		update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
+		planner_utils.merge_RES (psave_id, pdelete_id, 'Y');
+		Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
+	end;
 begin
-select count(id) into psave_id from rooms where name = pName;
-if psave_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select count(id) into pdelete_id from rooms where name = 'XX'||pName;
-if pdelete_id<>1 then Xxmsz_Tools.insertIntoEventLog('NOT Merged(1):'||pName, 'I', 'MassMerge'); return; end if;
-select id into psave_id from rooms where name = pName;
-select id into pdelete_id from rooms where name = 'XX'||pName;
-update rooms set desc1=nvl(desc1,(select desc1 from rooms where id=pdelete_id)), desc2=nvl(desc2,(select desc2 from rooms where id=pdelete_id)) where id = psave_id;
-planner_utils.merge_RES (psave_id, pdelete_id, 'Y');
-Xxmsz_Tools.insertIntoEventLog('Merged:'||pName, 'I', 'MassMerge');
-end;
-begin
-Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
-for rec in (select replace(name,'XX','') name, count(1) from rooms group by replace(name,'XX','') having count(1)>1) loop
-merge (rec.Name);
-end loop;
-commit;
-Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
+	Xxmsz_Tools.insertIntoEventLog('START', 'I', 'MassMerge');
+	for rec in (select replace(name,'XX','') name, count(1) from rooms group by replace(name,'XX','') having count(1)>1) loop
+	merge (rec.Name);
+	end loop;
+	commit;
+	Xxmsz_Tools.insertIntoEventLog('STOP', 'I', 'MassMerge');
 end;
 
 --check results

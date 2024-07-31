@@ -554,7 +554,7 @@ begin
     FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
     internalInit (QWork.Fields[2].AsInteger+1, QWork.Fields[4].AsInteger);
 
-	ChildsAndParents := getChildsAndParents (pResId, '', true, true);
+	ChildsAndParents := getChildsAndParents (pResId, '', true, false);  //2024.07.25 ignoreExclusiveParent=false (it was: true) 
 	for x := 1 To WordCount(ChildsAndParents,[';']) do begin
 		currentResource := ExtractWord(x, ChildsAndParents, [';']);
 
@@ -1121,7 +1121,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
           MaxL : Integer;
           ChildsAndParents : string;
     begin
-    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, true),';',',')+')';  //!!bookmark!!
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
     For LegendRowNumber := 1 To High(Lgnd) Do Begin
@@ -1141,6 +1141,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '  FROM CLASSES CLA, SUBJECTS SUB, LEC_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND LEC_ID in '+ChildsAndParents+
+                '   AND LEC_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
@@ -1150,6 +1151,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '  FROM CLASSES CLA, SUBJECTS SUB, GRO_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND GRO_ID in '+ChildsAndParents+
+                '   AND GRO_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
@@ -1159,6 +1161,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND ROM_ID in '+ChildsAndParents+
+                '   AND ROM_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
                 '   AND '+periodClause+' '+
                 'ORDER BY SUB.NAME');
@@ -1251,6 +1254,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND LEC_CLA.IS_CHILD = ''N'' '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
@@ -1270,6 +1274,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND GRO_CLA.IS_CHILD = ''N'' '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
@@ -1289,6 +1294,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND ROM_CLA.IS_CHILD = ''N'' '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+

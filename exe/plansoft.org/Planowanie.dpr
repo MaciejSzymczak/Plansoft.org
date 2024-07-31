@@ -95,7 +95,8 @@ uses
   UFIntegration in 'UFIntegration.pas' {FIntegration},
   UFMessageBox in 'UFMessageBox.pas' {FMessageBox},
   UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB},
-  UWebServices in 'UWebServices.pas';
+  UWebServices in 'UWebServices.pas',
+  UProgress in 'UProgress.pas' {FProgress};
 
 {$R *.RES}
 
@@ -184,6 +185,7 @@ begin
   Application.CreateForm(TFIntegration, FIntegration);
   Application.CreateForm(TFMessageBox, FMessageBox);
   Application.CreateForm(TFMassUpdateSUB, FMassUpdateSUB);
+  Application.CreateForm(TFProgress, FProgress);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

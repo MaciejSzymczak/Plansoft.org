@@ -6515,6 +6515,13 @@ inherited FMain: TFMain
         Caption = 'Rejestracja us'#322'ugi serwisowej'
         OnClick = Rejestracaus1Click
       end
+      object N29: TMenuItem
+        Caption = '-'
+      end
+      object estujAPI1: TMenuItem
+        Caption = 'Testuj API'
+        OnClick = estujAPI1Click
+      end
     end
   end
   object AutoSaver: TTimer

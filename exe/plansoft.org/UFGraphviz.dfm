@@ -2,7 +2,7 @@ inherited FGraphviz: TFGraphviz
   Left = 747
   Top = 445
   Width = 385
-  Height = 173
+  Height = 234
   Caption = 'Diagram: Nadrz'#281'dny - podrz'#281'dny'
   PixelsPerInch = 96
   TextHeight = 14
@@ -20,13 +20,20 @@ inherited FGraphviz: TFGraphviz
     Height = 14
     Caption = 'Orientacja'
   end
+  object Label2: TLabel [2]
+    Left = 8
+    Top = 64
+    Width = 33
+    Height = 14
+    Caption = 'Rodzaj'
+  end
   inherited Status: TPanel
-    Top = 122
+    Top = 183
     Width = 377
   end
   object topPanel: TPanel
     Left = 0
-    Top = 80
+    Top = 141
     Width = 377
     Height = 42
     Align = alBottom
@@ -186,14 +193,6 @@ inherited FGraphviz: TFGraphviz
     Visible = False
     WordWrap = False
   end
-  object Interactive: TCheckBox
-    Left = 8
-    Top = 56
-    Width = 97
-    Height = 17
-    Caption = 'Interaktywny'
-    TabOrder = 8
-  end
   object chartHeaderVer2: TMemo
     Left = 424
     Top = 280
@@ -215,7 +214,7 @@ inherited FGraphviz: TFGraphviz
       '<br/>'
       'digraph G { %orientation'
       '<br/>')
-    TabOrder = 9
+    TabOrder = 8
     Visible = False
     WordWrap = False
   end
@@ -228,9 +227,53 @@ inherited FGraphviz: TFGraphviz
       '}'
       '</body>'
       '</html>')
+    TabOrder = 9
+    Visible = False
+    WordWrap = False
+  end
+  object chartHeaderVer3: TMemo
+    Left = 832
+    Top = 280
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      '<!DOCTYPE html>'
+      '<html>'
+      '<head>'
+      '<title>Plansoft.org - diagram</title>'
+      '</head>'
+      '<body>'
+      '')
     TabOrder = 10
     Visible = False
     WordWrap = False
+  end
+  object chartFooterVer3: TMemo
+    Left = 1024
+    Top = 280
+    Width = 185
+    Height = 89
+    Lines.Strings = (
+      '</body>'
+      '</html>')
+    TabOrder = 11
+    Visible = False
+    WordWrap = False
+  end
+  object ChartMode: TComboBox
+    Left = 77
+    Top = 56
+    Width = 292
+    Height = 22
+    Style = csOwnerDrawFixed
+    ItemHeight = 16
+    ItemIndex = 0
+    TabOrder = 12
+    Text = 'Obraz'
+    Items.Strings = (
+      'Obraz'
+      'Edytowalny'
+      'Interaktywny')
   end
   object generateChart: TADOQuery
     AutoCalcFields = False

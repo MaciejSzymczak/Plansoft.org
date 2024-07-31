@@ -20,9 +20,12 @@ type
     orientation: TComboBox;
     chartHeaderIneractive: TMemo;
     chartFooterInteractive: TMemo;
-    Interactive: TCheckBox;
     chartHeaderVer2: TMemo;
     chartFooterVer2: TMemo;
+    chartHeaderVer3: TMemo;
+    chartFooterVer3: TMemo;
+    Label2: TLabel;
+    ChartMode: TComboBox;
     procedure BCloseClick(Sender: TObject);
     procedure BCreateClick(Sender: TObject);
   private
@@ -38,7 +41,7 @@ var
 
 implementation
 
-uses DM, UUtilityParent, UFMain;
+uses DM, UUtilityParent, UFMain, UWebServices;
 
 {$R *.dfm}
 
@@ -98,8 +101,42 @@ begin
        'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v where child_id in (select id from helper1) '+'or parent_id in (select id from helper1) order by parent_dsp, child_dsp');
   end;
 
-  //static chart
-  if (Interactive.Checked=false) then begin
+
+
+  if (ChartMode.ItemIndex =0) then begin
+	  htmlContent := '@startuml'+cr+'digraph G {'+cr+'%orientation'+cr;
+	  while not generateChart.Eof do begin
+		 htmlContent := htmlContent +  '"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
+			 + ' ['
+			 + iif(generateChart.Fields[2].AsString='+','penwidth=3','penwidth=1')
+			 + ',color="'+delphiColourToHTML(generateChart.Fields[3].AsInteger)+'"'
+			 +'];'  + cr;
+		 generateChart.Next;
+	  end;
+	  generateChart.Close;
+	  Dmodule.RollbackTrans;
+
+	  tmpFileName := uutilityParent.ApplicationDocumentsPath +'Plansoft.org.groups.html';
+
+	  AssignFile(tmpFile, tmpFileName );
+	  rewrite(tmpFile);
+
+	  htmlContent := htmlContent + '}' +cr+ '@enduml';
+	  case orientation of
+	   0:begin htmlContent := searchAndReplace(htmlContent, '%orientation', 'rankdir=LR;'); end;
+	   1:begin htmlContent := searchAndReplace(htmlContent, '%orientation', ''); end;
+	  end;
+
+    htmlContent := httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode(htmlContent),'Content-Type: application/x-www-form-urlencoded',80);
+
+	  writeln(tmpFile, chartHeaderVer3.text +  htmlContent + chartFooterVer3.text);
+	  closeFile(tmpFile);
+    Dmodule.RollbackTrans;
+  end;
+
+
+  //static chart  EDITABLE
+  if (ChartMode.ItemIndex =1) then begin
 	  htmlContent := '';
 	  while not generateChart.Eof do begin
 		 htmlContent := htmlContent +  '"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
@@ -128,39 +165,9 @@ begin
     Dmodule.RollbackTrans;
   end;
 
-  { version 1
-  if (Interactive.Checked=false) then begin
-	  htmlContent := '';
-	  while not generateChart.Eof do begin
-		 htmlContent := htmlContent +  'gt += ''"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
-			 + ' ['
-			 + iif(generateChart.Fields[2].AsString='+','penwidth=3','penwidth=1')
-			 + ',color="'+delphiColourToHTML(generateChart.Fields[3].AsInteger)+'"'
-			 +'];'''  + cr;
-		 generateChart.Next;
-	  end;
-	  generateChart.Close;
-	  Dmodule.RollbackTrans;
-
-	  tmpFileName := uutilityParent.ApplicationDocumentsPath +'Plansoft.org.groups.html';
-
-	  AssignFile(tmpFile, tmpFileName );
-	  rewrite(tmpFile);
-
-	  pchartHeader := chartHeader.text;
-	  case orientation of
-	   0:begin pchartHeader := searchAndReplace(pchartHeader, '%orientation', 'rankdir=LR;'); end;
-	   1:begin pchartHeader := searchAndReplace(pchartHeader, '%orientation', ''); end;
-	  end;
-
-	  writeln(tmpFile, pchartHeader+  htmlContent + chartFooter.text);
-	  closeFile(tmpFile);
-    Dmodule.RollbackTrans;
-  end;
-  }
 
   //interactive chart
-  if (Interactive.Checked=true) then begin
+  if (ChartMode.ItemIndex =2) then begin
 	  htmlContent := '';
 	  while not generateChart.Eof do begin
 		 dmodule.SQL2('begin insert into helper2 (desc2) values ('''+     'nodes.push({id: ' + generateChart.FieldByName('parent_id').AsString + ', label: "' + generateChart.FieldByName('parent_dsp').AsString + '"})'     +'''); end;');

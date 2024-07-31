@@ -595,6 +595,8 @@ type
     Zajtosal1: TMenuItem;
     Zajtogrup1: TMenuItem;
     Zajtowykadowcw1: TMenuItem;
+    N29: TMenuItem;
+    estujAPI1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -942,6 +944,7 @@ type
     procedure Zajtogrup1Click(Sender: TObject);
     procedure Zajtowykadowcw1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure estujAPI1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1114,7 +1117,8 @@ Uses AutoCreate, UFDetails,
   UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
-  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices;
+  UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
+  UProgress;
 
 var dummy : string;
 
@@ -2886,6 +2890,7 @@ Var xp, yp           : Integer;
     classesToAdd     : integer;
     calendarSelected : boolean;
     addedFlag        : boolean;
+    currentCnt       : integer;
 
     procedure processPattern (x0,xp : integer);
      var canInsertClass : boolean;
@@ -2937,13 +2942,20 @@ begin
       classesCount := 0;
       classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
 
+      FProgress.Show;
+      currentCnt := 0;
       For xp:=Selection.Left To Selection.Right Do
-       For yp:=Selection.Top To Selection.Bottom Do
+       For yp:=Selection.Top To Selection.Bottom Do Begin
+          currentCnt := currentCnt + 1;
           if classesCount < classesToAdd then
             If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
+              FProgress.ProgressBar.Position :=  round(currentCnt *  FProgress.ProgressBar.Max / classesToAdd);
+              FProgress.Refresh;
               processPattern(Selection.Left,xp);
             end;
-
+       End;
+       
+      FProgress.Hide;
       Refresh;
 
       if classesCount<classesToAdd then info('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount)+cr+'Aby zaznaczyæ inny obszar i spróbowaæ ponownie, wybierz polecenie Cofnij');
@@ -3275,6 +3287,7 @@ Var xp, yp  : Integer;
     Class_ : TClass_;
     Status : Integer;
     pId : String;
+    cntTotal, cntCurrent : integer;
 
 	function deleteChildsAndParents (objectType :integer) : boolean;
 			var childsAndParents : String;
@@ -3316,8 +3329,11 @@ begin
  With Grid Do
  Begin
    dmodule.CommitTrans;
+   FProgress.Show;
+   cntTotal :=  (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);;
+   cntCurrent := 0;
    For xp:=Selection.Left To Selection.Right Do
-    For yp:=Selection.Top To Selection.Bottom Do
+    For yp:=Selection.Top To Selection.Bottom Do Begin
        If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then Begin
         Case TabViewType.TabIndex Of
          0: begin pId := iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)); ClassByLecturerCaches.LGetClass(TS, Zajecia, pId, Status, Class_); end;
@@ -3334,6 +3350,11 @@ begin
          ClassError    : DeleteClass(Class_,-1);
         End;
        End;
+       cntCurrent := cntCurrent + 1;
+       FProgress.ProgressBar.Position := round(cntCurrent * FProgress.ProgressBar.Max / cntTotal);
+       Fprogress.Refresh;
+    End;
+   FProgress.Hide;
    Refresh;
  End;
  deepRefreshDelayed;
@@ -6096,6 +6117,7 @@ procedure TFMain.modifyClasses;
       xstart, xend, ystart, yend, dx, dy : integer;
       cellsSucceed    : integer;
       cellsNotSucceed : integer;
+      cellsTotal      : integer;
       successFlag     : boolean;
 
 begin
@@ -6130,6 +6152,10 @@ begin
   ystart := ystart - dy;
 
   yp := ystart;
+
+  FProgress.Show;
+  cellsTotal := abs(xend-xstart)*abs(yend-ystart);
+
   repeat
     yp := yp + dy;
     xp := xstart;
@@ -6138,8 +6164,11 @@ begin
      if not modifyClass ('N/A', xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
      if successFlag then cellsSucceed    := cellsSucceed +1
                     else cellsNotSucceed := cellsNotSucceed +1;
+     FProgress.Refresh;
+     FProgress.ProgressBar.Position := Round((cellsSucceed+cellsNotSucceed)*FProgress.ProgressBar.Max / cellsTotal);
     until xp = xend;
   until yp = yend;
+  FProgress.Hide;
 
   moveSelection ( deltaX, deltaY);
 
@@ -6368,6 +6397,7 @@ procedure TFMain.FormShow(Sender: TObject);
  end;
 
 begin
+  FProgress.Hide;
   dockingPanel := strToInt( getSystemParam('FLegend.dockingPanel', inttostr(C_RIGHT) ));
   x;
   if resizeMode then exit;
@@ -9364,6 +9394,13 @@ var
 begin
   //UWebServices.HttpGet('https://soft.home.pl', Response);
   //Memo1.Lines.Text := Response;
+end;
+
+procedure TFMain.estujAPI1Click(Sender: TObject);
+var
+  Response: string;
+begin
+  info( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
 end;
 
 initialization

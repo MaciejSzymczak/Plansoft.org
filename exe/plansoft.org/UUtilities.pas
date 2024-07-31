@@ -1189,7 +1189,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';  //2024.07.25
       Result := colName+' in (SELECT CLA_ID FROM GRO_CLA'+postfix+' WHERE is_child=''N'' and GRO_ID in '+ChildsAndParents+')';
     end;
     if lmode = 'a' then
