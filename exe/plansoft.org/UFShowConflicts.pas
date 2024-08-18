@@ -23,7 +23,7 @@ type
   private
     { Private declarations }
   public
-    { Public declarations }
+    dataStamp : String;
   end;
 
 var

@@ -762,7 +762,7 @@ begin
       ' AND SUB.ID(+) = CLA.SUB_ID' + CR +
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
-      ' AND GRO_CLA.IS_CHILD = ''N''' + CR +
+      iif( groupByG.Checked and chGnewLine.Checked, ' AND GRO_CLA.IS_CHILD = ''N''' + CR,'')+
       iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where lec_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
@@ -775,7 +775,10 @@ begin
 
     QueryCOUNTER.SQL.Add( queryString );
 
-    //copyToclipboard(QueryCOUNTER.SQL.text);     // 2024.07.25 
+    fmain.wlog('Start : OpenSQL:  ' + QueryCOUNTER.SQL.text);
+    fmain.wlog('QueryCOUNTER STOP');
+
+    //copyToclipboard(QueryCOUNTER.SQL.text);     // 2024.07.25
     QueryCOUNTER.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridCounter);
   end;

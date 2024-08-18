@@ -2714,7 +2714,11 @@ end;
 
 Procedure TFMain.insertClasses;
 
- function AddClass : boolean;
+ var priorDataStamp : string;
+     priorAnswer    : TModalResult;
+     Answer    : TModalResult;
+
+ function XAddClass : boolean;
  var t : Integer;
      PLecturers, PGroups, PRooms : TPointers;
      PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
@@ -2872,8 +2876,18 @@ Procedure TFMain.insertClasses;
     result := false;
     If Not checkConflicts.Empty Then
     begin
-      checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden);
-      if fShowConflicts.ShowModal <> mrCancel Then
+
+      priorDataStamp := fShowConflicts.dataStamp;
+      checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
+
+      priorAnswer := answer;
+
+      if (priorDataStamp = fShowConflicts.dataStamp) then
+        answer := priorAnswer
+      else
+        answer := fShowConflicts.ShowModal;
+
+      if answer <> mrCancel Then
       begin
         checkConflicts.checkConflictsInsert ( ttCombIds );
         result := true;
@@ -2892,7 +2906,7 @@ Var xp, yp           : Integer;
     addedFlag        : boolean;
     currentCnt       : integer;
 
-    procedure processPattern (x0,xp : integer);
+    procedure XprocessPattern (x0,xp : integer);
      var canInsertClass : boolean;
     begin
       // passing parameters via procedure worked sometimes badly !
@@ -2911,7 +2925,7 @@ Var xp, yp           : Integer;
 
       addedFlag := false;
       if (canInsertClass) then begin
-        addedFlag := AddClass();
+        addedFlag := XAddClass();
       end;
 
       if (addedFlag) then begin
@@ -2921,6 +2935,10 @@ Var xp, yp           : Integer;
 
 //-------------------------------- insertClasses ------------------------------------------------------
 begin
+ priorDataStamp := '';
+ fShowConflicts.dataStamp := '';
+
+
  If FDetails.ShowModal = mrOK Then Begin
 
     calendarSelected := fdetails.CALID.Text<>'-1';
@@ -2951,7 +2969,7 @@ begin
             If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
               FProgress.ProgressBar.Position :=  round(currentCnt *  FProgress.ProgressBar.Max / classesToAdd);
               FProgress.Refresh;
-              processPattern(Selection.Left,xp);
+              XprocessPattern(Selection.Left,xp);
             end;
        End;
        

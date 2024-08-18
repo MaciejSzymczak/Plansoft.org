@@ -535,6 +535,7 @@ begin
    ' and FOR_ID = FRM.ID'+cr+
    ' and SUB.ID (+)= SUB_ID'+cr+
    ' and CLASSES.HOUR = GRIDS.NO'+cr+
+   ' and CLASSES.owner <> ''AUTO'''+cr+
    ' and SUB.ORGUNI_ID = sou.ID(+)'+cr+
    ' and '+_CONL+CR+
    ' and '+_CONG+CR+

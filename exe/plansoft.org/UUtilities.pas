@@ -131,7 +131,7 @@ Type TCheckConflicts = Class
                GroupsWithChilds: TPointers;
                RoomsWithChilds: TPointers;
                Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
-             procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
+             procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
              function  empty : Boolean;
              function  checkConflictsInsert ( ttCombIds        : string ) : Boolean;
          End;
@@ -1100,7 +1100,7 @@ Begin
  End;
 End;
 
-Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel);
+Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
  Function GetLecturers(Pointers : TPointers) : String;
  Var t : Integer;
  Begin
@@ -1130,6 +1130,13 @@ Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLa
  Begin
     Result := DModule.SingleValue(sql_FORDESC+IntToStr(ID));
  End;
+ function toString ( Pointers : tpointers ) : string;
+ var t : integer;
+ begin
+  result := '';
+  For t := 1 To maxInClass Do
+    If Pointers[t]<>0 Then result := Merge(Result,IntToStr(Pointers[t]), ',');
+ end;
 
 Var t : Integer;
 var MarkL, MarkG, MarkR : string;
@@ -1145,25 +1152,44 @@ Begin
  SGNewClass.Cells[6,1] := GetForm(NewClassToCreate.For_id);
  SGNewClass.Cells[7,1] := NewClassToCreate._Owner;
 
+ dataStamp := 'New:'
+             //+',D:'+GetDate(NewClassToCreate.Day.Date)
+             //+',H:'+IntToStr(NewClassToCreate.Hour)
+             +',L:'+toString(NewClassToCreate.Lecturers)
+             +',G:'+toString(NewClassToCreate.Groups)
+             +',R:'+toString(NewClassToCreate.Rooms)
+             +',S:'+IntToStr(NewClassToCreate.Sub_id)
+             +',F:'+IntToStr(NewClassToCreate.For_id)
+             +',O:'+NewClassToCreate._Owner;
+
  With SGConflicts Do Begin
  RowCount := Count + 1; //+1 for header
- For t := 1 To Count Do Begin
-  MarkL := ''; MarkG := ''; MarkR := '';
-  if pos('W', ConflictsClasses[t].conflictReason)<>0 then MarkL := '>> ';
-  if pos('G', ConflictsClasses[t].conflictReason)<>0 then MarkG := '>> ';
-  if pos('S', ConflictsClasses[t].conflictReason)<>0 then MarkR := '>> ';
-  Cells[0,t] := GetDate(ConflictsClasses[t].Day.Date);
-  Cells[1,t] := IntToStr(ConflictsClasses[t].Hour);
-  Cells[2,t] := MarkL+GetLecturers(ConflictsClasses[t].Lecturers);
-  Cells[3,t] := MarkG+GetGroups(ConflictsClasses[t].Groups);
-  Cells[4,t] := MarkR+GetRooms(ConflictsClasses[t].Rooms);
-  Cells[5,t] := GetSubject(ConflictsClasses[t].Sub_id);
-  Cells[6,t] := GetForm(ConflictsClasses[t].For_id);
-  Cells[7,t] := ConflictsClasses[t]._Owner;
-  Cells[8,t] := ConflictsClasses[t].conflictReason;
+   For t := 1 To Count Do Begin
+    MarkL := ''; MarkG := ''; MarkR := '';
+    if pos('W', ConflictsClasses[t].conflictReason)<>0 then MarkL := '>> ';
+    if pos('G', ConflictsClasses[t].conflictReason)<>0 then MarkG := '>> ';
+    if pos('S', ConflictsClasses[t].conflictReason)<>0 then MarkR := '>> ';
+    Cells[0,t] := GetDate(ConflictsClasses[t].Day.Date);
+    Cells[1,t] := IntToStr(ConflictsClasses[t].Hour);
+    Cells[2,t] := MarkL+GetLecturers(ConflictsClasses[t].Lecturers);
+    Cells[3,t] := MarkG+GetGroups(ConflictsClasses[t].Groups);
+    Cells[4,t] := MarkR+GetRooms(ConflictsClasses[t].Rooms);
+    Cells[5,t] := GetSubject(ConflictsClasses[t].Sub_id);
+    Cells[6,t] := GetForm(ConflictsClasses[t].For_id);
+    Cells[7,t] := ConflictsClasses[t]._Owner;
+    Cells[8,t] := ConflictsClasses[t].conflictReason;
 
-
- End;
+    dataStamp :=  dataStamp +
+    'Conflick:'+IntToStr(t)
+             //+',D:'+GetDate(ConflictsClasses[t].Day.Date)
+             //+',H:'+IntToStr(ConflictsClasses[t].Hour)
+             +',L:'+toString(ConflictsClasses[t].Lecturers)
+             +',G:'+toString(ConflictsClasses[t].Groups)
+             +',R:'+toString(ConflictsClasses[t].Rooms)
+             +',S:'+IntToStr(ConflictsClasses[t].Sub_id)
+             +',F:'+IntToStr(ConflictsClasses[t].For_id)
+             +',O:'+ConflictsClasses[t]._Owner;
+   End;
  End;
 End;
 
@@ -1175,7 +1201,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';  //2024.07.25
       Result := colName+' in (SELECT CLA_ID FROM LEC_CLA'+postfix+' WHERE is_child=''N'' and LEC_ID in '+ChildsAndParents+')';
     end;
     if lmode = 'a' then
@@ -1205,7 +1231,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, true),';',',')+')';
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';   //2024.07.25
       Result := colName+' in (SELECT CLA_ID FROM ROM_CLA'+postfix+' WHERE is_child=''N'' and ROM_ID in '+ChildsAndParents+')';
                                  //CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA            WHERE ROM_ID =UPPER((select name from org_units where org_units.id = orguni_id)) LIKE UPPER('instytut budow%'))
     end;
