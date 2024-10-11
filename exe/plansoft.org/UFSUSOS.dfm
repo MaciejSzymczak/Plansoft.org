@@ -245,7 +245,7 @@ inherited FUSOS: TFUSOS
     Top = 169
     Width = 995
     Height = 476
-    ActivePage = TabSheet4
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
@@ -539,25 +539,26 @@ inherited FUSOS: TFUSOS
       'from'
       '    ('
       
-        '    select classes.day, lec_id, gro_id, rom_id, nvl(str_elems.ch' +
-        'ild_id, classes.sub_id) sub_id, classes.for_id'
+        '    select classes.day, lec_id, gro_id, NVL(rom_id,0) rom_id, nv' +
+        'l((select max(parent_id) from str_elems where child_id=sub_id),s' +
+        'ub_id) sub_id, classes.for_id'
       '    from classes'
       '        , lec_cla'
       '        , gro_cla'
       '        , rom_cla'
-      '        , str_elems --sub_cla'
       '    where   lec_cla.cla_id(+) = classes.id'
       '        and gro_cla.cla_id(+) = classes.id'
       '        and rom_cla.cla_id(+) = classes.id'
-      '        and classes.sub_id = str_elems.parent_id(+)'
-      '        and lec_id >0'
-      '        and gro_id >0'
-      '        and rom_id >0'
+      '        and lec_id(+) >0'
+      '        and gro_id(+) >0'
+      '        and rom_id(+) >0'
+      '        and sub_id > 0'
       '        and classes.DAY BETWEEN %DATE_FROM AND %DATE_TO'
       '    minus'
       
-        '    select day, lec_id, gro_id, rom_id, sub_id, for_id from usos' +
-        '_temp'
+        '    select day, lec_id, gro_id, rom_id, nvl((select max(parent_i' +
+        'd) from str_elems where child_id=sub_id),sub_id) sub_id, for_id ' +
+        'from usos_temp'
       '    ) notSent'
       ' , lecturers lec'
       ' , groups gro'

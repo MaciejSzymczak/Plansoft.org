@@ -3117,6 +3117,50 @@ inherited FProgramSettings: TFProgramSettings
           Text = '20'
         end
       end
+      object GroupBox4: TGroupBox
+        Left = 8
+        Top = 408
+        Width = 553
+        Height = 89
+        Caption = 'Map tester'
+        TabOrder = 8
+        Visible = False
+        object Button3: TButton
+          Left = 86
+          Top = 48
+          Width = 75
+          Height = 25
+          Caption = 'Save'
+          TabOrder = 0
+          OnClick = Button3Click
+        end
+        object Button4: TButton
+          Left = 6
+          Top = 48
+          Width = 75
+          Height = 25
+          Caption = 'Load'
+          TabOrder = 1
+          OnClick = Button4Click
+        end
+        object Check: TButton
+          Left = 126
+          Top = 16
+          Width = 75
+          Height = 25
+          Caption = 'Check'
+          TabOrder = 2
+          OnClick = CheckClick
+        end
+        object value: TEdit
+          Left = 8
+          Top = 19
+          Width = 121
+          Height = 22
+          TabOrder = 3
+          Text = 'value'
+        end
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Raport: Zmiany w rozk'#322'adach'

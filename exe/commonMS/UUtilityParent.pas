@@ -28,6 +28,7 @@ type TMap = Class
          procedure init (plpadKey : boolean);
          procedure addKeyValue(key, value: string);
          procedure prepare;
+         function list : string;
          function  getIndex (key : string) : integer;
          function  getValue (pkey : string; defaultValue : string = '--blank--') : string;
      End;
@@ -1748,6 +1749,7 @@ end;
 procedure TMap.prepare;
 var t : integer;
 begin
+  tokens.CommaText := UpperCase(tokens.CommaText);
   tokens.Sort;
   cnt := tokens.Count;
   setLength(map, cnt);
@@ -1757,6 +1759,19 @@ begin
   end;
   //tokens.Free;
 end;
+
+function TMap.list : string;
+var t : integer;
+begin
+  result := 'tokens.commatext:' + cr + tokens.commatext + cr;
+  result := result + cr;
+  result := result + 'key:value'+ cr;
+  for t := 0 to cnt-1 do begin
+  result := result + map[t].key + ':' +  map[t].value + cr;
+  end;
+
+end;
+
 
 function TMap.getIndex(key: string): integer;
 //based on http://www.swissdelphicenter.ch/torry/showcode.php?id=1916
@@ -1797,6 +1812,7 @@ function TMap.getValue(pkey: string; defaultValue : string = '--blank--'): strin
 var i : integer;
     key: string;
 begin
+ pkey := UpperCase(pkey);
  pkey := replace(pkey, '_', 'UNDERSCORE');
  if defaultValue = '--blank--' then defaultValue := pkey;
  pkey := searchAndReplace(pkey,'-','/');
@@ -1851,7 +1867,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2024-08-18';
+ VersionOfApplication := '2024-10-08';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

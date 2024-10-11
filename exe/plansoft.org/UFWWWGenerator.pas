@@ -1347,6 +1347,7 @@ Var xp, yp          : Integer;
     currentDayOfWeek: integer;
     showLine        : boolean;
     cellPrior       : string;
+    uniqueCnt       : integer;
     cellCurrent     : string;
     cells           : string;
     htmlTable       : thtmlTable;
@@ -1649,6 +1650,7 @@ WriteLn(f, '</style>');
          end else begin
            cells := '';
            cellPrior := '';
+           uniqueCnt := 0;
            for i := 0 to classList.cnt-1 do begin
              Class_ := classList.classes[i];
              cellCurrent :=
@@ -1658,11 +1660,21 @@ WriteLn(f, '</style>');
                  ,B1, B2, B3, B4, B5
                  , ColoringIndex
                  , CellWIDTH);
-               if cellPrior <> cellCurrent then
+               if cellPrior <> cellCurrent then begin
                  cells := cells + '<td_removed>'+cellCurrent+'</td_removed>';
+                 uniqueCnt := uniqueCnt + 1;
+               end;
              cellPrior := cellCurrent;
            end;
-           htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="border: 0px; width:100%; height: 100%"><tr>'+cells+'</tr></table></td>');
+
+           if (uniqueCnt>1) then begin
+             htmlTable.writeCell('<td ROWSPAN="?" COLSPAN="?"><table style="border: 0px; width:100%; height: 100%"><tr>'+cells+'</tr></table></td>');
+           end else begin
+             //uniqueCnt=1
+             cellCurrent := StringReplace(cellCurrent, '<TD ', '<TD ROWSPAN="?" COLSPAN="?"', [rfReplaceAll, rfIgnoreCase]);
+             htmlTable.writeCell(cellCurrent);
+           end;
+
          end;
        end;
 

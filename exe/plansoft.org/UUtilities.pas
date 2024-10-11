@@ -1465,12 +1465,23 @@ var t : integer;
 begin
   currentUserRoleName := nvl(fmain.CONROLE_VALUE.Text,'**NONE**');
   result := false;
+  //fmain.wlog('START : isOwnerSupervisor');
   For t := 1 To WordCount(classOwners, [';']) Do Begin
     classOwner := Trim(ExtractWord(t,classOwners, [';']));
     ClassOwnerSupervisor := Fmain.MapPlannerSupervisors.getValue( classOwner );
+    {
+    if FProgramSettings.SQLLog.checked then  begin
+      fmain.wlog('    classOwner : ' + classOwner);
+      fmain.wlog('    ClassOwnerSupervisor.list : ' + Fmain.MapPlannerSupervisors.list);
+      fmain.wlog('    ClassOwnerSupervisor : ' + ClassOwnerSupervisor);
+      fmain.wlog('    CurrentUserName : ' + CurrentUserName);
+      fmain.wlog('    currentUserRoleName : ' + currentUserRoleName);
+    end;
+    }
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+CurrentUserName+';') then begin result := true; exit; end;
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+currentUserRoleName+';') then begin result := true; exit; end;
-  End
+  End;
+  //fmain.wlog( 'STOP : isOwnerSupervisor : result : ' + BoolToStr(result));
 end;
 
 function isOwner(classOwners : String): boolean;

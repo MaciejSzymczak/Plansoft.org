@@ -951,6 +951,10 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           Caption = 'Zaj'#281'cia'
           Visible = True
         end
+        inherited BUpdChild3: TBitBtn
+          Caption = 'Resetuj has'#322'o'
+          Visible = True
+        end
       end
       inherited FlexPanel: TPanel
         Top = 231

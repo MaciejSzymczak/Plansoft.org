@@ -18,10 +18,12 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
+    BitBtn1: TBitBtn;
     procedure BChangePasswordClick(Sender: TObject);
     procedure BCancelClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormShow(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     gCanClose : boolean;
   public
@@ -64,6 +66,18 @@ begin
   gCanClose := true;
   ENewPassword.Text := '';
   EConfirmPassword.Text := '';
+end;
+
+procedure TFChangePassword.BitBtn1Click(Sender: TObject);
+var PassChar : char;
+begin
+  PassChar := '*';
+  if (ENewPassword.PasswordChar = '*') then
+    ENewPassword.PasswordChar := #0
+  else
+    ENewPassword.PasswordChar := PassChar;
+
+  EConfirmPassword.PasswordChar :=  ENewPassword.PasswordChar;
 end;
 
 end.

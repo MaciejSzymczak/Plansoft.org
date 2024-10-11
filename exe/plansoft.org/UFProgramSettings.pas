@@ -119,6 +119,11 @@ type
     CrossTableMaxRows: TEdit;
     LogFileDir: TEdit;
     OpenFolder: TSpeedButton;
+    GroupBox4: TGroupBox;
+    Button3: TButton;
+    Button4: TButton;
+    Check: TButton;
+    value: TEdit;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -132,6 +137,9 @@ type
     procedure pClassDesc1GlobalSingularChange(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure OpenFolderClick(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure CheckClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -583,6 +591,29 @@ end;
 procedure TFProgramSettings.OpenFolderClick(Sender: TObject);
 begin
 ShowFolder(LogFileDir.Text);
+end;
+
+procedure TFProgramSettings.Button3Click(Sender: TObject);
+begin
+  inherited;
+      Fmain.MapPlannerSupervisors.tokens.SaveToFile( uutilityParent.ApplicationDocumentsPath+'\MapPlannerSupervisors.txt' );
+      serror('saved');
+end;
+
+procedure TFProgramSettings.Button4Click(Sender: TObject);
+begin
+  inherited;
+
+  Fmain.MapPlannerSupervisors.tokens.LoadFromFile( uutilityParent.ApplicationDocumentsPath+'\MapPlannerSupervisors.txt' );
+  Fmain.MapPlannerSupervisors.prepare;
+  serror('loaded');
+
+end;
+
+procedure TFProgramSettings.CheckClick(Sender: TObject);
+begin
+  inherited;
+serror( Fmain.MapPlannerSupervisors.getValue( value.text ) );
 end;
 
 end.

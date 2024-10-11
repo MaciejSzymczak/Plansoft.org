@@ -87,6 +87,7 @@ type
     procedure BClearLEC_IDClick(Sender: TObject);
     procedure SetPasswordClick(Sender: TObject);
     procedure SelectOwnerClick(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
   private
   public
     Function  CheckRecord : Boolean; override;
@@ -423,6 +424,33 @@ begin
       then //
       else Query.FieldByName('PARENT').AsString := Merge(PARENT.Text, KeyValue, ';');
   End;
+end;
+
+procedure TFBrowsePLANNERS.BUpdChild3Click(Sender: TObject);
+Var autGeneratedPassword : String ;
+    userName : String;
+begin
+ If not isAdmin Then Begin
+  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  Exit;
+ end;
+
+
+ userName := Query.FieldByName('NAME').AsString;
+ autGeneratedPassword := 'JEDNORAZOWE'+intToStr(random(5000)+5000);
+
+ dmodule.SQL( Format('ALTER USER %s ACCOUNT UNLOCK', [userName]) );
+
+ dmodule.SQL(Format('alter user %s identified by "%s"',[userName, autGeneratedPassword]));
+ SError (Format(
+    'Konto u¿ytkownika zosta³o odblokowane, a has³o zmienione.'+#13+#10+#13+#10+
+    '*************************'+#13+#10+
+    'Baza danych: %s'+#13+#10+
+    'Nazwa u¿ytkownika: %s'+#13+#10+
+    'Nowe has³o: %s'+#13+#10+
+    '*************************'
+    ,[DM.DBname, userName, autGeneratedPassword]));
+
 end;
 
 end.

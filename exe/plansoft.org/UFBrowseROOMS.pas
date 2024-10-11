@@ -143,6 +143,7 @@ type
     Procedure deleteClick;           override;
     Procedure AddClick;              override;
     Procedure EditClick;             override;
+    Procedure GetTableName;          override;
     procedure flexSetContextNameInListView; override;
     procedure flexSetContextNameInFormView; override;
     Function  getSearchFilter : string;  override;
@@ -711,6 +712,11 @@ begin
   inherited;
   INTEGRATION_ID.Visible := true;
   LINTEGRATION_ID.Visible := true;
+end;
+
+procedure TFBrowseROOMS.GetTableName;
+begin
+  Self.TableName := 'ROOMS';
 end;
 
 end.

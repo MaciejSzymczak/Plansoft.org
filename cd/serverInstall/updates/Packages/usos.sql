@@ -861,6 +861,17 @@ begin
       );
     commit;
     --  
+    --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
+    for rec in (
+        select name, integration_id from rooms where integration_id in (
+        select sl_id from usos_temp
+        minus 
+        select id from dz_sale@usos
+        )
+    ) loop
+      raise_application_error(-20001, 'W USOS nie ma sali: '||rec.name||' Id:'||rec.integration_id);
+    end loop;
+    --  
     insert into dz_terminy_grup@usos (gr_nr, sl_id, zaj_cyk_id, trm_id, czestotliwosc)
     select UNIQUE 
            gr_nr

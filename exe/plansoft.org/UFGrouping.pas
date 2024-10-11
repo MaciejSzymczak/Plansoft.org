@@ -423,7 +423,7 @@ begin
   else begin
       if ChF.Checked then begin
         dmodule.openSQL(
-          'select id, name'+cr+
+          'select id, SUBSTRB(name,1,30) name'+cr+
           'from forms'+cr+
           'where '+format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(CONF_VALUE.Text)) ) ])+
           ' order by sort_order_on_reports'

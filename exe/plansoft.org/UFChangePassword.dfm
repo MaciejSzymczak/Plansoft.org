@@ -83,6 +83,7 @@ inherited FChangePassword: TFChangePassword
       Top = 8
       Width = 75
       Height = 25
+      Caption = 'Nie teraz'
       TabOrder = 0
       OnClick = BCancelClick
       Kind = bkCancel
@@ -96,5 +97,14 @@ inherited FChangePassword: TFChangePassword
       OnClick = BChangePasswordClick
       Kind = bkOK
     end
+  end
+  object BitBtn1: TBitBtn
+    Left = 400
+    Top = 40
+    Width = 75
+    Height = 25
+    Caption = 'Poka'#380
+    TabOrder = 4
+    OnClick = BitBtn1Click
   end
 end

@@ -10,6 +10,7 @@ inherited FBrowseGRIDS: TFBrowseGRIDS
   end
   inherited MainPage: TPageControl
     Width = 780
+    ActivePage = Browse
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 772
@@ -563,7 +564,7 @@ inherited FBrowseGRIDS: TFBrowseGRIDS
     Left = 60
     Top = 232
     object Co15min73021451: TMenuItem
-      Caption = '7.30-21.45, co 15min'
+      Caption = '7.00-21.45, co 15min'
       OnClick = Co15min73021451Click
     end
     object N12341: TMenuItem

@@ -4135,7 +4135,7 @@ begin
 
   if loginParamsDelivered then
   Begin
-   if upperCase(aDBName) = 'DOK'  then aDBName := 'prddokplanner.wat.edu.pl:1521/xe';
+   if upperCase(aDBName) = 'DOK'  then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
    if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
    if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
    if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
@@ -5069,8 +5069,10 @@ begin
 
  If logonOK Then
  Begin
-   if (password = username) and (uppercase(username)<>'PLANNER') then begin
-     changePassword('NAZWA U¯YTKOWNIKA I HAS£O NIE MOG¥ BYÆ TAKIE SAME');
+   if (uppercase(username)<>'PLANNER') then begin
+   if (password = username) or (copy(password,0,11)='JEDNORAZOWE')  then begin
+     changePassword('ZMIEÑ HAS£O');
+   end;
    end;
    UnLockFormComponents(Self);
    try

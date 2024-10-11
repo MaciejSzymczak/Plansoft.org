@@ -13,6 +13,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1185
     Height = 639
+    ActivePage = Browse
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1142
@@ -29,6 +30,12 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Width = 1142
         Height = 407
         Columns = <
+          item
+            Expanded = False
+            FieldName = 'LOCKED'
+            Title.Caption = 'Blokada?'
+            Visible = True
+          end
           item
             Expanded = False
             FieldName = 'NAME'
@@ -750,7 +757,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   TabOrder = 1
                   OnClick = DelParentClick
                   Glyph.Data = {
-                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -961,7 +968,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                   TabOrder = 1
                   OnClick = delDetailClick
                   Glyph.Data = {
-                    DA0D0000424DDA0D000000000000360800002800000013000000130000000100
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
                     200000000000A405000000000000000000000001000000000000000000008080
                     8000000080000080800000800000808000008000000080008000408080004040
                     0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -1935,8 +1942,11 @@ inherited FBrowseROOMS: TFBrowseROOMS
     AfterScroll = QueryAfterScroll
     SQL.Strings = (
       'SELECT ROOMS.*'
-      ',      ORG_UNITS.NAME OUNAME'
-      ',      SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) OUCODE'
+      ',  ORG_UNITS.NAME OUNAME'
+      ',  SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) OUCODE'
+      
+        ',  (select per.name from timetable_notes, periods per where per_' +
+        'id=per.id and res_id= rooms.id and rownum=1) locked'
       '  FROM ROOMS'
       ',      ORG_UNITS'
       ' WHERE ORGUNI_ID = ORG_UNITS.ID(+)'
