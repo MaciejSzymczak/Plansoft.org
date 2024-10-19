@@ -96,7 +96,8 @@ uses
   UFMessageBox in 'UFMessageBox.pas' {FMessageBox},
   UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB},
   UWebServices in 'UWebServices.pas',
-  UProgress in 'UProgress.pas' {FProgress};
+  UProgress in 'UProgress.pas' {FProgress},
+  UFSelectDate in 'UFSelectDate.pas' {FSelectDate};
 
 {$R *.RES}
 
@@ -186,6 +187,7 @@ begin
   Application.CreateForm(TFMessageBox, FMessageBox);
   Application.CreateForm(TFMassUpdateSUB, FMassUpdateSUB);
   Application.CreateForm(TFProgress, FProgress);
+  Application.CreateForm(TFSelectDate, FSelectDate);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

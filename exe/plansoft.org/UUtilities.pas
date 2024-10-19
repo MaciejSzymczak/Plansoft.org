@@ -26,7 +26,7 @@ Type TConvertSingleObject = object
              End;
       public
       Procedure Init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
-      //Function  DateToColRow(_Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
+      Function  DateToColRow(_Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
       Function  ColRowToDate(var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
      End;
 
@@ -60,6 +60,7 @@ type TConvertGrid = class
        convertManyObjects   : TConvertManyObjects;
        procedure setupGrid (periodId : String; singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt : integer);
        Function  ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
+       Function  DateToColRow(var objId : integer; _Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
 
        private
          Procedure initNOsingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
@@ -608,7 +609,28 @@ Begin
                       Else LiczbaWierszy := 5 * (MaxIloscGodzin + 1 );}
 End;
 
-{Function  TConvertDateColRow.DateToColRow;
+Function  TConvertSingleObject.DateToColRow(_Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
+var i : integer;
+begin
+  result := false;
+  len := high(convertGrid.convertSingleObject.ColRowDate);
+  i := 1;
+  While (i<=Len) And  (Not((ColRowDate[i].Date=_Date) )) Do begin
+    i := i + 1;
+  End;
+
+  if (i<=Len) then begin
+    Col := ColRowDate[i].Col+2;
+    Row := ColRowDate[i].Row+1;
+    result := true;
+  end;
+
+end;
+
+
+{
+2024.10.18 not tested, may be correct
+Function  TConvertSingleObject.DateToColRow(_Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
 Var i : Integer;
 Begin
  i := 1;
@@ -626,7 +648,8 @@ Begin
    End;
    Col := Col + modulo;
 End;
- }
+}
+
 Function  TConvertSingleObject.ColRowToDate;
 Var i : Integer;
     _D : Integer;
@@ -1916,6 +1939,21 @@ Begin
       then initSingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+')
       else initNOsingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+', ObjIDs, ObjNames );
 End;
+
+function TConvertGrid.DateToColRow(var objId: integer; _Date,
+  _Hour: Integer; var Col, Row: Integer): Boolean;
+begin
+
+ if convertMode= ConvSingleObject then begin
+   result := convertSingleObject.DateToColRow(_Date, -1,  Col, Row);
+ end else begin
+   info('W tym widoku funkcja nie jest obslugiwana');
+   result := false;
+ end;
+
+
+
+end;
 
 initialization
   quickInsertMode    := false;

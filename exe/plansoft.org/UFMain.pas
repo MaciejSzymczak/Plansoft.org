@@ -597,6 +597,7 @@ type
     Zajtowykadowcw1: TMenuItem;
     N29: TMenuItem;
     estujAPI1: TMenuItem;
+    GoToDate: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -945,6 +946,7 @@ type
     procedure Zajtowykadowcw1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure estujAPI1Click(Sender: TObject);
+    procedure GoToDateClick(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1019,6 +1021,8 @@ type
     PriorRow : Integer;
     //
     emergencyExit : boolean;
+    //
+    selectedDateTime : tdatetime;
 
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
@@ -1118,7 +1122,7 @@ Uses AutoCreate, UFDetails,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
-  UProgress;
+  UProgress, UFSelectDate;
 
 var dummy : string;
 
@@ -1821,6 +1825,9 @@ begin
  CanShow := False;
  CanBuildCalendar := true;
  resizeMode := false;
+
+ selectedDateTime := now();
+
  inherited;
  //UUtilities.OpisujKolumneZajec.internalCreate;
 end;
@@ -9421,6 +9428,30 @@ var
   Response: string;
 begin
   info( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
+end;
+
+procedure TFMain.GoToDateClick(Sender: TObject);
+var len : integer;
+    selectedDate : TTimeStamp;
+    foundFlag : boolean;
+    acol, arow : integer;
+begin
+  if FSelectDate.showModalWithDefault( selectedDateTime ) =mrOK then begin
+
+    selectedDate := DateTimeToTimeStamp( FSelectDate.date.DateTime );
+    selectedDateTime :=  FSelectDate.date.DateTime;
+
+
+    if convertGrid.DateToColRow(AObjectId, selectedDate.date, -1,  aCol, aRow) then begin
+       grid.Col := aCol;
+       grid.Row := aRow;
+    end else begin
+      info('Nie ma takiej daty w bie¿¹cym rozk³adzie');
+    end;
+
+  end;
+
+
 end;
 
 initialization
