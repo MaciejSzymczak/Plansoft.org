@@ -3,7 +3,7 @@ object FSelectDate: TFSelectDate
   Top = 201
   BorderStyle = bsDialog
   Caption = 'Wybierz dat'#281
-  ClientHeight = 87
+  ClientHeight = 256
   ClientWidth = 268
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,7 +17,7 @@ object FSelectDate: TFSelectDate
   TextHeight = 13
   object SpeedButton2: TSpeedButton
     Left = 216
-    Top = 56
+    Top = 224
     Width = 47
     Height = 22
     Caption = 'Anuluj'
@@ -25,8 +25,8 @@ object FSelectDate: TFSelectDate
     OnClick = SpeedButton2Click
   end
   object ButtonOK: TSpeedButton
-    Left = 168
-    Top = 56
+    Left = 160
+    Top = 224
     Width = 47
     Height = 22
     Caption = 'Ok'
@@ -52,9 +52,72 @@ object FSelectDate: TFSelectDate
     TabOrder = 1
     OnClick = BitBtn1Click
   end
-  object SelectDates: TPopupMenu
-    Left = 88
+  object D1: TBitBtn
+    Left = 21
     Top = 48
+    Width = 100
+    Height = 22
+    Caption = 'Poniedzia'#322'ek'
+    TabOrder = 2
+    OnClick = D1Click
+  end
+  object D2: TBitBtn
+    Left = 21
+    Top = 72
+    Width = 100
+    Height = 22
+    Caption = 'Wtorek'
+    TabOrder = 3
+    OnClick = D2Click
+  end
+  object D3: TBitBtn
+    Left = 21
+    Top = 96
+    Width = 100
+    Height = 22
+    Caption = #346'roda'
+    TabOrder = 4
+    OnClick = D3Click
+  end
+  object D4: TBitBtn
+    Left = 21
+    Top = 120
+    Width = 100
+    Height = 22
+    Caption = 'Czwartek'
+    TabOrder = 5
+    OnClick = D4Click
+  end
+  object D5: TBitBtn
+    Left = 21
+    Top = 144
+    Width = 100
+    Height = 22
+    Caption = 'Pi'#261'tek'
+    TabOrder = 6
+    OnClick = D5Click
+  end
+  object D6: TBitBtn
+    Left = 21
+    Top = 168
+    Width = 100
+    Height = 22
+    Caption = 'Sobota'
+    TabOrder = 7
+    OnClick = D6Click
+  end
+  object D7: TBitBtn
+    Left = 21
+    Top = 192
+    Width = 100
+    Height = 22
+    Caption = 'Niedziela'
+    TabOrder = 8
+    OnClick = D7Click
+  end
+  object SelectDates: TPopupMenu
+    Left = 160
+    Top = 8
     object Przedwczoraj1: TMenuItem
       Caption = 'Przedwczoraj'
       OnClick = Przedwczoraj1Click

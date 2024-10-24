@@ -140,7 +140,8 @@ type
            pVerticalLines : boolean;
            notes_before : boolean;
            notes_after : boolean;
-           pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean
+           pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
+           weeklyView : boolean
     );
   end;
 
@@ -311,6 +312,8 @@ type thtmlTable = class
        procedure init(aCellWIDTH, aCellHeight : string; aspanEmptycellsFlag  : boolean);
        procedure AddRow (attrs : string);
        Procedure NewCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+       Procedure NewCellCol1(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+       Procedure NewCellCol2(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
        Procedure NewCellWidth(Command, S, Color, Width : String);
        Procedure NewHeaderCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
        procedure Colspan;
@@ -360,6 +363,21 @@ Begin
   If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
                   Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
+
+procedure thtmlTable.newCellCol1(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+Begin
+  If isBlank(S) Then S := '&nbsp';
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),'0')+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),'0')+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+End;
+
+procedure thtmlTable.newCellCol2(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+Begin
+  If isBlank(S) Then S := '&nbsp';
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),'0')+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),'0')+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+End;
+
 
 procedure thtmlTable.newCellWidth(Command, S, Color, Width : String);
 Begin
@@ -867,7 +885,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
            pVerticalLines : boolean;
            notes_before : boolean;
            notes_after : boolean;
-           pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean
+           pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
+           weeklyView : boolean
     );
 
     Var F : TextFile;
@@ -942,7 +961,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
      Begin
        // for reservation show always form regardless of view settings
        If Class_.FOR_KIND = 'R' Then Begin
-         AddCell('',Copy(Class_.FOR_abbreviation,1,StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000'))),'silver');
+         AddCell('',Copy(Class_.FOR_abbreviation,1,StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000'))),'"silver"');
          Exit;
        End;
 
@@ -1369,8 +1388,8 @@ Var xp, yp          : Integer;
         //Names of months
         htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
 
-        htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthDay'),'0') );
-        htmlTable.newCellWidth('','','silver',  NVL(GetSystemParam('CellWidthHour'),'0') );
+        htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthDay'),'0') );
+        htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthHour'),'0') );
         //ConvertDateColRow.ColRowToDate(TS,Zajecia,0+2,0);
         oldMonthName := GetLongMonthName(convertGrid.convertSingleObject.ColRowDate[1].Date);
         newMonthName := oldMonthName;
@@ -1478,6 +1497,12 @@ Var xp, yp          : Integer;
        result := SearchAndReplace(result,#13#10, '<br/>');
     end;
 
+    function getDayName ( i: word) : string;
+    begin
+      if weeklyView then result := LongDayNames[i]
+                    else result := ShortDayNames[i];
+    end;
+
 //-------------------------------------------------------------------------------------------
 begin
  addECTSflag := (LegendMode and 4 = 4);
@@ -1506,21 +1531,21 @@ begin
  WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
  WriteLn(f, '<TITLE>Plansoft.org - '+ fprogramSettings.profileObjectNameClassgen.Text +'</TITLE>');
 
-WriteLn(f, ' <style>');
-WriteLn(f, 'table, td, th {');
-WriteLn(f, '  border: 1px solid black;');
-WriteLn(f, '}');
+ WriteLn(f, ' <style>');
+ WriteLn(f, 'table, td, th {');
+ WriteLn(f, '  border: 1px solid black;');
+ WriteLn(f, '}');
 
-WriteLn(f, 'table {');
-WriteLn(f, '  width: 100%;');
-WriteLn(f, '  border-collapse: collapse;');
-WriteLn(f, '  padding: 0px;');
-WriteLn(f, '  margin:0 auto;');
-//the combination of height: 1px; (parent table) and height: 100% (child table) streaches the child table to entire available area
-//see https://limebrains.com/blog/2021-03-02T13:00-heigh-100-inside-table-td/
-WriteLn(f, '  height: 1px;');
-WriteLn(f, '}');
-WriteLn(f, '</style>');
+ WriteLn(f, 'table {');
+ WriteLn(f, '  width: 100%;');
+ WriteLn(f, '  border-collapse: collapse;');
+ WriteLn(f, '  padding: 0px;');
+ WriteLn(f, '  margin:0 auto;');
+ //the combination of height: 1px; (parent table) and height: 100% (child table) streaches the child table to entire available area
+ //see https://limebrains.com/blog/2021-03-02T13:00-heigh-100-inside-table-td/
+ WriteLn(f, '  height: 1px;');
+ WriteLn(f, '}');
+ WriteLn(f, '</style>');
 
  WriteLn(f, '</HEAD>');
  WriteLn(f, '<BODY>');
@@ -1562,7 +1587,8 @@ WriteLn(f, '</style>');
  htmlTable := thtmlTable.create;
  htmlTable.init (CellWIDTH, CellHeight, pspanEmptyCells);
 
- if not pRepeatMonthNames then addMonthsRow(addECTSflag);
+ if weeklyView=false then
+   if not pRepeatMonthNames then addMonthsRow(addECTSflag);
  if pVerticalLines then calculateVerticalLines;
 
  legendRow := 0;
@@ -1608,25 +1634,26 @@ WriteLn(f, '</style>');
     ConvDayOfWeek: begin
                      // in pHideEmptyRows mode disable rowspan
                      if pHideEmptyRows
-                     then begin If TS.Date<>-1 Then htmlTable.newCell('',ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))],'silver'); end
+                     then begin If TS.Date<>-1 Then htmlTable.newCellCol1('',getDayName(DayOfWeek(TimeStampToDateTime(TS))),'"silver"'); end
                      else begin
                             If TS.Date<>-1 Then begin
                               If Zajecia=0
-                                Then htmlTable.newCell('',ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))],'silver', 1, HOURS_PER_DAY+1, false)
+                                Then htmlTable.newCellCol1('',getDayName(DayOfWeek(TimeStampToDateTime(TS))),'"silver"', 1, HOURS_PER_DAY+1, false)
                                 // add spaned cells with ignoreflag=true to be compilant with span algorythm
-                                else htmlTable.newCell('',ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))],'silver', 1, 1, true);
+                                else htmlTable.newCellCol1('',getDayName(DayOfWeek(TimeStampToDateTime(TS))),'"silver"', 1, 1, true);      
                             end;
                           end;
                    end;
     ConvNumeryZajec: begin
-                       If Zajecia<>0 Then htmlTable.newCell('',opisujKolumneZajec.Str(Zajecia),'silver') Else htmlTable.newCell('','&nbsp','0');
+                       If Zajecia<>0 Then htmlTable.newCellCol2('',opisujKolumneZajec.Str(Zajecia),'"silver"') Else htmlTable.newCell('','&nbsp','0');
                      end;
     convOutOfRange : Begin
-                       htmlTable.newCell('background="outofrange.gif"','','silver');
+                       htmlTable.newCell('background="outofrange.gif"','','"silver"');
                      End;
     ConvHeader     : Begin
-                      //htmlTable.addCell('',GetDay(TS.Date),'silver');
-                      htmlTable.newCell('',GetDate(TS.Date),'silver');
+                       if weeklyView then htmlTable.newCell('','','"silver"')
+                       else htmlTable.newCell('',GetDate(TS.Date),'"silver"'); 
+                      ;
                      End;
     ConvClass:
      Begin
@@ -1695,7 +1722,7 @@ WriteLn(f, '</style>');
   While legendRow<LgndCnt do begin
        htmlTable.AddRow('ALIGN="center" VALIGN="middle"'); //style="display:none;"
        For xp:=0 To colCnt-1 Do Begin
-          htmlTable.newCell('','','silver');
+          htmlTable.newCell('','','"silver"');
        End;
        legendRow := legendRow + 1;
        AddLegendRow(addECTSflag);
@@ -2290,7 +2317,7 @@ var ColoringIndex    : shortString;
                , gpdfg.checked
                , gpdfl.checked
                , gpdfo.checked
-               , gpdfs.checked );
+               , gpdfs.checked, weeklyView.Checked );
              end;
            end;
          end;
@@ -2300,7 +2327,7 @@ var ColoringIndex    : shortString;
              if LList.Checked[t] then begin
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                ColoringIndex := getCode(FSettings.LViewType);
-               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked);
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked);
              end;
            end;
          end;
@@ -2311,7 +2338,7 @@ var ColoringIndex    : shortString;
                WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
-                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked );
+                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked );
                except
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;

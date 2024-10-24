@@ -1722,6 +1722,7 @@ Begin
    End;
 End;
 
+
 procedure DBGetClassByClassId(classId: String; var Status: Integer; var Class_: TClass_);
 Begin
    DModule.SingleValue(

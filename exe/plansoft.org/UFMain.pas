@@ -1926,6 +1926,13 @@ begin
      FcellLayout.ForcedCellWidth.Position := Grid.DefaultColWidth;
    end;
 
+   if GetSystemParam('WeeklyView','no')='yes' then begin
+     Grid.ColWidths[0] := 60;
+     Grid.ColWidths[1] := 60;
+     Grid.ColWidths[2] := 600;
+   end;
+
+
    if FcellLayout.ForceCellHeight.Checked then
      Grid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position
    else

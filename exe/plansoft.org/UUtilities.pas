@@ -1955,6 +1955,8 @@ begin
 
 end;
 
+
+
 initialization
   quickInsertMode    := false;
   CheckConflicts     := tCheckConflicts.create;

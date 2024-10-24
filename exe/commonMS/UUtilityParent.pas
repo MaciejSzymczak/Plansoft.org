@@ -83,6 +83,7 @@ function stringToValidFileName(S : String) : String;
 function isValidNumber(S : String) : Boolean;
 function delphiColourToHTML(I : Integer) : String;
 
+function YYYYMMDDToDateTime(dateStr: string): TDateTime;
 Function dateToYYYYMM(Data : TDateTime) : ShortString;
 Function dateToYYYYMMDD(Data : TDateTime) : ShortString;
 Function dateToYYYYMMDD_HHMMSSMI(Data : TDateTime) : ShortString;
@@ -1117,6 +1118,19 @@ Begin
  Result := True;
 End;
 
+function YYYYMMDDToDateTime(dateStr: string): TDateTime;
+var
+  year, month, day: Word;
+begin
+  // Extract the year, month, and day from the string
+  year := StrToInt(Copy(dateStr, 1, 4));  // First 4 characters: year
+  month := StrToInt(Copy(dateStr, 6, 2)); // Characters 6-7: month
+  day := StrToInt(Copy(dateStr, 9, 2));   // Characters 9-10: day
+
+  // Encode the extracted year, month, and day into TDateTime
+  Result := EncodeDate(year, month, day);
+end;
+
 Function DateToYYYYMM(Data : TDateTime) : ShortString;
   Var Year,Month,Day : Word;
       TS : TTimeStamp;
@@ -1867,7 +1881,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2024-10-19';
+ VersionOfApplication := '2024-10-24';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try
