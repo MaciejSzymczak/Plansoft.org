@@ -417,7 +417,7 @@ begin
           end;
         end;
       end;
-      SUMMARY1 := merge(summary1, ', ROUND(GRIDS.DURATION * (FILL/100),1) "%CLASSes. (suma)"','')+CR;
+      SUMMARY1 := merge(summary1, ', ROUND(GRIDS.DURATION * (FILL/100),2) "%CLASSes. (suma)"','')+CR;
     if chgStudents.Checked    then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
@@ -438,7 +438,7 @@ begin
           end;
         end;
       end;
-      SUMMARY1 := merge(summary1, ', ROUND(sum(GRIDS.DURATION * (FILL/100)),1) "%CLASSes. (suma)"','')+CR;
+      SUMMARY1 := merge(summary1, ', ROUND(sum(GRIDS.DURATION * (FILL/100)),2) "%CLASSes. (suma)"','')+CR;
     //if S4.Checked then SUMMARY4 := ', SUM ( groups.NOP ) "Liczba studentów"'+CR;
     if chgStudents.Checked    then begin SUMMARY4 := ', ( groups.NOP ) "Liczba studentów"'+CR; columnsGroupBy := Merge(columnsGroupBy, 'groups.NOP', ','); end;
   end;

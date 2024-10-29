@@ -3,7 +3,7 @@ create or replace package USOS is
    /***************************************************************************************************************************** 
    |* Integration with USOS 
    |  Use this code to schedule the integration
-
+   
             begin
               dbms_scheduler.create_job(
                   job_name => 'INT_USOS'
@@ -19,11 +19,12 @@ create or replace package USOS is
             --CLEAR LOG             :  delete from xxmsztools_eventlog where module_name = 'INTEGRATION_USOS';
             --DISPLAY LOGS          :  select * from xxmsztools_eventlog where module_name = 'INTEGRATION_USOS' order by id desc
             end;   
-
-
+   
+   
    |***************************************************************************************************************************** 
    | History 
    | 2022.01.30 Maciej Szymczak created  
+   | 2024.10.29 Maciej Szymczak updates  
    \-----------------------------------------------------------------------------------------------------------------------------*/ 
 
     procedure integration_from_usos_dict (pCleanYpMode varchar2 default 'N');
@@ -43,7 +44,7 @@ begin
     if (pCleanYpMode='Y') then
       rollback; --sometimes required by USOS!
     end if;
-    
+
     --declare x decimal; begin x := 1/0; end; --deliberate error
     -- ******************************************************************
     -- ****************** LECTURERS *************************************
@@ -677,7 +678,7 @@ begin
                       and per_id is null
                  );
     end;   
-    
+
     ---  
     -- ******************************************************************
     -- *************recalc_combination122  ******************************
@@ -713,7 +714,7 @@ begin
         -- ******************************************************************
         tt_planner.recalc_combination122( pCleanYpMode );
     end if;
-    
+
     -- ******************************************************
     -- ****************** MERGE *****************************
     -- ******************************************************
@@ -731,14 +732,15 @@ begin
         where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'); 
         select value into pUsosOnline from system_parameters where name = 'USOS_ONLINE';
         execute immediate 'truncate table usos_temp';
-        insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, for_id, gr_nr, sl_id, zaj_cyk_id, desc2)
+        insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, classes_sub_id, for_id, gr_nr, sl_id, zaj_cyk_id, desc2)
             select classes.day
                 ,  classes.hour
                 ,  classes.hour
                 ,  ttc.lec_id
                 ,  ttc.gro_id
                 ,  nvl(rom_cla.rom_id,0) rom_id --rom is extracted froom classes, lec, gro, sub and for is extracted from combinations
-                ,  ttc.sub_id
+                ,  ttc.sub_id /* child subject */
+                ,  classes.sub_id /*actual sub_id, typically parent subject, but can be also child subject*/
                 ,  ttc.for_id      
                 --
                , ttc.usos_gr_nr gr_nr
@@ -860,17 +862,17 @@ begin
                and MINUTA_KONCA =  to_min      
       );
     commit;
-    --  
-    --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
-    for rec in (
-        select name, integration_id from rooms where integration_id in (
-        select sl_id from usos_temp
-        minus 
-        select id from dz_sale@usos
-        )
-    ) loop
-      raise_application_error(-20001, 'W USOS nie ma sali: '||rec.name||' Id:'||rec.integration_id);
-    end loop;
+    --
+     --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
+     for rec in (
+         select name, integration_id from rooms where integration_id in (
+         select sl_id from usos_temp
+         minus 
+         select id from dz_sale@usos
+         )
+     ) loop 
+       raise_application_error(-20001, 'W USOS nie ma sali: '||rec.name||' Id:'||rec.integration_id);
+     end loop;
     --  
     insert into dz_terminy_grup@usos (gr_nr, sl_id, zaj_cyk_id, trm_id, czestotliwosc)
     select UNIQUE 

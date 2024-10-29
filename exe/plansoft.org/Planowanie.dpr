@@ -97,7 +97,8 @@ uses
   UFMassUpdateSUB in 'UFMassUpdateSUB.pas' {FMassUpdateSUB},
   UWebServices in 'UWebServices.pas',
   UProgress in 'UProgress.pas' {FProgress},
-  UFSelectDate in 'UFSelectDate.pas' {FSelectDate};
+  UFSelectDate in 'UFSelectDate.pas' {FSelectDate},
+  UIcsGenerator in 'UIcsGenerator.pas';
 
 {$R *.RES}
 

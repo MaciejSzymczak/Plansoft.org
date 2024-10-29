@@ -46,6 +46,8 @@ type
     ExportEasy: TMenuItem;
     ExportHtml: TMenuItem;
     ImageList: TImageList;
+    N1: TMenuItem;
+    PodgldzapytaniaSQLZaawansowane1: TMenuItem;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -58,6 +60,7 @@ type
     procedure BitBtn4Click(Sender: TObject);
     procedure ExportEasyClick(Sender: TObject);
     procedure ExportHtmlClick(Sender: TObject);
+    procedure PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -211,6 +214,13 @@ end;
 procedure TFUSOS.ExportHtmlClick(Sender: TObject);
 begin
  dmodule.ExportToHTML(GridNotSent);
+end;
+
+procedure TFUSOS.PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
+begin
+ CopyToClipboard( QueryNotSent.SQL.Text );
+ Info('Skopiowano do schowka');
+
 end;
 
 end.

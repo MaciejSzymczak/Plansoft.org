@@ -245,7 +245,7 @@ inherited FUSOS: TFUSOS
     Top = 169
     Width = 995
     Height = 476
-    ActivePage = TabSheet3
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
@@ -597,6 +597,13 @@ inherited FUSOS: TFUSOS
       Caption = 'Eksportuj do pliku'
       ImageIndex = 15
       OnClick = ExportHtmlClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object PodgldzapytaniaSQLZaawansowane1: TMenuItem
+      Caption = 'Podgl'#261'd zapytania SQL (Zaawansowane)'
+      OnClick = PodgldzapytaniaSQLZaawansowane1Click
     end
   end
   object ImageList: TImageList

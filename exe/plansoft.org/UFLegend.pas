@@ -720,7 +720,7 @@ begin
         , iif(groupByLDesc3.Checked, 'NVL(LEC_CLA.DESC3,''--'') "'+fprogramSettings.getClassDescSingular(3)+'"','')
         , iif(groupByLDesc4.Checked, 'NVL(LEC_CLA.DESC4,''--'') "'+fprogramSettings.getClassDescSingular(4)+'"','')
         //
-        ,'ROUND(SUM (GRIDS.DURATION*FILL/100),1) "Liczba godzin"'
+        ,'ROUND(SUM (GRIDS.DURATION*FILL/100),2) "Liczba godzin"'
         ])+
     ' FROM '+ CR +'CLASSES  CLA ' + CR +
           ',SUBJECTS SUB ' + CR +

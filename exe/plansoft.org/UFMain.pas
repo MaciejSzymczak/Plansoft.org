@@ -2654,7 +2654,11 @@ begin
                        Grid.Canvas.Brush.Color := clMenu;
                        Grid.Canvas.FillRect(Rect);
                        if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (Rect);
-                       Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,GetDate(TS.Date));
+
+
+                       Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
+                         , iif(GetSystemParam('WeeklyView','no')='yes', '', GetDate(TS.Date))
+                       );
                      End;
     ConvClass:
      Begin
