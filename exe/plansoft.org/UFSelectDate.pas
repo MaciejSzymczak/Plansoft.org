@@ -33,7 +33,6 @@ type
     procedure Przedwczoraj1Click(Sender: TObject);
     procedure Cdesc3Click(Sender: TObject);
     procedure Cdesc4Click(Sender: TObject);
-    procedure dateChange(Sender: TObject);
     procedure D1Click(Sender: TObject);
     procedure D2Click(Sender: TObject);
     procedure D3Click(Sender: TObject);
@@ -41,6 +40,7 @@ type
     procedure D5Click(Sender: TObject);
     procedure D6Click(Sender: TObject);
     procedure D7Click(Sender: TObject);
+    procedure dateExit(Sender: TObject);
   private
     mr : TModalResult;
   public
@@ -119,11 +119,6 @@ begin
  ButtonOKClick(nil);
 end;
 
-procedure TFSelectDate.dateChange(Sender: TObject);
-begin
- ButtonOKClick(nil);
-end;
-
 function TFSelectDate.getFirstDayOfWeekInPeriod(
   dayOfWeek: word): tdatetime;
 Var     DateFrom, DateTo : String;
@@ -197,6 +192,11 @@ procedure TFSelectDate.D7Click(Sender: TObject);
 begin
   date.DateTime :=   getFirstDayOfWeekInPeriod(7);
   ButtonOKClick(nil);
+end;
+
+procedure TFSelectDate.dateExit(Sender: TObject);
+begin
+ ButtonOKClick(nil);
 end;
 
 end.

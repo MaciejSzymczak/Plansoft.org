@@ -218,6 +218,7 @@ end;
 
 procedure TFUSOS.PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
 begin
+ //nvl((select max(parent_id) from str_elems where child_id=sub_id),sub_id)
  CopyToClipboard( QueryNotSent.SQL.Text );
  Info('Skopiowano do schowka');
 

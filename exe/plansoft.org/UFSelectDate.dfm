@@ -1,6 +1,6 @@
 object FSelectDate: TFSelectDate
-  Left = 403
-  Top = 201
+  Left = 780
+  Top = 349
   BorderStyle = bsDialog
   Caption = 'Wybierz dat'#281
   ClientHeight = 256
@@ -31,6 +31,7 @@ object FSelectDate: TFSelectDate
     Height = 22
     Caption = 'Ok'
     Flat = True
+    Visible = False
     OnClick = ButtonOKClick
   end
   object date: TDateTimePicker
@@ -41,7 +42,7 @@ object FSelectDate: TFSelectDate
     Date = 401769.741385451400000000
     Time = 401769.741385451400000000
     TabOrder = 0
-    OnChange = dateChange
+    OnExit = dateExit
   end
   object BitBtn1: TBitBtn
     Left = 109

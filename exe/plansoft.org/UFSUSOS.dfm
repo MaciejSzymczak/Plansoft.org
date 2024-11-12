@@ -539,9 +539,8 @@ inherited FUSOS: TFUSOS
       'from'
       '    ('
       
-        '    select classes.day, lec_id, gro_id, NVL(rom_id,0) rom_id, nv' +
-        'l((select max(parent_id) from str_elems where child_id=sub_id),s' +
-        'ub_id) sub_id, classes.for_id'
+        '    select classes.day, lec_id, gro_id, NVL(rom_id,0) rom_id, su' +
+        'b_id, classes.for_id'
       '    from classes'
       '        , lec_cla'
       '        , gro_cla'
@@ -556,9 +555,8 @@ inherited FUSOS: TFUSOS
       '        and classes.DAY BETWEEN %DATE_FROM AND %DATE_TO'
       '    minus'
       
-        '    select day, lec_id, gro_id, rom_id, nvl((select max(parent_i' +
-        'd) from str_elems where child_id=sub_id),sub_id) sub_id, for_id ' +
-        'from usos_temp'
+        '    select day, lec_id, gro_id, rom_id, classes_sub_id sub_id, f' +
+        'or_id from usos_temp'
       '    ) notSent'
       ' , lecturers lec'
       ' , groups gro'
@@ -602,7 +600,7 @@ inherited FUSOS: TFUSOS
       Caption = '-'
     end
     object PodgldzapytaniaSQLZaawansowane1: TMenuItem
-      Caption = 'Podgl'#261'd zapytania SQL (Zaawansowane)'
+      Caption = '(Zaawansowane) Podgl'#261'd zapytania SQL '
       OnClick = PodgldzapytaniaSQLZaawansowane1Click
     end
   end
