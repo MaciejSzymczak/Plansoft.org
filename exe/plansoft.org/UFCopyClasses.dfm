@@ -1,38 +1,38 @@
 inherited FCopyClasses: TFCopyClasses
-  Left = 377
-  Top = 204
+  Left = 836
+  Top = 345
   Width = 599
   Height = 422
   Caption = 'Kopiowanie rozk'#322'adu'
   OnCloseQuery = FormCloseQuery
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   object Label1: TLabel [0]
-    Left = 18
-    Top = 46
-    Width = 414
-    Height = 16
+    Left = 16
+    Top = 40
+    Width = 317
+    Height = 14
     Caption = 
       'Skopiowane dane umie'#347#263' w terminie od dnia                       ' +
       '       do'
   end
   object Label4: TLabel [1]
-    Left = 18
-    Top = 18
-    Width = 413
-    Height = 16
+    Left = 16
+    Top = 16
+    Width = 320
+    Height = 14
     Caption = 
       'Skopiuj wszystkie zaplanowane dane  od dnia                     ' +
       '       do'
   end
   inherited Status: TPanel
-    Top = 363
+    Top = 371
     Width = 591
   end
   object source_date_from: TDateTimePicker
-    Left = 307
-    Top = 9
-    Width = 102
+    Left = 269
+    Top = 8
+    Width = 89
     Height = 22
     Date = 0.741385451387031900
     Time = 0.741385451387031900
@@ -40,9 +40,9 @@ inherited FCopyClasses: TFCopyClasses
     OnChange = dest_date_fromChange
   end
   object source_date_to: TDateTimePicker
-    Left = 448
-    Top = 9
-    Width = 102
+    Left = 392
+    Top = 8
+    Width = 89
     Height = 22
     Date = 40194.741385451390000000
     Time = 40194.741385451390000000
@@ -50,9 +50,9 @@ inherited FCopyClasses: TFCopyClasses
     OnChange = dest_date_fromChange
   end
   object dest_date_from: TDateTimePicker
-    Left = 307
-    Top = 37
-    Width = 102
+    Left = 269
+    Top = 32
+    Width = 89
     Height = 22
     Date = 40194.741385451390000000
     Time = 40194.741385451390000000
@@ -60,9 +60,9 @@ inherited FCopyClasses: TFCopyClasses
     OnChange = dest_date_fromChange
   end
   object dest_date_to: TDateTimePicker
-    Left = 448
-    Top = 37
-    Width = 102
+    Left = 392
+    Top = 32
+    Width = 89
     Height = 22
     Date = 40194.741385451390000000
     Time = 40194.741385451390000000
@@ -71,36 +71,36 @@ inherited FCopyClasses: TFCopyClasses
   end
   object Panel1: TPanel
     Left = 0
-    Top = 317
+    Top = 330
     Width = 591
-    Height = 46
+    Height = 41
     Align = alBottom
     TabOrder = 5
     object Anuluj: TBitBtn
-      Left = 494
-      Top = 9
-      Width = 85
-      Height = 29
+      Left = 432
+      Top = 8
+      Width = 75
+      Height = 25
       Caption = 'Anuluj'
       TabOrder = 0
       OnClick = AnulujClick
       Kind = bkCancel
     end
     object BExecute: TBitBtn
-      Left = 402
-      Top = 9
-      Width = 86
-      Height = 29
+      Left = 352
+      Top = 8
+      Width = 75
+      Height = 25
       TabOrder = 1
       OnClick = BExecuteClick
       Kind = bkOK
     end
   end
   object OwnClasses: TRadioGroup
-    Left = 18
-    Top = 82
-    Width = 559
-    Height = 65
+    Left = 16
+    Top = 72
+    Width = 489
+    Height = 57
     Caption = 
       'Kto ma by'#263' w'#322'a'#347'cicielem skopiowanych danych ( w'#322'a'#347'ciciel mo'#380'e je' +
       ' modyfikowa'#263' )'
@@ -113,10 +113,10 @@ inherited FCopyClasses: TFCopyClasses
     TabOrder = 6
   end
   object dest_period_must_be_empty: TCheckBox
-    Left = 18
-    Top = 155
-    Width = 559
-    Height = 20
+    Left = 16
+    Top = 136
+    Width = 489
+    Height = 17
     Caption = 
       'Nie zezwalaj na skopiowanie, je'#380'eli w obszarze docelowym s'#261' jaki' +
       'ekolwiek dane'
@@ -125,10 +125,10 @@ inherited FCopyClasses: TFCopyClasses
     TabOrder = 7
   end
   object whichSheets: TRadioGroup
-    Left = 18
-    Top = 183
-    Width = 559
-    Height = 120
+    Left = 16
+    Top = 160
+    Width = 489
+    Height = 105
     Caption = 'Kt'#243're arkusze kopiowa'#263
     ItemIndex = 3
     Items.Strings = (
@@ -140,10 +140,10 @@ inherited FCopyClasses: TFCopyClasses
     OnClick = whichSheetsClick
   end
   object BSelectSheet: TBitBtn
-    Left = 219
-    Top = 265
-    Width = 351
-    Height = 29
+    Left = 192
+    Top = 232
+    Width = 307
+    Height = 25
     Caption = 'Kliknij tu, aby wybra'#263' arkusz do skopiowania'
     TabOrder = 9
     OnClick = BSelectSheetClick

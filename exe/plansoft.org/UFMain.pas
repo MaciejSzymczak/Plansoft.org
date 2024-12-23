@@ -598,6 +598,8 @@ type
     N29: TMenuItem;
     estujAPI1: TMenuItem;
     GoToDate: TSpeedButton;
+    SQLCreateWeeks: TMemo;
+    CreateWeeks: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -947,6 +949,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure estujAPI1Click(Sender: TObject);
     procedure GoToDateClick(Sender: TObject);
+    procedure CreateWeeksClick(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1926,7 +1929,7 @@ begin
      FcellLayout.ForcedCellWidth.Position := Grid.DefaultColWidth;
    end;
 
-   if GetSystemParam('WeeklyView','no')='yes' then begin
+   if FSettings.WeeklyView.Checked then begin
      Grid.ColWidths[0] := 60;
      Grid.ColWidths[1] := 60;
      Grid.ColWidths[2] := 600;
@@ -2102,8 +2105,11 @@ procedure TFMain.conPeriodChange(Sender: TObject);
 begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
-   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
+   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') then ''yes'' else ''no'' end as one_week_flag','PERIODS','');
    SetVisibles;
+
+   FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
+   CreateWeeks.Visible := not FSettings.WeeklyView.Checked;
 
    //invalid period id, deleted period?
    If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
@@ -2657,7 +2663,7 @@ begin
 
 
                        Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
-                         , iif(GetSystemParam('WeeklyView','no')='yes', '', GetDate(TS.Date))
+                         , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
                        );
                      End;
     ConvClass:
@@ -4773,6 +4779,7 @@ begin
     3: PageControl.ActivePage := TabSheetR;
    End;
    ShowModal;
+   DeepRefreshImmediate('DeepRefreshButtonClick');
   End;
 end;
 
@@ -9461,6 +9468,17 @@ begin
     end;
 
   end;
+
+
+end;
+
+procedure TFMain.CreateWeeksClick(Sender: TObject);
+begin
+
+if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
+  DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
+  info('Zrobione');
+end;
 
 
 end;

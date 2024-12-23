@@ -3600,7 +3600,7 @@ inherited FMain: TFMain
         OnClick = BPasteClick
       end
       object BitBtnPER: TSpeedButton
-        Left = 1223
+        Left = 1287
         Top = 31
         Width = 23
         Height = 22
@@ -4324,6 +4324,14 @@ inherited FMain: TFMain
           FFFFFFFFFFFF2B2B2BFFB3B3B3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         OnClick = GoToDateClick
       end
+      object CreateWeeks: TSpeedButton
+        Left = 1200
+        Top = 32
+        Width = 89
+        Height = 22
+        Caption = 'Utw'#243'rz tygodnie'
+        OnClick = CreateWeeksClick
+      end
       object ValidResCat1: TBitBtn
         Left = 1146
         Top = 28
@@ -4897,7 +4905,7 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 1102
+        Left = 1230
         Top = 84
         Width = 497
         Height = 97
@@ -4951,6 +4959,68 @@ inherited FMain: TFMain
           MaxLength = 15
           TabOrder = 2
         end
+      end
+      object SQLCreateWeeks: TMemo
+        Left = 1360
+        Top = 8
+        Width = 73
+        Height = 57
+        Lines.Strings = (
+          'DECLARE'
+          '    v_record periods%ROWTYPE; '
+          '    pId number := '#39':pid'#39';'
+          '    OriginalName varchar2(500);'
+          'BEGIN'
+          '    SELECT *'
+          '    INTO v_record'
+          '    FROM periods'
+          '    WHERE ID = pId;'
+          '    OriginalName :=  v_record.Name;'
+          '   for week in ('
+          '        --weeks generator'
+          
+            '        select date_from, date_to,  TO_CHAR(date_from, '#39'IYYY'#39')||' +
+            #39'-'#39'|| LPAD(TO_CHAR(date_from, '#39'IW'#39'), 2, '#39'0'#39') ||'#39': '#39'|| to_char(da' +
+            'te_from,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39')||'#39'-'#39'||to_char(date' +
+            '_to,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39') Name from '
+          '        ('
+          
+            '        select greatest(first_day_of_week, v_record.date_from) d' +
+            'ate_from, LEAST (first_day_of_week + 6, v_record.date_to) date_t' +
+            'o from '
+          '        ('
+          
+            '        SELECT TRUNC(TO_DATE('#39'2024-10-01'#39', '#39'YYYY-MM-DD'#39'), '#39'IW'#39') ' +
+            '+ (LEVEL - 1) * 7 AS first_day_of_week '
+          '        FROM dual'
+          
+            '        CONNECT BY TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1)' +
+            ' * 7 <= v_record.date_to'
+          '        ORDER BY first_day_of_week'
+          '        )'
+          '        )'
+          '   ) loop'
+          '      v_record.ID := main_seq.nextval;'
+          '      v_record.Name := OriginalName ||'#39' ('#39' || week.name || '#39')'#39';'
+          '      v_record.date_from := week.date_from; '
+          '      v_record.date_to   := week.date_to;'
+          '      declare'
+          '        c number;'
+          '      begin'
+          
+            '        select count(1) into c from periods where name = v_recor' +
+            'd.Name and rownum = 1;'
+          '        if c = 0 then'
+          '          INSERT INTO periods VALUES v_record;'
+          '        end if;'
+          '      end;'
+          '   end loop;   '
+          '  commit;'
+          'END;'
+          '')
+        TabOrder = 36
+        Visible = False
+        WordWrap = False
       end
     end
     object pRightDockPanel: TPanel

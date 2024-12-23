@@ -45,6 +45,7 @@ type
   private
     { Private declarations }
   public
+    Procedure GetTableName;  override;
     Function  CheckRecord : Boolean;       override;
     Procedure DefaultValues;               override;
     Function  CanEditPermission : Boolean; override;
@@ -171,5 +172,11 @@ function TFBrowsePERIODS.getFindCaption: string;
 begin
  Result := 'Dowolna fraza';
 end;
+
+Procedure TFBrowsePERIODS.GetTableName;
+Begin
+  Self.TableName := 'PERIODS';
+End;
+
 
 end.

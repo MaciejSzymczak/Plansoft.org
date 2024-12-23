@@ -23,8 +23,6 @@ type
     del_per_flag: TCheckBox;
     GroupBox2: TGroupBox;
     Label1: TLabel;
-    date_from: TDateTimePicker;
-    Date_to: TDateTimePicker;
     Panel1: TPanel;
     BCancel: TBitBtn;
     BExecute: TBitBtn;
@@ -73,6 +71,8 @@ type
     Label10: TLabel;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    date_from: TDateTimePicker;
+    date_to: TDateTimePicker;
     procedure FormCreate(Sender: TObject);
     procedure BCancelClick(Sender: TObject);
     procedure BExecuteClick(Sender: TObject);
@@ -190,8 +190,6 @@ begin
    BExecute2.Enabled := true;
  end;
  gCanCloseQuery := false;
- date_from.Time := 0;
- date_to.Time   := 0;
 
  session_id := dmodule.SingleValue('select planner_utils.get_session_id from dual');
  try

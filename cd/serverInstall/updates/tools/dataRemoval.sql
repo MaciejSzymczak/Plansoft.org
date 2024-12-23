@@ -128,3 +128,53 @@ begin
 end;
 
 
+REMOVE DATA PRESENTED ON REPORT "HEALTH CHECK"
+-------------------------------------------------------
+
+1. Run the report "Health check" and obtain the list of obsolete forms, groups, lecturers, rooms, subjects
+2. Save report and inform users about the deletion
+3. Put the ids into table XXREMOVEME 
+    create table XXREMOVEME (ID number);
+    insert into XXREMOVEME values('<your values>');
+    Use askmac page to create the insert into statements
+4. Run this script
+
+    --forms
+    --check select to_char(max(day),'yyyy-mm-dd') from classes where for_id in (select * from XXREMOVEME)
+    delete from classes where for_id in (select id from XXREMOVEME); 
+    delete from forms where id in (select id from XXREMOVEME);
+    --delete from sub_pla where sub_id in (select id from XXREMOVEME)
+    
+    --subjects
+    --select to_char(max(day),'yyyy-mm-dd') from classes where sub_id in (select * from XXREMOVEME)
+    delete from classes where sub_id in (select id from XXREMOVEME); 
+    delete from subjects where id in (select id from XXREMOVEME);
+    --delete from sub_pla where sub_id in (select id from XXREMOVEME)
+    
+    
+    --rooms
+    --select to_char(max(day),'yyyy-mm-dd') from rom_cla where rom_id in (select * from XXREMOVEME)
+    delete from classes where id in (select cla_id from rom_cla where rom_id in (select id from XXREMOVEME)); 
+    --delete from rom_cla where rom_id in (select id from XXREMOVEME)
+    delete from rooms where id in (select id from XXREMOVEME);
+    --delete from rom_pla where rom_id in (select id from XXREMOVEME)
+    
+    
+    --lecturers
+    --select to_char(max(day),'yyyy-mm-dd') from lec_cla where lec_id in (select * from XXREMOVEME)
+    delete from classes where id in (select cla_id from lec_cla where lec_id in (select id from XXREMOVEME)); 
+    --delete from lec_cla where lec_id in (select id from XXREMOVEME)
+    delete from lecturers where id in (select id from XXREMOVEME);
+    --delete from lec_pla where lec_id in (select id from XXREMOVEME)
+    
+    --groups
+    --select to_max(day)from gro_cla where gro_id in (select * from XXREMOVEME)
+    delete from classes where id in (select cla_id from gro_cla where gro_id in (select id from XXREMOVEME)); 
+    --delete from gro_cla where gro_id in (select id from XXREMOVEME)
+    delete from groups where id in (select id from XXREMOVEME);
+    --delete from gro_pla where gro_id in (select id from XXREMOVEME)
+    
+    commit;
+
+5. drop table XXREMOVEME;
+

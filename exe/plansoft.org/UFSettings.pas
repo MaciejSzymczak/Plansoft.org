@@ -764,8 +764,6 @@ begin
   MaxLengthDesc3.Text      := GetSystemParam('MaxLengthDesc3','1000');  // Maksymalna d³ugoœæ opisu w znakach
   MaxLengthDesc4.Text      := GetSystemParam('MaxLengthDesc4','1000');  // Maksymalna d³ugoœæ opisu w znakach
 
-  WeeklyView.Checked := GetSystemParam('WeeklyView','no')='yes';
-
   If PaperSize.ItemIndex = -1 Then PaperSize.ItemIndex := 0;
 
   Case PaperSize.ItemIndex Of
@@ -828,8 +826,6 @@ begin
   setSystemParam('MaxLengthDesc2',MaxLengthDesc2.Text);            // Maksymalna d³ugoœæ opisu w znakach
   setSystemParam('MaxLengthDesc3',MaxLengthDesc3.Text);            // Maksymalna d³ugoœæ opisu w znakach
   setSystemParam('MaxLengthDesc4',MaxLengthDesc4.Text);            // Maksymalna d³ugoœæ opisu w znakach
-
-  setSystemParam('WeeklyView', iif(WeeklyView.Checked, 'yes','no') );            // Maksymalna d³ugoœæ opisu w znakach
 
 end;
 

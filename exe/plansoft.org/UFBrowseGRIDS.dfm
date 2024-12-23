@@ -575,6 +575,10 @@ inherited FBrowseGRIDS: TFBrowseGRIDS
       Caption = '1-2, 3-4, ..'
       OnClick = N12342Click
     end
+    object N7001700co60min1: TMenuItem
+      Caption = '7.00-17.00 co 60min'
+      OnClick = N7001700co60min1Click
+    end
     object Importujpoprzednieustawienia1: TMenuItem
       Caption = 'Importuj poprzednie ustawienia'
       OnClick = Importujpoprzednieustawienia1Click

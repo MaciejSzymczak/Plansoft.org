@@ -27,11 +27,13 @@ type
     N12342: TMenuItem;
     Co15min73021451: TMenuItem;
     Importujpoprzednieustawienia1: TMenuItem;
+    N7001700co60min1: TMenuItem;
     procedure bdelpopupClick(Sender: TObject);
     procedure Co15min73021451Click(Sender: TObject);
     procedure N12341Click(Sender: TObject);
     procedure N12342Click(Sender: TObject);
     procedure Importujpoprzednieustawienia1Click(Sender: TObject);
+    procedure N7001700co60min1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -125,5 +127,15 @@ begin
  BRefreshClick(nil);
 end;
 
+
+procedure TFBrowseGRIDS.N7001700co60min1Click(Sender: TObject);
+begin
+  dmodule.generateGrid (
+    ['7.00','8.00', '9.00','10.00','11.00','12.00','13.00','14.00','15.00','16.00','17.00','18.00','19.00','20.00','21.00','22.00','23.00','0.00','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40']
+   ,['07:00','08:00', '09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','','','','','','','','','','','','','','','','','','','','','','','','']
+   ,['07:59','08:59', '09:59','10:59','11:59','12:59','13:59','14:59','15:59','16:59','17:59','18:59','19:59','20:59','21:59','22:59','','','','','','','','','','','','','','','','','','','','','','','','']
+    );
+ BRefreshClick(nil);
+end;
 
 end.

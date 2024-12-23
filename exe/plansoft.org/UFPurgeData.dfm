@@ -150,23 +150,21 @@ inherited FPurgeData: TFPurgeData
               ' dnia'
           end
           object date_from: TDateTimePicker
-            Left = 112
+            Left = 117
             Top = 16
-            Width = 113
+            Width = 100
             Height = 22
-            Date = 40194.741385451390000000
-            Time = 40194.741385451390000000
-            ShowCheckbox = True
+            Date = 0.741385451387031900
+            Time = 0.741385451387031900
             TabOrder = 0
           end
-          object Date_to: TDateTimePicker
-            Left = 280
+          object date_to: TDateTimePicker
+            Left = 277
             Top = 16
-            Width = 113
+            Width = 108
             Height = 22
-            Date = 40194.741385451390000000
-            Time = 40194.741385451390000000
-            ShowCheckbox = True
+            Date = 0.741385451387031900
+            Time = 0.741385451387031900
             TabOrder = 1
           end
         end
