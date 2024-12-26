@@ -4,13 +4,10 @@ interface
    //@@@
    //licznik zajec ( zliczaj unikatowe classes.id)
     //command line
-
    //ka¿da rzecz w oddzielnym pliku
        //info o plansoft org pod kazda tabela
-
    //kilka rzeczy w jednej linii
-   //font selection
-   //header color
+
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
@@ -102,7 +99,7 @@ type
     MenuItem2: TMenuItem;
     Przegldarka1: TMenuItem;
     N1: TMenuItem;
-    cgbForceSpan: TMenuItem;
+    noHideFlag: TMenuItem;
     Panel2: TPanel;
     row: TComboBox;
     row2: TComboBox;
@@ -149,6 +146,10 @@ type
     Przedwczoraj1: TMenuItem;
     Wybierzsemestr1: TMenuItem;
     N2: TMenuItem;
+    rowSpanFlag: TMenuItem;
+    colSpanFlag: TMenuItem;
+    N3: TMenuItem;
+    supressNAValuesFlag: TMenuItem;
     procedure CONLChange(Sender: TObject);
     procedure CONRChange(Sender: TObject);
     procedure CONGChange(Sender: TObject);
@@ -288,7 +289,7 @@ end;
 
 procedure TFMatrix.FormShow(Sender: TObject);
 var t : integer;
-    v : array[1..30] of shortString;
+    v : array[1..50] of shortString;
 
     function getFlexColumns : string;
         var q : tadoQuery;
@@ -423,7 +424,7 @@ begin
         v[ 8] := 'Zasób';
         v[ 9] := 'Wyk³adowca';
         v[10] := '<Nie dotyczy>';
-        v[11] := 'Grupa';
+        v[50] := 'Grupa';
     end;
     if defaultSchema = 'Sall' then begin
         // title
@@ -441,7 +442,7 @@ begin
         v[ 8] := 'Zasób';
         v[ 9] := 'Wyk³adowca';
         v[10] := '<Nie Dotyczy>';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'L' then begin
@@ -460,7 +461,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Lall' then begin
         // title
@@ -478,7 +479,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'G' then begin
@@ -497,7 +498,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Gall' then begin
         // title
@@ -515,7 +516,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'R' then begin
@@ -534,7 +535,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Rall' then begin
         // title
@@ -552,7 +553,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
 
@@ -572,7 +573,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Fall' then begin
         // title
@@ -590,7 +591,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'SvsG' then begin
@@ -609,7 +610,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'SvsL' then begin
@@ -628,7 +629,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'SvsR' then begin
@@ -647,7 +648,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'LvsG' then begin
@@ -666,7 +667,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'LvsR' then begin
@@ -685,7 +686,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
-        v[11] := 'Przedmiot';
+        v[50] := 'Przedmiot';
     end;
 
     if defaultSchema = 'R_Availibility' then begin
@@ -704,7 +705,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
-        v[11] := 'Forma';
+        v[50] := 'Forma';
     end;
 
      if defaultSchema = 'G_Availibility' then begin
@@ -723,7 +724,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
-        v[11] := 'Forma';
+        v[50] := 'Forma';
     end;
 
     if defaultSchema = 'L_Availibility' then begin
@@ -742,7 +743,28 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
-        v[11] := 'Forma';
+        v[50] := 'Forma';
+    end;
+
+    if defaultSchema = 'WEEKLY' then begin
+        // title
+        v[ 1] := 'Tydzieñ nr wg ISO';
+        v[ 2] := '<Nie Dotyczy>';
+        // columns
+        v[ 3] := 'Dzieñ tygodnia';
+        v[ 4] := 'Grupa';
+        // row
+        v[ 5] := 'Godzina';
+        v[12] := '<Nie Dotyczy>';
+        // cell
+        v[50] := 'Przedmiot';
+        v[ 6] := 'Przedmiot';
+        v[ 7] := 'Forma zajêæ';
+        v[ 8] := 'Wyk³adowcy';
+        v[ 9] := 'Grupy';
+        v[10] := 'Zasoby';
+        v[11] := 'Zajêcie: Info dla studentów';
+        //
     end;
 
     if defaultSchema = 'CUSTOM' then begin
@@ -765,9 +787,11 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
-        v[11] := 'Forma zajêæ';
+        v[50] := 'Forma zajêæ';
         end;
     end;
+
+
 
     if v[ 1] <> 'RELOADED' then begin
     title.ItemIndex := column.items.IndexOf(v[1]);
@@ -785,8 +809,8 @@ begin
     cell3.ItemIndex := column.items.IndexOf(v[8]);
     cell4.ItemIndex := column.items.IndexOf(v[9]);
     cell5.ItemIndex := column.items.IndexOf(v[10]);
-    cell6.ItemIndex := column.items.IndexOf('<Nie Dotyczy>');
-    color.ItemIndex := color.items.IndexOf(v[11]);
+    cell6.ItemIndex := column.items.IndexOf(v[11]);
+    color.ItemIndex := color.items.IndexOf(v[50]);
     end;
 
     with fprogramsettings do begin
@@ -1023,6 +1047,8 @@ var
     colCell6     : shortstring;
     coltitle_dsp    : shortstring;
     colSubtitle_dsp : shortstring;
+
+    recordsProcessed : integer;
 
     bgcolor : shortstring;
 
@@ -1284,6 +1310,8 @@ begin
           end;
         end;
 
+
+        recordsProcessed := 0;
         while not mainQuery.Eof do begin
 
           if matrix_id <> mainQuery.FieldByName(colTitle).asstring+'+'+mainQuery.FieldByName(colsubtitle).asstring then begin
@@ -1299,11 +1327,13 @@ begin
               //labels
             , columnValues
             , subColumnValues
-            , rowValues);
+            , rowValues
+            , supressNAValuesFlag.checked);
           end;
 
             if mainQuery.FieldByName(colColor).asString <> '' then
-                bgcolor := 'BGCOLOR="'+DelphiColourToHTML(strToInt(nvl(mainQuery.FieldByName(colColor).asString,'0')))+'" border="5" style="border:solid white;"'
+                //bgcolor := 'BGCOLOR="'+DelphiColourToHTML(strToInt(nvl(mainQuery.FieldByName(colColor).asString,'0')))+'" border="1" style="border:solid white;"'
+                  bgcolor := 'BGCOLOR="'+DelphiColourToHTML(strToInt(nvl(mainQuery.FieldByName(colColor).asString,'0')))+'" style="padding: 5px"'
             else
                 bgcolor := '';
 
@@ -1334,15 +1364,17 @@ begin
             ,colSubColumn <> 'DUMMY_NULL', mainQuery.FieldByName('Duration').asFloat  * mainQuery.FieldByName('Fill').asFloat/100 );
 
             mainQuery.Next;
+            inc ( recordsProcessed);
+            if recordsProcessed mod 10 = 0 then  UpdStatus('Przetworzono rekordów : ' +inttoStr(recordsProcessed) );
         end;
     end;
 
     UpdStatus('Usuwanie duplikatów');
-    weeklyTables.merge(cgbForceSpan.Checked);
+    weeklyTables.merge(noHideFlag.Checked);
     assignFile(f,uutilityParent.ApplicationDocumentsPath + 'temp.htm');
     rewrite(f);
     UpdStatus('Zapis danych do pliku');
-    writeLn(f,  weeklyTables.getBody(cgbForceSpan.Checked) );
+    writeLn(f,  weeklyTables.getBody(noHideFlag.Checked, rowSpanFlag.checked, colSpanFlag.Checked) );
     closeFile(f);
 
     UpdStatus('Czyszczenie');
@@ -1368,7 +1400,7 @@ begin
             , PERFilterType, LFilterType, GFilterType, RFilterType, SFilterType, FFilterType
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
-            , chbShowAll, cgbForceSpan
+            , chbShowAll, noHideFlag, rowSpanFlag, colSpanFlag, supressNAValuesFlag
             , ChbcntMode
             ]);
 end;
@@ -1381,7 +1413,7 @@ begin
             , PERFilterType, LFilterType, GFilterType, RFilterType, SFilterType, FFilterType
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
-            , chbShowAll, cgbForceSpan
+            , chbShowAll, noHideFlag, rowSpanFlag, colSpanFlag, supressNAValuesFlag
             , ChbcntMode
             ]);
 end;

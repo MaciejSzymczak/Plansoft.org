@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 47
-  Top = 46
+  Left = 87
+  Top = 69
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -4255,7 +4255,7 @@ inherited FMain: TFMain
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-        OnClick = PreviewClick
+        OnClick = bdelpopupClick
       end
       object GoToDate: TSpeedButton
         Left = 326
@@ -4982,7 +4982,7 @@ inherited FMain: TFMain
             '        select date_from, date_to,  TO_CHAR(date_from, '#39'IYYY'#39')||' +
             #39'-'#39'|| LPAD(TO_CHAR(date_from, '#39'IW'#39'), 2, '#39'0'#39') ||'#39': '#39'|| to_char(da' +
             'te_from,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39')||'#39'-'#39'||to_char(date' +
-            '_to,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39') Name from '
+            '_to,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39') Name from'
           '        ('
           
             '        select greatest(first_day_of_week, v_record.date_from) d' +
@@ -6436,14 +6436,6 @@ inherited FMain: TFMain
         Caption = 'Statystyki'
         OnClick = Statystyki1Click
       end
-      object Listaobecno2: TMenuItem
-        Caption = 'Lista obecno'#347'ci'
-        OnClick = Listaobecno2Click
-      end
-      object Zmianywrozkadziezaj2: TMenuItem
-        Caption = 'Zmiany w rozk'#322'adzie zaj'#281#263
-        OnClick = Zmianywrozkadziezaj2Click
-      end
       object Wydrukiwukadzietygodnia1: TMenuItem
         Caption = 'Tabela przestawna'
         object Innatabelaprzestawna1: TMenuItem
@@ -6548,13 +6540,17 @@ inherited FMain: TFMain
           OnClick = Grupyvssale1Click
         end
       end
+      object Listaobecno2: TMenuItem
+        Caption = 'Lista obecno'#347'ci'
+        OnClick = Listaobecno2Click
+      end
+      object Zmianywrozkadziezaj2: TMenuItem
+        Caption = 'Zmiany w rozk'#322'adzie zaj'#281#263
+        OnClick = Zmianywrozkadziezaj2Click
+      end
       object Wskanikiefektywnoci1: TMenuItem
         Caption = 'Wska'#378'niki efektywno'#347'ci (wykresy Google)'
         OnClick = Wskanikiefektywnoci1Click
-      end
-      object Generatorslajdw1: TMenuItem
-        Caption = 'Generator slajd'#243'w'
-        OnClick = Generatorslajdw1Click
       end
       object MapaGooglezzasobami1: TMenuItem
         Caption = 'Mapa Google z zasobami'
@@ -6566,6 +6562,10 @@ inherited FMain: TFMain
           Caption = 'Zaawansowane'
           OnClick = GoogleMapAdvClick
         end
+      end
+      object Generatorslajdw1: TMenuItem
+        Caption = 'Generator slajd'#243'w'
+        OnClick = Generatorslajdw1Click
       end
       object N12: TMenuItem
         Caption = '-'
@@ -9019,6 +9019,18 @@ inherited FMain: TFMain
     object Uk1: TMenuItem
       Caption = 'Poka'#380' wiele wyk'#322'adowc'#243'w, grup, sal'
       OnClick = Uk1Click
+    end
+  end
+  object PPreview: TPopupMenu
+    Left = 848
+    Top = 304
+    object MenuItem4: TMenuItem
+      Caption = 'Grafik semestralny'
+      OnClick = MenuItem4Click
+    end
+    object MenuItem11: TMenuItem
+      Caption = 'Grafik tygodniowy'
+      OnClick = MenuItem11Click
     end
   end
 end

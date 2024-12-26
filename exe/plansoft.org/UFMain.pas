@@ -600,6 +600,9 @@ type
     GoToDate: TSpeedButton;
     SQLCreateWeeks: TMemo;
     CreateWeeks: TSpeedButton;
+    PPreview: TPopupMenu;
+    MenuItem4: TMenuItem;
+    MenuItem11: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -927,7 +930,6 @@ type
     procedure Odczwybranego1Click(Sender: TObject);
     procedure Przywrckomunikaty1Click(Sender: TObject);
     procedure recreateDependenciesClick(Sender: TObject);
-    procedure PreviewClick(Sender: TObject);
     procedure USOSIntegracja1Click(Sender: TObject);
     procedure Listaobecno1Click(Sender: TObject);
     procedure Pulpit1Click(Sender: TObject);
@@ -950,6 +952,8 @@ type
     procedure estujAPI1Click(Sender: TObject);
     procedure GoToDateClick(Sender: TObject);
     procedure CreateWeeksClick(Sender: TObject);
+    procedure MenuItem4Click(Sender: TObject);
+    procedure MenuItem11Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -6556,7 +6560,8 @@ begin
  if btn.Name = 'selectr'       then fmain.respopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectResCat1' then fmain.ResCat1popup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectFill'    then fmain.FillPopup.Popup(Point.X,Point.Y); 
- if btn.Name = 'BViewByCrossTable' then fmain.FindRGL.Popup(Point.X,Point.Y); 
+ if btn.Name = 'BViewByCrossTable' then fmain.FindRGL.Popup(Point.X,Point.Y);
+ if btn.Name = 'Preview'       then fmain.PPreview.Popup(Point.X,Point.Y);
 end;
 
 procedure TFMain.MenuItem1Click(Sender: TObject);
@@ -9003,17 +9008,6 @@ begin
   recreateDependencies.Checked := not recreateDependencies.Checked;
 end;
 
-procedure TFMain.PreviewClick(Sender: TObject);
-var ColoringIndex : shortString;
-    presId : String; presType : String;
-begin
-   FLegend.SaveTimeTableNotes;
-   dmodule.CommitTrans;
-   Fsettings.FormShow(nil);
-   Fsettings.BHtmlClick(nil);
-end;
-
-
 procedure TFMain.propagateDependencyChanges(parentId, res_type: String);
 begin
     with dmodule.QWork do begin
@@ -9481,6 +9475,23 @@ if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes t
 end;
 
 
+end;
+
+procedure TFMain.MenuItem4Click(Sender: TObject);
+var ColoringIndex : shortString;
+    presId : String; presType : String;
+begin
+   FLegend.SaveTimeTableNotes;
+   dmodule.CommitTrans;
+   Fsettings.FormShow(nil);
+   Fsettings.BHtmlClick(nil);
+end;
+
+procedure TFMain.MenuItem11Click(Sender: TObject);
+begin
+  fmatrix.Caption := 'Grafik tygodniowy';
+  fmatrix.defaultSchema := 'WEEKLY';
+  FMatrix.ShowModal;
 end;
 
 initialization

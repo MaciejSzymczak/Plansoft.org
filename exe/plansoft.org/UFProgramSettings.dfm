@@ -796,9 +796,11 @@ inherited FProgramSettings: TFProgramSettings
         object SQLLog: TCheckBox
           Left = 8
           Top = 16
-          Width = 145
+          Width = 537
           Height = 17
-          Caption = 'Rejestruj zapytania SQL'
+          Caption = 
+            'Rejestruj zapytania SQL.                                        ' +
+            '       Mo'#380'e powodowa'#263' spowolnienie Aplikacji.'
           TabOrder = 0
           OnClick = SQLLogClick
         end

@@ -105,7 +105,6 @@ type
     procedure GselectorClick(Sender: TObject);
     procedure rselectorclick(Sender: TObject);
     procedure lselectorClick(Sender: TObject);
-    procedure BOpenDialogClick(Sender: TObject);
     procedure BOtherClick(Sender: TObject);
     procedure BShowAllClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
@@ -151,7 +150,7 @@ var
 implementation
 
 uses DM, AutoCreate, UUtilityParent, FileCtrl, UFSettings, uFModuleFilter, uFBrowseGROUPS,
-  UFProgramSettings, UFBrowseROOMS, UFBrowseLECTURERS, UWeeklyTable, UIcsGenerator;
+  UFProgramSettings, UFBrowseROOMS, UFBrowseLECTURERS, UIcsGenerator;
 
 
 const
@@ -2084,66 +2083,6 @@ procedure TFWWWGenerator.lselectorClick(Sender: TObject);
 begin
  if (sender as tcheckbox).checked then setAll(LList, true) else setAll(LList, false);
 end;
-
-procedure TFWWWGenerator.BOpenDialogClick(Sender: TObject);
-begin
-end;
-
-{
-var hours : array of string;
-    t     : integer;
-    weeklyTables : tweeklyTables;
-    weeklyTable  : tweeklyTable;
-    f            : textFile;
-    old_week_iso : shortstring;
-begin
-    weeklyTables := tweeklyTables.Create;
-
-    for t := 1 to dm.maxHours do
-        if opisujkolumnezajec.no[t]<>'' then begin
-            setLength(hours, length(hours)+1);
-            hours[length(hours)-1] := opisujkolumnezajec.no[t];
-        end;
-
-    old_week_iso := '';
-    adotest.Open;
-    with dmodule do begin
-        adotest.First;
-        while not adotest.Eof do begin
-
-          if old_week_iso <> adotest.FieldByName('subject').asstring+'+'+adotest.FieldByName('week_iso').asstring then begin
-          old_week_iso := adotest.FieldByName('subject').asstring+'+'+adotest.FieldByName('week_iso').asstring;
-          weeklyTable :=
-          weeklyTables.addWeeklyTable(
-             'Przedmiot',adotest.FieldByName('subject').asstring,'Nr tygodnia',adotest.FieldByName('week_iso').asstring
-            ,['PONIEDZIA£EK','WTOREK','ŒRODA','CZWARTEK','PI¥TEK','SOBOTA','NIEDZIELA'] //@@@ONLY SELECTED days!!
-            ,[]
-            ,hours);
-          end;
-
-            weeklyTable.addCell(trim(adotest.FieldByName('day_in_say_pl').asstring),'',adotest.FieldByName('hour_dsp').asstring,'BGCOLOR="red" border="5" style="border:solid white;"',
-                adotest.FieldByName('form').asstring+'<br/>'+
-                adotest.FieldByName('group_name').asstring+'<br/>'+
-                adotest.FieldByName('resource_name').asstring+'<br/>'+
-                adotest.FieldByName('lecturer_name').asstring
-            );
-            //@@@color!
-
-            adotest.Next;
-        end;
-    end;
-
-    weeklyTables.merge;
-    assignFile(f,'c:\sampletable.html');
-    rewrite(f);
-    writeLn(f,  weeklyTables.getBody );
-    closeFile(f);
-
-    weeklyTables.cleanUp;
-    finalize( weeklyTables );
-
-end;
-}
 
 procedure TFWWWGenerator.BOtherClick(Sender: TObject);
 begin
