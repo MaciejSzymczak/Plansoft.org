@@ -2,7 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   @version 2024.03.13
+   @version 2024.12.29
    @author Maciej Szymczak
    */
 
@@ -186,6 +186,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   
   function killSessions return varchar2;
 
+  function getFirstDayOfWeek(pdayOfWeek varchar2, periodId varchar2) return  varchar2;
+
 end planner_utils;
 /
 
@@ -257,7 +259,7 @@ create or replace package body planner_utils is
     b1 := nvl(pb1, to_date('1000-01-01','yyyy-mm-dd')); 
     b2 := nvl(pb2, to_date('4000-12-31','yyyy-mm-dd'));     
 
-    -- Okres czasowy (A1,A2) ma część wspólną z okresem czasowym (B1,B2), gdy spełniony jest następujący warunek logiczny:  
+    -- Okres czasowy (A1,A2) ma czesc wspólna z okresem czasowym (B1,B2), gdy spelniony jest nastepujacy warunek logiczny:  
     if  (A1 >= B1 or A2 >= B1) and (A1 <= B2 or A2 <= B2)  then
       return 'Y';
     else
@@ -287,7 +289,7 @@ create or replace package body planner_utils is
     dest_date_to := dest_date_from + to_number(source_date_to - source_date_from);
 
     if has_common_part(source_date_from,source_date_to,dest_date_from,dest_date_to) = 'Y' then    
-      output_param_char1 := 'Okresy źródłowy i docelowy nie mogą się pokrywać';
+      output_param_char1 := 'Okresy zródlowy i docelowy nie moga sie pokrywac';
       return;
     end if;   
 
@@ -300,7 +302,7 @@ create or replace package body planner_utils is
        from classes
        where day between dest_date_from and dest_date_to;
      if c > 0 then
-       output_param_char1 := 'Nie można wykonać czynności, ponieważ w obszarze docelowym są już zaplanowane zajęcia. Jeżeli mimo to chcesz kontynuować, zezwól na skopiowanie odznaczając pole wyboru na formularzu';
+       output_param_char1 := 'Nie mozna wykonac czynnosci, poniewaz w obszarze docelowym sa juz zaplanowane zajecia. Jezeli mimo to chcesz kontynuowac, zezwól na skopiowanie odznaczajac pole wyboru na formularzu';
        return; 
      end if;
      end;  
@@ -677,26 +679,24 @@ create or replace package body planner_utils is
     procedure check_locks is 
     begin
       IdsIntoHelper (pcalc_lec_ids, pcalc_gro_ids,pcalc_rom_ids,'','' );
-      for t in 1 .. xxmsz_tools.wordcount(pcalc_lec_ids, ';') loop
-           for rec in (
-                select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) 
-                    || (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id)
-                    || (select name from rooms where id=timetable_notes.res_id)
-                       name 
-                     , LOCKED_BY
-                     , locked_reason 
-                     , (select name from periods where id = timetable_notes.per_id) period_name
-                  from timetable_notes 
-                 where locked_by is not null
-                   --time table found by pday
-                   and per_id in (select id from periods where pday between date_from and date_to)
-                   and res_id in (select id from HELPER_RES) 
-                   -- user is not the locker
-                   and instr(';'||locked_by,';'||user)=0                 
-                ) loop
-             raise_application_error(-20000, 'Planowanie zajęć w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostało zablokowane w semestrze "'|| rec.period_name||'" przez użytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
-           end loop;   
-      end loop;
+       for rec in (
+            select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) 
+                || (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id)
+                || (select name from rooms where id=timetable_notes.res_id)
+                   name 
+                 , LOCKED_BY
+                 , locked_reason 
+                 , (select name from periods where id = timetable_notes.per_id) period_name
+              from timetable_notes 
+             where locked_by is not null
+               --time table found by pday
+               and per_id in (select id from periods where pday between date_from and date_to)
+               and res_id in (select id from HELPER_RES) 
+               -- user is not the locker
+               and instr(';'||locked_by,';'||user)=0                 
+            ) loop
+         raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w semestrze "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+       end loop;   
     end;
     
 
@@ -731,7 +731,7 @@ create or replace package body planner_utils is
              and rownum =1
         )
         loop
-          raise_application_error(-20000, 'Planowanie zajęć w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zostało zablokowane przez użytkownika '||rec.created_by);
+          raise_application_error(-20000, 'Planowanie zajec w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zostalo zablokowane przez uzytkownika '||rec.created_by);
         end loop;   
         check_locks;
         --
@@ -1320,7 +1320,7 @@ create or replace package body planner_utils is
     if (pres_type='G') then
 
          -- optional clean up
-         -- clean up may be necesarry when the hierarchy of resources was modified
+         -- clean up may be necesary when the hierarchy of resources was modified
          -- as it recreates all dependencies, do not overuse this option!
          if (pcleanUpMode='+') then
            for rec in (
@@ -1684,12 +1684,12 @@ create or replace package body planner_utils is
                return ffformula;
             exception
              when too_many_rows then
-               last_error := '(01)Odnaleziono kilka formuł dla podanej formy, jednostki, typu formuły, daty)';
+               last_error := '(01)Odnaleziono kilka formul dla podanej formy, jednostki, typu formuly, daty)';
                return 0;
              when no_data_found then
                guard := guard + 1;
                if guard > 100 then
-                 last_error := '(02)Przekroczono dopuszczalną liczbę zagnieżdżeń w strukturze organizacyjnej ( 100 ). Sprawdź, czy struktura organizacyjna nie zawiera cykli';
+                 last_error := '(02)Przekroczono dopuszczalna liczbe zagniezdzen w strukturze organizacyjnej ( 100 ). Sprawdz, czy struktura organizacyjna nie zawiera cykli';
                  return null;
                else
                  select parent_id
@@ -1697,14 +1697,14 @@ create or replace package body planner_utils is
                    from org_units
                   where id = aorguni_id;
                   if parent_orguni_id is null then
-                    last_error := '(03)Nie odnaleziono formuły dla formy prowadzenia zajęć, zadanego dnia oraz jedn.org (oraz jednostek nadrzędnych)';
+                    last_error := '(03)Nie odnaleziono formuly dla formy prowadzenia zajec, zadanego dnia oraz jedn.org (oraz jednostek nadrzednych)';
                     return null;
                   else
                    return  get_orguni_formula ( parent_orguni_id );
                   end if;
                end if;
              when others        then
-               last_error := '(04)Wyszukiwanie formuły - błąd: ' || to_char (sqlcode) || ' ' || sqlerrm;
+               last_error := '(04)Wyszukiwanie formuly - blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
                return null;
             end;
           end;
@@ -1715,12 +1715,12 @@ create or replace package body planner_utils is
             from lecturers where id = alec_id;
         exception
           when others        then
-            last_error := '(05)Nie powiodło się wyznaczenie jednostki organizacyjnej dla wykładowcy. Błąd: ' || to_char (sqlcode) || ' ' || sqlerrm;
+            last_error := '(05)Nie powiodlo sie wyznaczenie jednostki organizacyjnej dla wykladowcy. Blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
             return 0;
         end;
 
         if aorguni_id is null then
-           last_error := '(06)Dla wykładowcy nie określono jednostki organizacyjnej - nie można wyznaczyć formuły';
+           last_error := '(06)Dla wykladowcy nie okreslono jednostki organizacyjnej - nie mozna wyznaczyc formuly';
            return 0;
         end if;
 
@@ -1729,7 +1729,7 @@ create or replace package body planner_utils is
          return 0;
         end if;
 
-        ffformula := replace (ffformula, 'Zaogrąglij'      , 'Round');
+        ffformula := replace (ffformula, 'Zaograglij'      , 'Round');
         --ffformula := replace (ffformula, 'Liczba_godz'     , to_char(ahours,'99999.0000') );
         --ffformula := replace (ffformula, 'Liczba_studentów', to_char(anumber_of_peoples,'99999.0000'));
         ffformula := replace (ffformula, 'Liczba_godz'     , ' xxmsz_tools.strToNumber(' || to_char(ahours)             ||') ' );
@@ -1742,7 +1742,7 @@ create or replace package body planner_utils is
           return xxmsz_tools.getsqlvalue('SELECT '||ffformula||' FROM DUAL');
         exception
           when others then
-            last_error := '(07)Błąd podczas wyliczania formuły "' || FFFORMULA || '" Błąd: ' || to_char (sqlcode) || ' ' || sqlerrm;
+            last_error := '(07)Blad podczas wyliczania formuly "' || FFFORMULA || '" Blad: ' || to_char (sqlcode) || ' ' || sqlerrm;
             return 0;
         end;
       end;
@@ -1762,12 +1762,12 @@ create or replace package body planner_utils is
         where id = aid;
 
       if acalc_lecturers is null then
-        last_error := '(08)Nie można wyznaczyć współczynnika, ponieważ nie określono wykładowcy';
+        last_error := '(08)Nie mozna wyznaczyc wspólczynnika, poniewaz nie okreslono wykladowcy';
         return 0;
       end if;
 
       if acalc_groups is null then
-        last_error := '(09)Nie można wyznaczyć współczynnika, ponieważ nie określono grup';
+        last_error := '(09)Nie mozna wyznaczyc wspólczynnika, poniewaz nie okreslono grup';
         return 0;
       end if;
 
@@ -1777,7 +1777,7 @@ create or replace package body planner_utils is
         where id in ( select gro_id from gro_cla where cla_id = aid );
 
       if anumber_of_peoples = 0 then
-        last_error := '(10)Nie można wyznaczyć współczynnika, ponieważ nie określono liczności grup';
+        last_error := '(10)Nie mozna wyznaczyc wspólczynnika, poniewaz nie okreslono licznosci grup';
         return 0;
       end if;
 
@@ -1785,7 +1785,7 @@ create or replace package body planner_utils is
       last_horus             := ahours;
       last_number_of_peoples := anumber_of_peoples;
 
-      -- wyznacz współczynnik dla każdego wykładowcy
+      -- wyznacz wspólczynnik dla kazdego wykladowcy
       coe := 0;
       for rec_lec in ( select lec_id from lec_cla where cla_id = aid ) loop
         prior_coe   := coe;
@@ -1796,14 +1796,14 @@ create or replace package body planner_utils is
         end if;
         if prior_coe <> 0 then
           if prior_coe <> coe then
-            last_error := '(11)Otrzymano różne wartości współczynnika dla wykładowców prowadzących zajęcie (' || prior_coe || ', '||  coe || ')';
+            last_error := '(11)Otrzymano rózne wartosci wspólczynnika dla wykladowców prowadzacych zajecie (' || prior_coe || ', '||  coe || ')';
             return 0;
           end if;
         end if;
       end loop;
 
       if last_error is not null then
-        last_error := last_error || ' wywołanie: GET_CLASS_COEFFFICIENT ( '||aid||','''||aform_formula_type||''',TO_DATE(' || to_char(aday,'YYYY-MM-DD') || ',''YYYY-MM-DD''))';
+        last_error := last_error || ' wywolanie: GET_CLASS_COEFFFICIENT ( '||aid||','''||aform_formula_type||''',TO_DATE(' || to_char(aday,'YYYY-MM-DD') || ',''YYYY-MM-DD''))';
       end if;
 
       return coe;
@@ -1899,8 +1899,7 @@ create or replace package body planner_utils is
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure merge_res (save_id number, delete_id number, administrator_merging varchar2) is
-   TYPE tcla_id_list IS TABLE OF NUMBER(15);
-   cla_id_list tcla_id_list;
+   cla_id_list t_number_list;
    i number;
   begin
     if administrator_merging = 'N' then
@@ -1915,7 +1914,7 @@ create or replace package body planner_utils is
           and rom_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Zasób, który probujesz scalić, został użyty przez innych planistów. Jeżeli mimo to chcesz dokonać scalenia, zaznacz pole wyboru "Zezwól na scalanie jeżeli istnieją zajęcia zaplanowane przez innych planistów"');
+         raise_application_error(-20000, 'Zasób, który probujesz scalic, zostal uzyty przez innych planistów. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezwól na scalanie jezeli istnieja zajecia zaplanowane przez innych planistów"');
        end if;  
       end;           
     end if;
@@ -1938,6 +1937,9 @@ create or replace package body planner_utils is
        update_lgr( cla_id_list (i) );
        i := cla_id_list.next(i); 
     end loop;  
+    delete from classes 
+     where calc_lecturers is null and calc_groups is null and calc_rooms is null
+      and id in (select * from table(cla_id_list));
     cla_id_list.delete;  
     update str_elems set child_id = save_id where child_id = delete_id;
     update str_elems set parent_id = save_id where parent_id = delete_id;
@@ -1959,8 +1961,7 @@ create or replace package body planner_utils is
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure merge_lec (save_id number, delete_id number, administrator_merging varchar2) is
-   TYPE tcla_id_list IS TABLE OF NUMBER(15);
-   cla_id_list tcla_id_list;
+   cla_id_list t_number_list;
    i number;
   begin
     if administrator_merging = 'N' then
@@ -1975,7 +1976,7 @@ create or replace package body planner_utils is
           and lec_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o wykładowcy, które próbujesz scalić, zostały użyte przez innych planistów. Jeżeli mimo to chcesz dokonać scalenia, zaznacz pole wyboru "Zezwól na scalanie jeżeli istnieją zajęcia zaplanowane przez innych planistów"');
+         raise_application_error(-20000, 'Dane o wykladowcy, które próbujesz scalic, zostaly uzyte przez innych planistów. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezwól na scalanie jezeli istnieja zajecia zaplanowane przez innych planistów"');
        end if;  
       end;           
     end if;
@@ -1995,6 +1996,9 @@ create or replace package body planner_utils is
        update_lgr( cla_id_list (i) );
        i := cla_id_list.next(i); 
     end loop;    
+    delete from classes 
+     where calc_lecturers is null and calc_groups is null and calc_rooms is null
+      and id in (select * from table(cla_id_list));
     cla_id_list.delete;  
     update str_elems set child_id = save_id where child_id = delete_id;
     update str_elems set parent_id = save_id where parent_id = delete_id;
@@ -2016,8 +2020,7 @@ create or replace package body planner_utils is
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure merge_gro (save_id number, delete_id number, administrator_merging varchar2) is
-   TYPE tcla_id_list IS TABLE OF NUMBER(15);
-   cla_id_list tcla_id_list;
+   cla_id_list t_number_list;
    i number;
   begin
     if administrator_merging = 'N' then
@@ -2032,7 +2035,7 @@ create or replace package body planner_utils is
           and gro_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Dane o grupie, które probujesz scalić, zostały użyte przez innych planistów. Jeżeli mimo to chcesz dokonać scalenia, zaznacz pole wyboru "Zezwól na scalanie jeżeli istnieją zajęcia zaplanowane przez innych planistów"');
+         raise_application_error(-20000, 'Dane o grupie, które probujesz scalic, zostaly uzyte przez innych planistów. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezwól na scalanie jezeli istnieja zajecia zaplanowane przez innych planistów"');
        end if;  
       end;           
     end if;
@@ -2051,7 +2054,10 @@ create or replace package body planner_utils is
     while i is not null loop
        update_lgr( cla_id_list (i) );
        i := cla_id_list.next(i); 
-    end loop;    
+    end loop;   
+    delete from classes 
+     where calc_lecturers is null and calc_groups is null and calc_rooms is null
+      and id in (select * from table(cla_id_list));    
     cla_id_list.delete;  
     update str_elems set child_id = save_id where child_id = delete_id;
     update str_elems set parent_id = save_id where parent_id = delete_id;
@@ -2085,7 +2091,7 @@ create or replace package body planner_utils is
         where sub_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, który probujesz scalić, został użyty przez innych planistów. Jeżeli mimo to chcesz dokonać scalenia, zaznacz pole wyboru "Zezwól na scalanie jeżeli istnieją zajęcia zaplanowane przez innych planistów"');
+         raise_application_error(-20000, 'Przedmiot, który probujesz scalic, zostal uzyty przez innych planistów. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezwól na scalanie jezeli istnieja zajecia zaplanowane przez innych planistów"');
        end if;  
       end;           
     end if;
@@ -2118,7 +2124,7 @@ create or replace package body planner_utils is
         where for_id = delete_id
           and c.owner <> user;
        if c > 0 then
-         raise_application_error(-20000, 'Przedmiot, który probujesz scalić, został użyty przez innych planistów. Jeżeli mimo to chcesz dokonać scalenia, zaznacz pole wyboru "Zezwól na scalanie jeżeli istnieją zajęcia zaplanowane przez innych planistów"');
+         raise_application_error(-20000, 'Przedmiot, który probujesz scalic, zostal uzyty przez innych planistów. Jezeli mimo to chcesz dokonac scalenia, zaznacz pole wyboru "Zezwól na scalanie jezeli istnieja zajecia zaplanowane przez innych planistów"');
        end if;  
       end;           
     end if;
@@ -2142,7 +2148,7 @@ create or replace package body planner_utils is
   function insert_str_elem ( pparent_id number, pchild_id number, pstr_name_lov varchar2 default 'STREAM', pexclusive_parent varchar2) return varchar2 is
    c number;
   begin
-    if pparent_id = pchild_id then return 'Zasób nie może być sam dla siebie podrzędny ani nadrzędny'; end if;
+    if pparent_id = pchild_id then return 'Zasób nie moze byc sam dla siebie podrzedny ani nadrzedny'; end if;
     --avoid cycles
     select count(*)
      into c 
@@ -2153,7 +2159,7 @@ create or replace package body planner_utils is
         connect by prior parent_id = child_id   
         start with child_id=pparent_id)
     where id_list = pchild_id;
-    if c > 0 then return 'Dodanie rekordu spowodowałoby zapętlenie danych. Elementem nadrzędnym nie może być element, który już jest elementem podrzędnym'; end if;
+    if c > 0 then return 'Dodanie rekordu spowodowaloby zapetlenie danych. Elementem nadrzednym nie moze byc element, który juz jest elementem podrzednym'; end if;
     select count(*)
      into c 
      from
@@ -2163,13 +2169,13 @@ create or replace package body planner_utils is
         connect by prior child_id = parent_id  
         start with parent_id=pchild_id)
     where id_list = pparent_id;    
-    if c > 0 then return 'Dodanie rekordu spowodowałoby zapętlenie danych. Elementem podrzędnym nie może być element, który już jest elementem nadrzędnym'; end if;    
+    if c > 0 then return 'Dodanie rekordu spowodowaloby zapetlenie danych. Elementem podrzednym nie moze byc element, który juz jest elementem nadrzednym'; end if;    
     begin
       insert into str_elems (id, parent_id, child_id, str_name_lov, exclusive_parent) values (main_seq.nextval, pparent_id, pchild_id,pstr_name_lov, pexclusive_parent);
       return '';
     exception 
       when others then 
-        if sqlcode = -1 then return 'Ta kombinacja już istnieje. Rekord nie został dodany ponownie'; else return sqlerrm; end if;
+        if sqlcode = -1 then return 'Ta kombinacja juz istnieje. Rekord nie zostal dodany ponownie'; else return sqlerrm; end if;
     end;
   end insert_str_elem;           
 
@@ -2286,6 +2292,32 @@ create or replace package body planner_utils is
    rollback; 
    raise;  
  end delete_class;
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------------------
+ -- currently not in use
+function getFirstDayOfWeek(pdayOfWeek varchar2, periodId varchar2) return  varchar2 is
+  res varchar2(100);
+begin
+   return 'XYZ';
+
+    select to_char(min(day),'yyyy-mm-dd')
+    into res
+    from
+    (
+    select DAY, to_char(DAY,'D','NLS_DATE_LANGUAGE=polish') dayOfWeek
+    from
+    (
+    SELECT TO_DATE('2024-09-02', 'YYYY-MM-DD') + (ROWNUM - 1) AS day
+    FROM dual
+    CONNECT BY TO_DATE('2024-09-02', 'YYYY-MM-DD') + (ROWNUM - 1) <= TO_DATE('2024-09-06', 'YYYY-MM-DD')
+    )
+    )
+    where dayOfWeek=pdayOfWeek; 
+    return res;
+ 
+end;
+
+   
 
 end planner_utils;
 /

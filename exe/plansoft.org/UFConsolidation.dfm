@@ -145,7 +145,16 @@ inherited FConsolidation: TFConsolidation
         BorderStyle = bsNone
         Color = clBtnFace
         Lines.Strings = (
-          'Za pomoc'#261' tego formularza mo'#380'esz usun'#261#263' zdublowane dane.'
+          'Za pomoc'#261' tego formularza mo'#380'esz scali'#263' zdublowane dane.'
+          'Scalanie mo'#380'e wykonac Administrator.'
+          
+            'Je'#380'eli wyk'#322'adowca zosta'#322' zarejestrowany w systemie trzy- lub wie' +
+            'lokrotnie, to czynno'#347#263' scalania nale'#380'y powt'#243'rzy'#263' odpowiedni'#261' ilo' +
+            #347#263' razy.'
+          'Czynno'#347#263' scalania jest nieodwracalna.'
+          ''
+          ''
+          'DLACZEGO POZBYCIE SI'#280' DUPLIKATOW JEST WA'#379'NE?'
           
             'Je'#380'eli wprowadzono omy'#322'kowo dwa razy tego samego tego samego wyk' +
             #322'adowc'#281', to podczas planowania zaj'#281#263' system'
@@ -155,31 +164,6 @@ inherited FConsolidation: TFConsolidation
           
             'Aby zabobiec takiej sytuacji, nale'#380'y usun'#261#263' jeden z dw'#243'ch rekord' +
             #243'w, zawieraj'#261'cych dane o wyk'#322'adowcy.'
-          ''
-          
-            'Czynno'#347#263' usuni'#281'cia mo'#380'e okaza'#263' si'#281' jednak trudna, gdy zaj'#281'cia ju' +
-            #380' zosta'#322'y zaplanowane.'
-          
-            'Trudno'#347#263' polega na tym, '#380'e trzeba przejrze'#263' wszystkie zaj'#281'cia, d' +
-            'otycz'#261'ce wyk'#322'adowcy, zarejestrowanego za pierwszym (w rekordzie ' +
-            'A) oraz za'
-          
-            'drugim razem (w rekordzie B). Nast'#281'pnie ka'#380'de z nich przypisa'#263' d' +
-            'o rekordu A, a rekord B usun'#261#263'.'
-          
-            'Podczas przepisywania danych do rekordu A, mo'#380'e wyst'#261'pi'#263' konflik' +
-            't polegaj'#261'cy na tym, '#380'e A mo'#380'e mie'#263' ju'#380' zaj'#281'cia uniemo'#380'liwiaj'#261'ce' +
-            ' przepisanie.'
-          'W'#243'wczas zaj'#281'cia przypisane do rekordu B zostan'#261' usuni'#281'te.'
-          'Przed usuni'#281'ciem zostanie jednak wy'#347'wietlone ostrze'#380'enie.'
-          ''
-          'Funkcja scalania wykonuje opisane czynno'#347'ci automatycznie.'
-          'Scalanie mo'#380'e wykonac Administrator.'
-          
-            'Je'#380'eli wyk'#322'adowca zosta'#322' zarejestrowany w systemie trzy- lub wie' +
-            'lokrotnie, to czynno'#347#263' scalania nale'#380'y powt'#243'rzy'#263' odpowiedni'#261' ilo' +
-            #347#263' razy.'
-          'Czynno'#347#263' scalania jest nieodwracalna.'
           '')
         ReadOnly = True
         TabOrder = 1

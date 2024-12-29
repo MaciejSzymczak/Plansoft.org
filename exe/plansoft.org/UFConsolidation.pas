@@ -159,7 +159,7 @@ begin
     if question('W wyniku scalania liczba rekordów zmniejszy siê. Ich liczba zmniejszy siê ze wzglêdu na to, ¿e zostan¹ usunietê rekordy, które w wyniku scalenia spowodowa³yby konflikty. Czy kontynuowaæ ?') = id_yes then
       begin
         dmodule.CommitTrans;
-        info ('Zasób usuniêto. Zaktualizowano nastêpuj¹c¹ liczbê rekordów:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
+        info ('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê rekordów:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
       end
     else
       Dmodule.RollbackTrans;
@@ -167,7 +167,7 @@ begin
   else
   begin
     dmodule.CommitTrans;
-    info ('Zasób usuniêto. Zaktualizowano nastêpuj¹c¹ liczbê zajêæ:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
+    info ('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê zajêæ:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
   end;
  except
    on E:exception do Begin
