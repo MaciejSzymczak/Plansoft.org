@@ -1530,7 +1530,6 @@ end;
 
 procedure TFMatrix.Wybierzsemestr1Click(Sender: TObject);
 Var KeyValue : ShortString;
-    roleId : shortString;
 begin
   inherited;
   KeyValue := fmain.conPeriod.Text;

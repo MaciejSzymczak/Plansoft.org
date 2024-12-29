@@ -186,8 +186,6 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   
   function killSessions return varchar2;
 
-  function getFirstDayOfWeek(pdayOfWeek varchar2, periodId varchar2) return  varchar2;
-
 end planner_utils;
 /
 
@@ -300,7 +298,8 @@ create or replace package body planner_utils is
      select count(*) 
        into c 
        from classes
-       where day between dest_date_from and dest_date_to;
+       where day between dest_date_from and dest_date_to
+         and owner != 'AUTO';
      if c > 0 then
        output_param_char1 := 'Nie mozna wykonac czynnosci, poniewaz w obszarze docelowym sa juz zaplanowane zajecia. Jezeli mimo to chcesz kontynuowac, zezwól na skopiowanie odznaczajac pole wyboru na formularzu';
        return; 
@@ -2293,31 +2292,6 @@ create or replace package body planner_utils is
    raise;  
  end delete_class;
  
- -----------------------------------------------------------------------------------------------------------------------------------------------------
- -- currently not in use
-function getFirstDayOfWeek(pdayOfWeek varchar2, periodId varchar2) return  varchar2 is
-  res varchar2(100);
-begin
-   return 'XYZ';
-
-    select to_char(min(day),'yyyy-mm-dd')
-    into res
-    from
-    (
-    select DAY, to_char(DAY,'D','NLS_DATE_LANGUAGE=polish') dayOfWeek
-    from
-    (
-    SELECT TO_DATE('2024-09-02', 'YYYY-MM-DD') + (ROWNUM - 1) AS day
-    FROM dual
-    CONNECT BY TO_DATE('2024-09-02', 'YYYY-MM-DD') + (ROWNUM - 1) <= TO_DATE('2024-09-06', 'YYYY-MM-DD')
-    )
-    )
-    where dayOfWeek=pdayOfWeek; 
-    return res;
- 
-end;
-
-   
-
 end planner_utils;
 /
+

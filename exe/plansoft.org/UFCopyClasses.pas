@@ -21,6 +21,9 @@ type
     dest_period_must_be_empty: TCheckBox;
     whichSheets: TRadioGroup;
     BSelectSheet: TBitBtn;
+    BSelectPeriodFrom: TBitBtn;
+    BSelectPeriodTo: TBitBtn;
+    Label2: TLabel;
     procedure dest_date_fromChange(Sender: TObject);
     procedure BExecuteClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -29,6 +32,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure whichSheetsClick(Sender: TObject);
     procedure BSelectSheetClick(Sender: TObject);
+    procedure BSelectPeriodFromClick(Sender: TObject);
+    procedure BSelectPeriodToClick(Sender: TObject);
   private
     gCanCloseQuery : boolean;
     keyValue    : shortString;
@@ -188,6 +193,34 @@ begin
      2: BSelectSheet.Caption :=  'Zasób: ' + keyValueDsp;
     end;
   end;
+end;
+
+procedure TFCopyClasses.BSelectPeriodFromClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  inherited;
+  KeyValue := fmain.conPeriod.Text;
+  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    With DModule do begin
+        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
+        source_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+        source_date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+    End;
+  End;
+end;
+
+procedure TFCopyClasses.BSelectPeriodToClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  inherited;
+  KeyValue := fmain.conPeriod.Text;
+  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    With DModule do begin
+        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
+        dest_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+        dest_date_fromChange(nil);
+    End;
+  End;
 end;
 
 end.
