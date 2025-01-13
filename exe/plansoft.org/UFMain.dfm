@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 87
-  Top = 69
+  Left = 46
+  Top = 40
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -5004,6 +5004,7 @@ inherited FMain: TFMain
           '      v_record.Name := OriginalName ||'#39' ('#39' || week.name || '#39')'#39';'
           '      v_record.date_from := week.date_from; '
           '      v_record.date_to   := week.date_to;'
+          '      v_record.integration_id := null;'
           '      declare'
           '        c number;'
           '      begin'
@@ -5135,7 +5136,6 @@ inherited FMain: TFMain
       Width = 1605
       Height = 754
       Align = alClient
-      Caption = 'gridPanel'
       TabOrder = 6
       object filterPanel: TPanel
         Left = 1

@@ -78,7 +78,11 @@ Uses AutoCreate, DM, UUtilityParent;
 
 procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
+  Status.Caption := 'Zapisywanie parametrów...';
+  Status.Refresh;
   SaveParams;
+  Status.Caption := 'Zamykanie okna...';
+  Status.Refresh;
   Close;
 end;
 
@@ -107,11 +111,21 @@ begin
 end;
 
 procedure TFUSOS.SaveParams;
+  procedure progress(x : string);
+  begin
+    Status.Caption := x;
+    Status.Refresh;
+  end;
 begin
+  progress('USOS_CYKL');
   dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
+  progress('USOS_RESCAT_COMB_ID');
   dmodule.dbSetSystemParam('USOS_RESCAT_COMB_ID', RESCAT_COMB_ID.text);
+  progress('USOS_HOURS_PER_DAY');
   dmodule.dbSetSystemParam('USOS_HOURS_PER_DAY', USOS_HOURS_PER_DAY.text);
+  progress('USOS_INTEGRATION_USER');
   dmodule.dbSetSystemParam('USOS_INTEGRATION_USER', USOS_INTEGRATION_USER.text);
+  progress('USOS_ONLINE');
   dmodule.dbSetSystemParam('USOS_ONLINE', USOS_ONLINE.text);
 end;
 

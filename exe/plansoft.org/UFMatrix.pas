@@ -424,6 +424,7 @@ begin
         v[ 8] := 'Zasób';
         v[ 9] := 'Wyk³adowca';
         v[10] := '<Nie dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Grupa';
     end;
     if defaultSchema = 'Sall' then begin
@@ -442,6 +443,7 @@ begin
         v[ 8] := 'Zasób';
         v[ 9] := 'Wyk³adowca';
         v[10] := '<Nie Dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -461,6 +463,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Lall' then begin
@@ -479,6 +482,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -498,6 +502,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Gall' then begin
@@ -516,6 +521,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -535,6 +541,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Rall' then begin
@@ -553,6 +560,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -573,6 +581,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
     if defaultSchema = 'Fall' then begin
@@ -591,6 +600,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -610,6 +620,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -629,6 +640,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -648,6 +660,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -667,6 +680,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -686,6 +700,7 @@ begin
         v[ 8] := 'Grupa';
         v[ 9] := 'Zasób';
         v[10] := 'Wyk³adowca';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Przedmiot';
     end;
 
@@ -705,6 +720,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Forma';
     end;
 
@@ -724,6 +740,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Forma';
     end;
 
@@ -743,6 +760,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Forma';
     end;
 
@@ -787,6 +805,7 @@ begin
         v[ 8] := '<Nie Dotyczy>';
         v[ 9] := '<Nie Dotyczy>';
         v[10] := '<Nie Dotyczy>';
+        v[11] := '<Nie Dotyczy>';
         v[50] := 'Forma zajêæ';
         end;
     end;

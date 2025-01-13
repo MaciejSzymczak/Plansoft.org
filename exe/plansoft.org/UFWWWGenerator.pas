@@ -110,6 +110,7 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure currentPeriod_VALUEClick(Sender: TObject);
   private
     formPrepared : boolean;
     settingsLoaded : boolean;
@@ -559,7 +560,7 @@ begin
      //@@@sql_GRONAME vs nvl(GRO.NAME,GRO.abbreviation)
      OpenSQL('SELECT DISTINCT nvl(GROUPS.NAME,GROUPS.abbreviation) GRO_NAME, GROUPS.ID ' +
             'FROM GRO_CLA, GROUPS '+
-            'WHERE GRO_ID=GROUPS.ID AND '+periodClauseGRO_CLA+' '+
+            'WHERE GROUPS.Id>0 and GRO_ID=GROUPS.ID AND '+periodClauseGRO_CLA+' '+
             'AND GROUPS.ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + nvl(GROSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY GRO_NAME');
@@ -572,7 +573,7 @@ begin
 
      OpenSQL('SELECT DISTINCT '+sql_LECNAME+' LEC_NAME, LEC.ID, TITLE, LAST_NAME, FIRST_NAME ' +
             'FROM LEC_CLA, LECTURERS LEC '+
-            'WHERE LEC_ID=LEC.ID AND '+periodClauseLEC_CLA+' '+
+            'WHERE LEC.Id>0 and LEC_ID=LEC.ID AND '+periodClauseLEC_CLA+' '+
             'AND LEC.ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + NVL(LECSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY ' + LECOrderby.Strings.ValueFromIndex [ ComboSortOrder.ItemIndex ]);
@@ -586,7 +587,7 @@ begin
 
      OpenSQL('SELECT DISTINCT '+sql_ResCat0NAME+'  ROM_NAME, ROM.ID ' +
             'FROM ROM_CLA, ROOMS ROM '+
-            'WHERE ROM_ID=ROM.ID AND '+periodClauseROM_CLA+' '+
+            'WHERE ROM.Id>0 and ROM_ID=ROM.ID AND '+periodClauseROM_CLA+' '+
             'AND ROM.ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+') '+
             ' AND (' + NVL(ROMSettings.Strings.Values['SQL.Category:DEFAULT'],'0=0') + ') ' +
             'ORDER BY ROM_NAME');
@@ -2117,5 +2118,11 @@ begin
   ShowFolder(Folder.Text);
 end;
 
+
+procedure TFWWWGenerator.currentPeriod_VALUEClick(Sender: TObject);
+begin
+  BitBtnPERClick(nil);
+
+end;
 
 end.

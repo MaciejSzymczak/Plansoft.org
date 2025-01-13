@@ -179,6 +179,25 @@ WriteToClob(res,'
 WriteToClob(res,'
   </table>');  
 
+WriteToClob(res,'
+  <h1>Historia zmian</h1>
+  <table>');  
+ WriteToClob(res, '<tr><th>Liczba zajec</th><th>Operacja wykonana w roku</th><th>Alert</th></tr>'||chr(13)||chr(10));
+ for rec in (
+    select count, yyyy, case when to_char(sysdate,'yyyy')- yyyy >5 then '*** Zarchiwizuj lub skasuj te zajecia' else 'W porzadku' end alert from
+    (
+    select count(1) count, to_char(effective_start_date,'yyyy') yyyy from classes_history group by to_char(effective_start_date,'yyyy')
+    )
+    order by yyyy
+ ) loop
+     WriteToClob(res, '<tr>'
+       || '<td>' || rec.count
+       || '</td><td>' || rec.yyyy
+       || '</td><td>' || rec.alert
+       ||'</td></tr>'||chr(13)||chr(10));
+ end loop;
+WriteToClob(res,'
+  </table>');  
 
 WriteToClob(res,'
   <h1>Ulubione terminy do skasowania / zarchiwizowania</h1>

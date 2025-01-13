@@ -243,7 +243,7 @@ begin
               'Dzieñ^space^tygodnia|CATEGORY:DEFAULT,CALC_LECTURERS|%Ls.|CATEGORY:DEFAULT,CALC_GROUPS|%Gs.|'+
               'CATEGORY:DEFAULT,CALC_ROOMS|Zasoby|CATEGORY:DEFAULT,FILL|Wype³nienie|CATEGORY:DEFAULT,DESC1|'+replace(getClassDescPlural(1),' ', '^space^')+'|CATEGORY:DEFAULT,DESC2|'+replace(getClassDescPlural(2),' ', '^space^')+'|CATEGORY:DEFAULT,DESC3|'+replace(getClassDescPlural(3),' ', '^space^')+'|'+
               'CATEGORY:DEFAULT,DESC4|'+replace(getClassDescPlural(4),' ', '^space^')+'|CATEGORY:DEFAULT,"decode(CLASSES.operation_flag,''I'',''Wstawienie'',''U'',''Zmiana'',''D'',''Usuniêcie'')|Operacja|CATEGORY:DEFAULT",'+
-              '"CLASSES.effective_start_date desc, CLASSES.effective_end_date desc|Data zmiany od|CATEGORY:DEFAULT","CLASSES.effective_end_date desc|Data zmiany do|CATEGORY:DEFAULT"';
+              '"CLASSES.effective_start_date desc, CLASSES.effective_end_date desc|Data operacji (malej¹co)|CATEGORY:DEFAULT","CLASSES.effective_end_date desc|Data zmiany do|CATEGORY:DEFAULT"';
     end
     else
       HolderSortOrder.CommaText :=
@@ -259,6 +259,9 @@ begin
     //Query.SQL.CommaText := translateMessages ( Query.SQL.CommaText );
   end;
 
+ Grid.Columns[ ColNo('CALC_LECTURERS') ].visible := classesTableName = 'CLASSES';
+ Grid.Columns[ ColNo('CALC_LECTURERS_SHORT') ].visible := classesTableName = 'CLASSES_HISTORY';
+ Grid.Columns[ ColNo('LAST_UPDATED_BY') ].visible := classesTableName = 'CLASSES_HISTORY';
  Grid.Columns[ ColNo('OPERATION_FLAG') ].visible := classesTableName = 'CLASSES_HISTORY';
  Grid.Columns[ ColNo('EFFECTIVE_START_DATE') ].visible := classesTableName = 'CLASSES_HISTORY';
  Grid.Columns[ ColNo('EFFECTIVE_END_DATE') ].visible := classesTableName = 'CLASSES_HISTORY';
@@ -307,7 +310,8 @@ Var tablePostfix     : string;
   Function getPeriod ( pdateFrom, pdateTo : String ) : string;
   var c : string;
   begin
-    c := '((CLASSES.EFFECTIVE_START_DATE <= :FROM AND CLASSES.EFFECTIVE_END_DATE BETWEEN :FROM AND :TO) OR (CLASSES.EFFECTIVE_START_DATE BETWEEN :FROM AND :TO AND NVL(CLASSES.EFFECTIVE_END_DATE, DATE''3000-01-01'') >= :TO ))';
+    //c := '((CLASSES.EFFECTIVE_START_DATE <= :FROM AND CLASSES.EFFECTIVE_END_DATE BETWEEN :FROM AND :TO) OR (CLASSES.EFFECTIVE_START_DATE BETWEEN :FROM AND :TO AND NVL(CLASSES.EFFECTIVE_END_DATE, DATE''3000-01-01'') >= :TO ))';
+    c := '(CLASSES.EFFECTIVE_START_DATE BETWEEN :FROM AND :TO OR CLASSES.EFFECTIVE_END_DATE BETWEEN :FROM AND :TO )';
     c :=  searchAndReplace(c,':FROM',pDateFrom);
     c :=  searchAndReplace(c,':TO',pDateTo);
     result := c;
@@ -318,7 +322,6 @@ Begin
  if classesTableName = 'CLASSES_HISTORY' then begin
    case HistoryMode.ItemIndex of
    {Wszystkie zmiany
-    Stan na dzieñ
     Zmiany wykonane dzisiaj
     Zmiany wykonane wczoraj
     Zmiany wykonane przedwczoraj
@@ -328,15 +331,14 @@ Begin
     Zmiany - ostatnich 30 dni
     Zmiany w innym okresie}
     0:DM.macros.setMacro(query, 'HIST_FILTER', '0=0');
-    1:DM.macros.setMacro(query, 'HIST_FILTER', DateToOracle(historyFrom.Date) + '+1-NumTodsInterval(1, ''second'') BETWEEN CLASSES.EFFECTIVE_START_DATE AND NVL(CLASSES.EFFECTIVE_END_DATE, DATE''3000-01-01'')');
-    2:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-0','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    3:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-1','trunc(sysdate)+0-NumTodsInterval(1, ''second'')'));
-    4:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)-1-NumTodsInterval(1, ''second'')'));
-    5:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    6:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-6','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    7:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-13','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    8:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-29','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    9:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod( DateToOracle(historyFrom.Date) , DateToOracle(historyTo.Date)  ));
+    1:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-0','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
+    2:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-1','trunc(sysdate)+0-NumTodsInterval(1, ''second'')'));
+    3:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)-1-NumTodsInterval(1, ''second'')'));
+    4:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
+    5:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-6','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
+    6:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-13','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
+    7:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-29','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
+    8:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod( DateToOracle(historyFrom.Date-1) , DateToOracle(historyTo.Date+1)  ));
    end;
    tablePostfix := '_HISTORY';
  end else begin
@@ -402,7 +404,7 @@ Begin
    DM.macros.setMacro(query, 'HOUR_FILTER', '0=0');
 
  If GenericFilter.CONPLA.Text = '' Then DM.macros.setMacro(query, 'CONPLA', '0=0')
-                   Else DM.macros.setMacro(query, 'CONPLA',  GetCLASSESforPLA(GenericFilter.CONPLA.Text) );
+                   Else DM.macros.setMacro(query, 'CONPLA',  'CLASSES.LAST_UPDATED_BY = (SELECT NAME FROM PLANNERS WHERE ID ='+GenericFilter.CONPLA.Text+')' );
 
  case ConflictWithReservations.ItemIndex of
    0:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '0=0');
@@ -497,9 +499,8 @@ end;
 
 procedure TFBrowseCLASSES.ComboSortOrderChange(Sender: TObject);
 begin
-  historyFrom.Visible := (HistoryMode.ItemIndex = 1) or (HistoryMode.ItemIndex = 9);
-  historyTo.Visible := HistoryMode.ItemIndex = 9;
-  historyLabel.Visible := HistoryMode.ItemIndex = 9;
+  historyFrom.Visible := HistoryMode.ItemIndex = 8;
+  historyTo.Visible := HistoryMode.ItemIndex = 8;
   inherited;
 end;
 

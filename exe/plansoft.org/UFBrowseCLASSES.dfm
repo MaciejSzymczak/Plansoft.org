@@ -49,9 +49,30 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Columns = <
           item
             Expanded = False
+            FieldName = 'OPERATION_FLAG'
+            Title.Caption = 'Operacja'
+            Width = 97
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'EFFECTIVE_START_DATE'
+            Title.Caption = 'Data operacji'
+            Width = 114
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'LAST_UPDATED_BY'
+            Title.Caption = 'Wykonal operacje'
+            Width = 150
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'DAY'
-            Title.Caption = 'Dzie'#324
-            Width = 80
+            Title.Caption = 'Zaj'#281'cie: Dzie'#324
+            Width = 120
             Visible = True
           end
           item
@@ -80,6 +101,13 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             FieldName = 'CALC_LECTURERS'
             Title.Caption = 'Wyk'#322'adowca'
             Width = 300
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CALC_LECTURERS_SHORT'
+            Title.Caption = 'Wyk'#322'adowca (skr'#243't)'
+            Width = 200
             Visible = True
           end
           item
@@ -140,30 +168,9 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           end
           item
             Expanded = False
-            FieldName = 'CREATED_BY'
-            Title.Caption = 'Utworzy'#322
-            Width = 60
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'OWNER'
             Title.Caption = 'W'#322'a'#347'ciciel'
             Width = 70
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'OPERATION_FLAG'
-            Title.Caption = 'Operacja'
-            Width = 97
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'EFFECTIVE_START_DATE'
-            Title.Caption = 'Data obow. od'
-            Width = 114
             Visible = True
           end
           item
@@ -490,7 +497,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           Align = alTop
           TabOrder = 0
           object LDAYTO_Label: TLabel
-            Left = 171
+            Left = 203
             Top = 6
             Width = 12
             Height = 14
@@ -499,12 +506,12 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           object Label2: TLabel
             Left = 8
             Top = 6
-            Width = 33
+            Width = 65
             Height = 14
-            Caption = 'Kiedy: '
+            Caption = 'Data zaj'#281'cia: '
           end
           object ChSelectedDates: TCheckBox
-            Left = 360
+            Left = 392
             Top = 6
             Width = 241
             Height = 17
@@ -513,7 +520,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             OnClick = ChSelectedDatesClick
           end
           object FHOUR: TComboBox
-            Left = 312
+            Left = 344
             Top = 3
             Width = 42
             Height = 22
@@ -587,7 +594,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
               '60')
           end
           object FDAY_TO: TDateEdit
-            Left = 192
+            Left = 224
             Top = 4
             Width = 121
             Height = 21
@@ -596,7 +603,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             OnChange = FDAY_FROMChange
           end
           object FDAY_FROM: TDateEdit
-            Left = 48
+            Left = 80
             Top = 4
             Width = 121
             Height = 21
@@ -622,9 +629,9 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           object historyLabel: TLabel
             Left = 8
             Top = 6
-            Width = 73
+            Width = 66
             Height = 14
-            Caption = 'Historia zmian: '
+            Caption = 'Data operacji:'
           end
           object HistoryMode: TComboBox
             Left = 109
@@ -634,14 +641,11 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             Style = csOwnerDrawFixed
             DropDownCount = 25
             ItemHeight = 16
-            ItemIndex = 0
             MaxLength = 255
             TabOrder = 0
-            Text = 'Wszystkie zmiany'
             OnChange = ComboSortOrderChange
             Items.Strings = (
               'Wszystkie zmiany'
-              'Stan na dzie'#324
               'Zmiany z dzisiaj'
               'Zmiany z wczoraj'
               'Zmiany z przedwczoraj'
@@ -1295,13 +1299,17 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       '     , CLASSES.DESC2'
       '     , CLASSES.DESC3'
       '     , CLASSES.DESC4'
-      '     , SUBSTR(lecturers.full_name,1,500) CALC_LECTURERS'
+      '     , classes.CALC_LECTURERS  CALC_LECTURERS_SHORT'
+      
+        '     , NVL(SUBSTR(lecturers.full_name,1,500), classes.CALC_LECTU' +
+        'RERS)  CALC_LECTURERS'
       '     , CLASSES.CALC_GROUPS'
       '     , CLASSES.CALC_ROOMS'
       '     , CLASSES.CALC_LEC_IDS'
       '     , CLASSES.CALC_GRO_IDS'
       '     , CLASSES.CALC_ROM_IDS'
       '     , CLASSES.CREATED_BY'
+      '     , CLASSES.LAST_UPDATED_BY'
       '     , CLASSES.OWNER'
       '     , CLASSES.STATUS'
       '     , CLASSES.COLOUR'

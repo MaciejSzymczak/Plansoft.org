@@ -202,6 +202,9 @@ Procedure DBGetClassByRoom    (DAY1, DAY2 : String; Zajecia: Integer; ROM_ID    
 Procedure DBGetClassByClassId (classId : String; Var Status : Integer; Var Class_ : TClass_);
 
 
+Procedure DBGetClassByLGR(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : String; Var Class_ : TClass_);
+
+
 type TMacros = class ( Tobject )
        QueriesCnt : integer;
        Queries : Array[1..1000] of record
@@ -844,7 +847,7 @@ Begin
      S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
    SQL.Add(S);
-      
+
    Open;
  end;
  Result := QWork2.Fields[0].AsString;
@@ -1628,6 +1631,61 @@ Begin
    End;
 End;
 
+Procedure DBGetClassByLGR(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : String; Var Class_ : TClass_);
+var d1, d2 : string;
+Begin
+   d1 := copy(day1,10,10);
+   d2 := copy(day2,10,10);
+
+   if d1<>d2 then
+       DModule.SingleValue2(
+       StringReplace(
+       'SELECT ''L'' CONFLICTTYPE, LEC_CLA.CLA_ID '+
+       'FROM LEC_CLA '+
+       'WHERE '+
+       '      LEC_CLA.LEC_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour '+
+       'UNION '+
+       'SELECT  ''S'' CONFLICTTYPE, ROM_CLA.CLA_ID '+
+       'FROM ROM_CLA '+
+       'WHERE ROM_CLA.ROM_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour ' +
+       'UNION '+
+       'SELECT  ''G'' CONFLICTTYPE, GRO_CLA.CLA_ID '+
+       'FROM GRO_CLA '+
+       'WHERE GRO_CLA.GRO_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour'
+       , ':examinedId', childId, [rfReplaceAll, rfIgnoreCase])
+       ,'day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)
+       )
+   else
+       DModule.SingleValue2(
+       StringReplace(
+       'SELECT  ''L'' CONFLICTTYPE, LEC_CLA.CLA_ID '+
+       'FROM LEC_CLA '+
+       'WHERE LEC_CLA.LEC_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour '+
+       'UNION '+
+       'SELECT  ''S'' CONFLICTTYPE, ROM_CLA.CLA_ID '+
+       'FROM ROM_CLA '+
+       'WHERE ROM_CLA.ROM_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour '+
+       'UNION '+
+       'SELECT  ''G'' CONFLICTTYPE, GRO_CLA.CLA_ID '+
+       'FROM GRO_CLA '+
+       'WHERE GRO_CLA.GRO_ID in :examinedId AND no_conflict_flag is null and '+
+       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour'
+       , ':examinedId', childId, [rfReplaceAll, rfIgnoreCase])
+       ,'day1='+d1+';hour='+IntToStr(Zajecia));
+
+   if DModule.QWork2.RecordCount = 0 then
+     Status := 'ClassNotFound'
+   else begin
+     Status := DModule.QWork2.FieldByName('CONFLICTTYPE').AsString;
+   end;
+End;
+
+
 Procedure DBGetClassByGroup(DAY1, DAY2 : String; Zajecia: Integer; GRO_ID : String; Var Status : Integer; Var Class_ : TClass_);
 var d1, d2 : string;
 Begin
@@ -1646,7 +1704,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
+   '      GRO_CLA.GRO_ID = :gro AND no_conflict_flag is null and '+
    '      CLA.DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']))
    else
    DModule.SingleValue(
@@ -1660,7 +1718,7 @@ Begin
    '     PLANNERS OWNER, '+
    '     PLANNERS CREATOR '+
    'WHERE GRO_CLA.CLA_ID = CLA.ID AND  SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
-   '      GRO_CLA.GRO_ID =:gro AND no_conflict_flag is null and '+
+   '      GRO_CLA.GRO_ID = :gro AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']));
 
    Class_ := dm.QWorkToClass;
@@ -1674,6 +1732,7 @@ Begin
    end;
    End;
 End;
+
 
 Procedure DBGetClassByRoom(DAY1, DAY2 : String; Zajecia: Integer; ROM_ID : String; Var Status : Integer; Var Class_ : TClass_);
 var d1, d2 : string;
@@ -1721,6 +1780,7 @@ Begin
    end;
    End;
 End;
+
 
 
 procedure DBGetClassByClassId(classId: String; var Status: Integer; var Class_: TClass_);

@@ -389,8 +389,6 @@ begin
    WriteBool   ('L','RepeatMonthNames',LRepeatMonthNames.Checked);
    WriteBool   ('L','HideEmptyRows',LHideEmptyRows.Checked);
    WriteString ('L', 'HideDows', LHideDows);
-   WriteString ('G', 'HideDows', GHideDows);
-   WriteString ('R', 'HideDows', RHideDows);
    WriteBool('L','Transposite',LTransposition.Checked);
    WriteBool('L','VerticalLines',lVerticalLines.Checked);
    WriteBool   ('L','spanEmptyCells',lspanEmptyCells.checked);
@@ -404,12 +402,14 @@ begin
    WriteString ('L','HEADER'    ,SearchAndReplace(LHEADER.Lines.CommaText,'"','^') );
    WriteString ('L','FOOTER'    ,SearchAndReplace(LFOOTER.Lines.CommaText,'"','^'));
 
+
+
+   WriteString ('G', 'HideDows', GHideDows);
    WriteString('G','D1Code'     ,getCode(GD1));
    WriteString('G','D2Code'     ,getCode(GD2));
    WriteString('G','D3Code'     ,getCode(GD3));
    WriteString('G','D4Code'     ,getCode(GD4));
    WriteString('G','D5Code'     ,getCode(GD5));
-
    Writestring('G','GS1',GS1.Text);
    Writestring('G','GS2',GS2.Text);
    Writestring('G','GS3',GS3.Text);
@@ -427,7 +427,6 @@ begin
    writeBool('G','gpdfl', gpdfl.Checked);
    writeBool('G','gpdfo', gpdfo.Checked);
    writeBool('G','gpdfs', gpdfs.Checked);
-
    WriteString ('G','ViewTypeCode'  ,getCode(GViewType));
    WriteString ('G','W'         ,GW.Text);
    WriteString ('G','H'         ,GH.Text);
@@ -448,6 +447,8 @@ begin
    WriteString ('G','HEADER'    ,SearchAndReplace(GHEADER.Lines.CommaText,'"','^'));
    WriteString ('G','FOOTER'    ,SearchAndReplace(GFOOTER.Lines.CommaText,'"','^'));
 
+
+   WriteString('R', 'HideDows', RHideDows);
    WriteString('R','D1Code'     ,getCode(RD1));
    WriteString('R','D2Code'     ,getCode(RD2));
    WriteString('R','D3Code'     ,getCode(RD3));
@@ -837,7 +838,7 @@ end;
 
 procedure TFSettings.BCloseSettingsClick(Sender: TObject);
 begin
-  {}
+  {now execute TFSettings.FormClose}
 end;
 
 procedure TFSettings.lLegendModeClick(Sender: TObject);

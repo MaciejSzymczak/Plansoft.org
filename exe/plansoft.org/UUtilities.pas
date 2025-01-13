@@ -4,7 +4,7 @@ unit UUtilities;
 
 interface
 
-Uses SysUtils, UFMain, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning;
+Uses SysUtils, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning, UFMain;
 
 Const convOutOfRange   = 0;
       ConvHeader       = 1;
@@ -76,8 +76,6 @@ type TConvertGrid = class
       function hourNumberToHourFromTo( hour, fill : integer; var hh1, mm1, hh2, mm2 : integer) : boolean;
      End;
 
-Type TPointers = Array[1..maxInClass] of Integer;
-// Not used positions should be set to value 0 !
 
 Type TSingleClass = Record
                       Day        : TTimeStamp;
@@ -949,8 +947,9 @@ Function TCheckConflicts.ConflictsReport(
   RoomsWithChilds: TPointers;
   Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
 Var L      : Integer;
-    Status : Integer;
+    Status : String;
     Class_ : TClass_;
+    listOfval : string;
 
 Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
 
@@ -993,39 +992,53 @@ Begin
   internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,LecturersWithChilds,GroupsWithChilds,RoomsWithChilds,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
   currentClassId := acurrentClassId;
 
+  listOfval := '';
   For L := 1 To maxInClass Do
     If GroupsWithChilds[L] <> 0 Then
     Begin
-      dm.DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(GroupsWithChilds[L]),Status,Class_);
-      Case Status Of
-       ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass('G');
-      ClassError    : AddSingleClass('G');
-      End;
+      listOfval := merge(listOfval,IntToStr(GroupsWithChilds[L]), ',');
     End Else Break;
-
- //Analogicznie postêpujê w przypadku wyk³adowców i zasobow
   For L := 1 To maxInClass Do
     If LecturersWithChilds[L] <> 0 Then
     Begin
-      dm.DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(LecturersWithChilds[L]),Status,Class_);
-      Case Status Of
-       ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass('W');
-       ClassError    : AddSingleClass('W');
-      End;
+      listOfval := merge(listOfval,IntToStr(LecturersWithChilds[L]), ',');
     End Else Break;
-
   For L := 1 To maxInClass Do
     If RoomsWithChilds[L] <> 0 Then
     Begin
-      dm.DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), Hour, IntToStr(RoomsWithChilds[L]),Status,Class_);
-      Case Status Of
-       ClassNotFound : Begin End;
-       ClassFound    : AddSingleClass('S');
-       ClassError    : AddSingleClass('S');
-      End;
+      listOfval := merge(listOfval,IntToStr(RoomsWithChilds[L]), ',');
     End Else Break;
+
+  if listOfval <> '' then begin
+     listOfval := '('+listOfval+')';
+     dm.DBGetClassByLGR(TSDateToOracle(Day), TSDateToOracle(Day), Hour, listOfval, Status, Class_);
+     if Status =  'ClassNotFound' then Begin End
+     else begin
+       While Not Dmodule.QWork2.EOF Do Begin
+
+        DModule.SingleValue(
+        'SELECT CLA.*,'+
+            'SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR, FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR,CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4, '+
+            'FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+        'FROM CLASSES CLA, '+
+        '     subjects SUB,'+
+        '     FORMS FRM,'+
+        '     PLANNERS OWNER, '+
+        '     PLANNERS CREATOR '+
+        'WHERE SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND'+
+        '      CLA.ID = :id'
+        ,'id='+DModule.QWork2.FieldByName('CLA_ID').AsString);
+
+        Class_ := dm.QWorkToClass;
+        AddSingleClass( Dmodule.QWork2.FieldByName('CONFLICTTYPE').AsString );
+         Dmodule.QWork2.Next;
+       End;
+     End;
+
+
+  end;
+
+
 
   If Empty And (Not Completion) Then Result := True Else Result := False;
 End;
@@ -1647,6 +1660,7 @@ begin
   end;
 
   //add dependency records: childs and parents
+
   LWithChildsAndParents := theClass.calc_lec_ids;
   For t := 1 To WordCount(theClass.calc_lec_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_lec_ids, [';']);
@@ -1664,6 +1678,7 @@ begin
     value := ExtractWord(t, theClass.calc_rom_ids, [';']);
     RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
   End;
+
 
   //check better room in condition of capacity
   //GetEnabledLGR(myClass.day,myClass.hour,myClass.calc_lec_ids, myClass.calc_gro_ids, myClass.calc_rom_ids, intToStr( myClass.sub_id ) , intToStr( myClass.for_id ) , User , true, CONDL, CONDG, CONDR, 'R');
@@ -1844,12 +1859,8 @@ begin
       Dmodule.RollbackTrans;
 
       if Pos(sKeyViolation, E.Message)<>0 then
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na konflikt z innymi zaplanowanymi'+cr+cr+
-              'Mo¿liwe przyczyny :' + cr +
-              '   1. Inny u¿ytkownik systemu ju¿ zarejestrowa³ ten termin'+cr+
-              '   2. W tym terminie ju¿ s¹ zaplanowane '+fprogramsettings.profileObjectNameClasses.text +' powoduj¹ce konflikt'+cr+
-              'Odœwie¿ zawartoœæ siatki aby zobaczyæ zmiany wprowadzone przez innych u¿ytkowników'+cr+cr+cr+'------------------------------'+cr+
-              'Komunikat dla administratora: ' + cr+ e.message)
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na konflikt '+cr+cr+
+              'Szczegó³y: ' + cr+ e.message)
       else if Pos('ORA-20000', E.Message)<>0 then
         //show user message only
         info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr

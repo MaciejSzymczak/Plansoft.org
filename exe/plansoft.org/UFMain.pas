@@ -88,7 +88,7 @@ type TClassByLecturerCaches
 
                                procedure init;
                                Procedure LgetClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                               Procedure loadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+                               Procedure reset(aPER_ID: Integer; reloadFromDatabase : boolean);
                                Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                                Procedure resetByDay(TS : TTimeStamp; Zajecia: Integer);
                              end;
@@ -103,7 +103,7 @@ type TClassByGroupCaches = class
                                end;
                                procedure init;
                                Procedure getClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                               Procedure loadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+                               Procedure reset(aPER_ID: Integer; reloadFromDatabase : boolean);
                                Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                                Procedure resetByDay(TS : TTimeStamp; Zajecia: Integer);
                              end;
@@ -118,7 +118,7 @@ type TClassByResCaches = class
                                end;
                                procedure init;
                                Procedure getClass(TS : TTimeStamp; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
-                               Procedure loadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+                               Procedure reset(aPER_ID: Integer; reloadFromDatabase : boolean);
                                Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                                Procedure resetByDay(TS : TTimeStamp; Zajecia: Integer);
                              end;
@@ -183,6 +183,10 @@ Type
                       //Procedure ResetByCLA_ID(CLA_ID : Integer);
                       //Procedure ResetByDay(TS : TTimeStamp; Zajecia: Integer);
                    End;
+
+
+Type TPointers = Array[1..maxInClass] of Integer;
+// Not used positions should be set to value 0 !
 
 
 TNodeInfo = class
@@ -1031,6 +1035,9 @@ type
     //
     selectedDateTime : tdatetime;
 
+    PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
+    calculateWithChilds : boolean;
+
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
     function  getCurrentObjectType : string;
@@ -1125,11 +1132,11 @@ Uses AutoCreate, UFDetails,
   UFShowConflicts, UFLegend, UFGrouping, UFSettings, UFPlannerPermissions,
   UFWWWGenerator, UFExp, UFImp, UFLookupWindow,
   UFProgramSettings, UFChangePassword, UFToolWindow,
-  UFCopyClasses, UFPurgeData, UFprogressBar, UUtilities, UFTTCheckResults,
+  UFCopyClasses, UFPurgeData, UFprogressBar, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
-  UProgress, UFSelectDate;
+  UProgress, UFSelectDate, UUtilities;
 
 var dummy : string;
 
@@ -1595,7 +1602,7 @@ begin
  Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByLecturer);
 end;
 
-procedure TClassByLecturerCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+procedure TClassByLecturerCaches.reset(aPER_ID: Integer; reloadFromDatabase : boolean);
 var t : integer;
 begin
  //free used memory
@@ -1652,6 +1659,8 @@ begin
    end;
  end;
 
+ //object not found, get data from database
+ 
  if maxLength <= strToInt ( GetSystemParam('MaxNumberOfSheets','50') ) then begin
    inc (maxLength);
    setLength(Data, maxLength);
@@ -1669,19 +1678,17 @@ begin
    Data[position - 1].GCache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByGroup);
 end;
 
-procedure TClassByGroupCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+procedure TClassByGroupCaches.reset(aPER_ID: Integer; reloadFromDatabase : boolean);
 var t : integer;
 begin
- //free used memory
- if (reloadFromDatabase) or (PER_ID <> aPER_ID) then
+ if (reloadFromDatabase) or (PER_ID <> aPER_ID) then begin
   for t := 0 to maxLength -1 do
     if assigned(Data[t].GCache) then
       if Data[t].GCache is TObject then
         try Data[t].GCache.free; except end;
-
- if reloadFromDatabase then maxLength := 0;
- if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie semestr
- PER_ID := aPER_ID;
+  maxLength := 0;
+  PER_ID := aPER_ID;
+ end;
 end;
 
 procedure TClassByGroupCaches.ResetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
@@ -1742,7 +1749,7 @@ begin
    Data[position - 1].Cache.ccGetClass(TS,Zajecia,childId,Status,Class_,DBGetClassByRoom);
 end;
 
-procedure TClassByResCaches.LoadPeriod(aPER_ID: Integer; childId : String; reloadFromDatabase : boolean);
+procedure TClassByResCaches.reset(aPER_ID: Integer; reloadFromDatabase : boolean);
 var t : integer;
 begin
  //free used memory
@@ -2052,7 +2059,7 @@ begin
   If CanShow Then Begin
    ConLecturer_value.Text := FChange(ConLecturer.text, sql_LECDESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_LECNAME,'LECTURERS','');
-   ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_NOTreloadFromDatbase);
+   ClassByLecturerCaches.reset(StringToInt(conPeriod.Text), bool_NOTreloadFromDatbase);
    BuildCalendar('L');
   End;
   ShowAllAnyL.Visible       := ShowFreeTermsL.Checked;
@@ -2064,7 +2071,7 @@ begin
   If CanShow Then Begin
    ConGroup_value.Text := FChange(ConGroup.text, sql_GRODESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME||''(''||abbreviation||'')''','GROUPS','');
-   ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_NOTreloadFromDatbase);
+   ClassByGroupCaches.reset(StringToInt(conPeriod.Text), bool_NOTreloadFromDatbase);
    BuildCalendar('G');
   End;
   ShowAllAnyG.Visible       := ShowFreeTermsG.Checked;
@@ -2077,7 +2084,7 @@ begin
   If CanShow Then Begin
    conResCat0_value.Text := FChange(conResCat0.text,sql_ResCat0DESC);
    //DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_ROMNAME,'ROOMS','');
-   ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_NOTreloadFromDatbase);
+   ClassByRoomCaches.reset(StringToInt(conPeriod.Text),  bool_NOTreloadFromDatbase);
    BuildCalendar('R');
   End;
   ShowAllAnyResCat0.Visible       := ShowFreeTermsR.Checked;
@@ -2749,7 +2756,6 @@ Procedure TFMain.insertClasses;
  function XAddClass : boolean;
  var t : Integer;
      PLecturers, PGroups, PRooms : TPointers;
-     PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
      value : String;
      L, G, R, Created_by, _Owner : string;
      LwithChildsAndParents, GwithChildsAndParents, RwithChildsAndParents  : string;
@@ -2764,12 +2770,6 @@ Procedure TFMain.insertClasses;
       PLecturers[t] :=0;
       PGroups[t] :=0;
       PRooms[t] :=0;
-    End;
-
-    For t := 1 To maxInClass Do Begin
-      PLecturersWithChilds[t] :=0;
-      PGroupsWithChilds[t] :=0;
-      PRoomsWithChilds[t] :=0;
     End;
 
     With FDetails Do Begin
@@ -2791,35 +2791,47 @@ Procedure TFMain.insertClasses;
      End;
 
      //add dependency records: childs and parents
-     LWithChildsAndParents := L;
-     For t := 1 To WordCount(L,[';']) Do Begin
-       value := ExtractWord(t, L, [';']);
-       LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
-     End;
-     For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
-      value := ExtractWord(t, LWithChildsAndParents, [';']);
-      PLecturersWithChilds[t] := StrToInt(Value)
-     End;
+     if calculateWithChilds then begin
+        calculateWithChilds := false;
 
-     GWithChildsAndParents := G;
-     For t := 1 To WordCount(G,[';']) Do Begin
-       value := ExtractWord(t, G, [';']);
-       GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
-     End;
-     For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
-      value := ExtractWord(t, GWithChildsAndParents, [';']);
-      PGroupsWithChilds[t] := StrToInt(Value)
-     End;
+        For t := 1 To maxInClass Do Begin
+          PLecturersWithChilds[t] :=0;
+          PGroupsWithChilds[t] :=0;
+          PRoomsWithChilds[t] :=0;
+        End;
 
-     RWithChildsAndParents := R;
-     For t := 1 To WordCount(R,[';']) Do Begin
-       value := ExtractWord(t, R, [';']);
-       RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
-     End;
-     For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
-      value := ExtractWord(t, RWithChildsAndParents, [';']);
-      PRoomsWithChilds[t] := StrToInt(Value)
-     End;
+        LWithChildsAndParents := L;
+        For t := 1 To WordCount(L,[';']) Do Begin
+          value := ExtractWord(t, L, [';']);
+          LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
+        End;
+        For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
+         value := ExtractWord(t, LWithChildsAndParents, [';']);
+         PLecturersWithChilds[t] := StrToInt(Value)
+        End;
+
+
+        GWithChildsAndParents := G;
+        For t := 1 To WordCount(G,[';']) Do Begin
+          value := ExtractWord(t, G, [';']);
+          GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
+        End;
+        For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
+         value := ExtractWord(t, GWithChildsAndParents, [';']);
+         PGroupsWithChilds[t] := StrToInt(Value)
+        End;
+      
+        RWithChildsAndParents := R;
+        For t := 1 To WordCount(R,[';']) Do Begin
+          value := ExtractWord(t, R, [';']);
+          RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
+        End;
+        For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
+         value := ExtractWord(t, RWithChildsAndParents, [';']);
+         PRoomsWithChilds[t] := StrToInt(Value)
+        End;
+     end;
+
 
      subjectIds :='';
      if s <>0 then
@@ -2984,6 +2996,8 @@ begin
     With Grid Do
     Begin
       dmodule.CommitTrans;
+
+      calculateWithChilds := true;
 
       classesCount := 0;
       classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
@@ -3489,11 +3503,10 @@ Var t : Integer;
     End;
 
 begin
-  dInitDone := 'In progress per_id='+inttostr(PER_ID)+' childId='+childId;
-
   If (PER_ID = 0) Or (PER_ID = -1) Then Exit;
   If (childId = '0') Or (childId = '-1') or (isBlank(childId)) Then Exit;
 
+  dInitDone := 'In progress per_id='+inttostr(PER_ID)+' childId='+childId;
 
   pcleanUpMode := iif(fmain.recreateDependencies.Checked,'+','-');
 
@@ -6990,7 +7003,7 @@ begin
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    conResCat1_value.Text:= FChange(conResCat1.text, sql_ResCat1DESC);
-   ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), conResCat1.Text, bool_NOTreloadFromDatbase);
+   ClassByResCat1Caches.reset(StringToInt(conPeriod.Text), bool_NOTreloadFromDatbase);
    BuildCalendar('R');
   End;
   ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked;
@@ -9297,6 +9310,7 @@ end;
 
 procedure TFMain.deepRefreshDelayed;
 begin
+  grid.Visible := false;
   SearchCounter := 2;
   refreshFilter.Enabled := true;
 end;
@@ -9310,15 +9324,16 @@ begin
   ValidGClick(nil);
   ValidRClick(nil);
 
-  If (Not isBlank(ConLecturer.Text)) And (Not isBlank(conPeriod.Text)) Then ClassByLecturerCaches.LoadPeriod(StringToInt(conPeriod.Text), ConLecturer.Text, bool_reloadFromDatbase);
-  If (Not isBlank(ConGroup.Text))    And (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.LoadPeriod(StringToInt(conPeriod.Text), ConGroup.Text, bool_reloadFromDatbase);
-  If (Not isBlank(conResCat0.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.LoadPeriod(StringToInt(conPeriod.Text), conResCat0.Text, bool_reloadFromDatbase);
-  If (Not isBlank(conResCat1.Text))  And (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.LoadPeriod(StringToInt(conPeriod.Text), CONResCat1.Text, bool_reloadFromDatbase);
+  If (Not isBlank(conPeriod.Text)) Then ClassByLecturerCaches.reset(StringToInt(conPeriod.Text), bool_reloadFromDatbase);
+  If (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
+  If (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.reset(StringToInt(conPeriod.Text), bool_reloadFromDatbase);
+  If (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
   If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
   If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
   OpisujKolumneZajec.internalCreate;
   BuildCalendar('X');
+  grid.Visible := true;
 end;
 
 
