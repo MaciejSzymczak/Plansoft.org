@@ -96,6 +96,7 @@ type
     procedure BMassEditClick(Sender: TObject);
     procedure ActionLEC_DELClick(Sender: TObject);
     procedure ActionLEC_DEL_ALLClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -265,6 +266,8 @@ begin
  Grid.Columns[ ColNo('OPERATION_FLAG') ].visible := classesTableName = 'CLASSES_HISTORY';
  Grid.Columns[ ColNo('EFFECTIVE_START_DATE') ].visible := classesTableName = 'CLASSES_HISTORY';
  Grid.Columns[ ColNo('EFFECTIVE_END_DATE') ].visible := classesTableName = 'CLASSES_HISTORY';
+ BMassEdit.Visible :=   classesTableName = 'CLASSES';
+ BDelete.Visible :=   classesTableName = 'CLASSES';
 
  inherited;
 end;
@@ -287,6 +290,12 @@ end;
 
 function TFBrowseCLASSES.CanDelete: Boolean;
 begin
+ if (classesTableName = 'CLASSES_HISTORY') then begin
+  Info( 'Historii zmian zajêæ nie mo¿na usuwaæ' );
+  Result := False;
+  exit;
+ end;
+
  if (not UUtilities.isOwner(Query.FieldByName('OWNER').AsString)) Then Begin
   Info( format ( 'Nie mo¿esz usun¹æ tego %s, poniewa¿ w³aœcicielem %s jest ', [fprogramsettings.profileObjectNameClassgen.text, fprogramsettings.profileObjectNameClassgen.text] )+Query.FieldByName('OWNER').AsString);
   Result := False;
@@ -791,6 +800,13 @@ begin
   End;
   Fmain.DeepRefreshImmediate('ActionLEC_DEL_ALLClick');
   BRefreshClick(nil);
+end;
+
+procedure TFBrowseCLASSES.FormActivate(Sender: TObject);
+begin
+  inherited;
+  if classesTableName = 'CLASSES_HISTORY' then self.caption := 'Historia zmian';
+
 end;
 
 end.
