@@ -632,7 +632,7 @@ begin
       UUtilityParent.GridLayoutSaveToFile(self.Name, gridS);
     dmodule.resetConnection ( QueryS );
     QueryS.SQL.Clear;
-    QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+fmain.getWhereFastFilter(self.filterS.text, 'SUBJECTS')+' order by name');
+    QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+getWhereClause('SUBJECTS')+' AND '+ fmain.getWhereFastFilter(self.filterS.text, 'SUBJECTS')+' order by name');
     QueryS.Open;
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridS);
   end;

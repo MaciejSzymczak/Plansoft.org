@@ -385,7 +385,23 @@ end;
 
 procedure TFBrowsePLANNERS.PLANNERTYPEChange(Sender: TObject);
 begin
-  SystemPrivs.Visible := (PLANNERTYPE.ItemIndex = 0) or (PLANNERTYPE.ItemIndex = 1);
+
+//my team
+Label1.Visible :=  PLANNERTYPE.ItemIndex = 0;
+PARENT.Visible :=  PLANNERTYPE.ItemIndex = 0;
+SelectOwner .Visible :=  PLANNERTYPE.ItemIndex = 0;
+SpeedButton4.Visible :=  PLANNERTYPE.ItemIndex = 0;
+//terminy
+LabelORGUNI_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
+CAL_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
+CAL_ID_VALUE.Visible :=  PLANNERTYPE.ItemIndex = 0;
+BClearS.Visible :=  PLANNERTYPE.ItemIndex = 0;
+SpeedButton2.Visible :=  PLANNERTYPE.ItemIndex = 0;
+
+
+
+
+  SystemPrivs.Visible :=  PLANNERTYPE.ItemIndex = 0;
   LRec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
   LLec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
   ROL_ID_VALUE.Visible:=  PLANNERTYPE.ItemIndex = 2;

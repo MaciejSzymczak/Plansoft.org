@@ -30,10 +30,10 @@ RequestExecutionLevel admin
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_RUN_TEXT "Uruchom program Plansoft.org"
-!define MUI_FINISHPAGE_RUN "$INSTDIR\Planowanie.exe"
-!define MUI_FINISHPAGE_RUN_TEXT2 "SprawdŸ aktualizacje"
-!define MUI_FINISHPAGE_RUN2 "$INSTDIR\Update.exe"
+;!define MUI_FINISHPAGE_RUN_TEXT "Uruchom program Plansoft.org"
+;!define MUI_FINISHPAGE_RUN "$INSTDIR\Planowanie.exe"
+;!define MUI_FINISHPAGE_RUN_TEXT2 "SprawdŸ aktualizacje"
+;!define MUI_FINISHPAGE_RUN2 "$INSTDIR\Update.exe"
 !insertmacro MUI_PAGE_FINISH
 
 UninstPage uninstConfirm
@@ -140,7 +140,7 @@ Section "Skróty w menu startowym"
 
   CreateDirectory "$SMPROGRAMS\Planowanie"
   CreateShortCut "$SMPROGRAMS\Planowanie\Plansoft.org.lnk" "$INSTDIR\Planowanie.exe" "" "$INSTDIR\Planowanie.exe" 0
-  ;CreateShortCut "$SMPROGRAMS\Planowanie\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\update.exe" "" "$INSTDIR\update.exe" 0
+  CreateShortCut "$SMPROGRAMS\Planowanie\PrzedluzenieWaznosci.lnk" "$INSTDIR\PrzedluzenieWaznosci.exe" "" "$INSTDIR\PrzedluzenieWaznosci.exe" 0
   CreateShortCut "$SMPROGRAMS\Planowanie\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   
 SectionEnd
@@ -149,7 +149,7 @@ SectionEnd
 Section "Skrót na pulpicie"
 
   CreateShortCut "$DESKTOP\PlanSoft.org.lnk" "$INSTDIR\Planowanie.exe" ""
-  ;CreateShortCut "$DESKTOP\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
+  CreateShortCut "$DESKTOP\PrzedluzenieWaznosci.lnk" "$INSTDIR\PrzedluzenieWaznosci.exe" ""
 
 SectionEnd
 
@@ -157,7 +157,7 @@ SectionEnd
 Section "Szybkie uruchamianie"
 
   CreateShortCut "$QUICKLAUNCH\Plansoft.org.lnk" "$INSTDIR\Planowanie.exe" ""
-  ;CreateShortCut "$QUICKLAUNCH\Pobierz aktualizacje Plansoft.org.lnk" "$INSTDIR\Update.exe" ""
+  CreateShortCut "$QUICKLAUNCH\PrzedlzuenieWaznosci.lnk" "$INSTDIR\PrzedluzenieWaznosci.exe" ""
 
 SectionEnd
 

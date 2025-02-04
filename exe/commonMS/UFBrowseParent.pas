@@ -374,6 +374,8 @@ type
    procedure flexGetAttribute ( fname : string; var systemFlag : shortString );
 
    function  DecodeFieldName(FieldName : ShortString): ShortString; // used to prefix field name by table name, for instance: NAME -> T.NAME
+   function EscapeApostrophes(const Input: string): string;
+
                                                                     // prevents from ambiguous field name error
    Function  execute(aCurrOperation : Integer; aID : ShortString) : TModalResult; virtual;
    Procedure setAccessForButtons;           virtual;
@@ -3037,11 +3039,16 @@ begin
   BConfigureClick(grid);
 end;
 
+//------------------------------------------------------------------
+function TFBrowseParent.EscapeApostrophes(const Input: string): string;
+begin
+  Result := StringReplace(Input, '''', '''''', [rfReplaceAll]);
+end;
 
 //------------------------------------------------------------------
 function TFBrowseParent.getSearchFilter: string;
 begin
-  result := PRE_UPPERCASE + DecodeFieldName(Grid.Columns[findFirstVisibleColumn].FieldName)+POST_UPPERCASE+' LIKE ' + PRE_UPPERCASE + ''''+trim(ESearch.Text)+ GetSystemParam('ANY_CHARS')+'''' + POST_UPPERCASE;
+  result := PRE_UPPERCASE + DecodeFieldName(Grid.Columns[findFirstVisibleColumn].FieldName)+POST_UPPERCASE+' LIKE ' + PRE_UPPERCASE + ''''+trim(EscapeApostrophes(ESearch.Text))+ GetSystemParam('ANY_CHARS')+'''' + POST_UPPERCASE;
 end;
 
 //------------------------------------------------------------------
@@ -3615,6 +3622,7 @@ function TFBrowseParent.buildFilter(sql_SEARCH : string; searchString : string) 
   var t : Integer;
   var tmpStr, currentToken : string;
 begin
+  searchString := EscapeApostrophes(searchString); 
   tmpStr := '';
   normalizedSearchString :=  replacePolishChars( ansiuppercase(trim(searchString)) );
      for t := 1 to wordCount(normalizedSearchString,[',']) do

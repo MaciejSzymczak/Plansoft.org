@@ -2260,13 +2260,13 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 end;
 	end;
 
-	procedure DrawBusy(Var Rect : TRect; busyCnt : integer);
+	procedure DrawBusy(Var Rect : TRect; busyCnt : integer; color : Tcolor);
 	Var RWidth : integer;
 		RHeight: integer;
 
 	begin
-	 grid.Canvas.Pen.Color := clred;
-	 grid.Canvas.Brush.Color := clRed;
+	 grid.Canvas.Pen.Color := color;
+	 grid.Canvas.Brush.Color := color;
 	 RWidth := Rect.right - Rect.Left;
 	 RHeight := Rect.Bottom - Rect.top;
 	 grid.Canvas.Ellipse(
@@ -2600,16 +2600,32 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 
   Var Status : Integer;
 
+   function GetColor(const S: string): TColor;
+   begin
+    if S = '[W]' then
+      Result := clYellow
+    else if S = '[G]' then
+      Result := RGB(255, 128, 128)  //A lighter red, with more white mixed in
+    else if S = '[S]' then
+      Result := RGB(192, 0, 0) //A middle red tone, slightly darker
+    else
+      Result := clRed;
+   end;
+
 	 Procedure BusyClasses;
 	  var out_isbusy  : boolean;
 		  out_busyCnt : integer;
 		  out_claIds : string;
 		  out_ratio   : integer;
+      color : tcolor;
 	 Begin
      out_ratio := 0;
 	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
      	   BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids);
-		     if out_isbusy Then DrawBusy(Rect, out_busyCnt);
+
+		     if out_isbusy Then begin
+            DrawBusy(Rect, out_busyCnt, GetColor(Copy(out_claids, 1, 3)));
+         end;
      end;
 	   if (out_ratio <> 0) and ( (FavSelected.Checked) or (FavAll.Checked) ) then DrawTriangle(Rect, out_ratio);
 	 End;
@@ -3747,7 +3763,7 @@ begin
    mmprofileObjectNameC1s.Caption      := profileObjectNameC1s.Text;
    mmprofileObjectNameC2s.Caption      := profileObjectNameC2s.Text + ' / rezerwacje';
    mmprofileObjectNamePeriods.Caption  := profileObjectNamePeriods.Text;
-   mmprofileObjectNamePlanners.Caption := profileObjectNamePlanners.Text;
+   mmprofileObjectNamePlanners.Caption := profileObjectNamePlanners.Text + ' i Autoryzacje';;
 
    cdesc1.Visible := FProgramSettings.getClassDescPlural(1)<>'';
    cdesc2.Visible := FProgramSettings.getClassDescPlural(2)<>'';
@@ -4297,7 +4313,7 @@ begin
   dmodule.loadMap('select id,NVL(COLOUR,0) from groups order by id', MapGroColors, true);
   dmodule.loadMap('select id,NVL(COLOUR,0) from rooms order by id', MapRomColors, true);
   //
-  dmodule.loadMap('select lpad(id,10,''0''), last_name||'' ''||first_name from lecturers order by id', MapLecNames, true);
+  dmodule.loadMap('select lpad(id,10,''0''), upper(last_name||'' ''||first_name) from lecturers order by id', MapLecNames, true);
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
   dmodule.loadMap('select name, parent from planners', MapPlannerSupervisors, true);
 
@@ -9301,17 +9317,17 @@ end;
 
 procedure TFMain.refreshFilterTimer(Sender: TObject);
 begin
-  If SearchCounter > 0 Then SearchCounter := SearchCounter - 1;
   If SearchCounter = 1 Then Begin
     refreshFilter.Enabled := false;
     DeepRefreshImmediate('refreshFilterTimer');
   end;
+  If SearchCounter > 0 Then SearchCounter := SearchCounter - 1;
 end;
 
 procedure TFMain.deepRefreshDelayed;
 begin
   grid.Visible := false;
-  SearchCounter := 2;
+  SearchCounter := 1;
   refreshFilter.Enabled := true;
 end;
 

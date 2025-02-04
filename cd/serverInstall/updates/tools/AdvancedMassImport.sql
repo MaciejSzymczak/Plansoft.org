@@ -118,13 +118,14 @@ select * from TEMP_H where parent_id is null or child_id is null
 declare
  em varchar2(500);
 begin
- for rec in (select temp_h.*, rowid from temp_h) loop
+ for rec in (select temp_h.*, rowid from temp_h where parent_id is not null and child_id is not null) loop
     -- +=one parent -=more than one parent
     em := planner_utils.insert_str_elem (rec.parent_id, rec.child_id, 'STREAM', '-');
     update 	temp_h set error_message = em where rowid = rec.rowid;
  end loop;
  commit;
 end;
+
 
 
 LECTURERS

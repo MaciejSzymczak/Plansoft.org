@@ -686,7 +686,7 @@ begin
   if trim(ESearch.Text)='' then
     result := '0=0'
   else begin
-    searchText := replacePolishChars( ansiuppercase(trim(ESearch.Text)) );
+    searchText := replacePolishChars( ansiuppercase(trim(EscapeApostrophes(ESearch.Text))) );
     result := fastQueryString.Lines.Text;
     result := stringreplace(result, 'var1', searchText, []);
     result := stringreplace(result, 'var2', searchText, []);

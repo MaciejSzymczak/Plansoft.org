@@ -6375,7 +6375,7 @@ inherited FMain: TFMain
         Caption = '-'
       end
       object mmprofileObjectNamePlanners: TMenuItem
-        Caption = 'Plani'#347'ci'
+        Caption = 'Plani'#347'ci i Autoryzacje'
         Hint = 'Autoryzacje Uprawnienia'
         OnClick = mmprofileObjectNamePlannersClick
       end
@@ -8978,7 +8978,7 @@ inherited FMain: TFMain
   end
   object refreshFilter: TTimer
     Enabled = False
-    Interval = 500
+    Interval = 250
     OnTimer = refreshFilterTimer
     Left = 1076
     Top = 272
