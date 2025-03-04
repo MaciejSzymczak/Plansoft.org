@@ -98,7 +98,8 @@ uses
   UWebServices in 'UWebServices.pas',
   UProgress in 'UProgress.pas' {FProgress},
   UFSelectDate in 'UFSelectDate.pas' {FSelectDate},
-  UIcsGenerator in 'UIcsGenerator.pas';
+  UIcsGenerator in 'UIcsGenerator.pas',
+  UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage};
 
 {$R *.RES}
 
@@ -189,6 +190,7 @@ begin
   Application.CreateForm(TFMassUpdateSUB, FMassUpdateSUB);
   Application.CreateForm(TFProgress, FProgress);
   Application.CreateForm(TFSelectDate, FSelectDate);
+  Application.CreateForm(TFFloatingMessage, FFloatingMessage);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

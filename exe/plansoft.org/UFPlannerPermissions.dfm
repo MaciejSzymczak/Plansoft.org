@@ -244,6 +244,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = LGridMouseDown
       end
     end
     object TabSheetG: TTabSheet
@@ -252,7 +253,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object GGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
+        Width = 1025
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -263,6 +264,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = GGridMouseDown
       end
     end
     object TabSheetR: TTabSheet
@@ -271,7 +273,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object RGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
+        Width = 1025
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -282,6 +284,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = RGridMouseDown
       end
     end
     object TabSheetSub: TTabSheet
@@ -290,7 +293,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object SUBGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
+        Width = 1025
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -301,6 +304,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = SUBGridMouseDown
       end
     end
     object TabSheetFor: TTabSheet
@@ -309,7 +313,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object FORGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
+        Width = 1025
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -320,6 +324,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = FORGridMouseDown
       end
     end
     object TabSheetROL: TTabSheet
@@ -328,8 +333,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object ROLGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 867
-        Height = 542
+        Width = 1025
+        Height = 544
         Align = alClient
         DefaultColWidth = 20
         DefaultRowHeight = 20
@@ -339,6 +344,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
+        OnMouseDown = ROLGridMouseDown
       end
     end
   end

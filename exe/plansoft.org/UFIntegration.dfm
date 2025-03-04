@@ -234,7 +234,7 @@ inherited FIntegration: TFIntegration
     Top = 169
     Width = 1266
     Height = 421
-    ActivePage = TabSheet3
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
@@ -343,12 +343,28 @@ inherited FIntegration: TFIntegration
             Expanded = False
             FieldName = 'CREATION_DATE'
             Title.Caption = 'Utworzono dnia'
+            Width = 100
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'CREATED_BY'
             Title.Caption = 'Utworzyl'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'last_update_date'
+            Title.Caption = 'Zmodyfikowano'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'last_updated_by'
+            Title.Caption = 'Zmodyfikowa'#322
+            Width = 100
             Visible = True
           end>
       end
@@ -694,7 +710,7 @@ inherited FIntegration: TFIntegration
         'select '#39'LEC_NAME_UI'#39' type, Id, ABBREVIATION, decode(is_active, 0' +
         ', '#39'NIEAKTYWNY '#39', '#39#39')||FIRST_NAME||'#39' '#39'||LAST_NAME||'#39' '#39'||TITLE as ' +
         'name , integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creat' +
-        'ion_date, created_by'
+        'ion_date, created_by, last_update_date, last_updated_by'
       
         'from LECTURERS where (FIRST_NAME, LAST_NAME, TITLE) in (select F' +
         'IRST_NAME, LAST_NAME, TITLE from LECTURERS group by FIRST_NAME, ' +
@@ -704,7 +720,7 @@ inherited FIntegration: TFIntegration
         'select '#39'LEC_ABBREVIATION_I'#39' type, Id, ABBREVIATION, decode(is_ac' +
         'tive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||FIRST_NAME||'#39' '#39'||LAST_NAME||'#39' '#39'||TI' +
         'TLE as name, integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39')' +
-        ' creation_date, created_by'
+        ' creation_date, created_by, last_update_date, last_updated_by'
       
         'from LECTURERS where (ABBREVIATION) in (select ABBREVIATION from' +
         ' LECTURERS group by ABBREVIATION having count(1)>1)'
@@ -712,7 +728,8 @@ inherited FIntegration: TFIntegration
       
         'select '#39'SUB_NAME_I'#39' type, id, abbreviation, decode(is_active, 0,' +
         ' '#39'NIEAKTYWNY '#39', '#39#39')||name, integration_id, to_char(creation_date' +
-        ','#39'yyyy-mm-dd'#39') creation_date, created_by'
+        ','#39'yyyy-mm-dd'#39') creation_date, created_by, last_update_date, last' +
+        '_updated_by'
       
         'from subjects where name in (select name from subjects group by ' +
         'name having count(1)>1)'
@@ -721,7 +738,7 @@ inherited FIntegration: TFIntegration
         'select '#39'GRO_ABBREVIATION_I'#39' type,  Id, ABBREVIATION, decode(is_a' +
         'ctive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||name ||'#39' '#39' || group_type as name, ' +
         'integration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_dat' +
-        'e, created_by'
+        'e, created_by, last_update_date, last_updated_by'
       
         'from groups where ABBREVIATION in (select ABBREVIATION from grou' +
         'ps group by ABBREVIATION having count(1)>1)'
@@ -729,7 +746,8 @@ inherited FIntegration: TFIntegration
       
         'select '#39'SUB_ABBREVIATION_I'#39' type, id, ABBREVIATION, decode(is_ac' +
         'tive, 0, '#39'NIEAKTYWNY '#39', '#39#39')||name, integration_id, to_char(creat' +
-        'ion_date,'#39'yyyy-mm-dd'#39') creation_date, created_by'
+        'ion_date,'#39'yyyy-mm-dd'#39') creation_date, created_by, last_update_da' +
+        'te, last_updated_by'
       
         'from subjects where (ABBREVIATION) in (select ABBREVIATION from ' +
         'subjects group by ABBREVIATION having count(1)>1)'
@@ -738,7 +756,7 @@ inherited FIntegration: TFIntegration
         'select '#39'ROOM_UK'#39' type, id, '#39#39' as ABBREVIATION, decode(is_active,' +
         ' 0, '#39'NIEAKTYWNY '#39', '#39#39')|| attribs_01 || '#39' '#39' || name as name, inte' +
         'gration_id, to_char(creation_date,'#39'yyyy-mm-dd'#39') creation_date, c' +
-        'reated_by'
+        'reated_by, last_update_date, last_updated_by '
       
         'from rooms where (name, attribs_01) in (select name, ATTRIBS_01 ' +
         'from rooms group by name, ATTRIBS_01 having count(1)>1)'

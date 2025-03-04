@@ -13,7 +13,6 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
   inherited MainPage: TPageControl
     Width = 1051
     Height = 666
-    ActivePage = Browse
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 710
@@ -46,6 +45,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         Top = 209
         Width = 710
         Height = 370
+        Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
+        MultiSelect = True
         Columns = <
           item
             Expanded = False

@@ -1136,7 +1136,7 @@ Uses AutoCreate, UFDetails,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
-  UProgress, UFSelectDate, UUtilities;
+  UProgress, UFSelectDate, UUtilities, UFFloatingMessage;
 
 var dummy : string;
 
@@ -2116,7 +2116,8 @@ procedure TFMain.conPeriodChange(Sender: TObject);
 begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
-   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') then ''yes'' else ''no'' end as one_week_flag','PERIODS','');
+   //and date_to - date_from <=7 is to do not treat 2025.01.01 - 2025.12.31 as single week
+   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag','PERIODS','');
    SetVisibles;
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
@@ -4221,6 +4222,7 @@ begin
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
   DModule.SQL('ALTER SESSION SET NLS_SORT=POLISH');
+  DModule.SQL('ALTER SESSION SET NLS_LANGUAGE = POLISH');
 
   activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
@@ -7605,54 +7607,84 @@ begin
 end;
 
 procedure TFMain.BSelectCombClick(Sender: TObject);
-Var KeyValue  : ShortString;
+Var KeyValues  : String;
+    KeyValue   : shortString;
     rescat_id : Integer;
     res_id    : String;
-begin
-  KeyValue := '';
-  If TT_COMBINATIONSShowModalAsSelect(KeyValue) = mrOK Then
-   with dmodule do begin
-     CanShow := false;
-     opensql(
-      'select id, res_id, tt_planner.get_rescat_id(res_id) rescat_id from tt_resource_lists where tt_comb_id = '+ KeyValue +cr+
-      'order by 1');
-     qwork.First;
-     conform.Text     := '';
-     consubject.Text  := '';
-     conlecturer.Text := '';
-     congroup.Text    := '';
-     conrescat0.Text  := '';
-     conrescat1.Text  := '';
-     while not qwork.Eof do begin
-       rescat_id := qwork.fieldbyname('rescat_id').AsInteger;
-       res_id    := qwork.fieldbyname('res_id').AsString;
-
-       case rescat_id of
-         g_form      : conform.Text     := merge(conform.Text, res_id, ';');
-         g_subject   : consubject.Text  := merge(consubject.Text, res_id, ';');
-         g_lecturer  : conlecturer.Text := merge(conlecturer.Text, res_id, ';');
-         g_group     : congroup.Text    := merge(congroup.Text, res_id, ';');
-         //not valid in this context
-         //g_planner   : conpla.Text := merge(conpla.Text, res_id, ';');
-         //g_period    : conper.Text := merge(conper.Text, res_id, ';');
-         //g_date_hour : forAll.Checked := true
-         else
-           if rescat_id = strToInt(dmodule.pResCatId0) then conrescat0.Text := merge(conrescat0.Text, res_id, ';') else
-           if rescat_id = strToInt(dmodule.pResCatId1) then conrescat1.Text := merge(conrescat1.Text, res_id, ';');
-       end;
-       qwork.Next;
+    //
+    bf1             : boolean;
+    bs1             : boolean;
+    bl1             : boolean;
+    bg1             : boolean;
+    brescat0_1      : boolean;
+    brescat1_1      : boolean;
+    //
+    t : integer;
+    //
+    function addValue(values: String; value : string) : string;
+    begin
+     result := values;
+     If not ExistsValue(values, [';'], value) then begin
+       result := Merge(values, value, ';');
      end;
-     CanShow := true;
-     canBuildCalendar := false;
-     ConLecturerChange(conlecturer);
-     ConGroupChange   (congroup);
-     conrescat0Change (conrescat0);
-     conrescat1Change (conrescat1);
-     consubjectChange (consubject);
-     conformChange    (conform);
-     canBuildCalendar := true;
-     deepRefreshDelayed;
+    end;
+begin
+  KeyValues := '';
+  If TT_COMBINATIONSShowModalAsMultiSelect(KeyValues) = mrOK Then begin
+
+   CanShow := false;
+
+	 bf1            := true;
+	 bs1            := true;
+	 bl1            := true;
+	 bg1            := true;
+	 brescat0_1     := true;
+	 brescat1_1     := true;
+
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+	   with dmodule do begin
+		 opensql(
+		  'select id, res_id, tt_planner.get_rescat_id(res_id) rescat_id from tt_resource_lists where tt_comb_id = '+ KeyValue +cr+
+		  'order by 1');
+		 qwork.First;
+
+		 while not qwork.Eof do begin
+		   rescat_id := qwork.fieldbyname('rescat_id').AsInteger;
+		   res_id    := qwork.fieldbyname('res_id').AsString;
+
+		   case rescat_id of
+			 g_form      : begin if bf1 then begin conform.Text     := ''; bf1 := false; end; conform.Text     := addValue(conform.Text    , res_id); end;
+			 g_subject   : begin if bs1 then begin consubject.Text  := ''; bs1 := false; end; consubject.Text  := addValue(consubject.Text , res_id); end;
+			 g_lecturer  : begin if bl1 then begin conlecturer.Text := ''; bl1 := false; end; conlecturer.Text := addValue(conlecturer.Text, res_id); end;
+			 g_group     : begin if bg1 then begin congroup.Text    := ''; bg1 := false; end; congroup.Text    := addValue(congroup.Text   , res_id); end;
+			 //not valid in this context
+			 //g_planner   : conpla.Text := merge(conpla.Text, res_id, ';');
+			 //g_period    : conper.Text := merge(conper.Text, res_id, ';');
+			 //g_date_hour : forAll.Checked := true
+			 else
+			   if rescat_id = strToInt(dmodule.pResCatId0) then begin if brescat0_1 then begin conrescat0.Text := ''; brescat0_1 := false; end; conrescat0.Text := addValue(conrescat0.Text, res_id); end else
+			   if rescat_id = strToInt(dmodule.pResCatId1) then begin if brescat1_1 then begin conrescat1.Text := ''; brescat1_1 := false; end; conrescat1.Text := addValue(conrescat1.Text, res_id); end;
+		   end;
+		   qwork.Next;
+		 end;
+	   end;
    end;
+
+   if wordCount(conform.Text, [';'])>1 then conform.Text := '';
+   if wordCount(consubject.Text, [';'])>1 then consubject.Text := '';
+
+   CanShow := true;
+   canBuildCalendar := false;
+   ConLecturerChange(conlecturer);
+   ConGroupChange   (congroup);
+   conrescat0Change (conrescat0);
+   conrescat1Change (conrescat1);
+   consubjectChange (consubject);
+   conformChange    (conform);
+   canBuildCalendar := true;
+   deepRefreshDelayed;
+  end;
 end;
 
 procedure TFMain.Listazajchistoriazmian1Click(Sender: TObject);
@@ -9499,13 +9531,10 @@ end;
 
 procedure TFMain.CreateWeeksClick(Sender: TObject);
 begin
-
-if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
-  DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
-  info('Zrobione');
-end;
-
-
+  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
+    DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
+    info('Zrobione');
+  end;
 end;
 
 procedure TFMain.MenuItem4Click(Sender: TObject);

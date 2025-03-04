@@ -48,6 +48,15 @@ type
     ImageList: TImageList;
     N1: TMenuItem;
     PodgldzapytaniaSQLZaawansowane1: TMenuItem;
+    TabSheet5: TTabSheet;
+    Panel3: TPanel;
+    BitBtn5: TBitBtn;
+    Panel5: TPanel;
+    BitBtn6: TBitBtn;
+    GridSent: TRxDBGrid;
+    QuerySent: TADOQuery;
+    DSSent: TDataSource;
+    SpeedButton1: TSpeedButton;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -61,6 +70,7 @@ type
     procedure ExportEasyClick(Sender: TObject);
     procedure ExportHtmlClick(Sender: TObject);
     procedure PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -74,7 +84,7 @@ implementation
 
 {$R *.dfm}
 
-Uses AutoCreate, DM, UUtilityParent;
+Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage;
 
 procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
@@ -138,17 +148,28 @@ end;
 
 procedure TFUSOS.BitBtn2Click(Sender: TObject);
 begin
+FProgress.Show;
+FProgress.ProgressBar.Position :=  50;
+FProgress.Refresh;
+
     SaveParams;
     dmodule.sql('begin usos.integration_from_usos_dict (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     QueryLog.Close;
     QueryLog.Open;
+    PageControl2.TabIndex := 0;
+
+FProgress.Hide;
 end;
 
 
 procedure TFUSOS.BitBtn1Click(Sender: TObject);
 begin
+FProgress.Show;
+FProgress.ProgressBar.Position :=  50;
+FProgress.Refresh;
+
     PageControl2.TabIndex := 0;
     SaveParams;
     dmodule.sql('begin usos.integration_to_usos (:pCleanYpMode ); end;'
@@ -156,17 +177,27 @@ begin
     );
     QueryLog.Close;
     QueryLog.Open;
+    PageControl2.TabIndex := 0;
+
+FProgress.Hide;
 end;
 
 
 procedure TFUSOS.BitBtn3Click(Sender: TObject);
 begin
+FProgress.Show;
+FProgress.ProgressBar.Position :=  50;
+FProgress.Refresh;
+
     SaveParams;
     dmodule.sql('begin usos.integration_from_usos_plan (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     QueryLog.Close;
     QueryLog.Open;
+    PageControl2.TabIndex := 0;
+
+FProgress.Hide;
 end;
 
 procedure TFUSOS.PageControl2Change(Sender: TObject);
@@ -174,6 +205,10 @@ Var activeTab : integer;
     DateFrom : string;
     DateTo : string;
 begin
+FProgress.Show;
+FProgress.ProgressBar.Position :=  50;
+FProgress.Refresh;
+
   activeTab := PageControl2.TabIndex;
 
   if (activeTab=0) then begin
@@ -181,31 +216,49 @@ begin
    QueryLog.Open;
   end;
 
-  With dmodule do begin
-    //select value from system_parameters where name like ''USOS_CYKL%''
-    SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where integration_id = '''+USOS_CYKL.Text+'''');
-    //SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where rownum =1');
-    if dmodule.QWork.RecordCount = 0 then begin
-      info('Nie odnaleziono semestru o podanym kodzie cyklu:'+USOS_CYKL.Text);
-      PageControl2.TabIndex := 0;
-      exit;
-    end;
-    DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-    DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
-  end;
-
-  DM.macros.setMacro( QueryNotSent, 'DATE_FROM', DateFrom);
-  DM.macros.setMacro( QueryNotSent, 'DATE_TO', DateTo);
 
   if (activeTab=1) then begin
-   QueryNotSent.Close;
-   try
-   QueryNotSent.Open;
-   except
-     copyToClipboard(  QueryNotSent.SQL.Text);
-     raise;
-   end;
+    With dmodule do begin
+      //select value from system_parameters where name like ''USOS_CYKL%''
+      SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where integration_id = '''+USOS_CYKL.Text+'''');
+      //SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where rownum =1');
+      if dmodule.QWork.RecordCount = 0 then begin
+        FProgress.Hide;
+        info('Nie odnaleziono semestru o podanym kodzie cyklu:'+USOS_CYKL.Text);
+        exit;
+      end;
+      DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
+      DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+    end;
+
+    DM.macros.setMacro( QueryNotSent, 'DATE_FROM', DateFrom);
+    DM.macros.setMacro( QueryNotSent, 'DATE_TO', DateTo);
+
+
+    QueryNotSent.Close;
+    try
+    QueryNotSent.Open;
+    except
+      FProgress.Hide;
+      copyToClipboard(  QueryNotSent.SQL.Text);
+      raise;
+    end;
   end;
+
+
+  if (activeTab=2) then begin
+    QuerySent.Close;
+    try
+    QuerySent.Open;
+    except
+      FProgress.Hide;
+      copyToClipboard(  QuerySent.SQL.Text);
+      raise;
+    end;
+  end;
+
+
+FProgress.Hide;
 end;
 
 procedure TFUSOS.BitBtn4Click(Sender: TObject);
@@ -221,21 +274,41 @@ end;
 
 
 procedure TFUSOS.ExportEasyClick(Sender: TObject);
+var activeTab : integer;
 begin
- dmodule.ExportToExcel(GridNotSent);
+ activeTab := PageControl2.TabIndex;
+ if activeTab = 0 then dmodule.ExportToExcel(Grid);
+ if activeTab = 1 then dmodule.ExportToExcel(GridNotSent);
+ if activeTab = 2 then dmodule.ExportToExcel(GridSent);
 end;
 
 procedure TFUSOS.ExportHtmlClick(Sender: TObject);
+var activeTab : integer;
 begin
- dmodule.ExportToHTML(GridNotSent);
+ activeTab := PageControl2.TabIndex;
+ if activeTab = 0 then dmodule.ExportToHTML(Grid);
+ if activeTab = 1 then dmodule.ExportToHTML(GridNotSent);
+ if activeTab = 2 then dmodule.ExportToHTML(GridSent);
 end;
 
 procedure TFUSOS.PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
+var activeTab : integer;
 begin
- //nvl((select max(parent_id) from str_elems where child_id=sub_id),sub_id)
- CopyToClipboard( QueryNotSent.SQL.Text );
+ activeTab := PageControl2.TabIndex;
+ if activeTab = 0 then CopyToClipboard( QueryLog.SQL.Text );
+ if activeTab = 1 then CopyToClipboard( QueryNotSent.SQL.Text );
+ if activeTab = 2 then CopyToClipboard( QuerySent.SQL.Text );
  Info('Skopiowano do schowka');
+end;
 
+
+procedure TFUSOS.SpeedButton1Click(Sender: TObject);
+begin
+   FFloatingMessage.showModal(
+'Raport pokazuje wszystkie dane, które zosta³y przes³ane do systemu USOS, a tak¿e identyfikatory tabel w systemie usos.' +
+'Je¿eli zamiast ID w kolumnie pokazuje siê s³owo "**Skasowano**", to znaczy, ¿e rekord zosta³ skasowany w systemie USOS.  ' +
+'Wówczas uruchom ponownie integracjê.'
+);
 end;
 
 end.

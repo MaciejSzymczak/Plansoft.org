@@ -13,7 +13,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
   inherited MainPage: TPageControl
     Width = 1187
     Height = 649
-    ActivePage = Browse
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 811
@@ -779,6 +779,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
+                OnCellClick = GParentsCellClick
                 Columns = <
                   item
                     Expanded = False
@@ -994,6 +995,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
+                OnCellClick = GDetailsCellClick
                 Columns = <
                   item
                     Expanded = False
@@ -1267,7 +1269,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Top = 0
         Width = 300
         Height = 22
-        Hint = 'ABBREVIATION'
+        Hint = 'Skr'#243't'
         DataField = 'ABBREVIATION'
         DataSource = Source
         TabOrder = 0
@@ -1277,7 +1279,7 @@ inherited FBrowseSUBJECTS: TFBrowseSUBJECTS
         Top = 49
         Width = 300
         Height = 22
-        Hint = 'NAME'
+        Hint = 'Nazwa'
         DataField = 'NAME'
         DataSource = Source
         TabOrder = 1

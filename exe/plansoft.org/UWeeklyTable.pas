@@ -251,38 +251,7 @@ procedure tweeklyTable.doRowSpan;
 var r,c,t : integer;
     curr : string;
     compared : string;
-begin
 
- for r := 0 to rowCount -1 do begin
-   If not rowUsed(r) then continue;
-   for c := 0 to colCount-1 do begin
-     If not colUsed(c) then continue;
-     if Assigned(table[r][c]) and not table[r][c].hidden and (table[r][c].rowSpan =1) {not spanned} then begin
-       // examine all cells below cell
-       curr :=     table[r][c].getCellBody;
-       for t := r+1 to rowCount -1 do begin
-         If not rowUsed(t) then continue; //just ignore not used column and proceed (multi table generation can have lots of rows not applicable)
-         if Assigned(table[t][c]) then begin
-           compared := table[t][c].getCellBody;
-           if  (compared = curr) and not table[t][c].hidden and (table[t][c].rowSpan =1) {not spanned}
-              then begin
-                inc ( table[r][c].rowSpan );
-                table[t][c].hidden := true;
-              end
-              else break;
-         end;
-       end;
-     end;
-   end;
- end;
-
-end;
-
-
-procedure tweeklyTable.doColSpan;
-var r,c,t : integer;
-    curr : string;
-    compared : string;
 
     procedure showDebug;
     var r,c : integer;
@@ -330,10 +299,51 @@ var r,c,t : integer;
      end;
    end;
 
+
+
 begin
   // Be cautious with this debug, it may signifcantly slow down application.
   //fmain.wlog('BEFORE');
   //showDebug;
+
+ for r := 0 to rowCount -1 do begin
+   If not rowUsed(r) then continue;
+   for c := 0 to colCount-1 do begin
+     If not colUsed(c) then continue;
+     if Assigned(table[r][c]) and not table[r][c].hidden and (table[r][c].rowSpan =1) {not spanned} then begin
+       // examine all cells below cell
+       curr :=     table[r][c].getCellBody;
+       for t := r+1 to rowCount -1 do begin
+         If not rowUsed(t) then continue; //just ignore not used column and proceed (multi table generation can have lots of rows not applicable)
+         if Assigned(table[t][c]) then begin
+           compared := table[t][c].getCellBody;
+           if  (compared = curr) and not table[t][c].hidden and (table[t][c].rowSpan =1) {not spanned}
+              then begin
+                inc ( table[r][c].rowSpan );
+                table[t][c].hidden := true;
+              end
+              else break;
+         end else begin
+           break;
+         end;
+       end;
+     end;
+   end;
+ end;
+
+ // Be cautious with this debug, it may signifcantly slow down application.
+ //fmain.wlog('AFTER');
+ //showDebug;
+end;
+
+
+procedure tweeklyTable.doColSpan;
+var r,c,t : integer;
+    curr : string;
+    compared : string;
+
+
+begin
 
  for r := 0 to rowCount -1 do begin
    If not rowUsed(r) then continue;
@@ -352,15 +362,13 @@ begin
                 table[r][t].hidden := true;
               end
               else break;
+         end else begin
+           break;
          end;
        end;
      end;
    end;
  end;
-
- // Be cautious with this debug, it may signifcantly slow down application.
- //fmain.wlog('AFTER');
- //showDebug;
 
 end;
 

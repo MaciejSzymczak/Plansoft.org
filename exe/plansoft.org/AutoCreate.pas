@@ -133,6 +133,7 @@ Procedure TT_RESCAT_COMBINATIONSFree;
 procedure TT_COMBINATIONSCreate;
 Procedure TT_COMBINATIONSShowModalAsBrowser;
 Function  TT_COMBINATIONSShowModalAsSelect(var ID : ShortString) : TModalResult;
+Function  TT_COMBINATIONSShowModalAsMultiSelect(var ID : String) : TModalResult;
 Procedure TT_COMBINATIONSFree;
 
 procedure GRIDSCreate;
@@ -993,6 +994,14 @@ Begin
  Result := FBrowseTT_COMBINATIONS.ShowModalAsSelect(ID);
  If GetSystemParam('SAVERESOURCES') = 'Yes' Then TT_COMBINATIONSFree;
 End;
+
+Function TT_COMBINATIONSShowModalAsMultiSelect(var ID : String) : TModalResult;
+Begin
+ TT_COMBINATIONSCreate;
+ Result := FBrowseTT_COMBINATIONS.ShowModalAsMultiSelect(ID);
+ If GetSystemParam('SAVERESOURCES') = 'Yes' Then TT_COMBINATIONSFree;
+End;
+
 
 Procedure TT_COMBINATIONSFree;
 Begin

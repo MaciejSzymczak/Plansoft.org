@@ -63,6 +63,18 @@ type
     procedure RowSearchKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure btransferClick(Sender: TObject);
+    procedure LGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure GGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure RGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure SUBGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FORGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure ROLGridMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     LChanged   : boolean;
     GChanged   : boolean;
@@ -88,7 +100,8 @@ Procedure ShowModal;
 
 implementation
 
-uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer;
+uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer,
+  UFFloatingMessage;
 
 {$R *.DFM}
 
@@ -585,6 +598,90 @@ end;
 procedure TFPlannerPermissions.btransferClick(Sender: TObject);
 begin
   UFTransfer.showmodal;
+end;
+
+procedure TFPlannerPermissions.LGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  LGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ LGrid.Cells[Col, Row]);
+  end;
+end;
+
+procedure TFPlannerPermissions.GGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  GGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ GGrid.Cells[Col, Row]);
+  end;
+end;
+
+procedure TFPlannerPermissions.RGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  RGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ RGrid.Cells[Col, Row]);
+  end;
+end;
+
+procedure TFPlannerPermissions.SUBGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  SUBGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ SUBGrid.Cells[Col, Row]);
+  end;
+end;
+
+procedure TFPlannerPermissions.FORGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  ForGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ ForGrid.Cells[Col, Row]);
+  end;
+end;
+
+procedure TFPlannerPermissions.ROLGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Col, Row: Integer;
+begin
+  inherited;
+  RolGrid.MouseToCell(X, Y, Col, Row); // Convert mouse coordinates to cell indices
+
+  if (Col = 0) or (Row = 0) then // Check if inside valid grid range
+  begin
+     FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ RolGrid.Cells[Col, Row]);
+  end;
 end;
 
 end.

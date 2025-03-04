@@ -153,8 +153,11 @@ type
     procedure Wicejmoliwo1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure GDetailsCellClick(Column: TColumn);
+    procedure GParentsCellClick(Column: TColumn);
   private
     Counter  : Integer;
+    priorPos : String;
     procedure refreshDetails;
     procedure insert_str_elem(parent : boolean);
     procedure delete_str_elem(parent : boolean);
@@ -183,7 +186,7 @@ implementation
 
 uses DM, UUtilityParent, UFMain, UFLookupWindow, autocreate,
   UFProgramSettings, UFMassImport, UFSharing, UFExclusiveParent,
-  UFGraphviz, UProgress;
+  UFGraphviz, UProgress, UFFloatingMessage;
 
 {$R *.DFM}
 
@@ -348,7 +351,10 @@ end;
 
 procedure TFBrowseGROUPS.QueryAfterScroll(DataSet: TDataSet);
 begin
-  Counter := 2;
+  if (priorPos <> Query.FieldByName('ID').AsString) then begin
+    priorPos := Query.FieldByName('ID').AsString;
+    Counter := 2;
+  end;
 end;
 
 function TFBrowseGROUPS.getStrNameLov : shortString;
@@ -761,6 +767,22 @@ begin
   inherited;
   INTEGRATION_ID.Visible := true;
   LINTEGRATION_ID.Visible := true;
+end;
+
+procedure TFBrowseGROUPS.GDetailsCellClick(Column: TColumn);
+var text : String;
+begin
+   text := GDetails.DataSource.DataSet.Fields[2].AsString;
+   CopyToClipboard(text);
+   FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
+end;
+
+procedure TFBrowseGROUPS.GParentsCellClick(Column: TColumn);
+var text : String;
+begin
+   text := GParents.DataSource.DataSet.Fields[2].AsString;
+   CopyToClipboard(text);
+   FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
 end;
 
 end.

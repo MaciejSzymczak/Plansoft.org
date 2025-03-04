@@ -13,7 +13,7 @@ commit;
 SOFT CLEAN
 =======================================================
 select table_name, num_rows from all_tables where owner = 'PLANNER' order by num_rows desc
-truncate table CLASSES_HISTORY
+truncate table CLASSES_HISTORY;
 truncate table LECTURERS_HISTORY;
 truncate table GRO_CLA_HISTORY;
 truncate table LEC_CLA_HISTORY;
@@ -33,17 +33,13 @@ purge dba_recyclebin;
 truncate table aud$;
 begin dbms_stats.purge_stats(sysdate-10); end;
 
-
 truncate table WRI$_ADV_OBJECTS;
 truncate table WRI$_SQLSET_PLAN_LINES;
 
 select tablespace_name,sum(bytes)/1024/1024/1024 size_in_gb, file_name from dba_data_files group by tablespace_name, file_name
---SYSAUX has 8GB!
 
 --not working ORA-03297
 --alter database datafile 'C:\APP\EXT.MSZYMCZAK\PRODUCT\21C\ORADATA\XE\XEPDB1\SYSAUX01.DBF' resize 6g; 
-
-
 
 
 REMOVE ALL (TEST DATA)

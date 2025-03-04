@@ -943,6 +943,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
+                OnCellClick = GParentsCellClick
                 Columns = <
                   item
                     Expanded = False
@@ -1172,6 +1173,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 TitleFont.Height = -11
                 TitleFont.Name = 'MS Sans Serif'
                 TitleFont.Style = [fsBold]
+                OnCellClick = GDetailsCellClick
                 OnTitleClick = GridTitleClick
                 Columns = <
                   item

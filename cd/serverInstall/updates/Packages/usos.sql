@@ -839,7 +839,7 @@ begin
      commit;    
       --   
       insert into dz_terminy@usos (DZIEN_TYGODNIA,GODZINA_POCZATKU,MINUTA_POCZATKU,GODZINA_KONCA,MINUTA_KONCA)
-        SELECT unique trim(to_char(DAY,'DAY')) DZIEN_TYGODNIA
+        SELECT unique trim(to_char(DAY,'DAY', 'NLS_DATE_LANGUAGE=POLISH')) DZIEN_TYGODNIA
              , from_hour GODZINA_POCZATKU
              , from_min MINUTA_POCZATKU
              , to_hour GODZINA_KONCA
@@ -855,7 +855,7 @@ begin
       set trm_id = (
              select Id 
              from dz_terminy@usos 
-             where DZIEN_TYGODNIA =  trim(to_char(DAY,'DAY')) 
+             where DZIEN_TYGODNIA =  trim(to_char(DAY,'DAY', 'NLS_DATE_LANGUAGE=POLISH')) 
                and GODZINA_POCZATKU = from_hour 
                and MINUTA_POCZATKU = from_min 
                and GODZINA_KONCA =  to_hour 
@@ -905,13 +905,14 @@ begin
     commit;            
     --   
     insert into DZ_TERMINY_GRUP_SPTK@usos (TRM_GRUP_ID,SL_ID,OD_DATA,DO_DATA,GR_NR,ZAJ_CYK_ID)
-    select  TRM_GRUP_ID
+    select  unique TRM_GRUP_ID
            ,SL_ID
            , USOS_OD_DATA
            , USOS_DO_DATA
            ,GR_NR
            ,ZAJ_CYK_ID
      from usos_temp;
+     commit;
     --
     -- ******************************************************************
     -- ****************** DZ_TERMINY_GRUP_PROW_SPTK.INSERT ************************
@@ -933,6 +934,7 @@ begin
        from usos_temp
        )
        where prac_id is not null and TGSP_ID is not null;
+       commit;
     --
     -- ******************************************************************
     -- ****************** Rollup liczba_godz  ***************************
@@ -958,4 +960,3 @@ begin
 end;
 
 end;
-/

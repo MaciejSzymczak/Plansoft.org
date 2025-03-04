@@ -140,6 +140,7 @@ type
     clearG: TBitBtn;
     clearR: TBitBtn;
     clearR2: TBitBtn;
+    SpeedButton1: TSpeedButton;
     procedure notLClick(Sender: TObject);
     procedure SelectS1Click(Sender: TObject);
     procedure SelectF1Click(Sender: TObject);
@@ -239,6 +240,7 @@ type
     procedure G_value1Change(Sender: TObject);
     procedure rescat0_1_valueChange(Sender: TObject);
     procedure rescat1_1_valueChange(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     procedure selectLEC;
     procedure selectGRO;
@@ -293,7 +295,8 @@ implementation
 
 {$R *.DFM}
 
-Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities;
+Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities,
+  UFFloatingMessage;
 
 procedure TFDetails.DisplayWarning(L, G, R : String);
 begin
@@ -1469,7 +1472,8 @@ begin
 end;
 
 procedure TFDetails.BSelectCombClick(Sender: TObject);
-Var KeyValue  : ShortString;
+Var KeyValues  : String;
+    KeyValue   : shortString;
     rescat_id : Integer;
     res_id    : String;
     //
@@ -1479,52 +1483,74 @@ Var KeyValue  : ShortString;
     bg1             : boolean;
     brescat0_1      : boolean;
     brescat1_1      : boolean;
-
-begin
-  KeyValue := '';
-  If TT_COMBINATIONSShowModalAsSelect(KeyValue) = mrOK Then
-   with dmodule do begin
-     canRefresh := false;
-     opensql(
-      'select id, res_id, tt_planner.get_rescat_id(res_id) rescat_id from tt_resource_lists where tt_comb_id = '+ KeyValue +cr+
-      'order by 1');
-     qwork.First;
-
-     bf1            := true;
-     bs1            := true;
-     bl1            := true;
-     bg1            := true;
-     brescat0_1     := true;
-     brescat1_1     := true;
-
-     while not qwork.Eof do begin
-       rescat_id := qwork.fieldbyname('rescat_id').AsInteger;
-       res_id    := qwork.fieldbyname('res_id').AsString;
-
-       case rescat_id of
-         g_form      : begin if bf1        then begin f1.Text := ''; bf1 := false; end; f1.Text := res_id; end;
-         g_subject   : begin if bs1        then begin s1.Text := ''; bs1 := false; end; s1.Text := res_id; end;
-         g_lecturer  : begin if bl1        then begin l1.Text := ''; bl1 := false; end; l1.Text := merge(l1.Text, res_id, ';'); end;
-         g_group     : begin if bg1        then begin g1.Text := ''; bg1 := false; end; g1.Text := merge(g1.Text, res_id, ';'); end;
-         //not valid in this context
-         //g_planner   : conpla.Text := merge(conpla.Text, res_id, ';');
-         //g_period    : conper.Text := merge(conper.Text, res_id, ';');
-         //g_date_hour : forAll.Checked := true
-         else
-           if rescat_id = strToInt(dmodule.pResCatId0) then begin if brescat0_1 then begin rescat0_1.Text := ''; brescat0_1 := false; end; rescat0_1.Text := merge(rescat0_1.Text, res_id, ';') end else
-           if rescat_id = strToInt(dmodule.pResCatId1) then begin if brescat1_1 then begin rescat1_1.Text := ''; brescat1_1 := false; end; rescat1_1.Text := merge(rescat1_1.Text, res_id, ';'); end;
-       end;
-       qwork.Next;
+    //
+    t : integer;
+    //
+    function addValue(values: String; value : string) : string;
+    begin
+     result := values;
+     If not ExistsValue(values, [';'], value) then begin
+       result := Merge(values, value, ';');
      end;
+    end;
+begin
+  KeyValues := '';
+  If TT_COMBINATIONSShowModalAsMultiSelect(KeyValues) = mrOK Then begin
 
-     canRefresh := true;
-     L1Change(nil);
-     G1Change(nil);
-     rescat0_1Change(nil);
-     rescat1_1Change(nil);
-     S1Change(nil);
-     F1Change(nil);
+   bf1            := true;
+   bs1            := true;
+   bl1            := true;
+   bg1            := true;
+   brescat0_1     := true;
+   brescat1_1     := true;
+
+   canRefresh := false;
+
+   for t := 1 to wordCount(KeyValues, [',']) do begin
+     KeyValue := extractWord(t,KeyValues, [',']);
+
+	   with dmodule do begin
+		 opensql(
+		  'select id, res_id, tt_planner.get_rescat_id(res_id) rescat_id from tt_resource_lists where tt_comb_id = '+ KeyValue +cr+
+		  'order by 1');
+		 qwork.First;
+
+		 while not qwork.Eof do begin
+		   rescat_id := qwork.fieldbyname('rescat_id').AsInteger;
+		   res_id    := qwork.fieldbyname('res_id').AsString;
+
+		   case rescat_id of
+			 g_form      : begin if bf1        then begin f1.Text := ''; bf1 := false; end;      f1.Text := addValue(f1.Text, res_id); end;
+			 g_subject   : begin if bs1        then begin s1.Text := ''; bs1 := false; end;      s1.Text := addValue(s1.Text, res_id); end;
+			 g_lecturer  : begin if bl1        then begin l1.Text := ''; bl1 := false; end;      l1.Text := addValue(l1.Text, res_id); end;
+			 g_group     : begin if bg1        then begin g1.Text := ''; bg1 := false; end;      g1.Text := addValue(g1.Text, res_id); end;
+			 //not valid in this context
+			 //g_planner   : conpla.Text := merge(conpla.Text, res_id, ';');
+			 //g_period    : conper.Text := merge(conper.Text, res_id, ';');
+			 //g_date_hour : forAll.Checked := true
+			 else
+			   if rescat_id = strToInt(dmodule.pResCatId0) then begin if brescat0_1 then begin rescat0_1.Text := ''; brescat0_1 := false; end; rescat0_1.Text := addValue(rescat0_1.Text, res_id) end else
+			   if rescat_id = strToInt(dmodule.pResCatId1) then begin if brescat1_1 then begin rescat1_1.Text := ''; brescat1_1 := false; end; rescat1_1.Text := addValue(rescat1_1.Text, res_id); end;
+		   end;
+		   qwork.Next;
+		 end;
+	   end;
+
    end;
+
+   if wordCount(f1.Text, [';'])>1 then f1.Text := '';
+   if wordCount(s1.Text, [';'])>1 then s1.Text := '';
+
+   canRefresh := true;
+   L1Change(nil);
+   G1Change(nil);
+   rescat0_1Change(nil);
+   rescat1_1Change(nil);
+   S1Change(nil);
+   F1Change(nil);
+
+  end;
+
 end;
 
 
@@ -1826,6 +1852,16 @@ end;
 procedure TFDetails.rescat1_1_valueChange(Sender: TObject);
 begin
     ClearR2.Visible := rescat1_1_value.Text <> '';
+end;
+
+procedure TFDetails.SpeedButton1Click(Sender: TObject);
+begin
+   FFloatingMessage.showModal(
+
+   'Za pomoc¹ tego przycisku mo¿esz skopiowaæ do tego formularza z Planu Studiów: wyk³adowcê, grupê, przedmiot i formê prowadzenia zajêæ.' +
+   'Trzymaj¹c naciœniêty klawisz Control podczas wybierania mo¿esz wybraæ kilka pozycji z Planu Studiów. ' +
+   'Plan Studów mo¿e zostaæ pobrany automatycznie z innego systemu, np. z USOS.' );
+
 end;
 
 end.

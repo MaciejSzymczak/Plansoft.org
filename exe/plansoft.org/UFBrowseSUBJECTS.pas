@@ -95,9 +95,12 @@ type
     procedure delDetailClick(Sender: TObject);
     procedure BMassEditClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure GDetailsCellClick(Column: TColumn);
+    procedure GParentsCellClick(Column: TColumn);
   private
     { Private declarations }
     Counter  : Integer;
+    priorPos : string;
     procedure refreshDetails;
     procedure insert_str_elem(parent : boolean);
     procedure delete_str_elem(parent : boolean);
@@ -121,7 +124,7 @@ implementation
 {$R *.DFM}
 
 uses DM, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFMassImport, AutoCreate,
-  UFSharing, UFExclusiveParent, UFMassUpdateSUB;
+  UFSharing, UFExclusiveParent, UFMassUpdateSUB, UFFloatingMessage;
 
 Function  TFBrowseSUBJECTS.CheckRecord : Boolean;
 Begin
@@ -325,7 +328,10 @@ end;
 
 procedure TFBrowseSUBJECTS.QueryAfterScroll(DataSet: TDataSet);
 begin
-  Counter := 2;
+  if (priorPos <> Query.FieldByName('ID').AsString) then begin
+    priorPos := Query.FieldByName('ID').AsString;
+    Counter := 2;
+  end;
 end;
 
 procedure TFBrowseSUBJECTS.FormCreate(Sender: TObject);
@@ -489,6 +495,22 @@ begin
   inherited;
   INTEGRATION_ID.Visible := true;
   LINTEGRATION_ID.Visible := true;
+end;
+
+procedure TFBrowseSUBJECTS.GDetailsCellClick(Column: TColumn);
+var text : String;
+begin
+   text := GDetails.DataSource.DataSet.Fields[2].AsString;
+   CopyToClipboard(text);
+   FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
+end;
+
+procedure TFBrowseSUBJECTS.GParentsCellClick(Column: TColumn);
+var text : String;
+begin
+   text := GParents.DataSource.DataSet.Fields[2].AsString;
+   CopyToClipboard(text);
+   FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
 end;
 
 end.

@@ -130,6 +130,7 @@ type
     procedure SpeedButton1Click(Sender: TObject);
   private
     Counter  : Integer;
+    priorPos : string;
     procedure refreshDetails;
     procedure insert_str_elem(parent : boolean);
     procedure delete_str_elem(parent : boolean);
@@ -294,7 +295,10 @@ end;
 
 procedure TFBrowseROOMS.QueryAfterScroll(DataSet: TDataSet);
 begin
-  Counter := 2;
+  if (priorPos <> Query.FieldByName('ID').AsString) then begin
+    priorPos := Query.FieldByName('ID').AsString;
+    Counter := 2;
+  end;
 end;
 
 function TFBrowseROOMS.getStrNameLov : shortString;

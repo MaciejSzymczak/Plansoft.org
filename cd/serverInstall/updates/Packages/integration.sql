@@ -34,6 +34,7 @@ create or replace package integration is
     function get_missing_periods (pperiod_name varchar2) return varchar2;
 end;
 /
+
 create or replace package body integration is 
 
 ---------------------------------------------------------------------------------------------------------------------------------------
@@ -186,7 +187,10 @@ begin
               , last_name=int.last_name
               , abbreviation = int.abbreviation
               , orguni_id= nvl(nvl(int.orguni_id,orguni_id),pDefaultOrgUniId)
-              , is_active = int.is_active;
+              , is_active = int.is_active
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+              ;
     --
     if (pCleanYpMode='Y') then
       trace := 'LECTURERS.TRUNCATE LEC_PLA';
@@ -245,7 +249,10 @@ begin
               , attribn_01=int.capacity
               , attribs_01=int.location
               , orguni_id=nvl(nvl(int.orguni_id,orguni_id),pDefaultOrgUniId)
-              , is_active = int.is_active;
+              , is_active = int.is_active
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+             ;
     ---          
     if (pCleanYpMode='Y') then
         trace := 'ROOMS.TRUNCATE ROM_PLA';
@@ -297,7 +304,10 @@ begin
          when matched then update 
             set name=int.name
               , abbreviation=int.abbreviation
-              , is_active = int.is_active;
+              , is_active = int.is_active
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+              ;
     ---          
     if (pCleanYpMode='Y') then
         trace := 'ROOMS.TRUNCATE FOR_PLA';
@@ -382,7 +392,10 @@ begin
             set name=int.name 
               , abbreviation = int.abbreviation
               , orguni_id=nvl(nvl(int.orguni_id,orguni_id),pDefaultOrgUniId)
-              , is_active = int.is_active;
+              , is_active = int.is_active
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+              ;
     ---          
     if (pCleanYpMode='Y') then
         trace := 'SUBJECTS.TRUNCATE SUB_PLA';
@@ -442,7 +455,10 @@ begin
               , number_of_peoples=int.capacity
               , orguni_id=nvl(nvl(int.orguni_id,orguni_id),pDefaultOrgUniId)
               , group_type = int.group_type
-              , is_active = int.is_active;
+              , is_active = int.is_active
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+              ;
     ---          
     if (pCleanYpMode='Y') then
         trace := 'GROUPS.TRUNCATE GRO_PLA';
@@ -645,7 +661,10 @@ begin
              , ROM_ID    = int.ROM_ID
              , SUB_ID    = int.SUB_ID
              , FOR_ID    = int.FOR_ID
-             , PLAN_ID   = int.PLAN_ID;
+             , PLAN_ID   = int.PLAN_ID
+              , last_updated_by = 'INTEGRATION'
+              , last_update_date = sysdate
+             ;
          --
     ---  
     -- ******************************************************************
@@ -1007,4 +1026,3 @@ exception
 end;
 
 end;
-/
