@@ -861,7 +861,7 @@ begin
                and GODZINA_KONCA =  to_hour 
                and MINUTA_KONCA =  to_min      
       );
-    commit;
+    --commit; 2025.03.05
     --
      --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
      for rec in (
@@ -902,7 +902,7 @@ begin
                   and trm_id= usos_temp.trm_id 
                   and czestotliwosc='INNA_CZESTOTLIWOSC'
                 );  
-    commit;            
+    --commit;   2025.03.05          
     --   
     insert into DZ_TERMINY_GRUP_SPTK@usos (TRM_GRUP_ID,SL_ID,OD_DATA,DO_DATA,GR_NR,ZAJ_CYK_ID)
     select  unique TRM_GRUP_ID
@@ -912,7 +912,7 @@ begin
            ,GR_NR
            ,ZAJ_CYK_ID
      from usos_temp;
-     commit;
+    -- commit;  2025.03.05
     --
     -- ******************************************************************
     -- ****************** DZ_TERMINY_GRUP_PROW_SPTK.INSERT ************************
@@ -934,7 +934,7 @@ begin
        from usos_temp
        )
        where prac_id is not null and TGSP_ID is not null;
-       commit;
+       -- commit;  2025.03.05
     --
     -- ******************************************************************
     -- ****************** Rollup liczba_godz  ***************************

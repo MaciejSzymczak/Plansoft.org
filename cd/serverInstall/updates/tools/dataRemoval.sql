@@ -1,5 +1,3 @@
-???ATTENDANCE_LIST_HELPER
-
 DISABLE / ENABLE INTEGRATIONS
 ======================================================
 
@@ -20,6 +18,13 @@ truncate table LEC_CLA_HISTORY;
 truncate table ROM_CLA_HISTORY;
 truncate table FORMS_HISTORY;
 
+begin
+delete from xxmsztools_eventlog where created < sysdate - 90;
+delete from classes_history where effective_start_date < sysdate - 90;
+commit;
+end;
+
+
 CLEAN SYSTEM OBJECTS
 =======================================================
 connect as sys
@@ -37,6 +42,7 @@ truncate table WRI$_ADV_OBJECTS;
 truncate table WRI$_SQLSET_PLAN_LINES;
 
 select tablespace_name,sum(bytes)/1024/1024/1024 size_in_gb, file_name from dba_data_files group by tablespace_name, file_name
+
 
 --not working ORA-03297
 --alter database datafile 'C:\APP\EXT.MSZYMCZAK\PRODUCT\21C\ORADATA\XE\XEPDB1\SYSAUX01.DBF' resize 6g; 
