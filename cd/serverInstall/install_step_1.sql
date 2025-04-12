@@ -40,6 +40,11 @@ grant select on sys.GV_$SESSION to planner;
 GRANT EXECUTE ON sys.dbms_crypto TO planner;
 GRANT SELECT ON GV_$LOCK TO planner;
 GRANT SELECT ON V_$SESSION TO planner;
+CREATE OR REPLACE VIEW sys.v_locked_object_ext AS SELECT * FROM v$locked_object;
+GRANT SELECT ON sys.v_locked_object_ext TO planner;
+CREATE OR REPLACE VIEW sys.v_lock_ext AS SELECT * FROM v$lock;
+GRANT SELECT ON sys.v_lock_ext TO planner;
+
 
 create or replace procedure purge_audit_trail (days in number) as
 purge_date date;
