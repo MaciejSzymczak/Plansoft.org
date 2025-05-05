@@ -952,7 +952,6 @@ type
     procedure Zajtosal1Click(Sender: TObject);
     procedure Zajtogrup1Click(Sender: TObject);
     procedure Zajtowykadowcw1Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure estujAPI1Click(Sender: TObject);
     procedure GoToDateClick(Sender: TObject);
     procedure CreateWeeksClick(Sender: TObject);
@@ -1034,6 +1033,8 @@ type
     emergencyExit : boolean;
     //
     selectedDateTime : tdatetime;
+    //
+    hiddenRows : array[1..61] of Boolean;
 
     PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
     calculateWithChilds : boolean;
@@ -1110,6 +1111,7 @@ type
     procedure deepRefreshImmediate( reason : String);
     procedure changePassword(WindowLabel : String );
     procedure wlog(messageText : string);
+    procedure autoExpandSelection;
   end;
 
 var
@@ -1117,7 +1119,6 @@ var
   // passing parameters via procedure worked sometimes badly !
   dummyTS : TTimeStamp;
   dummyHour : Integer;
-
 
 var
     TS : TTimeStamp;
@@ -1930,8 +1931,10 @@ procedure TFMain.RefreshGrid;
  End;
 
  var fontHeightInPixels : integer;
+     i : integer;
 
 begin
+   if CanBuildCalendar = false then exit;
    grid.Canvas.Font.Assign( gridFont.Font );
    if FcellLayout.ForceCellWidth.Checked then
      Grid.DefaultColWidth := FcellLayout.ForcedCellWidth.Position
@@ -1975,6 +1978,14 @@ begin
       grid.FixedCols    := 2;
   end;
 
+ //autoExpandSelection:hide rows
+ for i := 1 to grid.RowCount-1 do begin
+   convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,i);
+   if zajecia >0 then 
+     if hiddenRows[zajecia]
+         then Grid.RowHeights[i] := Grid.DefaultRowHeight div 4;       
+ end;
+
  LprofileObjectNameL.Font.Style   := LprofileObjectNameL.Font.Style - [fsBold];
  LprofileObjectNameG.Font.Style   := LprofileObjectNameG.Font.Style - [fsBold];
  BRescat0.Font.Style := BRescat0.Font.Style - [fsBold];
@@ -2000,7 +2011,7 @@ Procedure TFMain.BuildCalendar (triggeredObject : String);
 var  colCnt, rowCnt : integer;
      rId : string;
      rName : string;
-
+     i : integer;
 Begin
   if not canShow Then exit;
   if not CanBuildCalendar then exit;
@@ -2050,6 +2061,7 @@ Begin
   Grid.RowCount := rowCnt;
 
   RefreshGrid;
+
   Cursor := crDefault;
 End;
 
@@ -2113,12 +2125,22 @@ begin
 end;
 
 procedure TFMain.conPeriodChange(Sender: TObject);
+var i : integer;
+    hide_rows : string;
 begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
    //and date_to - date_from <=7 is to do not treat 2025.01.01 - 2025.12.31 as single week
-   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag','PERIODS','');
+   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag, ATTRIBS_15 HIDE_ROWS','PERIODS','');
    SetVisibles;
+
+  //autoExpandSelection:setup
+  hide_rows := Dmodule.QWork.Fields[2].AsString;
+  if hide_rows='' then hide_rows := '+';
+  while length(hide_rows) < 120 do
+   hide_rows := hide_rows + hide_rows;
+  for i := 1 to 61 do
+    hiddenRows[i] := hide_rows[i]='-';
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
    CreateWeeks.Visible := not FSettings.WeeklyView.Checked;
@@ -2681,7 +2703,9 @@ begin
                      end;
     ConvNumeryZajec :begin
                        if  (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
-                       if Zajecia<>0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,OpisujKolumneZajec.Str(Zajecia));
+                       if Zajecia<>0 then
+                         if hiddenRows[zajecia]=false then
+                           Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,OpisujKolumneZajec.Str(Zajecia));
                      end;
     convOutOfRange  :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); DrawCross(Rect); End;
     ConvHeader      :begin
@@ -4796,10 +4820,13 @@ begin
 end;
 
 procedure TFMain.GridSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+
 begin
   if ACol = 0 then ACol := Grid.Col;
   if ARow = 0 then ARow := Grid.Row;
   FillPanel(ACol, ARow);
+
+
 end;
 
 procedure TFMain.Ustawieniaprogramu1Click(Sender: TObject);
@@ -6423,6 +6450,8 @@ begin
  if (Left <> Right) or (Top <> Bottom) or (mbRight = Button) then begin
    ftoolwindow.showtoolwindow;
  end;
+
+ autoExpandSelection;
 end;
 
 procedure TFMain.bcopyareaClick(Sender: TObject);
@@ -6875,6 +6904,7 @@ procedure TFMain.GridKeyUp(Sender: TObject; var Key: Word;
 begin
   HighLightGrid;
   refreshLegend;
+  autoExpandSelection;
 end;
 
 procedure TFMain.N100Zdecydowanienieplanujwtymterminie1Click(
@@ -7547,6 +7577,7 @@ begin
   KeyValue := conPeriod.Text;
   If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
    conPeriod.Text := KeyValue;
+   conPeriodChange(conPeriod);
    deepRefreshDelayed;
   End else
     if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
@@ -9490,14 +9521,6 @@ begin
   Zajtoscwyk1Click(nil);
 end;
 
-procedure TFMain.Button1Click(Sender: TObject);
-var
-  Response: string;
-begin
-  //UWebServices.HttpGet('https://soft.home.pl', Response);
-  //Memo1.Lines.Text := Response;
-end;
-
 procedure TFMain.estujAPI1Click(Sender: TObject);
 var
   Response: string;
@@ -9552,6 +9575,70 @@ begin
   fmatrix.Caption := 'Grafik tygodniowy';
   fmatrix.defaultSchema := 'WEEKLY';
   FMatrix.ShowModal;
+end;
+
+procedure TFMain.autoExpandSelection;
+var      myRect: TGridRect;
+         bottom,top : integer;
+  function findLast(e : integer) : integer;
+  var orige : integer;
+  begin
+    orige := e;
+    while (hiddenRows[e]) or (e=61) do
+    begin
+      e := e + 1;
+    end;
+    findLast :=  (e-1) - orige+1;
+  end;
+  function findFirst(e : integer) : integer;
+  var orige : integer;
+  begin
+    orige := e;
+    while (hiddenRows[e]=true) and (e<>1) do
+    begin
+      e := e - 1;
+    end;
+    findFirst := orige - e;
+  end;
+begin
+ //autoExpandSelection:do
+ //
+ // zmienna hiddenRows powinna byc trzymana jako pole w semestrze, dekoduj strin xxxx11xxx
+ // opcjonalne zaznaczanie blokow
+ // doc
+ //
+ exit;
+ // autoExpandSelection issues:
+ // 1. zaznaczanie blokow dziala dla wt?    NIE
+ // 2. zaznaczani bloku nie diala jak zaznaczysz dwa wiersze
+ // 3. zaznaczanie bloku nie dziala jak poruszysz kolkiem
+ // 4. test copy paste: nie dziala kopiowanie gdy blok maja inna wartosc
+
+ //spread selection down
+ bottom := grid.Selection.bottom;
+ convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,bottom);
+ if zajecia >0 then begin
+   if  (hiddenRows[zajecia] = false) and (hiddenRows[zajecia+1]=true) then begin
+	  myRect.Left   := grid.Selection.Left;
+	  myRect.Right  := grid.Selection.Right;
+	  myRect.Top    := grid.Selection.Top;
+	  myRect.Bottom := bottom + findLast(zajecia+1);
+	  grid.Selection        := myRect;
+   end;
+ end;
+
+ //spread selection from top and bottom
+ top := grid.Selection.top;
+ convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,top);
+ if zajecia >0 then begin
+   if (hiddenRows[zajecia]=true) then begin
+	  myRect.Left   := grid.Selection.Left;
+	  myRect.Right  := grid.Selection.Right;
+	  myRect.Top    := top-findFirst(top);
+	  myRect.Bottom := bottom+findLast(top+1);
+   	grid.Selection        := myRect;
+   end;
+ end;
 end;
 
 initialization

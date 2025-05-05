@@ -34,6 +34,9 @@ type
     BSelectROL_ID: TBitBtn;
     BClearROL_ID: TBitBtn;
     ChLokedFlag: TDBCheckBox;
+    HIDE_ROWS: TDBEdit;
+    Label1: TLabel;
+    SpeedButton4: TSpeedButton;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -42,6 +45,7 @@ type
     procedure ROL_ID_VALUEDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -59,7 +63,8 @@ var
 
 implementation
 
-uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain;
+uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain,
+  UFFloatingMessage;
 
 {$R *.DFM}
 
@@ -178,5 +183,11 @@ Begin
   Self.TableName := 'PERIODS';
 End;
 
+
+procedure TFBrowsePERIODS.SpeedButton4Click(Sender: TObject);
+begin
+ //FFloatingMessage.showModal
+ info('Ukrywanie zbêdnych wierszy, np. gdy korzystamy z siatki piêtnastominutowej to ci¹g znaków +--- oznacza, ¿e pelne godziny s¹ pokazywane, a pozostale s¹ ukrywane. Znak "-" oznacza ukrycie');
+end;
 
 end.

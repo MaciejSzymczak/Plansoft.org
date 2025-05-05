@@ -1,3 +1,5 @@
+Follow the instructions described in user Guide, chapter "2.2.1.8.6 Zaawansowany import danych- scalanie"
+
 SUBJECTS
 =====================================================
 select * from subjects where name like 'XX%'

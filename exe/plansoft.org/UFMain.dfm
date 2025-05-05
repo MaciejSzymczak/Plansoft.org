@@ -8855,8 +8855,8 @@ inherited FMain: TFMain
     Font.Style = []
     Options = [fdEffects, fdNoStyleSel, fdApplyButton]
     OnApply = gridFontApply
-    Left = 1618
-    Top = 57
+    Left = 1634
+    Top = 65
   end
   object XPManifest1: TXPManifest
     Left = 1722
