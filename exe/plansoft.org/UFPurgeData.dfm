@@ -1,7 +1,7 @@
 inherited FPurgeData: TFPurgeData
-  Left = 390
-  Top = 225
-  Width = 573
+  Left = 820
+  Top = 335
+  Width = 616
   Height = 359
   Caption = 'Usuwanie danych archiwalnych'
   OnCloseQuery = FormCloseQuery
@@ -9,14 +9,14 @@ inherited FPurgeData: TFPurgeData
   TextHeight = 14
   inherited Status: TPanel
     Top = 308
-    Width = 565
+    Width = 608
   end
   object Pages: TPageControl
     Left = 0
     Top = 0
-    Width = 565
+    Width = 608
     Height = 308
-    ActivePage = Main
+    ActivePage = Preview
     Align = alClient
     MultiLine = True
     TabOrder = 1
@@ -27,7 +27,7 @@ inherited FPurgeData: TFPurgeData
       object MainPanel: TPanel
         Left = 0
         Top = 0
-        Width = 538
+        Width = 581
         Height = 300
         Align = alClient
         TabOrder = 0
@@ -51,7 +51,7 @@ inherited FPurgeData: TFPurgeData
         object GroupBox1: TGroupBox
           Left = 8
           Top = 48
-          Width = 441
+          Width = 561
           Height = 145
           Caption = 'Usu'#324' r'#243'wnie'#380' '
           TabOrder = 1
@@ -137,7 +137,7 @@ inherited FPurgeData: TFPurgeData
         object GroupBox2: TGroupBox
           Left = 8
           Top = 0
-          Width = 441
+          Width = 561
           Height = 49
           TabOrder = 0
           object Label1: TLabel
@@ -167,16 +167,25 @@ inherited FPurgeData: TFPurgeData
             Time = 0.741385451387031900
             TabOrder = 1
           end
+          object BSelectPeriodFrom: TBitBtn
+            Left = 392
+            Top = 16
+            Width = 153
+            Height = 25
+            Caption = 'Wybierz okres'
+            TabOrder = 2
+            OnClick = BSelectPeriodFromClick
+          end
         end
         object Panel1: TPanel
           Left = 1
           Top = 258
-          Width = 536
+          Width = 579
           Height = 41
           Align = alBottom
           TabOrder = 2
           object BCancel: TBitBtn
-            Left = 381
+            Left = 501
             Top = 8
             Width = 75
             Height = 25
@@ -185,23 +194,13 @@ inherited FPurgeData: TFPurgeData
             OnClick = BCancelClick
             Kind = bkCancel
           end
-          object BExecute: TBitBtn
-            Left = 301
-            Top = 8
-            Width = 75
-            Height = 25
-            Caption = 'Usu'#324
-            Enabled = False
-            TabOrder = 2
-            OnClick = BExecuteClick
-            Kind = bkOK
-          end
           object BPreview: TBitBtn
             Left = 8
             Top = 8
             Width = 224
             Height = 25
-            Caption = 'Poka'#380', jakie dane zostan'#261' usuni'#281'te'
+            Hint = 'Poka'#380', jakie dane zostan'#261' usuni'#281'te'
+            Caption = 'Podsumowanie'
             TabOrder = 0
             OnClick = BPreviewClick
           end
@@ -214,44 +213,35 @@ inherited FPurgeData: TFPurgeData
       object PreviewPanel: TPanel
         Left = 0
         Top = 0
-        Width = 538
+        Width = 581
         Height = 300
         Align = alClient
         TabOrder = 0
         object Panel4: TPanel
           Left = 1
           Top = 258
-          Width = 536
+          Width = 579
           Height = 41
           Align = alBottom
           TabOrder = 0
-          object BitBtn2: TBitBtn
-            Left = 8
-            Top = 8
-            Width = 185
-            Height = 25
-            Caption = '<< Okno parametr'#243'w'
-            TabOrder = 0
-            OnClick = BitBtn2Click
-          end
           object BExecute2: TBitBtn
-            Left = 280
+            Left = 416
             Top = 8
             Width = 75
             Height = 25
             Caption = 'Usu'#324
             Enabled = False
-            TabOrder = 1
+            TabOrder = 0
             OnClick = BExecuteClick
             Kind = bkOK
           end
           object BitBtn3: TBitBtn
-            Left = 360
+            Left = 496
             Top = 8
             Width = 75
             Height = 25
             Caption = 'Anuluj'
-            TabOrder = 2
+            TabOrder = 1
             OnClick = BCancelClick
             Kind = bkCancel
           end
@@ -259,7 +249,7 @@ inherited FPurgeData: TFPurgeData
         object Grupy: TPageControl
           Left = 1
           Top = 1
-          Width = 536
+          Width = 579
           Height = 257
           ActivePage = TabSheet6
           Align = alClient
@@ -437,13 +427,15 @@ inherited FPurgeData: TFPurgeData
               Width = 38
               Height = 14
               Caption = 'Zaj'#281'cia:'
+              Visible = False
             end
-            object C: TLabel
+            object ClassesToDelete: TLabel
               Left = 80
               Top = 24
               Width = 94
               Height = 14
               Caption = '<trwaj'#261' obliczenia>'
+              Visible = False
             end
             object Label10: TLabel
               Left = 8
@@ -452,7 +444,7 @@ inherited FPurgeData: TFPurgeData
               Height = 15
               Caption = 'Po naci'#347'ni'#281'ciu przycisku Usu'#324' zostan'#261' usuni'#281'te obiekty:'
               Font.Charset = EASTEUROPE_CHARSET
-              Font.Color = clRed
+              Font.Color = clBlack
               Font.Height = -12
               Font.Name = 'Arial'
               Font.Style = []
@@ -508,7 +500,7 @@ inherited FPurgeData: TFPurgeData
     Connection = DModule.ADOConnection
     CursorLocation = clUseServer
     Parameters = <>
-    Left = 412
+    Left = 388
     Top = 84
   end
   object qr: TADOQuery
@@ -536,7 +528,7 @@ inherited FPurgeData: TFPurgeData
     DefaultExt = 'txt'
     FileName = 'Report'
     Filter = 'txt|*.txt'
-    Left = 17
-    Top = 190
+    Left = 129
+    Top = 118
   end
 end

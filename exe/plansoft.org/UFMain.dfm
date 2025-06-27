@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 46
-  Top = 40
+  Left = 273
+  Top = 100
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -4905,8 +4905,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 1230
-        Top = 84
+        Left = 110
+        Top = 4
         Width = 497
         Height = 97
         TabOrder = 35
@@ -4959,6 +4959,17 @@ inherited FMain: TFMain
           MaxLength = 15
           TabOrder = 2
         end
+        object CLASSES_ALLOWED: TCheckBox
+          Left = 240
+          Top = 56
+          Width = 153
+          Height = 17
+          Caption = 'Zaj'#281'cia dozwolone'
+          Checked = True
+          State = cbChecked
+          TabOrder = 3
+          OnClick = CLASSES_ALLOWEDClick
+        end
       end
       object SQLCreateWeeks: TMemo
         Left = 1360
@@ -4990,8 +5001,8 @@ inherited FMain: TFMain
             'o from '
           '        ('
           
-            '        SELECT TRUNC(TO_DATE('#39'2024-10-01'#39', '#39'YYYY-MM-DD'#39'), '#39'IW'#39') ' +
-            '+ (LEVEL - 1) * 7 AS first_day_of_week '
+            '        SELECT TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1) * 7' +
+            ' AS first_day_of_week '
           '        FROM dual'
           
             '        CONNECT BY TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1)' +
@@ -6307,6 +6318,10 @@ inherited FMain: TFMain
         object massImport: TMenuItem
           Caption = 'Pobierz dane z programu Excel'
           OnClick = massImportClick
+        end
+        object Wzbogacaniedanych1: TMenuItem
+          Caption = 'Wzbogacanie danych'
+          OnClick = Wzbogacaniedanych1Click
         end
         object Kopiowaniegrupowe1: TMenuItem
           Caption = 'Kopiuj rozk'#322'ad'

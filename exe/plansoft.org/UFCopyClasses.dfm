@@ -10,20 +10,20 @@ inherited FCopyClasses: TFCopyClasses
   object Label1: TLabel [0]
     Left = 16
     Top = 64
-    Width = 317
+    Width = 365
     Height = 14
     Caption = 
       'Skopiowane dane umie'#347#263' w terminie od dnia                       ' +
-      '       do'
+      '                       do'
   end
   object Label4: TLabel [1]
     Left = 16
     Top = 40
-    Width = 320
+    Width = 365
     Height = 14
     Caption = 
       'Skopiuj wszystkie zaplanowane dane  od dnia                     ' +
-      '       do'
+      '                      do'
   end
   object Label2: TLabel [2]
     Left = 16

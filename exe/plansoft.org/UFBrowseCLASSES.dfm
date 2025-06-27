@@ -510,7 +510,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             Caption = 'Data zaj'#281'cia: '
           end
           object ChSelectedDates: TCheckBox
-            Left = 392
+            Left = 472
             Top = 6
             Width = 241
             Height = 17
@@ -609,6 +609,15 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             NumGlyphs = 2
             TabOrder = 3
             OnChange = FDAY_FROMChange
+          end
+          object BitBtn1: TBitBtn
+            Left = 392
+            Top = 4
+            Width = 75
+            Height = 25
+            Caption = 'Wszystkie'
+            TabOrder = 4
+            OnClick = BitBtn1Click
           end
         end
         object PanelHistory: TPanel

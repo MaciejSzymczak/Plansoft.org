@@ -54,6 +54,7 @@ type
     ActionLEC_ADD: TMenuItem;
     ActionLEC_DEL: TMenuItem;
     ActionLEC_DEL_ALL: TMenuItem;
+    BitBtn1: TBitBtn;
     procedure CONPERIODChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FGenericFilter1conlChange(Sender: TObject);
@@ -97,6 +98,7 @@ type
     procedure ActionLEC_DELClick(Sender: TObject);
     procedure ActionLEC_DEL_ALLClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -417,8 +419,8 @@ Begin
 
  case ConflictWithReservations.ItemIndex of
    0:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '0=0');
-   1:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '(CLASSES.DAY, CLASSES.HOUR) IN (SELECT DAY, HOUR FROM RESERVATIONS)');
-   2:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '(CLASSES.DAY, CLASSES.HOUR) NOT IN (SELECT DAY, HOUR FROM RESERVATIONS)');
+   1:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '(CLASSES.DAY, CLASSES.HOUR) IN (SELECT DAY, HOUR FROM HOLIDAY_DAYS '+fmain.gerThisPeriod+')');
+   2:DM.macros.setMacro(query, 'RESERVATIONS_FILTER', '(CLASSES.DAY, CLASSES.HOUR) NOT IN (SELECT DAY, HOUR FROM HOLIDAY_DAYS '+fmain.gerThisPeriod+')');
  end;
 
 End;
@@ -807,6 +809,16 @@ begin
   inherited;
   if classesTableName = 'CLASSES_HISTORY' then self.caption := 'Historia zmian';
 
+end;
+
+procedure TFBrowseCLASSES.BitBtn1Click(Sender: TObject);
+begin
+  if ChSelectedDates.Checked then ChSelectedDates.Checked := false;
+  FDAY_FROM.Visible := true;
+  FDAY_TO.Visible := true;
+  SkipRefresh := true; FDAY_FROM.Clear;
+  SkipRefresh := true; FDAY_TO.Clear;
+  BRefreshClick(nil);
 end;
 
 end.

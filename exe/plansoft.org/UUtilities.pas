@@ -67,12 +67,12 @@ type TConvertGrid = class
          Procedure initSingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
      end;
 
-     TOpisujKolumneZajec = class
+     TGridDefinition = class
       no        : Array[1..dm.maxHours] Of String[20];
       hour_from : Array[1..dm.maxHours] Of String[20];
       hour_to   : Array[1..dm.maxHours] Of String[20];
-      Procedure internalCreate;
-      Function Str(i : Integer) : String;
+      Procedure internalCreate(gridCustomLabels : tgridCustomLabels);
+      Function getLabel(i : Integer) : String;
       function hourNumberToHourFromTo( hour, fill : integer; var hh1, mm1, hh2, mm2 : integer) : boolean;
      End;
 
@@ -138,7 +138,7 @@ Type TCheckConflicts = Class
 Var
     CheckConflicts : TCheckConflicts;
     convertGrid           : tConvertGrid;
-    OpisujKolumneZajec       : tOpisujKolumneZajec;
+    gridDefinition       : tGridDefinition;
 
 
 function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
@@ -451,7 +451,7 @@ begin
  dmodule.generateGrid ( pnos, phours_from, phours_to );
 end;
 
-Procedure TOpisujKolumneZajec.internalCreate;
+Procedure TGridDefinition.internalCreate;
 var t : integer;
 Begin
  for t:= 1 to dm.maxHours do
@@ -461,9 +461,9 @@ Begin
  with dmodule.QWork do begin
   while not eof do begin
     if (fields[0].AsInteger <= dm.maxHours) and (fields[0].AsInteger >= 1) then begin
-      no       [ fields[0].AsInteger] :=  fields[1].AsString;
-      hour_from[ fields[0].AsInteger] :=  fields[2].AsString;
-      hour_to  [ fields[0].AsInteger] :=  fields[3].AsString;
+      no       [ fields[0].AsInteger ] :=  nvl( gridCustomLabels[fields[0].AsInteger],  fields[1].AsString );
+      hour_from[ fields[0].AsInteger ] :=  fields[2].AsString;
+      hour_to  [ fields[0].AsInteger ] :=  fields[3].AsString;
     end;
     next;
   end;
@@ -471,12 +471,12 @@ Begin
 
 End;
 
-Function TOpisujKolumneZajec.Str(i : Integer) : String;
+Function TGridDefinition.getLabel(i : Integer) : String;
 Begin
  Result := no[i];
 End;
 
-function TOpisujKolumneZajec.hourNumberToHourFromTo(hour, fill: integer; var hh1, mm1, hh2, mm2: integer) : boolean;
+function TGridDefinition.hourNumberToHourFromTo(hour, fill: integer; var hh1, mm1, hh2, mm2: integer) : boolean;
 var interval : integer;
   //--
   procedure addMinutes(hh1,mm1,interval : integer; var hh2,mm2 : integer);
@@ -1972,6 +1972,6 @@ initialization
   quickInsertMode    := false;
   CheckConflicts     := tCheckConflicts.create;
   convertGrid        := tConvertGrid.create;
-  OpisujKolumneZajec := tOpisujKolumneZajec.create;
+  gridDefinition     := tGridDefinition.create;
 end.
 

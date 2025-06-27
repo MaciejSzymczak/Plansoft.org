@@ -37,6 +37,8 @@ type
     HIDE_ROWS: TDBEdit;
     Label1: TLabel;
     SpeedButton4: TSpeedButton;
+    Label3: TLabel;
+    GRID_LABELS: TDBEdit;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);

@@ -474,7 +474,7 @@ end;
                            owner              := fieldbyname('owner').asString;
                          end;
 
-												 if not opisujKolumneZajec.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
+												 if not gridDefinition.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
 												   info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
 												   queryClasses.Free;
 												   autocreate.GRIDSShowModalAsBrowser;

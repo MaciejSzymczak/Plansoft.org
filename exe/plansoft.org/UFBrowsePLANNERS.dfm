@@ -1045,7 +1045,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ValueUnchecked = '-'
       end
       object CAL_ID: TDBEdit
-        Left = 89
+        Left = 97
         Top = 152
         Width = 150
         Height = 22

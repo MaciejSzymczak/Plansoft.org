@@ -556,7 +556,7 @@ begin
     SearchAndReplace(SearchAndReplace(
     'select count(1) from (select day, hour from tmp_selected_dates where sessionid = userenv(''sessionid'') and :hours_filter :minus_reservations)'
     ,':hours_filter',hours_filter)
-    ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
+    ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from HOLIDAY_DAYS '+fmain.gerThisPeriod+'',''))
     );
 
   end;
@@ -620,7 +620,7 @@ begin
         ,':forms_filter',forms_filter)
         ,':hours_filter',hours_filter)
         ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
-        ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from reservations',''))
+        ,':minus_reservations',iif(MinusReservations.checked,'minus select day,hour from HOLIDAY_DAYS '+fmain.gerThisPeriod+'',''))
     );
     //copytoclipboard(QueryR.sql.Text);
     QueryR.Open;

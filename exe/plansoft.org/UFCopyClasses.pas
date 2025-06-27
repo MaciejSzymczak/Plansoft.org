@@ -49,7 +49,8 @@ implementation
 
 {$R *.dfm}
 
-uses uutilityparent, DM, DB, UFMain, autocreate, UFProgramSettings;
+uses uutilityparent, DM, DB, UFMain, autocreate, UFProgramSettings,
+  UProgress;
 
 procedure TFCopyClasses.FormShow(Sender: TObject);
 begin
@@ -70,6 +71,9 @@ procedure TFCopyClasses.BExecuteClick(Sender: TObject);
 var error_message : string;
     cnt           : string;
 begin
+ FProgress.ProgressBar.Position :=  50;
+ FProgress.Refresh;
+
  source_date_from.Time := 0;
  source_date_to.Time   := 0;
  dest_date_from.Time   := 0;
@@ -119,10 +123,12 @@ begin
   end;
  except
    on E:exception do Begin
+     FProgress.Hide;
      Dmodule.RollbackTrans;
      info('Czynnoœæ nie powiod³a sie z powodu nastêpuj¹cego b³êdu:' + cr + cr + E.Message);
    end;
  end;
+ FProgress.Hide;
 end;
 
 

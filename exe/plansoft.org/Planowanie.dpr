@@ -99,7 +99,8 @@ uses
   UProgress in 'UProgress.pas' {FProgress},
   UFSelectDate in 'UFSelectDate.pas' {FSelectDate},
   UIcsGenerator in 'UIcsGenerator.pas',
-  UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage};
+  UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage},
+  UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment};
 
 {$R *.RES}
 
@@ -191,6 +192,7 @@ begin
   Application.CreateForm(TFProgress, FProgress);
   Application.CreateForm(TFSelectDate, FSelectDate);
   Application.CreateForm(TFFloatingMessage, FFloatingMessage);
+  Application.CreateForm(TFDataEnrichment, FDataEnrichment);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

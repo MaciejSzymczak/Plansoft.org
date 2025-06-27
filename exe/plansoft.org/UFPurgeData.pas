@@ -25,11 +25,9 @@ type
     Label1: TLabel;
     Panel1: TPanel;
     BCancel: TBitBtn;
-    BExecute: TBitBtn;
     BPreview: TBitBtn;
     PreviewPanel: TPanel;
     Panel4: TPanel;
-    BitBtn2: TBitBtn;
     Grupy: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
@@ -48,7 +46,7 @@ type
     S: TLabel;
     P: TLabel;
     Label9: TLabel;
-    C: TLabel;
+    ClassesToDelete: TLabel;
     DBGrid1: TDBGrid;
     dsl: TDataSource;
     DBGrid2: TDBGrid;
@@ -73,15 +71,16 @@ type
     CheckBox2: TCheckBox;
     date_from: TDateTimePicker;
     date_to: TDateTimePicker;
+    BSelectPeriodFrom: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure BCancelClick(Sender: TObject);
     procedure BExecuteClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormShow(Sender: TObject);
-    procedure BitBtn2Click(Sender: TObject);
     procedure BPreviewClick(Sender: TObject);
     procedure PagesChange(Sender: TObject);
     procedure BSaveClick(Sender: TObject);
+    procedure BSelectPeriodFromClick(Sender: TObject);
   private
     gCanCloseQuery : boolean;
     procedure refreshPreview;
@@ -96,13 +95,13 @@ implementation
 
 {$R *.dfm}
 
-uses uutilityparent, DM, UFMain;
+uses uutilityparent, DM, UFMain, autocreate, UProgress;
 
 procedure TFPurgeData.FormCreate(Sender: TObject);
 begin
   inherited;
-  date_from.Date := 0;
-  date_to.Date := 0;
+  date_from.DateTime := now();
+  date_to.DateTime := now();
 end;
 
 procedure TFPurgeData.BCancelClick(Sender: TObject);
@@ -114,6 +113,10 @@ end;
 procedure TFPurgeData.BExecuteClick(Sender: TObject);
 var dummy : shortString;
 begin
+ FProgress.ProgressBar.Position :=  50;
+ FProgress.Refresh;
+
+
  if not date_from.Checked then date_from.DateTime := 0;
 
  gCanCloseQuery := false;
@@ -144,10 +147,13 @@ begin
   gCanCloseQuery := true;
  except
    on E:exception do Begin
+     FProgress.Hide;
      Dmodule.RollbackTrans;
      info('Czynnoœæ nie powiod³a sie z powodu nastêpuj¹cego b³êdu:' + cr + cr + E.Message);
    end;
  end;
+
+ FProgress.Hide;
 end;
 
 procedure TFPurgeData.FormCloseQuery(Sender: TObject;
@@ -159,7 +165,7 @@ end;
 
 procedure TFPurgeData.FormShow(Sender: TObject);
 begin
- c.Caption := '-';
+ ClassesToDelete.Caption := '-';
  l.Caption := '-';
  g.Caption := '-';
  r.Caption := '-';
@@ -169,14 +175,8 @@ begin
  gCanCloseQuery := true;
  If not isAdmin Then Begin
   Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora. Bêdziesz móg³ sprawdziæ jakie dane zostan¹ usuniête, ale przycisk Usuñ bêdzie niedostêpny.');
-  BExecute.Enabled := false;
   BExecute2.Enabled := false;
  End;
-end;
-
-procedure TFPurgeData.BitBtn2Click(Sender: TObject);
-begin
- Pages.ActivePage := main;
 end;
 
 procedure TFPurgeData.refreshPreview;
@@ -186,7 +186,6 @@ begin
  screen.Cursor := crHourGlass;
  if not date_from.Checked then date_from.DateTime := 0;
  if isAdmin then begin
-   BExecute.Enabled := true;
    BExecute2.Enabled := true;
  end;
  gCanCloseQuery := false;
@@ -208,7 +207,7 @@ begin
   end;
   dummy := dmodule.SingleValue('select planner_utils.get_output_param_num1, planner_utils.get_output_param_num2, planner_utils.get_output_param_num3, planner_utils.get_output_param_num4, planner_utils.get_output_param_num5, planner_utils.get_output_param_num6 from dual');
 
-  C.Caption := dmodule.QWork.Fields[0].AsString;
+  ClassesToDelete.Caption := dmodule.QWork.Fields[0].AsString;
   L.Caption := dmodule.QWork.Fields[1].AsString;
   G.Caption := dmodule.QWork.Fields[2].AsString;
   R.Caption := dmodule.QWork.Fields[3].AsString;
@@ -299,7 +298,7 @@ begin
     writeData (qp);
     writeLn(f, '');
     writeLn(f, 'Podsumowanie - liczba danych do usuniêcia');
-    writeLn(f, '    Zajêcia   :' + C.caption);
+    writeLn(f, '    Zajêcia   :' + ClassesToDelete.caption);
     writeLn(f, '    Wyk³adowcy:' + L.caption);
     writeLn(f, '    Grupy     :' + G.caption);
     writeLn(f, '    Zasoby    :' + R.caption);
@@ -309,6 +308,20 @@ begin
     info('Dane zosta³y pomyœlnie zapisane w pliku');
  end;
 
+end;
+
+procedure TFPurgeData.BSelectPeriodFromClick(Sender: TObject);
+Var KeyValue : ShortString;
+begin
+  inherited;
+  KeyValue := fmain.conPeriod.Text;
+  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    With DModule do begin
+        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
+        date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+        date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+    End;
+  End;
 end;
 
 end.

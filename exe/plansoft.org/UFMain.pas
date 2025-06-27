@@ -126,11 +126,12 @@ type TClassByResCaches = class
                      Count    : Integer;
                      FirstDay : Integer;
                      maxHours : integer;
+                     PER_ID: ShortString;
                      // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
                      Storage : Array Of Array Of String;
 
                      public
-                      Procedure ReservationsCacheLoadPeriod(PER_ID : String);
+                      Procedure ReservationsCacheLoadPeriod(PPER_ID : String);
                       Function IsReserved(TS: TTimeStamp; Zajecia : Integer) : String;
                       Procedure Invert(TS: TTimeStamp; Zajecia: Integer);
 
@@ -193,6 +194,8 @@ TNodeInfo = class
   public
     Id: string;
   end;
+
+type tgridCustomLabels = Array[1..dm.maxHours] Of String[20];
 
 type
   TFMain = class(TFormConfig)
@@ -392,7 +395,7 @@ type
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     respopup: TPopupMenu;
-    MenuItem7: TMenuItem;                                                                      
+    MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     ppchangeClass: TMenuItem;
     ColorDialog: TColorDialog;
@@ -607,6 +610,8 @@ type
     PPreview: TPopupMenu;
     MenuItem4: TMenuItem;
     MenuItem11: TMenuItem;
+    CLASSES_ALLOWED: TCheckBox;
+    Wzbogacaniedanych1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -957,6 +962,8 @@ type
     procedure CreateWeeksClick(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
+    procedure CLASSES_ALLOWEDClick(Sender: TObject);
+    procedure Wzbogacaniedanych1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1034,7 +1041,8 @@ type
     //
     selectedDateTime : tdatetime;
     //
-    hiddenRows : array[1..61] of Boolean;
+    gridHiddenRows : array[1..dm.maxHours] of Boolean;
+    gridCustomLabels  : tgridCustomLabels;
 
     PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
     calculateWithChilds : boolean;
@@ -1042,6 +1050,7 @@ type
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
     function  getCurrentObjectType : string;
+    function gerThisPeriod : string;
 
     procedure refreshLegend;
     Procedure buildCalendar(triggeredObject : String);
@@ -1137,7 +1146,7 @@ Uses AutoCreate, UFDetails,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
-  UProgress, UFSelectDate, UUtilities, UFFloatingMessage;
+  UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment;
 
 var dummy : string;
 
@@ -1844,7 +1853,7 @@ begin
  selectedDateTime := now();
 
  inherited;
- //UUtilities.OpisujKolumneZajec.internalCreate;
+
 end;
 
 procedure TFMain.BDICTLECClick(Sender: TObject);
@@ -1982,7 +1991,7 @@ begin
  for i := 1 to grid.RowCount-1 do begin
    convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,i);
    if zajecia >0 then 
-     if hiddenRows[zajecia]
+     if gridHiddenRows[zajecia]
          then Grid.RowHeights[i] := Grid.DefaultRowHeight div 4;       
  end;
 
@@ -2131,7 +2140,7 @@ begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
    //and date_to - date_from <=7 is to do not treat 2025.01.01 - 2025.12.31 as single week
-   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag, ATTRIBS_15 HIDE_ROWS','PERIODS','');
+   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag, ATTRIBS_15 HIDE_ROWS,ATTRIBS_14 GRID_LABELS','PERIODS','');
    SetVisibles;
 
   //autoExpandSelection:setup
@@ -2139,8 +2148,10 @@ begin
   if hide_rows='' then hide_rows := '+';
   while length(hide_rows) < 120 do
    hide_rows := hide_rows + hide_rows;
-  for i := 1 to 61 do
-    hiddenRows[i] := hide_rows[i]='-';
+  for i := 1 to dm.maxHours do begin
+    gridHiddenRows[i] := hide_rows[i]='-';
+    gridCustomLabels[i] :=  Copy(extractWord(i, Dmodule.QWork.Fields[3].AsString, [',']),1,20);
+  end;
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
    CreateWeeks.Visible := not FSettings.WeeklyView.Checked;
@@ -2198,25 +2209,42 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	Procedure DrawStriped(Var Rect : TRect; text : string);
 	Var t : Integer;
       RWidth, RHeight : integer;
+      partA, partB : shortString;
 	Begin
 	 t:=Rect.Left;
 	 grid.Canvas.Pen.Color := clBlack;
 
-	 While t<=Rect.Right Do
-	  Begin
-	   grid.Canvas.MoveTo(t,Rect.Top);
-	   grid.Canvas.LineTo(t,Rect.Bottom);
-	   t := t + 5;
-	  End;
 
-   if text = 'HOLIDAY' then text := '';
+    //text := '+:holiday'
+    partA := Copy(text, 1, 1);
+    partB := Copy(text, 3, Length(text));
+
+   if partA = '-' then begin
+  	//Procedure DrawCross(Var Rect : TRect);
+  	//Begin
+  	 grid.Canvas.Pen.Color := clBlack;
+  	 grid.Canvas.MoveTo(Rect.Left,Rect.Top);
+  	 grid.Canvas.LineTo(Rect.Right,Rect.Bottom);
+  	 grid.Canvas.MoveTo(Rect.Right,Rect.Top);
+  	 grid.Canvas.LineTo(Rect.Left,Rect.Bottom);
+  	//End;
+   end else begin
+	  While t<=Rect.Right Do
+	   Begin
+	    grid.Canvas.MoveTo(t,Rect.Top);
+	    grid.Canvas.LineTo(t,Rect.Bottom);
+	    t := t + 5;
+	   End;
+   end;
+
+   if partB = 'HOLIDAY' then partB := '';
 	 grid.Canvas.Font.Color := clBlack;
 	 RWidth := Rect.right - Rect.Left;
 	 RHeight := Rect.Bottom - Rect.top;
 	 grid.Canvas.TextOut(
 	   Rect.Left+RWidth div 2-3
 	 , Rect.Top+RHeight div 2-6
-	 , text );
+	 , partB );
 
 	End;
 
@@ -2704,8 +2732,8 @@ begin
     ConvNumeryZajec :begin
                        if  (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
                        if Zajecia<>0 then
-                         if hiddenRows[zajecia]=false then
-                           Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,OpisujKolumneZajec.Str(Zajecia));
+                         if gridHiddenRows[zajecia]=false then
+                           Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,gridDefinition.getLabel(Zajecia));
                      end;
     convOutOfRange  :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); DrawCross(Rect); End;
     ConvHeader      :begin
@@ -2983,9 +3011,10 @@ Procedure TFMain.insertClasses;
 Var xp, yp           : Integer;
     classesCount     : integer;
     classesToAdd     : integer;
-    calendarSelected : boolean;
+    //calendarSelected : boolean;
     addedFlag        : boolean;
     currentCnt       : integer;
+    resType          : shortString;
 
     procedure XprocessPattern (x0,xp : integer);
      var canInsertClass : boolean;
@@ -2995,9 +3024,10 @@ Var xp, yp           : Integer;
       UFmain.dummyTS.date := TS.date;
       UFmain.dummyHour    := Zajecia;
 
-      if calendarSelected then
-       canInsertClass := not (otherCalendar.getRatio(TS, Zajecia)=calReserved)
-      else canInsertClass := true;
+      //if calendarSelected then
+      resType := ReservationsCache.IsReserved(TS, Zajecia);
+      canInsertClass := (resType='') or (Copy(resType,1,1)='+');
+      //else canInsertClass := true;
 
       if (confineCalendarId <> '') and (canInsertClass) then begin
          canInsertClass := (confineCalendar.getRatio(TS, Zajecia)=calConfineOk);
@@ -3022,6 +3052,7 @@ begin
 
  If FDetails.ShowModal = mrOK Then Begin
 
+    {
     calendarSelected := fdetails.CALID.Text<>'-1';
     if calendarSelected then
     if fdetails.CALID.Text <> fmain.CALID.Text then begin
@@ -3032,6 +3063,7 @@ begin
       If Not isBlank(conPeriod.Text) Then otherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
       //now the OtherCalendar.IsReserved(TS, Zajecia) is available
     end;
+    }
 
 
     With Grid Do
@@ -4878,7 +4910,7 @@ Begin
 End;
 
 
-procedure TReservationsCache.ReservationsCacheLoadPeriod(PER_ID: String);
+procedure TReservationsCache.ReservationsCacheLoadPeriod(PPER_ID: String);
 Var t : Integer;
     DateFrom, DateTo : String;
     X, Y : Integer;
@@ -4886,6 +4918,7 @@ Var t : Integer;
 
 Var L1, L2 : Integer;
 begin
+  PER_ID := PPER_ID;
   With DModule Do Begin
    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+PER_ID));
    DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
@@ -4905,9 +4938,9 @@ begin
    End;
 
   OPENSQL(
-   'SELECT DAY, HOUR, TYPE '+
-     'FROM RESERVATIONS '+
-    'WHERE DAY BETWEEN '+DateFrom+' AND '+DateTo);
+   'SELECT DAY, HOUR, TYPE, CLASSES_ALLOWED '+
+     'FROM HOLIDAY_DAYS '+
+    'WHERE DAY BETWEEN '+DateFrom+' AND '+DateTo+' AND PER_ID='+PER_ID);
 
   While Not QWork.EOF Do Begin
    X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
@@ -4915,7 +4948,7 @@ begin
    t := X-FirstDay;
    if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem asyœcie technicznej');
    if y<=maxHours then
-     Storage[t][y] := QWork.FieldByName('TYPE').AsString;
+     Storage[t][y] := QWork.FieldByName('CLASSES_ALLOWED').AsString + ':' + QWork.FieldByName('TYPE').AsString;
 
    QWork.Next;
   End;
@@ -4935,11 +4968,11 @@ begin
  t1 := TS.Date - FirstDay;
  If Storage[t1][Zajecia]<>''
    Then Begin
-     DModule.SQL('DELETE FROM RESERVATIONS WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia));
+     DModule.SQL('DELETE FROM HOLIDAY_DAYS WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia)+' AND PER_ID='+PER_ID);
      Storage[t1][Zajecia] := '';
    end Else begin
-     DModule.SQL('INSERT INTO RESERVATIONS (ID, DAY, HOUR, TYPE) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+', '''+nvl(fmain.ReservationType.Text,'HOLIDAY')+''')');
-     Storage[t1][Zajecia] := nvl(fmain.ReservationType.Text,'HOLIDAY');
+     DModule.SQL('INSERT INTO HOLIDAY_DAYS (ID, DAY, HOUR, TYPE, CLASSES_ALLOWED, PER_ID) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+', '''+nvl(fmain.ReservationType.Text,'HOLIDAY')+''','''+BoolToStr(fmain.CLASSES_ALLOWED.checked)+''','''+PER_ID+''')');
+     Storage[t1][Zajecia] := BoolToStr(fmain.CLASSES_ALLOWED.checked) + ':' + nvl(fmain.ReservationType.Text,'HOLIDAY');
    end;
 end;
 
@@ -5757,7 +5790,8 @@ function TFMain.modifyClass;
 		 oldclass, newClass : TClass_;
 		 pttCombIds         : string;
 		 cellStatus         : integer;
-		 calendarSelected   : boolean;
+		 //calendarSelected   : boolean;
+     resType : shortString;
      Status             : Integer;
 
 	   // unplugValue('1;2;3;4','4') --> '1;2;3'
@@ -5837,9 +5871,10 @@ function TFMain.modifyClass;
 			  exit;
 		  End;
 
-	  calendarSelected := fdetails.CALID.Text<>'-1';
-	  if calendarSelected then
-	   if  otherCalendar.getRatio(TS, Zajecia)=calReserved then begin
+	  //calendarSelected := fdetails.CALID.Text<>'-1';
+	  //if calendarSelected then
+     resType := ReservationsCache.IsReserved(TS, Zajecia);
+	   if  Copy(resType,1,1)='-' then begin
 			  info ('Nie mo¿na tutaj planowaæ zajêæ ze wzglêdu na wybrany kalendarz szczególny');
 			  exit;
 		  End;
@@ -6776,6 +6811,7 @@ end;
 procedure TFMain.mmpurgeClick(Sender: TObject);
 begin
  if FPurgeData = nil then Application.CreateForm(TFPurgeData, FPurgeData);
+ fpurgedata.Pages.ActivePage := fpurgedata.main;
  if fpurgedata.showmodal = mrOK then deepRefreshDelayed;
 end;
 
@@ -9410,7 +9446,7 @@ begin
   If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
   If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
-  OpisujKolumneZajec.internalCreate;
+  gridDefinition.internalCreate(gridCustomLabels);
   BuildCalendar('X');
   grid.Visible := true;
 end;
@@ -9584,7 +9620,7 @@ var      myRect: TGridRect;
   var orige : integer;
   begin
     orige := e;
-    while (hiddenRows[e]) or (e=61) do
+    while (gridHiddenRows[e]) or (e=dm.maxHours) do
     begin
       e := e + 1;
     end;
@@ -9594,7 +9630,7 @@ var      myRect: TGridRect;
   var orige : integer;
   begin
     orige := e;
-    while (hiddenRows[e]=true) and (e<>1) do
+    while (gridHiddenRows[e]=true) and (e<>1) do
     begin
       e := e - 1;
     end;
@@ -9618,7 +9654,7 @@ begin
  bottom := grid.Selection.bottom;
  convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,bottom);
  if zajecia >0 then begin
-   if  (hiddenRows[zajecia] = false) and (hiddenRows[zajecia+1]=true) then begin
+   if  (gridHiddenRows[zajecia] = false) and (gridHiddenRows[zajecia+1]=true) then begin
 	  myRect.Left   := grid.Selection.Left;
 	  myRect.Right  := grid.Selection.Right;
 	  myRect.Top    := grid.Selection.Top;
@@ -9631,7 +9667,7 @@ begin
  top := grid.Selection.top;
  convertGrid.ColRowToDate(AObjectId, TS,Zajecia,1,top);
  if zajecia >0 then begin
-   if (hiddenRows[zajecia]=true) then begin
+   if (gridHiddenRows[zajecia]=true) then begin
 	  myRect.Left   := grid.Selection.Left;
 	  myRect.Right  := grid.Selection.Right;
 	  myRect.Top    := top-findFirst(top);
@@ -9639,6 +9675,25 @@ begin
    	grid.Selection        := myRect;
    end;
  end;
+end;
+
+function TFMain.gerThisPeriod: string;
+begin
+  result := 'where per_id='+ conPeriod.Text;
+end;
+
+procedure TFMain.CLASSES_ALLOWEDClick(Sender: TObject);
+var Key: Word;
+    Shift: TShiftState;
+begin
+  key := 13;
+  Shift := [];
+  GridKeyDown(nil, key, Shift);
+end;
+
+procedure TFMain.Wzbogacaniedanych1Click(Sender: TObject);
+begin
+  FDataEnrichment.showmodal;
 end;
 
 initialization

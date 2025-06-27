@@ -1485,7 +1485,9 @@ begin
   if pRepeatMonthNames then begin
     if showLine then begin
         if convertGrid.ColRowToDate(dummy, TS,Zajecia,0,yp) = ConvDayOfWeek then begin
-          currentDayOfWeek := DayOfWeek(TimeStampToDateTime(TS));
+          currentDayOfWeek := -1;
+          if TS.Date <> -1 then
+            currentDayOfWeek := DayOfWeek(TimeStampToDateTime(TS));
           if priorDayOfWeek <> currentDayOfWeek then begin
             addMonthsRow (addECTSflag);
             priorDayOfWeek := currentDayOfWeek;
@@ -1516,7 +1518,7 @@ begin
                           end;
                    end;
     ConvNumeryZajec: begin
-                       If Zajecia<>0 Then htmlTable.newCellCol2('',opisujKolumneZajec.Str(Zajecia),'"silver"') Else htmlTable.newCell('','&nbsp','0');
+                       If Zajecia<>0 Then htmlTable.newCellCol2('',gridDefinition.getLabel(Zajecia),'"silver"') Else htmlTable.newCell('','&nbsp','0');
                      end;
     convOutOfRange : Begin
                        //no width (auto) in weeklyView.

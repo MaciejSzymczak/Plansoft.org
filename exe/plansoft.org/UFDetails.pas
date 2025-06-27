@@ -128,13 +128,8 @@ type
     bdesc4: TBitBtn;
     BCopy: TBitBtn;
     BPaste: TBitBtn;
-    Panel3: TPanel;
     BOK: TBitBtn;
     BitBtn1: TBitBtn;
-    LCal: TLabel;
-    CALID: TEdit;
-    CALID_VALUE: TEdit;
-    BClearCal: TSpeedButton;
     WarningMessage: TLabel;
     clearL: TBitBtn;
     clearG: TBitBtn;
@@ -222,9 +217,6 @@ type
     procedure F_value1Click(Sender: TObject);
     procedure F_value2Click(Sender: TObject);
     procedure CWeeksChange(Sender: TObject);
-    procedure CALIDChange(Sender: TObject);
-    procedure CALID_VALUEClick(Sender: TObject);
-    procedure BClearCalClick(Sender: TObject);
     procedure G_value1DblClick(Sender: TObject);
     procedure L_value1DblClick(Sender: TObject);
     procedure rescat0_1_valueDblClick(Sender: TObject);
@@ -1667,7 +1659,7 @@ procedure TFDetails.CWeeksChange(Sender: TObject);
     with stringTokenizer do begin
       init(field.text);
       deleteToken(oldCalName);
-      addToken(CALID_VALUE.Text,true,true);
+      addToken('',true,true); //disabled
       field.text := get;
       close;
     end;
@@ -1681,29 +1673,6 @@ begin
   copyValue(Fprogramsettings.CopyField4.itemindex, desc4);
   stringTokenizer.free;
 
-end;
-
-procedure TFDetails.CALIDChange(Sender: TObject);
-begin
-  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-  BClearCal.Visible := not isBlank(TEdit(Sender).Text);
-  CWeeksChange(nil);
-end;
-
-procedure TFDetails.CALID_VALUEClick(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := CALID.Text;
-  If AutoCreate.ROOMSShowModalAsSelect('-9','',KeyValue,'0=0','') = mrOK Then begin
-      oldCalName := CALID_VALUE.Text;
-      CALID.Text := KeyValue;
-  end;
-end;
-
-procedure TFDetails.BClearCalClick(Sender: TObject);
-begin
- CALID.Text := '-1';
- TEdit(Sender).hide;
 end;
 
 procedure TFDetails.formChange;
