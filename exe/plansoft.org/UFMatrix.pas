@@ -13,7 +13,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UFormConfig, StdCtrls, Buttons, ExtCtrls, Db, DBTables, Grids, DBGrids, UUtilityParent,
   ComCtrls, Mask, ToolEdit,
-  StrHlder, OleServer, ExcelXP, ADODB, Menus, UFModuleFilter, jpeg;
+  StrHlder, OleServer, ExcelXP, ADODB, Menus, UFModuleFilter, jpeg, inifiles;
 
 Type  TKindOfExport = Integer;
 Const NotePadExport = 0;
@@ -150,6 +150,10 @@ type
     colSpanFlag: TMenuItem;
     N3: TMenuItem;
     supressNAValuesFlag: TMenuItem;
+    PeriodSelectionDsp: TLabel;
+    BGenerateBatch: TMenuItem;
+    N4: TMenuItem;
+    SaveDialog1: TSaveDialog;
     procedure CONLChange(Sender: TObject);
     procedure CONRChange(Sender: TObject);
     procedure CONGChange(Sender: TObject);
@@ -197,6 +201,9 @@ type
     procedure Cdesc3Click(Sender: TObject);
     procedure Cdesc4Click(Sender: TObject);
     procedure Wybierzsemestr1Click(Sender: TObject);
+    procedure source_date_fromChange(Sender: TObject);
+    procedure source_date_toChange(Sender: TObject);
+    procedure BGenerateBatchClick(Sender: TObject);
   private
      defaultText : string;
      sqlFlexColumns : string;
@@ -206,6 +213,7 @@ type
      function  saveSettings :boolean;
      function  loadSettings :boolean;
   public
+     periodClause : string;
      defaultSchema : shortstring;
      procedure loadFromIni ( inifilename : tfilename );
      procedure saveToIni ( inifilename : tfilename );
@@ -223,6 +231,15 @@ uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
   UFBrowseROOMS, UWeeklyTable;
 
 {$R *.DFM}
+
+procedure TFMatrix.FormCreate(Sender: TObject);
+begin
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
+  ignoreSave := false;
+  defSettingsFileName := UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.' + Self.Name + '.defSettings.ini';
+end;
+
 
 procedure TFMatrix.CONLChange(Sender: TObject);
 begin
@@ -1174,7 +1191,10 @@ begin
     UpdStatus('Budowanie warunków zapytañ');
     dateFrom := DateToOracle(source_date_from.Datetime);
     dateTo   := DateToOracle(source_date_to.Datetime);
-    _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
+    if (not isBlank(periodClause)) then
+      _CONPERIOD := periodClause
+    else
+      _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
 
     _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text);
     _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text);
@@ -1487,11 +1507,6 @@ begin
     generate('');
 end;
 
-procedure TFMatrix.FormCreate(Sender: TObject);
-begin
-  ignoreSave := false;
-  defSettingsFileName := UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.' + Self.Name + '.defSettings.ini';
-end;
 
 procedure TFMatrix.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -1521,30 +1536,40 @@ procedure TFMatrix.MenuItem3Click(Sender: TObject);
 begin
   source_date_from.Date := now;
   source_date_to.Date := now;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.Wczoraj1Click(Sender: TObject);
 begin
   source_date_from.Date := now-1;
   source_date_to.Date := now-1;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.Przedwczoraj1Click(Sender: TObject);
 begin
   source_date_from.Date := now-2;
   source_date_to.Date := now-2;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.Cdesc3Click(Sender: TObject);
 begin
   source_date_from.Date := now+1;
   source_date_to.Date := now+1;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.Cdesc4Click(Sender: TObject);
 begin
   source_date_from.Date := now+2;
   source_date_to.Date := now+2;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.Wybierzsemestr1Click(Sender: TObject);
@@ -1557,8 +1582,67 @@ begin
         Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
         source_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
         source_date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+        periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + KeyValue ,'CLASSES.');
+        PeriodSelectionDsp.Caption := Ucommon.PeriodSelectionDsp;
     End;
   End;
+end;
+
+procedure TFMatrix.source_date_fromChange(Sender: TObject);
+begin
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
+end;
+
+procedure TFMatrix.source_date_toChange(Sender: TObject);
+begin
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
+end;
+
+procedure TFMatrix.BGenerateBatchClick(Sender: TObject);
+var iniFile : TIniFile;
+    s : string;
+    f : textFile;
+begin
+  if not saveDialog.Execute then exit;
+
+  //1. jakos zapisz wybrany semestr do INI
+  //2. Dokoncz TFMain.commandLineMatrix  - zaladuj ini, uruchom, zamknij
+
+  iniFile := TIniFile.Create( saveDialog.FileName );
+  With iniFile do begin
+    WriteString ('initype','initype','matrix');
+    WriteString ('wwwgenerator','PeriodName','PeriodName');
+    //WriteInteger('wwwgenerator','GenType',genType.ItemIndex);
+    //WriteString ('wwwgenerator','DefaultFolder',Folder.Text);
+    //WriteString ('wwwgenerator','AddText',AddText.Text);
+    //WriteBool   ('wwwgenerator','DoNotGenerateTableOfCon',DoNotGenerateTableOfCon.Checked);
+    //WriteString ('wwwgenerator','RoleName',fmain.CONROLE_VALUE.text);
+    //WriteBool   ('wwwgenerator','Groups',Groups.Checked);
+    //WriteBool   ('wwwgenerator','Resources',Resources.Checked);
+    //WriteBool   ('wwwgenerator','Lecturers',Lecturers.Checked);
+    //fsettings.FormShow(nil);
+    //fsettings.Save( extractFileDir(saveDialog.FileName)+'/settings.ini' );
+    //WriteString ('wwwgenerator','PrintSettingsFileName',extractFileDir(saveDialog.FileName)+'/settings.ini');
+  end;
+  iniFile.Free;
+
+  AssignFile(f, extractFileDir(saveDialog.FileName)+'/runMe.bat' );
+  reWrite(f);
+
+  writeLn(f, '"'+ApplicationDir + '\' + 'planowanie.exe" '+userName+' '+uutilityparent.EncryptShortString(1, 'PASSWORD:'+password, 'SoftwareFactory')+' '+DBname+' "inifile='+ saveDialog.FileName +'"');
+  closeFile(f);
+
+  self.saveToIni( extractFileDir(saveDialog.FileName)+'/setup.ini' );
+
+  s :=
+  'Pliki zosta³y pomyœlnie zapisane.'+cr+
+  'Teraz lub póŸniej mo¿esz rozpocz¹æ eksport uruchamiaj¹c plik runMe.'+cr+
+  'Spowoduje to automatyczne odœwie¿enie danych, bez potrzeby recznego uruchamiania programu.'+cr+
+  'Mo¿esz te¿ zaharmonogramowaæ automatyczne tworzenie rozk³adów za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
+
+  info(s);
 end;
 
 end.

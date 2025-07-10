@@ -14,6 +14,8 @@ procedure GetEnabledLGR(ConLecturer, ConGroup, ConRoom, ConSubject, ConForm, Own
                         const objectType : string = ''
                        );
 function getWhereClause ( tableName  : string; const tableAlias : String = ''; const columnName : String = 'ID'): string;
+
+Var PeriodSelectionDsp : shortString;
 function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : String = '') : string;
 function getResourcesByType(pResCatId : string; pResCatIds : string; pdesc : string) : string;
 function repeatString(pStr : string; pcnt : integer; pSep : string) : string;
@@ -241,12 +243,13 @@ function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : S
   var  HOURS_PER_DAY, DateFrom, DateTo : string;
        days : string;
   begin
-    if  (periodSelector=previousperiodSelector) and (previoustablePrefix=tablePrefix) then begin
-      result :=  previousResult;
-      exit;
-    end;
+    //if  (periodSelector=previousperiodSelector) and (previoustablePrefix=tablePrefix) then begin
+    //  result :=  previousResult;
+    //  exit;
+    //end;
 
     days := '';
+    PeriodSelectionDsp := '';
     result := '0=0';
     if periodSelector = '' then exit;
 
@@ -267,14 +270,15 @@ function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : S
       DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
       DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
 
-      if QWork.FieldByName('SHOW_MON').AsString = '+' then days := merge(days, '1', ',');
-      if QWork.FieldByName('SHOW_TUE').AsString = '+' then days := merge(days, '2', ',');
-      if QWork.FieldByName('SHOW_WED').AsString = '+' then days := merge(days, '3', ',');
-      if QWork.FieldByName('SHOW_THU').AsString = '+' then days := merge(days, '4', ',');
-      if QWork.FieldByName('SHOW_FRI').AsString = '+' then days := merge(days, '5', ',');
-      if QWork.FieldByName('SHOW_SAT').AsString = '+' then days := merge(days, '6', ',');
-      if QWork.FieldByName('SHOW_SUN').AsString = '+' then days := merge(days, '7', ',');
-      if days = '1,2,3,4,5,6,7' then days := '';
+      if QWork.FieldByName('SHOW_MON').AsString = '+' then begin days := merge(days, '1', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'pon.', ','); end;
+      if QWork.FieldByName('SHOW_TUE').AsString = '+' then begin days := merge(days, '2', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'wt.', ','); end;
+      if QWork.FieldByName('SHOW_WED').AsString = '+' then begin days := merge(days, '3', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'œr.', ','); end;
+      if QWork.FieldByName('SHOW_THU').AsString = '+' then begin days := merge(days, '4', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'czw.', ','); end;
+      if QWork.FieldByName('SHOW_FRI').AsString = '+' then begin days := merge(days, '5', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'pt.', ','); end;
+      if QWork.FieldByName('SHOW_SAT').AsString = '+' then begin days := merge(days, '6', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'sob.', ','); end;
+      if QWork.FieldByName('SHOW_SUN').AsString = '+' then begin days := merge(days, '7', ','); PeriodSelectionDsp := merge(PeriodSelectionDsp, 'nie.', ','); end;
+      if days = '1,2,3,4,5,6,7' then begin days := '';  PeriodSelectionDsp:= ''; end;
+      if (not isBlank(PeriodSelectionDsp)) then PeriodSelectionDsp:= 'Tylko: ' + PeriodSelectionDsp;
 
       HOURS_PER_DAY := QWork.FieldByName('HOURS_PER_DAY').AsString;
     End;

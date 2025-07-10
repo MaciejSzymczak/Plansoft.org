@@ -1000,6 +1000,7 @@ type
     procedure GenerateWWW(pgentype : integer);
     procedure commandLineWwwGenerator (inifilename : string);
     procedure commandLineGrouping     (inifilename : string);
+    procedure commandLineMatrix     (inifilename : string);
     Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
     procedure updateLeftPanel;
     procedure HighLightGrid;
@@ -4017,6 +4018,32 @@ begin
   end;
 end;
 
+procedure TFMain.commandLineMatrix     (inifilename : string);
+var exportMethod : shortstring;
+    filename     : tfilename;
+begin
+  silentMode := true;
+  with FGrouping do begin
+    info('TODO!!!')
+    show;
+    LoadFromIni( inifilename );
+    BRefreshClick(BRefresh);
+
+    exportMethod := uutilityparent.LoadFromIni(inifilename , 'grouping', 'exportMethod','');
+    filename     := uutilityparent.LoadFromIni(inifilename , 'grouping', 'filename','');
+
+    if exportMethod = 'txt'                            then SaveAsTxt( filename );
+    if exportMethod = 'html'                           then SaveAsHtml( filename );
+    if exportMethod = 'csv'                            then SaveAsCsv( filename );
+    if exportMethod = 'LEC_UTILIZATION_SEPARATE_LINE'  then generateReport (LEC_UTILIZATION, true,  true, filename);
+    if exportMethod = 'LEC_UTILIZATION'                then generateReport (LEC_UTILIZATION, false, true, filename);
+    if exportMethod = 'STUDENTHOURS_SEPARATE_LINE'     then generateReport (STUDENTHOURS,    true,  true, filename);
+    if exportMethod = 'STUDENTHOURS'                   then generateReport (STUDENTHOURS,    false, true, filename);
+
+  end;
+end;
+
+
 procedure TFMain.commandLineWwwGenerator ( inifilename : string );
 var  iniFile : tinifile;
      pperiodName, pRoleName     : string[255];
@@ -4147,6 +4174,14 @@ Var aUserName, aPassword, aDBName : ShortString;
           commandLineGrouping(  arguments );
           close;
         end;
+
+
+        if initype = 'matric' then
+        begin
+          commandLineMatrix(  arguments );
+          close;
+        end;
+
       end;
 
   function decryptPassword (p : string) : string;
@@ -7218,7 +7253,7 @@ begin
   end;
   self.AlphaBlend := true;
   self.AlphaBlendValue := 200;
-    If Question('Zakoñczyæ dzia³anie aplikacji?') = ID_NO Then begin
+    If Question('Zakoñczyæ dzia³anie Aplikacji?') = ID_NO Then begin
       CanClose := False;
       self.AlphaBlendValue := 255;
     end;
@@ -7900,6 +7935,8 @@ begin
       fmatrix.Caption := 'Tabela przestawna: ' + treeview1.Selected.Text
   else
       fmatrix.Caption := 'Tabela przestawna: ' + (sender as tmenuitem).Caption;
+
+  if (fmatrix.Caption='Tabela przestawna: &Tabela przestawna') then fmatrix.Caption := 'Tabela przestawna';
 
   fmatrix.defaultSchema := 'CUSTOM';
   FMatrix.ShowModal;
