@@ -3,7 +3,6 @@ unit UFMatrix;
 interface
    //@@@
    //licznik zajec ( zliczaj unikatowe classes.id)
-    //command line
    //ka¿da rzecz w oddzielnym pliku
        //info o plansoft org pod kazda tabela
    //kilka rzeczy w jednej linii
@@ -154,6 +153,10 @@ type
     BGenerateBatch: TMenuItem;
     N4: TMenuItem;
     SaveDialog1: TSaveDialog;
+    perId: TEdit;
+    PerLabel: TLabel;
+    perId_Value: TEdit;
+    PerClean: TSpeedButton;
     procedure CONLChange(Sender: TObject);
     procedure CONRChange(Sender: TObject);
     procedure CONGChange(Sender: TObject);
@@ -204,6 +207,9 @@ type
     procedure source_date_fromChange(Sender: TObject);
     procedure source_date_toChange(Sender: TObject);
     procedure BGenerateBatchClick(Sender: TObject);
+    procedure PerCleanClick(Sender: TObject);
+    procedure perId_ValueClick(Sender: TObject);
+    procedure perId_ValueChange(Sender: TObject);
   private
      defaultText : string;
      sqlFlexColumns : string;
@@ -215,9 +221,11 @@ type
   public
      periodClause : string;
      defaultSchema : shortstring;
+     outFileName : string;
      procedure loadFromIni ( inifilename : tfilename );
      procedure saveToIni ( inifilename : tfilename );
      procedure generate (prog : string);
+     procedure loadPeriod (perId_ : shortString);
   end;
 
 var
@@ -238,6 +246,7 @@ begin
   PeriodSelectionDsp.Caption := '';
   ignoreSave := false;
   defSettingsFileName := UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.' + Self.Name + '.defSettings.ini';
+  outFileName := uutilityParent.ApplicationDocumentsPath + 'temp.htm';
 end;
 
 
@@ -1146,7 +1155,7 @@ var
 
 begin
     try
-    assignFile(f,uutilityParent.ApplicationDocumentsPath + 'temp.htm');
+    assignFile(f,outFileName);
     rewrite(f);
     closeFile(f);
     except
@@ -1410,7 +1419,7 @@ begin
 
     UpdStatus('Usuwanie duplikatów');
     weeklyTables.merge(noHideFlag.Checked);
-    assignFile(f,uutilityParent.ApplicationDocumentsPath + 'temp.htm');
+    assignFile(f,outFileName);
     rewrite(f);
     UpdStatus('Zapis danych do pliku');
     writeLn(f,  weeklyTables.getBody(noHideFlag.Checked, rowSpanFlag.checked, colSpanFlag.Checked) );
@@ -1421,8 +1430,11 @@ begin
     finalize( weeklyTables );
 
     UpdStatus('');
-    If isBlank(Prog) Then UUTilityParent.ExecuteFile( uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'','',SW_SHOWMAXIMIZED)
-                     Else UUTilityParent.ExecuteFile(Prog, uutilityParent.ApplicationDocumentsPath + 'temp.htm' ,'',SW_SHOWMAXIMIZED);
+
+    if fmain.silentMode then exit;
+
+    If isBlank(Prog) Then UUTilityParent.ExecuteFile( outFileName ,'','',SW_SHOWMAXIMIZED)
+                     Else UUTilityParent.ExecuteFile(Prog, outFileName ,'',SW_SHOWMAXIMIZED);
 
 end;
 
@@ -1440,8 +1452,9 @@ begin
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
             , chbShowAll, noHideFlag, rowSpanFlag, colSpanFlag, supressNAValuesFlag
-            , ChbcntMode
+            , ChbcntMode, perId
             ]);
+  loadPeriod( perId.Text );
 end;
 
 procedure TFMatrix.saveToIni ( inifilename : tfilename );
@@ -1453,7 +1466,7 @@ begin
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , Column, title, subtitle, subcolumn, color, row, row2, row3, row4, row5, row6, cell1, cell2, cell3, cell4, cell5, cell6
             , chbShowAll, noHideFlag, rowSpanFlag, colSpanFlag, supressNAValuesFlag
-            , ChbcntMode
+            , ChbcntMode, perId
             ]);
 end;
 
@@ -1536,7 +1549,7 @@ procedure TFMatrix.MenuItem3Click(Sender: TObject);
 begin
   source_date_from.Date := now;
   source_date_to.Date := now;
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
@@ -1544,7 +1557,7 @@ procedure TFMatrix.Wczoraj1Click(Sender: TObject);
 begin
   source_date_from.Date := now-1;
   source_date_to.Date := now-1;
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
@@ -1552,7 +1565,7 @@ procedure TFMatrix.Przedwczoraj1Click(Sender: TObject);
 begin
   source_date_from.Date := now-2;
   source_date_to.Date := now-2;
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
@@ -1560,7 +1573,7 @@ procedure TFMatrix.Cdesc3Click(Sender: TObject);
 begin
   source_date_from.Date := now+1;
   source_date_to.Date := now+1;
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
@@ -1568,35 +1581,53 @@ procedure TFMatrix.Cdesc4Click(Sender: TObject);
 begin
   source_date_from.Date := now+2;
   source_date_to.Date := now+2;
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
+
+procedure TFMatrix.loadPeriod (perId_ : shortString);
+begin
+    if (perId_='') then exit;
+    With DModule do begin
+        perId.Text := perId_;
+        try
+        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''), TO_CHAR(DATE_FROM,''MM''), TO_CHAR(DATE_FROM,''DD''), TO_CHAR(DATE_TO,''YYYY''), TO_CHAR(DATE_TO,''MM''), TO_CHAR(DATE_TO,''DD''), NAME FROM PERIODS WHERE ID='+ perId.Text);
+        except {ignore error if any}  end;
+        if QWork.IsEmpty then begin
+         PerCleanClick(nil);
+        end
+        else begin
+          perId_Value.text := QWork.Fields[6].AsString;
+          source_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
+          source_date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
+          periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + perId.Text ,'CLASSES.');
+          PeriodSelectionDsp.Caption := Ucommon.PeriodSelectionDsp;
+          perId_Value.Visible := true;
+          PerClean.Visible := true;
+          PerLabel.Visible := true;
+        end;
+    End;
+end;
+
 procedure TFMatrix.Wybierzsemestr1Click(Sender: TObject);
-Var KeyValue : ShortString;
+var perId_ : shortString;
 begin
   inherited;
-  KeyValue := fmain.conPeriod.Text;
-  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
-    With DModule do begin
-        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD'') FROM PERIODS WHERE ID='+KeyValue);
-        source_date_from.Date := EncodeDate(QWork.Fields[0].AsInteger,QWork.Fields[1].AsInteger,QWork.Fields[2].AsInteger);
-        source_date_to.Date := EncodeDate(QWork.Fields[3].AsInteger,QWork.Fields[4].AsInteger,QWork.Fields[5].AsInteger);
-        periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + KeyValue ,'CLASSES.');
-        PeriodSelectionDsp.Caption := Ucommon.PeriodSelectionDsp;
-    End;
-  End;
+  perId_ := fmain.conPeriod.Text;
+  If PERIODSShowModalAsSelect( perId_ ) = mrOK Then loadPeriod (perId_);
 end;
+
 
 procedure TFMatrix.source_date_fromChange(Sender: TObject);
 begin
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
 procedure TFMatrix.source_date_toChange(Sender: TObject);
 begin
-  periodClause := '';
+  PerCleanClick(nil);
   PeriodSelectionDsp.Caption := '';
 end;
 
@@ -1605,44 +1636,60 @@ var iniFile : TIniFile;
     s : string;
     f : textFile;
 begin
+  if (perId.Text='') then begin
+    Info('Najpierw wybierz semestr naciskaj¹c przycisk Wybierz | Wybierz semestr');
+    exit;
+  end;
+  saveDialog.fileName := 'matrix.ini';
   if not saveDialog.Execute then exit;
-
-  //1. jakos zapisz wybrany semestr do INI
-  //2. Dokoncz TFMain.commandLineMatrix  - zaladuj ini, uruchom, zamknij
 
   iniFile := TIniFile.Create( saveDialog.FileName );
   With iniFile do begin
     WriteString ('initype','initype','matrix');
-    WriteString ('wwwgenerator','PeriodName','PeriodName');
-    //WriteInteger('wwwgenerator','GenType',genType.ItemIndex);
-    //WriteString ('wwwgenerator','DefaultFolder',Folder.Text);
-    //WriteString ('wwwgenerator','AddText',AddText.Text);
-    //WriteBool   ('wwwgenerator','DoNotGenerateTableOfCon',DoNotGenerateTableOfCon.Checked);
-    //WriteString ('wwwgenerator','RoleName',fmain.CONROLE_VALUE.text);
-    //WriteBool   ('wwwgenerator','Groups',Groups.Checked);
-    //WriteBool   ('wwwgenerator','Resources',Resources.Checked);
-    //WriteBool   ('wwwgenerator','Lecturers',Lecturers.Checked);
-    //fsettings.FormShow(nil);
-    //fsettings.Save( extractFileDir(saveDialog.FileName)+'/settings.ini' );
-    //WriteString ('wwwgenerator','PrintSettingsFileName',extractFileDir(saveDialog.FileName)+'/settings.ini');
+    WriteString ('matrix','setup', extractFileDir(saveDialog.FileName)+'\setup.ini' );
+    WriteString ('matrix','outFileName', uutilityParent.ApplicationDocumentsPath + 'temp.htm' );
+
   end;
   iniFile.Free;
 
-  AssignFile(f, extractFileDir(saveDialog.FileName)+'/runMe.bat' );
+  AssignFile(f, extractFileDir(saveDialog.FileName)+'\runMe.bat' );
   reWrite(f);
 
   writeLn(f, '"'+ApplicationDir + '\' + 'planowanie.exe" '+userName+' '+uutilityparent.EncryptShortString(1, 'PASSWORD:'+password, 'SoftwareFactory')+' '+DBname+' "inifile='+ saveDialog.FileName +'"');
   closeFile(f);
 
-  self.saveToIni( extractFileDir(saveDialog.FileName)+'/setup.ini' );
+  self.saveToIni( extractFileDir(saveDialog.FileName)+'\setup.ini' );
 
   s :=
-  'Pliki zosta³y pomyœlnie zapisane.'+cr+
-  'Teraz lub póŸniej mo¿esz rozpocz¹æ eksport uruchamiaj¹c plik runMe.'+cr+
-  'Spowoduje to automatyczne odœwie¿enie danych, bez potrzeby recznego uruchamiania programu.'+cr+
-  'Mo¿esz te¿ zaharmonogramowaæ automatyczne tworzenie rozk³adów za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
+  'Pliki do automatycznej publikacji (CLI) s¹ gotowe!'+cr+
+  'Uruchom plik runMe.bat'+cr+
+  'Mo¿esz zaharmonogramowaæ automatyczne uruchomienie za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
 
   info(s);
+end;
+
+procedure TFMatrix.PerCleanClick(Sender: TObject);
+begin
+  inherited;
+  perId.Text := '';
+  perId_Value.Text := '';
+  perId.Visible := false;
+  perId_Value.Visible := false;
+  PerClean.Visible := false;
+  PerLabel.Visible := false;
+  periodClause := '';
+  PeriodSelectionDsp.Caption := '';
+end;
+
+procedure TFMatrix.perId_ValueClick(Sender: TObject);
+begin
+ Wybierzsemestr1Click(nil);
+end;
+
+procedure TFMatrix.perId_ValueChange(Sender: TObject);
+begin
+  inherited;
+  PerClean.Visible := (sender as tedit).Text <> '';
 end;
 
 end.

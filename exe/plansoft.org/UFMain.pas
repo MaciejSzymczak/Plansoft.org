@@ -4019,27 +4019,24 @@ begin
 end;
 
 procedure TFMain.commandLineMatrix     (inifilename : string);
-var exportMethod : shortstring;
-    filename     : tfilename;
+var  iniFile : tinifile;
+     exportMethod : shortstring;
+     setupFileName, poutFileName     : tfilename;
 begin
+ iniFile := TIniFile.Create( inifilename );
+ With iniFile do begin
+   setupFileName := ReadString ('matrix','setup','');
+   poutFileName   := ReadString ('matrix','outFileName','');
+ end;
+
+ iniFile.Free;
+
   silentMode := true;
-  with FGrouping do begin
-    info('TODO!!!')
-    show;
-    LoadFromIni( inifilename );
-    BRefreshClick(BRefresh);
-
-    exportMethod := uutilityparent.LoadFromIni(inifilename , 'grouping', 'exportMethod','');
-    filename     := uutilityparent.LoadFromIni(inifilename , 'grouping', 'filename','');
-
-    if exportMethod = 'txt'                            then SaveAsTxt( filename );
-    if exportMethod = 'html'                           then SaveAsHtml( filename );
-    if exportMethod = 'csv'                            then SaveAsCsv( filename );
-    if exportMethod = 'LEC_UTILIZATION_SEPARATE_LINE'  then generateReport (LEC_UTILIZATION, true,  true, filename);
-    if exportMethod = 'LEC_UTILIZATION'                then generateReport (LEC_UTILIZATION, false, true, filename);
-    if exportMethod = 'STUDENTHOURS_SEPARATE_LINE'     then generateReport (STUDENTHOURS,    true,  true, filename);
-    if exportMethod = 'STUDENTHOURS'                   then generateReport (STUDENTHOURS,    false, true, filename);
-
+  with FMatrix do begin
+    Show;
+    loadFromIni (setupFileName);
+    outFileName := poutFileName;
+    generate('');
   end;
 end;
 
@@ -4176,7 +4173,7 @@ Var aUserName, aPassword, aDBName : ShortString;
         end;
 
 
-        if initype = 'matric' then
+        if initype = 'matrix' then
         begin
           commandLineMatrix(  arguments );
           close;
