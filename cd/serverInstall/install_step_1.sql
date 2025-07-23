@@ -69,3 +69,4 @@ begin
 end;
 /
 
+create or replace TYPE "T_NUMBER_LIST" is table of number;
