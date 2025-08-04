@@ -187,6 +187,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function killSessions return varchar2;
   
   FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2;
+  PROCEDURE clone_holidays (source_per_id IN NUMBER,target_per_id    IN NUMBER,delete_target   varchar2);
 
 end planner_utils;
 /
@@ -2327,6 +2328,27 @@ EXCEPTION
         RETURN 'ERROR: ' || SQLERRM;
 END;
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+PROCEDURE clone_holidays (source_per_id IN NUMBER,target_per_id    IN NUMBER,delete_target   varchar2)
+IS
+    currrec holiday_days%ROWTYPE;
+BEGIN
+    if delete_target='Y' then delete from holiday_days where per_id= target_per_id; end if;
+    FOR rec IN (SELECT * FROM holiday_days WHERE per_id = source_per_id
+     and (day, hour) in (
+       SELECT day, hour FROM holiday_days WHERE per_id = source_per_id
+       minus
+       SELECT day, hour FROM holiday_days WHERE per_id = target_per_id
+       )
+    
+    ) LOOP
+        currrec := rec;
+        currrec.id := RES_SEQ.NEXTVAL;
+        currrec.per_id := target_per_id;
+
+        INSERT INTO holiday_days VALUES currrec;
+    END LOOP;
+END;
  
 end planner_utils;
 /

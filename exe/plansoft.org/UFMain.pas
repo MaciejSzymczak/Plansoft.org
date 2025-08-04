@@ -612,6 +612,10 @@ type
     MenuItem11: TMenuItem;
     CLASSES_ALLOWED: TCheckBox;
     Wzbogacaniedanych1: TMenuItem;
+    CopyDays: TBitBtn;
+    PPCopyDays: TPopupMenu;
+    Przedskopiowanieskasujistniajcedniwolne1: TMenuItem;
+    Nieusuwajistniajcedniwolne1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -964,6 +968,9 @@ type
     procedure MenuItem11Click(Sender: TObject);
     procedure CLASSES_ALLOWEDClick(Sender: TObject);
     procedure Wzbogacaniedanych1Click(Sender: TObject);
+    procedure Przedskopiowanieskasujistniajcedniwolne1Click(
+      Sender: TObject);
+    procedure Nieusuwajistniajcedniwolne1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1004,6 +1011,7 @@ type
     Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
     procedure updateLeftPanel;
     procedure HighLightGrid;
+    procedure CopyPeriodDays(deleteExisting : boolean);
   public
     CanShow            : boolean;
     CanBuildCalendar   : boolean;
@@ -1930,7 +1938,8 @@ procedure TFMain.RefreshGrid;
  Begin
   GridPanel.Visible := V;
   filterPanel.Visible := BViewByCrossTable.Down;
-  Legend.Visible := V;
+  Legend.Visible := TabViewType.TabIndex <4;
+  Shape7a.Visible := TabViewType.TabIndex <4;
   bAddClass.Visible := V;
   bAddClass.Enabled := canInsert;
   bmoveLeft.Enabled := canInsert and canDelete;
@@ -1952,12 +1961,13 @@ procedure TFMain.RefreshGrid;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
   bclearselection.Visible := V;
-  bconflictspopup.Visible := V;
+  bconflictspopup.Visible := TabViewType.TabIndex <4;
+  GoToDate.Visible := TabViewType.TabIndex <4;
   zoomIn.Visible := V;
   zoomOut.Visible := V;
   bwww.Visible := V;
-  BViewByWeek.Visible := V;
-  BViewByCrossTable.Visible := V;
+  BViewByWeek.Visible := TabViewType.TabIndex <4;
+  BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
   bmoveDown.Visible := v;
   bmoveUp.Visible := v;
   bmoveLeft.Visible := v;
@@ -6720,6 +6730,8 @@ begin
  if btn.Name = 'selectFill'    then fmain.FillPopup.Popup(Point.X,Point.Y); 
  if btn.Name = 'BViewByCrossTable' then fmain.FindRGL.Popup(Point.X,Point.Y);
  if btn.Name = 'Preview'       then fmain.PPreview.Popup(Point.X,Point.Y);
+ if btn.Name = 'CopyDays'       then PPCopyDays.Popup(Point.X,Point.Y);
+
 end;
 
 procedure TFMain.MenuItem1Click(Sender: TObject);
@@ -8855,7 +8867,8 @@ begin
    CalViewPanel.BringToFront;
    BShowCellLayout.Visible := false;
    setParent(nil);
-   Flegend.Hide;
+   Legend.Down := false;
+   LegendClick(nil);
  end else begin
    BShowCellLayout.Visible := true;
    parentPanel := LeftPanel;
@@ -8881,6 +8894,7 @@ end;
 procedure TFMain.TabViewTypeChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
+  Legend.Visible := NewTab <4;
   AllowChange := true;
   if (not isBlank(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
 end;
@@ -9759,6 +9773,38 @@ end;
 procedure TFMain.Wzbogacaniedanych1Click(Sender: TObject);
 begin
   FDataEnrichment.showmodal;
+end;
+
+procedure TFMain.CopyPeriodDays(deleteExisting: boolean);
+Var KeyValue : ShortString;
+begin
+  inherited;
+  KeyValue := conPeriod.Text;
+  If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+
+    with dmodule.QWork do begin
+      SQL.Clear;
+      SQL.Add('begin planner_utils.clone_holidays (:source_per_id, :target_per_id, :delete_target); end;');
+      Parameters.ParamByName('source_per_id').value := KeyValue;
+      Parameters.ParamByName('target_per_id').value := conPeriod.Text;
+      Parameters.ParamByName('delete_target').value := iif(deleteExisting, 'Y','N');
+      execSQL;
+    end;
+
+    DeepRefreshImmediate('DeepRefreshButtonClick');
+  End;
+end;
+
+procedure TFMain.Przedskopiowanieskasujistniajcedniwolne1Click(
+  Sender: TObject);
+begin
+ DModule.SQL('BEGIN delete from holiday_days where per_id='+conPeriod.Text+'; commit; END;');
+ DeepRefreshImmediate('DeepRefreshButtonClick');
+end;
+
+procedure TFMain.Nieusuwajistniajcedniwolne1Click(Sender: TObject);
+begin
+  CopyPeriodDays(false);
 end;
 
 initialization

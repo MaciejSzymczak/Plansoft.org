@@ -215,7 +215,7 @@ type
      sqlFlexColumns : string;
      defSettingsFileName : string;
      ignoreSave : boolean;
-     procedure UpdStatus(S : String);
+     procedure UpdStatus(S : String; pct : integer);
      function  saveSettings :boolean;
      function  loadSettings :boolean;
   public
@@ -236,7 +236,7 @@ implementation
 uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
   UFProgramSettings, UFIN_LINESGenerator, UFBrowseLECTURERS,
   uFBrowseGROUPS, uFBrowsePERIODS, UFBrowseSUBJECTS, uFBrowseFORMS,
-  UFBrowseROOMS, UWeeklyTable;
+  UFBrowseROOMS, UWeeklyTable, UProgress;
 
 {$R *.DFM}
 
@@ -869,11 +869,14 @@ begin
 
 end;
 
-Procedure TFMatrix.UpdStatus(S : String);
+Procedure TFMatrix.UpdStatus(S : String; pct : integer);
 Begin
  if s = '' then S := defaultText;
  STATUS.Caption := S;
  STATUS.Refresh;
+
+ FProgress.ProgressBar.Position :=  pct;
+ FProgress.Refresh;
 End;
 
 
@@ -1197,7 +1200,8 @@ begin
 
     // ----------------- set where clause -------------------------
 
-    UpdStatus('Budowanie warunków zapytañ');
+    FProgress.Show;
+    UpdStatus('Budowanie warunków zapytañ', 10);
     dateFrom := DateToOracle(source_date_from.Datetime);
     dateTo   := DateToOracle(source_date_to.Datetime);
     if (not isBlank(periodClause)) then
@@ -1239,7 +1243,7 @@ begin
     with dmodule do begin
 
         //this code is replaced three times because I dont know how to pass "array of string" by parameter to procedure
-        UpdStatus('Pobieranie danych (1/4 Nag³ówki kolumn)');
+        UpdStatus('Pobieranie danych (1/4 Nag³ówki kolumn)', 20);
         setSQL(colColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
         resetConnection ( lookupQuery );
         lookupQuery.Open;
@@ -1255,7 +1259,7 @@ begin
             lookupQuery.next;
         end;
 
-        UpdStatus('Pobieranie danych (2/4 Nag³ówki podkolumn)');
+        UpdStatus('Pobieranie danych (2/4 Nag³ówki podkolumn)', 30);
         if colsubColumn <> 'DUMMY_NULL' then begin
             setSQL(colsubColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
             resetConnection ( lookupQuery );
@@ -1273,7 +1277,7 @@ begin
             end;
         end;
 
-        UpdStatus('Pobieranie danych (3/4 Nag³ówki wierszy)');
+        UpdStatus('Pobieranie danych (3/4 Nag³ówki wierszy)', 40);
         setSQL(colRow,colRow2,colRow3,colRow4,colRow5,colRow6);
         resetConnection ( lookupQuery );
         try
@@ -1305,7 +1309,7 @@ begin
 
     matrix_id := '';
 
-    UpdStatus('Pobieranie danych (4/4 Cia³o tabeli)');
+    UpdStatus('Pobieranie danych (4/4 Cia³o tabeli)', 50);
     mainQuery.Close;
     dm.Macros.setMacro(mainQuery,'ORDER_BY',
 	    colTitle+','
@@ -1347,7 +1351,7 @@ begin
       raise;
     end;
 
-    UpdStatus('Budowanie raportu');
+    UpdStatus('Budowanie raportu', 60);
     with dmodule do begin
         mainQuery.First;
 
@@ -1413,23 +1417,24 @@ begin
 
             mainQuery.Next;
             inc ( recordsProcessed);
-            if recordsProcessed mod 10 = 0 then  UpdStatus('Przetworzono rekordów : ' +inttoStr(recordsProcessed) );
+            if recordsProcessed mod 10 = 0 then  UpdStatus('Przetworzono rekordów : ' +inttoStr(recordsProcessed), 70 );
         end;
     end;
 
-    UpdStatus('Usuwanie duplikatów');
+    UpdStatus('Usuwanie duplikatów', 80);
     weeklyTables.merge(noHideFlag.Checked);
     assignFile(f,outFileName);
     rewrite(f);
-    UpdStatus('Zapis danych do pliku');
+    UpdStatus('Zapis danych do pliku', 90);
     writeLn(f,  weeklyTables.getBody(noHideFlag.Checked, rowSpanFlag.checked, colSpanFlag.Checked) );
     closeFile(f);
 
-    UpdStatus('Czyszczenie');
+    UpdStatus('Czyszczenie', 95);
     weeklyTables.cleanUp;
     finalize( weeklyTables );
 
-    UpdStatus('');
+    UpdStatus('',0);
+    FProgress.Hide;
 
     if fmain.silentMode then exit;
 

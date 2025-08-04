@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 57
-  Top = 57
+  Left = 123
+  Top = 109
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -4905,10 +4905,10 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 110
-        Top = 4
+        Left = 230
+        Top = 12
         Width = 497
-        Height = 97
+        Height = 117
         TabOrder = 35
         Visible = False
         object LCal: TLabel
@@ -4969,6 +4969,15 @@ inherited FMain: TFMain
           State = cbChecked
           TabOrder = 3
           OnClick = CLASSES_ALLOWEDClick
+        end
+        object CopyDays: TBitBtn
+          Left = 24
+          Top = 88
+          Width = 169
+          Height = 25
+          Caption = 'Czynno'#347'ci'
+          TabOrder = 4
+          OnClick = bdelpopupClick
         end
       end
       object SQLCreateWeeks: TMemo
@@ -8932,8 +8941,8 @@ inherited FMain: TFMain
   object FillPopup: TPopupMenu
     Images = ImageList
     TrackButton = tbLeftButton
-    Left = 864
-    Top = 88
+    Left = 832
+    Top = 72
     object FillAddIfEmpty: TMenuItem
       Caption = 'Dodaj gdy puste'
       ImageIndex = 6
@@ -9046,6 +9055,18 @@ inherited FMain: TFMain
     object MenuItem11: TMenuItem
       Caption = 'Grafik tygodniowy'
       OnClick = MenuItem11Click
+    end
+  end
+  object PPCopyDays: TPopupMenu
+    Left = 735
+    Top = 149
+    object Przedskopiowanieskasujistniajcedniwolne1: TMenuItem
+      Caption = 'Usu'#324' wszystkie dni wolne z bie'#380#261'cego semestru'
+      OnClick = Przedskopiowanieskasujistniajcedniwolne1Click
+    end
+    object Nieusuwajistniajcedniwolne1: TMenuItem
+      Caption = 'Skopiuj dni z innego semestru (dodaj do istniej'#261'cych)'
+      OnClick = Nieusuwajistniajcedniwolne1Click
     end
   end
 end
