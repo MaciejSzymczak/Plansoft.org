@@ -141,7 +141,9 @@ Var
     gridDefinition       : tGridDefinition;
 
 
+
 function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
+function getExcludedResources (Ids : string; colName : string) : string;
 
 Function GetCLASSESforL  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
 Function GetCLASSESforG  (colname, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
@@ -205,6 +207,22 @@ Begin
    result := merge(result,Buffer[t-1],';');
   result :=  merge(result,Buffer[1-1],';');
 End;
+
+function getExcludedResources (Ids : string; colName : string) : string;
+var resultString : string;
+begin
+  try
+    resultString :=  DModule.SingleValue('select planner_utils.get_excluded_res_ids(''' +Ids+ ''') result from dual');
+    if (resultString='') then result := '' else result := colName+' in ('+ resultString +')';
+  except
+    on E:exception do
+      //not installed feature
+      result := '';
+  End;
+end;
+
+
+
 
 function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
 var t : integer;

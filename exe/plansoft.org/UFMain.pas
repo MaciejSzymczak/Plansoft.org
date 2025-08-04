@@ -1208,6 +1208,8 @@ Var t : Integer;
     havingRom  : string;
     havingRom2 : string;
 
+    rid, excludedResources : String;
+
 Var L1, L2 : Integer;
 begin
   If (PER_ID = 0) Or (PER_ID = -1) Then Info('(PER_ID = 0) Or (PER_ID = -1)');
@@ -1242,29 +1244,58 @@ begin
     rcnt := WordCount(FMain.conResCat0.Text,[';']);
     r2cnt:= WordCount(FMain.CONResCat1.Text,[';']);
 
+           //todo:
+          // gui for table: check conflickts on insert
+          // checl conflict on class insert
+          // checl conflict on class insert - mass update
+          // pokaz dostepne dla pierwszego
+          // doc
+
+
     LecCond := '';
     If (not ShowFreeTermsL.Checked) or (lcnt = 0) Then {}
-    else
-      for t := 1 To lcnt Do
+    else begin
+      for t := 1 To lcnt Do begin
+        rid := ExtractWord(t,FMain.ConLecturer.Text,[';']);
         LecCond:= Merge(LecCond, 'lec_id='+ExtractWord(t,FMain.ConLecturer.Text,[';']), ' OR ');
+      end;
+      excludedResources := getExcludedResources(FMain.ConLecturer.Text,'lec_id');
+      if (excludedResources<>'') then LecCond:= Merge(LecCond, excludedResources, ' OR ');
+    end;
 
     GroCond := '';
     If (not ShowFreeTermsG.Checked) or (gcnt = 0) Then {}
-    else
-      for t := 1 To gcnt Do
-        GroCond:= Merge(GroCond, 'gro_id='+ExtractWord(t,FMain.ConGroup.Text,[';']), ' OR ');
+    else begin
+      for t := 1 To gcnt Do begin
+          rid := ExtractWord(t,FMain.ConGroup.Text,[';']);
+          GroCond:= Merge(GroCond, 'gro_id='+rid, ' OR ');
+        end;
+      excludedResources := getExcludedResources(FMain.ConGroup.Text,'gro_id');
+      if (excludedResources<>'') then GroCond:= Merge(GroCond, excludedResources, ' OR ');
+    end;
+
 
     RomCond := '';
     If (not ShowFreeTermsR.Checked) or (rcnt = 0) Then {}
-    else
-      for t := 1 To rcnt Do
+    else begin
+      for t := 1 To rcnt Do begin
+        rid := ExtractWord(t,FMain.conResCat0.Text,[';']);
         RomCond:= Merge(RomCond, 'rom_id='+ExtractWord(t,FMain.conResCat0.Text,[';']), ' OR ');
+      end;
+      excludedResources := getExcludedResources(FMain.conResCat0.Text,'rom_id');
+      if (excludedResources<>'') then RomCond:= Merge(RomCond, excludedResources, ' OR ');
+    end;
 
     ResCat1Cond := '';
     If (not ShowFreeTermsResCat1.Checked) or (r2cnt = 0) Then {}
-    else
-      for t := 1 To r2cnt Do
+    else begin
+      for t := 1 To r2cnt Do begin
+        rid := ExtractWord(t,FMain.ConResCat1.Text,[';']);
         ResCat1Cond:= Merge(ResCat1Cond, 'rom_id='+ExtractWord(t,FMain.ConResCat1.Text,[';']), ' OR ');
+      end;
+      excludedResources := getExcludedResources(FMain.ConResCat1.Text,'rom_id');
+      if (excludedResources<>'') then ResCat1Cond:= Merge(ResCat1Cond, excludedResources, ' OR ');
+    end;
 
   End;
 

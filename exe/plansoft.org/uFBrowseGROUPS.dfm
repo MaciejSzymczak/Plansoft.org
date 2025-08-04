@@ -1,24 +1,24 @@
 inherited FBrowseGROUPS: TFBrowseGROUPS
   Left = 381
-  Top = 181
+  Top = 101
   Width = 1195
-  Height = 691
+  Height = 855
   Caption = 'Grupy'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 640
+    Top = 804
     Width = 1187
   end
   inherited MainPage: TPageControl
     Width = 1187
-    Height = 640
+    Height = 804
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 811
         Top = 145
         Width = 4
-        Height = 408
+        Height = 572
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -72,7 +72,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       inherited Grid: TRxDBGrid
         Top = 145
         Width = 811
-        Height = 408
+        Height = 572
         Columns = <
           item
             Expanded = False
@@ -387,11 +387,11 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 572
+        Top = 736
         Width = 1179
       end
       inherited Panel: TPanel
-        Top = 553
+        Top = 717
         Width = 1179
         inherited StatusBar: TStatusBar
           Width = 1110
@@ -725,7 +725,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 815
         Top = 145
         Width = 364
-        Height = 408
+        Height = 572
         ActivePage = Hierarchy
         Align = alRight
         Font.Charset = EASTEUROPE_CHARSET
@@ -745,12 +745,20 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             Left = 0
             Top = 0
             Width = 337
-            Height = 400
+            Height = 564
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
               Left = 1
               Top = 186
+              Width = 335
+              Height = 8
+              Cursor = crVSplit
+              Align = alTop
+            end
+            object Splitter3: TSplitter
+              Left = 1
+              Top = 393
               Width = 335
               Height = 8
               Cursor = crVSplit
@@ -783,7 +791,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 object AddParent: TBitBtn
                   Left = 8
                   Top = 8
-                  Width = 113
+                  Width = 129
                   Height = 25
                   Caption = 'Dodaj nadrz'#281'dny'
                   TabOrder = 0
@@ -832,7 +840,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     C600}
                 end
                 object DelParent: TBitBtn
-                  Left = 128
+                  Left = 144
                   Top = 8
                   Width = 57
                   Height = 25
@@ -977,8 +985,8 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               Left = 1
               Top = 194
               Width = 335
-              Height = 205
-              Align = alClient
+              Height = 199
+              Align = alTop
               Caption = 'pdetails'
               TabOrder = 1
               object PanelORDERS: TPanel
@@ -992,7 +1000,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 163
+                Top = 157
                 Width = 333
                 Height = 41
                 Align = alBottom
@@ -1003,7 +1011,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 object AddDetail: TBitBtn
                   Left = 8
                   Top = 8
-                  Width = 113
+                  Width = 129
                   Height = 25
                   Caption = 'Dodaj podrz'#281'dny'
                   TabOrder = 0
@@ -1052,7 +1060,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     C600}
                 end
                 object delDetail: TBitBtn
-                  Left = 128
+                  Left = 144
                   Top = 8
                   Width = 65
                   Height = 25
@@ -1155,7 +1163,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 Left = 1
                 Top = 17
                 Width = 333
-                Height = 146
+                Height = 140
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -1176,13 +1184,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 OnCellClick = GDetailsCellClick
                 OnTitleClick = GridTitleClick
                 Columns = <
-                  item
-                    Expanded = False
-                    FieldName = 'LEVEL'
-                    Title.Caption = 'Poziom'
-                    Width = 0
-                    Visible = True
-                  end
                   item
                     Expanded = False
                     FieldName = 'NAME'
@@ -1206,6 +1207,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               Height = 24
               Align = alTop
               TabOrder = 2
+              Visible = False
               object Label4: TLabel
                 Left = 8
                 Top = 8
@@ -1228,6 +1230,219 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   'Potok'
                   'Struktura organizacyjna'
                   'Inne')
+              end
+            end
+            object Panel2: TPanel
+              Left = 1
+              Top = 401
+              Width = 335
+              Height = 162
+              Align = alClient
+              Caption = 'pdetails'
+              TabOrder = 3
+              object Panel6: TPanel
+                Left = 1
+                Top = 1
+                Width = 333
+                Height = 16
+                Align = alTop
+                Caption = 'Wykluczenia'
+                TabOrder = 0
+              end
+              object Panel7: TPanel
+                Left = 1
+                Top = 120
+                Width = 333
+                Height = 41
+                Align = alBottom
+                TabOrder = 1
+                object BitBtn2: TBitBtn
+                  Left = 8
+                  Top = 8
+                  Width = 129
+                  Height = 25
+                  Caption = 'Dodaj wykluczenie'
+                  TabOrder = 0
+                  OnClick = BitBtn2Click
+                  Glyph.Data = {
+                    FE040000424DFE04000000000000360000002800000011000000120000000100
+                    200000000000C804000000000000000000000000000000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600000000000000000000000000000000000000
+                    000000000000000000000000000000000000000000000000000000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFFFF000000
+                    000000000000FFFFFF0000000000000000000000000000000000FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000FFFF
+                    FF00000000000000000000000000FFFFFF0000000000C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF00008482840084828400FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C6C3C600C6C3
+                    C600C6C3C600C6C3C60000FF000000820000848284000000000000000000FFFF
+                    FF0000000000000000000000000000000000FFFFFF00FFFFFF0000000000C6C3
+                    C600C6C3C600C6C3C600C6C3C60000FF00000082000084828400FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C6C3C60000820000848284008482840000FF000000820000848284008482
+                    84008482840084828400FFFFFF00FFFFFF00FFFFFF0000000000000000000000
+                    000000000000C6C3C60000FF0000008200000082000000820000008200000082
+                    0000008200000082000000820000FFFFFF00FFFFFF00FFFFFF0000000000FFFF
+                    FF0000000000C6C3C600C6C3C60000FF000000FF000000FF000000FF00000082
+                    00000082000000FF000000FF000000FF0000FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C60000FF
+                    00000082000084828400FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C60000FF00000082000084828400C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C60000FF000000FF000000FF0000C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3C600C6C3
+                    C600}
+                end
+                object BitBtn4: TBitBtn
+                  Left = 144
+                  Top = 8
+                  Width = 65
+                  Height = 25
+                  Caption = 'Usu'#324
+                  TabOrder = 1
+                  OnClick = BitBtn4Click
+                  Glyph.Data = {
+                    DA090000424DDA0D000000000000360800002800000013000000130000000100
+                    200000000000A405000000000000000000000001000000000000000000008080
+                    8000000080000080800000800000808000008000000080008000408080004040
+                    0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
+                    FF0000FF0000FFFF0000FF000000FF00FF0080FFFF0080FF0000FFFF8000FF80
+                    80008000FF004080FF0000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000000000000000
+                    0000000000000000000000000000000000000000000000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C0000000000000000000000000000000000000000000000000000000
+                    00000000000000000000000000000000000000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFF
+                    FF00FFFFFF000000000000000000FFFFFF000000000000000000000000000000
+                    0000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF000000000000000000FFFFFF00000000000000000000000000FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    000000000000FFFFFF00000000000000000000000000FFFFFF0000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000FFFFFF00FFFFFF000000000000000000FFFFFF00000000000000
+                    00000000000000000000FFFFFF00FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000FFFFFF00FFFFFF000000FF000000
+                    800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+                    0000000000000000000000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C0000000FF00000080000000FF000000800000008000FFFFFF00FFFFFF00FFFF
+                    FF00FFFFFF00FFFFFF0000000000FFFFFF0000000000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C0000000FF000000800000008000FFFF
+                    FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000000000000000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000000080000000
+                    FF000000FF000000800000008000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+                    FF0000000000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000000080000000FF000000FF00C0C0C0000000FF000000800000008000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C0000000FF000000FF000000FF00C0C0C000C0C0C000C0C0
+                    C0000000FF000000800000008000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+                    C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
+                end
+              end
+              object GExclusions: TRxDBGrid
+                Left = 1
+                Top = 17
+                Width = 333
+                Height = 103
+                Align = alClient
+                DataSource = DSExclusions
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'MS Sans Serif'
+                Font.Style = []
+                Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit]
+                ParentFont = False
+                ParentShowHint = False
+                ShowHint = True
+                TabOrder = 2
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clWindowText
+                TitleFont.Height = -11
+                TitleFont.Name = 'MS Sans Serif'
+                TitleFont.Style = [fsBold]
+                OnCellClick = GExclusionsCellClick
+                OnTitleClick = GridTitleClick
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'res_excluded_dsp'
+                    Title.Caption = 'Nazwa'
+                    Width = 188
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'DATE_FROM'
+                    Title.Caption = 'Data Od'
+                    Width = 71
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'DATE_TO'
+                    Title.Caption = 'Data Do'
+                    Width = 100
+                    Visible = True
+                  end>
               end
             end
           end
@@ -1464,7 +1679,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Visible = False
       end
       inherited UpdPanel: TPanel
-        Top = 576
+        Top = 740
         Width = 1179
         TabOrder = 10
         inherited BUpdChild1: TBitBtn
@@ -2289,5 +2504,27 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       Caption = 'Wi'#281'cej mo'#380'liwosci'
       OnClick = Wicejmoliwo1Click
     end
+  end
+  object QExclusions: TADOQuery
+    Connection = DModule.ADOConnection
+    CursorLocation = clUseServer
+    Parameters = <
+      item
+        Name = 'id'
+        DataType = ftString
+        Size = 1
+        Value = '0'
+      end>
+    SQL.Strings = (
+      'select id,res_excluded_dsp, date_from, date_to'
+      '  from exclusions_v'
+      '  where res_id=:id')
+    Left = 52
+    Top = 300
+  end
+  object DSExclusions: TDataSource
+    DataSet = QExclusions
+    Left = 88
+    Top = 296
   end
 end

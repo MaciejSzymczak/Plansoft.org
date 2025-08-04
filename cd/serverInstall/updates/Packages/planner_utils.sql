@@ -185,6 +185,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function get_group_types (pclass_id number) return varchar2;
   
   function killSessions return varchar2;
+  
+  FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2;
 
 end planner_utils;
 /
@@ -452,9 +454,14 @@ create or replace package body planner_utils is
       where day between pdate_from and pdate_to;
      classes_deleted := sql%rowcount;
    else
-     select count(*) into classes_deleted 
+     select count(1) into classes_deleted 
        from classes 
       where day between pdate_from and pdate_to;
+     --delete 
+     --  from classes 
+     -- where day between pdate_from and pdate_to;
+     --classes_deleted := sql%rowcount;
+     -- raise_application_error(-20000, 'classes_deleted:'||classes_deleted ||' '|| to_char(pdate_from,'yyyy-mm-dd') ||' '|| to_char(pdate_to,'yyyy-mm-dd'));
    end if;  
 
    if del_sub_flag = 'Y' then
@@ -2292,6 +2299,34 @@ create or replace package body planner_utils is
    raise;  
  end delete_class;
  
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------------------
+FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2
+IS
+    v_result VARCHAR2(4000);
+BEGIN
+    SELECT LISTAGG(res_id_excluded, ',') 
+           WITHIN GROUP (ORDER BY res_id_excluded)
+    INTO v_result
+    FROM (
+        SELECT DISTINCT res_id_excluded
+        FROM exclusions
+        WHERE TRUNC(SYSDATE) BETWEEN NVL(DATE_FROM,TRUNC(SYSDATE)) AND NVL(DATE_TO,TRUNC(SYSDATE))
+          AND res_id IN (
+                SELECT TO_NUMBER(REGEXP_SUBSTR(REPLACE(p1, ',', ';'), '[^;]+', 1, LEVEL))
+                FROM dual
+                CONNECT BY LEVEL <= REGEXP_COUNT(REPLACE(p1, ',', ';'), ';') + 1
+          )
+    );
+
+    RETURN v_result;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    WHEN OTHERS THEN
+        RETURN 'ERROR: ' || SQLERRM;
+END;
+
+ 
 end planner_utils;
 /
-

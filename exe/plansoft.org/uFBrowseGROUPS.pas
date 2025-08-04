@@ -97,6 +97,15 @@ type
     LINTEGRATION_ID: TLabel;
     INTEGRATION_ID: TDBEdit;
     StructCleanUp: TMemo;
+    QExclusions: TADOQuery;
+    DSExclusions: TDataSource;
+    Splitter3: TSplitter;
+    Panel2: TPanel;
+    Panel6: TPanel;
+    Panel7: TPanel;
+    BitBtn2: TBitBtn;
+    BitBtn4: TBitBtn;
+    GExclusions: TRxDBGrid;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -155,6 +164,9 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure GDetailsCellClick(Column: TColumn);
     procedure GParentsCellClick(Column: TColumn);
+    procedure BitBtn4Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    procedure GExclusionsCellClick(Column: TColumn);
   private
     Counter  : Integer;
     priorPos : String;
@@ -388,6 +400,16 @@ begin
     QParents.Parameters.paramByName('STR_NAME_LOV2').value   := getStrNameLov;
   End;
   QParents.Open;
+
+  QExclusions.Close;
+  If Query.IsEmpty Then Begin
+    QExclusions.Parameters.paramByName('ID').value   := '-1';
+  End Else Begin
+    ID := NVL(Query.FieldByName('ID').AsString,'-1');
+    QExclusions.Parameters.paramByName('ID').value   := ID;
+  End;
+  QExclusions.Open;
+
 
   Counter := 1;
 end;
@@ -781,6 +803,61 @@ procedure TFBrowseGROUPS.GParentsCellClick(Column: TColumn);
 var text : String;
 begin
    text := GParents.DataSource.DataSet.Fields[2].AsString;
+   CopyToClipboard(text);
+   FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
+end;
+
+procedure TFBrowseGROUPS.BitBtn4Click(Sender: TObject);
+var id : shortString;
+    parentId : shortString;
+begin
+ id := QExclusions.FieldByName('id').AsString;
+ if id='' then exit;
+ if question
+    ('Czy na pewno chcesz usun¹æ zaznaczony rekord ?') = id_yes
+ then begin
+  dmodule.SQL('delete from exclusions where id = '  + id );
+  refreshDetails;
+ end;
+end;
+
+procedure TFBrowseGROUPS.BitBtn2Click(Sender: TObject);
+Var
+    keyValues: ShortString;
+    keyValue : ShortString;
+    resultValue : string;
+    mr : tmodalresult;
+    pexclusive_parent : shortString;
+    maxt, t : integer;
+    checkSQL : string;
+    currentParent : string;
+begin
+  keyValue := '';
+  If LookupWindow(True, DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+
+   FProgress.Show;
+   maxt := wordCount(KeyValues, [',']);
+   for t := 1 to maxt do begin
+   FProgress.ProgressBar.Position :=  round(t *  FProgress.ProgressBar.Max / maxT);
+   FProgress.Refresh;
+   KeyValue := extractWord(t,KeyValues, [',']);
+    with dmodule.QWork do begin
+      SQL.Clear;
+      SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
+      Parameters.ParamByName('res_id').value     := query.FieldByName('ID').asString;;
+      Parameters.ParamByName('res_id_excluded').value := keyValue;
+      execSQL;
+    end;
+   end;
+   FProgress.Hide;
+
+   refreshDetails;
+  end;
+end;
+
+procedure TFBrowseGROUPS.GExclusionsCellClick(Column: TColumn);
+begin
+   text := GExclusions.DataSource.DataSet.Fields[0].AsString;
    CopyToClipboard(text);
    FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ text);
 end;
