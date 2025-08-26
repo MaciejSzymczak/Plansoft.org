@@ -457,12 +457,12 @@ begin
   If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
     _CONPERIOD := Ucommon.getWhereClausefromPeriod(NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text));
 
-  _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
-  _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
-  _CONR := GetCLASSESforR('CLASSES.ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
-  _CONL2 := GetCLASSESforL('CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
-  _CONG2 := GetCLASSESforG('CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
-  _CONR2 := GetCLASSESforR('CLA_ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
+  _CONL := GetCLASSESforL('CLASSES.ID', 'CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
+  _CONG := GetCLASSESforG('CLASSES.ID', 'CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
+  _CONR := GetCLASSESforR('CLASSES.ID', 'CLA_ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
+  _CONL2 := GetCLASSESforL('CLA_ID', 'CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
+  _CONG2 := GetCLASSESforG('CLA_ID', 'CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
+  _CONR2 := GetCLASSESforR('CLA_ID', 'CLA_ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
 
   _CONS := '0=0';
   If                                        CONS.Text <> '' then _CONS := 'SUB_ID='+CONS.Text;

@@ -18,7 +18,8 @@ select rom.ATTRIBS_01 ||' ' || rom.name "Zasób"
    and rc.rom_id = rom.id
    and cla.day between :date_start 
                and     :date_end
-   and rom.name like ':res_name'            
+   and rom.name like ':res_name'
+	and rom.id in (select id from rooms where orguni_id in (select Id from org_units where code like '%WLO%') and attribs_01<>'13')   
 group by rom.ATTRIBS_01, rom.name, cla.hour, total_days.n
 order by 1,2,3,4  
 -- <parameter name="date_start" dataType="date" caption="Data pocz¹tkowa" value="" type="macro"/>

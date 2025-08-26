@@ -1209,9 +1209,14 @@ begin
     else
       _CONPERIOD := 'CLASSES.DAY BETWEEN '+DateFrom+' AND '+DateTo;
 
-    _CONL := GetCLASSESforL('CLASSES.ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text);
-    _CONG := GetCLASSESforG('CLASSES.ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text);
-    _CONR := GetCLASSESforR('CLASSES.ID', nvl(CONR.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RFilterType.text);
+    _CONL := '('+ GetCLASSESforL('CLASSES.ID', 'CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text) + ' AND '+
+                  GetCLASSESforL('LEC.ID', 'LEC_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LFilterType.text) + ')';
+
+    _CONG := '('+ GetCLASSESforG('CLASSES.ID', 'CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text) + ' AND '+
+                  GetCLASSESforG('GRO.ID', 'GRO_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GFilterType.text) + ')';
+
+    _CONR := '('+ GetCLASSESforR('CLASSES.ID', 'CLA_ID', nvl(CONR.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RFilterType.text) + ' AND '+
+                  GetCLASSESforR('ROM.ID', 'ROM_ID', nvl(CONR.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RFilterType.text) + ')';
 
     _CONS := '0=0';
     If                                        CONS.Text <> '' then _CONS := 'SUB_ID='+CONS.Text;
@@ -1246,7 +1251,16 @@ begin
         UpdStatus('Pobieranie danych (1/4 Nag³ówki kolumn)', 20);
         setSQL(colColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
         resetConnection ( lookupQuery );
+
+        //copyToClipboard( lookupQuery.sql.text);
+
+        try
         lookupQuery.Open;
+        except
+          copyToClipboard(lookupQuery.SQL.Text);
+          raise;
+        end;
+        
         while not lookupQuery.Eof do begin
             //if lookupQuery.fields[0].AsString <> '' then begin
                 setLength(columnValues, length(columnValues)+1);
@@ -1263,7 +1277,12 @@ begin
         if colsubColumn <> 'DUMMY_NULL' then begin
             setSQL(colsubColumn,'DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL','DUMMY_NULL');
             resetConnection ( lookupQuery );
+            try
             lookupQuery.Open;
+            except
+              copyToClipboard(lookupQuery.SQL.Text);
+              raise;
+            end;
             while not lookupQuery.Eof do begin
                 //if lookupQuery.fields[0].AsString <> '' then begin
                     setLength(subcolumnValues, length(subcolumnValues)+1);
@@ -1280,9 +1299,9 @@ begin
         UpdStatus('Pobieranie danych (3/4 Nag³ówki wierszy)', 40);
         setSQL(colRow,colRow2,colRow3,colRow4,colRow5,colRow6);
         resetConnection ( lookupQuery );
+
         try
         lookupQuery.Open;
-
         except
           copyToClipboard(lookupQuery.SQL.Text);
           raise;
@@ -1345,6 +1364,7 @@ begin
       setMacro(mainQuery,'PERMISSIONSF',_PERMISSIONSF);
     end;
     try
+    //copyToClipboard( mainQuery.sql.text);
     mainQuery.Open;
     except
       copyToClipboard(mainQuery.SQL.Text);
