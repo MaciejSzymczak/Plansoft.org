@@ -129,8 +129,36 @@ begin
 end;
 
 
+LECTURERS: dealing with not unique abbreviations in Excel file
+=====================================================
+1. drop index LEC_ABBREVIATION_I
 
-LECTURERS
+2. Import data 
+
+3. Fix
+
+	MERGE INTO lecturers t
+	USING (
+		SELECT id,
+			   abbreviation ||
+			   CASE 
+				   WHEN ROW_NUMBER() OVER (PARTITION BY abbreviation ORDER BY id) > 1 
+				   THEN '_' || ROW_NUMBER() OVER (PARTITION BY abbreviation ORDER BY id)
+			   END AS new_abbreviation
+		FROM lecturers
+	) s
+	ON (t.id = s.id)
+	WHEN MATCHED THEN
+		UPDATE SET t.abbreviation = s.new_abbreviation;
+    
+
+4.CREATE UNIQUE INDEX "PLANNER"."LEC_ABBREVIATION_I" ON "PLANNER"."LECTURERS" ("ABBREVIATION") 
+  TABLESPACE "USERS" ;
+  
+  
+
+
+LECTURERS - MERGING WITH EXISTING RECORDS
 =====================================================
 select replace(TITLE || FIRST_NAME || LAST_NAME,'XX','') abbreviation, count(1) from lecturers group by replace(TITLE || FIRST_NAME || LAST_NAME,'XX','') having count(1)>1
 select * from lecturers where LAST_NAME like 'XX%'
@@ -261,4 +289,44 @@ select * from xxmsztools_eventlog WHERE MODULE_NAME = 'MassMerge' order by id de
 
 update rooms set name = replace(name,'XX','') where name like 'XX%';
 commit;
+
+ORG_UNITS
+=====================================================
+begin
+    --data check
+    for rec in (select name from int_org_units group by name having count(1)>1) loop
+        RAISE_APPLICATION_ERROR(-20000, 'NAMES must be unique');
+    end loop;
+    -- load
+    insert into org_units (id, code, name, integration_id, STRUCT_CODE) 
+    select ORGUNI_SEQ.NEXTVAL, code, name, integration_id, code from int_org_units;
+    -- update parent
+    MERGE INTO org_units ou
+    USING (
+        select Name, parent_dsp
+        , COALESCE(
+          (select Id from org_units where code = parent_dsp ) 
+        , (select Id from org_units where integration_id = parent_dsp ) 
+        , (select Id from org_units where integration_id = parent_dsp||'00' )
+        , (select min(Id) from org_units  )
+        ) parent_id 
+        from int_org_units
+    ) src
+    ON (ou.name = src.Name)
+    WHEN MATCHED THEN
+        UPDATE SET ou.parent_id = src.parent_id;
+    --update struct_code
+    FOR i IN 1..10 LOOP
+        UPDATE org_units x
+        SET struct_code = CASE
+            WHEN x.parent_id = x.id THEN x.code
+            ELSE (
+                SELECT p.struct_code || '.' || x.code
+                FROM org_units p
+                WHERE p.id = x.parent_id
+            )
+            END;
+    END LOOP;
+   commit;
+end;
 

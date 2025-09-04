@@ -184,7 +184,7 @@ begin
       if (l_orguni='') then
         l_orguni_id :=  l_orguni_id_default
       else
-        l_orguni_id :=  dmodule.SingleValue('select id from org_units where name = '''+l_orguni+''' or code = '''+l_orguni+'''');
+        l_orguni_id :=  dmodule.SingleValue('select id from org_units where integration_id = '''+l_orguni+''' or name = '''+l_orguni+''' or code = '''+l_orguni+'''');
       l_orguni_id := nvl(l_orguni_id, l_orguni_id_default);
 
       if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
@@ -202,7 +202,7 @@ begin
             0: begin
                  dmodule.SQL(myQuery,
                              'merge into lecturers m using dual on (integration_id = :integration_id)'+
-	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id) values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id)'+
+	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id, diff_notifications) '+'values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id, ''-'')'+
                              ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
                            , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from lecturers where integration_id = :integration_id','integration_id='+integrationId);
@@ -284,13 +284,13 @@ begin
 
     uniqueCheck.Free;
 
-    if (uniqueCheckErrorFlag) then begin
-      uniqueCheckErrorMessage := 'Dane nie zosta³y zapisane, poniewa¿ ka¿dy rekord musi posiadaæ jednoznaczny skrót. Popraw proszê plik excel i spróbuj ponownie.'+cr+'Wartoœci wystêpuj¹ce w pliku wielokrotnie:'+cr+cr+uniqueCheckErrorMessage+cr+cr+'Aby u³atwiæ znalezienie rekordów do poprawienia, skopiowano ten komunikat do schowka.';
-      Info( uniqueCheckErrorMessage );
-      copyToClipboard( uniqueCheckErrorMessage );
-      dmodule.RollbackTrans;
-      Abort;
-    end;
+    //if (uniqueCheckErrorFlag) then begin
+    //  uniqueCheckErrorMessage := 'Dane nie zosta³y zapisane, poniewa¿ ka¿dy rekord musi posiadaæ jednoznaczny skrót. Popraw proszê plik excel i spróbuj ponownie.'+cr+'Wartoœci wystêpuj¹ce w pliku wielokrotnie:'+cr+cr+uniqueCheckErrorMessage+cr+cr+'Aby u³atwiæ znalezienie rekordów do poprawienia, skopiowano ten komunikat do schowka.';
+    //  Info( uniqueCheckErrorMessage );
+    //  copyToClipboard( uniqueCheckErrorMessage );
+    //  dmodule.RollbackTrans;
+    //  Abort;
+    //end;
 
     if chbTest.Checked then begin
       dmodule.RollbackTrans;
