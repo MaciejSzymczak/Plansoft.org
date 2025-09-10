@@ -1129,7 +1129,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
       //summary mode
       if (LegendMode and 1 = 1) then begin
         if presType='LEC' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         //todo:  2025.09.10 Change the query around LEC_CLA like it was done for GRO_CLA in section GRO
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1149,19 +1150,21 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
         if presType='GRO' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
                   '   , LEC_CLA'+
-                  '   , LECTURERS LEC'+
-                  '   , GRO_CLA '+   //  GRO_CLA >- CLA -< LEC_CLA >- LEC
-                  'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                  '   , LECTURERS LEC '+
+                  //'   , GRO_CLA '+
+                   //  GRO_CLA >- CLA -< LEC_CLA >- LEC
+                  //'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
+                    'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
+                    //'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND GRO_CLA.IS_CHILD = ''N'' '+
+                    //'AND GRO_CLA.IS_CHILD = ''N'' '+
+                    'AND CLA.ID in (SELECT CLA_ID FROM GRO_CLA where IS_CHILD = ''N'' and  GRO_ID in '+ChildsAndParents+' ) '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
@@ -1169,19 +1172,21 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
         if presType='ROM' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM(GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
                   '   , LEC_CLA'+
-                  '   , LECTURERS LEC'+
-                  '   , ROM_CLA '+   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
-                  'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                  '   , LECTURERS LEC '+
+                  //'   , ROM_CLA '+
+                  //  ROM_CLA >- CLA -< LEC_CLA >- LEC
+                  //'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
+                  'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
-                    'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
+                    //'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
                     'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND ROM_CLA.IS_CHILD = ''N'' '+
+                    //'AND ROM_CLA.IS_CHILD = ''N'' '+
+                    'AND CLA.ID in (SELECT CLA_ID FROM ROM_CLA where IS_CHILD = ''N'' and  ROM_ID in '+ChildsAndParents+' ) '+
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
