@@ -870,7 +870,7 @@ procedure TFSettings.lhelpClick(Sender: TObject);
 begin
   info(
     'Przy definiowaniu nag³ówka i stopki strony mo¿na u¿ywaæ znaczników HTML.'+cr+
-  'Mo¿na tak¿e u¿ywaæ symboli: %PERIOD, %LECTURER, %GROUP, %ROOM. %SUBJECT'
+  'Mo¿na tak¿e u¿ywaæ symboli: %PERIOD, %LECTURER, %GROUP, %ROOM'
  );
 
 end;

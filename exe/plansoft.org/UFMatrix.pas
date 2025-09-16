@@ -375,6 +375,9 @@ end;
 
 
 begin
+  if FormatDateTime('yyyy-mm-dd', source_date_from.Datetime) = '2000-01-01' then source_date_from.Date := now-365;
+  if FormatDateTime('yyyy-mm-dd', source_date_to.Datetime) = '3000-01-01' then source_date_to.Date := now+365;
+
     getFlexColumns;
 
     color.Items.Clear;

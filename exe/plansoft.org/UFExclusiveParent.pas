@@ -4,14 +4,15 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls;
+  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls, jpeg;
 
 type
   TFExclusiveParent = class(TFormConfig)
     exclusive_parent: TBitBtn;
     non_exclusive_parent: TBitBtn;
-    Memo1: TMemo;
-    Memo2: TMemo;
+    Memo3: TMemo;
+    Image1: TImage;
+    Image2: TImage;
   private
     { Private declarations }
   public

@@ -13,6 +13,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1185
     Height = 639
+    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1142

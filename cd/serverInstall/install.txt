@@ -45,5 +45,5 @@ Install Winscp
 	Setup and save stored session
 	Winscp : Options : Preferrences : Updates : Disable automatic updates
 Create plansoftOrgbackup.bat script for data export, zip and ftp transfer, like this one:
-	https://github.com/MaciejSzymczak/Plansoft.org/blob/master/exe/RelatedApplications/script_export_db/export_zip_and_send.bat
+	https://github.com/MaciejSzymczak/Plansoft.org/blob/master/cd/serverInstall/updates/tools/script_export_db/export_zip_and_send.bat
 Schedule the plansoftOrgbackup.bat using taskManager.

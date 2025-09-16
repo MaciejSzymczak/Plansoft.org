@@ -20,7 +20,7 @@ TABLESPACE "USERS" ;
 CREATE INDEX EXCLUSIONS_RES_ID2_I ON EXCLUSIONS (RES_ID_EXCLUDED) 
 TABLESPACE "USERS" ;
 
-CREATE OR REPLACE FORCE EDITIONABLE VIEW exclusions_v (id, res_id, res_id_excluded, date_from, date_to, res_dsp,res_excluded_dsp ) AS 
+CREATE OR REPLACE VIEW exclusions_v (id, res_id, res_id_excluded, date_from, date_to, res_dsp,res_excluded_dsp ) AS 
 select 
 id, res_id, res_id_excluded, date_from, date_to
 ,(select name from resources where id = res_id) res_dsp 

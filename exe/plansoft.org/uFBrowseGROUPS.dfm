@@ -969,13 +969,13 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Expanded = False
                     FieldName = 'PARENT_DSP'
                     Title.Caption = 'Nazwa'
-                    Width = 166
+                    Width = 187
                     Visible = True
                   end
                   item
                     Expanded = False
                     FieldName = 'EXCLUSIVE_PARENT'
-                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Title.Caption = 'Jeden rodzic?'
                     Width = 205
                     Visible = True
                   end>
@@ -1188,13 +1188,13 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Expanded = False
                     FieldName = 'NAME'
                     Title.Caption = 'Nazwa'
-                    Width = 166
+                    Width = 208
                     Visible = True
                   end
                   item
                     Expanded = False
                     FieldName = 'EXCLUSIVE_PARENT'
-                    Title.Caption = 'Wy'#347'wietlaj zaj'#281'cia (nie odno'#347'nik)'
+                    Title.Caption = 'Jeden rodzic?'
                     Width = 205
                     Visible = True
                   end>
