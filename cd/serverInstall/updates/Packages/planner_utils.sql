@@ -2,7 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   @version 2024.12.29
+   @version 2025.09.17
    @author Maciej Szymczak
    */
 
@@ -1075,7 +1075,7 @@ create or replace package body planner_utils is
                            and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select romcla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from rom_cla 
-                        where rom_id = pres_id and no_conflict_flag is null; 
+                        where parent_id is null and rom_id = pres_id and no_conflict_flag is null; 
                 end if;
               end loop;
           end if;
@@ -1096,7 +1096,7 @@ create or replace package body planner_utils is
                            and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select grocla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from gro_cla 
-                        where gro_id = pres_id and no_conflict_flag is null; 
+                        where parent_id is null and gro_id = pres_id and no_conflict_flag is null; 
                 end if;
               end loop;
           end if;
@@ -1117,7 +1117,7 @@ create or replace package body planner_utils is
                            and (is_child = 'Y' or no_conflict_flag = '+');
                         insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_Id) 
                         select leccla_seq.nextval,rec.child_id,cla_id, 'Y', day, hour,null, pres_id from lec_cla 
-                        where lec_id = pres_id and no_conflict_flag is null;   
+                        where parent_id is null and lec_id = pres_id and no_conflict_flag is null;   
                 end if;
               end loop;
           end if;

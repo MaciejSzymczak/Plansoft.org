@@ -227,7 +227,6 @@ type
     mmprofileObjectNameC2s: TMenuItem;
     mmprofileObjectNamePeriods: TMenuItem;
     Legend: TSpeedButton;
-    bconflictspopup: TSpeedButton;
     zoomIn: TSpeedButton;
     zoomOut: TSpeedButton;
     Normal: TSpeedButton;
@@ -297,11 +296,6 @@ type
     Usu2: TMenuItem;
     N11: TMenuItem;
     Odwie1: TMenuItem;
-    mmfreeLGR: TMenuItem;
-    mmfreeLG: TMenuItem;
-    mmfreeLR: TMenuItem;
-    mmfreeGR: TMenuItem;
-    mmfreeFooter: TMenuItem;
     powiksz1: TMenuItem;
     pomniejsz1: TMenuItem;
     N13: TMenuItem;
@@ -325,7 +319,6 @@ type
     Shape8a: TShape;
     Shape7a: TShape;
     Shape4a: TShape;
-    Shape3a: TShape;
     Shape2a: TShape;
     Shape1a: TShape;
     bcopyarea: TSpeedButton;
@@ -366,11 +359,6 @@ type
     mmpurge: TMenuItem;
     Atrybuty1: TMenuItem;
     N16: TMenuItem;
-    ConflictsPopup: TPopupMenu;
-    LGRpp: TMenuItem;
-    LGpp: TMenuItem;
-    LRpp: TMenuItem;
-    GRpp: TMenuItem;
     ImageList: TImageList;
     FavouritePopup: TPopupMenu;
     N100Zdecydowanienieplanujwtymterminie1: TMenuItem;
@@ -408,7 +396,6 @@ type
     ResCat1popup: TPopupMenu;
     MenuItem9: TMenuItem;
     MenuItem10: TMenuItem;
-    Wicej1: TMenuItem;
     BRescat1: TSpeedButton;
     BRescat0: TSpeedButton;
     LprofileObjectNameL: TSpeedButton;
@@ -522,7 +509,6 @@ type
     abelaprzestawna1: TMenuItem;
     wwwPopup: TPopupMenu;
     Utwrzwitrynwww2: TMenuItem;
-    Szybkipodgld1: TMenuItem;
     EksportujdoGoogleKalendarz2: TMenuItem;
     WskanikiefektywnociwykresyGoogle1: TMenuItem;
     N12: TMenuItem;
@@ -573,7 +559,6 @@ type
     N6: TMenuItem;
     N8: TMenuItem;
     N15: TMenuItem;
-    Pokawolneterminy1: TMenuItem;
     Listazaj1: TMenuItem;
     USOSIntegracja1: TMenuItem;
     Listaobecno1: TMenuItem;
@@ -696,11 +681,6 @@ type
     procedure Dodaj2Click(Sender: TObject);
     procedure Zmie1Click(Sender: TObject);
     procedure Usu2Click(Sender: TObject);
-    procedure mmfreeLGRClick(
-      Sender: TObject);
-    procedure mmfreeLGClick(Sender: TObject);
-    procedure mmfreeLRClick(Sender: TObject);
-    procedure mmfreeGRClick(Sender: TObject);
     procedure powiksz1Click(Sender: TObject);
     procedure pomniejsz1Click(Sender: TObject);
     procedure CONLECTURER_valueDblClick(Sender: TObject);
@@ -774,11 +754,6 @@ type
     procedure Atrybuty1Click(Sender: TObject);
     procedure LegendMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure LGRppClick(
-      Sender: TObject);
-    procedure LGppClick(Sender: TObject);
-    procedure LRppClick(Sender: TObject);
-    procedure GRppClick(Sender: TObject);
     procedure GridKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure N100Zdecydowanienieplanujwtymterminie1Click(Sender: TObject);
@@ -812,7 +787,6 @@ type
     procedure MenuItem9Click(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure rorResCat1Click(Sender: TObject);
-    procedure Wicej1Click(Sender: TObject);
     procedure BRescat1Click(Sender: TObject);
     procedure BRescat0Click(Sender: TObject);
     procedure gridFontApply(Sender: TObject; Wnd: HWND);
@@ -1961,7 +1935,6 @@ procedure TFMain.RefreshGrid;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
   bclearselection.Visible := V;
-  bconflictspopup.Visible := TabViewType.TabIndex <4;
   GoToDate.Visible := TabViewType.TabIndex <4;
   zoomIn.Visible := V;
   zoomOut.Visible := V;
@@ -1974,7 +1947,6 @@ procedure TFMain.RefreshGrid;
   bmoveRight.Visible := v;
   Shape1a.Visible := v;
   Shape2a.Visible := v;
-  Shape3a.Visible := v;
   Shape4a.Visible := v;
   Shape7a.Visible := v;
   Shape8a.Visible := v;
@@ -3888,11 +3860,6 @@ begin
    mmplanL.Visible      := lVisible;
    mmplanG.Visible      := lVisible;
    mmplanR.Visible      := lVisible;
-   mmfreeLGR.Visible    := lVisible;
-   mmfreeGR.Visible     := lVisible;
-   mmfreeLR.Visible     := lVisible;
-   mmfreeLG.Visible     := lVisible;
-   mmfreeFooter.Visible := lVisible;
    mmconsolidation.Visible := lVisible;
    mmpurge.Visible      := lVisible;
    //FormFormulas.Visible := lVisible;
@@ -3927,10 +3894,6 @@ begin
    ppminusL.Caption     := 'Od³¹cz '+ profileObjectNameLacc.Text;
    ppminusG.Caption     := 'Od³¹cz '+ profileObjectNameGacc.Text;
    ppminusS.Caption     := 'Od³¹cz '+ profileObjectNameC1acc.Text;
-   LGRpp.Caption        := 'WGZ:  Poka¿ dostêpne terminy dla :'+ profileObjectNameLgen.Text + ',' + profileObjectNameGgen.Text + ', Zasobu';
-   LGpp.Caption         := 'WGZ:  Poka¿ dostêpne terminy dla :'+ profileObjectNameLgen.Text + ',' + profileObjectNameGgen.Text;
-   LRpp.Caption         := 'WGZ:  Poka¿ dostêpne terminy dla :'+ profileObjectNameLgen.Text + ', Zasobu';
-   GRpp.Caption         := 'WGZ:  Poka¿ dostêpne terminy dla :'+ profileObjectNameGgen.Text + ', Zasobu';
 
    //main window baloon hints          10min
    BAddClass.hint    := 'Dodaj ' + profileObjectNameClasses.Text + ' lub rezerwacje';
@@ -5725,27 +5688,6 @@ begin
   BDeleteClassClick(nil);
 end;
 
-procedure TFMain.mmfreeLGRClick(
-  Sender: TObject);
-begin
-  LGRppClick(nil);
-end;
-
-procedure TFMain.mmfreeLGClick(Sender: TObject);
-begin
-  LGppClick(nil);
-end;
-
-procedure TFMain.mmfreeLRClick(Sender: TObject);
-begin
-  LRppClick(nil);
-end;
-
-procedure TFMain.mmfreeGRClick(Sender: TObject);
-begin
-  GRppClick(nil);
-end;
-
 procedure TFMain.powiksz1Click(Sender: TObject);
 begin
   zoomInClick(nil);
@@ -6480,7 +6422,7 @@ procedure TFMain.setActiveShape( no : integer);
 begin
  s[ 1] := Shape1a;
  s[ 2] := Shape2a;
- s[ 3] := Shape3a;
+ s[ 3] := Shape4a; //dummy value- currently not used
  s[ 4] := Shape4a;
  s[ 5] := Shape4a; //dummy value- currently not used
  s[ 6] := Shape4a; //dummy value- currently not used
@@ -6717,7 +6659,6 @@ begin
  Point   := btn.ClientToScreen(Point);
  if btn.Name = 'bdelpopup'       then fmain.DelPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'beditpopup'      then fmain.EditPopup.Popup(Point.X,Point.Y);
- if btn.Name = 'bconflictspopup' then fmain.ConflictsPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bfavpopup'       then fmain.FavouritePopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bthpopup'        then fmain.thPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bReports'        then fmain.reportsPopup.Popup(Point.X,Point.Y);
@@ -6869,7 +6810,6 @@ begin
   conResCat1_value.Text  := FChange(conResCat1.text, sql_RESCAT1DESC);
   canShow := true;
 
-  LGRppClick(nil);
 end;
 
 procedure TFMain.Kopiowaniegrupowe1Click(Sender: TObject);
@@ -6900,83 +6840,6 @@ procedure TFMain.LegendMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   inherited;
   setActiveShape(7);
-end;
-
-procedure TFMain.LGRppClick(
-  Sender: TObject);
-begin
-  ValidLClick(nil);
-  ValidGClick(nil);
-  ValidRClick(nil);
-
-  CanShow := False;
-  ShowFreeTermsL.Checked := true;
-  ShowFreeTermsG.Checked := true;
-  ShowFreeTermsR.Checked := true;
-  ShowFreeTermsResCat1.Checked := false;
-  ShowAllAnyL.ItemIndex  := 0;
-  ShowAllAnyG.ItemIndex  := 0;
-  ShowAllAnyResCat0.ItemIndex  := 0;
-  ShowAllAnyResCat1.ItemIndex  := 0;
-  CanShow := True;
-  ShowFreeTermsLClick(nil);
-end;
-
-procedure TFMain.LGppClick(Sender: TObject);
-begin
-  ValidLClick(nil);
-  ValidGClick(nil);
-  ValidRClick(nil);
-
-  CanShow := False;
-  ShowFreeTermsL.Checked := true;
-  ShowFreeTermsG.Checked := true;
-  ShowFreeTermsR.Checked := false;
-  ShowFreeTermsResCat1.Checked := false;
-  ShowAllAnyL.ItemIndex  := 0;
-  ShowAllAnyG.ItemIndex  := 0;
-  //ShowAllAnyR.ItemIndex  := 0;
-  //ShowAllAnyResCat1.ItemIndex  := 0;
-  CanShow := True;
-  ShowFreeTermsLClick(nil);
-end;
-
-procedure TFMain.LRppClick(Sender: TObject);
-begin
-  ValidLClick(nil);
-  ValidGClick(nil);
-  ValidRClick(nil);
-
-  CanShow := False;
-  ShowFreeTermsL.Checked := true;
-  ShowFreeTermsG.Checked := false;
-  ShowFreeTermsR.Checked := true;
-  ShowFreeTermsResCat1.Checked := false;
-  ShowAllAnyL.ItemIndex  := 0;
-  //ShowAllAnyG.ItemIndex  := 0;
-  ShowAllAnyResCat0.ItemIndex  := 0;
-  //ShowAllAnyResCat1.ItemIndex  := 0;
-  CanShow := True;
-  ShowFreeTermsLClick(nil);
-end;
-
-procedure TFMain.GRppClick(Sender: TObject);
-begin
-  ValidLClick(nil);
-  ValidGClick(nil);
-  ValidRClick(nil);
-
-  CanShow := False;
-  ShowFreeTermsL.Checked := false;
-  ShowFreeTermsG.Checked := true;
-  ShowFreeTermsR.Checked := true;
-  ShowFreeTermsResCat1.Checked := false;
-  //ShowAllAnyL.ItemIndex  := 0;
-  ShowAllAnyG.ItemIndex  := 0;
-  ShowAllAnyResCat0.ItemIndex  := 0;
-  //ShowAllAnyResCat1.ItemIndex  := 0;
-  CanShow := True;
-  ShowFreeTermsLClick(nil);
 end;
 
 procedure TFMain.set_tmp_selected_dates;
@@ -7223,13 +7086,6 @@ begin
     CONResCat1.Text :=  replace(FListOrganizer.lbIds.Items.CommaText,',',';');
  // CONResCat1.Text := LROR(CONResCat1.Text,';')
 end;
-
-procedure TFMain.Wicej1Click(Sender: TObject);
-begin
-  inherited;
-  info('Je¿eli szukaj innej kombinacji, ni¿ te, które znajduj¹ siê na liœcie, po prostu zaznacz odpowiednie pola wyboru oznaczone etykiet¹ "poka¿ dostêpne"');
-end;
-
 
 procedure TFMain.onpResCatId0Change;
 begin
