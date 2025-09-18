@@ -757,9 +757,9 @@ begin
   MaxLengthFOR_abbreviation.Text := GetSystemParam('MaxLengthFOR_abbreviation','1000');    // jw. Dla formy zajêæ
   MaxLengthOwner.Text            := GetSystemParam('MaxLengthOwner','1000');               // jw. Dla "w³aœciciel zajêcia"
   MaxLengthSUB_abbreviation.Text := GetSystemParam('MaxLengthSUB_abbreviation','1000');    // jw. Dla przedmiotu
-  CellWidthInLegend.Text         := GetSystemParam('CellWidthInLegend','100');            // szerokoœæ legendy w pikselach (punktach ekranu)
-  CellWidthDay.Text              := GetSystemParam('CellWidthDay','');                 // szerokoœæ pierwszej kolumny (dzieñ tygodnia) w pikselach
-  CellWidthHour.Text             := GetSystemParam('CellWidthHour','');                // szerokoœæ drugiej kolumny (godziny) w pikselach
+  CellWidthInLegend.Text         := GetSystemParam('CellWidthInLegend','1000');            // szerokoœæ legendy w pikselach (punktach ekranu)
+  CellWidthDay.Text              := GetSystemParam('CellWidthDay','1000');                 // szerokoœæ pierwszej kolumny (dzieñ tygodnia) w pikselach
+  CellWidthHour.Text             := GetSystemParam('CellWidthHour','1000');                // szerokoœæ drugiej kolumny (godziny) w pikselach
   MaxLengthDesc1.Text      := GetSystemParam('MaxLengthDesc1','1000');  // Maksymalna d³ugoœæ opisu w znakach
   MaxLengthDesc2.Text      := GetSystemParam('MaxLengthDesc2','1000');  // Maksymalna d³ugoœæ opisu w znakach
   MaxLengthDesc3.Text      := GetSystemParam('MaxLengthDesc3','1000');  // Maksymalna d³ugoœæ opisu w znakach

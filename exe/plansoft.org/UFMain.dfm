@@ -6335,15 +6335,15 @@ inherited FMain: TFMain
         object N26: TMenuItem
           Caption = '-'
         end
-        object Zajciawgprzedmiotwukadtygodniowy1: TMenuItem
-          Caption = 'Przedmioty - uk'#322'ad tygodniowy'
-          object Kadyprzedmiotwoddzielnejtabeli1: TMenuItem
-            Caption = 'Ka'#380'dy przedmiot w oddzielnej tabeli'
-            OnClick = Kadyprzedmiotwoddzielnejtabeli1Click
+        object Zajciawggrupukadtygodniowy1: TMenuItem
+          Caption = 'Grupy - uk'#322'ad tygodniowy'
+          object Kadagrupawoddzielnejtabeli1: TMenuItem
+            Caption = 'Ka'#380'da grupa w oddzielnej tabeli'
+            OnClick = Kadagrupawoddzielnejtabeli1Click
           end
-          object Jednatabeladlawszystkich1: TMenuItem
-            Caption = 'Jedna tabela dla wszystkich przedmiot'#243'w'
-            OnClick = Jednatabeladlawszystkich1Click
+          object v1: TMenuItem
+            Caption = 'Jedna tabela dla wszystkich grup'
+            OnClick = v1Click
           end
         end
         object Zajciawgwykadowcwukadtygodniowy1: TMenuItem
@@ -6357,17 +6357,6 @@ inherited FMain: TFMain
             OnClick = Jednatabeladlawszystkich2Click
           end
         end
-        object Zajciawggrupukadtygodniowy1: TMenuItem
-          Caption = 'Grupy - uk'#322'ad tygodniowy'
-          object Kadagrupawoddzielnejtabeli1: TMenuItem
-            Caption = 'Ka'#380'da grupa w oddzielnej tabeli'
-            OnClick = Kadagrupawoddzielnejtabeli1Click
-          end
-          object v1: TMenuItem
-            Caption = 'Jedna tabela dla wszystkich grup'
-            OnClick = v1Click
-          end
-        end
         object Zajciawgzasobwukadtygodniowy1: TMenuItem
           Caption = 'Zasoby - uk'#322'ad tygodniowy'
           object Kadyzasbwoddzielnejtabeli1: TMenuItem
@@ -6377,6 +6366,17 @@ inherited FMain: TFMain
           object Jednatabeladlawszystkich3: TMenuItem
             Caption = 'Jedna tabela dla wszystkich zasob'#243'w'
             OnClick = Jednatabeladlawszystkich3Click
+          end
+        end
+        object Zajciawgprzedmiotwukadtygodniowy1: TMenuItem
+          Caption = 'Przedmioty - uk'#322'ad tygodniowy'
+          object Kadyprzedmiotwoddzielnejtabeli1: TMenuItem
+            Caption = 'Ka'#380'dy przedmiot w oddzielnej tabeli'
+            OnClick = Kadyprzedmiotwoddzielnejtabeli1Click
+          end
+          object Jednatabeladlawszystkich1: TMenuItem
+            Caption = 'Jedna tabela dla wszystkich przedmiot'#243'w'
+            OnClick = Jednatabeladlawszystkich1Click
           end
         end
         object Zajciawgformukadtygodniowy1: TMenuItem

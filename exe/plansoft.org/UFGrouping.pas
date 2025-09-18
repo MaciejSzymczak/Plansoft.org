@@ -164,6 +164,7 @@ type
     ChIntegration_Id: TCheckBox;
     SpeedButton1: TSpeedButton;
     OtwrzwExcel1: TMenuItem;
+    FHelp: TSpeedButton;
     procedure BRefreshClick(Sender: TObject);
     procedure CONLChange(Sender: TObject);
     procedure conResCat0Change(Sender: TObject);
@@ -229,6 +230,7 @@ type
     procedure chlcountHelpClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure OtwrzwExcel1Click(Sender: TObject);
+    procedure FHelpClick(Sender: TObject);
   private
      sortOrder : string[255];
      defaultText : string;
@@ -1679,6 +1681,12 @@ procedure TFGrouping.OtwrzwExcel1Click(Sender: TObject);
 begin
   if not query.Active then BRefreshClick(BRefresh);
   SaveAsCsv( applicationDocumentsPath + 'temp.csv' );
+end;
+
+procedure TFGrouping.FHelpClick(Sender: TObject);
+begin
+  inherited;
+  SError('Dowolna fraza np. #PENSUM');
 end;
 
 end.
