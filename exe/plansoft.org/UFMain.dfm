@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 23
-  Top = 71
+  Left = 64
+  Top = 35
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -5539,15 +5539,9 @@ inherited FMain: TFMain
         '       ) r'
         ' where p.id = tt.per_id'
         '   and r.id = tt.res_id'
-        
-          '   and (xxmsz_tools.erasePolishChars(upper(notes_before||notes_a' +
-          'fter||internal_notes)) like '#39'%'#39'|| :sa || '#39'%'#39
-        
-          '   or xxmsz_tools.erasePolishChars(upper(notes_before||notes_aft' +
-          'er||internal_notes)) like '#39'%'#39'|| :sb || '#39'%'#39
-        
-          '   or xxmsz_tools.erasePolishChars(upper(notes_before||notes_aft' +
-          'er||internal_notes)) like '#39'%'#39'|| :sc || '#39'%'#39')'
+        '   and (tt.SEARCHABLE_TEXT like '#39'%'#39'|| :sa || '#39'%'#39
+        '   or tt.SEARCHABLE_TEXT like '#39'%'#39'|| :sb || '#39'%'#39
+        '   or tt.SEARCHABLE_TEXT like '#39'%'#39'|| :sc || '#39'%'#39')'
         '   and rownum <= %LIMIT')
       TabOrder = 3
       Visible = False

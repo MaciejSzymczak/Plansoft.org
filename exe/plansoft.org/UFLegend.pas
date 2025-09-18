@@ -997,8 +997,10 @@ end;
 
 Procedure TFLegend.SaveTimeTableNotes;
 begin
- if dm.dmodule.ADOConnection.Connected then
+ if dm.dmodule.ADOConnection.Connected then begin
     If (QueryTimetableNotes.State = dsEdit) Or (QueryTimetableNotes.State = dsInsert) Then QueryTimetableNotes.Post;
+    Fmain.AutoSaveCounterDown := 10;
+ end;
 end;
 
 procedure TFLegend.SpeedButton8Click(Sender: TObject);

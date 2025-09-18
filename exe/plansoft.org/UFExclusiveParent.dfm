@@ -2,7 +2,7 @@ inherited FExclusiveParent: TFExclusiveParent
   Left = 434
   Top = 107
   Width = 842
-  Height = 487
+  Height = 544
   Caption = 'Wybierz rodzaj relacji podrz'#281'dny - nadrz'#281'dny'
   PixelsPerInch = 96
   TextHeight = 14
@@ -1013,7 +1013,7 @@ inherited FExclusiveParent: TFExclusiveParent
       8A28A0028A28A0028A28A00FFFD9}
   end
   inherited Status: TPanel
-    Top = 436
+    Top = 493
     Width = 834
   end
   object exclusive_parent: TBitBtn
@@ -1036,7 +1036,7 @@ inherited FExclusiveParent: TFExclusiveParent
   end
   object Memo3: TMemo
     Left = 40
-    Top = 368
+    Top = 424
     Width = 753
     Height = 57
     BorderStyle = bsNone
@@ -1049,5 +1049,29 @@ inherited FExclusiveParent: TFExclusiveParent
       '(a nie relacj'#281' nadrz'#281'dny - podrz'#281'dny)')
     ReadOnly = True
     TabOrder = 3
+  end
+  object Memo1: TMemo
+    Left = 40
+    Top = 360
+    Width = 329
+    Height = 33
+    BorderStyle = bsNone
+    Color = clBtnFace
+    Lines.Strings = (
+      'Pami'#281'taj, aby doda'#263' r'#243'wnie'#380' po'#322#261'czenia z dziadkami (XW->XL1)')
+    ReadOnly = True
+    TabOrder = 4
+  end
+  object Memo2: TMemo
+    Left = 440
+    Top = 360
+    Width = 329
+    Height = 57
+    BorderStyle = bsNone
+    Color = clBtnFace
+    Lines.Strings = (
+      'Pami'#281'taj, aby doda'#263' r'#243'wnie'#380' po'#322#261'czenia z dziadkami (XW->XL1)')
+    ReadOnly = True
+    TabOrder = 5
   end
 end

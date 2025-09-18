@@ -13,6 +13,8 @@ type
     Memo3: TMemo;
     Image1: TImage;
     Image2: TImage;
+    Memo1: TMemo;
+    Memo2: TMemo;
   private
     { Private declarations }
   public
