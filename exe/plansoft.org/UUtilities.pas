@@ -184,6 +184,7 @@ function LROR (S : String; WordDelim : Char) : String;
 // quickInsertMode disables the clear cache and this speeds up the insertion.
 // once enabled remember to finalize the operation by Fmain.DeepRefresh(nil);
 var quickInsertMode : boolean;
+var raiseException : boolean;
 
 
 implementation
@@ -1047,7 +1048,7 @@ Begin
         '      CLA.ID = :id'
         ,'id='+DModule.QWork2.FieldByName('CLA_ID').AsString);
 
-        Class_ := dm.QWorkToClass;
+        Class_ := dm.QWorkToClass (Dmodule.QWork);
         AddSingleClass( Dmodule.QWork2.FieldByName('CONFLICTTYPE').AsString );
          Dmodule.QWork2.Next;
        End;
@@ -1812,9 +1813,6 @@ begin
   if  (myClass.calc_lec_ids = '') and (myClass.calc_gro_ids = '') and  (myClass.calc_rom_ids = '') then
   begin
      //info('Nie mo¿na zapisaæ zajêcia bez wyk³adowcy, grupy i zasobu');
-     //result := false;
-     // zajêcie bez LGS nie ma sensu, wyjscie z procedury.
-     // @@@przydaloby sie ostrzezenie dla usera
      result := true;
      exit;
   end;
@@ -1873,6 +1871,7 @@ begin
     end;
   except
     on E:exception do Begin
+      if raiseException then raise;
       Result := False;
       Dmodule.RollbackTrans;
 
@@ -1988,6 +1987,7 @@ end;
 
 initialization
   quickInsertMode    := false;
+  raiseException     := false;
   CheckConflicts     := tCheckConflicts.create;
   convertGrid        := tConvertGrid.create;
   gridDefinition     := tGridDefinition.create;

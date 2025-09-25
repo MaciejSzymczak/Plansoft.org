@@ -100,7 +100,8 @@ uses
   UFSelectDate in 'UFSelectDate.pas' {FSelectDate},
   UIcsGenerator in 'UIcsGenerator.pas',
   UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage},
-  UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment};
+  UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment},
+  UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY};
 
 {$R *.RES}
 

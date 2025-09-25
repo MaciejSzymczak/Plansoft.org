@@ -559,7 +559,6 @@ type
     N6: TMenuItem;
     N8: TMenuItem;
     N15: TMenuItem;
-    Listazaj1: TMenuItem;
     USOSIntegracja1: TMenuItem;
     Listaobecno1: TMenuItem;
     attendanceList: TADOQuery;
@@ -1552,7 +1551,7 @@ Begin
 
    if (t1 <= high(Classes)) and (y <= maxHours) then begin // do not perform operation out of the cache buffer
      Classes[t1][y].Status := SuccStatus(Classes[t1][y].Status);
-     Classes[t1][y].Class_ := dm.QWorkToClass;
+     Classes[t1][y].Class_ := dm.QWorkToClass(Dmodule.QWork);
    end;
 
    QWork.Next;
@@ -3528,7 +3527,7 @@ begin
      3: r := ExtractWord(1, conResCat1.Text ,  [';'])
     end;
 
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES',l,g,r, '' {CONPERIOD.Text},'','','',selectedDatesOnly, true);
+  AutoCreate.CLASSESShowModalAsBrowser(l,g,r, '' {CONPERIOD.Text},'','','',selectedDatesOnly, true);
 end;
 
 procedure TFMain.LegendClick(Sender: TObject);
@@ -3663,7 +3662,7 @@ begin
      // fmain.Memo1.Lines.Text := dGeneralDebug;
      // copyToClipboard('@@@@ ERROR4 ' + dGeneralDebug);
      // end;
-     Classes[t][y].Class_ := QWorkToClass;
+     Classes[t][y].Class_ := QWorkToClass(Dmodule.QWork);
    end;
 
    QWork.Next;
@@ -7687,7 +7686,7 @@ end;
 
 procedure TFMain.Listazajchistoriazmian1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES_HISTORY','','','', '','','','',false, true);
+  AutoCreate.CLASSES_HistoryShowModalAsBrowser('','','', '','','','',false, true);
 end;
 
 procedure TFMain.BTraceHistoryClick(Sender: TObject);

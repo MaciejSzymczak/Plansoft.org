@@ -80,18 +80,13 @@ var LCID : Integer;
 begin
   if importType.ItemIndex = -1 then begin
     info ('Zaznacz jakie dane chcesz pobraæ');
+    PC.ActivePageIndex := 0;
     exit;
   end;
 
   myQuery := tadoquery.Create(self);
   dmodule.resetConnection(myQuery);
   dmodule.commitTrans;  //=beginTrans
-
-  //if dmodule.ADOConnection.InTransaction=false
-  //  then begin
-  //   dModule.ADOConnection.open;
-  //   dmodule.ADOConnection.BeginTrans;
-  //  end;
 
   if openDialog.Execute then begin
     LCID := GetUserDefaultLCID;
@@ -135,6 +130,7 @@ begin
       2:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6+', '+c_col7,             'Sala, Budynek, Pojemnoœæ, Wyposa¿enie, S³owa kluczowe, Integration Id, Jednostka organizacyjna'                                                     ) then exit;
       3:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4+', '+c_col5+', '+c_col6,                         'Skrót, Nazwa, Kierunki, S³owa kluczowe, Integration Id, Jednostka organizacyjna'                                                                    ) then exit;
       4:if not verifyHeader ( c_col1+', '+c_col2+', '+c_col3+', '+c_col4,                                     'Skrót, Nazwa, Rodzaj (C=Forma zajêæ R=Forma rezerwacji), Integration Id'                                                                            ) then exit;
+      //no verification for time table
     end;
 
     uniqueCheck := Tmap.Create;
@@ -172,6 +168,7 @@ begin
         2: begin uniqueKey := l_col1+', '+l_col2; integrationId := nvl(l_col6, uniqueKey); end;
         3: begin uniqueKey := l_col1;             integrationId := nvl(l_col5, uniqueKey); end;
         4: begin uniqueKey := l_col1;             integrationId := nvl(l_col4, uniqueKey); end;
+        5: begin uniqueKey := l_col7;             integrationId := uniqueKey;              end;
       end;
 
       //l_orguni_id
@@ -180,6 +177,8 @@ begin
         1: l_orguni := l_col8;
         2: l_orguni := l_col7;
         3: l_orguni := l_col6;
+        //4: no orguni for form
+        //5: no orguni for time table
       end;
       if (l_orguni='') then
         l_orguni_id :=  l_orguni_id_default
@@ -254,6 +253,38 @@ begin
                            , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from forms where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('FOR', pId);
+               end;
+
+ { to do
+
+1. Skasowac poprzednie dane przed importem?
+3. buid package procsssing it 
+select * from TT_INTERFACE
+        LEC_ID
+        SUB_ID
+        FOR_ID
+        GRO_ID
+        per_id
+        message
+  and showing the log processing (message)
+
+ }
+
+
+
+            5: begin
+                 if integrationId='' then begin
+                   dmodule.SQLNoBinding(myQuery
+                           , 'insert into TT_INTERFACE (integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+
+                             ' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, :classes_cnt)'
+                           , 'lec_integration_id='+l_col1+';sub_integration_id='+l_col3+';for_integration_id='+l_col4+';gro_integration_id='+l_col2+';per_integration_id='+l_col5+';classes_cnt='+l_col6+';integration_id='+integrationId);
+                 end else begin
+                   dmodule.SQLNoBinding(myQuery
+                           , 'merge into TT_INTERFACE m using dual on (integration_id = :integration_id)'+
+                             ' when not matched then insert ( integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, :classes_cnt)'+
+                             ' when matched then update set lec_integration_id=:lec_integration_id, sub_integration_id=:sub_integration_id, for_integration_id = :for_integration_id, '+'gro_integration_id = :gro_integration_id, per_integration_id = :per_integration_id, classes_cnt = :classes_cnt'
+                           , 'lec_integration_id='+l_col1+';sub_integration_id='+l_col3+';for_integration_id='+l_col4+';gro_integration_id='+l_col2+';per_integration_id='+l_col5+';classes_cnt='+l_col6+';integration_id='+integrationId);
+                 end;
                end;
           end;
         except
@@ -331,6 +362,7 @@ begin
    2: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/sale.xlsx');
    3: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/przedmioty.xlsx');
    4: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/formy_zajec.xlsx');
+   5: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/Plan_Studiow.xlsx');
   end;
   PC.ActivePageIndex := 2;
 end;

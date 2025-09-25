@@ -6045,9 +6045,13 @@ inherited FMain: TFMain
     object Edycja1: TMenuItem
       Caption = 'Edycja'
       object Cofnij1: TMenuItem
-        Caption = '&Cofnij'
+        Caption = '&Cofnij ostatni'#261' czynno'#347#263
         ShortCut = 16474
         OnClick = Cofnij1Click
+      end
+      object Listazajchistoriazmian1: TMenuItem
+        Caption = 'Cofnij wiele czynno'#347'ci'
+        OnClick = Listazajchistoriazmian1Click
       end
       object N1: TMenuItem
         Caption = '-'
@@ -6274,16 +6278,9 @@ inherited FMain: TFMain
       object N8: TMenuItem
         Caption = '-'
       end
-      object Listazaj1: TMenuItem
+      object Penyprzegld1: TMenuItem
         Caption = 'Lista zaj'#281#263
-        object Penyprzegld1: TMenuItem
-          Caption = 'Lista zaj'#281#263
-          OnClick = Penyprzegld1Click
-        end
-        object Listazajchistoriazmian1: TMenuItem
-          Caption = 'Lista zaj'#281#263' - historia zmian'
-          OnClick = Listazajchistoriazmian1Click
-        end
+        OnClick = Penyprzegld1Click
       end
       object N15: TMenuItem
         Caption = '-'

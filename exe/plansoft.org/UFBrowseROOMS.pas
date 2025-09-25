@@ -491,7 +491,7 @@ end;
 
 procedure TFBrowseROOMS.BUpdChild1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '','', Query['Id'], '','','','',false, true);
+  AutoCreate.CLASSESShowModalAsBrowser('','', Query['Id'], '','','','',false, true);
 end;
 
 procedure TFBrowseROOMS.ttEnabledClick(Sender: TObject);

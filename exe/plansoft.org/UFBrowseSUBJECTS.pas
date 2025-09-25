@@ -222,7 +222,7 @@ end;
 
 procedure TFBrowseSUBJECTS.BUpdChild2Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '',Query['Id'],'','',false, true);
+  AutoCreate.CLASSESShowModalAsBrowser('', '', '', '',Query['Id'],'','',false, true);
 end;
 
 procedure TFBrowseSUBJECTS.ORGUNI_IDChange(Sender: TObject);

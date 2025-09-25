@@ -70,8 +70,6 @@ type
     BCountRecords: TBitBtn;
     BShowRecords: TSpeedButton;
     SearchTimer: TTimer;
-    m5: TMenuItem;
-    N3: TMenuItem;
     PPChild1: TMenuItem;
     PPChild2: TMenuItem;
     PPChild3: TMenuItem;
@@ -374,7 +372,6 @@ type
    procedure flexGetAttribute ( fname : string; var systemFlag : shortString );
 
    function  DecodeFieldName(FieldName : ShortString): ShortString; // used to prefix field name by table name, for instance: NAME -> T.NAME
-   function EscapeApostrophes(const Input: string): string;
 
                                                                     // prevents from ambiguous field name error
    Function  execute(aCurrOperation : Integer; aID : ShortString) : TModalResult; virtual;
@@ -412,7 +409,6 @@ type
    Function  ShowModalAsMultiSelect(Var aIDs : String) : TModalResult; //Klucze zwracane s¹ w postaci "1,2,3, ... ,n". U¿yj funkcji WordCount oraz ExtractWord do ich odczytania w pêtli
    Function  ShowModalAsSingleRecord(Action : Integer; Var ID : ShortString) : TModalResult;
    Procedure CreateAvailColumnsWhereClause(S : TStrings);
-   Procedure PrepareColumnsForExports(S : TStrings);
    procedure SetNotUpdatable(COLS : Array of TWinControl; LBLS : Array of TLabel);
    Procedure copyRecord(FromID : String; FillNotEmptyFields : Boolean);
    function  UpdApplyClick : Boolean;
@@ -428,7 +424,6 @@ type
    Procedure ApplyGridLayout;
 
    function getSelectedIds : string;
-   function buildFilter(sql_SEARCH : string; searchString : string) : string;
   end;
 
 var
@@ -1183,7 +1178,6 @@ Begin
  BLast.Enabled              := F;
  BOleExport.Enabled         := F;
  BCountRecords.Enabled      := F;
- m5.Enabled                 := F;
  BChild1.Enabled            := F;
  BChild2.Enabled            := F;
  BChild3.Enabled            := F;
@@ -1682,10 +1676,10 @@ begin
 
  If Mode = 0 Then Begin
    BClose.Visible    := True;
-   BDelete.Visible   := True And ((Not Upraw.Down) Or CanDelete);
-   BAdd.Visible      := True And ((Not Upraw.Down) Or CanInsert);
-   BCopy.Visible     := True And ((Not Upraw.Down) Or CanInsert);
-   BEdit.Visible     := True And ((Not Upraw.Down) Or CanEditPermission);
+   BDelete.Visible   := (Not Upraw.Down) Or CanDelete;
+   BAdd.Visible      := (Not Upraw.Down) Or CanInsert;
+   BCopy.Visible     := (Not Upraw.Down) Or CanInsert;
+   BEdit.Visible     := (Not Upraw.Down) Or CanEditPermission;
    BCancel.Visible   := False;
    BSelect.Visible   := False;
    PPSelect.Visible  := False;
@@ -2295,7 +2289,6 @@ begin
  PPChild4.Visible := BUpdChild4.Visible;
  PPChild5.Visible := BUpdChild5.Visible;
 
- N3.Visible := PPChild1.Visible Or PPChild2.Visible Or PPChild3.Visible Or PPChild4.Visible Or PPChild5.Visible;
 
  PPChild1.Caption := Komunikaty.Strings[29] + BUpdChild1.Caption;
  PPChild2.Caption := Komunikaty.Strings[29] + BUpdChild2.Caption;
@@ -2373,22 +2366,6 @@ Begin
   end;
 End;
 
-//------------------------------------------------------------------
-Procedure TFBrowseParent.prepareColumnsForExports(S : TStrings);
-  Var t : Integer;
-  function flexInUse ( FieldName : string; fieldCaption : string ) : boolean;
-  begin
-   result := (subStr(upperCase(FieldName),1,6) = 'ATTRIB') and (subStr(upperCase(fieldCaption),1,6) <> 'ATTRIB');
-  end;
-Begin
-   For t := 0 To Query.FieldCount -1 Do
-     //if not FlexIsAdded(S, 2, 4, Query.Fields[t].FieldName, 'CATEGORY:'+flexContextName) then
-     if flexInUse ( Query.Fields[t].FieldName, getColumnCaption(Query.Fields[t].FieldName) )
-        or
-        (not isFlex (Query.Fields[t].FieldName))
-     then
-        S.Add(getColumnCaption(Query.Fields[t].FieldName)+'|'+Query.Fields[t].FieldName+'|'+GetFieldType(Query.Fields[t])+'|CATEGORY:'+flexContextName);
-End;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.bFilterClick(Sender: TObject);
@@ -3040,12 +3017,6 @@ begin
 end;
 
 //------------------------------------------------------------------
-function TFBrowseParent.EscapeApostrophes(const Input: string): string;
-begin
-  Result := StringReplace(Input, '''', '''''', [rfReplaceAll]);
-end;
-
-//------------------------------------------------------------------
 function TFBrowseParent.getSearchFilter: string;
 begin
   result := PRE_UPPERCASE + DecodeFieldName(Grid.Columns[findFirstVisibleColumn].FieldName)+POST_UPPERCASE+' LIKE ' + PRE_UPPERCASE + ''''+trim(EscapeApostrophes(ESearch.Text))+ GetSystemParam('ANY_CHARS')+'''' + POST_UPPERCASE;
@@ -3077,20 +3048,12 @@ end;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.bCrossCombinationClick(Sender: TObject);
-var    DefinitionOfColumns : TStrings;
 begin
-  inherited;
-  DefinitionOfColumns := TStringList.Create;
-  PrepareColumnsForExports(DefinitionOfColumns);
-  UFModuleCrossCombination.ShowModal(Query,DefinitionOfColumns, GetFileNameWithExtension(Self, 'scr'));
-  DefinitionOfColumns.Free;
 end;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.m5Click(Sender: TObject);
 begin
-  inherited;
-  BCrossCombinationClick(nil);
 end;
 
 //------------------------------------------------------------------
@@ -3615,25 +3578,6 @@ begin
     ids := merge(ids, Query.FieldByName('ID').AsString, ',');
   End;
   result := ids;
-end;
-
-function TFBrowseParent.buildFilter(sql_SEARCH : string; searchString : string) : string;
-  Var normalizedSearchString : string;
-  var t : Integer;
-  var tmpStr, currentToken : string;
-begin
-  searchString := EscapeApostrophes(searchString); 
-  tmpStr := '';
-  normalizedSearchString :=  replacePolishChars( ansiuppercase(trim(searchString)) );
-     for t := 1 to wordCount(normalizedSearchString,[',']) do
-     begin
-        currentToken := extractWord(t,normalizedSearchString,[',']);
-        if currentToken <> '' then
-          tmpStr := merge(tmpStr, format(sql_SEARCH, [ currentToken ]) ,' or ')
-     end;
-
- result :=
-     '(' +  tmpStr + ')';
 end;
 
 End.

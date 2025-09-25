@@ -209,7 +209,7 @@ end;
 
 procedure TFBrowseFORMS.BUpdChild2Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', '', '', '', '','',Query['Id'],'',false, true);
+  AutoCreate.CLASSESShowModalAsBrowser('', '', '', '','',Query['Id'],'',false, true);
 end;
 
 function TFBrowseFORMS.canDelete: Boolean;

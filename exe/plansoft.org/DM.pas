@@ -31,21 +31,24 @@ Const MaxAllLecturers     =   5000;
       g_date_hour         = -8;
       sql_LECNAME         = 'TITLE||'' ''||LAST_NAME||'' ''||FIRST_NAME';
       sql_LECNAMEORG      = 'TITLE||'' ''||LAST_NAME||'' ''||FIRST_NAME||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
-      sql_GRONAME         = 'nvl(abbreviation,name)';
+      sql_GRONAME         = 'nvl(abbreviation,groups.name)';
+      sql_GRONAMEORG      = 'nvl(abbreviation,groups.name)||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
       sql_ResCat0NAME     = 'NAME||'' ''||substr(attribs_01,1,55)';
       sql_ResCat0NAMEROM  = 'ROM.NAME||'' ''||substr(ROM.attribs_01,1,55)';
+      sql_ResCat0NAMEROMORG  = 'rooms.NAME||'' ''||substr(rooms.attribs_01,1,55)||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
       sql_ResCat1NAME     = 'NAME';
-      sql_SUBNAME         = 'NAME';
+      sql_SUBNAME      = 'NAME';
+      sql_SUBNAMEORG         = 'subjects.NAME||''   (''||(SELECT CODE FROM ORG_UNITS WHERE ID = ORGUNI_ID)||'')''';
       sql_FORNAME         = 'NAME||''(''||abbreviation||'')''';
       sql_PERNAME         = 'NAME';
       sql_PLANAME         = 'NAME';
 
-      sql_LEC_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||lecturers.abbreviation||lecturers.title||'' ''||lecturers.first_name||'' ''||lecturers.last_name'+
+      sql_LEC_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||org_units.code||lecturers.abbreviation||lecturers.title||'' ''||lecturers.first_name||'' ''||lecturers.last_name'+
            '||lecturers.email||lecturers.diff_message|| lecturers.attribs_01||lecturers.attribs_02||lecturers.attribs_03||lecturers.attribs_04'+
            '||lecturers.attribs_05||lecturers.attribs_06||lecturers.attribs_07||lecturers.attribs_08||lecturers.attribs_09||lecturers.attribs_10||lecturers.attribs_11||lecturers.attribs_12||lecturers.attribs_13||lecturers.attribs_14||lecturers.attribs_15'+
            '||lecturers.desc1||lecturers.desc2||''#''||lecturers.integration_id||''#'')) like ''%%%s%%'')';
 
-      sql_SUB_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||subjects.abbreviation||subjects.desc1||subjects.desc2||subjects.name|| subjects.attribs_01||subjects.attribs_02||subjects.attribs_03||subjects.attribs_04||subjects.attribs_05'+
+      sql_SUB_SEARCH = '(xxmsz_tools.erasePolishChars(upper(org_units.name||org_units.code||subjects.abbreviation||subjects.desc1||subjects.desc2||subjects.name|| subjects.attribs_01||subjects.attribs_02||subjects.attribs_03||subjects.attribs_04||subjects.attribs_05'+
           '||subjects.attribs_06||subjects.attribs_07||subjects.attribs_08||subjects.attribs_09||subjects.attribs_10||subjects.attribs_11||'
           +'subjects.attribs_12||subjects.attribs_13||subjects.attribs_14||subjects.attribs_15||''#''||subjects.integration_id||''#'')) like ''%%%s%%'')';
 
@@ -53,10 +56,10 @@ Const MaxAllLecturers     =   5000;
            '||forms.attribs_05||forms.attribs_06||forms.attribs_07||forms.attribs_08||forms.attribs_09||forms.attribs_10||forms.attribs_11||forms.attribs_12||forms.attribs_13||forms.attribs_14||forms.attribs_15'+
            '||forms.desc1||forms.desc2||''#''||forms.integration_id||''#'')) like ''%%%s%%'')';
 
-      sql_GRO_SEARCH     =  '(xxmsz_tools.erasePolishChars(upper(org_units.name||groups.name||groups.abbreviation||groups.email||groups.desc1||groups.desc2||groups.attribs_01||groups.attribs_02||groups.attribs_03||groups.attribs_04||groups.attribs_05||groups.attribs_06'+
+      sql_GRO_SEARCH     =  '(xxmsz_tools.erasePolishChars(upper(org_units.name||org_units.code||groups.name||groups.abbreviation||groups.email||groups.desc1||groups.desc2||groups.attribs_01'+'||groups.attribs_02||groups.attribs_03||groups.attribs_04||groups.attribs_05||groups.attribs_06'+
            '||groups.attribs_07||groups.attribs_08||groups.attribs_09||groups.attribs_10||groups.attribs_11||groups.attribs_12||groups.attribs_13||groups.attribs_14||groups.attribs_15||''#''||groups.integration_id||''#'')) like ''%%%s%%'')';
 
-      sql_ROM_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(org_units.name||rooms.name||rooms.desc1||rooms.desc2||rooms.attribs_01||rooms.email||rooms.attribs_01||rooms.attribs_02||rooms.attribs_03||rooms.attribs_04||rooms.attribs_05||rooms.attribs_06'+
+      sql_ROM_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(org_units.name||org_units.code||rooms.name||rooms.desc1||rooms.desc2||rooms.attribs_01||rooms.email||rooms.attribs_01||rooms.attribs_02||rooms.attribs_03||rooms.attribs_04||rooms.attribs_05||rooms.attribs_06'+
            '||rooms.attribs_07||rooms.attribs_08||rooms.attribs_09||rooms.attribs_10||rooms.attribs_11||rooms.attribs_12||rooms.attribs_13||rooms.attribs_14||rooms.attribs_15||''#''||rooms.integration_id||''#'')) like ''%%%s%%'')';
            //' OR ''#''||xxmsz_tools.erasePolishChars(upper(rooms.attribs_01)) like ''%%%s%%'')';
 
@@ -159,6 +162,7 @@ type
     Function GroupGetColour(ID : string) : Integer;
     Function RoomGetColour(ID : string) : Integer;
     Procedure SQL         (var query : tadoquery;S : String; const pparams : String = ''); overload;
+    Procedure SQLNoBinding(var query : tadoquery;S : String; const pparams : String = ''); overload;
     Procedure SQL         (S : String; const pparams : String = ''); overload;
     Procedure SQL2        (S : String; const pparams : String = '');
     Procedure openSQL     (var query : tadoquery; S : String; const pparams : String = ''; const quoteFlag : boolean = true); overload;
@@ -195,7 +199,7 @@ type
     Procedure ExportToHtml(aGrid : TDBGrid );
   end;
 
-Function QWorkToClass : TClass_;
+Function QWorkToClass (ADOQuery : TADOQuery) : TClass_;
 Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Procedure DBGetClassByGroup   (DAY1, DAY2 : String; Zajecia: Integer; GRO_ID        : String; Var Status : Integer; Var Class_ : TClass_);
 Procedure DBGetClassByRoom    (DAY1, DAY2 : String; Zajecia: Integer; ROM_ID        : String; Var Status : Integer; Var Class_ : TClass_);
@@ -250,6 +254,9 @@ function ExactlyLocate(Q : TadoQuery; KeyField: string; KeyValue: String; MaxFet
 function elementEnabled(elementName : string; toDate : string; silentMode : boolean) : boolean;
 
 
+function EscapeApostrophes(const Input: string): string;
+function buildFilter(sql_SEARCH : string; searchString : string) : string;
+
 var Macros     : TMacros;
     DBMap : TDBMamp;
 
@@ -260,6 +267,31 @@ uses UFProgramSettings, UFMain;
 {$R *.DFM}
 
 var StartTime, EndTime : TDateTime;
+
+function EscapeApostrophes(const Input: string): string;
+begin
+  Result := StringReplace(Input, '''', '''''', [rfReplaceAll]);
+end;
+
+function buildFilter(sql_SEARCH : string; searchString : string) : string;
+  Var normalizedSearchString : string;
+  var t : Integer;
+  var tmpStr, currentToken : string;
+begin
+  searchString := EscapeApostrophes(searchString);
+  tmpStr := '';
+  normalizedSearchString :=  replacePolishChars( ansiuppercase(trim(searchString)) );
+     for t := 1 to wordCount(normalizedSearchString,[',']) do
+     begin
+        currentToken := extractWord(t,normalizedSearchString,[',']);
+        if currentToken <> '' then
+          tmpStr := merge(tmpStr, format(sql_SEARCH, [ currentToken ]) ,' or ')
+     end;
+
+ if tmpStr='' then result := '0=0'
+ else result :=
+     '(' +  tmpStr + ')';
+end;
 
 //----------------------------------------------------------------
 function elementEnabled(elementName : string; toDate : string; silentMode : boolean) : boolean;
@@ -523,21 +555,52 @@ Begin
  With query Do Begin
   SQL.Clear;
 
-   //SQL.Add(S);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
+   SQL.Add(S);
+   for t := 1 to wordCount(pparams,[';']) do begin
+     wholeString  := extractWord(t,pparams,[';']);
+     paramName  := extractWord(1,wholeString,['=']);
+     paramValue := extractWord(2,wholeString,['=']);
+     parameters.ParamByName(paramName).value   := paramValue;
+   end;
 
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+
+  ExecSQL;
+ End;
+  logSQLStop;
+ except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     //cases issues in FMassImport
+     //CloseDBConnection (false);
+     //dModule.ADOConnection.open;
+     //dmodule.ADOConnection.BeginTrans;
+     raise;
+   end;
+ End;
+End;
+
+
+//----------------------------------------------------------------
+Procedure TDModule.SQLnoBinding(var query : tadoquery; S : String; const pparams : String = '');
+ var wholeString : String;
+     paramName   : String;
+     paramValue  : String;
+     t : integer;
+Begin
+ try
+ logSQLStart ('SQL', S);
+ query.Connection      := ADOConnection;
+ query.CursorLocation  := clUseServer;
+ With query Do Begin
+  SQL.Clear;
+
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
      S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
    end;
+   SQL.Clear;
    SQL.Add(S);
 
   ExecSQL;
@@ -1538,43 +1601,57 @@ Begin
 End;
 
 
-Function QWorkToClass : TClass_;
+Function QWorkToClass (ADOQuery : TADOQuery) : TClass_;
 Var Class_ : TClass_;
+  function getStrValue (fieldName :  String) : String;
+  var fld: TField;
+  begin
+    fld := ADOQuery.FindField(fieldName);
+    result := '';
+    if Assigned(fld) then result :=  fld.AsString;
+  end;
+  function getIntValue (fieldName :  String) : integer;
+  var fld: TField;
+  begin
+    fld := ADOQuery.FindField(fieldName);
+    result := 0;
+    if Assigned(fld) then result :=  fld.AsInteger;
+  end;
 Begin
    //@@@ komuniat o bledzie, gdy rozmiar pola przekracza rozmiar rekordu
-   Class_.ID                 := DModule.QWork.FieldByName('ID').AsInteger;
-   Class_.DAY                := dateTimeToTimeStamp ( DModule.QWork.FieldByName('DAY').asDateTime );
-   Class_.HOUR               := DModule.QWork.FieldByName('HOUR').AsInteger;
-   Class_.FILL               := DModule.QWork.FieldByName('FILL').AsInteger;
-   Class_.SUB_ID             := DModule.QWork.FieldByName('SUB_ID').AsInteger;
-   Class_.FOR_ID             := DModule.QWork.FieldByName('FOR_ID').AsInteger;
-   Class_.FOR_KIND           := DModule.QWork.FieldByName('FOR_KIND').AsString;
-   CLASS_.SUB_abbreviation   := DModule.QWork.FieldByName('SUB_abbreviation').AsString;
-   CLASS_.SUB_NAME           := DModule.QWork.FieldByName('SUB_NAME').AsString;
-   CLASS_.SUB_COLOUR         := DModule.QWork.FieldByName('SUB_COLOUR').AsInteger;
-   CLASS_.FOR_COLOUR         := DModule.QWork.FieldByName('FOR_COLOUR').AsInteger;
-   CLASS_.OWNER_COLOUR       := DModule.QWork.FieldByName('OWNER_COLOUR').AsInteger;
-   CLASS_.CREATOR_COLOUR     := DModule.QWork.FieldByName('CREATOR_COLOUR').AsInteger;
-   CLASS_.CLASS_COLOUR       := DModule.QWork.FieldByName('CLASS_COLOUR').AsInteger;
-   CLASS_.DESC1              := DModule.QWork.FieldByName('DESC1').AsString;
-   CLASS_.DESC2              := DModule.QWork.FieldByName('DESC2').AsString;
-   CLASS_.DESC3              := DModule.QWork.FieldByName('DESC3').AsString;
-   CLASS_.DESC4              := DModule.QWork.FieldByName('DESC4').AsString;
-   //CLASS_.SUB_DESC1        := DModule.QWork.FieldByName('SUB_DESC1').AsString;
-   //CLASS_.SUB_DESC2        := DModule.QWork.FieldByName('SUB_DESC2').AsString;
-   CLASS_.FOR_abbreviation   := DModule.QWork.FieldByName('FOR_abbreviation').AsString;
-   CLASS_.FOR_NAME           := DModule.QWork.FieldByName('FOR_NAME').AsString;
-   //CLASS_.FOR_DESC1        := DModule.QWork.FieldByName('FOR_DESC1').AsString;
-   //CLASS_.FOR_DESC2        := DModule.QWork.FieldByName('FOR_DESC2').AsString;
-   CLASS_.CALC_LECTURERS     := DModule.QWork.FieldByName('CALC_LECTURERS').AsString;
-   CLASS_.CALC_GROUPS        := DModule.QWork.FieldByName('CALC_GROUPS').AsString;
-   CLASS_.CALC_ROOMS         := DModule.QWork.FieldByName('CALC_ROOMS').AsString;
-   CLASS_.CALC_LEC_IDS       := DModule.QWork.FieldByName('CALC_LEC_IDS').AsString;
-   CLASS_.CALC_GRO_IDS       := DModule.QWork.FieldByName('CALC_GRO_IDS').AsString;
-   CLASS_.CALC_ROM_IDS       := DModule.QWork.FieldByName('CALC_ROM_IDS').AsString;
-   CLASS_.CALC_RESCAT_IDS    := DModule.QWork.FieldByName('CALC_RESCAT_IDS').AsString;
-   CLASS_.Created_by         := DModule.QWork.FieldByName('Created_by').AsString;
-   CLASS_.Owner              := DModule.QWork.FieldByName('Owner').AsString;
+   Class_.ID                 := getIntValue('ID');
+   Class_.DAY                := dateTimeToTimeStamp ( ADOQuery.FieldByName('DAY').asDateTime );
+   Class_.HOUR               := getIntValue('HOUR');
+   Class_.FILL               := getIntValue('FILL');
+   Class_.SUB_ID             := getIntValue('SUB_ID');
+   Class_.FOR_ID             := getIntValue('FOR_ID');
+   Class_.FOR_KIND           := getStrValue('FOR_KIND');
+   CLASS_.SUB_abbreviation   := getStrValue('SUB_abbreviation');
+   CLASS_.SUB_NAME           := getStrValue('SUB_NAME');
+   CLASS_.SUB_COLOUR         := getIntValue('SUB_COLOUR');
+   CLASS_.FOR_COLOUR         := getIntValue('FOR_COLOUR');
+   CLASS_.OWNER_COLOUR       := getIntValue('OWNER_COLOUR');
+   CLASS_.CREATOR_COLOUR     := getIntValue('CREATOR_COLOUR');
+   CLASS_.CLASS_COLOUR       := getIntValue('CLASS_COLOUR');
+   CLASS_.DESC1              := getStrValue('DESC1');
+   CLASS_.DESC2              := getStrValue('DESC2');
+   CLASS_.DESC3              := getStrValue('DESC3');
+   CLASS_.DESC4              := getStrValue('DESC4');
+   //CLASS_.SUB_DESC1        := getStrValue('SUB_DESC1');
+   //CLASS_.SUB_DESC2        := getStrValue('SUB_DESC2').AsString;
+   CLASS_.FOR_abbreviation   := getStrValue('FOR_abbreviation');
+   CLASS_.FOR_NAME           := getStrValue('FOR_NAME');
+   //CLASS_.FOR_DESC1        := getStrValue('FOR_DESC1');
+   //CLASS_.FOR_DESC2        := getStrValue('FOR_DESC2');
+   CLASS_.CALC_LECTURERS     := getStrValue('CALC_LECTURERS');
+   CLASS_.CALC_GROUPS        := getStrValue('CALC_GROUPS');
+   CLASS_.CALC_ROOMS         := getStrValue('CALC_ROOMS');
+   CLASS_.CALC_LEC_IDS       := getStrValue('CALC_LEC_IDS');
+   CLASS_.CALC_GRO_IDS       := getStrValue('CALC_GRO_IDS');
+   CLASS_.CALC_ROM_IDS       := getStrValue('CALC_ROM_IDS');
+   CLASS_.CALC_RESCAT_IDS    := getStrValue('CALC_RESCAT_IDS');
+   CLASS_.Created_by         := getStrValue('Created_by');
+   CLASS_.Owner              := getStrValue('Owner');
 
    Result := Class_;
 End;
@@ -1619,7 +1696,7 @@ Begin
    '      LEC_CLA.LEC_ID =:lec AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';lec='+ExtractWord(1,childId,[';']));
 
-   Class_ := dm.QWorkToClass;
+   Class_ := dm.QWorkToClass(Dmodule.QWork);
 
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
@@ -1721,7 +1798,7 @@ Begin
    '      GRO_CLA.GRO_ID = :gro AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';gro='+ExtractWord(1,GRO_ID,[';']));
 
-   Class_ := dm.QWorkToClass;
+   Class_ := dm.QWorkToClass(Dmodule.QWork);
 
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
@@ -1769,7 +1846,7 @@ Begin
    '      ROM_CLA.ROM_ID=:rom AND no_conflict_flag is null and '+
    '      CLA.DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND CLA.HOUR = :hour ORDER BY CLA.DAY','day1='+d1+';hour='+IntToStr(Zajecia)+';rom='+ExtractWord(1,ROM_ID,[';']));
 
-   Class_ := dm.QWorkToClass;
+   Class_ := dm.QWorkToClass(Dmodule.QWork);
 
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;
@@ -1798,7 +1875,7 @@ Begin
    '  AND CLA.ID =:classId'
    ,'classId='+classId);
 
-   Class_ := dm.QWorkToClass;
+   Class_ := dm.QWorkToClass(Dmodule.QWork);
 
    Case DModule.QWork.RecordCount Of
     0: Status := ClassNotFound;

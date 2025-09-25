@@ -280,7 +280,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         Height = 176
         inline GenericFilter: TFGenericFilter
           Left = 1
-          Top = 81
+          Top = 40
           Width = 1297
           Height = 101
           Align = alTop
@@ -490,7 +490,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
         end
         object PanelDates: TPanel
           Left = 1
-          Top = 42
+          Top = 1
           Width = 1297
           Height = 39
           Align = alTop
@@ -620,68 +620,6 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
             OnClick = BitBtn1Click
           end
         end
-        object PanelHistory: TPanel
-          Left = 1
-          Top = 1
-          Width = 1297
-          Height = 41
-          Align = alTop
-          TabOrder = 2
-          object Label3: TLabel
-            Left = 427
-            Top = 6
-            Width = 12
-            Height = 14
-            Caption = 'do'
-          end
-          object historyLabel: TLabel
-            Left = 8
-            Top = 6
-            Width = 66
-            Height = 14
-            Caption = 'Data operacji:'
-          end
-          object HistoryMode: TComboBox
-            Left = 109
-            Top = 6
-            Width = 173
-            Height = 22
-            Style = csOwnerDrawFixed
-            DropDownCount = 25
-            ItemHeight = 16
-            MaxLength = 255
-            TabOrder = 0
-            OnChange = ComboSortOrderChange
-            Items.Strings = (
-              'Wszystkie zmiany'
-              'Zmiany z dzisiaj'
-              'Zmiany z wczoraj'
-              'Zmiany z przedwczoraj'
-              'Zmiany - ostatnie 3 dni'
-              'Zmiany - ostatnich 7 dni'
-              'Zmiany - ostatnich 14 dni'
-              'Zmiany - ostatnich 30 dni'
-              'Zmiany w innym okresie')
-          end
-          object historyFrom: TDateEdit
-            Left = 296
-            Top = 6
-            Width = 121
-            Height = 21
-            NumGlyphs = 2
-            TabOrder = 1
-            OnChange = historyFromChange
-          end
-          object historyTo: TDateEdit
-            Left = 448
-            Top = 6
-            Width = 121
-            Height = 21
-            NumGlyphs = 2
-            TabOrder = 2
-            OnChange = historyToChange
-          end
-        end
       end
       inherited SecondRatePanel: TPanel
         Width = 1299
@@ -750,7 +688,8 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
           
             '(xxmsz_tools.erasePolishChars(upper(CLASSES.DESC4)) like '#39'%var9%' +
             #39') OR'
-          '(GRIDS.CAPTION like '#39'%var10%'#39')'
+          '(GRIDS.CAPTION like '#39'%var10%'#39') OR'
+          'upper(CLASSES.CREATED_BY) like '#39'%var11%'#39
           ')'
           '')
         TabOrder = 6

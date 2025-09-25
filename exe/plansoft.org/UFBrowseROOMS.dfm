@@ -13,7 +13,6 @@ inherited FBrowseROOMS: TFBrowseROOMS
   inherited MainPage: TPageControl
     Width = 1185
     Height = 639
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1142
@@ -34,6 +33,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             Expanded = False
             FieldName = 'LOCKED'
             Title.Caption = 'Blokada?'
+            Width = 100
             Visible = True
           end
           item
@@ -1945,8 +1945,9 @@ inherited FBrowseROOMS: TFBrowseROOMS
       ',  ORG_UNITS.NAME OUNAME'
       ',  SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) OUCODE'
       
-        ',  (select per.name from timetable_notes, periods per where per_' +
-        'id=per.id and res_id= rooms.id and rownum=1) locked'
+        ',  (select per.name || '#39': '#39' || locked_reason from timetable_note' +
+        's, periods per where per_id=per.id and res_id= rooms.id and lock' +
+        'ed_reason is not null and rownum=1) locked'
       '  FROM ROOMS'
       ',      ORG_UNITS'
       ' WHERE ORGUNI_ID = ORG_UNITS.ID(+)'

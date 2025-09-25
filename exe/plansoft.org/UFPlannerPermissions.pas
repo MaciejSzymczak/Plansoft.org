@@ -82,10 +82,13 @@ type
     SUBChanged   : boolean;
     FORChanged   : boolean;
     ROLChanged : boolean;
+    SQLStatements : string;
+    SQLStatementsCnt : Integer;
     Procedure LoadGrid;
     Procedure InvertSelection(Grid: TStringGrid; Var Flag : Boolean);
     procedure addSelection(Grid: TStringGrid; Var Flag : Boolean);
     procedure deleteSelection(Grid: TStringGrid; Var Flag : Boolean);
+    procedure runSQL;
     Procedure SaveCellGrid(Grid: TStringGrid; Descriptor : String; Var Flag : Boolean; Col, Row : integer);
     function getRowSearch : string;
     function getPSearch : string;
@@ -155,7 +158,7 @@ begin
 
   dmodule.CommitTrans;
   Panel1.Caption := 'Zapisywanie. Komórka nr (' + intToStr(col) + ',' + intToStr(row) + '). Proszê czekaæ...';
-  panel1.Refresh;
+  //
   x := col;
   y := row;
        If Descriptor = 'LEC' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(LECS[y].ID)+'';
@@ -164,7 +167,7 @@ begin
        If Descriptor = 'ROL' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(ROLS[y].ID)+'';
        If Descriptor = 'SUB' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(SUBS[y].ID)+'';
        If Descriptor = 'FOR' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(FORS[y].ID)+'';
-       DModule.SQL(S);
+       SQLStatements := SQLStatements + S + '; ';
 
      If Grid.Cells[x,y] <> '' Then Begin
        If Descriptor = 'LEC' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(LECS[y].ID)+')';
@@ -173,10 +176,11 @@ begin
        If Descriptor = 'ROL' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(ROLS[y].ID)+')';
        If Descriptor = 'SUB' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(SUBS[y].ID)+')';
        If Descriptor = 'FOR' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(FORS[y].ID)+')';
-       DModule.SQL(S);
+       //DModule.SQL(S);
+       SQLStatements := SQLStatements + S + '; ';
+       SQLStatementsCnt := SQLStatementsCnt +1;
      End;
-  dmodule.CommitTrans;
-  Panel1.Caption := '';
+  if SQLStatementsCnt = 150 then runSQL;
 end;
 
 {}
@@ -256,7 +260,7 @@ begin
    ROLGrid.ColCount := QWork.RecordCount+1;
 
    fmain.wlog ('FplannerPermissions : LECTURERS');
-   OPENSQL2('SELECT ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS where id>0 and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%'') ORDER BY LAST_NAME, FIRST_NAME');
+   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
    LGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -269,7 +273,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : GROUPS');
-   OPENSQL2('SELECT ID, '+sql_GRONAME+' NAME FROM GROUPS where id>0 and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getrowSearch+'%'') ORDER BY '+sql_GRONAME);
+   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
    GGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -282,7 +286,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : ROOMS');
-   OPENSQL2('SELECT ID, '+sql_ResCat0NAME+' FROM ROOMS where id>0 and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_ResCat0NAME);
+   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS rooms, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
    RGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -295,7 +299,7 @@ begin
    End;
 
    fmain.wlog ('FplannerPermissions : SUBJECTS');
-   OPENSQL2('SELECT ID, '+sql_SUBNAME+' FROM SUBJECTS where id>0 and nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_SUBNAME);
+   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
    SubGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -309,7 +313,7 @@ begin
 
 
    fmain.wlog ('FplannerPermissions : FORMS');
-   OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_FORNAME);
+   OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+' ORDER BY '+sql_FORNAME);
    FORGrid.RowCount := QWork2.RecordCount+1;
    fmain.wlog ('FplannerPermissions : cnt=' + inttostr(QWork2.RecordCount+1));
    y := 1;
@@ -380,8 +384,10 @@ Var xp, yp : Integer;
 begin
   inherited;
   Flag := True;
+  SQLStatements := '';
+  SQLStatementsCnt := 0;
   with Grid Do
-   For xp:=Selection.Left To Selection.Right Do
+   For xp:=Selection.Left To Selection.Right Do begin
    For yp:=Selection.Top To Selection.Bottom Do begin
      If Cells[xp, yp] = '' Then Cells[xp, yp] := '+' Else Cells[xp, yp] := '';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
@@ -391,6 +397,8 @@ begin
        if upperCase(grid.Name) = 'SUBGRID' then SaveCellGrid(SUBGrid, 'SUB',SUBCHANGED,xp, yp);
        if upperCase(grid.Name) = 'FORGRID' then SaveCellGrid(FORGrid, 'FOR',FORCHANGED,xp, yp);
      end;
+     RunSQL;
+  end;
 end;
 
 procedure TFPlannerPermissions.addSelection(Grid: TStringGrid; Var Flag : Boolean);
@@ -398,8 +406,10 @@ Var xp, yp : Integer;
 begin
   inherited;
   Flag := True;
+  SQLStatements := '';
+  SQLStatementsCnt := 0;
   with Grid Do
-   For xp:=Selection.Left To Selection.Right Do
+   For xp:=Selection.Left To Selection.Right Do Begin
    For yp:=Selection.Top To Selection.Bottom Do begin
        Cells[xp, yp] := '+';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
@@ -409,6 +419,8 @@ begin
        if upperCase(grid.Name) = 'FORGRID' then SaveCellGrid(FORGrid, 'FOR',FORCHANGED,xp, yp);
        if upperCase(grid.Name) = 'ROLGRID' then SaveCellGrid(ROLGrid, 'ROL',ROLCHANGED,xp, yp);
      end;
+     runSQL;
+   End;
 end;
 
 procedure TFPlannerPermissions.DeleteSelection(Grid: TStringGrid; Var Flag : Boolean);
@@ -416,8 +428,10 @@ Var xp, yp : Integer;
 begin
   inherited;
   Flag := True;
+  SQLStatements := '';
+  SQLStatementsCnt := 0;
   with Grid Do
-   For xp:=Selection.Left To Selection.Right Do
+   For xp:=Selection.Left To Selection.Right Do begin
    For yp:=Selection.Top To Selection.Bottom Do begin
        Cells[xp, yp] := '';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
@@ -427,6 +441,8 @@ begin
        if upperCase(grid.Name) = 'SUBGRID' then SaveCellGrid(SUBGrid, 'SUB',SUBCHANGED,xp, yp);
        if upperCase(grid.Name) = 'FORGRID' then SaveCellGrid(FORGrid, 'FOR',FORCHANGED,xp, yp);
      end;
+     RunSQL;
+   end;
 end;
 
 
@@ -682,6 +698,19 @@ begin
   begin
      FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ RolGrid.Cells[Col, Row]);
   end;
+end;
+
+procedure TFPlannerPermissions.runSQL;
+begin
+if SQLStatements <> '' then begin
+       Self.Refresh;
+       SQLStatements := 'Begin '+SQLStatements+' commit; end;';
+       DModule.SQL(SQLStatements);
+       SQLStatements := '';
+       SQLStatementsCnt := 0;
+       dmodule.CommitTrans;
+       Panel1.Caption := '';
+     end;
 end;
 
 end.

@@ -13,7 +13,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 1189
     Height = 673
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 835
@@ -45,6 +44,13 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
         Columns = <
+          item
+            Expanded = False
+            FieldName = 'LOCKED'
+            Title.Caption = 'Blokada?'
+            Width = 100
+            Visible = True
+          end
           item
             Expanded = False
             FieldName = 'ABBREVIATION'
@@ -1923,6 +1929,10 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       ',      ORG_UNITS.*'
       ',      PLANNERS.NAME ROLE_NAME'
       ',      SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) SC'
+      
+        ',  (select per.name || '#39': '#39' || locked_reason from timetable_note' +
+        's, periods per where per_id=per.id and res_id= LECTURERS.id and ' +
+        'locked_reason is not null and rownum=1) locked'
       '  FROM LECTURERS'
       ',      ORG_UNITS'
       ',      PLANNERS'

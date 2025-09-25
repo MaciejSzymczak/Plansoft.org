@@ -256,7 +256,7 @@ implementation
 uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
   UFProgramSettings, UFIN_LINESGenerator, UFBrowseLECTURERS,
   uFBrowseGROUPS, uFBrowsePERIODS, UFBrowseSUBJECTS, uFBrowseFORMS,
-  UFBrowseROOMS, ActiveX, TlHelp32, Variants, UFMessageBox;
+  UFBrowseROOMS, ActiveX, TlHelp32, Variants, UFMessageBox, UProgress;
 
 {$R *.DFM}
 
@@ -277,6 +277,10 @@ Var columnsSelect, columnsGroupBy      : String;
 
 
 begin
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  10;
+  FProgress.Refresh;
+
 
   columnsSelect := '';
   columnsGroupBy := '';
@@ -578,7 +582,13 @@ begin
    Query.SQL.Add(S);
    Try
    dm.logSQLStart ('SQL', S);
+
+   FProgress.ProgressBar.Position :=  30;
+   FProgress.Refresh;
    Query.Open;
+   FProgress.ProgressBar.Position :=  80;
+   FProgress.Refresh;
+
    if Grid.Columns[0].Width > 200 then Grid.Columns[0].Width := 200;
    dm.logSQLStop;
    Except
@@ -612,6 +622,7 @@ begin
  end;
 
  UpdStatus('');
+ FProgress.Hide;
 end;
 
 procedure TFGrouping.CONLChange(Sender: TObject);
@@ -1147,12 +1158,16 @@ end;
 procedure TFGrouping.SaveAsCsv( filename : tfilename);
 var F : Textfile;
     S : String;
+    val : string;
 
     Procedure OutputQuery(Query : TADOQuery);
     var t : Integer;
     Begin
       S := '';
-      For t := 0 To Query.Fields.Count-1 Do  S := Merge(S, Query.Fields[t].FieldName, ';');
+      For t := 0 To Query.Fields.Count-1 Do Begin
+        val := replace(replace(Query.Fields[t].FieldName,';','|'),',','|');
+        S := Merge(S, val, ';');
+      End;
       Writeln(F, S);
 
       Query.First;
@@ -1160,7 +1175,10 @@ var F : Textfile;
        S := '';
        For t := 0 To Query.Fields.Count-1 Do
         If Query.Fields[t].DataType = ftFloat Then S := Merge(S, FormatFloat('###,###,###,##0.00',Query.Fields[t].AsFloat), ';')
-        Else  S := Merge(S, nvl(Query.Fields[t].AsString, '-'), ';');
+        Else  begin
+          val := replace(replace(Query.Fields[t].AsString,';','|'),',','|');
+          S := Merge(S, nvl(val, '-'), ';');
+        end;
        Writeln(F, S);
 
        Query.Next;

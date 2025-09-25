@@ -76,6 +76,13 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Columns = <
           item
             Expanded = False
+            FieldName = 'LOCKED'
+            Title.Caption = 'Blokada?'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'ABBREVIATION'
             Title.Caption = 'Skr'#243't'
             Visible = True
@@ -2376,6 +2383,10 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       ',      ORG_UNITS.*'
       ',      ORG_UNITS.NAME ONAME'
       ',      SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) SC'
+      
+        ',  (select per.name || '#39': '#39' || locked_reason from timetable_note' +
+        's, periods per where per_id=per.id and res_id= GROUPS.id and loc' +
+        'ked_reason is not null and rownum=1) locked'
       '  FROM GROUPS'
       
         ',      ( SELECT CODE, NAME GROUP_TYPE_NAME FROM LOOKUPS_GROUP_TY' +

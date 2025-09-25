@@ -32,7 +32,7 @@ inherited FMassImport: TFMassImport
           'Sale'
           'Przedmioty'
           'Formy / rezerwacje'
-          '(WKR'#211'TCE!) Plan studi'#243'w')
+          'Plan studi'#243'w')
         TabOrder = 0
         OnClick = importTypeClick
       end

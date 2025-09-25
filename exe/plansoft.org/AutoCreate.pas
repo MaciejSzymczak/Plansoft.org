@@ -82,9 +82,14 @@ Function RESERVATIONS_KINDSShowModalAsSelect(var ID : ShortString) : TModalResul
 Procedure RESERVATIONS_KINDSFree;
 
 procedure CLASSESCreate;
-Procedure CLASSESShowModalAsBrowser(aclassesTableName, aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
+Procedure CLASSESShowModalAsBrowser(aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
 Function  CLASSESShowModalAsSelect(var ID : ShortString) : TModalResult;
 Procedure CLASSESFree;
+
+procedure CLASSES_HISTORYCreate;
+Procedure CLASSES_HISTORYShowModalAsBrowser(aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
+Function  CLASSES_HISTORYShowModalAsSelect(var ID : ShortString) : TModalResult;
+Procedure CLASSES_HISTORYFree;
 
 procedure PLANNERSCreate;
 Procedure PLANNERSShowModalAsBrowser;
@@ -146,7 +151,7 @@ Procedure GRIDSFree;
 implementation
 
 Uses UUtilityParent, UFBrowseLECTURERS, UFBrowseGROUPS, UFBrowseROOMS, UFBrowseSUBJECTS, UFBrowseFORMS, UFBrowsePERIODS, UFBrowseRESERVATIONS_KINDS,
-     UFBrowseCLASSES, UFBrowsePLANNERS, UFBrowseRESOURCE_CATEGORIES, UFBrowseORG_UNITS, UFBrowseFORM_FORMULAS, UFConsolidation, UFDataDiagram, UFBrowseVALUE_SETS
+     UFBrowseCLASSES, UFBrowseCLASSES_HISTORY, UFBrowsePLANNERS, UFBrowseRESOURCE_CATEGORIES, UFBrowseORG_UNITS, UFBrowseFORM_FORMULAS, UFConsolidation, UFDataDiagram, UFBrowseVALUE_SETS
      ,UFBrowseLOOKUPS, UFBrowseFLEX_COL_USAGE, UFBrowseTT_RESCAT_COMBINATIONS, UFBrowseTT_COMBINATIONS, UFBrowseFIN_PARTIES, UFBrowseFIN_BATCHES, UFBrowseFIN_DOCS, UFBrowseFIN_LINES, UFBrowseFIN_LOOKUP_VALUES, dm,
      UFBrowseGRIDS, UFBrowseRES_HINTS, SysUtils;
 
@@ -646,7 +651,7 @@ begin
 If Not Assigned(FBrowseCLASSES) Then FBrowseCLASSES := TFBrowseCLASSES.Create(Application);
 end;
 
-Procedure CLASSESShowModalAsBrowser(aclassesTableName, aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
+Procedure CLASSESShowModalAsBrowser(aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
 var IsBlankDateFrom : boolean;
 var IsBlankDateTo : boolean;
 Begin
@@ -654,8 +659,6 @@ Begin
  With FBrowseCLASSES do begin
 
   CanRefresh := false;
-  historyFrom.Date := now();
-  historyTo.Date := now();
 
   IsBlankDateFrom := DateToOracle(FDAY_FROM.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
   IsBlankDateTo   := DateToOracle(FDAY_TO.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
@@ -681,11 +684,10 @@ Begin
   GenericFilter.FFilterType.Text := iif(aFOR_ID<>'','e','a');
   GenericFilter.PERFilterType.Text := iif(aPERIOD_ID<>'','e','a');
 
-  classesTableName := aclassesTableName;
+  classesTableName := 'CLASSES';
   ChSelectedDates.checked := aSelectedDates;
   GetTableName;
 
-  PanelHistory.visible := aclassesTableName = 'CLASSES_HISTORY';
   HideEdit := aHideEdit;
   ShowModalAsBrowser('');
  end;
@@ -705,6 +707,63 @@ If Assigned(FBrowseCLASSES) Then If FBrowseCLASSES.Visible Then Exit;
  If Assigned(FBrowseCLASSES) Then FBrowseCLASSES.Free;
  FBrowseCLASSES := Nil;
 End;
+
+procedure CLASSES_HISTORYCreate;
+begin
+If Not Assigned(FBrowseCLASSES_HISTORY) Then FBrowseCLASSES_HISTORY := TFBrowseCLASSES_HISTORY.Create(Application);
+end;
+
+Procedure CLASSES_HISTORYShowModalAsBrowser(aLEC_ID, aGRO_ID, aROM_ID, aPERIOD_ID, aSUB_ID, aFOR_ID, aPLA_ID : shortString; aSelectedDates, aHideEdit : boolean);
+Begin
+ CLASSES_HISTORYCreate;
+ With FBrowseCLASSES_HISTORY do begin
+
+  CanRefresh := false;
+  historyFrom.Date := now();
+  historyTo.Date := now();
+
+  ComboSortOrderChange(nil);
+  CanRefresh := true;
+
+  GenericFilter.CONL.Text := aLEC_ID;
+  GenericFilter.CONG.Text := aGRO_ID;
+  GenericFilter.conResCat1.Text := aROM_ID;
+  GenericFilter.CONPERIOD.Text := aPERIOD_ID;
+  GenericFilter.CONS.Text := aSUB_ID;
+  GenericFilter.CONF.Text := aFOR_ID;
+  GenericFilter.CONPLA.Text := aPLA_ID;
+
+  GenericFilter.LFilterType.Text := iif(aLEC_ID<>'','e','a');
+  GenericFilter.GFilterType.Text := iif(aGRO_ID<>'','e','a');
+  GenericFilter.SFilterType.Text := iif(aSUB_ID<>'','e','a');
+  GenericFilter.FFilterType.Text := iif(aFOR_ID<>'','e','a');
+  GenericFilter.PERFilterType.Text := iif(aPERIOD_ID<>'','e','a');
+
+  classesTableName := 'CLASSES_HISTORY';
+  ChSelectedDates.checked := aSelectedDates;
+  GetTableName;
+
+  PanelHistory.visible := true;
+  HideEdit := aHideEdit;
+  ShowModalAsBrowser('');
+ end;
+ If GetSystemParam('SAVERESOURCES') = 'Yes' Then CLASSES_HISTORYFree;
+End;
+
+Function CLASSES_HISTORYShowModalAsSelect(var ID : ShortString) : TModalResult;
+Begin
+ CLASSES_HISTORYCreate;
+ Result := FBrowseCLASSES_HISTORY.ShowModalAsSelect(ID);
+ If GetSystemParam('SAVERESOURCES') = 'Yes' Then CLASSES_HISTORYFree;
+End;
+
+Procedure CLASSES_HISTORYFree;
+Begin
+If Assigned(FBrowseCLASSES_HISTORY) Then If FBrowseCLASSES_HISTORY.Visible Then Exit;
+ If Assigned(FBrowseCLASSES_HISTORY) Then FBrowseCLASSES_HISTORY.Free;
+ FBrowseCLASSES_HISTORY := Nil;
+End;
+
 
 procedure PLANNERSCreate;
 begin

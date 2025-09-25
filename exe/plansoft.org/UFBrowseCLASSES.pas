@@ -37,12 +37,6 @@ type
     ConflictWithReservations: TComboBox;
     Label1: TLabel;
     fastQueryString: TMemo;
-    PanelHistory: TPanel;
-    HistoryMode: TComboBox;
-    historyFrom: TDateEdit;
-    Label3: TLabel;
-    historyTo: TDateEdit;
-    historyLabel: TLabel;
     ChSelectedDates: TCheckBox;
     FHOUR: TComboBox;
     FDAY_TO: TDateEdit;
@@ -65,7 +59,6 @@ type
     procedure GenericFilterconPerChange(Sender: TObject);
     procedure GenericFilterconResCat1Change(Sender: TObject);
     procedure GenericFilterconPlaChange(Sender: TObject);
-    procedure ComboSortOrderChange(Sender: TObject);
     procedure historyFromChange(Sender: TObject);
     procedure historyToChange(Sender: TObject);
     procedure ConflictWithReservationsChange(Sender: TObject);
@@ -97,7 +90,6 @@ type
     procedure BMassEditClick(Sender: TObject);
     procedure ActionLEC_DELClick(Sender: TObject);
     procedure ActionLEC_DEL_ALLClick(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
@@ -239,7 +231,6 @@ begin
     AvailColumnsWhereClause.Strings.Clear;
     CreateGridLayout;
 
-    PanelHistory.Visible := classesTableName = 'CLASSES_HISTORY';
     if classesTableName = 'CLASSES_HISTORY' then begin
       HolderSortOrder.CommaText :=
               'SUB_NAME|%C1.|CATEGORY:DEFAULT,FRM_NAME|%C2.|CATEGORY:DEFAULT,CONCAT(TO_CHAR(DAY^comma^''yyyy-mm-dd'')^comma^HOUR)^space^DESC|Dzieñ^space^i^space^godzina|CATEGORY:DEFAULT,to_char(CLASSES.DAY^comma^''dy'')|'+
@@ -329,33 +320,8 @@ Var tablePostfix     : string;
   end;
 Begin
  DM.macros.setMacro(query, 'TABLENAME', ClassesTableName);
-
- if classesTableName = 'CLASSES_HISTORY' then begin
-   case HistoryMode.ItemIndex of
-   {Wszystkie zmiany
-    Zmiany wykonane dzisiaj
-    Zmiany wykonane wczoraj
-    Zmiany wykonane przedwczoraj
-    Zmiany - ostatnie 3 dni
-    Zmiany - ostatnich 7 dni
-    Zmiany - ostatnich 14 dni
-    Zmiany - ostatnich 30 dni
-    Zmiany w innym okresie}
-    0:DM.macros.setMacro(query, 'HIST_FILTER', '0=0');
-    1:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-0','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    2:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-1','trunc(sysdate)+0-NumTodsInterval(1, ''second'')'));
-    3:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)-1-NumTodsInterval(1, ''second'')'));
-    4:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-2','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    5:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-6','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    6:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-13','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    7:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod('trunc(sysdate)-29','trunc(sysdate)+1-NumTodsInterval(1, ''second'')'));
-    8:DM.macros.setMacro(query, 'HIST_FILTER', getPeriod( DateToOracle(historyFrom.Date-1) , DateToOracle(historyTo.Date+1)  ));
-   end;
-   tablePostfix := '_HISTORY';
- end else begin
    DM.macros.setMacro(query, 'HIST_FILTER', '0=0');
    tablePostfix := '';
- end;
 
  // -------------- | ---------------- | -----------------
 
@@ -506,13 +472,6 @@ procedure TFBrowseCLASSES.GenericFilterconPlaChange(Sender: TObject);
 begin
   GenericFilter.conPlaChange(Sender);
   BRefreshClick(nil);
-end;
-
-procedure TFBrowseCLASSES.ComboSortOrderChange(Sender: TObject);
-begin
-  historyFrom.Visible := HistoryMode.ItemIndex = 8;
-  historyTo.Visible := HistoryMode.ItemIndex = 8;
-  inherited;
 end;
 
 procedure TFBrowseCLASSES.historyFromChange(Sender: TObject);
@@ -700,6 +659,7 @@ begin
     result := stringreplace(result, 'var8', searchText, []);
     result := stringreplace(result, 'var9', searchText, []);
     result := stringreplace(result, 'var10', searchText, []);
+    result := stringreplace(result, 'var11', searchText, []);
   end;
   //select id from periods m where (xxmsz_tools.erasePolishChars(upper(m.name||m.desc1||m.desc2||m.attribs_01||m.attribs_02||m.attribs_03||m.attribs_04||m.attribs_05||m.attribs_06||m.attribs_07||m.attribs_08||m.attribs_09||m.attribs_10||m.attribs_11||m.attribs_12||m.attribs_13||m.attribs_14||m.attribs_15)) like '%'+replacePolishChars( ansiuppercase(trim(ESearch.Text)) )+'%' )
 end;
@@ -802,13 +762,6 @@ begin
   End;
   Fmain.DeepRefreshImmediate('ActionLEC_DEL_ALLClick');
   BRefreshClick(nil);
-end;
-
-procedure TFBrowseCLASSES.FormActivate(Sender: TObject);
-begin
-  inherited;
-  if classesTableName = 'CLASSES_HISTORY' then self.caption := 'Historia zmian';
-
 end;
 
 procedure TFBrowseCLASSES.BitBtn1Click(Sender: TObject);

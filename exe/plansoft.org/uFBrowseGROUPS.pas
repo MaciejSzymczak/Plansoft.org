@@ -184,6 +184,7 @@ type
     Procedure AddClick;              override;
     Function  getSearchFilter : string;  override;
     function  getFindCaption : string;   override;
+    Procedure GetTableName;              override;
 
     Function  canEditPermission : Boolean;   override;
     Function  canInsert    : Boolean;        override;
@@ -249,6 +250,11 @@ begin
    Grid.Canvas.FillRect(Rect);
   End;
 end;
+
+Procedure TFBrowseGROUPS.GetTableName;
+Begin
+  Self.TableName := 'GROUPS';
+End;
 
 Procedure TFBrowseGROUPS.CustomConditions;
 Begin
@@ -570,7 +576,7 @@ end;
 
 procedure TFBrowseGROUPS.BUpdChild1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES','', Query['Id'], '', '','','','',false, true);
+  AutoCreate.CLASSESShowModalAsBrowser('', Query['Id'], '', '','','','',false, true);
 end;
 
 procedure TFBrowseGROUPS.ttEnabledClick(Sender: TObject);

@@ -128,6 +128,7 @@ type
     Procedure AddClick;              override;
     Function  getSearchFilter : string;  override;
     function  getFindCaption : string;   override;
+    Procedure GetTableName;                        override;
 
    Function  canEditPermission : Boolean;   override;
    Function  canInsert    : Boolean;        override;
@@ -194,6 +195,12 @@ begin
   inherited;
   Shape1.Brush.Color := QUERY.FieldByName('COLOUR').AsInteger;
 end;
+
+Procedure TFBrowseLECTURERS.GetTableName;
+Begin
+  Self.TableName := 'LECTURERS';
+End;
+
 
 Procedure TFBrowseLECTURERS.CustomConditions;
 Begin
@@ -439,7 +446,7 @@ end;
 
 procedure TFBrowseLECTURERS.BUpdChild1Click(Sender: TObject);
 begin
-  AutoCreate.CLASSESShowModalAsBrowser('CLASSES', Query['Id'] ,'', '', '','','','',false, true);
+  AutoCreate.CLASSESShowModalAsBrowser(Query['Id'] ,'', '', '','','','',false, true);
 end;
 
 procedure TFBrowseLECTURERS.ttEnabledClick(Sender: TObject);
