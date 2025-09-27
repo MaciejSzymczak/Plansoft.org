@@ -21,6 +21,8 @@ type
     BTemplate: TBitBtn;
     chbTest: TCheckBox;
     BitBtn1: TBitBtn;
+    DeletePlan: TCheckBox;
+    report: TADOQuery;
     procedure RunImport(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
@@ -30,7 +32,7 @@ type
   private
     myQuery: TADOQuery;
   public
-    { Public declarations }
+    procedure TT_Interface_Import(deleteExistingPlan : string);
   end;
 
 var
@@ -38,7 +40,7 @@ var
 
 implementation
 
-uses DM, UFMain, StrUtils, UFMessageBox;
+uses DM, UFMain, StrUtils, UFMessageBox, UProgress;
 
 {$R *.dfm}
 
@@ -51,7 +53,6 @@ var LCID : Integer;
     translatedMessage : string;
     uniqueCheck : TMap;
     uniqueKey, integrationId,pId : shortString;
-    uniqueCheckErrorFlag : boolean;
     uniqueCheckErrorMessage : string;
 
     function verifyHeader ( cols, expectedCols : string ) : boolean;
@@ -89,6 +90,7 @@ begin
   dmodule.commitTrans;  //=beginTrans
 
   if openDialog.Execute then begin
+    FProgress.Show;
     LCID := GetUserDefaultLCID;
     ExcelApplication.Connect;
     ExcelApplication.Visible[LCID] := true;
@@ -135,8 +137,20 @@ begin
 
     uniqueCheck := Tmap.Create;
     uniqueCheck.init(false);
-    uniqueCheckErrorFlag := false;
     uniqueCheckErrorMessage := '';
+
+    case importType.ItemIndex of
+      //0:
+      //1:
+      //2:
+      //3:
+      //4:
+      5: DModule.SQL('Begin Delete from tt_interface where created_by=user; commit; end;');
+    end;
+
+
+     FProgress.ProgressBar.Position :=  50;
+     FProgress.Refresh;
 
     repeat
       lineNum := lineNum + 1;
@@ -188,7 +202,7 @@ begin
 
       if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
         uniqueCheckErrorMessage := merge( uniqueCheckErrorMessage, format('%s', [uniqueKey]), cr);
-        uniqueCheckErrorFlag := true;
+        //uniqueCheckErrorFlag := true;
       end
       else begin
         uniqueCheck.addKeyValue(uniqueKey, uniqueKey);
@@ -255,23 +269,6 @@ begin
                  addPermission ('FOR', pId);
                end;
 
- { to do
-
-1. Skasowac poprzednie dane przed importem?
-3. buid package procsssing it 
-select * from TT_INTERFACE
-        LEC_ID
-        SUB_ID
-        FOR_ID
-        GRO_ID
-        per_id
-        message
-  and showing the log processing (message)
-
- }
-
-
-
             5: begin
                  if integrationId='' then begin
                    dmodule.SQLNoBinding(myQuery
@@ -289,6 +286,7 @@ select * from TT_INTERFACE
           end;
         except
         on E:exception Do Begin
+          FProgress.Hide;
           If Pos(sKeyViolation, E.Message)<>0 Then Begin
            if DBMap.get (E.Message, translatedMessage) then begin
              dmodule.RollbackTrans;
@@ -323,18 +321,28 @@ select * from TT_INTERFACE
     //  Abort;
     //end;
 
+
+
     if chbTest.Checked then begin
       dmodule.RollbackTrans;
       info('Rekordy s¹ prawid³owe, dane nie zosta³y zapisane w bazie danych (uruchomienie testowe).'+cr+cr+' Liczba rekordów:' + intToStr(lineNum-2) );
     end
     else
     begin
+      case importType.ItemIndex of
+        0: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        1: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        2: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        3: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        4: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        5: TT_Interface_Import(  iif(DeletePlan.Checked,'Y','N') );
+      end;
       importType.ItemIndex := -1;
       PC.ActivePageIndex := 0;
       dmodule.CommitTrans;
-      info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
     end;
 
+    FProgress.Hide;
     ExcelApplication.Disconnect;
     //ExcelApplication.Quit;
     //ExcelApplication.ActiveWorkbook.ActiveSheet.
@@ -375,7 +383,46 @@ end;
 
 procedure TFMassImport.BitBtn1Click(Sender: TObject);
 begin
+  DeletePlan.Visible := importType.ItemIndex=5;
   PC.ActivePageIndex := 2;
+end;
+
+
+procedure TFMassImport.TT_Interface_Import (deleteExistingPlan : string);
+var tmpFile : textfile;
+    sqlstmt : string;
+    query : tadoquery;
+begin
+  FProgress.ProgressBar.Position :=  80;
+  FProgress.Refresh;
+
+  query := tadoquery.Create(self);
+  dmodule.resetConnection ( query );
+  sqlstmt := format('begin tt_interface_pkg.import(''%s''); end;',
+                 [deleteExistingPlan
+                ]);
+  try
+   query.SQL.clear;
+   query.SQL.Add(sqlstmt);
+   query.execSQL;
+   query.Free;
+  except
+   on e:exception do begin
+       copyToClipboard( sqlstmt );
+       raise;
+   end;
+  end;
+
+  AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'Plan_Import.html');
+  rewrite(tmpFile);
+
+  report.SQL.Clear;
+  report.SQL.Add( 'select tt_interface_pkg.getReport from dual' );
+  report.Open;
+  writeln(tmpFile, UTF8Encode (report.Fields[0].AsString));
+
+  closeFile(tmpFile);
+  ExecuteFile(uutilityParent.ApplicationDocumentsPath +'Plan_Import.html','','',SW_SHOWMAXIMIZED);
 end;
 
 end.

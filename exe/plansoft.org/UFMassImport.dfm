@@ -15,7 +15,7 @@ inherited FMassImport: TFMassImport
     Top = 0
     Width = 481
     Height = 317
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 1
     object TabSheet1: TTabSheet
@@ -90,6 +90,16 @@ inherited FMassImport: TFMassImport
         TabOrder = 2
         Visible = False
       end
+      object DeletePlan: TCheckBox
+        Left = 8
+        Top = 240
+        Width = 417
+        Height = 17
+        Caption = 'Skasuj istniej'#261'ce linie w planie studi'#243'w, nale'#380#261'ce do mnie'
+        Checked = True
+        State = cbChecked
+        TabOrder = 3
+      end
     end
   end
   object OpenDialog: TOpenDialog
@@ -103,6 +113,14 @@ inherited FMassImport: TFMassImport
     ConnectKind = ckRunningOrNew
     AutoQuit = False
     Left = 200
+    Top = 96
+  end
+  object report: TADOQuery
+    AutoCalcFields = False
+    Connection = DModule.ADOConnection
+    CommandTimeout = 1000
+    Parameters = <>
+    Left = 272
     Top = 96
   end
 end
