@@ -39,6 +39,8 @@ type
     SpeedButton4: TSpeedButton;
     Label3: TLabel;
     GRID_LABELS: TDBEdit;
+    FHelp: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -48,6 +50,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
+    procedure FHelpClick(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -190,6 +194,21 @@ procedure TFBrowsePERIODS.SpeedButton4Click(Sender: TObject);
 begin
  //FFloatingMessage.showModal
  info('Ukrywanie zbêdnych wierszy, np. gdy korzystamy z siatki piêtnastominutowej to ci¹g znaków +--- oznacza, ¿e pelne godziny s¹ pokazywane, a pozostale s¹ ukrywane. Znak "-" oznacza ukrycie');
+end;
+
+procedure TFBrowsePERIODS.FHelpClick(Sender: TObject);
+begin
+  SError('Zalecany sposób nazywania semestrów:'+cr+' Kod wydzia³u + rodzaj studiów + okres'+cr+' np. WEL_STAC_2030Z');
+end;
+
+procedure TFBrowsePERIODS.SpeedButton2Click(Sender: TObject);
+begin
+  SError('Zaleca siê, aby autoryzacja mia³a dok³adnie tak¹ sam¹ nazwê co semestr.'+cr+
+''+cr+
+'W oknie "Planiœci/Autoryzacje" utwórz autoryzacjê.'+cr+
+'W oknie Uprawnienia wska¿, które zasoby bêd¹ widoczne po wybraniu autoryzacji.'+cr+
+'Równie¿ w oknie Uprawnienia wska¿, którzy planiœci bêd¹ te autoryzacje widzieli.');
+
 end;
 
 end.

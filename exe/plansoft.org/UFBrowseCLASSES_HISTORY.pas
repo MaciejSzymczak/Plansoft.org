@@ -713,21 +713,14 @@ begin
        performOperation;
     end;
 
-    //first remove inserts (delete)
 	  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
       FProgress.ProgressBar.Position :=  round(tgrid *  FProgress.ProgressBar.Max / Grid.SelectedRows.Count - 1);
+      status.Caption := Query.FieldByName('attribn_01').AsString;
       FProgress.Refresh;
+      status.Refresh;
       Query.Bookmark := Grid.SelectedRows.Items[tgrid];
       operation := Query.FieldByName('OPERATION_FLAG').AsString;
-      if  (operation='I') then performOperation;
-	  End;
-    //then revert deletions (delete)
-	  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
-      FProgress.ProgressBar.Position :=  round(tgrid *  FProgress.ProgressBar.Max / Grid.SelectedRows.Count - 1);
-      FProgress.Refresh;
-      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
-      operation := Query.FieldByName('OPERATION_FLAG').AsString;
-      if  (operation='D') then performOperation;
+      performOperation;
 	  End;
 
   except
@@ -748,7 +741,12 @@ begin
 end;
 procedure TFBrowseCLASSES_HISTORY.FHelpClick(Sender: TObject);
 begin
-    SError('Mo¿esz zaznaczyc wiele czynnoœci.');
+    SError('Mo¿esz zaznaczyæ wiele czynnoœci: Pocz¹tkuj¹cym u¿ytkownikom, zaleca siê cofanie czynnoœci w nastêpuj¹cy sposób:'+cr+' Zaznacz pierwsz¹ od góry czynnoœæ i trzymaj¹æ naciœniêty przycisk Shift przemieszczaj siê w gó³'+cr+' a¿ do zaznaczenia wszystkich operacji, które chcesz wycofaæ. '+CR+ cr+
+'Mo¿liwe jest te¿ cofanie tylko niektórych (a nie wszystkich operacji) '+cr+'poprzez zaznaczenie tylko niektórych wierszy przez przytrzymanie klawisza Control, ale '+cr+'jest to czynnoœæ, która wymaga zaawansowanej znajomoœci Aplikacji.'
+    );
 end;
+
+
+
 
 end.

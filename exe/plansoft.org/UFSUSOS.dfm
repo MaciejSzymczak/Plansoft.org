@@ -123,32 +123,39 @@ inherited FUSOS: TFUSOS
         Caption = 'Konfiguracja'
         ImageIndex = 1
         object Label2: TLabel
-          Left = 24
-          Top = 16
+          Left = 29
+          Top = 8
           Width = 103
           Height = 14
           Caption = 'Liczba godzin w dniu'
         end
         object LRESCAT_COMB_ID: TLabel
           Left = 48
-          Top = 44
+          Top = 27
           Width = 82
           Height = 14
           Caption = 'Typ ograniczenia'
         end
         object Label3: TLabel
           Left = 16
-          Top = 68
+          Top = 48
           Width = 118
           Height = 14
           Caption = 'U'#380'ytkownik integracyjny'
         end
         object Label4: TLabel
-          Left = 16
-          Top = 100
+          Left = 72
+          Top = 72
           Width = 60
           Height = 14
           Caption = 'Sala ONLINE'
+        end
+        object Label5: TLabel
+          Left = 61
+          Top = 96
+          Width = 72
+          Height = 14
+          Caption = 'Nazwa pakietu'
         end
         object USOS_HOURS_PER_DAY: TEdit
           Left = 136
@@ -160,7 +167,7 @@ inherited FUSOS: TFUSOS
         end
         object RESCAT_COMB_ID_VALUE: TEdit
           Left = 136
-          Top = 35
+          Top = 27
           Width = 301
           Height = 22
           ReadOnly = True
@@ -168,7 +175,7 @@ inherited FUSOS: TFUSOS
         end
         object RESCAT_COMB_IDSel: TBitBtn
           Left = 440
-          Top = 35
+          Top = 27
           Width = 25
           Height = 24
           ParentShowHint = False
@@ -213,7 +220,7 @@ inherited FUSOS: TFUSOS
         end
         object RESCAT_COMB_ID: TEdit
           Left = 472
-          Top = 32
+          Top = 24
           Width = 121
           Height = 22
           TabOrder = 3
@@ -223,7 +230,7 @@ inherited FUSOS: TFUSOS
         end
         object USOS_INTEGRATION_USER: TEdit
           Left = 136
-          Top = 64
+          Top = 48
           Width = 121
           Height = 22
           TabOrder = 4
@@ -231,11 +238,19 @@ inherited FUSOS: TFUSOS
         end
         object USOS_ONLINE: TEdit
           Left = 136
-          Top = 96
+          Top = 72
           Width = 121
           Height = 22
           TabOrder = 5
           Text = 'USOS_ONLINE'
+        end
+        object USOS_PACKAGE_NAME: TEdit
+          Left = 136
+          Top = 96
+          Width = 121
+          Height = 22
+          TabOrder = 6
+          Text = 'USOS'
         end
       end
     end

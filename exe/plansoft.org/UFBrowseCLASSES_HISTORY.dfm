@@ -23,6 +23,13 @@ inherited FBrowseCLASSES_HISTORY: TFBrowseCLASSES_HISTORY
         Columns = <
           item
             Expanded = False
+            FieldName = 'attribn_01'
+            Title.Caption = 'Id Historii'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'OPERATION_FLAG_DSP'
             Title.Caption = 'Operacja'
             Width = 180
@@ -178,14 +185,8 @@ inherited FBrowseCLASSES_HISTORY: TFBrowseCLASSES_HISTORY
           item
             Expanded = False
             FieldName = 'ID'
-            Title.Caption = 'Id'
+            Title.Caption = 'Id Zaj'#281'cia'
             Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'CLA_H_ROWID'
-            Width = 200
             Visible = True
           end>
       end

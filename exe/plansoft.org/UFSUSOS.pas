@@ -57,6 +57,8 @@ type
     QuerySent: TADOQuery;
     DSSent: TDataSource;
     SpeedButton1: TSpeedButton;
+    USOS_PACKAGE_NAME: TEdit;
+    Label5: TLabel;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -112,11 +114,13 @@ procedure TFUSOS.FormShow(Sender: TObject);
 begin
   inherited;
   PageControl2.TabIndex := 0;
+  TabSheet2.Visible := IsAdmin;
   USOS_CYKL.text          := dmodule.dbgetSystemParam('USOS_CYKL');
   RESCAT_COMB_ID.text     := dmodule.dbgetSystemParam('USOS_RESCAT_COMB_ID');
   USOS_HOURS_PER_DAY.text := dmodule.dbgetSystemParam('USOS_HOURS_PER_DAY');
   USOS_INTEGRATION_USER.text := dmodule.dbgetSystemParam('USOS_INTEGRATION_USER');
   USOS_ONLINE.text := dmodule.dbgetSystemParam('USOS_ONLINE');
+  USOS_PACKAGE_NAME.text := dmodule.dbgetSystemParam('USOS_PACKAGE_NAME');
   QueryLog.Active := true;
 end;
 
@@ -137,6 +141,8 @@ begin
   dmodule.dbSetSystemParam('USOS_INTEGRATION_USER', USOS_INTEGRATION_USER.text);
   progress('USOS_ONLINE');
   dmodule.dbSetSystemParam('USOS_ONLINE', USOS_ONLINE.text);
+  progress('USOS_PACKAGE_NAME');
+  dmodule.dbSetSystemParam('USOS_PACKAGE_NAME', USOS_PACKAGE_NAME.text);
 end;
 
 
@@ -153,7 +159,7 @@ FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
 
     SaveParams;
-    dmodule.sql('begin usos.integration_from_usos_dict (:pCleanYpMode ); end;'
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_dict (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     QueryLog.Close;
@@ -172,7 +178,7 @@ FProgress.Refresh;
 
     PageControl2.TabIndex := 0;
     SaveParams;
-    dmodule.sql('begin usos.integration_to_usos (:pCleanYpMode ); end;'
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_to_usos (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     QueryLog.Close;
@@ -190,7 +196,7 @@ FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
 
     SaveParams;
-    dmodule.sql('begin usos.integration_from_usos_plan (:pCleanYpMode ); end;'
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
     );
     QueryLog.Close;
