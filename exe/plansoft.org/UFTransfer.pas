@@ -27,6 +27,7 @@ type
     BCreate: TSpeedButton;
     BClose: TSpeedButton;
     chrol: TCheckBox;
+    chPer: TCheckBox;
     procedure ufromChange(Sender: TObject);
     procedure utoChange(Sender: TObject);
     procedure BitBtnROLEClick(Sender: TObject);
@@ -91,7 +92,7 @@ begin
       try
         with dmodule.QWork do begin
           SQL.Clear;
-          SQL.Add('begin copy_permissions(:pfrom_pla_id,:pto_pla_id,:plec,:pgro,:prom,:prol,:psub,:pfor,:pclasses); end;');
+          SQL.Add('begin copy_permissions(:pfrom_pla_id,:pto_pla_id,:plec,:pgro,:prom,:prol,:psub,:pfor,:pper,:pclasses); end;');
           parameters.ParamByName('pfrom_pla_id').value := ufrom.Text;
           parameters.ParamByName('pto_pla_id').value   := uto.Text;
           parameters.ParamByName('plec').value         := iif(chlec.Checked,'Y','N');
@@ -100,6 +101,7 @@ begin
           parameters.ParamByName('prol').value         := iif(chrol.Checked,'Y','N');
           parameters.ParamByName('psub').value         := iif(chsub.Checked,'Y','N');
           parameters.ParamByName('pfor').value         := iif(chfor.Checked,'Y','N');
+          parameters.ParamByName('pper').value         := iif(chper.Checked,'Y','N');
           parameters.ParamByName('pclasses').value     := iif(chclasses.Checked,'Y','N');
           logSQLStart('insert_classes', dmodule.QWork.SQL.CommaText);
           execSQL;

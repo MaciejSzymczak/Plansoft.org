@@ -73,6 +73,8 @@ type
     procedure ExportHtmlClick(Sender: TObject);
     procedure PodgldzapytaniaSQLZaawansowane1Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure PageControl1Changing(Sender: TObject;
+      var AllowChange: Boolean);
   private
     Procedure SaveParams;
   public
@@ -86,7 +88,7 @@ implementation
 
 {$R *.dfm}
 
-Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage;
+Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage, UFMain;
 
 procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
@@ -114,8 +116,8 @@ procedure TFUSOS.FormShow(Sender: TObject);
 begin
   inherited;
   PageControl2.TabIndex := 0;
-  TabSheet2.Visible := IsAdmin;
-  USOS_CYKL.text          := dmodule.dbgetSystemParam('USOS_CYKL');
+  PageControl1.TabIndex := 0;
+  USOS_CYKL.text          := NVL( dmodule.dbgetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL'), {for backward compatibility} dmodule.dbgetSystemParam('USOS_CYKL') );
   RESCAT_COMB_ID.text     := dmodule.dbgetSystemParam('USOS_RESCAT_COMB_ID');
   USOS_HOURS_PER_DAY.text := dmodule.dbgetSystemParam('USOS_HOURS_PER_DAY');
   USOS_INTEGRATION_USER.text := dmodule.dbgetSystemParam('USOS_INTEGRATION_USER');
@@ -133,6 +135,7 @@ procedure TFUSOS.SaveParams;
 begin
   progress('USOS_CYKL');
   dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
+  dmodule.dbSetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL', USOS_CYKL.text);
   progress('USOS_RESCAT_COMB_ID');
   dmodule.dbSetSystemParam('USOS_RESCAT_COMB_ID', RESCAT_COMB_ID.text);
   progress('USOS_HOURS_PER_DAY');
@@ -159,9 +162,20 @@ FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
 
     SaveParams;
-    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_dict (:pCleanYpMode ); end;'
+
+    if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
+      //old version, no parameter puserOrRoleId
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_dict (:pCleanYpMode); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
+      );
+    end else begin
+      //new version
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_dict (:pCleanYpMode, :puserOrRoleId ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+            +';puserOrRoleId='+fMain.getUserOrRoleId
+      );
+    end;
+
     QueryLog.Close;
     QueryLog.Open;
     PageControl2.TabIndex := 0;
@@ -178,9 +192,21 @@ FProgress.Refresh;
 
     PageControl2.TabIndex := 0;
     SaveParams;
-    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_to_usos (:pCleanYpMode ); end;'
+
+    if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
+      //old version, no parameter puserOrRoleId
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_to_usos (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
+      );
+    end else begin
+      //new version
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_to_usos (:pCleanYpMode, :puserOrRoleId ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+            +';puserOrRoleId='+fMain.getUserOrRoleId
+      );
+    end;
+
+
     QueryLog.Close;
     QueryLog.Open;
     PageControl2.TabIndex := 0;
@@ -196,9 +222,21 @@ FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
 
     SaveParams;
-    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
+
+    if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
+      //old version, no parameter puserOrRoleId
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
             ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
+      );
+    end else begin
+      //new version
+      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode, :puserOrRoleId ); end;'
+            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+            +';puserOrRoleId='+fMain.getUserOrRoleId
+      );
+    end;
+
+
     QueryLog.Close;
     QueryLog.Open;
     PageControl2.TabIndex := 0;
@@ -315,6 +353,12 @@ begin
 'Je¿eli zamiast ID w kolumnie pokazuje siê s³owo "**Skasowano**", to znaczy, ¿e rekord zosta³ skasowany w systemie USOS.  ' +
 'Wówczas uruchom ponownie integracjê.'
 );
+end;
+
+procedure TFUSOS.PageControl1Changing(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+   AllowChange:= IsAdmin;
 end;
 
 end.

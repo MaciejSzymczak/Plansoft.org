@@ -44,6 +44,8 @@ type
     Brefresh2: TBitBtn;
     btransfer: TBitBtn;
     tmp: TEdit;
+    TabSheetPer: TTabSheet;
+    PERGrid: TStringGrid;
     procedure FormShow(Sender: TObject);
     procedure AddClassClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
@@ -77,10 +79,11 @@ type
       Shift: TShiftState; X, Y: Integer);
   private
     LChanged   : boolean;
+    PERChanged : boolean;
     GChanged   : boolean;
     RChanged   : boolean;
-    SUBChanged   : boolean;
-    FORChanged   : boolean;
+    SUBChanged : boolean;
+    FORChanged : boolean;
     ROLChanged : boolean;
     SQLStatements : string;
     SQLStatementsCnt : Integer;
@@ -110,6 +113,7 @@ uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer,
 
 Var
     LECS    : Array[1..MaxAllLecturers] Of Record ID: Integer; NAME : String; End;
+    PERS    : Array[1..1000]            Of Record ID: Integer; NAME : String; End;
     GROS    : Array[1..MaxAllGroups]    Of Record ID: Integer; NAME : String; End;
     ROMS    : Array[1..MaxAllRooms]     Of Record ID: Integer; NAME : String; End;
     ROLS    : Array[1..MaxAllRoles]     Of Record ID: Integer; NAME : String; End;
@@ -128,6 +132,15 @@ Begin
   While (LECS[y].ID <> ID) and (y < MaxAllLecturers) Do
     inc(y);
   if y = MaxAllLecturers-1 then result := -1 else Result := y;
+End;
+
+Function PER_IDtoY(ID : Integer) : Integer;
+Var y : Integer;
+Begin
+  y := 1;
+  While (PERS[y].ID <> ID) and (y < 1000) Do
+    inc(y);
+  if y = 1000-1 then result := -1 else Result := y;
 End;
 
 Function GRO_IDtoY(ID : Integer) : Integer;
@@ -162,6 +175,7 @@ begin
   x := col;
   y := row;
        If Descriptor = 'LEC' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(LECS[y].ID)+'';
+       If Descriptor = 'PER' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(PERS[y].ID)+'';
        If Descriptor = 'GRO' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(GROS[y].ID)+'';
        If Descriptor = 'ROM' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(ROMS[y].ID)+'';
        If Descriptor = 'ROL' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(ROLS[y].ID)+'';
@@ -171,6 +185,7 @@ begin
 
      If Grid.Cells[x,y] <> '' Then Begin
        If Descriptor = 'LEC' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(LECS[y].ID)+')';
+       If Descriptor = 'PER' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(PERS[y].ID)+')';
        If Descriptor = 'GRO' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(GROS[y].ID)+')';
        If Descriptor = 'ROM' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(ROMS[y].ID)+')';
        If Descriptor = 'ROL' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(ROLS[y].ID)+')';
@@ -212,6 +227,7 @@ Var x, y : Integer;
 
      fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY Start');
      If Descriptor = 'LEC' Then begin y:= LEC_IDtoY(QWork.FieldByName('LEC_ID').AsInteger); end;
+     If Descriptor = 'PER' Then begin y:= PER_IDtoY(QWork.FieldByName('PER_ID').AsInteger); end;
      If Descriptor = 'GRO' Then begin y:= GRO_IDtoY(QWork.FieldByName('GRO_ID').AsInteger); end;
      If Descriptor = 'ROM' Then begin y:= ROM_IDtoY(QWork.FieldByName('ROM_ID').AsInteger); end;
      If Descriptor = 'ROL' Then begin y:= ROL_IDtoY(QWork.FieldByName('ROL_ID').AsInteger); end;
@@ -239,6 +255,7 @@ begin
    OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
    //info (  inttostr(QWork.RecordCount+1) );
    LGrid.ColCount   := QWork.RecordCount+1;
+   PERGrid.ColCount := QWork.RecordCount+1;
    GGrid.ColCount   := QWork.RecordCount+1;
    RGrid.ColCount   := QWork.RecordCount+1;
    ROLGrid.ColCount := QWork.RecordCount+1;
@@ -268,6 +285,19 @@ begin
     LECS[y].ID := QWork2.Fields[0].AsInteger;
     LECS[y].NAME := QWork2.Fields[1].AsString;
     LGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+    QWork2.Next;
+    inc(y);
+   End;
+
+   fmain.wlog ('FplannerPermissions : PERIODS');
+   OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
+   PERGrid.RowCount := QWork2.RecordCount+1;
+   y := 1;
+   QWork2.First;
+   While Not QWork2.EOF Do Begin
+    PERS[y].ID := QWork2.Fields[0].AsInteger;
+    PERS[y].NAME := QWork2.Fields[1].AsString;
+    PERGrid.Cells[0,y] := QWork2.Fields[1].AsString;
     QWork2.Next;
     inc(y);
    End;
@@ -344,6 +374,7 @@ begin
 
   fmain.wlog ('FplannerPermissions : before LoadCells');
   LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where id>0 and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
+  LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and upper('+sql_PERNAME+') like upper(''%'+getRowSearch+'%''))');
   LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where id>0 and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where id>0 and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
   LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
@@ -352,6 +383,7 @@ begin
   fmain.wlog ('FplannerPermissions : after LoadCells');
 
   LChanged := False;
+  PERChanged := False;
   GChanged := False;
   RChanged := False;
   ROLChanged := False;
@@ -391,6 +423,7 @@ begin
    For yp:=Selection.Top To Selection.Bottom Do begin
      If Cells[xp, yp] = '' Then Cells[xp, yp] := '+' Else Cells[xp, yp] := '';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
+       if upperCase(grid.Name) = 'PERGRID' then SaveCellGrid(PERGrid, 'PER',PERCHANGED,xp, yp);
        if upperCase(grid.Name) = 'GGRID'   then SaveCellGrid(GGrid,   'GRO',GCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'RGRID'   then SaveCellGrid(RGrid,   'ROM',RCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'ROLGRID' then SaveCellGrid(ROLGrid, 'ROL',ROLCHANGED,xp, yp);
@@ -413,6 +446,7 @@ begin
    For yp:=Selection.Top To Selection.Bottom Do begin
        Cells[xp, yp] := '+';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
+       if upperCase(grid.Name) = 'PERGRID' then SaveCellGrid(PERGrid, 'PER',PERCHANGED,xp, yp);
        if upperCase(grid.Name) = 'GGRID'   then SaveCellGrid(GGrid,   'GRO',GCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'RGRID'   then SaveCellGrid(RGrid,   'ROM',RCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'SUBGRID' then SaveCellGrid(SUBGrid, 'SUB',SUBCHANGED,xp, yp);
@@ -435,6 +469,7 @@ begin
    For yp:=Selection.Top To Selection.Bottom Do begin
        Cells[xp, yp] := '';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
+       if upperCase(grid.Name) = 'PERGRID' then SaveCellGrid(PERGrid, 'PER',PERCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'GGRID'   then SaveCellGrid(GGrid,   'GRO',GCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'RGRID'   then SaveCellGrid(RGrid,   'ROM',RCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'ROLGRID' then SaveCellGrid(ROLGrid, 'ROL',ROLCHANGED,xp, yp);
@@ -450,6 +485,7 @@ procedure TFPlannerPermissions.AddClassClick(Sender: TObject);
 begin
   inherited;
  If mainPage.ActivePage = TabSheetL      Then addSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetPER    Then addSelection(PERGrid, PERChanged);
  If mainPage.ActivePage = TabSheetG      Then addSelection(GGrid,   GChanged);
  If mainPage.ActivePage = TabSheetR      Then addSelection(RGrid,   RChanged);
  If mainPage.ActivePage = TabSheetSub    Then addSelection(SubGrid, SubChanged);
@@ -461,6 +497,7 @@ procedure TFPlannerPermissions.DeleteClassClick(Sender: TObject);
 begin
   inherited;
  If mainPage.ActivePage = TabSheetL    Then deleteSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetPER  Then deleteSelection(PERGrid, PERChanged);
  If mainPage.ActivePage = TabSheetG    Then deleteSelection(GGrid,   GChanged);
  If mainPage.ActivePage = TabSheetR    Then deleteSelection(RGrid,   RChanged);
  If mainPage.ActivePage = TabSheetSub  Then deleteSelection(SubGrid, SubChanged);
@@ -523,6 +560,7 @@ procedure TFPlannerPermissions.invertClassClick(Sender: TObject);
 begin
   inherited;
  If mainPage.ActivePage = TabSheetL    Then InvertSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetPER  Then InvertSelection(PERGrid, PERChanged);
  If mainPage.ActivePage = TabSheetG    Then InvertSelection(GGrid,   GChanged);
  If mainPage.ActivePage = TabSheetR    Then InvertSelection(RGrid,   RChanged);
  If mainPage.ActivePage = TabSheetSUB  Then InvertSelection(SubGrid, SubChanged);
@@ -542,6 +580,8 @@ begin
   inherited;
   LGrid.RowHeights[0] := 200;
   LGrid.ColWidths[0]  := 300;
+  PERGrid.RowHeights[0] := 200;
+  PERGrid.ColWidths[0]  := 300;
   GGrid.RowHeights[0] := 200;
   GGrid.ColWidths[0]  := 300;
   RGrid.RowHeights[0] := 200;
@@ -559,6 +599,8 @@ begin
   inherited;
   LGrid.RowHeights[0] := 400;
   LGrid.ColWidths[0]  := 600;
+  PERGrid.RowHeights[0] := 400;
+  PERGrid.ColWidths[0]  := 600;
   GGrid.RowHeights[0] := 400;
   GGrid.ColWidths[0]  := 600;
   RGrid.RowHeights[0] := 400;

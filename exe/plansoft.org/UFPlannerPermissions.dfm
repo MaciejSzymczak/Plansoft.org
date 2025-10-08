@@ -224,7 +224,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
     Top = 0
     Width = 1033
     Height = 573
-    ActivePage = TabSheetL
+    ActivePage = TabSheetPer
     Align = alClient
     TabOrder = 2
     Visible = False
@@ -331,6 +331,26 @@ inherited FPlannerPermissions: TFPlannerPermissions
       Caption = 'Autoryzacje'
       ImageIndex = 5
       object ROLGrid: TStringGrid
+        Left = 0
+        Top = 0
+        Width = 1025
+        Height = 544
+        Align = alClient
+        DefaultColWidth = 20
+        DefaultRowHeight = 20
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
+        PopupMenu = PopupMenu
+        TabOrder = 0
+        OnDblClick = LGridDblClick
+        OnDrawCell = LGridDrawCell
+        OnKeyDown = LGridKeyDown
+        OnMouseDown = ROLGridMouseDown
+      end
+    end
+    object TabSheetPer: TTabSheet
+      Caption = 'Semestry'
+      ImageIndex = 6
+      object PERGrid: TStringGrid
         Left = 0
         Top = 0
         Width = 1025

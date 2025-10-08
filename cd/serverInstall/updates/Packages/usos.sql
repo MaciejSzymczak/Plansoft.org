@@ -189,7 +189,12 @@ begin
             set name=usos.opis || ' (' || usos.kod || ')'
               , date_from=usos.data_od
               , date_to=usos.data_do;    
-    --
+    --  2025.10.08  
+    delete from per_pla;
+    insert into per_pla (id, per_id, pla_id)
+    select perPLA_SEQ.nextval, periods.id, planners.id
+    from planners, periods;
+    --    
     trace := 'PERIOD.DELETE ROL_PLA';
     delete from rol_pla where rol_id in (select id rol_id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'));
     trace := 'PERIOD.INSERT ROL_PLA';

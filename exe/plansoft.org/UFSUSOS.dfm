@@ -66,6 +66,7 @@ inherited FUSOS: TFUSOS
       ActivePage = TabSheet1
       Align = alClient
       TabOrder = 0
+      OnChanging = PageControl1Changing
       object TabSheet1: TTabSheet
         Caption = 'Podstawowe'
         object Label1: TLabel

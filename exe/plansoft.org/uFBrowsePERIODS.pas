@@ -52,12 +52,15 @@ type
     procedure SpeedButton4Click(Sender: TObject);
     procedure FHelpClick(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure BUpdChild2Click(Sender: TObject);
   private
     { Private declarations }
   public
     Procedure GetTableName;  override;
     Function  CheckRecord : Boolean;       override;
     Procedure DefaultValues;               override;
+    Procedure CustomConditions;      override;
+    Procedure AfterPost;             override;
     Function  CanEditPermission : Boolean; override;
     Function  CanDelete    : Boolean;      override;
     Function  getSearchFilter : string;  override;
@@ -70,7 +73,7 @@ var
 implementation
 
 uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain,
-  UFFloatingMessage;
+  UFFloatingMessage, UCommon, UFSharing;
 
 {$R *.DFM}
 
@@ -193,7 +196,7 @@ End;
 procedure TFBrowsePERIODS.SpeedButton4Click(Sender: TObject);
 begin
  //FFloatingMessage.showModal
- info('Ukrywanie zbêdnych wierszy, np. gdy korzystamy z siatki piêtnastominutowej to ci¹g znaków +--- oznacza, ¿e pelne godziny s¹ pokazywane, a pozostale s¹ ukrywane. Znak "-" oznacza ukrycie');
+ SError('Ukrywanie zbêdnych wierszy, np. gdy korzystamy z siatki piêtnastominutowej to ci¹g znaków +--- oznacza, ¿e pelne godziny s¹ pokazywane, a pozostale s¹ ukrywane. Znak "-" oznacza ukrycie');
 end;
 
 procedure TFBrowsePERIODS.FHelpClick(Sender: TObject);
@@ -209,6 +212,26 @@ begin
 'W oknie Uprawnienia wska¿, które zasoby bêd¹ widoczne po wybraniu autoryzacji.'+cr+
 'Równie¿ w oknie Uprawnienia wska¿, którzy planiœci bêd¹ te autoryzacje widzieli.');
 
+end;
+
+procedure TFBrowsePERIODS.CustomConditions;
+begin
+  inherited;
+ DM.macros.setMacro( Query, 'CONPERMISSIONS', getWhereClause(tableName));
+end;
+
+procedure TFBrowsePERIODS.BUpdChild2Click(Sender: TObject);
+begin
+   FSharing.init('U','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
+   dmodule.CommitTrans;
+end;
+
+procedure TFBrowsePERIODS.AfterPost;
+begin
+ If CurrOperation in [AInsert,ACopy] Then begin
+    FSharing.init('I','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
+    dmodule.CommitTrans;
+ end;
 end;
 
 end.

@@ -230,7 +230,7 @@ begin
  if tableName = 'ROOMS'     then result := tAlias+'.'+columnName+' IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+')';
  if tableName = 'SUBJECTS'  then result := tAlias+'.'+columnName+' IN (SELECT SUB_ID FROM SUB_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+')';
  if tableName = 'FORMS'     then result := tAlias+'.'+columnName+' IN (SELECT FOR_ID FROM FOR_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+')';
- if tableName = 'PERIODS'   then result := '0=0';
+ if tableName = 'PERIODS'   then result := tAlias+'.'+columnName+' IN (SELECT PER_ID FROM PER_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+')';
  if tableName = 'PLANNERS'  then result := '0=0';
  if result = '0=1' then SError('B³¹d programu - funkcja getWhereClause, wartoœæ ' + tableName);
 end;

@@ -1,16 +1,16 @@
 inherited FTransfer: TFTransfer
   Left = 394
   Top = 349
-  Width = 457
-  Height = 325
+  Width = 401
+  Height = 288
   Caption = 'Transfer uprawnie'#324' i danych'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   object BitBtnROLE: TSpeedButton [0]
-    Left = 408
-    Top = 18
-    Width = 26
-    Height = 25
+    Left = 357
+    Top = 16
+    Width = 23
+    Height = 22
     Flat = True
     Glyph.Data = {
       36040000424D3604000000000000360000002800000010000000100000000100
@@ -50,24 +50,24 @@ inherited FTransfer: TFTransfer
     OnClick = BitBtnROLEClick
   end
   object Label7: TLabel [1]
-    Left = 16
-    Top = 27
-    Width = 155
-    Height = 16
+    Left = 28
+    Top = 24
+    Width = 122
+    Height = 13
     Alignment = taRightJustify
     Caption = 'Od planisty lub autoryzacji'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -12
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
   end
   object SpeedButton1: TSpeedButton [2]
-    Left = 408
-    Top = 46
-    Width = 26
-    Height = 25
+    Left = 357
+    Top = 40
+    Width = 23
+    Height = 22
     Flat = True
     Glyph.Data = {
       36040000424D3604000000000000360000002800000010000000100000000100
@@ -107,114 +107,124 @@ inherited FTransfer: TFTransfer
     OnClick = SpeedButton1Click
   end
   object Label1: TLabel [3]
-    Left = 16
-    Top = 55
-    Width = 155
-    Height = 16
+    Left = 28
+    Top = 48
+    Width = 122
+    Height = 13
     Alignment = taRightJustify
     Caption = 'Do planisty lub autoryzacji'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -12
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
   end
   inherited Status: TPanel
-    Top = 266
-    Width = 449
+    Top = 237
+    Width = 393
   end
   object GroupBox1: TGroupBox
-    Left = 9
-    Top = 82
-    Width = 303
-    Height = 102
+    Left = 8
+    Top = 72
+    Width = 377
+    Height = 89
     Caption = 'Transfer uprawnie'#324
     TabOrder = 1
     object chlec: TCheckBox
-      Left = 9
-      Top = 18
-      Width = 111
-      Height = 20
+      Left = 8
+      Top = 16
+      Width = 97
+      Height = 17
       Caption = 'Wyk'#322'adowcy'
       Checked = True
       State = cbChecked
       TabOrder = 0
     end
     object chgro: TCheckBox
-      Left = 9
-      Top = 46
-      Width = 111
-      Height = 19
+      Left = 8
+      Top = 40
+      Width = 97
+      Height = 17
       Caption = 'Grupy'
       Checked = True
       State = cbChecked
       TabOrder = 1
     end
     object chrom: TCheckBox
-      Left = 146
-      Top = 18
-      Width = 111
-      Height = 20
+      Left = 128
+      Top = 16
+      Width = 97
+      Height = 17
       Caption = 'Zasoby'
       Checked = True
       State = cbChecked
       TabOrder = 2
     end
     object chsub: TCheckBox
-      Left = 9
-      Top = 73
-      Width = 111
-      Height = 20
+      Left = 8
+      Top = 64
+      Width = 97
+      Height = 17
       Caption = 'Przedmioty'
       Checked = True
       State = cbChecked
       TabOrder = 3
     end
     object chfor: TCheckBox
-      Left = 146
-      Top = 73
-      Width = 111
-      Height = 20
+      Left = 128
+      Top = 64
+      Width = 97
+      Height = 17
       Caption = 'Formy zaj'#281#263
       Checked = True
       State = cbChecked
       TabOrder = 4
     end
     object chrol: TCheckBox
-      Left = 146
-      Top = 46
-      Width = 111
-      Height = 19
+      Left = 128
+      Top = 40
+      Width = 97
+      Height = 17
       Caption = 'Role'
       Checked = True
       State = cbChecked
       TabOrder = 5
     end
+    object chPer: TCheckBox
+      Left = 248
+      Top = 16
+      Width = 97
+      Height = 17
+      Caption = 'Semestry'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
+    end
   end
   object chclasses: TCheckBox
-    Left = 18
-    Top = 192
-    Width = 191
-    Height = 19
+    Left = 16
+    Top = 168
+    Width = 167
+    Height = 17
     Caption = 'Zmiana w'#322'a'#347'ciciela zaj'#281#263
     TabOrder = 2
   end
   object ufrom_value: TEdit
     Tag = 67108864
-    Left = 181
-    Top = 18
-    Width = 226
-    Height = 24
+    Left = 158
+    Top = 16
+    Width = 198
+    Height = 22
     ReadOnly = True
     TabOrder = 3
   end
   object ufrom: TEdit
     Tag = 67108864
-    Left = 171
-    Top = 18
-    Width = 78
-    Height = 24
+    Left = 150
+    Top = 16
+    Width = 68
+    Height = 22
     ReadOnly = True
     TabOrder = 4
     Visible = False
@@ -222,19 +232,19 @@ inherited FTransfer: TFTransfer
   end
   object uto_value: TEdit
     Tag = 67108864
-    Left = 181
-    Top = 46
-    Width = 226
-    Height = 24
+    Left = 158
+    Top = 40
+    Width = 198
+    Height = 22
     ReadOnly = True
     TabOrder = 5
   end
   object uto: TEdit
     Tag = 67108864
-    Left = 171
-    Top = 46
-    Width = 78
-    Height = 24
+    Left = 150
+    Top = 40
+    Width = 68
+    Height = 22
     ReadOnly = True
     TabOrder = 6
     Visible = False
@@ -242,29 +252,29 @@ inherited FTransfer: TFTransfer
   end
   object topPanel: TPanel
     Left = 0
-    Top = 219
-    Width = 449
-    Height = 47
+    Top = 196
+    Width = 393
+    Height = 41
     Align = alBottom
     TabOrder = 7
     DesignSize = (
-      449
-      47)
+      393
+      41)
     object BCreate: TSpeedButton
-      Left = 225
-      Top = 13
-      Width = 127
-      Height = 25
+      Left = 181
+      Top = 11
+      Width = 111
+      Height = 22
       Anchors = [akRight, akBottom]
       Caption = 'Wykonaj'
       Flat = True
       OnClick = BCreateClick
     end
     object BClose: TSpeedButton
-      Left = 361
-      Top = 13
-      Width = 86
-      Height = 25
+      Left = 300
+      Top = 11
+      Width = 75
+      Height = 22
       Anchors = [akRight, akBottom]
       Caption = 'Anuluj'
       Flat = True
