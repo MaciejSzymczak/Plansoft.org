@@ -66,13 +66,14 @@ Const MaxAllLecturers     =   5000;
       sql_PER_SEARCH     = '(xxmsz_tools.erasePolishChars(upper(periods.created_by||periods.name||periods.desc1||periods.desc2||periods.attribs_01||periods.attribs_02||periods.attribs_03||periods.attribs_04||periods.attribs_05||periods.attribs_06||periods.attribs_07'+
            '||periods.attribs_08||periods.attribs_09||periods.attribs_10||periods.attribs_11||periods.attribs_12||periods.attribs_13||periods.attribs_14||periods.attribs_15||''#''||periods.integration_id||''#'')) like ''%%%s%%'')';
 
-      sql_COM_SEARCH     ='(TT_COMBINATIONS.Id||''#''||xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title||''#''||lec.integration_id '+
-          '||''#''||gro.abbreviation||''#''||gro.integration_id||''#''||rom.name||'' ''||substr(rom.attribs_01,1,55)||''#''||rom.integration_id'+
-          '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
-          '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
-          '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15||''#''||TT_COMBINATIONS.integration_id'+
-           '||''#''||res.name||'' ''||substr(res.attribs_01,1,55)||''#''||res.integration_id||''#''||sub.name||''#''||sub.integration_id'+
-           '||''#''||xfor.name||''#''||xfor.abbreviation||''#''||xfor.integration_id||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%%%s%%'')';
+      //moved to FMain
+      //sql_COM_SEARCH     ='(TT_COMBINATIONS.Id||''#''||xxmsz_tools.erasePolishChars(upper(''#''||lec.last_name||''#''||lec.first_name||''#''||lec.title||''#''||lec.integration_id '+
+      //    '||''#''||gro.abbreviation||''#''||gro.integration_id||''#''||rom.name||'' ''||substr(rom.attribs_01,1,55)||''#''||rom.integration_id'+
+      //    '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_COMBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04'+
+      //    '||TT_COMBINATIONS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attribs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||TT_COMBINATIONS.attribs_10'+
+      //    '||TT_COMBINATIONS.attribs_11||TT_COMBINATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.attribs_14||TT_COMBINATIONS.attribs_15||''#''||TT_COMBINATIONS.integration_id'+
+      //     '||''#''||res.name||'' ''||substr(res.attribs_01,1,55)||''#''||res.integration_id||''#''||sub.name||''#''||sub.integration_id'+
+      //     '||''#''||xfor.name||''#''||xfor.abbreviation||''#''||xfor.integration_id||''#''||per.name||''#''||pla.name||''#''||avail_type||''#''||avail_orig||''#''||avail_curr||''#''||enabled||''#''||sort_order||''#'')) like ''%%%s%%'')';
 
       sql_LOOKUP_SEARCH     ='(xxmsz_tools.erasePolishChars(upper(fin_lookup_values.lookup_type||fin_lookup_values.description||fin_lookup_values.str_key||'' ''||fin_lookup_values.aux_desc1||'' ''||fin_lookup_values.aux_desc2'+
            '|| fin_lookup_values.attribs_01||fin_lookup_values.attribs_02||fin_lookup_values.attribs_03||fin_lookup_values.attribs_04'+

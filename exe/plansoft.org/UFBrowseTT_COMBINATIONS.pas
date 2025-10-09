@@ -1368,7 +1368,10 @@ end;
 
 function TFBrowseTT_COMBINATIONS.getSearchFilter: string;
 begin
- result := buildFilter(sql_COM_SEARCH, ESearch.Text);
+ result := '('+
+         buildFilter(FMain.sql_COM_SEARCH.Text, ESearch.Text)+
+        ' OR sub.Id in (SELECT SUBJECTS.ID FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and ' + buildFilter(sql_SUB_SEARCH, ESearch.Text) + ')'+
+        ')';
 end;
 
 procedure TFBrowseTT_COMBINATIONS.BRecalculateAllQuickClick(Sender: TObject);

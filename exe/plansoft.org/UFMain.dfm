@@ -5112,6 +5112,48 @@ inherited FMain: TFMain
         OnMouseWheelUp = GridMouseWheelUp
         OnSelectCell = GridSelectCell
       end
+      object sql_COM_SEARCH: TMemo
+        Left = 200
+        Top = 328
+        Width = 721
+        Height = 193
+        Lines.Strings = (
+          '('
+          'TT_COMBINATIONS.Id||'#39'#'#39'||xxmsz_tools.erasePolishChars'
+          '(upper'
+          
+            '('#39'#'#39'||lec.last_name||'#39'#'#39'||lec.first_name||'#39'#'#39'||lec.title||'#39'#'#39'||l' +
+            'ec.integration_id '
+          '||'#39'#'#39'||gro.abbreviation||'#39'#'#39'||gro.integration_id||'#39'#'#39
+          
+            '||rom.name||'#39' '#39'||substr(rom.attribs_01,1,55)||'#39'#'#39'||rom.integrati' +
+            'on_id'
+          
+            '|| TT_COMBINATIONS.attribs_01||TT_COMBINATIONS.attribs_02||TT_CO' +
+            'MBINATIONS.attribs_03||TT_COMBINATIONS.attribs_04||TT_COMBINATIO' +
+            'NS.attribs_05||TT_COMBINATIONS.attribs_06||TT_COMBINATIONS.attri' +
+            'bs_07||TT_COMBINATIONS.attribs_08||TT_COMBINATIONS.attribs_09||T' +
+            'T_COMBINATIONS.attribs_10||TT_COMBINATIONS.attribs_11||TT_COMBIN' +
+            'ATIONS.attribs_12||TT_COMBINATIONS.attribs_13||TT_COMBINATIONS.a' +
+            'ttribs_14||TT_COMBINATIONS.attribs_15||'#39'#'#39'||TT_COMBINATIONS.inte' +
+            'gration_id'
+          
+            '||'#39'#'#39'||res.name||'#39' '#39'||substr(res.attribs_01,1,55)||'#39'#'#39'||res.inte' +
+            'gration_id||'#39'#'#39
+          
+            '||xfor.name||'#39'#'#39'||xfor.abbreviation||'#39'#'#39'||xfor.integration_id||'#39 +
+            '#'#39
+          
+            '||per.name||'#39'#'#39'||pla.name||'#39'#'#39'||avail_type||'#39'#'#39'||avail_orig||'#39'#'#39 +
+            '||avail_curr||'#39'#'#39'||enabled||'#39'#'#39'||sort_order||'#39'#'#39
+          ')'
+          ') '
+          'like '#39'%%%s%%'#39
+          ')')
+        TabOrder = 2
+        Visible = False
+        WordWrap = False
+      end
     end
   end
   object SearchPanel: TPanel

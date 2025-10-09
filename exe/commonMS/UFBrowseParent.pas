@@ -335,8 +335,9 @@ type
    function  UpdApplyAndClose : boolean;
    function  getOrderByClause : String;
   public
-   Mode            : Integer;
-   MR              : Integer;
+   SearchSQL      : String;
+   Mode           : Integer;
+   MR             : Integer;
    ID             : ShortString; // wartoœæ klucza g³ównego
    KeyField       : ShortString; // nazwa klucza g³ównego (domyœlenie = ID)
    TableName      : ShortString;
@@ -1289,7 +1290,7 @@ procedure TFBrowseParent.bRefreshClick(Sender: TObject);
      End;
      }
 
-     If dm.DModule.getDBType = 'ORACLE' Then whereClause := whereClause + ' AND ROWNUM <= '+Others.Strings.Values['MaxNumerOfRecordsInGrid']+')'
+     If dm.DModule.getDBType = 'ORACLE' Then whereClause := whereClause + ' AND ROWNUM <= '+NVL(Others.Strings.Values['MaxNumerOfRecordsInGrid'],'2000')+')'
                                         Else whereClause := whereClause +')';
 
      If dm.DModule.getDBType = 'Access' Then
@@ -1318,7 +1319,7 @@ procedure TFBrowseParent.bRefreshClick(Sender: TObject);
   //----------------------------------
   Procedure SetSearch;
   Begin
-   dm.macros.setMacro( Query, 'Search', NVL(Others.Strings.Values['SearchSQL'],'0=0'));
+   dm.macros.setMacro( Query, 'Search', NVL(SearchSQL,'0=0'));
   End;
 
   Procedure ComboSortOrderChange;
@@ -2479,7 +2480,7 @@ End;
 procedure TFBrowseParent.bCancelSearchClick(Sender: TObject);
 begin
   inherited;
-    Others.Strings.Values['SearchSQL']   := '0=0';
+    SearchSQL   := '0=0';
     ESearch.Text := '';
     AlphaAll.Down := true;
     BRefreshClick(nil);
@@ -3033,14 +3034,14 @@ begin
 
    try
      if trim(ESearch.Text) = '' then
-       Others.Strings.Values['SearchSQL']   := '0=0'
+       SearchSQL   := '0=0'
      else
-       Others.Strings.Values['SearchSQL']   := getSearchFilter;
+       SearchSQL   := getSearchFilter;
      BRefreshClick(nil);
    except
      Info(Komunikaty.Strings[5]);
      ESearch.Text := '';
-     Others.Strings.Values['SearchSQL']   := '0=0';
+     SearchSQL   := '0=0';
      BRefreshClick(nil);
    end;
   End;

@@ -3,7 +3,7 @@ create or replace package USOS is
    /***************************************************************************************************************************** 
    |* Integration with USOS 
    |  Use this code to schedule the integration
-   
+
             begin
               dbms_scheduler.create_job(
                   job_name => 'INT_USOS'
@@ -19,8 +19,8 @@ create or replace package USOS is
             --CLEAR LOG             :  delete from xxmsztools_eventlog where module_name = 'INTEGRATION_USOS';
             --DISPLAY LOGS          :  select * from xxmsztools_eventlog where module_name = 'INTEGRATION_USOS' order by id desc
             end;   
-   
-   
+
+
    |***************************************************************************************************************************** 
    | History 
    | 2022.01.30 Maciej Szymczak created  
@@ -189,7 +189,7 @@ begin
             set name=usos.opis || ' (' || usos.kod || ')'
               , date_from=usos.data_od
               , date_to=usos.data_do;    
-    --  2025.10.08  
+    --    
     delete from per_pla;
     insert into per_pla (id, per_id, pla_id)
     select perPLA_SEQ.nextval, periods.id, planners.id
@@ -213,14 +213,33 @@ begin
             select kod
                  , nazwa || '('||kod||')' as nazwa
                  --, nazwa || decode(Postfix,1,null,'('||kod||')') as nazwa
-                 , cdyd_kod, orguni_id  from
+                 , cdyd_kod, orguni_id , gr_codes , gr_descs
+            from
             (
             SELECT p.kod
                  , p.nazwa
                  --, ROW_NUMBER() OVER (PARTITION BY nazwa ORDER BY kod ) AS Postfix                 
                  , c.cdyd_kod
-                 , (select Id from org_units where code = JED_ORG_KOD) orguni_id 
-             from dz_przedmioty@USOS p
+                 , (select Id from org_units where code = p.JED_ORG_KOD) orguni_id 
+                 , gr_codes
+                 , gr_descs
+             from
+             (
+                SELECT 
+                    p.kod,
+                    p.nazwa,
+                    p.JED_ORG_KOD,
+                    LISTAGG(g.kod, ', ') WITHIN GROUP (ORDER BY g.kod) AS gr_codes,
+                    LISTAGG(g.kod ||'(' || g.opis || ')', ', ') WITHIN GROUP (ORDER BY g.kod) AS gr_descs
+                FROM 
+                    dz_przedmioty@USOS p
+                    LEFT JOIN dz_elem_grup_przedmiotow@USOS egp 
+                        ON egp.prz_kod = p.kod
+                    LEFT JOIN dz_grupy_przedmiotow@USOS g 
+                        ON egp.grprz_kod = g.kod
+                GROUP BY 
+                    p.kod,  p.nazwa, p.JED_ORG_KOD
+             ) p
             inner join dz_przedmioty_cykli@USOS c on c.prz_kod = p.kod
             where c.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
             )
@@ -232,18 +251,26 @@ begin
          name,
          colour,
          orguni_id,
-         integration_id) 
+         integration_id,
+         gr_codes,
+         gr_descs
+         ) 
          values (main_seq.nextval
                , usos.kod  
                , usos.nazwa
                , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255))
                , usos.orguni_id
                , usos.kod
+               , ATTRIBS_01
+               , ATTRIBS_02
                )
          when matched then update 
             set abbreviation=usos.kod
               , name=usos.nazwa
-              , orguni_id=usos.orguni_id;
+              , orguni_id=usos.orguni_id
+              , ATTRIBS_01=usos.gr_codes
+              , ATTRIBS_02=usos.gr_descs
+              ;
     ---   
     if (pCleanYpMode='Y') then
         trace := 'SUBJECTS.DELETE SUB_PLA';
@@ -965,3 +992,4 @@ begin
 end;
 
 end;
+/
