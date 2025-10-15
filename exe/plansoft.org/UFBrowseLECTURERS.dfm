@@ -13,7 +13,6 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
   inherited MainPage: TPageControl
     Width = 1189
     Height = 673
-    ActivePage = Update
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 835
@@ -1422,7 +1421,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
           Caption = 'Dost'#281'p'
           Visible = True
           Glyph.Data = {
-            86050000424D8605000000000000760000002800000012000000120000000100
+            86050000424DC605000000000000B60000002800000012000000120000000100
             2000000000001005000000000000000000001000000000000000000000000000
             8000008000000080800080000000800080008080000080808000C0C0C0000000
             FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFFFF00FFFF
@@ -1925,6 +1924,9 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         '414c4941533a5354525543545f434f44453d4c45435455524552532e53545255' +
         '43545f434f4445'
       '414c4941533a454d41494c3d4c45435455524552532e454d41494c'
+      
+        '414c4941533a4f5247554e495f49443d4c45435455524552532e4f5247554e49' +
+        '5f4944'
       ''
       '')
   end
@@ -1971,7 +1973,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
       '  FROM LECTURERS'
       ',      ORG_UNITS'
       ',      PLANNERS'
-      ' WHERE ORGUNI_ID = ORG_UNITS.ID(+)'
+      ' WHERE LECTURERS.ORGUNI_ID = ORG_UNITS.ID(+)'
       '   AND LECTURERS.ROL_ID = PLANNERS.ID(+)'
       '   AND %CON_ORGUNI_ID'
       '   AND %CONDITIONALS'
@@ -2021,8 +2023,8 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         'id = child_id   '
       '  start with child_id=:id'
       'order by level desc')
-    Left = 100
-    Top = 276
+    Left = 924
+    Top = 228
   end
   object QDetails: TADOQuery
     Connection = DModule.ADOConnection
@@ -2056,7 +2058,7 @@ inherited FBrowseLECTURERS: TFBrowseLECTURERS
         '  CONNECT BY PRIOR STR_NAME_LOV=:STR_NAME_LOV2 and prior child_i' +
         'd = parent_id  '
       '  start with parent_id=:ID')
-    Left = 52
-    Top = 292
+    Left = 924
+    Top = 284
   end
 end

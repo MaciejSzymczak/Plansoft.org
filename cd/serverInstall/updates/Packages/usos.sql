@@ -252,8 +252,8 @@ begin
          colour,
          orguni_id,
          integration_id,
-         gr_codes,
-         gr_descs
+         ATTRIBS_01,
+         ATTRIBS_02
          ) 
          values (main_seq.nextval
                , usos.kod  
@@ -261,8 +261,8 @@ begin
                , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255))
                , usos.orguni_id
                , usos.kod
-               , ATTRIBS_01
-               , ATTRIBS_02
+               , gr_codes
+               , gr_descs
                )
          when matched then update 
             set abbreviation=usos.kod
@@ -992,4 +992,3 @@ begin
 end;
 
 end;
-/

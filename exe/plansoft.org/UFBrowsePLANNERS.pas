@@ -60,6 +60,10 @@ type
     password_sha1: TDBEdit;
     SelectOwner: TBitBtn;
     DIFF_NOTIFICATIONS: TDBCheckBox;
+    Label2: TLabel;
+    PLA_ORGUNI_ID: TDBEdit;
+    PLA_ORGUNI_ID_VALUE: TEdit;
+    BSelectORGUNI_ID: TBitBtn;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -88,6 +92,9 @@ type
     procedure SetPasswordClick(Sender: TObject);
     procedure SelectOwnerClick(Sender: TObject);
     procedure BUpdChild3Click(Sender: TObject);
+    procedure PLA_ORGUNI_IDChange(Sender: TObject);
+    procedure BSelectORGUNI_IDClick(Sender: TObject);
+    procedure PLA_ORGUNI_ID_VALUEClick(Sender: TObject);
   private
   public
     Function  CheckRecord : Boolean; override;
@@ -467,6 +474,24 @@ begin
     '*************************'
     ,[DM.DBname, userName, autGeneratedPassword]));
 
+end;
+
+procedure TFBrowsePLANNERS.PLA_ORGUNI_IDChange(Sender: TObject);
+begin
+    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ORG_UNITS','');
+end;
+
+procedure TFBrowsePLANNERS.BSelectORGUNI_IDClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := PLA_ORGUNI_ID.Text;
+  //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PLA_ORGUNI_ID').AsString := ID;
+end;
+
+procedure TFBrowsePLANNERS.PLA_ORGUNI_ID_VALUEClick(Sender: TObject);
+begin
+  BSelectORGUNI_IDClick( nil );
 end;
 
 end.

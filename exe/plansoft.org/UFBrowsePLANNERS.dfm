@@ -2,17 +2,18 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
   Left = 502
   Top = 169
   Width = 993
-  Height = 703
+  Height = 742
   Caption = 'Plani'#347'ci oraz autoryzacje'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 652
+    Top = 691
     Width = 985
   end
   inherited MainPage: TPageControl
     Width = 985
-    Height = 652
+    Height = 691
+    ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 977
@@ -20,7 +21,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       inherited Grid: TRxDBGrid
         Top = 129
         Width = 977
-        Height = 436
+        Height = 475
         Columns = <
           item
             Expanded = False
@@ -354,14 +355,21 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             FieldName = 'DIFF_NOTIFICATIONS'
             Title.Caption = 'Email o zmianach'
             Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'SC'
+            Title.Caption = 'Jednostka'
+            Width = 100
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 584
+        Top = 623
         Width = 977
       end
       inherited Panel: TPanel
-        Top = 565
+        Top = 604
         Width = 977
         inherited StatusBar: TStatusBar
           Width = 908
@@ -398,21 +406,33 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
     end
     inherited Update: TTabSheet
       object LabelNAME: TLabel [0]
-        Left = 54
+        Left = 50
         Top = 88
-        Width = 35
-        Height = 14
+        Width = 39
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Nazwa'
         FocusControl = NAME
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
       end
       object LabelCOLOUR: TLabel [1]
-        Left = 64
+        Left = 59
         Top = 112
-        Width = 25
-        Height = 14
+        Width = 30
+        Height = 16
         Alignment = taRightJustify
         Caption = 'Kolor'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
       end
       object Shape1: TShape [2]
         Left = 96
@@ -422,7 +442,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnMouseUp = Shape1MouseUp
       end
       object LabelORGUNI_ID: TLabel [3]
-        Left = 36
+        Left = 44
         Top = 159
         Width = 45
         Height = 16
@@ -567,7 +587,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnClick = SpeedButton2Click
       end
       object Label1: TLabel [6]
-        Left = 18
+        Left = 26
         Top = 135
         Width = 63
         Height = 16
@@ -646,8 +666,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnClick = SpeedButton4Click
       end
       object LRec: TLabel [8]
-        Left = 39
-        Top = 183
+        Left = 47
+        Top = 207
         Width = 42
         Height = 16
         Alignment = taRightJustify
@@ -661,8 +681,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ParentFont = False
       end
       object BClearROL_ID: TSpeedButton [9]
-        Left = 353
-        Top = 175
+        Left = 361
+        Top = 199
         Width = 26
         Height = 26
         Flat = True
@@ -727,8 +747,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnClick = BClearROL_IDClick
       end
       object hrol: TSpeedButton [10]
-        Left = 379
-        Top = 175
+        Left = 387
+        Top = 199
         Width = 25
         Height = 26
         AllowAllUp = True
@@ -791,8 +811,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnClick = hrolClick
       end
       object LLec: TLabel [11]
-        Left = 7
-        Top = 207
+        Left = 15
+        Top = 231
         Width = 74
         Height = 16
         Alignment = taRightJustify
@@ -806,8 +826,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ParentFont = False
       end
       object BClearLEC_ID: TSpeedButton [12]
-        Left = 353
-        Top = 199
+        Left = 361
+        Top = 223
         Width = 26
         Height = 26
         Flat = True
@@ -872,8 +892,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnClick = BClearLEC_IDClick
       end
       object hlec: TSpeedButton [13]
-        Left = 379
-        Top = 199
+        Left = 387
+        Top = 223
         Width = 25
         Height = 26
         AllowAllUp = True
@@ -935,8 +955,23 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ShowHint = True
         OnClick = hrolClick
       end
+      object Label2: TLabel [14]
+        Left = 30
+        Top = 179
+        Width = 59
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Jednostka'
+        FocusControl = PLA_ORGUNI_ID
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
       inherited UpdPanel: TPanel
-        Top = 588
+        Top = 627
         Width = 977
         TabOrder = 2
         inherited BFlexDesignMode: TSpeedButton
@@ -957,7 +992,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         end
       end
       inherited FlexPanel: TPanel
-        Top = 231
+        Top = 263
         Height = 354
         TabOrder = 4
         inherited FlexToolbar: TShape
@@ -1075,8 +1110,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         TabOrder = 8
       end
       object ROL_ID: TDBEdit
-        Left = 89
-        Top = 176
+        Left = 97
+        Top = 200
         Width = 150
         Height = 22
         Hint = 'ZASOBY'
@@ -1088,8 +1123,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnChange = ROL_IDChange
       end
       object ROL_ID_VALUE: TEdit
-        Left = 96
-        Top = 176
+        Left = 104
+        Top = 200
         Width = 257
         Height = 22
         Hint = 'Ogranicza terminy, w kt'#243'rych dozwolone jest planowanie'
@@ -1099,7 +1134,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       end
       object LEC_ID: TDBEdit
         Left = 89
-        Top = 200
+        Top = 224
         Width = 150
         Height = 22
         DataField = 'LEC_ID'
@@ -1111,7 +1146,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       end
       object LEC_ID_VALUE: TEdit
         Left = 96
-        Top = 200
+        Top = 224
         Width = 257
         Height = 22
         Hint = 'Ogranicza terminy, w kt'#243'rych dozwolone jest planowanie'
@@ -1414,6 +1449,60 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ValueUnchecked = '-'
         Visible = False
       end
+      object PLA_ORGUNI_ID: TDBEdit
+        Left = 89
+        Top = 176
+        Width = 150
+        Height = 22
+        Hint = 'JEDNOSTKA ORGANIZACYJNA'
+        DataField = 'PLA_ORGUNI_ID'
+        DataSource = Source
+        MaxLength = 10
+        TabOrder = 18
+        Visible = False
+        OnChange = PLA_ORGUNI_IDChange
+      end
+      object PLA_ORGUNI_ID_VALUE: TEdit
+        Left = 96
+        Top = 176
+        Width = 257
+        Height = 22
+        Hint = 'JEDNOSTKA ORGANIZACYJNA'
+        ReadOnly = True
+        TabOrder = 19
+        OnClick = PLA_ORGUNI_ID_VALUEClick
+      end
+      object BSelectORGUNI_ID: TBitBtn
+        Left = 352
+        Top = 176
+        Width = 24
+        Height = 24
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 20
+        Visible = False
+        OnClick = BSelectORGUNI_IDClick
+        Glyph.Data = {
+          42020000424D4202000000000000420000002800000010000000100000000100
+          1000030000000002000000000000000000000000000000000000007C0000E003
+          00001F0000001863186318631863186318631863104200001863186318631863
+          186318631863186318631863186318631863F702F70210420000186318631863
+          18631863186318631863186318631863F702F702F702F7021042000018631863
+          1863186318631863186318631863F702F702F702F702F702F702104200001863
+          186318631863186318631863F702F702F702F702F702F702F702F70210420000
+          18631863186318631863F702F702F702F702F702F702F702F702F702F7021042
+          0000186318631863F702F702F702F702F702F702F702F702F702F702F702F702
+          104200001863FF03FF03FF03FF03FF03FF03F702F702F702F7021042FF03FF03
+          FF031042000018631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03F702F702F702F702000018631863
+          18631863186318631863186318631863FF03FF03FF03FF03FF03FF0318631863
+          186318631863}
+      end
     end
   end
   inherited Source: TDataSource
@@ -1642,8 +1731,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
   inherited Query: TADOQuery
     BeforeEdit = QueryBeforeEdit
     SQL.Strings = (
-      'SELECT ID'
-      '     , NAME'
+      'SELECT PLANNERS.ID'
+      '     , PLANNERS.NAME'
       '     , TYPE'
       '     , COLOUR'
       '     , PLANNERS.ACTIVE_FLAG'
@@ -1657,18 +1746,51 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       
         '     , DECODE(TYPE,'#39'USER'#39','#39'U'#380'ytkownik'#39','#39'ROLE'#39','#39'Autoryzacja'#39','#39'EXT' +
         'ERNAL'#39','#39'U'#380'. zewn'#281'trzny'#39','#39'<B'#322#261'd>'#39') TYPE_DSP'
-      '     , ATTRIBS_01'
-      '     , ATTRIBS_02'
-      
-        '     , ATTRIBS_03, ATTRIBS_04, ATTRIBS_05, ATTRIBS_06, ATTRIBS_0' +
-        '7, ATTRIBS_08, ATTRIBS_09, ATTRIBS_10, ATTRIBS_11, ATTRIBS_12, A' +
-        'TTRIBS_13, ATTRIBS_14, ATTRIBS_15, ATTRIBD_01, ATTRIBD_02, ATTRI' +
-        'BD_03, ATTRIBD_04, ATTRIBD_05, ATTRIBD_06, ATTRIBD_07, ATTRIBD_0' +
-        '8, ATTRIBD_09, ATTRIBD_10, ATTRIBD_11, ATTRIBD_12, ATTRIBD_13, A' +
-        'TTRIBD_14, ATTRIBD_15, ATTRIBN_01, ATTRIBN_02, ATTRIBN_03, ATTRI' +
-        'BN_04, ATTRIBN_05, ATTRIBN_06, ATTRIBN_07, ATTRIBN_08, ATTRIBN_0' +
-        '9, ATTRIBN_10, ATTRIBN_11, ATTRIBN_12, ATTRIBN_13, ATTRIBN_14, A' +
-        'TTRIBN_15'
+      '     , PLANNERS.ATTRIBS_01'
+      '     , PLANNERS.ATTRIBS_02'
+      '     , PLANNERS.ATTRIBS_03'
+      '     , PLANNERS.ATTRIBS_04'
+      '     , PLANNERS.ATTRIBS_05'
+      '     , PLANNERS.ATTRIBS_06'
+      '     , PLANNERS.ATTRIBS_07'
+      '     , PLANNERS.ATTRIBS_08'
+      '     , PLANNERS.ATTRIBS_09'
+      '     , PLANNERS.ATTRIBS_10'
+      '     , PLANNERS.ATTRIBS_11'
+      '     , PLANNERS.ATTRIBS_12'
+      '     , PLANNERS.ATTRIBS_13'
+      '     , PLANNERS.ATTRIBS_14'
+      '     , PLANNERS.ATTRIBS_15'
+      '     , PLANNERS.ATTRIBD_01'
+      '     , PLANNERS.ATTRIBD_02'
+      '     , PLANNERS.ATTRIBD_03'
+      '     , PLANNERS.ATTRIBD_04'
+      '     , PLANNERS.ATTRIBD_05'
+      '     , PLANNERS.ATTRIBD_06'
+      '     , PLANNERS.ATTRIBD_07'
+      '     , PLANNERS.ATTRIBD_08'
+      '     , PLANNERS.ATTRIBD_09'
+      '     , PLANNERS.ATTRIBD_10'
+      '     , PLANNERS.ATTRIBD_11'
+      '     , PLANNERS.ATTRIBD_12'
+      '     , PLANNERS.ATTRIBD_13'
+      '     , PLANNERS.ATTRIBD_14'
+      '     , PLANNERS.ATTRIBD_15'
+      '     , PLANNERS.ATTRIBN_01'
+      '     , PLANNERS.ATTRIBN_02'
+      '     , PLANNERS.ATTRIBN_03'
+      '     , PLANNERS.ATTRIBN_04'
+      '     , PLANNERS.ATTRIBN_05'
+      '     , PLANNERS.ATTRIBN_06'
+      '     , PLANNERS.ATTRIBN_07'
+      '     , PLANNERS.ATTRIBN_08'
+      '     , PLANNERS.ATTRIBN_09'
+      '     , PLANNERS.ATTRIBN_10'
+      '     , PLANNERS.ATTRIBN_11'
+      '     , PLANNERS.ATTRIBN_12'
+      '     , PLANNERS.ATTRIBN_13'
+      '     , PLANNERS.ATTRIBN_14'
+      '     , PLANNERS.ATTRIBN_15'
       '     , CAL_ID'
       '     , EDIT_SHARING'
       
@@ -1694,13 +1816,17 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         '    ,(select name from planners r where id = planners.rol_id) ro' +
         'l_dsp'
       '    ,DIFF_NOTIFICATIONS'
+      '    , SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) SC'
+      '    , PLA_ORGUNI_ID'
       'FROM PLANNERS'
-      'WHERE %CONDITIONALS'
+      '   , ORG_UNITS'
+      'WHERE PLA_ORGUNI_ID = ORG_UNITS.ID(+)'
+      '   AND %CONDITIONALS'
       '   AND %SEARCH'
       '   AND %TTENABLED'
       '%SORTORDER')
-    Left = 912
-    Top = 112
+    Left = 104
+    Top = 208
   end
   inherited ExcelApplication1: TExcelApplication
     Left = 800

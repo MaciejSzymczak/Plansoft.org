@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 64
-  Top = 35
+  Left = 91
+  Top = 93
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -5115,8 +5115,8 @@ inherited FMain: TFMain
       object sql_COM_SEARCH: TMemo
         Left = 200
         Top = 328
-        Width = 721
-        Height = 193
+        Width = 121
+        Height = 81
         Lines.Strings = (
           '('
           'TT_COMBINATIONS.Id||'#39'#'#39'||xxmsz_tools.erasePolishChars'
