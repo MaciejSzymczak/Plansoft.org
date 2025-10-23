@@ -525,6 +525,7 @@ inherited FBrowseCLASSES_HISTORY: TFBrowseCLASSES_HISTORY
           inherited ShowPlanner: TEdit
             Top = 44
             Height = 15
+            Text = 'Planista'#322' (Utworzy'#322')'
           end
           inherited PERFilterType: TEdit
             Height = 22

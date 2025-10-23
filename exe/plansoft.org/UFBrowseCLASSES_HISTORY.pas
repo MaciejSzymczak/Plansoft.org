@@ -377,7 +377,7 @@ Begin
    DM.macros.setMacro(query, 'HOUR_FILTER', '0=0');
 
  If GenericFilter.CONPLA.Text = '' Then DM.macros.setMacro(query, 'CONPLA', '0=0')
-                   Else DM.macros.setMacro(query, 'CONPLA',  'CLASSES.LAST_UPDATED_BY = (SELECT NAME FROM PLANNERS WHERE ID ='+GenericFilter.CONPLA.Text+')' );
+                   Else DM.macros.setMacro(query, 'CONPLA',  'CLASSES.CREATED_BY = (SELECT NAME FROM PLANNERS WHERE ID ='+GenericFilter.CONPLA.Text+')' );
 
 End;
 

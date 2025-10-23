@@ -1714,7 +1714,9 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         '4e5f3134'
       
         '414c4941533a4154545249424e5f31353d504c414e4e4552532e415454524942' +
-        '4e5f313520')
+        '4e5f313520'
+      '414c4941533a4e414d453d504c414e4e4552532e4e414d45'
+      '')
   end
   inherited Messages: TStrHolder
     Left = 912

@@ -116,16 +116,16 @@ End;
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
 begin
  result := true;
- If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
-  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
-  result := false;
- End;
+ //If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
+ // Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
+ // result := false;
+ //End;
 end;
 
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
  result := true;
- If (not UUtilities.IsOwner(Query.FieldByName('CREATED_BY').AsString)) Then Begin
+ If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
   Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;

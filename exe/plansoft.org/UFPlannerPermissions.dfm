@@ -1,7 +1,7 @@
 inherited FPlannerPermissions: TFPlannerPermissions
   Left = 234
   Top = 117
-  Width = 1214
+  Width = 1348
   Height = 665
   Caption = 'Uprawnienia do obiekt'#243'w'
   KeyPreview = True
@@ -17,12 +17,12 @@ inherited FPlannerPermissions: TFPlannerPermissions
   end
   inherited Status: TPanel
     Top = 614
-    Width = 1206
+    Width = 1340
   end
   object Panel1: TPanel
     Left = 0
     Top = 573
-    Width = 1206
+    Width = 1340
     Height = 41
     Align = alBottom
     TabOrder = 1
@@ -222,9 +222,9 @@ inherited FPlannerPermissions: TFPlannerPermissions
   object mainPage: TPageControl
     Left = 0
     Top = 0
-    Width = 1033
+    Width = 1096
     Height = 573
-    ActivePage = TabSheetPer
+    ActivePage = TabSheetL
     Align = alClient
     TabOrder = 2
     Visible = False
@@ -233,7 +233,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object LGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -253,7 +253,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object GGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -273,7 +273,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object RGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -293,7 +293,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object SUBGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -313,7 +313,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object FORGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -333,7 +333,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object ROLGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -353,7 +353,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       object PERGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 1025
+        Width = 1088
         Height = 544
         Align = alClient
         DefaultColWidth = 20
@@ -369,71 +369,160 @@ inherited FPlannerPermissions: TFPlannerPermissions
     end
   end
   object Panel2: TPanel
-    Left = 1033
+    Left = 1096
     Top = 0
-    Width = 173
+    Width = 244
     Height = 573
     Align = alRight
     TabOrder = 3
     object FindPane: TGroupBox
       Left = 1
       Top = 1
-      Width = 171
+      Width = 242
       Height = 571
       Align = alClient
       Caption = 'Znajd'#378
       Enabled = False
       TabOrder = 0
       object Szukaj: TLabel
-        Left = 14
-        Top = 56
+        Left = 10
+        Top = 96
         Width = 72
         Height = 14
         Caption = 'Szukaj planisty'
       end
       object Label1: TLabel
-        Left = 12
-        Top = 16
+        Left = 10
+        Top = 56
         Width = 71
         Height = 14
         Caption = 'Szukaj zasobu'
       end
+      object Label2: TLabel
+        Left = 10
+        Top = 16
+        Width = 59
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Jednostka'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object BitBtnCLEARROLE: TSpeedButton
+        Left = 203
+        Top = 32
+        Width = 23
+        Height = 22
+        Flat = True
+        Glyph.Data = {
+          1A070000424D1A07000000000000360000002800000015000000150000000100
+          200000000000E406000000000000000000000000000000000000C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C6000000FF000000FF000000FF000000
+          FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+          FF000000FF000000FF000000FF000000FF000000FF000000FF00C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C6000000FF000000
+          FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+          FF000000FF000000FF000000FF000000FF000000FF00C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C6000000FF000000FF000000FF000000FF000000
+          FF000000FF000000FF000000FF000000FF000000FF000000FF000000FF000000
+          FF000000FF000000FF00C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600000000000000000084848400C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C6000000
+          0000FF000000C6C6C6000000000084848400C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C60000000000FF000000C6C6C600FF000000C6C6
+          C6000000000084848400C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C6000000
+          0000FF000000C6C6C600FF000000C6C6C600C6C6C600C6C6C600000000008484
+          8400C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C60000000000C6C6C600FF000000C6C6
+          C600C6C6C600C6C6C60000000000FFFFFF000000000084848400C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C60000000000FFFFFF00C6C6C600C6C6C60000000000FFFF
+          FF00000000000000000084848400C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C60000000000FFFFFF0000000000FFFFFF000000000084848400000000008484
+          8400C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C60000000000FFFF
+          FF000000000084848400848484000000000084848400C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C6000000000000000000000000000000
+          0000848484000000000084848400C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C60000000000848484000000
+          000084848400C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C60000000000848484000000000084848400C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C60000000000848484000000000084848400C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C6000000
+          000000000000C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
+          C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600}
+        OnClick = BitBtnCLEARROLEClick
+      end
       object Psearch: TEdit
         Left = 10
-        Top = 72
-        Width = 143
+        Top = 112
+        Width = 191
         Height = 22
         TabOrder = 1
-        OnChange = PsearchChange
         OnKeyDown = RowSearchKeyDown
       end
       object RowSearch: TEdit
         Left = 10
-        Top = 32
-        Width = 143
+        Top = 72
+        Width = 191
         Height = 22
         TabOrder = 0
-        OnChange = PsearchChange
         OnKeyDown = RowSearchKeyDown
-      end
-      object chRefresh: TCheckBox
-        Left = 8
-        Top = 104
-        Width = 161
-        Height = 17
-        Caption = 'Od'#347'wie'#380'aj automatycznie'
-        TabOrder = 2
-        OnClick = chRefreshClick
       end
       object brefresh: TBitBtn
         Left = 8
-        Top = 128
+        Top = 136
         Width = 75
         Height = 25
         Caption = 'Od'#347'wie'#380
-        TabOrder = 3
-        Visible = False
+        TabOrder = 2
         OnClick = brefreshClick
+      end
+      object ORGUNI_ID_VALUE: TEdit
+        Left = 10
+        Top = 32
+        Width = 194
+        Height = 22
+        Hint = 'JEDNOSTKA ORGANIZACYJNA'
+        ReadOnly = True
+        TabOrder = 3
+        OnClick = ORGUNI_ID_VALUEClick
+      end
+      object ORGUNI_ID: TEdit
+        Left = 10
+        Top = 200
+        Width = 63
+        Height = 22
+        ReadOnly = True
+        TabOrder = 4
+        Text = 'NULL'
+        Visible = False
+        OnChange = ORGUNI_IDChange
       end
     end
   end
@@ -452,7 +541,6 @@ inherited FPlannerPermissions: TFPlannerPermissions
     Width = 264
     Height = 22
     TabOrder = 5
-    OnChange = PsearchChange
     OnKeyDown = RowSearchKeyDown
   end
   object PopupMenu: TPopupMenu

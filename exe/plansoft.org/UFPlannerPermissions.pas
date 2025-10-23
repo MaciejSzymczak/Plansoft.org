@@ -38,7 +38,6 @@ type
     Label1: TLabel;
     Psearch: TEdit;
     RowSearch: TEdit;
-    chRefresh: TCheckBox;
     brefresh: TBitBtn;
     Label7: TLabel;
     Brefresh2: TBitBtn;
@@ -46,6 +45,10 @@ type
     tmp: TEdit;
     TabSheetPer: TTabSheet;
     PERGrid: TStringGrid;
+    Label2: TLabel;
+    ORGUNI_ID_VALUE: TEdit;
+    ORGUNI_ID: TEdit;
+    BitBtnCLEARROLE: TSpeedButton;
     procedure FormShow(Sender: TObject);
     procedure AddClassClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
@@ -59,7 +62,6 @@ type
     procedure Krtkieopisy1Click(Sender: TObject);
     procedure Dugieopisy1Click(Sender: TObject);
     procedure DescLenClick(Sender: TObject);
-    procedure PsearchChange(Sender: TObject);
     procedure brefreshClick(Sender: TObject);
     procedure chRefreshClick(Sender: TObject);
     procedure RowSearchKeyDown(Sender: TObject; var Key: Word;
@@ -77,6 +79,9 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure ROLGridMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure ORGUNI_ID_VALUEClick(Sender: TObject);
+    procedure ORGUNI_IDChange(Sender: TObject);
+    procedure BitBtnCLEARROLEClick(Sender: TObject);
   private
     LChanged   : boolean;
     PERChanged : boolean;
@@ -107,13 +112,13 @@ Procedure ShowModal;
 implementation
 
 uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer,
-  UFFloatingMessage;
+  UFFloatingMessage, UFLookupWindow, UProgress;
 
 {$R *.DFM}
 
 Var
     LECS    : Array[1..MaxAllLecturers] Of Record ID: Integer; NAME : String; End;
-    PERS    : Array[1..1000]            Of Record ID: Integer; NAME : String; End;
+    PERS    : Array[1..maxPeriods]      Of Record ID: Integer; NAME : String; End;
     GROS    : Array[1..MaxAllGroups]    Of Record ID: Integer; NAME : String; End;
     ROMS    : Array[1..MaxAllRooms]     Of Record ID: Integer; NAME : String; End;
     ROLS    : Array[1..MaxAllRoles]     Of Record ID: Integer; NAME : String; End;
@@ -138,9 +143,9 @@ Function PER_IDtoY(ID : Integer) : Integer;
 Var y : Integer;
 Begin
   y := 1;
-  While (PERS[y].ID <> ID) and (y < 1000) Do
+  While (PERS[y].ID <> ID) and (y < maxPeriods) Do
     inc(y);
-  if y = 1000-1 then result := -1 else Result := y;
+  if y = maxPeriods-1 then result := -1 else Result := y;
 End;
 
 Function GRO_IDtoY(ID : Integer) : Integer;
@@ -202,12 +207,12 @@ end;
 
 function TFPlannerPermissions.getRowSearch : string;
 begin
- result :=  iif( (RowSearch.Text='') and (not chRefresh.Checked), '<NONE>', RowSearch.text);
+ result :=  RowSearch.text;
 end;
 
 function TFPlannerPermissions.getPSearch : string;
 begin
- result :=  iif( (psearch.Text='') and (not chRefresh.Checked), '', psearch.text);
+ result :=  psearch.text;
 end;
 
 procedure TFPlannerPermissions.LoadGrid;
@@ -247,10 +252,20 @@ Var x, y : Integer;
    fmain.wlog ('FplannerPermissions.LoadCells : End');
   End;
 
+  procedure dispLog(progress : integer; text : String);
+  Begin
+    fmain.wlog (text);
+    FProgress.ProgressBar.Position :=  round(progress *  FProgress.ProgressBar.Max / 20);
+    FProgress.Refresh;
+  end;
+
 begin
   if not mainPage.Visible then exit;
+  FProgress.Show;
+  dispLog (1,'FplannerPermissions : planners');
 
-  fmain.wlog ('FplannerPermissions : planners');
+
+
   With DModule Do Begin
    OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
    //info (  inttostr(QWork.RecordCount+1) );
@@ -271,13 +286,13 @@ begin
     inc(x);
    End;
 
-   fmain.wlog ('FplannerPermissions : planners2');
+   dispLog (2,'FplannerPermissions : planners2');
    //zmniejszenie liczby wierszy dla ostatniej siatki
    OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
    ROLGrid.ColCount := QWork.RecordCount+1;
 
-   fmain.wlog ('FplannerPermissions : LECTURERS');
-   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
+   dispLog (3,'FplannerPermissions : LECTURERS');
+   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
    LGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -289,7 +304,7 @@ begin
     inc(y);
    End;
 
-   fmain.wlog ('FplannerPermissions : PERIODS');
+    dispLog (4,'FplannerPermissions : PERIODS');
    OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
    PERGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -302,8 +317,8 @@ begin
     inc(y);
    End;
 
-   fmain.wlog ('FplannerPermissions : GROUPS');
-   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
+   dispLog (5, 'FplannerPermissions : GROUPS');
+   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
    GGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -315,8 +330,8 @@ begin
     inc(y);
    End;
 
-   fmain.wlog ('FplannerPermissions : ROOMS');
-   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS rooms, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
+   dispLog (6, 'FplannerPermissions : ROOMS');
+   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS rooms, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
    RGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -328,8 +343,8 @@ begin
     inc(y);
    End;
 
-   fmain.wlog ('FplannerPermissions : SUBJECTS');
-   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
+   dispLog (7, 'FplannerPermissions : SUBJECTS');
+   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
    SubGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -342,14 +357,12 @@ begin
    End;
 
 
-   fmain.wlog ('FplannerPermissions : FORMS');
+   dispLog(8, 'FplannerPermissions : FORMS');
    OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+' ORDER BY '+sql_FORNAME);
    FORGrid.RowCount := QWork2.RecordCount+1;
-   fmain.wlog ('FplannerPermissions : cnt=' + inttostr(QWork2.RecordCount+1));
    y := 1;
    QWork2.First;
    While Not QWork2.EOF Do Begin
-    fmain.wlog ('FplannerPermissions : y=' + inttostr(y));
     FORS[y].ID := QWork2.Fields[0].AsInteger;
     FORS[y].NAME := QWork2.Fields[1].AsString;
     FORGrid.Cells[0,y] := QWork2.Fields[1].AsString;
@@ -357,7 +370,7 @@ begin
     inc(y);
    End;
 
-   fmain.wlog ('FplannerPermissions : PLANNERS');
+   dispLog(9,'FplannerPermissions : PLANNERS');
    OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
    ROLGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
@@ -372,15 +385,21 @@ begin
 
   End;
 
-  fmain.wlog ('FplannerPermissions : before LoadCells');
-  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where id>0 and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
+  dispLog (10, 'FplannerPermissions : before LoadCells');
+  LoadCells('LEC', LGrid  ,'lec_id in (SELECT ID FROM LECTURERS where id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and upper('+sql_LECNAMEORG+') like upper(''%'+getRowSearch+'%''))');
+  dispLog (11, 'FplannerPermissions : before LoadCells');
   LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and upper('+sql_PERNAME+') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where id>0 and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where id>0 and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  dispLog (12, 'FplannerPermissions : before LoadCells');
+  LoadCells('GRO', GGrid  ,'gro_id in (SELECT ID FROM GROUPS    where id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and nvl(upper('+sql_GRONAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  dispLog (13, 'FplannerPermissions : before LoadCells');
+  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ID FROM ROOMS     where id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and nvl(upper('+sql_ResCat0NAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  dispLog (14, 'FplannerPermissions : before LoadCells');
   LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE = ''ROLE'' and upper(name) like upper(''%'+getRowSearch+'%''))');
-  LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where id>0 and nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  dispLog (15, 'FplannerPermissions : before LoadCells');
+  LoadCells('SUB', SUBGrid,'sub_id in (SELECT ID FROM SUBJECTS  where id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and nvl(upper('+sql_SUBNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
+  dispLog (16, 'FplannerPermissions : before LoadCells');
   LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where id>0 and nvl(upper('+sql_FORNAME+'),''%'') like upper(''%'+getRowSearch+'%''))');
-  fmain.wlog ('FplannerPermissions : after LoadCells');
+  dispLog (19,'FplannerPermissions : after LoadCells');
 
   LChanged := False;
   PERChanged := False;
@@ -391,7 +410,8 @@ begin
   FORChanged := False;
 
   Krtkieopisy1Click(nil);
-  fmain.wlog ('FplannerPermissions : done');
+  dispLog (20,'FplannerPermissions : done');
+  FProgress.Hide;
 end;
 
 procedure TFPlannerPermissions.FormShow(Sender: TObject);
@@ -406,7 +426,6 @@ begin
  end;
 
  FindPane.Enabled := true;
- brefresh.Visible := not chRefresh.Checked;
  //Psearch.Text := CurrentUserName;
  LoadGrid;
 end;
@@ -619,13 +638,6 @@ begin
   if DescLen.ItemIndex = 0 then  Krtkieopisy1Click(nil) else Dugieopisy1Click(nil);
 end;
 
-procedure TFPlannerPermissions.PsearchChange(Sender: TObject);
-begin
-  inherited;
-  if chRefresh.Checked
-  then LoadGrid
-end;
-
 procedure TFPlannerPermissions.brefreshClick(Sender: TObject);
 begin
   inherited;
@@ -642,7 +654,6 @@ end;
 procedure TFPlannerPermissions.chRefreshClick(Sender: TObject);
 begin
   inherited;
-  brefresh.Visible := not chRefresh.Checked;
   brefreshClick(nil);
 end;
 
@@ -753,6 +764,24 @@ if SQLStatements <> '' then begin
        dmodule.CommitTrans;
        Panel1.Caption := '';
      end;
+end;
+
+procedure TFPlannerPermissions.ORGUNI_ID_VALUEClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := ORGUNI_ID.Text;
+  //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then ORGUNI_ID.Text := ID;
+end;
+
+procedure TFPlannerPermissions.ORGUNI_IDChange(Sender: TObject);
+begin
+    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ORG_UNITS','');
+end;
+
+procedure TFPlannerPermissions.BitBtnCLEARROLEClick(Sender: TObject);
+begin
+  ORGUNI_ID.Text := 'NULL';
 end;
 
 end.

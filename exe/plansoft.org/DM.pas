@@ -18,6 +18,7 @@ Const MaxAllLecturers     =   5000;
       MaxAllForms         =   3000;
       maxInClass          =    150; //maksymalna liczba obiektow w jednym zajeciu
       maxHours            =     60;
+      maxPeriods          =   1200;
 
       gpassString         = 'SoftwareFactory';
 
