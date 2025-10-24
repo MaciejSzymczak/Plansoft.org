@@ -26,6 +26,7 @@ begin
      prescat_comb_id number;
     begin
         trace := 'MATCHING';
+        update tt_interface set integration_id ='DUMMY:'||TT_SEQ.NEXTVAL where created_by=user and integration_id is null;
         update TT_INTERFACE set 
                LEC_INTEGRATION_ID = trim(upper(LEC_INTEGRATION_ID))
               ,GRO_INTEGRATION_ID = trim(upper(GRO_INTEGRATION_ID))
