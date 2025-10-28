@@ -763,7 +763,7 @@ begin
         from periods
         where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'); 
         select value into pUsosOnline from system_parameters where name = 'USOS_ONLINE';
-        execute immediate 'truncate table usos_temp';
+        delete from usos_temp where CREATED_BY=user;
         insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, classes_sub_id, for_id, gr_nr, sl_id, zaj_cyk_id, desc2)
             select classes.day
                 ,  classes.hour
@@ -793,20 +793,21 @@ begin
          --    
          update usos_temp 
            set rom_id = nvl( (select streaming_id from usos_streaming_room_map where id=rom_id) , rom_id)
-         where upper(desc2) like '%STREAMING%';
+         where created_by=user and upper(desc2) like '%STREAMING%';
          --
-         update usos_temp set lec_id = -1 where lec_id is null;
-         update usos_temp set gro_id = -1 where gro_id is null;
-         update usos_temp set rom_id = -1 where rom_id is null;
-         update usos_temp set sub_id = -1 where sub_id is null;
-         update usos_temp set for_id = -1 where for_id is null;
+         update usos_temp set lec_id = -1 where created_by=user and lec_id is null;
+         update usos_temp set gro_id = -1 where created_by=user and gro_id is null;
+         update usos_temp set rom_id = -1 where created_by=user and rom_id is null;
+         update usos_temp set sub_id = -1 where created_by=user and sub_id is null;
+         update usos_temp set for_id = -1 where created_by=user and for_id is null;
          for rec in (
             select rowid, day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, for_id 
               from usos_temp
-              where (lec_id, gro_id, rom_id, sub_id, for_id, day) in 
+              where created_by=user and (lec_id, gro_id, rom_id, sub_id, for_id, day) in 
               (
                   select lec_id, gro_id, rom_id, sub_id, for_id, day
                     from usos_temp
+                    where created_by=user 
                     group by lec_id, gro_id, rom_id, sub_id, for_id, day
                     having count(1)>1  
               )
@@ -836,11 +837,11 @@ begin
                  prior_rec.for_id := rec.for_id;
              end if;
          end loop;
-         update usos_temp set lec_id = null where lec_id =-1;
-         update usos_temp set gro_id = null where gro_id =-1;
-         update usos_temp set rom_id = null where rom_id =-1;
-         update usos_temp set sub_id = null where sub_id =-1;
-         update usos_temp set for_id = null where for_id =-1;
+         update usos_temp set lec_id = null where created_by=user and lec_id =-1;
+         update usos_temp set gro_id = null where created_by=user and gro_id =-1;
+         update usos_temp set rom_id = null where created_by=user and rom_id =-1;
+         update usos_temp set sub_id = null where created_by=user and sub_id =-1;
+         update usos_temp set for_id = null where created_by=user and for_id =-1;
          commit;
     end;
 
@@ -867,7 +868,8 @@ begin
       set from_hour = (select substr(hour_from,1,2) from grids where no = no_from)
          ,from_min  = (select substr(hour_from,4,2) from grids where no = no_from)
          ,to_hour   = (select substr(hour_to,1,2) from grids where no = no_to)
-         ,to_min    = (select substr(hour_to,4,2) from grids where no = no_to);
+         ,to_min    = (select substr(hour_to,4,2) from grids where no = no_to)
+    where created_by=user;
      commit;    
       --   
       insert into dz_terminy@usos (DZIEN_TYGODNIA,GODZINA_POCZATKU,MINUTA_POCZATKU,GODZINA_KONCA,MINUTA_KONCA)
@@ -877,6 +879,7 @@ begin
              , to_hour GODZINA_KONCA
              , to_min MINUTA_KONCA
         FROM USOS_TEMP
+        where created_by=user
         minus
         select DZIEN_TYGODNIA,GODZINA_POCZATKU,MINUTA_POCZATKU,GODZINA_KONCA,MINUTA_KONCA from dz_terminy@usos;        
     -- ******************************************************************
@@ -892,13 +895,14 @@ begin
                and MINUTA_POCZATKU = from_min 
                and GODZINA_KONCA =  to_hour 
                and MINUTA_KONCA =  to_min      
-      );
+      )
+    where created_by=user;
     --commit; 2025.03.05
     --
      --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
      for rec in (
          select name, integration_id from rooms where integration_id in (
-         select sl_id from usos_temp
+         select sl_id from usos_temp where created_by=user
          minus 
          select id from dz_sale@usos
          )
@@ -913,7 +917,7 @@ begin
          , zaj_cyk_id
          , trm_id
          , 'INNA_CZESTOTLIWOSC'
-     from usos_temp;
+     from usos_temp where created_by=user;
     --
     -- ******************************************************************
     -- ****************** DZ_TERMINY_GRUP_SPTK.INSERT ************************
@@ -922,7 +926,8 @@ begin
     update usos_temp
       set prac_id = (select id from dz_pracownicy@USOS p where os_id = (select integration_id from lecturers where id = usos_temp.lec_id))
         , USOS_OD_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(from_hour,2,'0')||':'||lpad(from_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS')
-        , USOS_DO_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(to_hour,2,'0')||':'||lpad(to_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS');
+        , USOS_DO_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(to_hour,2,'0')||':'||lpad(to_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS')
+    where created_by=user;
     trace := 'usos_temp.update';
     update usos_temp
        set TRM_GRUP_ID =
@@ -933,7 +938,8 @@ begin
                   and zaj_cyk_id=usos_temp.zaj_cyk_id
                   and trm_id= usos_temp.trm_id 
                   and czestotliwosc='INNA_CZESTOTLIWOSC'
-                );  
+                )
+    where created_by=user;  
     --commit;   2025.03.05          
     --   
     insert into DZ_TERMINY_GRUP_SPTK@usos (TRM_GRUP_ID,SL_ID,OD_DATA,DO_DATA,GR_NR,ZAJ_CYK_ID)
@@ -943,7 +949,8 @@ begin
            , USOS_DO_DATA
            ,GR_NR
            ,ZAJ_CYK_ID
-     from usos_temp;
+     from usos_temp
+     where created_by=user;
     -- commit;  2025.03.05
     --
     -- ******************************************************************
@@ -964,6 +971,7 @@ begin
             ) TGSP_ID
             , prac_id
        from usos_temp
+       where created_by=user
        )
        where prac_id is not null and TGSP_ID is not null;
        -- commit;  2025.03.05
