@@ -3,3 +3,5 @@ INSERT INTO system_parameters (name,value) VALUES ('VERSION 2025.10.28', 'INSTAL
 commit;
 
 alter table usos_temp add (CREATED_BY VARCHAR2(30 BYTE) DEFAULT user NOT NULL);
+
+alter table planners add (IS_INTEGRATED CHAR(1 BYTE) DEFAULT '-');
