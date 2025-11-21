@@ -3,3 +3,5 @@ INSERT INTO system_parameters (name,value) VALUES ('VERSION 2025.11.21', 'INSTAL
 commit;
 
 ALTER TABLE planners ADD keywords varchar2(255);
+
+*** Install package planner_utils

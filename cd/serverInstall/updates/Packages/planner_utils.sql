@@ -127,10 +127,27 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function get_session_id return number;
     
   
-  --
+
   -- returns error_message (is any) by get_output_param_char1 
   --         copied records         by get_output_param_num1
   --         conflict records       by get_output_param_num2
+  procedure copy_data_v2(source_date_from date
+                    , source_date_to   date
+                    , dest_date_from   date
+                    , dest_period_must_be_empty varchar2
+                    , own_classes      varchar2
+                    , planner_id       number
+                    , selected_lec_id  number default -1
+                    , selected_gro_id  number default -1
+                    , selected_res_id  number default -1
+                    , replace_with_Id  number default -1
+                    , CopyC            varchar2
+                    , CopyR            varchar2
+                    , overlapAllowed   varchar2
+                    , copyAllOrNothing varchar2
+                    );
+
+  -- *** DEPRECIATED. USE copy_data_v2 instead
   procedure copy_data(source_date_from date
                     , source_date_to   date
                     , dest_date_from   date
@@ -269,6 +286,144 @@ create or replace package body planner_utils is
   end has_common_part;
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
+  procedure copy_data_v2(source_date_from date
+                    , source_date_to   date
+                    , dest_date_from   date
+                    , dest_period_must_be_empty varchar2
+                    , own_classes      varchar2
+                    , planner_id       number
+                    , selected_lec_id  number default -1
+                    , selected_gro_id  number default -1
+                    , selected_res_id  number default -1
+                    , replace_with_Id  number default -1
+                    , CopyC            varchar2
+                    , CopyR            varchar2
+                    , overlapAllowed   varchar2
+                    , copyAllOrNothing varchar2
+                    ) is
+    current_class classes%rowtype;
+    current_lec   lec_cla%rowtype;
+    current_gro   gro_cla%rowtype;
+    current_rom   rom_cla%rowtype;
+    dest_date_to  date;
+    offset number;
+    replace_with_Dsp groups.name%type;
+  begin
+    if replace_with_Id is not null then
+      select name into replace_with_Dsp from groups where Id=replace_with_Id;
+    end if;
+  
+    output_param_char1 := '';
+    dest_date_to := dest_date_from + to_number(source_date_to - source_date_from);
+
+    if (overlapAllowed='N') then 
+      if has_common_part(source_date_from,source_date_to,dest_date_from,dest_date_to) = 'Y' then    
+        output_param_char1 := 'Okresy zródlowy i docelowy nie moga sie pokrywac';
+        return;
+      end if;   
+    end if;
+
+    if dest_period_must_be_empty = 'Y' then
+     declare
+      c number;
+     begin
+     select count(*) 
+       into c 
+       from classes
+       where day between dest_date_from and dest_date_to
+         and owner != 'AUTO';
+     if c > 0 then
+       output_param_char1 := 'Nie mozna wykonac czynnosci, poniewaz w obszarze docelowym sa juz zaplanowane zajecia. Jezeli mimo to chcesz kontynuowac, zezwól na skopiowanie odznaczajac pole wyboru na formularzu';
+       return; 
+     end if;
+     end;  
+    end if;
+
+    output_param_num1 := 0; --sucess records
+    output_param_num2 := 0; --failed records
+    offset := dest_date_from - source_date_from;
+    for rec in ( select * 
+                   from classes 
+                  where day between source_date_from and source_date_to
+                    and for_id in (
+                       select id from forms where kind='R' and CopyR='Y'
+                       union 
+                       select id from forms where kind='C' and CopyR='Y'
+                    )
+                    -- permissions
+                    and id in 
+                      (
+                       select cla_id from lec_cla where lec_id in (select lec_id from lec_pla where pla_id =  planner_id and (lec_id = selected_lec_id or selected_lec_id =-1) )
+                       union
+                       select cla_id from gro_cla where gro_id in (select gro_id from gro_pla where pla_id =  planner_id and (gro_id = selected_gro_id or selected_gro_id =-1))
+                       union
+                       select cla_id from rom_cla where rom_id in (select rom_id from rom_pla where pla_id =  planner_id and (rom_id = selected_res_id or selected_res_id =-1))
+                      )
+               )
+    loop
+    savepoint roll;
+    begin
+      current_class := rec;
+      select cla_seq.nextval into current_class.id from dual;
+      current_class.day        := current_class.day + offset;
+      current_class.created_by := user;
+      current_class.creation_date := sysdate;
+      current_class.last_updated_by := user;
+      if own_classes = 'Y' then 
+        current_class.owner      := user;
+      end if;  
+      
+      if replace_with_Id is not null then
+        current_class.calc_groups  := replace_with_Dsp;
+        current_class.calc_gro_ids := replace_with_Id;
+      end if;
+      
+      insert into classes values current_class;
+
+      for rec_lec in ( select * from lec_cla where cla_id = rec.id order by id)
+      loop
+        current_lec := rec_lec;
+        select leccla_seq.nextval into current_lec.id from dual;
+        current_lec.cla_id:= current_class.id;
+        current_lec.day   := current_class.day;
+        insert into lec_cla values current_lec;
+      end loop;
+
+      for rec_gro in ( select * from gro_cla where cla_id = rec.id order by id)
+      loop
+        current_gro := rec_gro;
+        select grocla_seq.nextval into current_gro.id from dual;
+        current_gro.cla_id:= current_class.id;
+        current_gro.day   := current_class.day;
+        if replace_with_Id is not null then
+          current_gro.gro_id := replace_with_Id;
+        end if;
+        insert into gro_cla values current_gro;
+      end loop;
+
+      for rec_rom in ( select * from rom_cla where cla_id = rec.id order by id)
+      loop
+        current_rom := rec_rom;
+        select romcla_seq.nextval into current_rom.id from dual;
+        current_rom.cla_id:= current_class.id;
+        current_rom.day   := current_class.day;
+        insert into rom_cla values current_rom;
+      end loop;
+
+    output_param_num1 := output_param_num1 + 1;  
+    exception
+      when others then 
+        if copyAllOrNothing='Y' then raise; end if;
+        output_param_num2 := output_param_num2 + 1;
+        rollback to savepoint roll;
+        -- .. and proceed
+    end;
+    end loop;
+  end;
+
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------
+  -- *** DEPRECIATED. USE copy_data_v2 instead
   procedure copy_data(source_date_from date
                     , source_date_to   date
                     , dest_date_from   date
