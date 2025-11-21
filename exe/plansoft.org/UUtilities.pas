@@ -250,13 +250,16 @@ begin
   '  where level=1 and STR_NAME_LOV=''STREAM'''+exclParent+cr+        //!!bookmark!!
   '  CONNECT BY PRIOR STR_NAME_LOV=''STREAM'' and prior child_id = parent_id'+cr+
   '  start with parent_id=:id2'+cr+
+  //exclusions
+  'union'+cr+
+  'select res_id_excluded from exclusions where res_id=:id3'+cr+
   ')';
 
    for t := 1 to wordCount(KeyValues, [';']) do begin
      KeyValue := extractWord(t,KeyValues, [';']);
      if (addKeyValue) and (not ExistsValue(resultString, [';'], KeyValue)) then resultString :=  Merge(KeyValue, resultString, ';');
      //add childs and parents as well
-     dmodule.OpenSQL(sql,'id1='+KeyValue+';id2='+KeyValue);
+     dmodule.OpenSQL(sql,'id1='+KeyValue+';id2='+KeyValue+';id3='+KeyValue);
      with dmodule.QWork do begin
        first;
        while not Eof do begin

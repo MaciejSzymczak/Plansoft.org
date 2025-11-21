@@ -31,7 +31,6 @@ type
     LabelROL_ID: TLabel;
     ROL_ID: TDBEdit;
     ROL_ID_VALUE: TEdit;
-    BSelectROL_ID: TBitBtn;
     BClearROL_ID: TBitBtn;
     ChLokedFlag: TDBCheckBox;
     HIDE_ROWS: TDBEdit;
@@ -41,18 +40,22 @@ type
     GRID_LABELS: TDBEdit;
     FHelp: TSpeedButton;
     SpeedButton2: TSpeedButton;
+    Label4: TLabel;
+    PER_ORGUNI_ID: TDBEdit;
+    PER_ORGUNI_ID_VALUE: TEdit;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
-    procedure BSelectROL_IDClick(Sender: TObject);
     procedure BClearROL_IDClick(Sender: TObject);
-    procedure ROL_ID_VALUEDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure BUpdChild1Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
     procedure FHelpClick(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
+    procedure PER_ORGUNI_IDChange(Sender: TObject);
+    procedure PER_ORGUNI_ID_VALUEClick(Sender: TObject);
+    procedure ROL_ID_VALUEClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -125,8 +128,9 @@ end;
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
  result := true;
+ if not Query.Active then exit;
  If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
-  Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord');
+  //Info('Rekord mo¿e skasowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;
 end;
@@ -148,22 +152,9 @@ begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
 end;
 
-procedure TFBrowsePERIODS.BSelectROL_IDClick(Sender: TObject);
-Var ID : ShortString;
-begin
-  ID := ROL_ID.Text;
-  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',ID) = mrOK Then
-    Query.FieldByName('ROL_ID').AsString := ID;
-end;
-
 procedure TFBrowsePERIODS.BClearROL_IDClick(Sender: TObject);
 begin
  Query.FieldByName('ROL_ID').Clear;
-end;
-
-procedure TFBrowsePERIODS.ROL_ID_VALUEDblClick(Sender: TObject);
-begin
-  BSelectROL_IDClick(nil);
 end;
 
 procedure TFBrowsePERIODS.FormShow(Sender: TObject);
@@ -232,6 +223,27 @@ begin
     FSharing.init('I','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
     dmodule.CommitTrans;
  end;
+end;
+
+procedure TFBrowsePERIODS.PER_ORGUNI_IDChange(Sender: TObject);
+begin
+    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ORG_UNITS','');
+end;
+
+procedure TFBrowsePERIODS.PER_ORGUNI_ID_VALUEClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := PER_ORGUNI_ID.Text;
+  //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PER_ORGUNI_ID').AsString := ID;
+end;
+
+procedure TFBrowsePERIODS.ROL_ID_VALUEClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := ROL_ID.Text;
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',ID) = mrOK Then
+    Query.FieldByName('ROL_ID').AsString := ID;
 end;
 
 end.

@@ -212,11 +212,6 @@ begin
   AutoCreate.CLASSESShowModalAsBrowser('', '', '', '','',Query['Id'],'',false, true);
 end;
 
-function TFBrowseFORMS.canDelete: Boolean;
-begin
- result := isBlank(confineCalendarId);
-end;
-
 function TFBrowseFORMS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
@@ -224,7 +219,12 @@ end;
 
 function TFBrowseFORMS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
+function TFBrowseFORMS.canDelete: Boolean;
+begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
 end;
 
 Procedure TFBrowseFORMS.AfterPost;

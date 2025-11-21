@@ -174,12 +174,13 @@ function isShiftDown : Boolean;
 
 
 Var
+    isUSOSInstalled : boolean;
+    isIntegrated    : boolean;
     CurrentUserName : ShortString;
     IsAdmin      : boolean;
     EditOrgUnits : boolean;
     EditFlex     : boolean;
     LogChanges   : boolean;
-    manySubjectsFlag : boolean;
     editReservations : boolean;
     editSharing      : boolean;
     CanEditL   : boolean;
@@ -193,6 +194,8 @@ Var
     CanDelete  : boolean;
     CanInsert   : boolean;
     gFirstResourceFlag : boolean;
+    EditObjPermisions : boolean;
+    CanRunIntegration : boolean;
     confineCalendarId : ShortString;
     UserID    : ShortString;
     VersionOfApplication : ShortString;
@@ -1881,7 +1884,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2025-10-24';
+ VersionOfApplication := '2025-11-20';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

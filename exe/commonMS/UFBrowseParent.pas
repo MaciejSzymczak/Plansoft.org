@@ -1677,9 +1677,9 @@ begin
 
  If Mode = 0 Then Begin
    BClose.Visible    := True;
-   BDelete.Visible   := (Not Upraw.Down) Or CanDelete;
-   BAdd.Visible      := (Not Upraw.Down) Or CanInsert;
-   BCopy.Visible     := (Not Upraw.Down) Or CanInsert;
+   BDelete.Visible   := CanDelete;
+   BAdd.Visible      := CanInsert;
+   BCopy.Visible     := CanInsert;
    BEdit.Visible     := (Not Upraw.Down) Or CanEditPermission;
    BCancel.Visible   := False;
    BSelect.Visible   := False;
@@ -1689,9 +1689,9 @@ begin
  End Else
  Begin
    BClose.Visible    := False;
-   BDelete.Visible   := True And ((Not Upraw.Down) Or CanDelete);;
-   BAdd.Visible      := True And ((Not Upraw.Down) Or CanInsert);
-   BCopy.Visible     := True And ((Not Upraw.Down) Or CanInsert);
+   BDelete.Visible   := CanDelete;
+   BAdd.Visible      := CanInsert;
+   BCopy.Visible     := CanInsert;
    BEdit.Visible     := True And ((Not Upraw.Down) Or CanEditPermission);
    BCancel.Visible   := True;
    BSelect.Visible   := True;

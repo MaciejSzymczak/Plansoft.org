@@ -40,7 +40,6 @@ type
     hlec: TSpeedButton;
     SystemPrivs: TGroupBox;
     DBCheckBox2: TDBCheckBox;
-    DBCheckBox3: TDBCheckBox;
     first_Resource_Flag: TDBCheckBox;
     chbIsAdmin: TDBCheckBox;
     chbCanEditOrgUnits: TDBCheckBox;
@@ -64,6 +63,9 @@ type
     PLA_ORGUNI_ID: TDBEdit;
     PLA_ORGUNI_ID_VALUE: TEdit;
     BSelectORGUNI_ID: TBitBtn;
+    DBCheckBox3: TDBCheckBox;
+    DBCheckBox13: TDBCheckBox;
+    DBCheckBox14: TDBCheckBox;
     procedure BCheckDatabaseClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -120,15 +122,15 @@ Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UF
 
 function TFBrowsePLANNERS.CanDelete: Boolean;
 begin
-  if Query.fieldByName('name').AsString = CurrentUserName then begin
-    info('Nie mo縩a usun规 konta zalogowanego u縴tkownika');
-  end
-  else
-  if Query.fieldByName('name').AsString = 'PLANNER' then begin
-    info('Nie mo縩a usun规 konta u縴tkownika o nazwie planner');
-  end;
-
-  Result := IsAdmin and (Query.fieldByName('name').AsString <> CurrentUserName) and (Query.fieldByName('name').AsString <> 'PLANNER');
+ result := isAdmin;
+//  if Query.fieldByName('NAME').AsString = CurrentUserName then begin
+//    info('Nie mo縩a usun规 konta zalogowanego u縴tkownika');
+//  end
+//  else
+//  if Query.fieldByName('name').AsString = 'PLANNER' then begin
+//    info('Nie mo縩a usun规 konta u縴tkownika o nazwie planner');
+//  end;
+//  Result := IsAdmin and (Query.fieldByName('name').AsString <> CurrentUserName) and (Query.fieldByName('name').AsString <> 'PLANNER');
 end;
 
 function TFBrowsePLANNERS.CanEditIntegrity: Boolean;
@@ -177,12 +179,11 @@ Begin
  QUERY['COLOUR'] := c;
  Shape1.Brush.Color := c;
  Query['ACTIVE_FLAG'] := '+';
- QUERY['IS_ADMIN'] := '+';
+ QUERY['IS_ADMIN'] := '-';
  QUERY['EDIT_ORG_UNITS'] := '+';
  QUERY['EDIT_FLEX'] := '+';
  QUERY['LOG_CHANGES'] := '-';
  QUERY['EDIT_RESERVATIONS'] := '-';
- QUERY['many_subjects_flag'] := '-';
  QUERY['edit_sharing'] := '-';
  QUERY['Can_Insert'] := '+';
  QUERY['Can_Delete'] := '+';
@@ -380,7 +381,6 @@ end;
 procedure TFBrowsePLANNERS.LEC_IDChange(Sender: TObject);
 begin
   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,sql_LECNAME,'LECTURERS','');
-
 end;
 
 procedure TFBrowsePLANNERS.LEC_ID_VALUEClick(Sender: TObject);
@@ -392,21 +392,17 @@ end;
 
 procedure TFBrowsePLANNERS.PLANNERTYPEChange(Sender: TObject);
 begin
-
-//my team
-Label1.Visible :=  PLANNERTYPE.ItemIndex = 0;
-PARENT.Visible :=  PLANNERTYPE.ItemIndex = 0;
-SelectOwner .Visible :=  PLANNERTYPE.ItemIndex = 0;
-SpeedButton4.Visible :=  PLANNERTYPE.ItemIndex = 0;
-//terminy
-LabelORGUNI_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
-CAL_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
-CAL_ID_VALUE.Visible :=  PLANNERTYPE.ItemIndex = 0;
-BClearS.Visible :=  PLANNERTYPE.ItemIndex = 0;
-SpeedButton2.Visible :=  PLANNERTYPE.ItemIndex = 0;
-
-
-
+  //my team
+  Label1.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  PARENT.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  SelectOwner .Visible :=  PLANNERTYPE.ItemIndex = 0;
+  SpeedButton4.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  //terminy
+  LabelORGUNI_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  CAL_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  CAL_ID_VALUE.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  BClearS.Visible :=  PLANNERTYPE.ItemIndex = 0;
+  SpeedButton2.Visible :=  PLANNERTYPE.ItemIndex = 0;
 
   SystemPrivs.Visible :=  PLANNERTYPE.ItemIndex = 0;
   LRec.Visible        :=  PLANNERTYPE.ItemIndex = 2;

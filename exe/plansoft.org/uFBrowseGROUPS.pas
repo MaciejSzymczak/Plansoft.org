@@ -716,11 +716,6 @@ begin
  Result := 'Dowolna fraza';
 end;
 
-function TFBrowseGROUPS.canDelete: Boolean;
-begin
- result := isBlank(confineCalendarId);
-end;
-
 function TFBrowseGROUPS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
@@ -728,7 +723,12 @@ end;
 
 function TFBrowseGROUPS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
+function TFBrowseGROUPS.canDelete: Boolean;
+begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
 end;
 
 Procedure TFBrowseGROUPS.AfterPost;
@@ -814,15 +814,20 @@ begin
 end;
 
 procedure TFBrowseGROUPS.BitBtn4Click(Sender: TObject);
-var id : shortString;
-    parentId : shortString;
+var id, res_id : shortString;
+    res_id_excluded : shortString;
 begin
  id := QExclusions.FieldByName('id').AsString;
  if id='' then exit;
+
+ res_id := QExclusions.FieldByName('res_id').AsString;
+ res_id_excluded := QExclusions.FieldByName('res_id_excluded').AsString;
+
  if question
     ('Czy na pewno chcesz usun¹æ zaznaczony rekord ?') = id_yes
  then begin
-  dmodule.SQL('delete from exclusions where id = '  + id );
+  dmodule.SQL('delete from exclusions where res_id = '  + res_id +' and res_id_excluded=' +res_id_excluded );
+  dmodule.SQL('delete from exclusions where res_id = '  + res_id_excluded +' and res_id_excluded=' +res_id );
   refreshDetails;
  end;
 end;
@@ -837,6 +842,10 @@ Var
     maxt, t : integer;
     checkSQL : string;
     currentParent : string;
+    //
+    res_id, res_id_excluded : string;
+    conflicts : string;
+    conflictCnt : integer;
 begin
   keyValue := '';
   If LookupWindow(True, DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
@@ -844,16 +853,53 @@ begin
    FProgress.Show;
    maxt := wordCount(KeyValues, [',']);
    for t := 1 to maxt do begin
-   FProgress.ProgressBar.Position :=  round(t *  FProgress.ProgressBar.Max / maxT);
-   FProgress.Refresh;
-   KeyValue := extractWord(t,KeyValues, [',']);
-    with dmodule.QWork do begin
-      SQL.Clear;
-      SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
-      Parameters.ParamByName('res_id').value     := query.FieldByName('ID').asString;;
-      Parameters.ParamByName('res_id_excluded').value := keyValue;
-      execSQL;
-    end;
+     FProgress.ProgressBar.Position :=  round(t *  FProgress.ProgressBar.Max / maxT);
+     FProgress.Refresh;
+     KeyValue := extractWord(t,KeyValues, [',']);
+      with dmodule.QWork do begin
+
+        res_id          := query.FieldByName('ID').asString;
+        res_id_excluded := keyValue;
+
+        //check conflicts
+        conflicts := '';
+        conflictCnt := 0;
+        dmodule.OpenSQL(
+          'select day, hour from gro_cla where gro_id=:res_id '+
+          ' intersect '+
+          ' select day, hour from gro_cla where gro_id=:res_id_excluded'
+        ,'res_id='+res_id+';res_id_excluded='+res_id_excluded);
+        with dmodule.QWork do begin
+          first;
+          while not Eof do begin
+             if conflictCnt < 100 then begin
+                conflicts := merge(conflicts, fieldByName('day').AsString+':'+fieldByName('hour').AsString, ', ');
+             end;
+             inc(conflictCnt);
+             next;
+           end;
+        end;
+
+        if conflictCnt > 0 then begin
+          if question('Istniej¹ terminy, w których grupy maj¹ zajêcia. Rozumiem, ¿e zezwalasz na istniej¹ce konflikty, lecz nie chcesz pozowlic na wyst¹pienie nowych, tak?'+cr+cr+'  Konflikty:' + conflicts ) <> idYes then begin
+            FProgress.Hide;
+            exit;
+          end;
+        end;
+
+        SQL.Clear;
+        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
+        Parameters.ParamByName('res_id').value     := res_id;
+        Parameters.ParamByName('res_id_excluded').value := res_id_excluded;
+        execSQL;
+
+        SQL.Clear;
+        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
+        Parameters.ParamByName('res_id').value     := res_id_excluded;
+        Parameters.ParamByName('res_id_excluded').value := res_id;
+        execSQL;
+
+      end;
    end;
    FProgress.Hide;
 

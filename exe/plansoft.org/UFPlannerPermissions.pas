@@ -49,6 +49,7 @@ type
     ORGUNI_ID_VALUE: TEdit;
     ORGUNI_ID: TEdit;
     BitBtnCLEARROLE: TSpeedButton;
+    childs: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure AddClassClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
@@ -217,6 +218,8 @@ end;
 
 procedure TFPlannerPermissions.LoadGrid;
 Var x, y : Integer;
+    ORGUNI_IDFilter : String;
+    PER_ORGUNI_IDFilter : String;
 
   Procedure LoadCells(Descriptor : String; Grid : TStringGrid; sqlWhereClause : string);
   Var x, y : Integer;
@@ -291,8 +294,30 @@ begin
    OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
    ROLGrid.ColCount := QWork.RecordCount+1;
 
+
+   ORGUNI_IDFilter := '';
+   if ORGUNI_ID.text <> 'NULL' then begin
+     if childs.Checked then begin
+       OPENSQL2('SELECT id FROM org_units START WITH id = '+ORGUNI_ID.text+' CONNECT BY NOCYCLE PRIOR id = parent_id');
+       While Not QWork2.EOF Do Begin
+        ORGUNI_IDFilter := merge(ORGUNI_IDFilter, QWork2.Fields[0].AsString, ',');
+        QWork2.Next;
+       End;
+     end else ORGUNI_IDFilter := ORGUNI_ID.text;
+   End;
+   if ORGUNI_IDFilter = '' then begin
+     //dummy
+     ORGUNI_IDFilter := '0=0';
+     PER_ORGUNI_IDFilter := '0=0';
+   end
+   else begin
+     //limit to org and subsidries
+         ORGUNI_IDFilter := 'ORGUNI_ID in ('+ORGUNI_IDFilter+')';
+     PER_ORGUNI_IDFilter := 'PER_'+ORGUNI_IDFilter;
+   end;
+
    dispLog (3,'FplannerPermissions : LECTURERS');
-   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
+   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
    LGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -305,7 +330,7 @@ begin
    End;
 
     dispLog (4,'FplannerPermissions : PERIODS');
-   OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
+   OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
    PERGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -318,7 +343,7 @@ begin
    End;
 
    dispLog (5, 'FplannerPermissions : GROUPS');
-   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
+   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
    GGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -331,7 +356,7 @@ begin
    End;
 
    dispLog (6, 'FplannerPermissions : ROOMS');
-   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
+   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
    RGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -344,7 +369,7 @@ begin
    End;
 
    dispLog (7, 'FplannerPermissions : SUBJECTS');
-   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
+   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
    SubGrid.RowCount := QWork2.RecordCount+1;
    y := 1;
    QWork2.First;
@@ -386,17 +411,17 @@ begin
   End;
 
   dispLog (10, 'FplannerPermissions : before LoadCells');
-  LoadCells('LEC', LGrid  ,'lec_id in (SELECT LECTURERS.ID FROM LECTURERS , ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+')');
+  LoadCells('LEC', LGrid  ,'lec_id in (SELECT LECTURERS.ID FROM LECTURERS , ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+')');
   dispLog (11, 'FplannerPermissions : before LoadCells');
-  LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and '+buildFilter(sql_PER_SEARCH, getRowSearch)+')');
+  LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+')');
   dispLog (12, 'FplannerPermissions : before LoadCells');
-  LoadCells('GRO', GGrid  ,'gro_id in (SELECT GROUPS.ID FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+')');
+  LoadCells('GRO', GGrid  ,'gro_id in (SELECT GROUPS.ID FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+')');
   dispLog (13, 'FplannerPermissions : before LoadCells');
-  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ROOMS.ID FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+')');
+  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ROOMS.ID FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+')');
   dispLog (14, 'FplannerPermissions : before LoadCells');
   LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%''))');
   dispLog (15, 'FplannerPermissions : before LoadCells');
-  LoadCells('SUB', SUBGrid,'sub_id in (SELECT SUBJECTS.ID FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and ORGUNI_ID=nvl('+ORGUNI_ID.text+',ORGUNI_ID) and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+')');
+  LoadCells('SUB', SUBGrid,'sub_id in (SELECT SUBJECTS.ID FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+')');
   dispLog (16, 'FplannerPermissions : before LoadCells');
   LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+')');
   dispLog (19,'FplannerPermissions : after LoadCells');

@@ -501,11 +501,6 @@ begin
  Result := 'Dowolna fraza';
 end;
 
-function TFBrowseLECTURERS.canDelete: Boolean;
-begin
- result := isBlank(confineCalendarId);
-end;
-
 function TFBrowseLECTURERS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
@@ -513,8 +508,14 @@ end;
 
 function TFBrowseLECTURERS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := isBlank(confineCalendarId) and isIntegrated=false;
 end;
+
+function TFBrowseLECTURERS.canDelete: Boolean;
+begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
 
 Procedure TFBrowseLECTURERS.AfterPost;
 Begin

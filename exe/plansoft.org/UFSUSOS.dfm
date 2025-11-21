@@ -261,7 +261,7 @@ inherited FUSOS: TFUSOS
     Top = 169
     Width = 995
     Height = 476
-    ActivePage = TabSheet5
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
@@ -823,7 +823,7 @@ inherited FUSOS: TFUSOS
       '    minus'
       
         '    select day, lec_id, gro_id, rom_id, classes_sub_id sub_id, f' +
-        'or_id from usos_temp'
+        'or_id from usos_temp where created_by=user'
       '    ) notSent'
       ' , lecturers lec'
       ' , groups gro'
@@ -1586,7 +1586,7 @@ inherited FUSOS: TFUSOS
       ')'
       ') DZ_T_GRUP_PROW_SPTK_check'
       ', USOS_TEMP.*'
-      'from USOS_TEMP'
+      'from USOS_TEMP where created_by=user'
       ')'
       'order by 1,2,3,4')
     Left = 244

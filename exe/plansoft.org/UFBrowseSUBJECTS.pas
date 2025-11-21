@@ -284,11 +284,6 @@ begin
  Result := 'Dowolna fraza';
 end;
 
-function TFBrowseSUBJECTS.canDelete: Boolean;
-begin
- result := isBlank(confineCalendarId);
-end;
-
 function TFBrowseSUBJECTS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
@@ -296,8 +291,14 @@ end;
 
 function TFBrowseSUBJECTS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := isBlank(confineCalendarId) and isIntegrated=false;
 end;
+
+function TFBrowseSUBJECTS.canDelete: Boolean;
+begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
 
 Procedure TFBrowseSUBJECTS.AfterPost;
 Begin

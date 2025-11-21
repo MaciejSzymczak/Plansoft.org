@@ -277,7 +277,6 @@ type
     mmplanL: TMenuItem;
     mmplanG: TMenuItem;
     mmplanR: TMenuItem;
-    Czysty1: TMenuItem;
     N7: TMenuItem;
     Kategoriezasobw1: TMenuItem;
     Pobierzdanezpliku1: TMenuItem;
@@ -290,10 +289,6 @@ type
     Penyprzegld1: TMenuItem;
     UtwrzwitrynWWW1: TMenuItem;
     Zalogujponownie1: TMenuItem;
-    N10: TMenuItem;
-    Dodaj2: TMenuItem;
-    Zmie1: TMenuItem;
-    Usu2: TMenuItem;
     N11: TMenuItem;
     Odwie1: TMenuItem;
     powiksz1: TMenuItem;
@@ -601,6 +596,7 @@ type
     Przedskopiowanieskasujistniajcedniwolne1: TMenuItem;
     Nieusuwajistniajcedniwolne1: TMenuItem;
     sql_COM_SEARCH: TMemo;
+    Navigator: TTimer;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -945,6 +941,7 @@ type
     procedure Przedskopiowanieskasujistniajcedniwolne1Click(
       Sender: TObject);
     procedure Nieusuwajistniajcedniwolne1Click(Sender: TObject);
+    procedure NavigatorTimer(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -959,6 +956,7 @@ type
     StartUp : boolean;
     dockingPanel  : integer;
     SearchCounter   : Integer;
+    NavigatorCnt   : Integer;
     gridRefreshCounter   : Integer;
     userLogged : boolean;
     ignoreEvents : boolean;
@@ -1104,6 +1102,7 @@ type
     procedure changePassword(WindowLabel : String );
     procedure wlog(messageText : string);
     procedure autoExpandSelection;
+    procedure RefreshNavigatorImmediate;
   end;
 
 var
@@ -1941,6 +1940,10 @@ procedure TFMain.RefreshGrid;
   bwww.Visible := V;
   BViewByWeek.Visible := TabViewType.TabIndex <4;
   BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
+  CONROLE_VALUE.Visible  := TabViewType.TabIndex <4;
+  LCONROLE_VALUE.Visible  := TabViewType.TabIndex <4;
+  GoToDate.Visible  := TabViewType.TabIndex <4;
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
   bmoveDown.Visible := v;
   bmoveUp.Visible := v;
   bmoveLeft.Visible := v;
@@ -3767,7 +3770,7 @@ procedure TFMain.buildMenu;
 begin
  // -- buildMenu --
  Integration.Visible := dmodule.dbgetSystemParam('INT_IS_ACTIVE') = '1';
- USOSIntegracja1.Visible := dmodule.dbgetSystemParam('USOS_CYKL') <> '';
+ USOSIntegracja1.Visible := isUSOSInstalled;
 
  if MM.Items[3].Caption <> '&Dane' then begin
   SError('B³¹d w procedurze buildMenu. Jest:"'+MM.Items[3].Caption+'". Powinno byæ:"&S³owniki". Zg³oœ problem asyœcie technicznej');
@@ -4339,8 +4342,6 @@ begin
 
   fprogramSettings.loadConfiguration;
 
-  buildMenu;
-
   If  0=StrToInt(DModule.SingleValue2('select count(1) from SYS.DBA_ROLE_PRIVS WHERE GRANTEE=USER AND GRANTED_ROLE=''PLA_PERMISSION''')) Then Begin
     Info('Nie masz uprawnieñ do korzystania z aplikacji - brak nadanych uprawnieñ');
     Result := False;
@@ -4353,13 +4354,14 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN,EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, MANY_SUBJECTS_FLAG, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '+'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag FROM PLANNERS WHERE NAME=USER');
+    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
+        +'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag, EDIT_OBJ_PERMISSIONS, CAN_RUN_INTEGRATION FROM PLANNERS WHERE NAME=USER');
     UserID           := DModule.QWork.Fields[1].AsString;
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
     EditOrgUnits     := DModule.QWork.Fields[3].AsString = '+';
     EditFlex         := DModule.QWork.Fields[4].AsString = '+';
     LogChanges       := DModule.QWork.Fields[5].AsString = '+';
-    manySubjectsFlag := DModule.QWork.Fields[6].AsString = '+';
+    isIntegrated     := DModule.QWork.Fields[6].AsString = '+';
     confineCalendarId:= DModule.QWork.Fields[7].AsString;
     editReservations := DModule.QWork.Fields[8].AsString = '+';
     editSharing      := DModule.QWork.Fields[9].AsString = '+';
@@ -4374,6 +4376,9 @@ begin
     CanEditD      := DModule.QWork.Fields[18].AsString = '+';
     CanEditAll  := CanEditL and CanEditG and CanEditR and CanEditS and CanEditF and CanEditO and CanEditD;
     gFirstResourceFlag := DModule.QWork.Fields[19].AsString = '+';
+    EditObjPermisions := DModule.QWork.Fields[20].AsString = '+';
+    CanRunIntegration := DModule.QWork.Fields[21].AsString = '+';
+
 
     ppaddL.Enabled := canEditL;
     ppminusL.Enabled := canEditL;
@@ -4400,8 +4405,13 @@ begin
     Ddesc2.Enabled := canEditD;
     Ddesc3.Enabled := canEditD;
     Ddesc4.Enabled := canEditD;
-
   Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
+
+  isUSOSInstalled := dmodule.dbgetSystemParam('USOS_CYKL')<>'';
+  BFastSearchNew.Visible := isIntegrated = false;
+  CreateWeeks.Visible := isIntegrated = false;
+
+  buildMenu;
 
   dmodule.loadMap('select id,NVL(COLOUR,0) from lecturers order by id', MapLecColors, true);
   dmodule.loadMap('select id,NVL(COLOUR,0) from groups order by id', MapGroColors, true);
@@ -5209,7 +5219,10 @@ end;
 
 procedure TFMain.Uprawnieniadoobiektw1Click(Sender: TObject);
 begin
-  inherited;
+  if EditObjPermisions=false then begin
+    info('Nie posiadasz uprawnieñ do uruchomienia funkcji Uprawnienia');
+    exit;
+  end;
   UFPlannerPermissions.ShowModal;
 end;
 
@@ -5246,7 +5259,7 @@ begin
     end;
    end;
 
-   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text);
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
 
    Self.Menu := MM;
 
@@ -5727,7 +5740,7 @@ procedure TFMain.conRoleChange(Sender: TObject);
 begin
   If CanShow Then Begin
    if isBlank(conRole.Text) then begin conRole_value.Text := ''; exit; end;
-   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text);
+   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
   End;
 end;
@@ -7397,6 +7410,11 @@ end;
 
 procedure TFMain.RunMassImport(whatObject : Integer);
 begin
+  if isIntegrated then begin
+    info('Poniewa¿ uruchomiono funkcje Zasilanie danymi innego systemu, ta funkcja nie jest dostêpna');
+    exit;
+  end;
+
   if not isBlank(confineCalendarId) then begin
     info('Importowanie danych w arkusza Excel zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
     exit;
@@ -8241,7 +8259,7 @@ begin
   searchItems(aMenu.Items);
 end;
 
-procedure TFMain.SearchMenu1Change(Sender: TObject);
+procedure TFMain.RefreshNavigatorImmediate;
 var s1, s2, s3 : string;
 begin
   s1 := iif(SearchMenu1.Text = 'Szukaj...', '', SearchMenu1.Text);
@@ -8261,6 +8279,12 @@ begin
   TreeView1.Items.EndUpdate;
   if TreeView1.Items.Count > 0 then
       TreeView1.Selected := TreeView1.Items[0];
+end;
+
+procedure TFMain.SearchMenu1Change(Sender: TObject);
+begin
+  NavigatorCnt := 2;
+  Navigator.Enabled := true;
 end;
 
 procedure TFMain.TreeView1Click(Sender: TObject);
@@ -9091,8 +9115,9 @@ end;
 
 procedure TFMain.USOSIntegracja1Click(Sender: TObject);
 begin
-  if dmodule.dbgetSystemParam('USOS_CYKL') ='' then info('Po³¹czenie z systemem USOS nie zosta³o jeszcze skonfigurowane')
-  else FUSOS.ShowModal;
+  if isUSOSInstalled=false then begin info('Po³¹czenie z systemem USOS nie zosta³o jeszcze skonfigurowane'); exit; end;
+  if not CanRunIntegration then begin info('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
+  FUSOS.ShowModal;
 end;
 
 procedure TFMain.Listaobecno1Click(Sender: TObject);
@@ -9300,8 +9325,9 @@ end;
 
 procedure TFMain.IntegrationClick(Sender: TObject);
 begin
-  if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then info('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane')
-  else FIntegration.ShowModal;
+  if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then begin info('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane'); exit; end;
+  if not CanRunIntegration then begin info('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
+  FIntegration.ShowModal;
 end;
 
 procedure TFMain.Listaobecno2Click(Sender: TObject);
@@ -9517,17 +9543,14 @@ begin
     end else begin
       info('Nie ma takiej daty w bie¿¹cym rozk³adzie');
     end;
-
   end;
-
-
 end;
 
 procedure TFMain.CreateWeeksClick(Sender: TObject);
 begin
   if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
     DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
-    info('Zrobione');
+    info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
   end;
 end;
 
@@ -9621,9 +9644,9 @@ procedure TFMain.CLASSES_ALLOWEDClick(Sender: TObject);
 var Key: Word;
     Shift: TShiftState;
 begin
-  key := 13;
-  Shift := [];
-  GridKeyDown(nil, key, Shift);
+  //key := 13;
+  //Shift := [];
+  //GridKeyDown(nil, key, Shift);
 end;
 
 procedure TFMain.Wzbogacaniedanych1Click(Sender: TObject);
@@ -9661,6 +9684,15 @@ end;
 procedure TFMain.Nieusuwajistniajcedniwolne1Click(Sender: TObject);
 begin
   CopyPeriodDays(false);
+end;
+
+procedure TFMain.NavigatorTimer(Sender: TObject);
+begin
+  If NavigatorCnt = 1 Then Begin
+    Navigator.Enabled := false;
+    RefreshNavigatorImmediate;
+  end;
+  If NavigatorCnt > 0 Then NavigatorCnt := NavigatorCnt - 1;
 end;
 
 initialization

@@ -783,6 +783,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
       if not fileexists(exeName) then info('Ups.. Utworzenie pdf nie powiedzie siê, poniewa¿ nie odnaleziono pliku: '+exeName+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
       {if not fsettings.Debug.Checked then}
       //ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
+      fmain.wlog(exeName+' '+parameters);
       executeFileAndWait(exeName+' '+parameters);
     end;
 

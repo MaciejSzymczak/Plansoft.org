@@ -78,6 +78,11 @@ procedure TFSharing.init(cruid, resourceType, resourceId, resourceDsp : string);
      tmp : tmap;
 
 begin
+  if EditObjPermisions=false then begin
+    info('Nie posiadasz uprawnieñ do uruchomienia funkcji Uprawnienia');
+    exit;
+  end;
+
    if cruid = 'U' then begin
        if (Fmain.MapPlanners.cnt=1) then begin info('Najpierw utwórz autoryzacje lub u¿ytkownika, którym chcesz udostêpniæ rekordy'); exit; end;
    end;

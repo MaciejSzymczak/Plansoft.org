@@ -283,6 +283,7 @@ end;
 
 function TFBrowseCLASSES.CanDelete: Boolean;
 begin
+ if not Query.Active then exit;
  if (classesTableName = 'CLASSES_HISTORY') then begin
   Info( 'Historii zmian zajêæ nie mo¿na usuwaæ' );
   Result := False;

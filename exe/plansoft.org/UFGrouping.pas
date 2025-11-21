@@ -707,16 +707,6 @@ end;
 procedure TFGrouping.FormShow(Sender: TObject);
 var lshowme : boolean;
 begin
-  if manySubjectsFlag then begin
-    ChS.Visible := false;
-    ChF.Visible := false;
-    chsorg.Visible := false;
-
-    ChS.Checked := false;
-    ChF.Checked := false;
-    chsorg.Checked := false;
-  end;
-
   defaultText := status.Caption;
 
  with fprogramsettings do begin

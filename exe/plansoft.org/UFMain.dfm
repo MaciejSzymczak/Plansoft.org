@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 91
-  Top = 93
+  Left = 53
+  Top = 34
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -2921,7 +2921,7 @@ inherited FMain: TFMain
         Top = 4
         Width = 39
         Height = 39
-        Hint = 'Menu g'#322#243'wne'
+        Hint = 'Nawigator'
         AllowAllUp = True
         GroupIndex = 11
         Flat = True
@@ -3333,6 +3333,7 @@ inherited FMain: TFMain
         Height = 22
         Caption = 'Category name'
         Flat = True
+        Visible = False
         OnClick = BRescat1Click
       end
       object BRescat0: TSpeedButton
@@ -3371,7 +3372,7 @@ inherited FMain: TFMain
         Left = 684
         Top = 30
         Width = 1
-        Height = 87
+        Height = 75
       end
       object BCopy: TSpeedButton
         Left = 166
@@ -3692,6 +3693,7 @@ inherited FMain: TFMain
           0000000000000000000000000000000000000000000000000000000000000000
           0000000000000000000000000000000000000000000000000000000000000000
           0000000000000000000000000000000000000000000000000000}
+        Visible = False
         OnClick = selectResCat1Click
       end
       object BitBtnROLE: TSpeedButton
@@ -4722,6 +4724,7 @@ inherited FMain: TFMain
         Width = 537
         Height = 22
         TabOrder = 28
+        Visible = False
         OnClick = conResCat1_valueClick
         OnDblClick = conResCat1_valueDblClick
         OnEnter = conResCat1_valueEnter
@@ -4738,6 +4741,7 @@ inherited FMain: TFMain
         ParentShowHint = False
         ShowHint = True
         TabOrder = 29
+        Visible = False
         OnClick = rorResCat1Click
       end
       object ShowFreeTermsResCat1: TCheckBox
@@ -4747,6 +4751,7 @@ inherited FMain: TFMain
         Height = 17
         Hint = 'poka'#380' wolne terminy'
         TabOrder = 30
+        Visible = False
         OnClick = ShowFreeTermsLClick
       end
       object ShowAllAnyResCat1: TComboBox
@@ -4784,8 +4789,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 230
-        Top = 12
+        Left = 350
+        Top = 20
         Width = 497
         Height = 117
         TabOrder = 35
@@ -6103,22 +6108,6 @@ inherited FMain: TFMain
         ShortCut = 16467
         OnClick = Zapisz1Click
       end
-      object N10: TMenuItem
-        Caption = '-'
-      end
-      object Dodaj2: TMenuItem
-        Caption = 'Dodaj'
-        OnClick = Dodaj2Click
-      end
-      object Zmie1: TMenuItem
-        Caption = 'Zmie'#324
-        OnClick = Zmie1Click
-      end
-      object Usu2: TMenuItem
-        Caption = 'Usu'#324
-        ImageIndex = 7
-        OnClick = Usu2Click
-      end
     end
     object Widok1: TMenuItem
       Caption = 'Widok'
@@ -6144,10 +6133,6 @@ inherited FMain: TFMain
       object mmplanR: TMenuItem
         Caption = 'Plan obci'#261#380'enia zasobu'
         OnClick = mmplanRClick
-      end
-      object Czysty1: TMenuItem
-        Caption = '<Rezerwacje globalne>'
-        OnClick = Czysty1Click
       end
       object N9: TMenuItem
         Caption = '-'
@@ -8931,5 +8916,12 @@ inherited FMain: TFMain
       Caption = 'Skopiuj dni z innego semestru (dodaj do istniej'#261'cych)'
       OnClick = Nieusuwajistniajcedniwolne1Click
     end
+  end
+  object Navigator: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = NavigatorTimer
+    Left = 1140
+    Top = 272
   end
 end

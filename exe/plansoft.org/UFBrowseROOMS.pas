@@ -672,11 +672,6 @@ begin
  Result := 'Dowolna fraza';
 end;
 
-function TFBrowseROOMS.canDelete: Boolean;
-begin
- result := isBlank(confineCalendarId);
-end;
-
 function TFBrowseROOMS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
@@ -684,7 +679,12 @@ end;
 
 function TFBrowseROOMS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
+function TFBrowseROOMS.canDelete: Boolean;
+begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
 end;
 
 Procedure TFBrowseROOMS.AfterPost;

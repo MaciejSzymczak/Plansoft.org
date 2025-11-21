@@ -501,7 +501,7 @@ begin
   if not refreshAllowed then exit;
   //LTotal.Visible := false;
   FindMode.Visible := FLegendTabs.ActivePage <> tabSheetCounter;
-  groupByForm.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
+  groupByForm.Visible := (FLegendTabs.ActivePage = tabSheetCounter);
   RMore.Visible := (FLegendTabs.ActivePage = tabSheetR) and (RoomAdvPanel.Visible=false);
   groupByDesc1.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(1)<>'');
   groupByDesc2.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (fprogramsettings.getClassDescPlural(2)<>'');
@@ -528,19 +528,9 @@ begin
   groupByCreationDate.Visible   := (FLegendTabs.ActivePage = tabSheetCounter);
 
   //
-  SelectedSubOnly.Visible := (FLegendTabs.ActivePage = tabSheetCounter) and (not manySubjectsFlag);
+  SelectedSubOnly.Visible := (FLegendTabs.ActivePage = tabSheetCounter);
   addRollUp.visible := FLegendTabs.ActivePage = tabSheetCounter;
   //
-  if manySubjectsFlag then begin
-    groupByForm.Visible := false;
-    groupByForm.checked := false;
-    groupByS_Name.Visible := false;
-    groupByS_Abbr.Visible := false;
-    groupByS_Name.checked := false;
-    groupByS_Abbr.checked := false;
-    SelectedSubOnly.Visible := false;
-    SelectedSubOnly.Checked := false;
-  end;
 
   //required by planner_utils.get_available_lec function
   if FindMode.ItemIndex = 0 then fmain.set_tmp_selected_dates;

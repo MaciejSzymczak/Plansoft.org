@@ -210,6 +210,8 @@ type
     Procedure GetTableName;  override;
     Function  getSearchFilter : string;  override;
     function  getFindCaption : string;   override;
+    Function  canInsert    : Boolean;        override;
+    Function  canDelete    : Boolean;        override;
   end;
 
 var
@@ -1416,6 +1418,16 @@ procedure TFBrowseTT_COMBINATIONS.TimerDetailsTimer(Sender: TObject);
 begin
   If Counter > 0 Then Counter := Counter - 1;
   If Counter = 1 Then refreshDetails;
+end;
+
+function TFBrowseTT_COMBINATIONS.canDelete: Boolean;
+begin
+ result := isIntegrated=false;
+end;
+
+function TFBrowseTT_COMBINATIONS.canInsert: Boolean;
+begin
+ result := isIntegrated=false;
 end;
 
 end.

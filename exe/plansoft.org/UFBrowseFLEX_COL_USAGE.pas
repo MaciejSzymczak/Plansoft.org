@@ -81,6 +81,7 @@ end;
 
 Function  TFBrowseFLEX_COL_USAGE.CanDelete    : Boolean;
 begin
+ if not Query.Active then exit;
  if Query.FieldByName('SYSTEM_FLAG').AsString = '+' Then Begin
   Info('Nie mo¿na usuwaæ pól systemowych. Ten atrybut jest niebêdny do funkcjonowania wielu funkcji programu i nie mo¿e zostaæ usuniêty.');
   Result := False;
