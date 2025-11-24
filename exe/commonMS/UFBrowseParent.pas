@@ -387,6 +387,7 @@ type
    Function  canEditPermission : Boolean;   Virtual;
    Function  canInsert    : Boolean;        Virtual;
    Function  canDelete    : Boolean;        Virtual;
+   Function  canDeleteRecord    : Boolean;        Virtual;
    Function  canConfigure : Boolean;        Virtual;
    Function  checkRecord  : Boolean;        Virtual;
    Procedure defaultValues;                 virtual;
@@ -480,6 +481,12 @@ Const MinWidth  = 433+60+80;
 
 //------------------------------------------------------------------
 Function TFBrowseParent.canDelete : Boolean;
+Begin
+ Result := True;
+End;
+
+//------------------------------------------------------------------
+Function TFBrowseParent.canDeleteRecord : Boolean;
 Begin
  Result := True;
 End;
@@ -1003,7 +1010,7 @@ Begin
   id := Query.FieldByName(KeyField).AsString;
   //
   If Not BDelete.Enabled Then Exit;
-  If Not CanDelete Then Begin
+  If Not CanDeleteRecord Then Begin
     Warning(Komunikaty.Strings[3]);
     Exit;
   End;
@@ -1466,7 +1473,7 @@ Begin
 
     Query.First;
     While Not Query.EOF Do Begin
-     If CanDelete Then Begin
+     If CanDeleteRecord Then Begin
       Execute(ADelete,'');
      End Else Begin
        Warning(Komunikaty.Strings[3]);

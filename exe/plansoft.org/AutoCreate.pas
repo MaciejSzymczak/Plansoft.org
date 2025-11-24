@@ -512,7 +512,6 @@ Begin
 End;
 
 Function ROOMSShowModalAsSelect(aCON_RESCAT_ID : ShortString; aCON_ORGUNI_ID : String; var ID : ShortString; available,availableDsp : string ) : TModalResult;
-var isReal : boolean;
 Begin
  ROOMSCreate(aCON_RESCAT_ID);
  FBrowseROOMS.available            := available;

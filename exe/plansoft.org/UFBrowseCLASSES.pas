@@ -102,6 +102,7 @@ type
    Function  CanInsert    : Boolean;              override;
    Procedure CustomConditions;                    override;
    Function  CanDelete    : Boolean;              override;
+   Function  CanDeleteRecord    : Boolean;              override;
    Procedure ShowModalAsBrowser(Filter : String); override;
    Procedure GetTableName;                        override;
     Procedure editClick;                     override;
@@ -182,7 +183,7 @@ Begin
   id := Query.FieldByName(KeyField).AsString;
   //
   If Not BDelete.Enabled Then Exit;
-  If Not CanDelete Then Begin
+  If Not CanDeleteRecord Then Begin
     Warning(Komunikaty.Strings[3]);
     Exit;
   End;
@@ -283,19 +284,19 @@ end;
 
 function TFBrowseCLASSES.CanDelete: Boolean;
 begin
- if not Query.Active then exit;
- if (classesTableName = 'CLASSES_HISTORY') then begin
-  Info( 'Historii zmian zajêæ nie mo¿na usuwaæ' );
-  Result := False;
-  exit;
- end;
+  Result := True;
+end;
 
+function TFBrowseCLASSES.CanDeleteRecord: Boolean;
+begin
+ if not Query.Active then exit;
  if (not UUtilities.isOwner(Query.FieldByName('OWNER').AsString)) Then Begin
   Info( format ( 'Nie mo¿esz usun¹æ tego %s, poniewa¿ w³aœcicielem %s jest ', [fprogramsettings.profileObjectNameClassgen.text, fprogramsettings.profileObjectNameClassgen.text] )+Query.FieldByName('OWNER').AsString);
   Result := False;
  End
  Else Result := True;
 end;
+
 
 Procedure TFBrowseCLASSES.CustomConditions;
 Var tablePostfix     : string;

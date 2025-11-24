@@ -3602,6 +3602,7 @@ begin
 
   with dmodule.QWork do begin
     SQL.Clear;
+    ParamCheck := true;
     SQL.Add(
 	  'begin '+ cr+
 	  ' planner_utils.insert_dependency_classes (:pres_id, :pres_type, :pper_id, :pcleanUpMode); '+ cr+

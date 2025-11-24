@@ -4,22 +4,22 @@ inherited FBrowseRESOURCE_CATEGORIES: TFBrowseRESOURCE_CATEGORIES
   Width = 871
   Height = 679
   Caption = 'Kategorie zasob'#243'w'
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   inherited Status: TPanel
-    Top = 620
+    Top = 628
     Width = 863
   end
   inherited MainPage: TPageControl
     Width = 863
-    Height = 620
+    Height = 628
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 855
       end
       inherited Grid: TRxDBGrid
         Width = 855
-        Height = 436
+        Height = 446
         Columns = <
           item
             Expanded = False
@@ -321,11 +321,11 @@ inherited FBrowseRESOURCE_CATEGORIES: TFBrowseRESOURCE_CATEGORIES
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 550
+        Top = 560
         Width = 855
       end
       inherited Panel: TPanel
-        Top = 531
+        Top = 541
         Width = 855
         inherited StatusBar: TStatusBar
           Width = 786
@@ -342,8 +342,8 @@ inherited FBrowseRESOURCE_CATEGORIES: TFBrowseRESOURCE_CATEGORIES
       object LabelID: TLabel [0]
         Left = 584
         Top = 8
-        Width = 217
-        Height = 16
+        Width = 166
+        Height = 14
         Caption = 'Kol. wpr.:........................................'
         FocusControl = ID_
         Visible = False
@@ -364,97 +364,97 @@ inherited FBrowseRESOURCE_CATEGORIES: TFBrowseRESOURCE_CATEGORIES
         ParentFont = False
       end
       object LabelDESC1: TLabel [2]
-        Left = 8
+        Left = 18
         Top = 64
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 1'
         FocusControl = DESC1
       end
       object LabelDESC2: TLabel [3]
-        Left = 8
+        Left = 18
         Top = 88
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 2'
         FocusControl = DESC2
       end
       object LabelDESC3: TLabel [4]
-        Left = 8
+        Left = 18
         Top = 112
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 3'
         FocusControl = DESC3
       end
       object LabelDESC4: TLabel [5]
-        Left = 8
+        Left = 18
         Top = 136
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 4'
         FocusControl = DESC4
       end
       object LabelDESC5: TLabel [6]
-        Left = 8
+        Left = 18
         Top = 160
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 5'
         FocusControl = DESC5
       end
       object LabelDESC6: TLabel [7]
-        Left = 384
+        Left = 394
         Top = 40
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 6'
         FocusControl = DESC6
       end
       object LabelDESC7: TLabel [8]
-        Left = 384
+        Left = 394
         Top = 64
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 7'
         FocusControl = DESC7
       end
       object LabelDESC8: TLabel [9]
-        Left = 384
+        Left = 394
         Top = 88
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 8'
         FocusControl = DESC8
       end
       object LabelDESC9: TLabel [10]
-        Left = 384
+        Left = 394
         Top = 112
-        Width = 41
-        Height = 16
+        Width = 31
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 9'
         FocusControl = DESC9
       end
       object LabelDESC10: TLabel [11]
-        Left = 376
+        Left = 388
         Top = 136
-        Width = 49
-        Height = 16
+        Width = 37
+        Height = 14
         Alignment = taRightJustify
         Caption = 'Opis 10'
         FocusControl = DESC10
       end
       inherited UpdPanel: TPanel
-        Top = 554
+        Top = 564
         Width = 855
         TabOrder = 11
         inherited BUpdChild1: TBitBtn

@@ -51,6 +51,7 @@ type
    Procedure BeforeEdit;                    override; // CurrOperation mo¿e przyjmowaæ wartoœci {AINSERT, ACOPY, AEDIT}
    Function  CanInsert    : Boolean;        override;
    Function  CanDelete    : Boolean;        override;
+   Function  CanDeleteRecord    : Boolean;        override;
    Procedure AddClick;                      override;
    Procedure CopyClick;	            	      override;
 
@@ -81,6 +82,11 @@ end;
 
 Function  TFBrowseFLEX_COL_USAGE.CanDelete    : Boolean;
 begin
+  result := true;
+end;
+
+Function  TFBrowseFLEX_COL_USAGE.CanDeleteRecord    : Boolean;
+begin
  if not Query.Active then exit;
  if Query.FieldByName('SYSTEM_FLAG').AsString = '+' Then Begin
   Info('Nie mo¿na usuwaæ pól systemowych. Ten atrybut jest niebêdny do funkcjonowania wielu funkcji programu i nie mo¿e zostaæ usuniêty.');
@@ -88,6 +94,7 @@ begin
  End
  Else Result := True;
 end;
+
 
 Procedure TFBrowseFLEX_COL_USAGE.AddClick;
 begin

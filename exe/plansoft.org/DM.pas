@@ -506,24 +506,24 @@ Begin
  With Dmodule.QWork Do Begin
   SQL.Clear;
   //param check must be set false when you are trying to install package which contains characters : inside the body
-  ParamCheck := pparams<>'';
+  //ParamCheck := pparams<>'';
 
-  //SQL.Add(S);
-  // for t := 1 to wordCount(pparams,[';']) do begin
-  //   wholeString  := extractWord(t,pparams,[';']);
-  //   paramName  := extractWord(1,wholeString,['=']);
-  //   paramValue := extractWord(2,wholeString,['=']);
-  //   parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
-  // end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+ searchAndReplace(searchAndReplace ( paramValue , '!chr(61)', '=') , '<scolon>', ';')  +'''');
+     parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+ searchAndReplace(searchAndReplace ( paramValue , '!chr(61)', '=') , '<scolon>', ';')  +'''');
+   //end;
+   //SQL.Add(S);
 
 
   ExecSQL;
@@ -630,22 +630,23 @@ Begin
  logSQLStart ('SQL2', S);
  With Dmodule.QWork2 Do Begin
   SQL.Clear;
-  //SQL.Add(S);
-  // for t := 1 to wordCount(pparams,[';']) do begin
-  //   wholeString  := extractWord(t,pparams,[';']);
-  //   paramName  := extractWord(1,wholeString,['=']);
-  //   paramValue := extractWord(2,wholeString,['=']);
-  //   parameters.ParamByName(paramName).value   := paramValue;
-  // end;
 
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+  SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
-     wholeString  := extractWord(t,pparams,[';']);
+    wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+   //end;
+   //SQL.Add(S);
 
   ExecSQL;
  End;
@@ -666,6 +667,8 @@ Begin
                   else logSQLStart ('openSQL', S);
  With Dmodule.QWork Do Begin
    SQL.Clear;
+   //param check must be set false when you are trying to install package which contains characters : inside the body
+   //ParamCheck := pparams<>'';
 
    SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
@@ -706,25 +709,25 @@ Begin
  With query Do Begin
    SQL.Clear;
 
-   //SQL.Add(S);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     if quoteFlag
-       then S := searchAndReplace(S,':'+paramName,''''+paramValue+'''')
-       else S := searchAndReplace(S,':'+paramName,paramValue);
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
-   //copytoclipboard(s);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  if quoteFlag
+   //    then S := searchAndReplace(S,':'+paramName,''''+paramValue+'''')
+   //    else S := searchAndReplace(S,':'+paramName,paramValue);
+   //end;
+   //SQL.Add(S);
+
    open;
  End;
  logSQLStop;
@@ -743,22 +746,22 @@ Begin
  With Dmodule.QWork2 Do Begin
    SQL.Clear;
 
-   //SQL.Add(S);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+   //end;
+   //SQL.Add(S);
 
    open;
  End;
@@ -777,22 +780,22 @@ Begin
  With Dmodule.QWork3 Do Begin
    SQL.Clear;
 
-   //SQL.Add(S);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+   //end;
+   //SQL.Add(S);
 
    open;
  End;
@@ -825,6 +828,7 @@ begin
  Q.close;
  Q.connection := nil;
  Q.connection := dm.dmodule.ADOConnection;
+ Q.ParamCheck := true;
 end;
 
 
@@ -857,23 +861,23 @@ Begin
  With Dmodule.QWork Do Begin
    SQL.Clear;
 
-   //SQL.Add(S);
-   //Parameters.ParseSQL(SQL.Text, True);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
+   Parameters.ParseSQL(SQL.Text, True);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+   //end;
+   //SQL.Add(S);
 
 
    Open;
@@ -892,26 +896,30 @@ Function  TDModule.SingleValue2(S : String; const pparams : String = '') : Strin
      t : integer;
 Begin
  logSQLStart ('singleValue2', S);
+
+ //2011.05.14 to aviod problem "object was open"
+ resetConnection ( Dmodule.QWork2 );
+
  With Dmodule.QWork2 Do Begin
    SQL.Clear;
 
-   //SQL.Add(S);
-   //Parameters.ParseSQL(SQL.Text, True);
-   //for t := 1 to wordCount(pparams,[';']) do begin
-   //  wholeString  := extractWord(t,pparams,[';']);
-   //  paramName  := extractWord(1,wholeString,['=']);
-   //  paramValue := extractWord(2,wholeString,['=']);
-   //  parameters.ParamByName(paramName).value   := paramValue;
-   //end;
-
-   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   SQL.Add(S);
+   Parameters.ParseSQL(SQL.Text, True);
    for t := 1 to wordCount(pparams,[';']) do begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     parameters.ParamByName(paramName).value   := paramValue;
    end;
-   SQL.Add(S);
+
+   //terrible workaround for an error ORA-01036 on Oracle 18 XE
+   //for t := 1 to wordCount(pparams,[';']) do begin
+   //  wholeString  := extractWord(t,pparams,[';']);
+   //  paramName  := extractWord(1,wholeString,['=']);
+   //  paramValue := extractWord(2,wholeString,['=']);
+   //  S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+   //end;
+   //SQL.Add(S);
 
    Open;
  end;
@@ -1723,19 +1731,19 @@ Begin
        'FROM LEC_CLA '+
        'WHERE '+
        '      LEC_CLA.LEC_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour '+
+       '      DAY BETWEEN TO_DATE(:day1a,''YYYY/MM/DD'') AND TO_DATE(:day2a,''YYYY/MM/DD'') AND HOUR = :houra '+
        'UNION '+
        'SELECT  ''S'' CONFLICTTYPE, ROM_CLA.CLA_ID '+
        'FROM ROM_CLA '+
        'WHERE ROM_CLA.ROM_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour ' +
+       '      DAY BETWEEN TO_DATE(:day1b,''YYYY/MM/DD'') AND TO_DATE(:day2b,''YYYY/MM/DD'') AND HOUR = :hourb ' +
        'UNION '+
        'SELECT  ''G'' CONFLICTTYPE, GRO_CLA.CLA_ID '+
        'FROM GRO_CLA '+
        'WHERE GRO_CLA.GRO_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY BETWEEN TO_DATE(:day1,''YYYY/MM/DD'') AND TO_DATE(:day2,''YYYY/MM/DD'') AND HOUR = :hour'
+       '      DAY BETWEEN TO_DATE(:day1c,''YYYY/MM/DD'') AND TO_DATE(:day2c,''YYYY/MM/DD'') AND HOUR = :hourc'
        , ':examinedId', childId, [rfReplaceAll, rfIgnoreCase])
-       ,'day1='+d1+';day2='+d2+';hour='+IntToStr(Zajecia)
+       ,'day1a='+d1+';day1b='+d1+';day1c='+d1+';day2a='+d2+';day2b='+d2+';day2c='+d2+';houra='+IntToStr(Zajecia)+';hourb='+IntToStr(Zajecia)+';hourc='+IntToStr(Zajecia)
        )
    else
        DModule.SingleValue2(
@@ -1743,19 +1751,19 @@ Begin
        'SELECT  ''L'' CONFLICTTYPE, LEC_CLA.CLA_ID '+
        'FROM LEC_CLA '+
        'WHERE LEC_CLA.LEC_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour '+
+       '      DAY =TO_DATE(:day1a,''YYYY/MM/DD'') AND HOUR = :houra '+
        'UNION '+
        'SELECT  ''S'' CONFLICTTYPE, ROM_CLA.CLA_ID '+
        'FROM ROM_CLA '+
        'WHERE ROM_CLA.ROM_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour '+
+       '      DAY =TO_DATE(:day1b,''YYYY/MM/DD'') AND HOUR = :hourb '+
        'UNION '+
        'SELECT  ''G'' CONFLICTTYPE, GRO_CLA.CLA_ID '+
        'FROM GRO_CLA '+
        'WHERE GRO_CLA.GRO_ID in :examinedId AND no_conflict_flag is null and '+
-       '      DAY =TO_DATE(:day1,''YYYY/MM/DD'') AND HOUR = :hour'
+       '      DAY =TO_DATE(:day1c,''YYYY/MM/DD'') AND HOUR = :hourc'
        , ':examinedId', childId, [rfReplaceAll, rfIgnoreCase])
-       ,'day1='+d1+';hour='+IntToStr(Zajecia));
+       ,'day1a='+d1+';day1b='+d1+';day1c='+d1+';houra='+IntToStr(Zajecia)+';hourb='+IntToStr(Zajecia)+';hourc='+IntToStr(Zajecia));
 
    if DModule.QWork2.RecordCount = 0 then
      Status := 'ClassNotFound'

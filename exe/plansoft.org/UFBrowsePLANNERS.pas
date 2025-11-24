@@ -108,6 +108,7 @@ type
    Function  CanEditPermission : Boolean; override;
    Function  CanInsert    : Boolean; override;
    Function  CanDelete    : Boolean; override;
+   Function  CanDeleteRecord    : Boolean; override;
   end;
 
 var
@@ -123,15 +124,24 @@ Uses UUtilityParent, DM, UFProgramSettings, AutoCreate, UFPlannerPermissions, UF
 function TFBrowsePLANNERS.CanDelete: Boolean;
 begin
  result := isAdmin;
-//  if Query.fieldByName('NAME').AsString = CurrentUserName then begin
-//    info('Nie mo縩a usun规 konta zalogowanego u縴tkownika');
-//  end
-//  else
-//  if Query.fieldByName('name').AsString = 'PLANNER' then begin
-//    info('Nie mo縩a usun规 konta u縴tkownika o nazwie planner');
-//  end;
-//  Result := IsAdmin and (Query.fieldByName('name').AsString <> CurrentUserName) and (Query.fieldByName('name').AsString <> 'PLANNER');
 end;
+
+function TFBrowsePLANNERS.CanDeleteRecord: Boolean;
+begin
+  Result := IsAdmin;
+
+  if Query.fieldByName('NAME').AsString = CurrentUserName then begin
+    info('Nie mo縩a usun规 konta zalogowanego u縴tkownika');
+    result := false;
+  end;
+
+  if (Query.fieldByName('name').AsString = 'PLANNER') then begin
+    info('Nie mo縩a usun规 konta u縴tkownika o nazwie planner');
+    result := false;
+  end;
+
+end;
+
 
 function TFBrowsePLANNERS.CanEditIntegrity: Boolean;
 begin

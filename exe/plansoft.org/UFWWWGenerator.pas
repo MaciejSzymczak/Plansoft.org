@@ -117,6 +117,7 @@ type
   public
     defaultFolder : string;
     procedure setStatus(i : shortString);
+    procedure copyGifs (fileName: String);
     Procedure calendarToHTML(
            pPeriodId: String;
            presId : string;
@@ -780,7 +781,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
       if pdfl then parameters := '-l ' + parameters;
       if pdfo then parameters := '-O Landscape ' + parameters;
       if pdfs then parameters := '-s A3 ' + parameters;
-      if not fileexists(exeName) then info('Ups.. Utworzenie pdf nie powiedzie siê, poniewa¿ nie odnaleziono pliku: '+exeName+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
+      if not fileexists(exeName) then info('Ups.. Utworzenie pdf nie powiedzie siê, poniewa¿ nie odnaleziono pliku: '+exeName+cr);
       {if not fsettings.Debug.Checked then}
       //ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
       fmain.wlog(exeName+' '+parameters);
@@ -1656,7 +1657,26 @@ begin
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
  currentChartClasses.free;
  ReservationsCache.Free;
+
+ copyGifs (fileName);
+
 end;
+
+procedure TFWWWGenerator.copyGifs;
+var filePath : string;
+var exePath : string;
+
+begin
+  filePath :=  extractFilePath(fileName);
+  exePath  :=  GetD +'\';
+
+ if not fileExists( filePath+'Reservation.gif') then
+     copyFile(PAnsiChar(exePath+'graph\Reservation.gif'), PAnsiChar(filePath+'Reservation.gif'), false);
+
+ if not fileExists( filePath+'outofrange.gif') then
+     copyFile(PAnsiChar(exePath+'graph\outofrange.gif'), PAnsiChar(filePath+'outofrange.gif'), false);
+end;
+
 
 procedure TFWWWGenerator.genTypeChange(Sender: TObject);
 begin
@@ -2132,5 +2152,7 @@ begin
   BitBtnPERClick(nil);
 
 end;
+
+
 
 end.

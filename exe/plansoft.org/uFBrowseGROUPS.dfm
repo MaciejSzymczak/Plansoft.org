@@ -62,6 +62,14 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             '   end if;'
             '  end;'
             'end loop;'
+            '/*delete "Zajecia podrzedne" on NAD without childs*/'
+            
+              'delete from classes where sub_id=-1 and calc_gro_ids in (select ' +
+              'Id from groups minus select parent_id from str_elems);'
+            '/*delete "Zajecia nadrzedne" on POD without parents*/'
+            
+              'delete from classes where sub_id=-2 and calc_gro_ids in (select ' +
+              'Id from groups minus select child_id from str_elems);'
             'commit;'
             'end;')
           TabOrder = 11
@@ -2530,7 +2538,9 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Value = '0'
       end>
     SQL.Strings = (
-      'select id,res_excluded_dsp, date_from, date_to'
+      
+        'select id,res_excluded_dsp, date_from, date_to, res_id, res_id_e' +
+        'xcluded'
       '  from exclusions_v'
       '  where res_id=:id')
     Left = 52

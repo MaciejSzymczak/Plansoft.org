@@ -66,6 +66,7 @@ type
     Procedure AfterPost;             override;
     Function  CanEditPermission : Boolean; override;
     Function  CanDelete    : Boolean;      override;
+    Function  CanDeleteRecord    : Boolean;      override;
     Function  getSearchFilter : string;  override;
     function  getFindCaption : string;   override;
   end;
@@ -127,6 +128,11 @@ end;
 
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
+ result := isBlank(confineCalendarId) and isIntegrated=false;
+end;
+
+Function  TFBrowsePERIODS.CanDeleteRecord    : Boolean;
+begin
  result := true;
  if not Query.Active then exit;
  If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
@@ -134,6 +140,7 @@ begin
   result := false;
  End;
 end;
+
 
 procedure TFBrowsePERIODS.BUsunClick(Sender: TObject);
 begin

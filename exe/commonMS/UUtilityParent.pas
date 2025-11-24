@@ -43,8 +43,6 @@ function CenterString(aStr: String; Len: Integer): String;
 
 function defaultBrowserIsChrome : boolean;
 
-//zmienia niedozwolone znaki XML na kody
-//wiêcej na ten temat w Wikipedii i http://www.kurshtml.boo.pl/generatory/unicode.html
 function XMLescapeChars (buffer : string) : string;
 
 // odpowiedniki Oracle PL/SQL
@@ -1884,7 +1882,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2025-11-20';
+ VersionOfApplication := '2025-11-24';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

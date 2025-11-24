@@ -1,6 +1,6 @@
 inherited FPlannerPermissions: TFPlannerPermissions
-  Left = 234
-  Top = 117
+  Left = 319
+  Top = 141
   Width = 1348
   Height = 665
   Caption = 'Uprawnienia do obiekt'#243'w'
@@ -386,14 +386,14 @@ inherited FPlannerPermissions: TFPlannerPermissions
       TabOrder = 0
       object Szukaj: TLabel
         Left = 10
-        Top = 96
+        Top = 120
         Width = 72
         Height = 14
         Caption = 'Szukaj planisty'
       end
       object Label1: TLabel
         Left = 10
-        Top = 56
+        Top = 80
         Width = 71
         Height = 14
         Caption = 'Szukaj zasobu'
@@ -480,7 +480,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       end
       object Psearch: TEdit
         Left = 10
-        Top = 112
+        Top = 136
         Width = 191
         Height = 22
         TabOrder = 1
@@ -488,7 +488,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       end
       object RowSearch: TEdit
         Left = 10
-        Top = 72
+        Top = 96
         Width = 191
         Height = 22
         TabOrder = 0
@@ -496,7 +496,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       end
       object brefresh: TBitBtn
         Left = 8
-        Top = 136
+        Top = 160
         Width = 75
         Height = 25
         Caption = 'Od'#347'wie'#380
@@ -523,6 +523,14 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Text = 'NULL'
         Visible = False
         OnChange = ORGUNI_IDChange
+      end
+      object childs: TCheckBox
+        Left = 10
+        Top = 56
+        Width = 191
+        Height = 17
+        Caption = 'i jednostki podrz'#281'dne'
+        TabOrder = 5
       end
     end
   end

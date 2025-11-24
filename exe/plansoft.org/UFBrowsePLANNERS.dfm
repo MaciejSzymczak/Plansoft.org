@@ -51,15 +51,15 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           end
           item
             Expanded = False
-            FieldName = 'ACTIVE_FLAG'
-            Title.Caption = 'Czy aktywne?'
+            FieldName = 'IS_ADMIN'
+            Title.Caption = 'Administrator?'
             Width = 90
             Visible = True
           end
           item
             Expanded = False
-            FieldName = 'IS_ADMIN'
-            Title.Caption = 'Administrator?'
+            FieldName = 'ACTIVE_FLAG'
+            Title.Caption = 'Czy aktywne?'
             Width = 90
             Visible = True
           end
@@ -360,7 +360,21 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
             Expanded = False
             FieldName = 'SC'
             Title.Caption = 'Jednostka'
-            Width = 100
+            Width = 185
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'IS_INTEGRATED'
+            Title.Caption = 'Zasilanie danymi z innego systemu'
+            Width = 206
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'EDIT_OBJ_PERMISSIONS'
+            Title.Caption = 'Uprawnienia do obiekt'#243'w'
+            Width = 151
             Visible = True
           end>
       end
@@ -1110,7 +1124,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         TabOrder = 8
       end
       object ROL_ID: TDBEdit
-        Left = 97
+        Left = 89
         Top = 200
         Width = 150
         Height = 22
@@ -1123,7 +1137,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         OnChange = ROL_IDChange
       end
       object ROL_ID_VALUE: TEdit
-        Left = 104
+        Left = 96
         Top = 200
         Width = 257
         Height = 22
@@ -1157,13 +1171,13 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       object SystemPrivs: TGroupBox
         Left = 416
         Top = 0
-        Width = 441
-        Height = 185
+        Width = 545
+        Height = 193
         Caption = 'Uprawnienia'
         TabOrder = 13
         object DBCheckBox2: TDBCheckBox
           Left = 16
-          Top = 24
+          Top = 128
           Width = 177
           Height = 17
           Caption = #346'ledzenie historii zmian'
@@ -1173,195 +1187,219 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
-        object DBCheckBox3: TDBCheckBox
-          Left = 16
-          Top = 40
+        object first_Resource_Flag: TDBCheckBox
+          Left = 272
+          Top = 16
           Width = 225
           Height = 17
-          Caption = 'Kilka przedmiot'#243'w dla zaj'#281'cia'
-          DataField = 'many_subjects_flag'
+          Caption = 'Zasilanie danymi z innego systemu'
+          DataField = 'IS_INTEGRATED'
           DataSource = Source
           TabOrder = 1
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
-        object first_Resource_Flag: TDBCheckBox
-          Left = 16
-          Top = 56
-          Width = 225
-          Height = 17
-          Caption = 'Kopiuj tylko pierwszy zas'#243'b'
-          DataField = 'first_Resource_Flag'
-          DataSource = Source
-          TabOrder = 2
-          ValueChecked = '+'
-          ValueUnchecked = '-'
-        end
         object chbIsAdmin: TDBCheckBox
           Left = 16
-          Top = 96
+          Top = 16
           Width = 145
           Height = 17
           Caption = 'Administrator'
           DataField = 'IS_ADMIN'
           DataSource = Source
-          TabOrder = 3
+          TabOrder = 2
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object chbCanEditOrgUnits: TDBCheckBox
           Left = 16
-          Top = 112
+          Top = 88
           Width = 321
           Height = 17
           Caption = 'Edycja struktury organizacyjnej'
           DataField = 'EDIT_ORG_UNITS'
           DataSource = Source
-          TabOrder = 4
+          TabOrder = 3
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object chbCanEditAttribiutes: TDBCheckBox
           Left = 16
-          Top = 128
+          Top = 64
           Width = 177
           Height = 17
           Caption = 'Modu'#322' atrybuty'
           DataField = 'EDIT_FLEX'
           DataSource = Source
-          TabOrder = 5
+          TabOrder = 4
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object edit_sharing: TDBCheckBox
           Left = 16
-          Top = 144
+          Top = 48
           Width = 217
           Height = 17
-          Caption = 'Zarz'#261'dzanie wsp'#243#322'dzieleniem'
+          Caption = 'Uprawnienia do obiekt'#243'w (admin)'
           DataField = 'edit_sharing'
           DataSource = Source
-          TabOrder = 6
+          TabOrder = 5
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object EDIT_RESERVATIONS: TDBCheckBox
           Left = 16
-          Top = 161
+          Top = 105
           Width = 177
           Height = 17
           Caption = 'Edycja dni wolnych'
           DataField = 'EDIT_RESERVATIONS'
           DataSource = Source
-          TabOrder = 7
+          TabOrder = 6
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox4: TDBCheckBox
           Left = 272
-          Top = 24
+          Top = 40
           Width = 153
           Height = 17
           Caption = 'Wstawianie zaj'#281#263
           DataField = 'Can_Insert'
           DataSource = Source
-          TabOrder = 8
+          TabOrder = 7
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox5: TDBCheckBox
           Left = 272
-          Top = 40
+          Top = 56
           Width = 153
           Height = 17
           Caption = 'Kasowanie zaj'#281#263
           DataField = 'Can_Delete'
           DataSource = Source
-          TabOrder = 9
+          TabOrder = 8
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox6: TDBCheckBox
           Left = 272
-          Top = 56
+          Top = 72
           Width = 153
           Height = 17
           Caption = 'Edycja: Wyk'#322'adowcy'
           DataField = 'Can_Edit_L'
           DataSource = Source
-          TabOrder = 10
+          TabOrder = 9
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox7: TDBCheckBox
           Left = 272
-          Top = 72
+          Top = 88
           Width = 145
           Height = 17
           Caption = 'Edycja: Grupy'
           DataField = 'Can_Edit_G'
           DataSource = Source
-          TabOrder = 11
+          TabOrder = 10
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox8: TDBCheckBox
           Left = 272
-          Top = 88
+          Top = 104
           Width = 137
           Height = 17
           Caption = 'Edycja: Sale'
           DataField = 'Can_Edit_R'
           DataSource = Source
-          TabOrder = 12
+          TabOrder = 11
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox9: TDBCheckBox
           Left = 272
-          Top = 104
+          Top = 120
           Width = 137
           Height = 17
           Caption = 'Edycja: Przedmioty'
           DataField = 'Can_Edit_S'
           DataSource = Source
-          TabOrder = 13
+          TabOrder = 12
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox10: TDBCheckBox
           Left = 272
-          Top = 120
+          Top = 136
           Width = 137
           Height = 17
           Caption = 'Edycja: Formy'
           DataField = 'Can_Edit_F'
           DataSource = Source
-          TabOrder = 14
+          TabOrder = 13
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox11: TDBCheckBox
           Left = 272
-          Top = 136
+          Top = 152
           Width = 129
           Height = 17
           Caption = 'Edycja: W'#322'a'#347'ciciel'
           DataField = 'Can_Edit_O'
           DataSource = Source
-          TabOrder = 15
+          TabOrder = 14
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
         object DBCheckBox12: TDBCheckBox
           Left = 272
-          Top = 152
+          Top = 168
           Width = 121
           Height = 17
           Caption = 'Edycja: Opisy'
           DataField = 'Can_Edit_D'
           DataSource = Source
+          TabOrder = 15
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object DBCheckBox3: TDBCheckBox
+          Left = 16
+          Top = 144
+          Width = 225
+          Height = 17
+          Caption = 'Kopiuj tylko pierwszy zas'#243'b'
+          DataField = 'first_Resource_Flag'
+          DataSource = Source
           TabOrder = 16
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object DBCheckBox13: TDBCheckBox
+          Left = 16
+          Top = 32
+          Width = 225
+          Height = 17
+          Caption = 'Uprawnienia do obiekt'#243'w (w'#322'asne)'
+          DataField = 'EDIT_OBJ_PERMISSIONS'
+          DataSource = Source
+          TabOrder = 17
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object DBCheckBox14: TDBCheckBox
+          Left = 16
+          Top = 168
+          Width = 225
+          Height = 17
+          Caption = 'Uruchamianie okna Integracja'
+          DataField = 'CAN_RUN_INTEGRATION'
+          DataSource = Source
+          TabOrder = 18
           ValueChecked = '+'
           ValueUnchecked = '-'
         end
@@ -1433,8 +1471,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           0000000000000000000000000000000000000000000000000000}
       end
       object DIFF_NOTIFICATIONS: TDBCheckBox
-        Left = 728
-        Top = 192
+        Left = 520
+        Top = 200
         Width = 129
         Height = 17
         Hint = 
@@ -1742,9 +1780,10 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       '     , PLANNERS.EDIT_ORG_UNITS'
       '     , PLANNERS.EDIT_FLEX'
       '     , PLANNERS.LOG_CHANGES'
-      '     , PLANNERS.MANY_SUBJECTS_FLAG'
       '     , PLANNERS.EDIT_RESERVATIONS'
       '     , PLANNERS.PARENT'
+      '     , PLANNERS.IS_INTEGRATED'
+      '     , PLANNERS.EDIT_OBJ_PERMISSIONS'
       
         '     , DECODE(TYPE,'#39'USER'#39','#39'U'#380'ytkownik'#39','#39'ROLE'#39','#39'Autoryzacja'#39','#39'EXT' +
         'ERNAL'#39','#39'U'#380'. zewn'#281'trzny'#39','#39'<B'#322#261'd>'#39') TYPE_DSP'
@@ -1807,6 +1846,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       '     , Can_Edit_D'
       '     , Can_Delete'
       '     , Can_Insert'
+      '     , CAN_RUN_INTEGRATION'
       '    , first_Resource_Flag'
       '    , password_sha1'
       '    , rol_id'
@@ -1827,8 +1867,8 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       '   AND %SEARCH'
       '   AND %TTENABLED'
       '%SORTORDER')
-    Left = 104
-    Top = 208
+    Left = 144
+    Top = 216
   end
   inherited ExcelApplication1: TExcelApplication
     Left = 800

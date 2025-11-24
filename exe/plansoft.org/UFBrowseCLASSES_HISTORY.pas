@@ -106,6 +106,7 @@ type
    Function  CanInsert    : Boolean;              override;
    Procedure CustomConditions;                    override;
    Function  CanDelete    : Boolean;              override;
+   Function  CanDeleteRecord    : Boolean;              override;
    Procedure ShowModalAsBrowser(Filter : String); override;
    Procedure GetTableName;                        override;
     Procedure editClick;                     override;
@@ -187,7 +188,7 @@ Begin
   id := Query.FieldByName(KeyField).AsString;
   //
   If Not BDelete.Enabled Then Exit;
-  If Not CanDelete Then Begin
+  If Not CanDeleteRecord Then Begin
     Warning(Komunikaty.Strings[3]);
     Exit;
   End;
@@ -748,5 +749,10 @@ end;
 
 
 
+
+function TFBrowseCLASSES_HISTORY.CanDeleteRecord: Boolean;
+begin
+ result := false;
+end;
 
 end.
