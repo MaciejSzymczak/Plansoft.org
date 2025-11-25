@@ -1051,7 +1051,7 @@ type
     function  modifyClass   (classId : string; //provide either classId OR col, row.
                              col, row, deltaX, deltaY : integer;
                              operation : integer;
-                             keyValue : shortString;                // applies to clAttach* only
+                             keyValues : shortString;                // applies to clAttach* only
                              keyValueDsp : shortString;
                              var succesFlag : boolean;              // succesFlag = false means modification was not allowed, but go on
                              const exitIfAnyExists : boolean = true // applies to clAttach* only
@@ -4539,21 +4539,15 @@ end;
 
 procedure TFMain.deleteLecFromSelection;
 Var KeyValues : String;
-    KeyValue  : string;
     t         : integer;
 begin
   if TabViewType.TabIndex = 0 then
    if question(
        format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy: %s zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text, fprogramsettings.profileObjectNameL.Text ])
       ) <> id_yes then exit;
-  keyValue := '';
   if not unplugAll then begin
     If LECTURERSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
-      for t := 1 to wordCount(KeyValues, [',']) do begin
-        KeyValue := extractWord(t,KeyValues, [',']);
-        modifyClasses(0,0,clDeleteLec,keyValue,'');
-        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
-      end;
+      modifyClasses(0,0,clDeleteLec,keyValues,'');
     end;
   end else
     modifyClasses(0,0,clDeleteLec,'' {keyValue},'');
@@ -4563,7 +4557,6 @@ end;
 
 procedure TFMain.deleteGroFromSelection;
 Var KeyValues : String;
-    KeyValue  : string;
     t         : integer;
 begin
   if TabViewType.TabIndex = 1 then
@@ -4571,14 +4564,9 @@ begin
        format('Wybrano polecenie od³¹czenia. Spowoduje to, ¿e %s znikn¹ z bie¿acego arkusza, o ile bie¿¹cy: %s zostanie od³¹czony. Czy kontynuowaæ ?', [fprogramsettings.profileObjectNameClasses.Text, fprogramsettings.profileObjectNameG.Text ])
    ) <> id_yes then exit;
 
-  keyValue := '';
   if not unplugAll then begin
     If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then begin
-      for t := 1 to wordCount(KeyValues, [',']) do begin
-        KeyValue := extractWord(t,KeyValues, [',']);
-        modifyClasses(0,0,clDeleteGro,keyValue,'');
-        if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
-      end;
+      modifyClasses(0,0,clDeleteGro,KeyValues,'');
     end;
   end else
     modifyClasses(0,0,clDeleteGro,''{keyValue},'');
@@ -4599,10 +4587,7 @@ begin
   keyValue := '';
   if not unplugAll then begin
     If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then begin
-      for t := 1 to wordCount(KeyValues, [',']) do begin
-        KeyValue := extractWord(t,KeyValues, [',']);
-        modifyClasses(0,0,clDeleteRes,keyValue,'');
-      end;
+        modifyClasses(0,0,clDeleteRes,keyValues,'');
     end;
   end else
      modifyClasses(0,0,clDeleteRes,'' {keyValue},'');
@@ -5822,6 +5807,8 @@ function TFMain.modifyClass;
 		 //calendarSelected   : boolean;
      resType : shortString;
      Status             : Integer;
+     t                  : integer;
+     KeyValue           : string;
 
 	   // unplugValue('1;2;3;4','4') --> '1;2;3'
 	   // unplugValue('1;2;3;4','3') --> '1;2;4'
@@ -5933,13 +5920,16 @@ function TFMain.modifyClass;
 	   //following operations are in mode: single class level
 	   clDeleteLec:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.calc_lec_ids := ''
 				 else
 				 begin
 				   //unplug specific
-				   newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+           for t := 1 to wordCount(KeyValues, [',']) do begin
+            KeyValue := extractWord(t,KeyValues, [',']);
+            newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
+           end;
 				 end;
 				 // omit cell if operation is not allowed
 				 if not deleteClass ( oldClass, oldClass.id ) then exit;
@@ -5949,13 +5939,16 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteOwner:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.owner := newClass.created_by
 				 else
 				 begin
 				   //unplug specific
-				   newClass.owner := unplugValue(newClass.owner,keyValue);
+           for t := 1 to wordCount(KeyValues, [',']) do begin
+            KeyValue := extractWord(t,KeyValues, [',']);
+				    newClass.owner := unplugValue(newClass.owner,keyValue);
+           end;
            if newClass.owner = '' then newClass.owner := newClass.created_by;
 				 end;
 				 // omit cell if operation is not allowed
@@ -5966,13 +5959,16 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteGro:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.calc_gro_ids := ''
 				 else
 				 begin
 				   //unplug specific
-				   newClass.calc_gro_ids := unplugValue(newClass.calc_gro_ids,keyValue);
+           for t := 1 to wordCount(KeyValues, [',']) do begin
+             KeyValue := extractWord(t,KeyValues, [',']);
+   				   newClass.calc_gro_ids := unplugValue(newClass.calc_gro_ids,keyValue);
+           end;
 				 end;
 				 // omit cell if operation is not allowed
 				 if not deleteClass ( oldClass, oldClass.id ) then exit;
@@ -5982,13 +5978,16 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteRes:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.calc_rom_ids := ''
 				 else
 				 begin
 				   //unplug specific
-				   newClass.calc_rom_ids := unplugValue(newClass.calc_rom_ids,keyValue);
+           for t := 1 to wordCount(KeyValues, [',']) do begin
+             KeyValue := extractWord(t,KeyValues, [',']);
+             newClass.calc_rom_ids := unplugValue(newClass.calc_rom_ids,keyValue);
+           end;
 				 end;
 				 // omit cell if operation is not allowed
 				   if not deleteClass ( oldClass, oldClass.id ) then exit;
@@ -5998,7 +5997,7 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteSub:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.sub_id := 0;
 				 //else
@@ -6014,7 +6013,7 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteDesc1:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.desc1 := '';
 				 //else
@@ -6030,7 +6029,7 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteDesc2:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.desc2 := '';
 				 //else
@@ -6046,7 +6045,7 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteDesc3:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.desc3 := '';
 				 //else
@@ -6062,7 +6061,7 @@ function TFMain.modifyClass;
 			   end;
 	   clDeleteDesc4:
 			   begin
-				 if keyValue = '' then
+				 if keyValues = '' then
 				   //unplug all
 				   newClass.desc4 := '';
 				 //else
@@ -6082,9 +6081,9 @@ function TFMain.modifyClass;
 				 if exitIfAnyExists then
 				   if newClass.calc_lec_ids <> '' then begin result := true; exit; end;
 				 //nie dodawaj obiektu jezeli ten obiekt juz jest
-				 If not existsValue(newClass.calc_lec_ids, [';'], keyValue) then
+				 If not existsValue(newClass.calc_lec_ids, [';'], keyValues) then
 				 begin
-				   newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValue,';');
+				   newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValues,';');
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6098,9 +6097,9 @@ function TFMain.modifyClass;
 				 if exitIfAnyExists then
 				   if newClass.calc_gro_ids <> '' then begin result := true; exit; end;
 				 //nie dodawaj obiektu jezeli ten obiekt juz jest
-				 if not existsValue(newClass.calc_gro_ids, [';'], keyValue) then
+				 if not existsValue(newClass.calc_gro_ids, [';'], keyValues) then
 				 begin
-				   newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValue,';');
+				   newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValues,';');
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6114,9 +6113,9 @@ function TFMain.modifyClass;
 				 if exitIfAnyExists then
 				   if newClass.calc_rom_ids <> '' then begin result := true; exit; end;
 				 //nie dodawaj obiektu jezeli ten obiekt juz jest
-				 if not existsValue(newClass.calc_rom_ids, [';'], keyValue) then
+				 if not existsValue(newClass.calc_rom_ids, [';'], keyValues) then
 				 begin
-				   newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValue,';');
+				   newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValues,';');
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6126,9 +6125,9 @@ function TFMain.modifyClass;
 			   end;
 	   clAttachOwner:
 			   begin
-				 If not existsValue(newClass.owner, [';'], keyValue) then
+				 If not existsValue(newClass.owner, [';'], keyValues) then
 				 begin
-				   newClass.owner := merge(newClass.owner, keyValue,';');
+				   newClass.owner := merge(newClass.owner, keyValues,';');
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6139,9 +6138,9 @@ function TFMain.modifyClass;
 	   clChangeSub:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.sub_id = strtoint(keyValue)) then
+				 if not (newClass.sub_id = strtoint(keyValues)) then
 				 begin
-				   newClass.sub_id := strtoint(keyValue);
+				   newClass.sub_id := strtoint(keyValues);
 				   newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=2 {2=subject}, newClass.desc1);
 				   newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=2            , newClass.desc2);
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=2            , newClass.desc3);
@@ -6156,9 +6155,9 @@ function TFMain.modifyClass;
 	   clChangeFor:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.for_id = strtoint(keyValue)) then
+				 if not (newClass.for_id = strtoint(keyValues)) then
 				 begin
-				   newClass.for_id := strtoint(keyValue);
+				   newClass.for_id := strtoint(keyValues);
 				   newClass.desc1 := copyValue(keyValueDsp, Fprogramsettings.CopyField1.itemindex=3 {3=form}, newClass.desc1);
 				   newClass.desc2 := copyValue(keyValueDsp, Fprogramsettings.CopyField2.itemindex=3         , newClass.desc2);
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=3         , newClass.desc3);
@@ -6173,9 +6172,9 @@ function TFMain.modifyClass;
 	   clChangeOwner:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.owner =  keyValue) then
+				 if not (newClass.owner =  keyValues) then
 				 begin
-				   newClass.owner := keyValue;
+				   newClass.owner := keyValues;
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6186,9 +6185,9 @@ function TFMain.modifyClass;
 	   clChangeCColor:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.class_colour =  StrToInt(keyValue) ) then
+				 if not (newClass.class_colour =  StrToInt(keyValues) ) then
 				 begin
-				   newClass.class_colour := strToInt(keyValue);
+				   newClass.class_colour := strToInt(keyValues);
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6199,9 +6198,9 @@ function TFMain.modifyClass;
 	   clChangeDesc1:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.desc1 =  keyValue) then
+				 if not (newClass.desc1 =  keyValues) then
 				 begin
-				   newClass.desc1 := keyValue;
+				   newClass.desc1 := keyValues;
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6212,9 +6211,9 @@ function TFMain.modifyClass;
 	   clChangeDesc2:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.desc2 =  keyValue) then
+				 if not (newClass.desc2 =  keyValues) then
 				 begin
-				   newClass.desc2 := keyValue;
+				   newClass.desc2 := keyValues;
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6225,9 +6224,9 @@ function TFMain.modifyClass;
 	   clChangeDesc3:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.desc3 =  keyValue) then
+				 if not (newClass.desc3 =  keyValues) then
 				 begin
-				   newClass.desc3 := keyValue;
+				   newClass.desc3 := keyValues;
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6238,9 +6237,9 @@ function TFMain.modifyClass;
 	   clChangeDesc4:
 			   begin
 				 //nie zmieniaj obiektu jezeli juz jest
-				 if not (newClass.desc4 =  keyValue) then
+				 if not (newClass.desc4 =  keyValues) then
 				 begin
-				   newClass.desc4 := keyValue;
+				   newClass.desc4 := keyValues;
 				   // omit cell if operation is not allowed
 					 if not deleteClass ( oldClass, oldClass.id ) then exit;
 				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
@@ -6335,7 +6334,7 @@ begin
      if not modifyClass ('N/A', xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
      if successFlag then cellsSucceed    := cellsSucceed +1
                     else cellsNotSucceed := cellsNotSucceed +1;
-     FProgress.Refresh;
+     //FProgress.Refresh;
      FProgress.ProgressBar.Position := Round((cellsSucceed+cellsNotSucceed)*FProgress.ProgressBar.Max / cellsTotal);
     until xp = xend;
   until yp = yend;

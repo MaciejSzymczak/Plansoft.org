@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 53
-  Top = 34
+  Left = 414
+  Top = 108
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -6595,7 +6595,7 @@ inherited FMain: TFMain
         OnClick = Wszystkich1Click
       end
       object Wybranego1: TMenuItem
-        Caption = 'Wybranego'
+        Caption = 'Wybranego / wybranych'
         OnClick = Wybranego1Click
       end
     end
@@ -6606,7 +6606,7 @@ inherited FMain: TFMain
         OnClick = Wszystkie1Click
       end
       object Wybran1: TMenuItem
-        Caption = 'Wybran'#261
+        Caption = 'Wybran'#261' / wybrane'
         OnClick = Wybran1Click
       end
     end
@@ -6617,7 +6617,7 @@ inherited FMain: TFMain
         OnClick = Wszystkir1Click
       end
       object Wybrany1: TMenuItem
-        Caption = 'Wybrany'
+        Caption = 'Wybrany/ wybrane'
         OnClick = Wybrany1Click
       end
     end
