@@ -101,7 +101,8 @@ uses
   UIcsGenerator in 'UIcsGenerator.pas',
   UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage},
   UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment},
-  UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY};
+  UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY},
+  FVersions in 'FVersions.pas' {FVersion};
 
 {$R *.RES}
 
@@ -194,6 +195,7 @@ begin
   Application.CreateForm(TFSelectDate, FSelectDate);
   Application.CreateForm(TFFloatingMessage, FFloatingMessage);
   Application.CreateForm(TFDataEnrichment, FDataEnrichment);
+  Application.CreateForm(TFVersion, FVersion);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

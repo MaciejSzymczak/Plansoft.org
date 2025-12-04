@@ -597,6 +597,8 @@ type
     Nieusuwajistniajcedniwolne1: TMenuItem;
     sql_COM_SEARCH: TMemo;
     Navigator: TTimer;
+    N10: TMenuItem;
+    Wersjonowanie1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -942,6 +944,7 @@ type
       Sender: TObject);
     procedure Nieusuwajistniajcedniwolne1Click(Sender: TObject);
     procedure NavigatorTimer(Sender: TObject);
+    procedure Wersjonowanie1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1128,7 +1131,8 @@ Uses AutoCreate, UFDetails,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
-  UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment;
+  UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
+  FVersions;
 
 var dummy : string;
 
@@ -4539,7 +4543,6 @@ end;
 
 procedure TFMain.deleteLecFromSelection;
 Var KeyValues : String;
-    t         : integer;
 begin
   if TabViewType.TabIndex = 0 then
    if question(
@@ -9693,6 +9696,11 @@ begin
     RefreshNavigatorImmediate;
   end;
   If NavigatorCnt > 0 Then NavigatorCnt := NavigatorCnt - 1;
+end;
+
+procedure TFMain.Wersjonowanie1Click(Sender: TObject);
+begin
+  FVersion.ShowModal;
 end;
 
 initialization

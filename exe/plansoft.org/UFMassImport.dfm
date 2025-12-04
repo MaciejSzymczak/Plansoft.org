@@ -1,6 +1,6 @@
 inherited FMassImport: TFMassImport
-  Left = 422
-  Top = 251
+  Left = 599
+  Top = 264
   Width = 489
   Height = 368
   Caption = 'Pobieranie danych z programu Excel'

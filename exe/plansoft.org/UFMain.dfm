@@ -6244,6 +6244,13 @@ inherited FMain: TFMain
           Caption = 'Odzyskanie danych'
           OnClick = Pobierzdanezpliku1Click
         end
+        object N10: TMenuItem
+          Caption = '-'
+        end
+        object Wersjonowanie1: TMenuItem
+          Caption = 'Wersjonowanie'
+          OnClick = Wersjonowanie1Click
+        end
       end
       object MORG_UNITS: TMenuItem
         Caption = 'Jednostki organizacyjne'

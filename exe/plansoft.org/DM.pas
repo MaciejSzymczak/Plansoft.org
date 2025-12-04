@@ -199,6 +199,7 @@ type
     function  CustomdateRange(s : string):string;
     Procedure ExportToExcel(aGrid : TDBGrid );
     Procedure ExportToHtml(aGrid : TDBGrid );
+    procedure errorMessage(aAction: Integer; P: Pointer; ErrorMessage: String);
   end;
 
 Function QWorkToClass (ADOQuery : TADOQuery) : TClass_;
@@ -264,7 +265,7 @@ var Macros     : TMacros;
 
 implementation
 
-uses UFProgramSettings, UFMain;
+uses UFProgramSettings, UFMain, UFDatabaseError;
 
 {$R *.DFM}
 
@@ -440,6 +441,7 @@ begin
       DBMap.addMessage( fieldByName('CODE').AsString  , lmeaning );
       next;
     end;
+    DBMap.addMessage( 'VERSIONS_U', 'Nazwa wersji zosta³a ju¿ u¿yta, wpisz inn¹ nazwê');
     close;
   end;
 end;
@@ -1896,6 +1898,15 @@ Begin
    End;
 End;
 
+
+procedure TDModule.errorMessage(aAction: Integer; P: Pointer;
+  ErrorMessage: String);
+var translatedMessage : string;
+begin
+    if DBMap.get (ErrorMessage, translatedMessage)
+    then SError(translatedMessage)
+    else UFDatabaseError.ShowModal(aAction, P, ErrorMessage);
+end;
 
 initialization
  Macros     := tmacros.Create;
