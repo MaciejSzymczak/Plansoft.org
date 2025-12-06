@@ -59,6 +59,7 @@ type
     SpeedButton1: TSpeedButton;
     USOS_PACKAGE_NAME: TEdit;
     Label5: TLabel;
+    BVersion: TBitBtn;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -75,6 +76,7 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure PageControl1Changing(Sender: TObject;
       var AllowChange: Boolean);
+    procedure BVersionClick(Sender: TObject);
   private
     Procedure SaveParams;
   public
@@ -88,7 +90,8 @@ implementation
 
 {$R *.dfm}
 
-Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage, UFMain;
+Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage, UFMain,
+  FVersions;
 
 procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
@@ -359,6 +362,11 @@ procedure TFUSOS.PageControl1Changing(Sender: TObject;
   var AllowChange: Boolean);
 begin
    AllowChange:= IsAdmin;
+end;
+
+procedure TFUSOS.BVersionClick(Sender: TObject);
+begin
+  FVersion.ShowModal;
 end;
 
 end.

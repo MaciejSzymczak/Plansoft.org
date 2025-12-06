@@ -85,27 +85,27 @@ inherited FUSOS: TFUSOS
           Text = 'USOS_CYKL'
         end
         object BitBtn2: TBitBtn
-          Left = 376
+          Left = 360
           Top = 8
-          Width = 265
+          Width = 281
           Height = 41
           Caption = 'S'#322'owniki: USOS ====> Plansoft.org'
           TabOrder = 1
           OnClick = BitBtn2Click
         end
         object BitBtn1: TBitBtn
-          Left = 376
+          Left = 448
           Top = 88
-          Width = 265
+          Width = 193
           Height = 41
           Caption = 'Rozk'#322'ad: USOS <==== Plansoft.org'
           TabOrder = 2
           OnClick = BitBtn1Click
         end
         object BitBtn3: TBitBtn
-          Left = 376
+          Left = 360
           Top = 48
-          Width = 265
+          Width = 281
           Height = 41
           Caption = 'Plan: USOS ====> Plansoft.org'
           TabOrder = 3
@@ -118,6 +118,15 @@ inherited FUSOS: TFUSOS
           Height = 17
           Caption = 'Skasuj poprzednie dane'
           TabOrder = 4
+        end
+        object BVersion: TBitBtn
+          Left = 360
+          Top = 88
+          Width = 91
+          Height = 41
+          Caption = 'Utw'#243'rz wersj'#281
+          TabOrder = 5
+          OnClick = BVersionClick
         end
       end
       object TabSheet2: TTabSheet

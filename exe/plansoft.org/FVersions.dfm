@@ -101,19 +101,19 @@ inherited FVersion: TFVersion
         Enabled = False
         Lines.Strings = (
           
-            'Aby unikn'#261#263' skomplikowanych scenariuszy, nie dodawaj ani nie usu' +
-            'waj wyk'#322'adowc'#243'w, grup, sal, przedmiot'#243'w i '
-          
-            'form z autoryzacji w oknie czasowym pomi'#281'dzy utworzeniem wersji ' +
-            'a jej przywr'#243'ceniem.'
-          ''
-          
             'Wersja obejmuje zaj'#281'cia i rezerwacje z uwzgl'#281'dnieniem: wyk'#322'adowc' +
             #243'w, grup, sal, przedmiot'#243'w i form zgodnie z '
           
             'wybran'#261' aktualnie autoryzacj'#261' (np. tylko zaj'#281'cia stacjonarne lub' +
             ' tylko niestacjonarne), wg stanu gdy tworzono '
           'wersj'#281'.'
+          ''
+          
+            'Aby unikn'#261#263' skomplikowanych scenariuszy, nie dodawaj ani nie usu' +
+            'waj wyk'#322'adowc'#243'w, grup, sal, przedmiot'#243'w i'
+          
+            'form z autoryzacji w oknie czasowym pomi'#281'dzy utworzeniem wersji ' +
+            'a jej przywr'#243'ceniem.'
           ''
           
             'Wersja zawiera wszystkie przedmioty zgodnie z wybran'#261' autoryzacj' +
