@@ -60,7 +60,14 @@ create or replace PACKAGE BODY version_pkg AS
           select cla_id from lec_cla where day between vdate_from and vdate_to and lec_id in (select lec_id from lec_pla where pla_id = userOrRoleID)
           union
           select cla_id from rom_cla where day between vdate_from and vdate_to and rom_id in (select rom_id from rom_pla where pla_id = userOrRoleID)
-          );
+          )
+          and
+          (
+          sub_id in (select sub_id from sub_pla where pla_id = userOrRoleID)
+          or
+          for_id in (select id from forms where kind = 'R' intersect select for_id from for_pla where pla_id = userOrRoleID)
+          )
+          ;
 
     insert into lec_cla_ver (ver_id, ID, LEC_ID, CLA_ID, DAY, HOUR, IS_CHILD, EFFECTIVE_START_DATE, EFFECTIVE_END_DATE, LAST_UPDATED_BY, OPERATION_FLAG, CREATED_BY, CREATION_DATE, LAST_UPDATE_DATE, DESC1, DESC2, DESC3, DESC4, NO_CONFLICT_FLAG, PARENT_ID)
       select curr_ver_id, ID, LEC_ID, CLA_ID, DAY, HOUR, IS_CHILD, EFFECTIVE_START_DATE, EFFECTIVE_END_DATE, LAST_UPDATED_BY, OPERATION_FLAG, CREATED_BY, CREATION_DATE, LAST_UPDATE_DATE, DESC1, DESC2, DESC3, DESC4, NO_CONFLICT_FLAG, PARENT_ID 
@@ -137,6 +144,12 @@ create or replace PACKAGE BODY version_pkg AS
             union 
             select cla_id from rom_cla where rom_id in (select rom_id from rom_pla where pla_id = ver.userOrRoleID)
             )
+            and
+            (
+            sub_id in (select sub_id from sub_pla where pla_id = ver.userOrRoleID)
+            or
+            for_id in (select id from forms where kind = 'R' intersect select for_id from for_pla where pla_id = ver.userOrRoleID)
+            )
     );
    commit;
   end;
@@ -172,7 +185,14 @@ create or replace PACKAGE BODY version_pkg AS
             select cla_id from lec_cla where lec_id in (select lec_id from lec_pla where pla_id = ver.userOrRoleID)
             union 
             select cla_id from rom_cla where rom_id in (select rom_id from rom_pla where pla_id = ver.userOrRoleID)
-            );
+            )
+            and
+            (
+            sub_id in (select sub_id from sub_pla where pla_id = ver.userOrRoleID)
+            or
+            for_id in (select id from forms where kind = 'R' intersect select for_id from for_pla where pla_id = ver.userOrRoleID)
+            )
+            ;
         insert into classes (ID, DAY, HOUR, FILL, SUB_ID, FOR_ID, DESC1, DESC2, CALC_LECTURERS, CALC_GROUPS, CALC_ROOMS, CALC_LEC_IDS, CALC_GRO_IDS, CALC_ROM_IDS, CREATED_BY, OWNER, STATUS, COLOUR, CREATION_DATE, CALC_RESCAT_IDS, DESC3, DESC4, EFFECTIVE_START_DATE, EFFECTIVE_END_DATE, LAST_UPDATED_BY, OPERATION_FLAG, ATTRIBN_01, ATTRIBN_02, ATTRIBN_03, ATTRIBN_04, ATTRIBN_05)
           select ID, DAY, HOUR, FILL, SUB_ID, FOR_ID, DESC1, DESC2, CALC_LECTURERS, CALC_GROUPS, CALC_ROOMS, CALC_LEC_IDS, CALC_GRO_IDS, CALC_ROM_IDS, CREATED_BY, OWNER, STATUS, COLOUR, CREATION_DATE, CALC_RESCAT_IDS, DESC3, DESC4, EFFECTIVE_START_DATE, EFFECTIVE_END_DATE, LAST_UPDATED_BY, OPERATION_FLAG, ATTRIBN_01, ATTRIBN_02, ATTRIBN_03, ATTRIBN_04, ATTRIBN_05 
           from classes_ver where ver_id = ver.id;

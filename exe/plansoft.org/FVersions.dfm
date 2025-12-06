@@ -81,7 +81,7 @@ inherited FVersion: TFVersion
       end
       object Confirm: TCheckBox
         Left = 8
-        Top = 264
+        Top = 352
         Width = 185
         Height = 17
         Caption = 'Potwierdzam'
@@ -90,9 +90,9 @@ inherited FVersion: TFVersion
       end
       object Memo1: TMemo
         Left = 8
-        Top = 104
-        Width = 433
-        Height = 153
+        Top = 88
+        Width = 561
+        Height = 257
         BevelEdges = []
         BevelInner = bvNone
         BevelOuter = bvNone
@@ -101,31 +101,51 @@ inherited FVersion: TFVersion
         Enabled = False
         Lines.Strings = (
           
-            'Nie dodawaj ani nie usuwaj wyk'#322'adowc'#243'w, grup i sal z autoryzacji' +
-            ' w oknie czasowym '
-          'pomi'#281'dzy utworzeniem wersji a jej przywr'#243'ceniem.'
+            'Aby unikn'#261#263' skomplikowanych scenariuszy, nie dodawaj ani nie usu' +
+            'waj wyk'#322'adowc'#243'w, grup, sal, przedmiot'#243'w i '
+          
+            'form z autoryzacji w oknie czasowym pomi'#281'dzy utworzeniem wersji ' +
+            'a jej przywr'#243'ceniem.'
           ''
           
-            'Wersja obejmuje zaj'#281'cia i rezerwacje wyk'#322'adowc'#243'w, grup i sal zgo' +
-            'dnie z wybran'#261' '
+            'Wersja obejmuje zaj'#281'cia i rezerwacje z uwzgl'#281'dnieniem: wyk'#322'adowc' +
+            #243'w, grup, sal, przedmiot'#243'w i form zgodnie z '
           
-            'aktualnie autoryzacj'#261' (np. tylko zaj'#281'cia stacjonarne lub tylko n' +
-            'iestacjonarne), wg stanu '
-          'na teraz.'
+            'wybran'#261' aktualnie autoryzacj'#261' (np. tylko zaj'#281'cia stacjonarne lub' +
+            ' tylko niestacjonarne), wg stanu gdy tworzono '
+          'wersj'#281'.'
           ''
           
-            'W razie wyst'#261'pienia konflikt'#243'w z zaj'#281'ciami innych planist'#243'w przy' +
-            'wr'#243'cenie wersji nie '
+            'Wersja zawiera wszystkie przedmioty zgodnie z wybran'#261' autoryzacj' +
+            #261' (i tylko te przedmioty). Je'#380'eli na rozk'#322'adzie '
           
-            'b'#281'dzie mo'#380'liwe do czasu skasowania konflikt'#243'w. W przypadku wyst'#261 +
-            'pienia konflikt'#243'w '
-          'jest tworzony raport wskazuj'#261'cy konflikty.')
+            'zaj'#281#263' wyk'#322'adowcy (lub grupy lub sali) s'#261' jeszcze inne przedmioty' +
+            ' (spoza autoryzacji), to NIE zostan'#261' one '
+          
+            'zapisane w wersji. To wa'#380'ne, aby to rozumie'#263', i NIE kasowa'#263' zaj'#281 +
+            #263' z przedmiot'#243'w spoza autoryzacji, poniewa'#380' '
+          
+            'te skasowane (zmienione) zaj'#281'cia nie zostan'#261' przywr'#243'cone podczas' +
+            ' przywracania wersji.'
+          ''
+          
+            'Wersja zawiera zaj'#281'cia z rozk'#322'adu zaj'#281#263' oraz rezerwacje, wersja ' +
+            'nie zawiera kalendarza dni wolnych, '
+          'preferencji wyk'#322'adowc'#243'w, ani uprawnie'#324'.'
+          ''
+          
+            'Podczas przywracania wersji: W razie wyst'#261'pienia konflikt'#243'w z za' +
+            'j'#281'ciami innych planist'#243'w przywr'#243'cenie wersji '
+          
+            'nie b'#281'dzie mo'#380'liwe do czasu skasowania konflikt'#243'w. W przypadku w' +
+            'yst'#261'pienia konflikt'#243'w jest tworzony raport '
+          'wskazuj'#261'cy konflikty.')
         ReadOnly = True
         TabOrder = 1
       end
       object Run: TBitBtn
         Left = 208
-        Top = 272
+        Top = 348
         Width = 137
         Height = 49
         Caption = 'Utw'#243'rz wersj'#281
