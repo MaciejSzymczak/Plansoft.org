@@ -213,7 +213,10 @@ end planner_utils;
 
 create or replace package body planner_utils is
   UserOrRoleId number := null;
+  action_on_no_permission varchar2(50) := 'CONT'; --STOP, SKIP, CONT
+  
   deleted_class_id number := null;
+  
 
   procedure setUserOrRoleId(pUserOrRoleId number) is begin
     UserOrRoleId := pUserOrRoleId;
@@ -887,6 +890,7 @@ create or replace package body planner_utils is
   ----------------------------------------------------------------------------------------  
   begin
   
+   if action_on_no_permission != 'CONT' then
    if UserOrRoleId is not null then
      declare
        psub_name varchar2(500);
@@ -896,13 +900,13 @@ create or replace package body planner_utils is
          select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
          if cnt = 0 then
            select name into psub_name from subjects where subjects.id = psub_id;
-           raise_application_error(-20000, 'Nie masz uprawnień do wstawiania zajęć z przedmiotu: '||psub_name);                 
+           if action_on_no_permission='SKIP' then return; end if;                
+           if action_on_no_permission='STOP' then raise_application_error(-20000, 'Nie masz uprawnień do wstawiania zajęć z przedmiotu: '||psub_name); end if;                
          end if;
        end if;
      end;
    end if;  
-  
-  
+   end if;
 
     if (psub_id=-1 or psub_id=-2) then
       pno_conflict_flag := '+';
@@ -2459,6 +2463,8 @@ create or replace package body planner_utils is
  procedure delete_class ( pid number ) is
   l_sum_units number;
  begin 
+ 
+   if action_on_no_permission != 'CONT' then
    if UserOrRoleId is not null then
      declare
        psub_id number;
@@ -2470,10 +2476,12 @@ create or replace package body planner_utils is
          select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
          if cnt = 0 then
            select name into psub_name from subjects where subjects.id = psub_id;
-           raise_application_error(-20000, 'Nie masz uprawnień do usuwania zajęć z przedmiotu: '||psub_name);                 
+           if action_on_no_permission='SKIP' then return; end if;                
+           if action_on_no_permission='STOP' then raise_application_error(-20000, 'Nie masz uprawnień do wstawiania zajęć z przedmiotu: '||psub_name); end if;                
          end if;
        end if;
      end;
+   end if;
    end if;
  
    --debug('delete_class:'||pid);   
@@ -2546,5 +2554,11 @@ BEGIN
     END LOOP;
 END;
  
+begin
+  begin
+    select VALUE into action_on_no_permission from system_parameters where name = 'ACTION_ON_NO_PERMISSION';  --STOP, SKIP, CONT
+    exception
+    when no_data_found then null;
+  end;
 end planner_utils;
 /
