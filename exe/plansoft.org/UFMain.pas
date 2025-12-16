@@ -987,6 +987,7 @@ type
     procedure updateLeftPanel;
     procedure HighLightGrid;
     procedure CopyPeriodDays(deleteExisting : boolean);
+    procedure setUserOrRoleId;
   public
     CanShow            : boolean;
     CanBuildCalendar   : boolean;
@@ -4410,7 +4411,10 @@ begin
     Ddesc2.Enabled := canEditD;
     Ddesc3.Enabled := canEditD;
     Ddesc4.Enabled := canEditD;
-  Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT NAME FROM PLANNERS WHERE NAME=USER'); raise; End;
+  Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT * FROM PLANNERS WHERE NAME=USER'); raise; End;
+
+  dmodule.DbversionInstalled := dmodule.SingleValue('select max(name) from system_parameters where name like ''VERSION%'' order by name desc');
+  setUserOrRoleId;
 
   isUSOSInstalled := dmodule.dbgetSystemParam('USOS_CYKL')<>'';
   BFastSearchNew.Visible := isIntegrated = false;
@@ -5731,6 +5735,7 @@ begin
    if isBlank(conRole.Text) then begin conRole_value.Text := ''; exit; end;
    BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
+   setUserOrRoleId;
   End;
 end;
 
@@ -7623,6 +7628,7 @@ begin
   conRole.Text := '';
   conRoleChange(nil);
   TEdit(Sender).hide;
+  setUserOrRoleId;
 end;
 
 procedure TFMain.BSelectCombClick(Sender: TObject);
@@ -9701,6 +9707,21 @@ end;
 procedure TFMain.Wersjonowanie1Click(Sender: TObject);
 begin
   FVersion.ShowModal;
+end;
+
+procedure TFMain.setUserOrRoleId;
+begin
+  if dmodule.DbversionInstalled > 'VERSION 2025.12.15' then
+    with dmodule.QWork do begin
+      SQL.Clear;
+      SQL.Add(
+	    'begin '+ cr+
+	    ' planner_utils.setUserOrRoleId (:pUserOrRoleId); '+ cr+
+	    'end;'
+	    );
+      parameters.ParamByName('pUserOrRoleId').value    := getUserOrRoleId;
+      execSQL;
+    end;
 end;
 
 initialization

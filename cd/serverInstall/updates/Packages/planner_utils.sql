@@ -2,7 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   @version 2025.09.17
+   @version 2025.12.16
    @author Maciej Szymczak
    */
 
@@ -43,6 +43,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
   procedure enable_trial;
   procedure disable_trial;
+ 
+  procedure setUserOrRoleId(pUserOrRoleId number);
 
   procedure insert_classes(pday            date
                          ,phour           number
@@ -210,7 +212,12 @@ end planner_utils;
 /
 
 create or replace package body planner_utils is
+  UserOrRoleId number := null;
   deleted_class_id number := null;
+
+  procedure setUserOrRoleId(pUserOrRoleId number) is begin
+    UserOrRoleId := pUserOrRoleId;
+  end;
 
   function killSessions return varchar2 is
   sessionKilled varchar2(1) := 'N';
@@ -879,6 +886,23 @@ create or replace package body planner_utils is
 
   ----------------------------------------------------------------------------------------  
   begin
+  
+   if UserOrRoleId is not null then
+     declare
+       psub_name varchar2(500);
+       cnt number;
+     begin
+       if psub_id > 0 then 
+         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
+         if cnt = 0 then
+           select name into psub_name from subjects where subjects.id = psub_id;
+           raise_application_error(-20000, 'Nie masz uprawnień do wstawiania zajęć z przedmiotu: '||psub_name);                 
+         end if;
+       end if;
+     end;
+   end if;  
+  
+  
 
     if (psub_id=-1 or psub_id=-2) then
       pno_conflict_flag := '+';
@@ -2435,6 +2459,23 @@ create or replace package body planner_utils is
  procedure delete_class ( pid number ) is
   l_sum_units number;
  begin 
+   if UserOrRoleId is not null then
+     declare
+       psub_id number;
+       psub_name varchar2(500);
+       cnt number;
+     begin
+       select sub_id into psub_id from classes where id = pid;
+       if psub_id > 0 then 
+         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
+         if cnt = 0 then
+           select name into psub_name from subjects where subjects.id = psub_id;
+           raise_application_error(-20000, 'Nie masz uprawnień do usuwania zajęć z przedmiotu: '||psub_name);                 
+         end if;
+       end if;
+     end;
+   end if;
+ 
    --debug('delete_class:'||pid);   
    for rec in (select tt_comb_id from tt_cla where cla_id = pid) loop
      select sum(units) into l_sum_units from tt_cla where cla_id = pid and tt_comb_id = rec.tt_comb_id;

@@ -159,6 +159,7 @@ type
     dateRange    : string[50];
 
     pAbolitionTime: string[30];
+    DbversionInstalled: string[30];
     procedure loadMap(sqlString : string; map : tmap; lpadKey : boolean);
     Function LecturerGetColour(ID : string) : integer;
     Function GroupGetColour(ID : string) : Integer;
@@ -515,7 +516,7 @@ Begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     parameters.ParamByName(paramName).value   := searchAndReplace ( paramValue , '!chr(61)', '=') ;
+     parameters.ParamByName(paramName).value   := searchAndReplace(searchAndReplace ( paramValue , '!chr(61)' , '=') , '<scolon>', ';');
    end;
 
    //terrible workaround for an error ORA-01036 on Oracle 18 XE

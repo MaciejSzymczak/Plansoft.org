@@ -416,6 +416,13 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
             Title.Caption = 'Integration Id'
             Width = 100
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'RES_S_ATTRIBS_01'
+            Title.Caption = 'Grupa przedmiot'#243'w'
+            Width = 800
+            Visible = True
           end>
       end
       inherited BottomPanel: TPanel
@@ -2363,6 +2370,9 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       
         '4c4153545f555044415445445f42597c5a6d6f647966696b6f7761b37c434154' +
         '45474f52593a44454641554c54'
+      
+        '5245535f535f415454524942535f30317c47727570612070727a65646d696f74' +
+        'f3777c43415445474f52593a44454641554c54'
       '')
   end
   inherited GridLayout: TStrHolder
@@ -2380,7 +2390,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     Top = 376
   end
   inherited Others: TStrHolder
-    Capacity = 76
+    Capacity = 95
     Top = 344
     StrData = (
       ''
@@ -2550,6 +2560,12 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       
         '414c4941533a4154545249424e5f31353d54545f434f4d42494e4154494f4e53' +
         '2e4154545249424e5f3135'
+      
+        '414c4941533a4154545249424e5f31353d434c41535345532e4154545249424e' +
+        '5f3135'
+      
+        '414c4941533a5245535f535f415454524942535f30313d5355422e4154545249' +
+        '42535f3031'
       '53656172636853514c3d303d30'
       '')
   end
@@ -2666,6 +2682,9 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         '      , sub.name                                               r' +
         'es_desc_s'
       
+        '      , SUB.ATTRIBS_01                                         R' +
+        'ES_S_ATTRIBS_01'
+      
         '      , xfor.name||'#39'('#39'||xfor.abbreviation||'#39')'#39'                 r' +
         'es_desc_f'
       
@@ -2683,7 +2702,10 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       'left join forms     xfor on for_id= xfor.id'
       'left join periods   per  on per_id= per.id'
       'left join planners  pla  on pla_id= pla.id'
-      'WHERE %CONDITIONALS AND %CUSTOMCONDITIONALS AND %SEARCH'
+      'WHERE %CONDITIONALS'
+      'AND %CUSTOMCONDITIONALS'
+      'AND %SEARCH'
+      'AND %CONPERMISSIONS'
       '%SORTORDER')
     Left = 4
     Top = 452

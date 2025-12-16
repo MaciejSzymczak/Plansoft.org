@@ -395,14 +395,23 @@ begin
   if filter='' then filter := '0=0';
   DM.macros.setMacro(query, 'CUSTOMCONDITIONALS', filter );
 
-  DM.macros.setMacro(query, 'g_lecturer', intToStr(dm.g_lecturer));
-  DM.macros.setMacro(query, 'g_group'   , intToStr(dm.g_group));
-  DM.macros.setMacro(query, 'prescatid0', dmodule.presCatId0);
-  DM.macros.setMacro(query, 'prescatid1', dmodule.presCatId1);
-  DM.macros.setMacro(query, 'g_subject' , intToStr(dm.g_subject));
-  DM.macros.setMacro(query, 'g_form'    , intToStr(dm.g_form));
-  DM.macros.setMacro(query, 'g_period'  , intToStr(dm.g_period));
-  DM.macros.setMacro(query, 'g_planner' , intToStr(dm.g_planner));
+   DM.macros.setMacro( Query, 'CONPERMISSIONS',
+     '     (lec.id is null or ' + getWhereClause('lecturers','lec')   +')'+
+     ' and (gro.id is null or ' + getWhereClause('groups','gro')      +')'+
+     ' and (rom.id is null or ' + getWhereClause('rooms','rom')       +')'+
+     ' and (sub.id is null or ' + getWhereClause('subjects','sub')    +')'+
+     ' and (xfor.id is null or ' + getWhereClause('forms','xfor')       +')'+
+     ' and (per.id is null or ' + getWhereClause('periods','per')     +')'
+     );
+
+  //DM.macros.setMacro(query, 'g_lecturer', intToStr(dm.g_lecturer));
+  //DM.macros.setMacro(query, 'g_group'   , intToStr(dm.g_group));
+  //DM.macros.setMacro(query, 'prescatid0', dmodule.presCatId0);
+  //DM.macros.setMacro(query, 'prescatid1', dmodule.presCatId1);
+  //DM.macros.setMacro(query, 'g_subject' , intToStr(dm.g_subject));
+  //DM.macros.setMacro(query, 'g_form'    , intToStr(dm.g_form));
+  //DM.macros.setMacro(query, 'g_period'  , intToStr(dm.g_period));
+  //DM.macros.setMacro(query, 'g_planner' , intToStr(dm.g_planner));
 
 end;
 
