@@ -37,7 +37,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, menus, ToolEdit, dbgrids,
-     Tabs, DBChart, Chart;
+     Tabs, DBChart, Chart, dm;
 
 Function GetFileNameWithExtension(Form : TForm; Extension : ShortString) : ShortString;
 Begin
@@ -618,7 +618,7 @@ end;
 
 Procedure TFormConfig.RefreshStatusPanel;
 Begin
-  Status.Caption := NazwaAplikacji + ' ('+self.Name+ ')     ' +CurrentUserName+ '    ';
+  Status.Caption := NazwaAplikacji + ' ('+self.Name+ ')     ' +dm.UserName+ '    ';
 End;
 
 function TFormConfig.FormHelp(Command: Word; Data: Integer;

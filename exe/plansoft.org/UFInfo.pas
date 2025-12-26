@@ -46,7 +46,7 @@ begin
   inherited;
   lversion.caption := VersionOfApplication; // dmodule.dbGetSystemParam( 'PLANOWANIE.VERSION_INFO' );
   mlicencja.Text   := dmodule.dbGetSystemParam( 'PLANOWANIE.LICENCE_FOR'  );
-  caption := 'Plansoft.org - informacje.     U¿ytkownik:'+CurrentUserName;
+  caption := 'Plansoft.org - informacje.     U¿ytkownik:'+dm.UserName;
 end;
 
 end.

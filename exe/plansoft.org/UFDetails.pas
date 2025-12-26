@@ -511,7 +511,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR(L1.Text, '', '', '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'L');
+  GetEnabledLGR(L1.Text, '', '', '', '', dm.UserName , true, CONDL, CONDG, CONDR, pctAvailable, 'L');
   KeyValues := '';
   setResLimitation(g_lecturer);
   If LECTURERSShowModalAsMultiSelect(KeyValues,'',CONDL, getText(pctAvailable) ) = mrOK then begin
@@ -530,7 +530,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', G1.Text, '', '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'G');
+  GetEnabledLGR('', G1.Text, '', '', '', dm.UserName , true, CONDL, CONDG, CONDR, pctAvailable, 'G');
   KeyValue := '';
   setResLimitation(g_group);
   If GROUPSShowModalAsMultiselect(KeyValues,'',CONDG, getText(pctAvailable) ) = mrOK Then Begin
@@ -549,7 +549,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', '', ResCat0_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
+  GetEnabledLGR('', '', ResCat0_1.Text, '', '', dm.UserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
   //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
   //setResLimitation( strToInt(dmodule.pResCatId0) );
@@ -569,7 +569,7 @@ Var KeyValues : String;
     t         : integer;
     CONDL, CONDG, CONDR : String;
 begin
-  GetEnabledLGR('', '', ResCat1_1.Text, '', '', CurrentUserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
+  GetEnabledLGR('', '', ResCat1_1.Text, '', '', dm.UserName , true, CONDL, CONDG, CONDR, pctAvailable, 'R');
   KeyValue := '';
   //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
   //setResLimitation( strToInt(dmodule.pResCatId1) );

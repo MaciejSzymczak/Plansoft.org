@@ -130,7 +130,7 @@ function TFBrowsePLANNERS.CanDeleteRecord: Boolean;
 begin
   Result := IsAdmin;
 
-  if Query.fieldByName('NAME').AsString = CurrentUserName then begin
+  if Query.fieldByName('NAME').AsString = dm.UserName then begin
     info('Nie mo¿na usun¹æ konta zalogowanego u¿ytkownika');
     result := false;
   end;
@@ -345,8 +345,8 @@ end;
 procedure TFBrowsePLANNERS.SpeedButton4Click(Sender: TObject);
 begin
  info(
- 'Wybierz planistów, którzy mog¹ zmieniaæ zajêcia planisty. Mo¿esz wybraæ jednego lub wielu planistów.'+cr+
- 'Co istotne, mo¿esz tak¿e wskazaæ rolê, wybranie której spowoduje ¿e bêdzie mo¿na zmieniaæ zajêcia planisty. Mo¿esz wybraæ jedn¹ rolê lub wiele ról.'
+ 'Wybierz planistê nadrzêdnego/planistów, którzy mog¹ zmieniaæ zajêcia planisty.'+cr+
+ 'Mo¿esz wskazaæ rolê, wybranie której spowoduje ¿e bêdzie mo¿na zmieniaæ zajêcia planisty.'
  );
 end;
 

@@ -114,7 +114,7 @@ Begin
  Query['SHOW_SAT']    := '+';
  Query['SHOW_SUN']    := '+';
  Query['LOCKED_FLAG'] := '-';
- Query['CREATED_BY'] := CurrentUserName;
+ Query['CREATED_BY'] := dm.UserName;
 End;
 
 Function  TFBrowsePERIODS.CanEditPermission : Boolean;
@@ -135,7 +135,7 @@ Function  TFBrowsePERIODS.CanDeleteRecord    : Boolean;
 begin
  result := true;
  if not Query.Active then exit;
- If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
+ If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>dm.UserName) Then Begin
   //Info('Rekord mo¿e skasowaæ tylko u¿ytkownik, który utworzy³ rekord');
   result := false;
  End;

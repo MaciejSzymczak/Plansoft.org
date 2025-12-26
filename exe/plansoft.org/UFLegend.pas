@@ -1146,9 +1146,9 @@ Var canForceUnlock : boolean;
 Begin
   canForceUnlock := isAdmin;
   LockTimeTable.Visible := locked_by.text ='';
-  UnlockTimeTable.Visible := (inStr(';'+locked_by.text,';'+currentUsername)<>0) OR (canForceUnlock and (LockTimeTable.Visible=false));
-  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0) and (canForceUnlock=false);
-  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+currentUsername)=0) and (canForceUnlock=false);
+  UnlockTimeTable.Visible := (inStr(';'+locked_by.text,';'+dm.UserName)<>0) OR (canForceUnlock and (LockTimeTable.Visible=false));
+  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+dm.UserName)=0) and (canForceUnlock=false);
+  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+dm.UserName)=0) and (canForceUnlock=false);
   if locked_reason.ReadOnly then locked_reason.Color := clBtnFace else locked_reason.Color := clWindow;
   if locked_by.ReadOnly then locked_by.Color := clBtnFace else locked_by.Color := clWindow;
   SelectAnotherLocker.Visible := not locked_by.ReadOnly;
@@ -1165,7 +1165,7 @@ begin
    if dm.dmodule.ADOConnection.Connected then
       If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
 
-    QueryTimetableNotes['locked_by'] := currentUsername;
+    QueryTimetableNotes['locked_by'] := dm.UserName;
     RefreshLockButtons;
 end;
 

@@ -71,7 +71,7 @@ begin
   tab2.Visible := false;
   tab3.Visible := false;
   PeriodName.Text := Fmain.CONPERIOD_VALUE.text;
-  OwnerName.Text := CurrentUserName;
+  OwnerName.Text := dm.UserName;
   ver_name.Text := Fmain.CONPERIOD_VALUE.text + ' | ' + FormatDateTime('yyyy-mm-dd hh:nn', Now);
 end;
 

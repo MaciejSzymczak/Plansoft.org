@@ -172,7 +172,7 @@ begin
  except
    on E:exception do Begin
      Dmodule.RollbackTrans;
-     info('Czynnoœæ nie powiod³a sie z powodu nastêpuj¹cego b³êdu:' + cr + cr + E.Message);
+     info(E.Message);
    end;
  end;
 end;

@@ -1133,7 +1133,7 @@ Uses AutoCreate, UFDetails,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
-  FVersions;
+  FVersions, StrUtils, UFCustomConnectionString;
 
 var dummy : string;
 
@@ -1338,7 +1338,7 @@ begin
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
-   'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+CurrentUserName+''')'+cr+
+   'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+dm.UserName+''')'+cr+
    iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and '+NotLec+cr)+
    iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and '+NotGro+cr)+
    iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and '+NotRom+cr)+
@@ -3149,8 +3149,8 @@ begin
    , 0
    , dmodule.SingleValue('select kind from forms where id='+nvl(ConForm.Text,'-1'))
    , TabViewType.TabIndex
-   , CurrentUserName
-   , CurrentUserName
+   , dm.UserName
+   , dm.UserName
    , '','','',''
    );
 
@@ -4131,6 +4131,7 @@ Function TFMain.Logon : Boolean;
 Var aUserName, aPassword, aDBName : ShortString;
     loginParamsDelivered : boolean;
     gProvider : string;
+    customConnectionString : string;
 
       procedure commandLineProcessing;
          var
@@ -4140,8 +4141,7 @@ Var aUserName, aPassword, aDBName : ShortString;
             initype     : string;
             iniFile     : TIniFile;
       begin
-        paramString := paramStr(5);
-        if ( UpperCase(paramString)='DEBUG_ON') then FProgramSettings.SQLLog.Checked := true;
+        if (AnsiContainsText( UpperCase(paramStr(1)+paramStr(2)+paramStr(3)+paramStr(4)+paramStr(5)), 'DEBUG_ON')) then FProgramSettings.SQLLog.Checked := true;
 
         paramString := paramStr(4);
         command     := upperCase(ExtractWord(1,paramString,['=']));
@@ -4261,6 +4261,7 @@ Var aUserName, aPassword, aDBName : ShortString;
 begin
   inherited;
   emergencyExit := false;
+  dm.isSSOLogin := false;
 
   gProvider         := GetSystemParam('Provider', 'OraOLEDB.Oracle.1');
   CanShow           := False;
@@ -4283,39 +4284,73 @@ begin
     loginParamsDelivered := true;
   end;
 
-  if not loginParamsDelivered then
-    If Login(aDBName, aUserName, aPassword) = mrOK Then begin
-      loginParamsDelivered := true;
-      setSystemParam('LoginDataBaseName', aDBName);
-      setSystemParam('LoginUserName', aUserName);
-    end;
-
   StartUp := false;
 
-  if loginParamsDelivered then
-  Begin
-   if upperCase(aDBName) = 'DOK'  then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
-   if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
-   if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
-   if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
+  customConnectionString := GetSystemParam('ConnectionString', false);
 
-   DM.UserName  := aUserName;
-   DM.Password  := aPassword;
-   DM.DBname    := aDBName;
-   DModule.ADOConnection.ConnectionString := 'Provider='+gProvider+';Password='+aPassword+';Persist Security Info=True;User ID='+aUserName+';Data Source='+aDBName;
-                                            //Provider=OraOLEDB.Oracle.1;Password=4154;Persist Security Info=True;User ID=planner;Data Source=planner.wat.edu.pl:1522/planner
-
-   Try
-     //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaCommitRetaining];
-     //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaAbortRetaining];
-     dmodule.ADOConnection.CommandTimeout := 60000;
-     dmodule.ADOConnection.Open;
-     dmodule.ADOConnection.BeginTrans;
-   Except
-    on E:EDatabaseError do SError('Nie powiod³o siê zalogowanie z powodu nastêpuj¹cego b³êdu:'+CR+E.Message);
-    on E:exception      do SError('Nie powiod³o siê zalogowanie z powodu nastêpuj¹cego b³êdu:'+CR+E.Message);
-   End;
+  if GetSystemParam('AutoLogin')<>'Yes' then begin
+    if customConnectionString <> '' then begin
+      FCustomConnectionString.connectionString.Text :=  customConnectionString;
+      FCustomConnectionString.BLogin.Caption := GetSystemParam('ConnectionStringLabel', false);
+      if FCustomConnectionString.ShowModal = mrOK
+        then  customConnectionString :=  FCustomConnectionString.connectionString.Text
+        else  customConnectionString :=  '';
+    end;
   End;
+
+
+  if customConnectionString <> '' then begin
+	   DModule.ADOConnection.ConnectionString := customConnectionString;
+	   Try
+       FProgress.Show;
+       FProgress.ProgressBar.Position :=  50;
+       FProgress.Refresh;
+		   dmodule.ADOConnection.CommandTimeout := 60000;
+		   dmodule.ADOConnection.Open;
+		   dmodule.ADOConnection.BeginTrans;
+       FProgress.Hide;
+       SetSystemParam('AutoLogin', 'Yes');
+       isSSOLogin := true;
+	   Except
+		  on E:EDatabaseError do begin SetSystemParam('AutoLogin', 'No'); FProgress.Hide; SError('Problem z logowaniem:'+CR+E.Message); end;
+		  on E:exception      do begin SetSystemParam('AutoLogin', 'No'); FProgress.Hide; SError('Problem z logowaniem:'+CR+E.Message); end;
+	   End;
+  end
+  else begin
+	  if not loginParamsDelivered then
+		If Login(aDBName, aUserName, aPassword) = mrOK Then begin
+		  loginParamsDelivered := true;
+		  setSystemParam('LoginDataBaseName', aDBName);
+		  setSystemParam('LoginUserName', aUserName);
+		end;
+
+
+	  if loginParamsDelivered then
+	  Begin
+	   if upperCase(aDBName) = 'DOK'  then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
+	   if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
+	   if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
+	   if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
+
+	   DM.UserName  := aUserName;
+	   DM.Password  := aPassword;
+	   DM.DBname    := aDBName;
+	   DModule.ADOConnection.ConnectionString := 'Provider='+gProvider+';Password='+aPassword+';Persist Security Info=True;User ID='+aUserName+';Data Source='+aDBName;
+												//Provider=OraOLEDB.Oracle.1;Password=4154;Persist Security Info=True;User ID=planner;Data Source=planner.wat.edu.pl:1522/planner
+
+	   Try
+		 //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaCommitRetaining];
+		 //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaAbortRetaining];
+		 dmodule.ADOConnection.CommandTimeout := 60000;
+		 dmodule.ADOConnection.Open;
+		 dmodule.ADOConnection.BeginTrans;
+	   Except
+		  on E:EDatabaseError do SError('Problem z logowaniem:'+CR+E.Message);
+		  on E:exception      do SError('Problem z logowaniem:'+CR+E.Message);
+	   End;
+	  End;
+  end;
+
 
   Result :=  DModule.ADOConnection.Connected;
   If Not Result Then Exit;
@@ -4324,8 +4359,6 @@ begin
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
   DModule.SQL('ALTER SESSION SET NLS_SORT=POLISH');
   DModule.SQL('ALTER SESSION SET NLS_LANGUAGE = POLISH');
-
-  activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
   If Not Assigned(FLegend) Then FLegend := TFLegend.Create(Application);
   dmodule.pResCatId0 := nvl( getSystemParam('RESOURCE_CATEGORY_ID0')  , dmodule.dbgetSystemParam('RESOURCE_CATEGORY_ID0'));
@@ -4360,7 +4393,7 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    CurrentUserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
+    dm.UserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
         +'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag, EDIT_OBJ_PERMISSIONS, CAN_RUN_INTEGRATION FROM PLANNERS WHERE NAME=USER');
     UserID           := DModule.QWork.Fields[1].AsString;
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
@@ -4385,6 +4418,7 @@ begin
     EditObjPermisions := DModule.QWork.Fields[20].AsString = '+';
     CanRunIntegration := DModule.QWork.Fields[21].AsString = '+';
 
+    activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
     ppaddL.Enabled := canEditL;
     ppminusL.Enabled := canEditL;
@@ -4411,7 +4445,7 @@ begin
     Ddesc2.Enabled := canEditD;
     Ddesc3.Enabled := canEditD;
     Ddesc4.Enabled := canEditD;
-  Except CurrentUserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT * FROM PLANNERS WHERE NAME=USER'); raise; End;
+  Except dm.UserName := ''; SError('Wyst¹pi³ b³¹d krytyczny podczas wykonywania zapytania SELECT * FROM PLANNERS WHERE NAME=USER'); raise; End;
 
   dmodule.DbversionInstalled := dmodule.SingleValue('select max(name) from system_parameters where name like ''VERSION%'' order by name desc');
   setUserOrRoleId;
@@ -4427,7 +4461,7 @@ begin
   dmodule.loadMap('select id,NVL(COLOUR,0) from rooms order by id', MapRomColors, true);
   //
   dmodule.loadMap('select lpad(id,10,''0''), upper(last_name||'' ''||first_name) from lecturers order by id', MapLecNames, true);
-  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+CurrentUserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
+  dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+dm.UserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
   dmodule.loadMap('select name, parent from planners', MapPlannerSupervisors, true);
 
   if not isBlank(confineCalendarId) then begin
@@ -4445,7 +4479,7 @@ begin
   end;
 
 
-  If isBlank(CurrentUserName) Then Begin
+  If isBlank(dm.UserName) Then Begin
     Info('Nie masz uprawnieñ do korzystania z aplikacji - brak informacji w tabeli PLANNERS');
     Result := False;
     Exit;
@@ -4880,7 +4914,7 @@ begin
  if FLegend.FLegendTabs.ActivePage <> FLegend.TabSheetCOUNTER then
  if (FLegend.FindMode.ItemIndex > 0 ) and FLegend.Visible then begin
    //if convertGrid.ColRowToDate(AObjectId, TS,Zajecia,aCol,aRow) = ConvClass then begin
-     GetEnabledLGR(ConLecturer.Text, ConGroup.Text, conResCat0.Text, ConSubject.Text, ConForm.Text, CurrentUserName , FLegend.FindMode.ItemIndex = 2, CONDL, CONDG, CONDR, '1');
+     GetEnabledLGR(ConLecturer.Text, ConGroup.Text, conResCat0.Text, ConSubject.Text, ConForm.Text, dm.UserName , FLegend.FindMode.ItemIndex = 2, CONDL, CONDG, CONDR, '1');
      FLegend.SetWheres(CONDL, CONDG, CONDR);
    //end else begin
    //  FLegend.SetWheres('LECTURERS.ID IN (-1)','GROUPS.ID IN (-1)','ROOMS.ID IN (-1)');
@@ -5224,6 +5258,7 @@ var  db_version_info  : string[255];
      app_version_info : string[255];
      logonOK : boolean;
 begin
+ SetSystemParam('AutoLogin', 'No');
  fmain.wlog('BLoginClick: Start');
  dmodule.CommitTrans;
  logonOK := Logon;
@@ -5231,11 +5266,12 @@ begin
 
  If logonOK Then
  Begin
-   if (uppercase(username)<>'PLANNER') then begin
-   if (password = username) or (copy(password,0,11)='JEDNORAZOWE')  then begin
-     changePassword('ZMIEÑ HAS£O');
-   end;
-   end;
+   if isSSOLogin = false then
+     if (uppercase(username)<>'PLANNER') then begin
+       if (password = username) or (copy(password,0,11)='JEDNORAZOWE')  then begin
+         changePassword('ZMIEÑ HAS£O');
+       end;
+     end;
    UnLockFormComponents(Self);
    try
     app_version_info  := '5.0';
@@ -5911,7 +5947,7 @@ function TFMain.modifyClass;
 				 newClass.day  := newTS;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
-					 else newClass.owner := upperCase(CurrentUserName);
+					 else newClass.owner := upperCase(dm.UserName);
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
@@ -5921,7 +5957,7 @@ function TFMain.modifyClass;
 				 newClass.day  := newTS;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
-					 else newClass.owner := upperCase(CurrentUserName);
+					 else newClass.owner := upperCase(dm.UserName);
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
 			   end;
@@ -7139,24 +7175,24 @@ procedure TFMain.BRescat1Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := dmodule.pResCatId1;
-  setSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+CurrentUserName, conResCat1.Text);
+  setSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+dm.UserName, conResCat1.Text);
   If AutoCreate.RESOURCE_CATEGORIESShowModalAsSelect(ID) = mrOK Then begin
     dmodule.pResCatId1 := ID;
     onpResCatId1Change;
   end;
-  conResCat1.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+CurrentUserName);
+  conResCat1.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId1+':'+dm.UserName);
 end;
 
 procedure TFMain.BRescat0Click(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := dmodule.pResCatId0;
-  setSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+CurrentUserName, conResCat0.Text);
+  setSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+dm.UserName, conResCat0.Text);
   If AutoCreate.RESOURCE_CATEGORIESShowModalAsSelect(ID) = mrOK Then begin
     dmodule.pResCatId0 := ID;
     onpResCatId0Change;
   end;
-  conResCat0.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+CurrentUserName);
+  conResCat0.Text := getSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+dm.UserName);
 end;
 
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -7581,7 +7617,7 @@ begin
     roleId := QWork.Fields[0].AsString;
     if not isBlank(roleId) then begin
      roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+' AND ROL_ID = ' +roleId);
-     if isBlank(roleID) then info('Nie powiod³o siê aktywowanie autoryzacji, poniewa¿ nie masz uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
+     if isBlank(roleID) then info('Brak uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
                         else conRole.Text := roleID;
     end;
    end;
@@ -9723,6 +9759,8 @@ begin
       execSQL;
     end;
 end;
+
+
 
 initialization
   Randomize;

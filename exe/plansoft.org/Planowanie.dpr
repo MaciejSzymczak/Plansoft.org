@@ -102,7 +102,8 @@ uses
   UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage},
   UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment},
   UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY},
-  FVersions in 'FVersions.pas' {FVersion};
+  FVersions in 'FVersions.pas' {FVersion},
+  UFCustomConnectionString in 'UFCustomConnectionString.pas' {FCustomConnectionString};
 
 {$R *.RES}
 
@@ -196,6 +197,7 @@ begin
   Application.CreateForm(TFFloatingMessage, FFloatingMessage);
   Application.CreateForm(TFDataEnrichment, FDataEnrichment);
   Application.CreateForm(TFVersion, FVersion);
+  Application.CreateForm(TFCustomConnectionString, FCustomConnectionString);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

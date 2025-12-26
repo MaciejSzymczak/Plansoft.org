@@ -122,9 +122,9 @@ Begin
  Query['ID'] := DModule.SingleValue('SELECT value_sets_seq.NEXTVAL FROM DUAL');
  //
  Query['WHO_CREATION_DATE']     := DModule.SingleValue('SELECT TRUNC(SYSDATE) FROM DUAL');
- Query['WHO_CREATED_BY']        := UutilityParent.CurrentUserName;
+ Query['WHO_CREATED_BY']        := dm.UserName;
  Query['WHO_LAST_UPDATE_DATE']  := DModule.SingleValue('SELECT TRUNC(SYSDATE) FROM DUAL');
- Query['WHO_LAST_UPDATED_BY']   := UutilityParent.CurrentUserName;
+ Query['WHO_LAST_UPDATED_BY']   := dm.UserName;
  Query['WHO_LAST_UPDATE_LOGIN'] := DModule.SingleValue('select userenv(''sessionid'') from dual');
 End;
 
@@ -178,7 +178,7 @@ procedure TFBrowseVALUE_SETS.BeforeEdit;
 begin
  inherited;
  Query['WHO_LAST_UPDATE_DATE']  := DModule.SingleValue('SELECT TRUNC(SYSDATE) FROM DUAL');
- Query['WHO_LAST_UPDATED_BY']   := UutilityParent.CurrentUserName;
+ Query['WHO_LAST_UPDATED_BY']   := dm.UserName;
  Query['WHO_LAST_UPDATE_LOGIN'] := DModule.SingleValue('select userenv(''sessionid'') from dual');
 end;
 

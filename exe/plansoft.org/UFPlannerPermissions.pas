@@ -233,7 +233,7 @@ Var x, y : Integer;
     QWork.First;
     While Not QWork.EOF Do Begin
 
-     fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY Start');
+     //fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY Start');
      If Descriptor = 'LEC' Then begin y:= LEC_IDtoY(QWork.FieldByName('LEC_ID').AsInteger); end;
      If Descriptor = 'PER' Then begin y:= PER_IDtoY(QWork.FieldByName('PER_ID').AsInteger); end;
      If Descriptor = 'GRO' Then begin y:= GRO_IDtoY(QWork.FieldByName('GRO_ID').AsInteger); end;
@@ -241,7 +241,7 @@ Var x, y : Integer;
      If Descriptor = 'ROL' Then begin y:= ROL_IDtoY(QWork.FieldByName('ROL_ID').AsInteger); end;
      If Descriptor = 'SUB' Then begin y:= SUB_IDtoY(QWork.FieldByName('SUB_ID').AsInteger); end;
      If Descriptor = 'FOR' Then begin y:= FOR_IDtoY(QWork.FieldByName('FOR_ID').AsInteger); end;
-     fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY End');
+     //fmain.wlog ('FplannerPermissions.LoadCells.XXX_IDtoY End');
 
      if y <> -1 then begin
        x := IDtoX(QWork.FieldByName('PLA_ID').AsInteger);

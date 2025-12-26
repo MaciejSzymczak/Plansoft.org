@@ -114,7 +114,7 @@ Procedure info(S : String; const showMode : integer = showAlways; const infoID :
 Procedure sError(S : String);
 Function  question(S : String) : Integer; //returns ID_YES, ID_NO
 
-function  getSystemParam(Name : ShortString) : ShortString; overload;
+function  getSystemParam(Name : ShortString; const currentUser : boolean = true) : ShortString; overload;
 function  getSystemParam(Name : ShortString; defaultValue : shortString) : ShortString; overload;
 Procedure SetSystemParam(Name, Value : ShortString; const configurationSet : String = '');
 
@@ -174,7 +174,6 @@ function isShiftDown : Boolean;
 Var
     isUSOSInstalled : boolean;
     isIntegrated    : boolean;
-    CurrentUserName : ShortString;
     IsAdmin      : boolean;
     EditOrgUnits : boolean;
     EditFlex     : boolean;
@@ -841,21 +840,22 @@ End;
 
 Var R : TRegistry;
 
-Function  GetSystemParam(Name : ShortString) : ShortString;
+Function  GetSystemParam(Name : ShortString; const currentUser : boolean = true ) : ShortString;
  var appName : string;
 Begin
  DiagnosticsMessage('GetSystemParam:1');
  R:=TRegistry.Create;
  DiagnosticsMessage('GetSystemParam:2');
- R.RootKey:=HKEY_CURRENT_USER;
- DiagnosticsMessage('GetSystemParam:3');
+ if currentUser then R.RootKey:=HKEY_CURRENT_USER
+                else R.RootKey:=HKEY_LOCAL_MACHINE;
  appName := lowercase ( extractFileName ( Application.ExeName ));
  appName := searchAndReplace(appName,'.exe','');
- R.OpenKey('SOFTWARE\Software Factory\'+ appName ,TRUE);
+
+ if currentUser then R.OpenKey('SOFTWARE\Software Factory\'+ appName ,TRUE)
+                else R.OpenKeyReadOnly('SOFTWARE\Software Factory\'+ appName);
  DiagnosticsMessage('GetSystemParam:4');
 
  NAME := UPPERCASE(NAME);
- DiagnosticsMessage('GetSystemParam:5');
 
  If Name = 'PRE_UPPERCASE' Then If R.ReadString(Name)      = '' Then R.WriteString(Name,'UPPER('); //UPPER(
  If Name = 'POST_UPPERCASE' Then If R.ReadString(Name)     = '' Then R.WriteString(Name,')'); //)
@@ -1882,7 +1882,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2025-12-16';
+ VersionOfApplication := '2025-12-26';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

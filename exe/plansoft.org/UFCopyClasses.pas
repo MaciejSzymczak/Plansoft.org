@@ -277,13 +277,13 @@ begin
   end
   else
   begin
-    info('Czynnoœæ nie powiod³a sie z powodu b³êdu:' + cr + cr + error_message);
+    info(error_message);
   end;
  except
    on E:exception do Begin
      FProgress.Hide;
      Dmodule.RollbackTrans;
-     info('Czynnoœæ nie powiod³a sie z powodu b³êdu:' + cr + cr + E.Message);
+     info(E.Message);
    end;
  end;
  FProgress.Hide;

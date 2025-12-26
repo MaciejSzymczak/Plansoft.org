@@ -149,7 +149,7 @@ begin
    on E:exception do Begin
      FProgress.Hide;
      Dmodule.RollbackTrans;
-     info('Czynnoœæ nie powiod³a sie z powodu nastêpuj¹cego b³êdu:' + cr + cr + E.Message);
+     info(E.Message);
    end;
  end;
 
@@ -243,7 +243,7 @@ begin
    on E:exception do Begin
      screen.Cursor := crDefault;
      Dmodule.RollbackTrans;
-     info('Czynnoœæ nie powiod³a sie z powodu nastêpuj¹cego b³êdu:' + cr + cr + E.Message);
+     info(E.Message);
    end;
  end;
 end;
@@ -282,7 +282,7 @@ begin
                  + dateToStr( date_from.DateTime)
                  + ' do ' + dateToStr( date_to.DateTime) );
     writeLn(f, '    Data uruchomienia :' + dateToStr(now) );
-    writeLn(f, '    Uruchomi³: ' + nvl( fmain.conrole_value.text, CurrentUserName) );
+    writeLn(f, '    Uruchomi³: ' + nvl( fmain.conrole_value.text, dm.UserName) );
     writeLn(f, '');
     writeLn(f, 'Dane do usuniêcia');
     writeLn(f, '');

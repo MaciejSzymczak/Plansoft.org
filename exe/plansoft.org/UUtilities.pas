@@ -1330,14 +1330,14 @@ Procedure DeleteOrphanedClasses;
 Var I1, I2 : String;
     lClasses : shortString;
 begin
-  I1 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER='''+CurrentUserName+'''');
-  I2 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+CurrentUserName+'''');
+  I1 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER='''+dm.UserName+'''');
+  I2 := DModule.SingleValue('SELECT COUNT(1) FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+dm.UserName+'''');
   lClasses := fprogramSettings.profileObjectNameClasses.text;
 
   If I1 <> '0' Then Begin
    If Question('Znaleziono '+lClasses +' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I1+'. Czy chcesz je teraz usun¹æ ?')=ID_YES Then Begin
      dmodule.sql('begin api.delete_orphaned (:user ); end;'
-                ,'user='+CurrentUserName
+                ,'user='+dm.UserName
                 );
      dmodule.CommitTrans;
      Info(lClasses + ' zosta³y usuniête');
@@ -1346,7 +1346,7 @@ begin
 
   If I2 <> '0' Then Begin
    If Question('Znaleziono ' +lClasses+ ' innych u¿ytkowników bez  okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I2+'. ' +lClasses+ ' te mog¹ usun¹æ tylko u¿ytkownicy, którzy je utworzyli. Czy chcesz zobaczyæ listê u¿ytkowników, którzy maj¹ nie powi¹zane ' +lClasses+ ' ?')=ID_YES Then Begin
-     DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+CurrentUserName+'''');
+     DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+dm.UserName+'''');
      Info('U¿ytkownicy, którzy maj¹ nie powi¹zane ' +lClasses+ ': '+GetResultByComma(DModule.QWork));
    End;
   End Else Info('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
@@ -1536,7 +1536,7 @@ begin
       fmain.wlog('    currentUserRoleName : ' + currentUserRoleName);
     end;
     }
-    if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+CurrentUserName+';') then begin result := true; exit; end;
+    if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+dm.UserName+';') then begin result := true; exit; end;
     if AnsiContainsText(';'+ClassOwnerSupervisor+';', ';'+currentUserRoleName+';') then begin result := true; exit; end;
   End;
   //fmain.wlog( 'STOP : isOwnerSupervisor : result : ' + BoolToStr(result));
@@ -1545,7 +1545,7 @@ end;
 function isOwner(classOwners : String): boolean;
 begin
   result := false;
-  if AnsiContainsStr(';'+classOwners,';'+CurrentUserName) then begin result := true; exit; end;
+  if AnsiContainsStr(';'+classOwners,';'+dm.UserName) then begin result := true; exit; end;
   if isOwnerSupervisor(classOwners) then begin result := true; exit; end;
 end;
 
@@ -1727,19 +1727,19 @@ begin
   // bugfix: passing owner by parameter does not work, so value is set directly!
   For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where no_conflict_flag is null and lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_LECNAME+' from lecturers where id=lec_id ) c from lec_cla lec, classes c where no_conflict_flag is null and lec_id = :lec'+inttostr(t)+' and lec.day = :day'+idsp+' and lec.hour = :hour'+idsp+' and c.id = lec.cla_id and (upper(c.owner)<>'''+ upperCase(dm.UserName)+''' or (upper(c.owner)='''+ upperCase(dm.UserName)+''' and cla_id <> :cla_id'+idsp+')) ) lec'+inttostr(t);
    select_clause := select_clause + '||''#''||lec'+inttostr(t);
   End;
 
   For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where no_conflict_flag is null and gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_GRONAME+' from groups where id=gro_id ) c from gro_cla gro, classes c where no_conflict_flag is null and gro_id = :gro'+inttostr(t)+' and gro.day = :day'+idsp+' and gro.hour = :hour'+idsp+' and c.id = gro.cla_id and (upper(c.owner)<>'''+ upperCase(dm.UserName)+''' or (upper(c.owner)='''+ upperCase(dm.UserName)+''' and cla_id <> :cla_id'+idsp+')) ) gro'+inttostr(t);
    select_clause := select_clause + '||''#''||gro'+inttostr(t);
   End;
 
   For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
    inc ( instances ); idsp := inttostr(instances);
-   from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where no_conflict_flag is null and rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(CurrentUserName)+''' or (upper(c.owner)='''+ upperCase(CurrentUserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
+   from_clause := from_clause + cr + ',(select unique (select '+sql_ResCat0NAME+' from rooms where id=rom_id ) c from rom_cla rom, classes c where no_conflict_flag is null and rom_id = :rom'+inttostr(t)+' and rom.day = :day'+idsp+' and rom.hour = :hour'+idsp+' and c.id = rom.cla_id and (upper(c.owner)<>'''+ upperCase(dm.UserName)+''' or (upper(c.owner)='''+ upperCase(dm.UserName)+''' and cla_id <> :cla_id'+idsp+')) ) rom'+inttostr(t);
    select_clause := select_clause+ '||''#''||rom'+inttostr(t);
   End;
 
@@ -1754,7 +1754,7 @@ begin
     'hour:' + inttostr(theClass.hour) +cr+
     'day:'  + uutilityparent.dateToYYYYMMDD(timeStampTodateTime(theClass.day)) +cr+
     'cla_id:'+ inttostr(cla_id) +cr+
-   ' owner:' + upperCase(CurrentUserName);
+   ' owner:' + upperCase(dm.UserName);
 
   with dmodule.QWork do begin
    SQL.Clear;
@@ -1809,7 +1809,7 @@ function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; 
  var  resultMessage   : string;
 begin
   Result := False;
-  myClass.created_by := upperCase(CurrentUserName);
+  myClass.created_by := upperCase(dm.UserName);
 
   // te kontrole przenies na poziom BD
 

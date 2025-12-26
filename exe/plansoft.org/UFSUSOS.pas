@@ -79,6 +79,7 @@ type
     procedure BVersionClick(Sender: TObject);
   private
     Procedure SaveParams;
+    function rolePrivided : boolean;
   public
     { Public declarations }
   end;
@@ -160,6 +161,8 @@ end;
 
 procedure TFUSOS.BitBtn2Click(Sender: TObject);
 begin
+if not rolePrivided then exit;
+
 FProgress.Show;
 FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
@@ -189,6 +192,7 @@ end;
 
 procedure TFUSOS.BitBtn1Click(Sender: TObject);
 begin
+if not rolePrivided then exit;
 FProgress.Show;
 FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
@@ -220,6 +224,7 @@ end;
 
 procedure TFUSOS.BitBtn3Click(Sender: TObject);
 begin
+if not rolePrivided then exit;
 FProgress.Show;
 FProgress.ProgressBar.Position :=  50;
 FProgress.Refresh;
@@ -280,6 +285,7 @@ FProgress.Refresh;
 
     DM.macros.setMacro( QueryNotSent, 'DATE_FROM', DateFrom);
     DM.macros.setMacro( QueryNotSent, 'DATE_TO', DateTo);
+    DM.macros.setMacro( QueryNotSent, 'PLA_ID', fmain.getUserOrRoleID);
 
 
     QueryNotSent.Close;
@@ -366,7 +372,18 @@ end;
 
 procedure TFUSOS.BVersionClick(Sender: TObject);
 begin
+  if not rolePrivided then exit;
   FVersion.ShowModal;
+end;
+
+function TFUSOS.rolePrivided: boolean;
+begin
+  result := true;
+  if (AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS') and (fmain.conRole.Text='') then begin
+    Info('Wybierz autoryzacjê przed uruchomieniem integracji');
+    result := false;
+  End;
+
 end;
 
 end.

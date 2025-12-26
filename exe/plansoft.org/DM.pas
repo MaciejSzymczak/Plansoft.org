@@ -9,8 +9,8 @@ uses
   {used by export to excel} ActiveX,  TlHelp32, Variants, OleServer,
   ExcelXP;
 
-Const MaxAllLecturers     =   5000;
-      MaxAllGroups        =  10000;
+Const MaxAllLecturers     =  10000;
+      MaxAllGroups        =  15000;
       MaxAllRooms         =   3000;
       MaxAllRoles         =   2000;
       MaxAllPlanners      =    300;
@@ -248,6 +248,7 @@ type TDBMamp = class ( tobject )
 var
   DModule: TDModule;
   UserName, Password, DBname : String;
+  isSSOLogin : boolean;
 
 Procedure logSQLStart (pprocedureName : string; pSQL : string);
 procedure logSQLStop;
@@ -537,6 +538,7 @@ Begin
  except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -575,6 +577,7 @@ Begin
  except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -614,6 +617,7 @@ Begin
  except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -630,6 +634,7 @@ Procedure TDModule.SQL2(S : String; const pparams : String = '');
      paramValue  : String;
      t : integer;
 Begin
+try
  logSQLStart ('SQL2', S);
  With Dmodule.QWork2 Do Begin
   SQL.Clear;
@@ -654,6 +659,13 @@ Begin
   ExecSQL;
  End;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 //----------------------------------------------------------------
@@ -663,6 +675,7 @@ Procedure TDModule.openSQL(S : String; const pparams : String = '');
      paramValue  : String;
      t : integer;
 Begin
+try
  //2011.05.14 to aviod problem "object was open"
  resetConnection ( Dmodule.QWork );
 
@@ -694,6 +707,13 @@ Begin
    open;
  End;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 //----------------------------------------------------------------
@@ -703,6 +723,7 @@ Procedure TDModule.openSQL(var query : tadoquery; S : String; const pparams : St
      paramValue  : String;
      t : integer;
 Begin
+try
   query.Connection      := ADOConnection;
   query.CursorLocation  := clUseServer;
 
@@ -734,6 +755,13 @@ Begin
    open;
  End;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 
@@ -744,6 +772,7 @@ Procedure TDModule.openSQL2(S : String; const pparams : String = '');
      paramValue  : String;
      t : integer;
 Begin
+try
  if pparams <> '' then logSQLStart ('openSQL2', S + ' : params = ' + pparams)
                   else logSQLStart ('openSQL2', S);
  With Dmodule.QWork2 Do Begin
@@ -769,6 +798,13 @@ Begin
    open;
  End;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 //----------------------------------------------------------------
@@ -778,6 +814,7 @@ Procedure TDModule.openSQL3(S : String; const pparams : String = '');
      paramValue  : String;
      t : integer;
 Begin
+try
  if pparams <> '' then logSQLStart ('openSQL3', S + ' : params = ' + pparams)
                   else logSQLStart ('openSQL3', S);
  With Dmodule.QWork3 Do Begin
@@ -803,12 +840,20 @@ Begin
    open;
  End;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 
 //----------------------------------------------------------------
 Function  TDModule.SingleValueParamDateTime(S : String; const paramName : String ; paramValue : tDateTime) : String;
 Begin
+try
  logSQLStart ('singleValue', S);
  With Dmodule.QWork Do Begin
    SQL.Clear;
@@ -820,6 +865,13 @@ Begin
    Result := Fields[0].AsString;
  end;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 
@@ -855,6 +907,7 @@ Function  TDModule.SingleValue(S : String; const pparams : String = '') : String
      paramValue  : String;
      t : integer;
 Begin
+try
  logSQLStart ('singleValue', S);
 
  //2011.05.14 to aviod problem "object was open"
@@ -888,6 +941,13 @@ Begin
  end;
 
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 
@@ -898,6 +958,7 @@ Function  TDModule.SingleValue2(S : String; const pparams : String = '') : Strin
      paramValue  : String;
      t : integer;
 Begin
+try
  logSQLStart ('singleValue2', S);
 
  //2011.05.14 to aviod problem "object was open"
@@ -928,6 +989,13 @@ Begin
  end;
  Result := QWork2.Fields[0].AsString;
  logSQLStop;
+except
+   on E:exception do Begin
+     fmain.wlog('*** error' + e.Message );
+     info(S + CR + pparams + CR + e.Message);
+     raise;
+   end;
+ End;
 End;
 
 //----------------------------------------------------------------
@@ -1058,7 +1126,7 @@ begin
      else
        Dmodule.RollbackTrans;
    except
-     fmain.emergencyExit := true;  
+     fmain.emergencyExit := true;
      info('Ups, utracono po³¹czenie z baz¹ danych. Proszê ponownie uruchomiæ program');
    end;
    //Attributes :=  dmodule.ADOConnection.Attributes - [xaCommitRetaining];

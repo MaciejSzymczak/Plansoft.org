@@ -792,7 +792,12 @@ inherited FUSOS: TFUSOS
     Connection = DModule.ADOConnection
     CursorLocation = clUseServer
     CursorType = ctStatic
-    Parameters = <>
+    Parameters = <
+      item
+        Name = 'pla_id'
+        Size = -1
+        Value = Null
+      end>
     SQL.Strings = (
       'select day'
       
@@ -829,6 +834,35 @@ inherited FUSOS: TFUSOS
       '        and rom_id(+) >0'
       '        and sub_id > 0'
       '        and classes.DAY BETWEEN %DATE_FROM AND %DATE_TO'
+      '        /* user is owner OR supervisor of owner */'
+      '        and exists ('
+      '               select 1'
+      '               from ('
+      
+        '                   select name planner from planners where paren' +
+        't like '#39'%'#39'||user||'#39'%'#39
+      '                   union all'
+      '                   select user from dual'
+      '               ) p'
+      '               where classes.owner like '#39'%'#39' || p.planner || '#39'%'#39
+      '        )    '
+      
+        '        and sub_id in (select sub_id from sub_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '        /*and for_id in (select for_id from for_pla where pla_id' +
+        ' = :pla_id)*/'
+      '        and ('
+      
+        '            lec_id in (select lec_id from lec_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '         or gro_id in (select gro_id from gro_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '         or rom_id in (select rom_id from rom_pla where pla_id =' +
+        ' %pla_id)'
+      '        )'
       '    minus'
       
         '    select day, lec_id, gro_id, rom_id, classes_sub_id sub_id, f' +
