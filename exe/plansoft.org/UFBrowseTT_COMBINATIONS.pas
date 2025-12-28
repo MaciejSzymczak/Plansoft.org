@@ -950,9 +950,15 @@ var p_tt_comb_id : shortString;
 begin
  if not chbRecalculate_AVAIL_CURR.Checked then exit;
  p_tt_comb_id := Query['Id'];
- dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
+ // this function is more general and works fine, but it slower:
+ //dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
+ //           ,'p_tt_comb_id='+p_tt_comb_id
+ //           );
+ dmodule.sql('begin tt_planner.recalc_combination122 (''N'', null, :p_tt_comb_id ); end;'
             ,'p_tt_comb_id='+p_tt_comb_id
             );
+
+
  //Query.FieldByName('avail_curr').AsString := dmodule.SingleValue('select avail_curr from tt_combinations where id = ' + p_tt_comb_id );
  info ('Wartoœæ "Do zaplanowania" zosta³a przeliczona');
 end;
@@ -1221,9 +1227,15 @@ begin
   query.First;
   while not query.Eof do begin
     p_tt_comb_id := Query['Id'];
-    dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
+    // this function is more general and works fine, but it slower:
+    //dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
+    //           ,'p_tt_comb_id='+p_tt_comb_id
+    //
+    dmodule.sql('begin tt_planner.recalc_combination122 (''N'', null, :p_tt_comb_id ); end;'
             ,'p_tt_comb_id='+p_tt_comb_id
             );
+
+
     query.Next;
     counter := counter + 1;
     BRecalculateAll.Caption := 'Przeliczonych:' + intToStr(counter);

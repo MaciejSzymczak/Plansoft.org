@@ -97,6 +97,7 @@ procedure put_combination (
 /* 
 function         : verify 
 description      : verifies whether combination is valid  
+                   TO DO: It is: Verifies PER_ID. Should be: Verifies date_from, date_to for given PER_ID
 Impact on tables : no impact 
 used by          : TFmain.insertClasses 
                    TFTTCheckResults.fbrowseClick ( after new combination is added) 
@@ -119,13 +120,13 @@ examples
   select id, found_tt, res_id1, rescat_id1, res_desc1, res_id2, rescat_id2, res_desc2, res_id3, rescat_id3, res_desc3, res_id4, rescat_id4, res_desc4, res_id5, rescat_id5, res_desc5, res_id6, rescat_id6, res_desc6, res_id7, rescat_id7, res_desc7, res_id8, rescat_id8, res_desc8, res_id9, rescat_id9, res_desc9, res_id10, rescat_id10, res_desc10 from tt_check_results 
 */ 
 function  verify ( p_pla_id number, p_res_ids  varchar2, p_auto_fix varchar2 default 'N', p_current_comb_id number default -1, p_no_subsets varchar2 default 'N' ) return varchar2;    
-procedure verify ( p_pla_id number, p_res_ids  varchar2, p_auto_fix varchar2 default 'N', p_current_comb_id number default -1, p_no_subsets varchar2 default 'N' );          
+procedure verify ( p_pla_id number, p_res_ids  varchar2, p_auto_fix varchar2 default 'N', p_current_comb_id number default -1, p_no_subsets varchar2 default 'N' );   
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------- 
 /* 
 function         : get_rescat_id, get_res_desc 
-description      : return resource category id and resource description for given resource id 
+description      : returns resource category id and resource description for given resource id 
 Impact on tables : no impact 
 used by          : TFmain.BSelectCombClick 
                    UFDetails.BSelectCombClick 
@@ -207,7 +208,8 @@ procedure unbook_combination ( p_tt_comb_id number, punits number  );
 ---------------------------------------------------------------------------------------------------------------------------------------------- 
 /* 
 function         : recalc_book_combination 
-description      : complex function, which recalculates utilization of combination 
+description      : complex function, which recalculates utilization of combination, se also recalc_combination122
+                   MIND! recalc_book_combination requires 
 Impact on tables : tt_combinations (update), tt_cla(upsert) 
 used by          : TFBrowseTT_COMBINATIONS.Recalculate_AVAIL_CURR 
 parameters       : p_tt_comb_id - combination recualculation 
@@ -225,7 +227,7 @@ used by          : TFBrowseTT_COMBINATIONS.FUSOS
 parameters       : pClearMode - deletes and recreates tt_cla 
 return value     : - 
 */ 
-procedure recalc_combination122 (pClearMode varchar2 default 'N', pPER_ID number default null);
+procedure recalc_combination122 (pClearMode varchar2 default 'N', pPER_ID number default null,  p_tt_comb_id number  default null);
 
 ---------------------------------------------------------------------------------------------------------------------------------------------- 
 /* 
@@ -777,7 +779,6 @@ begin
   end;
 end verify;
 
-
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 -- p_res_ids   - currently selected resources
 -- p_rescat_id - resource to select ( get limitation for this resource type )
@@ -1210,21 +1211,16 @@ end;
 -- use this function when
 --   combinations were imported from another system
 --   do not execute this function too frequent as it may cause locks
-procedure recalc_combination122 (pClearMode varchar2 default 'N', pPER_ID number default null) is
+procedure recalc_combination122 (pClearMode varchar2 default 'N', pPER_ID number default null,  p_tt_comb_id number  default null ) is
   pdate_from date;
   pdate_to   date;
 begin
-    delete from  tt_combinations where per_id in (select unique per_id from tt_combinations where  weight = 122 minus select id from periods);
-    if (pClearMode='Y') then 
-     delete from tt_cla where tt_comb_id in (select id from tt_combinations where weight = 122 and per_id = nvl(pPER_ID, per_id) and integration_id is not null);
      --remove missing records
-     delete from tt_combinations where per_id in (
-         select unique per_id from tt_combinations where weight = 122
-         minus
-          select unique id from periods
-    );     
+    delete from  tt_combinations where id = nvl(p_tt_comb_id, id) and per_id in (select unique per_id from tt_combinations where  weight = 122 minus select id from periods);
+    if (pClearMode='Y') then 
+     delete from tt_cla where tt_comb_id in (select id from tt_combinations where  id = nvl(p_tt_comb_id, id) and weight = 122 and per_id = nvl(pPER_ID, per_id) and integration_id is not null);
     end if;
-    for rec in (select unique per_id from tt_combinations where weight = 122 and per_id =nvl(pPER_ID, per_id) /*and integration_id is not null*/) loop
+    for rec in (select unique per_id from tt_combinations where  id = nvl(p_tt_comb_id, id) and weight = 122 and per_id =nvl(pPER_ID, per_id) /*and integration_id is not null*/) loop
         select date_from, date_to 
           into pdate_from, pdate_to 
           from periods where id = rec.per_id;
@@ -1337,6 +1333,9 @@ begin
   declare
    l_tmp VARCHAR2(100);
   begin
+   --update system_parameters set value='N' where  name = 'TT_LOG';
+   --truncate table tt_log
+   --select * from tt_log order by id desc
    select value into l_tmp from system_parameters where name = 'TT_LOG';
    debug_mode := l_tmp = 'Y';
    select value into l_tmp from system_parameters where name = 'TT_DISABLE_RES_LIMITATION';

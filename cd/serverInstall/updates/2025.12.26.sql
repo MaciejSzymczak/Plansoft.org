@@ -10,3 +10,5 @@ FROM holiday_days
 WHERE 1 = 0;
 
 CREATE PUBLIC SYNONYM holiday_days_temp for planner.holiday_days_temp;
+
+*** install package TT_PLANNER

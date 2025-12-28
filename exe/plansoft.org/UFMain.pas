@@ -2948,6 +2948,9 @@ Procedure TFMain.insertClasses;
      ,';',','
      );
      //
+     {
+     //The code below is working, but has been disabled.
+     //if you consider to uncomment it: take into consideration this function requires the combination having exact PER_ID (if there is diff PER_ID with the same dates, an alert "missing combination" will be shown
      if wordCount(resourceList,[','])>=16 then
        info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu', showOnceaday)
      else
@@ -2969,6 +2972,7 @@ Procedure TFMain.insertClasses;
          end;
        end;
      end;
+     }
 
      with dmodule do begin
        openSQL('select unique found_tt from tt_check_results where found_tt is not null');

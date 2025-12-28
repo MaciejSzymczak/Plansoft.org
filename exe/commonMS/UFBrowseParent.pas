@@ -1410,15 +1410,17 @@ begin
     If GetSystemParam('DISPL_KOM001') <> DateToStr(Date) Then Begin
 
       DModule.InsertIntoEventLog('KON','KOM-001',Application.Title + '.' + Self.Name,TT,'','','','',dm.UserName);
-      Warning(
-      'Komunikat KOM-001'+CR+
-      'Czas odpowiedzi systemu wynosi '+TT+' [sekundy]. Powoduje to dyskomfort pracy.'+CR+
-      'Aby zmniejszyæ czas odpowiedzi systemu nale¿y zmniejszyæ liczbê wyœwietlanych danych:'+CR+
-      ' 1) Wywo³aj modu³ filtrowania;'+CR+
-      ' 2) U¿yj przycisku Szukaj.'+CR+
-      'Je¿eli po zastosowaniu powy¿szych wskazówek czas odpowiedzi systemu bêdzie nadal zbyt d³ugi nale¿y zg³osiæ problem administratorowi w celu identyfikacji problemu'+
-      ' (np. nieoptymalna praca serwera, problemy z sieci¹, zbyt wolny komputer, na którym pracujesz).'+CR+''+CR+
-      'Je¿eli problem nie zostanie usuniêty, ten komunikat bêdzie wyœwietlany na tym komputerze raz dziennie.');
+
+      Warning('Czas odœwie¿ania wynosi '+TT+' [sekundy], poproœ administratora, aby skróciæ czas odœwie¿ania tego okna');
+     // Warning(
+     // 'Komunikat KOM-001'+CR+
+     // 'Czas odpowiedzi systemu wynosi '+TT+' [sekundy]. Powoduje to dyskomfort pracy.'+CR+
+     // 'Aby zmniejszyæ czas odpowiedzi systemu nale¿y zmniejszyæ liczbê wyœwietlanych danych:'+CR+
+     // ' 1) Wywo³aj modu³ filtrowania;'+CR+
+     // ' 2) U¿yj przycisku Szukaj.'+CR+
+     // 'Je¿eli po zastosowaniu powy¿szych wskazówek czas odpowiedzi systemu bêdzie nadal zbyt d³ugi nale¿y zg³osiæ problem administratorowi w celu identyfikacji problemu'+
+     // ' (np. nieoptymalna praca serwera, problemy z sieci¹, zbyt wolny komputer, na którym pracujesz).'+CR+''+CR+
+     // 'Je¿eli problem nie zostanie usuniêty, ten komunikat bêdzie wyœwietlany na tym komputerze raz dziennie.');
       SetSystemParam('DISPL_KOM001',DateToStr(Date));
     End;
    End;
