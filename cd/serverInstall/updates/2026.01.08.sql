@@ -1,0 +1,8 @@
+--select * from system_parameters where name like 'VERSION%' order by name desc
+INSERT INTO system_parameters (name,value) VALUES ('VERSION 2026.01.08', 'INSTALLED');
+commit;
+
+CREATE GLOBAL TEMPORARY TABLE HELPER_USOS_ORGS  (	"ID" NUMBER, CODE VARCHAR2(255 BYTE)) ON COMMIT DELETE ROWS ;
+CREATE GLOBAL TEMPORARY TABLE HELPER_USOS_PLANNERS  (	"ID" NUMBER) ON COMMIT DELETE ROWS ;
+create public synonym    HELPER_USOS_ORGS for planner.HELPER_USOS_ORGS;
+create public synonym    HELPER_USOS_PLANNERS for planner.HELPER_USOS_PLANNERS;
