@@ -468,9 +468,9 @@ begin
  userName := Query.FieldByName('NAME').AsString;
  autGeneratedPassword := 'JEDNORAZOWE'+intToStr(random(5000)+5000);
 
- dmodule.SQL( Format('ALTER USER %s ACCOUNT UNLOCK', [userName]) );
+ dmodule.SQL( Format('ALTER USER "%s" ACCOUNT UNLOCK', [userName]) );
 
- dmodule.SQL(Format('alter user %s identified by "%s"',[userName, autGeneratedPassword]));
+ dmodule.SQL(Format('alter user "%s" identified by "%s"',[userName, autGeneratedPassword]));
  SError (Format(
     'Konto u¿ytkownika zosta³o odblokowane, a has³o zmienione.'+#13+#10+#13+#10+
     '*************************'+#13+#10+

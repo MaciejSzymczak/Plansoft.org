@@ -958,7 +958,6 @@ begin
             ,'p_tt_comb_id='+p_tt_comb_id
             );
 
-
  //Query.FieldByName('avail_curr').AsString := dmodule.SingleValue('select avail_curr from tt_combinations where id = ' + p_tt_comb_id );
  info ('Wartoœæ "Do zaplanowania" zosta³a przeliczona');
 end;

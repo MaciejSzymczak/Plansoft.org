@@ -3117,7 +3117,7 @@ begin
       FProgress.Hide;
       Refresh;
 
-      if classesCount<classesToAdd then info('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount)+cr+'Aby zaznaczyæ inny obszar i spróbowaæ ponownie, wybierz polecenie Cofnij');
+      if classesCount<classesToAdd then info('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount));
 
     End;
  End;
@@ -5857,6 +5857,7 @@ function TFMain.modifyClass;
      Status             : Integer;
      t                  : integer;
      KeyValue           : string;
+     canInsert          : boolean;
 
 	   // unplugValue('1;2;3;4','4') --> '1;2;3'
 	   // unplugValue('1;2;3;4','3') --> '1;2;4'
@@ -5937,9 +5938,10 @@ function TFMain.modifyClass;
 
 	  //calendarSelected := fdetails.CALID.Text<>'-1';
 	  //if calendarSelected then
-     resType := ReservationsCache.IsReserved(TS, Zajecia);
-	   if  Copy(resType,1,1)='-' then begin
-			  info ('Nie mo¿na tutaj planowaæ zajêæ ze wzglêdu na wybrany kalendarz szczególny');
+     resType := ReservationsCache.IsReserved(newTS, newZajecia);
+      canInsert := (resType='') or (Copy(resType,1,1)='+');
+	    If canInsert=false Then begin
+			  info ('W tym terminie nie mo¿na planowaæ zajêæ');
 			  exit;
 		  End;
 
