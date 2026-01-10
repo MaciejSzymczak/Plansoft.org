@@ -157,6 +157,7 @@ uses DM, AutoCreate, UUtilityParent, FileCtrl, UFSettings, uFModuleFilter, uFBro
 
 const
 MaxLegendPositions  : integer =  1000;
+printMode : boolean = false;
 
 type thtmlTable = class
        table  : array of record
@@ -438,7 +439,7 @@ begin
     FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
     internalInit (QWork.Fields[2].AsInteger+1, QWork.Fields[4].AsInteger);
 
-	ChildsAndParents := getChildsAndParents (pResId, '', true, false);  //2024.07.25 ignoreExclusiveParent=false (it was: true) 
+	ChildsAndParents := getChildsAndParents (pResId, '', true, false, printMode);  //2024.07.25 ignoreExclusiveParent=false (it was: true)
 	for x := 1 To WordCount(ChildsAndParents,[';']) do begin
 		currentResource := ExtractWord(x, ChildsAndParents, [';']);
 
@@ -1010,7 +1011,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
           MaxL : Integer;
           ChildsAndParents : string;
     begin
-    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
+    ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, printMode),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
     For LegendRowNumber := 1 To High(Lgnd) Do Begin

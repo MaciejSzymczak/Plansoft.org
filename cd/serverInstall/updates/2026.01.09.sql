@@ -6,3 +6,12 @@ commit;
 
 create public synonym rep_usos_overlaps for rep_usos_overlaps;
 
+alter table exclusions add (print_exclusion char(1) default '-');
+
+CREATE OR REPLACE VIEW "PLANNER"."EXCLUSIONS_V" ("ID", "RES_ID", "RES_ID_EXCLUDED", "DATE_FROM", "DATE_TO", "RES_DSP", "RES_EXCLUDED_DSP", print_exclusion) AS 
+select 
+id, res_id, res_id_excluded, date_from, date_to
+,(select name from resources where id = res_id) res_dsp 
+,(select name from resources where id = res_id_excluded) res_excluded_dsp  
+, decode(print_exclusion,'-','Nie','Tak')  print_exclusion
+from exclusions;

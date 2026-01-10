@@ -2894,7 +2894,7 @@ Procedure TFMain.insertClasses;
         LWithChildsAndParents := L;
         For t := 1 To WordCount(L,[';']) Do Begin
           value := ExtractWord(t, L, [';']);
-          LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
+          LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false, true);
         End;
         For t := 1 To WordCount(LWithChildsAndParents,[';']) Do Begin
          value := ExtractWord(t, LWithChildsAndParents, [';']);
@@ -2905,7 +2905,7 @@ Procedure TFMain.insertClasses;
         GWithChildsAndParents := G;
         For t := 1 To WordCount(G,[';']) Do Begin
           value := ExtractWord(t, G, [';']);
-          GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
+          GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false, true);
         End;
         For t := 1 To WordCount(GWithChildsAndParents,[';']) Do Begin
          value := ExtractWord(t, GWithChildsAndParents, [';']);
@@ -2915,7 +2915,7 @@ Procedure TFMain.insertClasses;
         RWithChildsAndParents := R;
         For t := 1 To WordCount(R,[';']) Do Begin
           value := ExtractWord(t, R, [';']);
-          RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
+          RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false, true);
         End;
         For t := 1 To WordCount(RWithChildsAndParents,[';']) Do Begin
          value := ExtractWord(t, RWithChildsAndParents, [';']);
@@ -3454,7 +3454,7 @@ Var xp, yp  : Integer;
 			t : integer;
 	begin
 			result := true;
-			childsAndParents := getChildsAndParents(pId, '', true, true);
+			childsAndParents := getChildsAndParents(pId, '', true, true, true);
 
 			For t := 1 To WordCount(childsAndParents,[';']) Do Begin
 					currentChildOrParent := ExtractWord(t, childsAndParents, [';']);
@@ -6861,9 +6861,9 @@ begin
   end;
 
   canShow := false;
-  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true, false);
-  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true, false);
-  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true, false);
+  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true, false, true);
+  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true, false, true);
+  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true, false, true);
 
   ConSubject.Text        := inttostr(myClass.sub_id);
   ConForm.Text           := inttostr(myClass.for_id);
@@ -8360,7 +8360,7 @@ begin
                 end;
              1: begin
                   TabViewType.TabIndex := 0;
-                  conlecturer.Text := getChildsAndParents(resourceId, '', true, false);
+                  conlecturer.Text := getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('L',resourceId);
             end;
@@ -8376,7 +8376,7 @@ begin
              0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 1;
-                  congroup.Text := getChildsAndParents(resourceId, '', true, false);
+                  congroup.Text := getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('G',resourceId);
             end;
@@ -8392,7 +8392,7 @@ begin
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 2;
-                  conResCat0.Text := getChildsAndParents(resourceId, '', true, false);
+                  conResCat0.Text := getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('R',resourceId);
             end;
@@ -8425,9 +8425,9 @@ begin
             TabViewType.TabIndex := StrToInt(resourceType);
 
             Case TabViewType.TabIndex of
-             0: conlecturer.Text := getChildsAndParents(resourceId, '', true, false);
-             1: congroup.Text := getChildsAndParents(resourceId, '', true, false);
-             2: conResCat0.Text := getChildsAndParents(resourceId, '', true, false);
+             0: conlecturer.Text := getChildsAndParents(resourceId, '', true, false, true);
+             1: congroup.Text := getChildsAndParents(resourceId, '', true, false, true);
+             2: conResCat0.Text := getChildsAndParents(resourceId, '', true, false, true);
             End;
 
             tv.Visible := true;

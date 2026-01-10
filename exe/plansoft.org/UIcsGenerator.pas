@@ -402,7 +402,7 @@ end;
                 classbuffer.init;
                 recreateCalendar( presourceList.Items[resIndex] + ' ' + presourceName );
 
-                ChildsAndParents := getChildsAndParents (inttostr(integer( presourceList.Items.Objects[resIndex])), '', true, true);
+                ChildsAndParents := getChildsAndParents (inttostr(integer( presourceList.Items.Objects[resIndex])), '', true, true, true);
                 for x := 1 To WordCount(ChildsAndParents,[';']) do begin
                   currentResource := ExtractWord(x, ChildsAndParents, [';']);
 

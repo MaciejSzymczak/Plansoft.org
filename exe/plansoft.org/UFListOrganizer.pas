@@ -268,10 +268,10 @@ var InItems, OutItems, OutItems_dsp: String;
 begin
   WordDelim := ';';
   InItems := replace(FListOrganizer.lbIds.Items.CommaText,',',';');
-  OutItems := getChildsAndParents(InItems, '', true, false);
-  //ConGroup.Text := getChildsAndParents(InItems, '', true, false);
-  //conResCat0.Text := getChildsAndParents(InItems, '', true, false);
-  //conResCat1.Text := getChildsAndParents(InItems, '', true, false);
+  OutItems := getChildsAndParents(InItems, '', true, false, true);
+  //ConGroup.Text := getChildsAndParents(InItems, '', true, false, true);
+  //conResCat0.Text := getChildsAndParents(InItems, '', true, false, true);
+  //conResCat1.Text := getChildsAndParents(InItems, '', true, false, true);
 
   lbIds.Items.Clear;
   len := WordCount(OutItems,[WordDelim]);

@@ -241,6 +241,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -261,6 +262,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -281,6 +283,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -301,6 +304,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -321,6 +325,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -341,6 +346,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown
@@ -361,6 +367,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
         PopupMenu = PopupMenu
         TabOrder = 0
+        OnClick = LGridClick
         OnDblClick = LGridDblClick
         OnDrawCell = LGridDrawCell
         OnKeyDown = LGridKeyDown

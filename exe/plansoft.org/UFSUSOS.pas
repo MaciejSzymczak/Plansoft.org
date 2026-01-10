@@ -381,28 +381,30 @@ function TFUSOS.rolePrivided: boolean;
 var tmpFile : textfile;
 begin
   result := true;
-  if (AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS') and (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
-    Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
-    result := false;
-    exit;
-  End;
 
-  if Dmodule.SingleValue('select rep_usos_overlaps.errors from dual')<>'' then begin
+  if (AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS') then begin
+    if  (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
+      Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
+      result := false;
+      exit;
+    End;
 
-    AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html');
-    rewrite(tmpFile);
-    attendanceList.SQL.Clear;
-    attendanceList.SQL.Add( 'select rep_usos_overlaps.getList from dual' );
-    attendanceList.Open;
-    writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
-    closeFile(tmpFile);
-    ExecuteFile(uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html','','',SW_SHOWMAXIMIZED);
-    Info('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
+    if Dmodule.SingleValue('select rep_usos_overlaps.errors from dual')<>'0' then begin
+      AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html');
+      rewrite(tmpFile);
+      attendanceList.SQL.Clear;
+      attendanceList.SQL.Add( 'select rep_usos_overlaps.getList from dual' );
+      attendanceList.Open;
+      writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
+      closeFile(tmpFile);
+      ExecuteFile(uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html','','',SW_SHOWMAXIMIZED);
+      Info('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
 
-    result := false;
-    exit;
+      result := false;
+      exit;
+    end;
+
   end;
-
 
 end;
 

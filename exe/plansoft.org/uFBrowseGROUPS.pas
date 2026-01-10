@@ -846,9 +846,14 @@ Var
     res_id, res_id_excluded : string;
     conflicts : string;
     conflictCnt : integer;
+    print_exclusion : string;
 begin
   keyValue := '';
   If LookupWindow(True, DModule.ADOConnection, 'GROUPS GRO, GRO_PLA','GRO.ID','abbreviation','Nazwa','abbreviation','GRO_PLA.GRO_ID = GRO.ID AND PLA_ID = '+FMain.getUserOrRoleID,'',KeyValues,'500,100') = mrOK Then Begin
+
+   print_exclusion := '-';
+   if (question('Czy wykluczona grupa ma byæ drukowana na rozk³adzie?') = id_yes) then  print_exclusion := '+';
+
 
    FProgress.Show;
    maxt := wordCount(KeyValues, [',']);
@@ -888,15 +893,17 @@ begin
         end;
 
         SQL.Clear;
-        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
+        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion); end;');
         Parameters.ParamByName('res_id').value     := res_id;
         Parameters.ParamByName('res_id_excluded').value := res_id_excluded;
+        Parameters.ParamByName('print_exclusion').value := print_exclusion;
         execSQL;
 
         SQL.Clear;
-        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded) values (main_seq.nextval, :res_id, :res_id_excluded); end;');
+        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion); end;');
         Parameters.ParamByName('res_id').value     := res_id_excluded;
         Parameters.ParamByName('res_id_excluded').value := res_id;
+        Parameters.ParamByName('print_exclusion').value := print_exclusion;
         execSQL;
 
       end;

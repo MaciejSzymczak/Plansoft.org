@@ -270,7 +270,7 @@ inherited FUSOS: TFUSOS
     Top = 169
     Width = 995
     Height = 476
-    ActivePage = TabSheet4
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change
@@ -1639,5 +1639,13 @@ inherited FUSOS: TFUSOS
     DataSet = QuerySent
     Left = 280
     Top = 392
+  end
+  object attendanceList: TADOQuery
+    AutoCalcFields = False
+    Connection = DModule.ADOConnection
+    CommandTimeout = 1000
+    Parameters = <>
+    Left = 8
+    Top = 88
   end
 end

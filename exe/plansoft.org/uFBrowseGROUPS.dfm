@@ -1446,6 +1446,14 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                   end
                   item
                     Expanded = False
+                    FieldName = 'PRINT_EXCLUSION'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Poka'#380' wykluczenie'
+                    Width = 111
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
                     FieldName = 'DATE_FROM'
                     Title.Caption = 'Data Od'
                     Width = 71
@@ -2540,7 +2548,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
     SQL.Strings = (
       
         'select id,res_excluded_dsp, date_from, date_to, res_id, res_id_e' +
-        'xcluded'
+        'xcluded, PRINT_EXCLUSION'
       '  from exclusions_v'
       '  where res_id=:id')
     Left = 52

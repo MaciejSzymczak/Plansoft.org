@@ -142,7 +142,7 @@ Var
 
 
 
-function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean; normalMode : boolean) : string;
 function getExcludedResources (Ids : string; colName : string) : string;
 
 Function GetCLASSESforL  (colname, colname2, condition : String; const postfix : String = ''; const mode : shortstring = 'e' ) : String;
@@ -225,14 +225,21 @@ end;
 
 
 
-function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean) : string;
+function getChildsAndParents (KeyValues : string; resultString : string; addKeyValue : boolean; ignoreExclusiveParent : boolean; normalMode : boolean) : string;
 var t : integer;
     KeyValue : string;
     sql : string;
     exclParent : string;
+    excludeFlag  : string;
 begin
   exclParent := '';
   if ignoreExclusiveParent then exclParent := 'and exclusive_parent=''-''';
+
+  excludeFlag := '0=0';
+  { normalMode=true printMode=false }
+  if normalMode = false then begin
+    excludeFlag := 'print_exclusion=''+''';
+  end;
 
   sql :=
   //parents
@@ -252,7 +259,7 @@ begin
   '  start with parent_id=:id2'+cr+
   //exclusions
   'union'+cr+
-  'select res_id_excluded from exclusions where res_id=:id3'+cr+
+  'select res_id_excluded from exclusions where '+excludeFlag+' and res_id=:id3'+cr+
   ')';
 
    for t := 1 to wordCount(KeyValues, [';']) do begin
@@ -1259,7 +1266,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';  //2024.07.25
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false, true),';',',')+')';  //2024.07.25
       Result := colName+' in (SELECT '+colname2+' FROM LEC_CLA'+postfix+' WHERE is_child=''N'' and LEC_ID in '+ChildsAndParents+')';
     end;
     if lmode = 'a' then
@@ -1273,7 +1280,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';  //2024.07.25
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false, true),';',',')+')';  //2024.07.25
       Result := colName+' in (SELECT '+colname2+' FROM GRO_CLA'+postfix+' WHERE is_child=''N'' and GRO_ID in '+ChildsAndParents+')';
     end;
     if lmode = 'a' then
@@ -1289,7 +1296,7 @@ begin
     lmode := nvl(mode, 'e');
     if nvl(condition,'0=0') = '0=0' then begin result := '0=0'; exit; end;
     if lmode = 'e' then begin
-      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false),';',',')+')';   //2024.07.25
+      ChildsAndParents := '('+replace(getChildsAndParents(condition, '', true, false, true),';',',')+')';   //2024.07.25
       Result := colName+' in (SELECT '+colname2+' FROM ROM_CLA'+postfix+' WHERE is_child=''N'' and ROM_ID in '+ChildsAndParents+')';
                                  //CLASSES.ID in (SELECT CLA_ID FROM ROM_CLA            WHERE ROM_ID =UPPER((select name from org_units where org_units.id = orguni_id)) LIKE UPPER('instytut budow%'))
     end;
@@ -1686,19 +1693,19 @@ begin
   LWithChildsAndParents := theClass.calc_lec_ids;
   For t := 1 To WordCount(theClass.calc_lec_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_lec_ids, [';']);
-    LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false);
+    LWithChildsAndParents := getChildsAndParents(value, LWithChildsAndParents, false, false, true);
   End;
 
   GWithChildsAndParents := theClass.calc_gro_ids;
   For t := 1 To WordCount(theClass.calc_gro_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_gro_ids, [';']);
-    GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false);
+    GWithChildsAndParents := getChildsAndParents(value, GWithChildsAndParents, false, false, true);
   End;
 
   RWithChildsAndParents := theClass.calc_rom_ids;
   For t := 1 To WordCount(theClass.calc_rom_ids,[';']) Do Begin
     value := ExtractWord(t, theClass.calc_rom_ids, [';']);
-    RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false);
+    RWithChildsAndParents := getChildsAndParents(value, RWithChildsAndParents, false, false, true);
   End;
 
 

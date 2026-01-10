@@ -83,6 +83,7 @@ type
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ORGUNI_IDChange(Sender: TObject);
     procedure BitBtnCLEARROLEClick(Sender: TObject);
+    procedure LGridClick(Sender: TObject);
   private
     LChanged   : boolean;
     PERChanged : boolean;
@@ -562,12 +563,37 @@ begin
  If Key in [45, 13, 46, 32] Then Begin
   invertClassClick(nil);
  End;
+ (Sender as TStringGrid).Refresh;
 end;
 
 procedure TFPlannerPermissions.LGridDrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
 Var Name : String;
     t    : Integer;
+    S    : String;
+
+
+  function AfterBackslash(const S: string): string;
+  var
+    P: Integer;
+  begin
+    P := LastDelimiter('\', S);
+    if P > 0 then
+      Result := Copy(S, P + 1, Length(S))
+    else
+      Result := S;
+  end;
+
+	Procedure HighLight(grid : TStringGrid; Var Rect : TRect);
+	Begin
+	 grid.Canvas.Pen.Color := clGray;
+   grid.Canvas.Brush.Color := clGray;
+   grid.Canvas.Font.Color := clWhite;
+   //orig := Grid.Canvas.Pen.Mode;
+   //Grid.Canvas.Pen.Mode  := pmXor;
+   grid.Canvas.Rectangle(Rect);
+   //Grid.Canvas.Pen.Mode := orig;
+	End;
 
   procedure DrawBusy(DrawGrid : TStringGrid ;Var Rect : TRect);
   begin
@@ -579,15 +605,34 @@ Var Name : String;
 
 begin
   inherited;
+
+  { Highlight }
+  if ((ACol=0) or (ARow=0))
+  and (
+   ((ARow >=(Sender as TStringGrid).Selection.Top) and (ARow <= (Sender as TStringGrid).Selection.Bottom ))
+   or
+   ((ACol >=(Sender as TStringGrid).Selection.Left) and (ACol <= (Sender as TStringGrid).Selection.Right ))
+  )
+  then HighLight ((Sender as TStringGrid), Rect);
+
+  { 1st ROW }
   If (ARow = 0) And (ACol<>0) Then Begin
-    Name := PLAS[ACol].NAME;
+    Name := AfterBackslash ( PLAS[ACol].NAME );
+
     For t := 1 To Length(Name) Do (Sender as TStringGrid).Canvas.TextOut(Rect.Left+2,Rect.Top+12*(t-1),Name[t]);
   End;
 
+  { 1st COL }
+  if (ACol=0) then begin
+    { Get cell text }
+    S := (Sender as TStringGrid).Cells[ACol, ARow];
+    { Draw text }
+    (Sender as TStringGrid).Canvas.TextRect(Rect, Rect.Left + 2, Rect.Top + 2, S);
+  end;
+
+  { Body }
   if (Sender as TStringGrid).Cells [ACol, ARow] = '+' then
     DrawBusy ((Sender as TStringGrid), Rect );
-
-
 
 end;
 
@@ -706,6 +751,7 @@ begin
   begin
      FFloatingMessage.showModal('Skopiowano do schowka:' +cr+ LGrid.Cells[Col, Row]);
   end;
+   (Sender as TStringGrid).Refresh;
 end;
 
 procedure TFPlannerPermissions.GGridMouseDown(Sender: TObject;
@@ -807,6 +853,11 @@ end;
 procedure TFPlannerPermissions.BitBtnCLEARROLEClick(Sender: TObject);
 begin
   ORGUNI_ID.Text := 'NULL';
+end;
+
+procedure TFPlannerPermissions.LGridClick(Sender: TObject);
+begin
+   (Sender as TStringGrid).Refresh;
 end;
 
 end.
