@@ -1244,7 +1244,11 @@ begin
  'when not matched then'+cr+
    'insert (s.name, s.value)'+cr+
    'values (new.name, new.value)'
- , 'name='+name+';value='+searchAndReplace(value ,';', '<scolon>'));   
+ , 'name='+name+';value='+searchAndReplace(value ,';', '<scolon>'));
+
+ if DModule.ADOConnection.Connected then begin
+   dmodule.CommitTrans;
+ end;
 end;
 
 //----------------------------------------------------------------

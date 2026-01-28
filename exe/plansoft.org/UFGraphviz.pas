@@ -26,6 +26,8 @@ type
     chartFooterVer3: TMemo;
     Label2: TLabel;
     ChartMode: TComboBox;
+    SQLcurrentGroup: TMemo;
+    SQLMain: TMemo;
     procedure BCloseClick(Sender: TObject);
     procedure BCreateClick(Sender: TObject);
   private
@@ -62,7 +64,7 @@ begin
   if (mode='all') then
   begin
     dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v order by parent_dsp, child_dsp');
+       sqlMain.Lines.Text+' order by parent_dsp, child_dsp');
   end;
 
   //------------------------------------------------------------------------
@@ -72,7 +74,7 @@ begin
     DateTo   := 'TO_DATE('''+dmodule.QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
 
     dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v'+
+       sqlMain.Lines.Text+
        ' where parent_id in (select gro_id from gro_cla where day between :dfrom1 and :dto1)'+
        ' or child_id in (select gro_id from gro_cla where day between :dfrom2 and :dto2) order by parent_dsp, child_dsp',
 	  	';dfrom1=' +  DateFrom +
@@ -92,13 +94,14 @@ begin
      ' delete from helper1;'+
      ' insert into helper1 (id) values ('+pId+');'+
      ' for l in 1..30 loop'+
-     '   insert into helper1 (id) select child_id from str_elems_v where  parent_id in (select id from helper1) minus select id from helper1;'+
-     '   insert into helper1 (id) select parent_id from str_elems_v where  child_id in (select id from helper1)  minus select id from helper1;'+
+     '   insert into helper1 (id) select child_id from str_elems_v where parent_id in (select id from helper1) minus select id from helper1;'+
+     '   insert into helper1 (id) select parent_id from str_elems_v where child_id in (select id from helper1)  minus select id from helper1;'+
+     '   insert into helper1 (id) select res_id from exclusions where res_id in (select id from helper1)  minus select id from helper1;'+
+     '   insert into helper1 (id) select res_id from exclusions where res_id_excluded in (select id from helper1)  minus select id from helper1;'+
      ' end loop;'+
      ' end;');
 
-    dmodule.openSQL(generateChart,
-       'select child_dsp, parent_dsp, exclusive_parent, (select colour from groups where id = child_id) as color, child_id, parent_id from str_elems_v where child_id in (select id from helper1) '+'or parent_id in (select id from helper1) order by parent_dsp, child_dsp');
+    dmodule.openSQL(generateChart, SQLcurrentGroup.Lines.Text );
   end;
 
 

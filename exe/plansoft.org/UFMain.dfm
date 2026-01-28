@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 136
-  Top = 81
+  Left = 146
+  Top = 135
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -4789,8 +4789,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 350
-        Top = 20
+        Left = 894
+        Top = 12
         Width = 497
         Height = 117
         TabOrder = 35
@@ -4926,6 +4926,15 @@ inherited FMain: TFMain
         TabOrder = 36
         Visible = False
         WordWrap = False
+      end
+      object showbgroups: TCheckBox
+        Left = 775
+        Top = 0
+        Width = 146
+        Height = 17
+        Caption = 'Niedost'#281'pne: Poka'#380' grup'#281
+        TabOrder = 37
+        OnClick = showbgroupsClick
       end
     end
     object pRightDockPanel: TPanel
@@ -5103,7 +5112,6 @@ inherited FMain: TFMain
         DefaultRowHeight = 15
         FixedCols = 2
         RowCount = 50
-        FixedRows = 0
         TabOrder = 1
         OnClick = GridClick
         OnDblClick = GridDblClick
@@ -8816,8 +8824,8 @@ inherited FMain: TFMain
     end
   end
   object reportsPopup: TPopupMenu
-    Left = 1144
-    Top = 40
+    Left = 1440
+    Top = 24
     object Raportowaniezaawansowane1: TMenuItem
       Caption = 'Statystyki'
       OnClick = Raportowaniezaawansowane1Click

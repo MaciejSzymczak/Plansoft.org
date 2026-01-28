@@ -87,7 +87,6 @@ type
     CON_ORGUNI_ID_VALUE: TEdit;
     BSelOU: TBitBtn;
     BitBtn6: TBitBtn;
-    BitBtn1: TBitBtn;
     PPDiagram: TPopupMenu;
     Wszystkiegrupy1: TMenuItem;
     ylkogrupyzbiecegosemestru1: TMenuItem;
@@ -106,6 +105,7 @@ type
     BitBtn2: TBitBtn;
     BitBtn4: TBitBtn;
     GExclusions: TRxDBGrid;
+    BitBtn1: TBitBtn;
     procedure Shape1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure QueryBeforeEdit(DataSet: TDataSet);
@@ -892,19 +892,35 @@ begin
           end;
         end;
 
-        SQL.Clear;
-        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion); end;');
-        Parameters.ParamByName('res_id').value     := res_id;
-        Parameters.ParamByName('res_id_excluded').value := res_id_excluded;
-        Parameters.ParamByName('print_exclusion').value := print_exclusion;
-        execSQL;
+        if   res_id <> res_id_excluded then begin
+          SQL.Clear;
+          SQL.Add('begin delete from exclusions where res_id=:res_id and  res_id_excluded=:res_id_excluded; end;');
+          Parameters.ParamByName('res_id').value     := res_id;
+          Parameters.ParamByName('res_id_excluded').value := res_id_excluded;;
+          execSQL;
 
-        SQL.Clear;
-        SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion); end;');
-        Parameters.ParamByName('res_id').value     := res_id_excluded;
-        Parameters.ParamByName('res_id_excluded').value := res_id;
-        Parameters.ParamByName('print_exclusion').value := print_exclusion;
-        execSQL;
+          SQL.Clear;
+          SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion, type) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion, :type); end;');
+          Parameters.ParamByName('res_id').value     := res_id;
+          Parameters.ParamByName('res_id_excluded').value := res_id_excluded;
+          Parameters.ParamByName('print_exclusion').value := print_exclusion;
+          Parameters.ParamByName('type').value := 'Pod';
+          execSQL;
+
+          SQL.Clear;
+          SQL.Add('begin delete from exclusions where res_id=:res_id and  res_id_excluded=:res_id_excluded; end;');
+          Parameters.ParamByName('res_id').value     := res_id_excluded;
+          Parameters.ParamByName('res_id_excluded').value := res_id;
+          execSQL;
+
+          SQL.Clear;
+          SQL.Add('begin insert into exclusions (id, res_id, res_id_excluded, print_exclusion, type) values (main_seq.nextval, :res_id, :res_id_excluded, :print_exclusion, :type); end;');
+          Parameters.ParamByName('res_id').value     := res_id_excluded;
+          Parameters.ParamByName('res_id_excluded').value := res_id;
+          Parameters.ParamByName('print_exclusion').value := print_exclusion;
+          Parameters.ParamByName('type').value := 'Nad';
+          execSQL;
+        end;
 
       end;
    end;

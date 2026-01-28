@@ -1018,6 +1018,33 @@ end;
 
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
 var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS_Name, dspS_Abbr: ShortString;
+ function hasAccess (pId : String) : boolean;
+ var sql : string;
+     UserOrRoleID : string;
+ begin
+  UserOrRoleID := fmain.getUserOrRoleID;
+  sql :=
+  ' select 1 from lec_pla where lec_id=:pId1 and pla_id=:pla_id1 union '+
+  ' select 1 from gro_pla where gro_id=:pId2 and pla_id=:pla_id2 union '+
+  ' select 1 from rom_pla where rom_id=:pId3 and pla_id=:pla_id3 union '+
+  ' select 1 from sub_pla where sub_id=:pId4 and pla_id=:pla_id4 union '+
+  ' select 1 from for_pla where for_id=:pId5 and pla_id=:pla_id5 ';
+  dmodule.OpenSQL(sql,
+     'pid1='+pId
+   +';pid2='+pId
+   +';pid3='+pId
+   +';pid4='+pId
+   +';pid5='+pId
+   +';pla_id1='+UserOrRoleID
+   +';pla_id2='+UserOrRoleID
+   +';pla_id3='+UserOrRoleID
+   +';pla_id4='+UserOrRoleID
+   +';pla_id5='+UserOrRoleID
+   );
+  result := dmodule.QWork.Fields[0].AsString='1';
+  if not result then info ('Brak uprawnieñ');
+ end;
+
 begin
   idL := '';
   idG := '';
@@ -1062,23 +1089,26 @@ begin
     idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS_Name +' '+ dspS_Abbr
   );
 
-  if FLegendNavigation.selectedOption='dspL' then begin fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := uutilities.getChildsAndParents(idL, '', true, false, true); end;
-  if FLegendNavigation.selectedOption='dspG' then begin fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := uutilities.getChildsAndParents(idG, '', true, false, true);   end;
-  if FLegendNavigation.selectedOption='dspR' then begin fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := uutilities.getChildsAndParents(idR, '', true, false, true);   end;
-  if FLegendNavigation.selectedOption='dspS' then begin fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := uutilities.getChildsAndParents(idS, '', true, false, true);  end;
-  if FLegendNavigation.selectedOption='dspF' then begin fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := uutilities.getChildsAndParents(idF, '', true, false, true);  end;
 
-  if FLegendNavigation.selectedOption='EditL' then begin LECTURERSShowModalAsSingleRecord(aedit,idL); end;
-  if FLegendNavigation.selectedOption='EditG' then begin GROUPSShowModalAsSingleRecord(aedit,idG); end;
-  if FLegendNavigation.selectedOption='EditR' then begin ROOMSShowModalAsSingleRecord(aedit,idR); end;
-  if FLegendNavigation.selectedOption='EditS' then begin SUBJECTSShowModalAsSingleRecord(aedit,idS); end;
-  if FLegendNavigation.selectedOption='EditF' then begin FORMSShowModalAsSingleRecord(aedit,idF); end;
 
-  if FLegendNavigation.selectedOption='StatL' then Fmain.OpenFGrouping('L',idL);
-  if FLegendNavigation.selectedOption='StatG' then Fmain.OpenFGrouping('G',idG);
-  if FLegendNavigation.selectedOption='StatR' then Fmain.OpenFGrouping('R',idR);
-  if FLegendNavigation.selectedOption='StatS' then Fmain.OpenFGrouping('S',idS);
-  if FLegendNavigation.selectedOption='StatF' then Fmain.OpenFGrouping('F',idF);
+
+  if FLegendNavigation.selectedOption='dspL' then begin if not hasAccess(idL) then exit; fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := idL; end;//uutilities.getChildsAndParents(idL, '', true, false, true); end;
+  if FLegendNavigation.selectedOption='dspG' then begin if not hasAccess(idG) then exit; fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := idG; end;//uutilities.getChildsAndParents(idG, '', true, false, true);   end;
+  if FLegendNavigation.selectedOption='dspR' then begin if not hasAccess(idR) then exit; fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := idR; end;//uutilities.getChildsAndParents(idR, '', true, false, true);   end;
+  if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(idS) then exit; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := idS; end;//uutilities.getChildsAndParents(idS, '', true, false, true);  end;
+  if FLegendNavigation.selectedOption='dspF' then begin if not hasAccess(idF) then exit; fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := idF; end;//uutilities.getChildsAndParents(idF, '', true, false, true);  end;
+
+  if FLegendNavigation.selectedOption='EditL' then begin if not hasAccess(idL) then exit; LECTURERSShowModalAsSingleRecord(aedit,idL); end;
+  if FLegendNavigation.selectedOption='EditG' then begin if not hasAccess(idG) then exit; GROUPSShowModalAsSingleRecord(aedit,idG); end;
+  if FLegendNavigation.selectedOption='EditR' then begin if not hasAccess(idR) then exit; ROOMSShowModalAsSingleRecord(aedit,idR); end;
+  if FLegendNavigation.selectedOption='EditS' then begin if not hasAccess(idS) then exit; SUBJECTSShowModalAsSingleRecord(aedit,idS); end;
+  if FLegendNavigation.selectedOption='EditF' then begin if not hasAccess(idF) then exit; FORMSShowModalAsSingleRecord(aedit,idF); end;
+
+  if FLegendNavigation.selectedOption='StatL' then begin if not hasAccess(idL) then exit; Fmain.OpenFGrouping('L',idL); end;
+  if FLegendNavigation.selectedOption='StatG' then begin if not hasAccess(idG) then exit; Fmain.OpenFGrouping('G',idG); end;
+  if FLegendNavigation.selectedOption='StatR' then begin if not hasAccess(idR) then exit; Fmain.OpenFGrouping('R',idR); end;
+  if FLegendNavigation.selectedOption='StatS' then begin if not hasAccess(idS) then exit; Fmain.OpenFGrouping('S',idS); end;
+  if FLegendNavigation.selectedOption='StatF' then begin if not hasAccess(idF) then exit; Fmain.OpenFGrouping('F',idF); end;
 end;
 
 procedure TFLegend.GridLCellClick(Column: TColumn);

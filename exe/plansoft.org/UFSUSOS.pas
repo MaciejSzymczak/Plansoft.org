@@ -35,9 +35,8 @@ type
     CleanUpMode: TCheckBox;
     PageControl2: TPageControl;
     TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
+    TSNotSent: TTabSheet;
     Grid: TRxDBGrid;
-    QueryNotSent: TADOQuery;
     DSQueryNotSent: TDataSource;
     GridNotSent: TRxDBGrid;
     Panel4: TPanel;
@@ -48,7 +47,7 @@ type
     ImageList: TImageList;
     N1: TMenuItem;
     PodgldzapytaniaSQLZaawansowane1: TMenuItem;
-    TabSheet5: TTabSheet;
+    TSSent: TTabSheet;
     Panel3: TPanel;
     BitBtn5: TBitBtn;
     Panel5: TPanel;
@@ -61,6 +60,7 @@ type
     Label5: TLabel;
     BVersion: TBitBtn;
     attendanceList: TADOQuery;
+    QueryNotSent: TADOQuery;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
@@ -82,7 +82,7 @@ type
     Procedure SaveParams;
     function rolePrivided : boolean;
   public
-    { Public declarations }
+    usosPs : boolean;
   end;
 
 var
@@ -129,6 +129,9 @@ begin
   USOS_ONLINE.text := dmodule.dbgetSystemParam('USOS_ONLINE');
   USOS_PACKAGE_NAME.text := dmodule.dbgetSystemParam('USOS_PACKAGE_NAME');
   QueryLog.Active := true;
+  TSNotSent.TabVisible := false;
+  usosPs := AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS';
+  TSSent.TabVisible := false;
 end;
 
 procedure TFUSOS.SaveParams;
@@ -220,6 +223,9 @@ FProgress.Refresh;
     PageControl2.TabIndex := 0;
 
 FProgress.Hide;
+TSNotSent.TabVisible := true;
+if (usosPs=false) then
+  TSSent.TabVisible := true;
 end;
 
 
@@ -258,9 +264,9 @@ Var activeTab : integer;
     DateFrom : string;
     DateTo : string;
 begin
-FProgress.Show;
-FProgress.ProgressBar.Position :=  50;
-FProgress.Refresh;
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  50;
+  FProgress.Refresh;
 
   activeTab := PageControl2.TabIndex;
 
@@ -295,6 +301,7 @@ FProgress.Refresh;
     except
       FProgress.Hide;
       copyToClipboard(  QueryNotSent.SQL.Text);
+      info(QueryNotSent.SQL.Text);
       raise;
     end;
   end;
@@ -382,7 +389,7 @@ var tmpFile : textfile;
 begin
   result := true;
 
-  if (AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS') then begin
+  if usosPs then begin
     if  (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
       Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
       result := false;

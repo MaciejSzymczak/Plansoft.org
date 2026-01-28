@@ -275,6 +275,61 @@ inherited FGraphviz: TFGraphviz
       'Edytowalny'
       'Interaktywny')
   end
+  object SQLcurrentGroup: TMemo
+    Left = 16
+    Top = 88
+    Width = 57
+    Height = 41
+    Lines.Strings = (
+      'select * from'
+      '('
+      
+        'select child_dsp, parent_dsp, exclusive_parent, (select colour f' +
+        'rom groups where id = child_id) as color, child_id, parent_id '
+      'from str_elems_v '
+      'where child_id in (select id from helper1) '
+      'or parent_id in (select id from helper1) '
+      'union all'
+      
+        'select res_excluded_dsp, res_dsp, '#39'X'#39' exclusive_parent, (select ' +
+        'colour from groups where id = res_id_excluded) as color, res_id_' +
+        'excluded, res_id '
+      'from exclusions_v '
+      'where type!='#39'Nad'#39' and'
+      '('
+      'res_id_excluded in (select id from helper1)'
+      'or'
+      'res_id in (select id from helper1)'
+      ')'
+      ')'
+      'order by parent_dsp, child_dsp')
+    TabOrder = 13
+    Visible = False
+    WordWrap = False
+  end
+  object SQLMain: TMemo
+    Left = 80
+    Top = 88
+    Width = 57
+    Height = 41
+    Lines.Strings = (
+      'select * from '
+      '('
+      
+        'select child_dsp, parent_dsp, exclusive_parent, (select colour f' +
+        'rom groups where id = child_id) as color, child_id, parent_id fr' +
+        'om str_elems_v'
+      'union all'
+      
+        'select res_excluded_dsp, res_dsp, '#39'X'#39' exclusive_parent, (select ' +
+        'colour from groups where id = res_id_excluded) as color, res_id_' +
+        'excluded, res_id from exclusions_v'
+      'where type!='#39'Nad'#39
+      ')')
+    TabOrder = 14
+    Visible = False
+    WordWrap = False
+  end
   object generateChart: TADOQuery
     AutoCalcFields = False
     Connection = DModule.ADOConnection

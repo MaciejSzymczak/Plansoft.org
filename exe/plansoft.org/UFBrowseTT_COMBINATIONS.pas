@@ -1226,14 +1226,13 @@ begin
   query.First;
   while not query.Eof do begin
     p_tt_comb_id := Query['Id'];
-    // this function is more general and works fine, but it slower:
-    //dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
-    //           ,'p_tt_comb_id='+p_tt_comb_id
-    //
-    dmodule.sql('begin tt_planner.recalc_combination122 (''N'', null, :p_tt_comb_id ); end;'
-            ,'p_tt_comb_id='+p_tt_comb_id
-            );
+    dmodule.sql('begin tt_planner.recalc_book_combination (:p_tt_comb_id ); end;'
+               ,'p_tt_comb_id='+p_tt_comb_id );
 
+    // this function is slower because filter by p_tt_comb_id is not working as expected:
+    //dmodule.sql('begin tt_planner.recalc_combination122 (''N'', null, :p_tt_comb_id ); end;'
+    //        ,'p_tt_comb_id='+p_tt_comb_id
+    //        );
 
     query.Next;
     counter := counter + 1;

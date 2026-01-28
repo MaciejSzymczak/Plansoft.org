@@ -15,25 +15,6 @@ object FSelectDate: TFSelectDate
   Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object SpeedButton2: TSpeedButton
-    Left = 216
-    Top = 224
-    Width = 47
-    Height = 22
-    Caption = 'Anuluj'
-    Flat = True
-    OnClick = SpeedButton2Click
-  end
-  object ButtonOK: TSpeedButton
-    Left = 160
-    Top = 224
-    Width = 47
-    Height = 22
-    Caption = 'Ok'
-    Flat = True
-    Visible = False
-    OnClick = ButtonOKClick
-  end
   object date: TDateTimePicker
     Left = 16
     Top = 8
@@ -42,7 +23,6 @@ object FSelectDate: TFSelectDate
     Date = 401769.741385451400000000
     Time = 401769.741385451400000000
     TabOrder = 0
-    OnExit = dateExit
   end
   object BitBtn1: TBitBtn
     Left = 109
@@ -115,6 +95,24 @@ object FSelectDate: TFSelectDate
     Caption = 'Niedziela'
     TabOrder = 8
     OnClick = D7Click
+  end
+  object BitBtn2: TBitBtn
+    Left = 53
+    Top = 224
+    Width = 100
+    Height = 22
+    Caption = 'OK'
+    TabOrder = 9
+    OnClick = ButtonOKClick
+  end
+  object BitBtn3: TBitBtn
+    Left = 157
+    Top = 224
+    Width = 100
+    Height = 22
+    Caption = 'Anuluj'
+    TabOrder = 10
+    OnClick = SpeedButton2Click
   end
   object SelectDates: TPopupMenu
     Left = 160

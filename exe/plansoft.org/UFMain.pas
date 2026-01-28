@@ -169,6 +169,7 @@ Type
                                 isBusy  : Boolean;
                                 busyCnt : integer;
                                 claIds  : string;
+                                bgroups : string;
                                End;
                      ratio : Array Of
                              Array Of
@@ -179,7 +180,7 @@ Type
                       Procedure _LoadPeriod(PER_ID : Integer);
                       Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
                       Procedure ClearCache;
-                      procedure IsBusy(TS : TTimeStamp; Zajecia: Integer; var out_isbusy : boolean; var out_busycnt : integer; var out_ratio : integer; var out_claIds : string);
+                      procedure IsBusy(TS : TTimeStamp; Zajecia: Integer; var out_isbusy : boolean; var out_busycnt : integer; var out_ratio : integer; var out_claIds : string; var out_bgroups : string);
                       procedure SetRatio(TS: TTimeStamp; Zajecia: Integer; pratio : integer; pres_id : integer);
                       //Procedure ResetByCLA_ID(CLA_ID : Integer);
                       //Procedure ResetByDay(TS : TTimeStamp; Zajecia: Integer);
@@ -599,6 +600,7 @@ type
     Navigator: TTimer;
     N10: TMenuItem;
     Wersjonowanie1: TMenuItem;
+    showbgroups: TCheckBox;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -945,6 +947,7 @@ type
     procedure Nieusuwajistniajcedniwolne1Click(Sender: TObject);
     procedure NavigatorTimer(Sender: TObject);
     procedure Wersjonowanie1Click(Sender: TObject);
+    procedure showbgroupsClick(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1095,6 +1098,7 @@ type
     procedure OpenFGrouping(resourceType : String; resourceId : String);
     procedure propagateDependencyChanges(parentId : String; res_type : String );
     Procedure refreshGrid;
+    Procedure refreshGridAndLegend;
     function LecToNames (lec_ids : string) : string;
     //--
     procedure LoadPulpit;
@@ -1161,7 +1165,7 @@ Begin
  Valid := False;
 End;
 
-procedure tBusyClassesCache.IsBusy(TS : TTimeStamp; Zajecia: Integer; var out_isbusy : boolean; var out_busyCnt : integer; var out_ratio : integer; var out_claIds : string);
+procedure tBusyClassesCache.IsBusy(TS : TTimeStamp; Zajecia: Integer; var out_isbusy : boolean; var out_busyCnt : integer; var out_ratio : integer; var out_claIds : string; var out_bgroups : string);
 Var t1 : Integer;
 Begin
  If Not Valid then
@@ -1173,6 +1177,7 @@ try
  out_busyCnt := global[t1][Zajecia].busyCnt;
  out_ratio   := ratio[t1][Zajecia].ratio;
  out_claIds  := global[t1][Zajecia].claids;
+ out_bgroups := global[t1][Zajecia].bgroups;
 except end;
 End;
 
@@ -1219,6 +1224,7 @@ begin
        global[L1][L2].busyCnt:= 0;
        ratio[L1][L2].ratio   := 0;
        global[L1][L2].claIds := '';
+       global[L1][L2].bgroups := '';
       End;
    End;
   //0 wolny termin dla wszystkich     => dopelnienie:  zajety dla ktoregokolwiek = zajety w1 or zajety w2 or ...
@@ -1376,6 +1382,8 @@ begin
            ')    '+fprogramsettings.profileObjectNameLs.text+':'+QWork.FieldByName('calc_lecturers').AsString+' '+
            '    '+fprogramsettings.profileObjectNameGs.text+':'+QWork.FieldByName('calc_groups').AsString+' '+
            '    Zasoby:'+QWork.FieldByName('calc_rooms').AsString,cr);
+       global[t][y].bgroups  := merge(global[t][y].bgroups,
+           QWork.FieldByName('calc_groups').AsString,', ');
      end;
 
      QWork.Next;
@@ -2035,7 +2043,7 @@ begin
  If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
- Grid.Refresh;
+ refreshGridAndLegend;
 end;
 
 Procedure TFMain.BuildCalendar (triggeredObject : String);
@@ -2333,7 +2341,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 end;
 	end;
 
-	procedure DrawBusy(Var Rect : TRect; busyCnt : integer; color : Tcolor);
+	procedure DrawBusy(Var Rect : TRect; busyCnt : integer; color : Tcolor; bgroups : string);
 	Var RWidth : integer;
 		RHeight: integer;
 
@@ -2348,6 +2356,14 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 		, (Rect.Right-RWidth  div 2+6)
 		, (Rect.Bottom-RHeight  div 2+6)
 	 );
+
+    if showbgroups.Checked then
+    if bgroups <>'' then
+	   grid.Canvas.TextOut(
+		   Rect.Left+1
+		 , Rect.Top+1
+		 , bgroups );
+
 	 if busyCnt > 1 then begin
 	   grid.Canvas.Font.Color := clWhite;
 	   grid.Canvas.TextOut(
@@ -2689,15 +2705,16 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	  var out_isbusy  : boolean;
 		  out_busyCnt : integer;
 		  out_claIds : string;
+      out_bgroups : string;
 		  out_ratio   : integer;
       color : tcolor;
 	 Begin
      out_ratio := 0;
 	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
-     	   BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids);
+     	   BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
 
 		     if out_isbusy Then begin
-            DrawBusy(Rect, out_busyCnt, GetColor(Copy(out_claids, 1, 3)));
+            DrawBusy(Rect, out_busyCnt, GetColor(Copy(out_claids, 1, 3)), out_bgroups );
          end;
      end;
 	   if (out_ratio <> 0) and ( (FavSelected.Checked) or (FavAll.Checked) ) then DrawTriangle(Rect, out_ratio);
@@ -3336,10 +3353,11 @@ var drawDone : boolean;
  	  var out_isbusy  : boolean;
 		  out_busyCnt : integer;
 		  out_claIds : string;
+		  out_bgroups : string;
 		  out_ratio   : integer;
  begin
 	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then begin
-	      BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids);
+	      BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
         if out_isbusy Then DrawFreeText(out_claids);
      end;
  end;
@@ -3516,7 +3534,8 @@ begin
    FProgress.Hide;
    Refresh;
  End;
- deepRefreshDelayed;
+
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.Rodzajerezerwacji1Click(Sender: TObject);
@@ -4536,7 +4555,7 @@ begin
   gridSelectionTop    := grid.Selection.Top;
   gridSelectionBottom := grid.Selection.Bottom;
   gridSelectionMode   := clGreen;
-  Grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.cutArea;
@@ -4546,7 +4565,7 @@ begin
   gridSelectionTop    := grid.Selection.Top;
   gridSelectionBottom := grid.Selection.Bottom;
   gridSelectionMode   := clRed;
-  Grid.Refresh;
+  refreshGridAndLegend;
 
 end;
 
@@ -4571,7 +4590,7 @@ begin
 	end;
 	//move
 	modifyClasses ( dx, dy, iif(gridSelectionMode = clRed,clMove,clCopy),'','');
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.clearSelection;
@@ -4580,7 +4599,7 @@ begin
   gridSelectionRight  := -1;
   gridSelectionTop    := -1;
   gridSelectionBottom := -1;
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteLecFromSelection;
@@ -4597,7 +4616,7 @@ begin
   end else
     modifyClasses(0,0,clDeleteLec,'' {keyValue},'');
 
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteGroFromSelection;
@@ -4616,7 +4635,7 @@ begin
   end else
     modifyClasses(0,0,clDeleteGro,''{keyValue},'');
 
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteResFromSelection;
@@ -4637,7 +4656,7 @@ begin
   end else
      modifyClasses(0,0,clDeleteRes,'' {keyValue},'');
 
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteOwnerFromSelection;
@@ -4650,19 +4669,19 @@ begin
   end;
 
   modifyClasses(0,0,clDeleteOwner,keyValue,'');
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteSubFromSelection;
 begin
   modifyClasses(0,0,clDeleteSub,'','');
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.deleteDescFromSelection(i : integer);
 begin
   modifyClasses(0,0,clDeleteDesc1+i-1,'','');
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.attachLec;
@@ -4676,7 +4695,7 @@ begin
       KeyValue := extractWord(t,KeyValues, [',']);
       modifyClasses(0,0,clAttachLec,KeyValue,'', exitIfAnyExists);
     end;
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4693,7 +4712,7 @@ begin
       modifyClasses(0,0,clAttachGro,KeyValue,'', exitIfAnyExists);
       if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
     end;
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4710,7 +4729,7 @@ begin
       modifyClasses(0,0,clAttachRes,KeyValue,'', exitIfAnyExists);
       if not elementEnabled('"Operacje grupowe-wiele zasobów"','2018.07.07', false) then exit;
     end;
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4722,7 +4741,7 @@ begin
   Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     modifyClasses(0,0,clAttachOwner,KeyValue,'', false);
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4734,7 +4753,7 @@ begin
   Begin
     KeyValueDsp := dmodule.SingleValue('select name from subjects where id='+keyValue);
     modifyClasses(0,0,clChangeSub,KeyValue,KeyValueDsp);
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4746,7 +4765,7 @@ begin
   Begin
     KeyValueDsp := dmodule.SingleValue('select name||''(''||abbreviation||'')'' from forms where id='+keyValue);
     modifyClasses(0,0,clChangeFor,KeyValue,KeyValueDsp);
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4759,7 +4778,7 @@ begin
   Begin
     keyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     modifyClasses(0,0,clChangeOwner,KeyValue,'');
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4772,7 +4791,7 @@ begin
   Begin
     keyValue := intToStr ( ColorDialog.Color );
     modifyClasses(0,0,clChangeCColor,keyValue,'');
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -4783,7 +4802,7 @@ begin
   If FIN_LOOKUP_VALUESShowModalAsMultiselectExt(FProgramSettings.getClassDescPlural(i),KeyValue) = mrOK Then
   Begin
     modifyClasses(0,0,clChangeDesc1+i-1,KeyValue,'');
-    grid.Refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -5498,6 +5517,7 @@ begin
   ShowAllAnyResCat1.Visible := ShowFreeTermsResCat1.Checked;
 
   RespectCompletions.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
+  showbgroups.Visible := ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked;
 
   If not CanShow Then exit;
   BusyClassesCache.ClearCache;
@@ -5930,20 +5950,24 @@ function TFMain.modifyClass;
 
 	  newClass      := oldClass;
 
+    if classId = 'N/A' then begin
 	  If (confineCalendarId<>'') then
 		  If confineCalendar.getRatio(newTS, newZajecia)<>calConfineOk then begin
 			  info ('Nie mo¿na tutaj planowaæ zajêæ');
 			  exit;
 		  End;
+    end;
 
 	  //calendarSelected := fdetails.CALID.Text<>'-1';
 	  //if calendarSelected then
-     resType := ReservationsCache.IsReserved(newTS, newZajecia);
+    if classId = 'N/A' then begin
+      resType := ReservationsCache.IsReserved(newTS, newZajecia);
       canInsert := (resType='') or (Copy(resType,1,1)='+');
-	    If canInsert=false Then begin
-			  info ('W tym terminie nie mo¿na planowaæ zajêæ');
-			  exit;
-		  End;
+      If canInsert=false Then begin
+        info ('W tym terminie nie mo¿na planowaæ zajêæ');
+        exit;
+      End;
+    end;
 
 	  succesFlag := false;
 	  case operation of
@@ -6420,26 +6444,26 @@ end;
 procedure TFMain.bmoveUpClick(Sender: TObject);
 begin
   modifyClasses ( 0, -1, clMove,'','' );
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.bmoveDownClick(Sender: TObject);
 begin
   inherited;
   modifyClasses ( 0, +1, clMove,'','' );
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.bmoveLeftClick(Sender: TObject);
 begin
   modifyClasses ( -1, 0, clMove,'','' );
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.bmoverightClick(Sender: TObject);
 begin
   modifyClasses ( +1, 0, clMove,'','' );
-  grid.Refresh;
+  refreshGridAndLegend;
 end;
 
 procedure TFMain.Zestawywarto1Click(Sender: TObject);
@@ -8360,7 +8384,7 @@ begin
                 end;
              1: begin
                   TabViewType.TabIndex := 0;
-                  conlecturer.Text := getChildsAndParents(resourceId, '', true, false, true);
+                  conlecturer.Text := resourceId; // getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('L',resourceId);
             end;
@@ -8376,7 +8400,7 @@ begin
              0: GROUPSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 1;
-                  congroup.Text := getChildsAndParents(resourceId, '', true, false, true);
+                  congroup.Text := resourceId; //getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('G',resourceId);
             end;
@@ -8392,7 +8416,7 @@ begin
              0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
              1: begin
                   TabViewType.TabIndex := 2;
-                  conResCat0.Text := getChildsAndParents(resourceId, '', true, false, true);
+                  conResCat0.Text := resourceId; //getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('R',resourceId);
             end;
@@ -9309,6 +9333,7 @@ begin
   DrawSuppressionS.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONS','-') );
   DrawSuppressionF.checked              := StrToBool( Pulpit.getValue(prefix+'.DRAWSUPPRESSIONF','-') );
   RespectCompletions.checked            := StrToBool( Pulpit.getValue(prefix+'.RESPECTCOMPLETIONS','-') );
+  showbgroups.checked                   := StrToBool( Pulpit.getValue(prefix+'.showbgroups','-') );
 
 
   CanBuildCalendar := true;
@@ -9365,6 +9390,7 @@ begin
    dbSetSystemParam(prefix+'.DRAWSUPPRESSIONS'     , BoolToStr(DrawSuppressionS.Checked) );
    dbSetSystemParam(prefix+'.DRAWSUPPRESSIONF'     , BoolToStr(DrawSuppressionF.Checked) );
    dbSetSystemParam(prefix+'.RESPECTCOMPLETIONS'   , BoolToStr(RespectCompletions.Checked) );
+   dbSetSystemParam(prefix+'.showbgroups'           , BoolToStr(showbgroups.Checked) );
    End;
  end;
 end;
@@ -9481,7 +9507,7 @@ begin
   If gridRefreshCounter > 0 Then gridRefreshCounter := gridRefreshCounter - 1;
   If gridRefreshCounter = 1 Then Begin
     gridRefresh.Enabled := false;
-    Grid.refresh;
+    refreshGridAndLegend;
   end;
 end;
 
@@ -9767,6 +9793,17 @@ begin
 end;
 
 
+
+procedure TFMain.refreshGridAndLegend;
+begin
+  grid.Refresh;
+  If FLegend.Visible then FLegend.BRefreshClick(nil);
+end;
+
+procedure TFMain.showbgroupsClick(Sender: TObject);
+begin
+  RefreshGrid;
+end;
 
 initialization
   Randomize;

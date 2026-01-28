@@ -388,7 +388,7 @@ inherited FUSOS: TFUSOS
         end
       end
     end
-    object TabSheet4: TTabSheet
+    object TSNotSent: TTabSheet
       Caption = 'Nie wys'#322'ane do USOS'
       ImageIndex = 1
       object GridNotSent: TRxDBGrid
@@ -589,7 +589,7 @@ inherited FUSOS: TFUSOS
         end
       end
     end
-    object TabSheet5: TTabSheet
+    object TSSent: TTabSheet
       Caption = 'Wys'#322'ane do USOS'
       ImageIndex = 2
       object Panel5: TPanel
@@ -787,105 +787,6 @@ inherited FUSOS: TFUSOS
         'esc')
     Left = 244
     Top = 276
-  end
-  object QueryNotSent: TADOQuery
-    Connection = DModule.ADOConnection
-    CursorLocation = clUseServer
-    CursorType = ctStatic
-    Parameters = <
-      item
-        Name = 'pla_id'
-        Size = -1
-        Value = Null
-      end>
-    SQL.Strings = (
-      'select day'
-      
-        '    , lec.title||'#39' '#39'||lec.first_name||'#39' '#39'||lec.last_name lec_nam' +
-        'e'
-      '    , gro.name gro_name'
-      '    , rom.name rom_name'
-      '    , sub.name sub_name'
-      '    , form.name for_name'
-      '    , lec.integration_id lec_usos_id'
-      '    , gro.integration_id gro_usos_id'
-      '    , rom.integration_id rom_usos_id'
-      '    , sub.integration_id sub_usos_id'
-      '    , form.integration_id for_usos_id'
-      '    , lec_id'
-      '    , gro_id'
-      '    , rom_id'
-      '    , sub_id'
-      '    , for_id'
-      'from'
-      '    ('
-      
-        '    select classes.day, lec_id, gro_id, NVL(rom_id,0) rom_id, su' +
-        'b_id, classes.for_id'
-      '    from classes'
-      '        , lec_cla'
-      '        , gro_cla'
-      '        , rom_cla'
-      '    where   lec_cla.cla_id(+) = classes.id'
-      '        and gro_cla.cla_id(+) = classes.id'
-      '        and rom_cla.cla_id(+) = classes.id'
-      '        and lec_id(+) >0'
-      '        and gro_id(+) >0'
-      '        and rom_id(+) >0'
-      '        and sub_id > 0'
-      '        and classes.DAY BETWEEN %DATE_FROM AND %DATE_TO'
-      '        /* user is owner OR supervisor of owner */'
-      '        and exists ('
-      '               select 1'
-      '               from ('
-      
-        '                   select name planner from planners where paren' +
-        't like '#39'%'#39'||user||'#39'%'#39
-      '                   union all'
-      '                   select user from dual'
-      '               ) p'
-      '               where classes.owner like '#39'%'#39' || p.planner || '#39'%'#39
-      '        )    '
-      
-        '        and sub_id in (select sub_id from sub_pla where pla_id =' +
-        ' %pla_id)'
-      
-        '        /*and for_id in (select for_id from for_pla where pla_id' +
-        ' = :pla_id)*/'
-      '        and ('
-      
-        '            lec_id in (select lec_id from lec_pla where pla_id =' +
-        ' %pla_id)'
-      
-        '         or gro_id in (select gro_id from gro_pla where pla_id =' +
-        ' %pla_id)'
-      
-        '         or rom_id in (select rom_id from rom_pla where pla_id =' +
-        ' %pla_id)'
-      '        )'
-      '    minus'
-      
-        '    select day, lec_id, gro_id, rom_id, classes_sub_id sub_id, f' +
-        'or_id from usos_temp where created_by=user'
-      '    ) notSent'
-      ' , lecturers lec'
-      ' , groups gro'
-      ' , rooms rom'
-      ' , subjects sub'
-      ' , forms form'
-      'where notSent.lec_id = lec.id (+)'
-      '  and gro_id = gro.id (+)'
-      '  and rom_id = rom.id (+)'
-      '  and sub_id = sub.id (+)'
-      '  and for_id = form.id (+)'
-      'order by day desc'
-      '  , lec.last_name||'#39' '#39'||lec.first_name||'#39' '#39'||lec.title'
-      '  , form.name'
-      '  , gro.name'
-      '  , rom.name'
-      '  , sub.name')
-    Left = 244
-    Top = 332
   end
   object DSQueryNotSent: TDataSource
     DataSet = QueryNotSent
@@ -1647,5 +1548,106 @@ inherited FUSOS: TFUSOS
     Parameters = <>
     Left = 8
     Top = 88
+  end
+  object QueryNotSent: TADOQuery
+    Connection = DModule.ADOConnection
+    CursorLocation = clUseServer
+    CursorType = ctStatic
+    Parameters = <
+      item
+        Name = 'pla_id'
+        Size = -1
+        Value = Null
+      end>
+    SQL.Strings = (
+      'select day'
+      
+        '    , lec.title||'#39' '#39'||lec.first_name||'#39' '#39'||lec.last_name lec_nam' +
+        'e'
+      '    , gro.name gro_name'
+      '    , rom.name rom_name'
+      '    , sub.name sub_name'
+      '    , form.name for_name'
+      '    , lec.integration_id lec_usos_id'
+      '    , gro.integration_id gro_usos_id'
+      '    , rom.integration_id rom_usos_id'
+      '    , sub.integration_id sub_usos_id'
+      '    , form.integration_id for_usos_id'
+      '    , lec_id'
+      '    , gro_id'
+      '    , rom_id'
+      '    , sub_id'
+      '    , for_id'
+      'from'
+      '    ('
+      
+        '    select classes.day, lec_id, gro_id, NVL(rom_id,0) rom_id, su' +
+        'b_id, classes.for_id'
+      '    from classes'
+      '        , lec_cla'
+      '        , gro_cla'
+      '        , rom_cla'
+      '    where   lec_cla.cla_id(+) = classes.id'
+      '        and gro_cla.cla_id(+) = classes.id'
+      '        and rom_cla.cla_id(+) = classes.id'
+      '        and lec_id(+) >0'
+      '        and gro_id(+) >0'
+      '        and rom_id(+) >0'
+      '        and sub_id > 0'
+      '        and classes.DAY BETWEEN %DATE_FROM AND %DATE_TO'
+      '        /* user is owner OR user is supervisor of owner'
+      '        and exists ('
+      '               select 1'
+      '               from ('
+      
+        '                   select name planner from planners where paren' +
+        't like '#39'%'#39'||user||'#39'%'#39
+      '                   union all'
+      '                   select user from dual'
+      '               ) p'
+      '               where classes.owner like '#39'%'#39' || p.planner || '#39'%'#39
+      '        )'
+      '        */'
+      
+        '        and sub_id in (select sub_id from sub_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '        /*and for_id in (select for_id from for_pla where pla_id' +
+        ' = ...pla_id)*/'
+      '        and ('
+      
+        '            lec_id in (select lec_id from lec_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '         or gro_id in (select gro_id from gro_pla where pla_id =' +
+        ' %pla_id)'
+      
+        '         or rom_id in (select rom_id from rom_pla where pla_id =' +
+        ' %pla_id)'
+      '        )'
+      '    minus'
+      
+        '    select day, lec_id, gro_id, rom_id, classes_sub_id sub_id, f' +
+        'or_id from usos_temp where created_by=user'
+      '    ) notSent'
+      ' , lecturers lec'
+      ' , groups gro'
+      ' , rooms rom'
+      ' , subjects sub'
+      ' , forms form'
+      'where notSent.lec_id = lec.id (+)'
+      '  and gro_id = gro.id (+)'
+      '  and rom_id = rom.id (+)'
+      '  and sub_id = sub.id (+)'
+      '  and for_id = form.id (+)'
+      'order by day desc'
+      '  , lec.last_name||'#39' '#39'||lec.first_name||'#39' '#39'||lec.title'
+      '  , form.name'
+      '  , gro.name'
+      '  , rom.name'
+      '  , sub.name'
+      '')
+    Left = 244
+    Top = 332
   end
 end

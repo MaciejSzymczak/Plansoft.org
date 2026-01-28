@@ -589,9 +589,9 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         end
         object ttEnabled: TCheckBox
           Tag = 67108864
-          Left = 750
+          Left = 654
           Top = 34
-          Width = 218
+          Width = 195
           Height = 17
           Anchors = [akRight, akBottom]
           Caption = 'Tylko dozwolone kombinacje'
@@ -717,6 +717,16 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             1863186318631863186318631863186318631863000018631863186318631863
             1863186318631863186318631863186318631863186318631863186318631863
             0000}
+        end
+        object BitBtn1: TBitBtn
+          Left = 862
+          Top = 28
+          Width = 107
+          Height = 25
+          Anchors = [akRight, akBottom]
+          Caption = 'Diagram'
+          TabOrder = 14
+          OnClick = BitBtn1Click
         end
       end
       inherited SecondRatePanel: TPanel
@@ -1020,9 +1030,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 Height = 41
                 Align = alBottom
                 TabOrder = 1
-                DesignSize = (
-                  333
-                  41)
                 object AddDetail: TBitBtn
                   Left = 8
                   Top = 8
@@ -1162,16 +1169,6 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
                     C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
                     C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000}
-                end
-                object BitBtn1: TBitBtn
-                  Left = 218
-                  Top = 9
-                  Width = 107
-                  Height = 25
-                  Anchors = [akRight, akBottom]
-                  Caption = 'Diagram'
-                  TabOrder = 2
-                  OnClick = BitBtn1Click
                 end
               end
               object GDetails: TRxDBGrid
@@ -1442,6 +1439,13 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     FieldName = 'res_excluded_dsp'
                     Title.Caption = 'Nazwa'
                     Width = 188
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'TYPE'
+                    Title.Caption = 'Typ'
+                    Width = 50
                     Visible = True
                   end
                   item
@@ -2548,7 +2552,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
     SQL.Strings = (
       
         'select id,res_excluded_dsp, date_from, date_to, res_id, res_id_e' +
-        'xcluded, PRINT_EXCLUSION'
+        'xcluded, PRINT_EXCLUSION, type'
       '  from exclusions_v'
       '  where res_id=:id')
     Left = 52
