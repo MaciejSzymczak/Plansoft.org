@@ -2050,7 +2050,6 @@ Procedure TFMain.BuildCalendar (triggeredObject : String);
 var  colCnt, rowCnt : integer;
      rId : string;
      rName : string;
-     i : integer;
 Begin
   if not canShow Then exit;
   if not CanBuildCalendar then exit;
@@ -2707,7 +2706,6 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 		  out_claIds : string;
       out_bgroups : string;
 		  out_ratio   : integer;
-      color : tcolor;
 	 Begin
      out_ratio := 0;
 	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
@@ -2869,7 +2867,6 @@ Procedure TFMain.insertClasses;
      LwithChildsAndParents, GwithChildsAndParents, RwithChildsAndParents  : string;
      pdesc1, pdesc2, pdesc3, pdesc4  : string;
      S, FormId, Fill, colour  : integer;
-     checkResult                 : shortString;
      resourceList                : string;
      ttCombIds                   : string;
      subjectIds                  : string;
@@ -4621,7 +4618,6 @@ end;
 
 procedure TFMain.deleteGroFromSelection;
 Var KeyValues : String;
-    t         : integer;
 begin
   if TabViewType.TabIndex = 1 then
    if question(
@@ -4641,7 +4637,6 @@ end;
 procedure TFMain.deleteResFromSelection;
 Var KeyValues : String;
     KeyValue  : string;
-    t         : integer;
 begin
   if TabViewType.TabIndex = 2 then
    if question(
@@ -8876,7 +8871,6 @@ end;
 Procedure TFMain.refreshRecentlyUsed(aFilter : string);
   Var
     node : TTreenode;
-    nodeMORE: TTreenode;
     nodeL: TTreenode;
     nodeG: TTreenode;
     nodeR: TTreenode;
@@ -9281,7 +9275,6 @@ end;
 
 procedure TFMain.LoadPulpit;
 Var prefix : string;
-var mapValue : string;
     pulpit : TMap;
 begin
   CanBuildCalendar := false;
@@ -9469,7 +9462,6 @@ begin
 end;
 
 procedure TFMain.deepRefreshImmediate( reason : String);
-var pCol, pRow : integer;
 begin
  refreshFilter.Enabled := false;
  //info('DeepRefreshImmediate: '+ reason);
@@ -9523,7 +9515,6 @@ end;
 
 procedure TFMain.RaportZdrowieSystemu1Click(Sender: TObject);
 var tmpFile : textfile;
-    sqlstmt : string;
     query : tadoquery;
 begin
   query := tadoquery.Create(self);
@@ -9596,16 +9587,12 @@ begin
 end;
 
 procedure TFMain.estujAPI1Click(Sender: TObject);
-var
-  Response: string;
 begin
   info( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
 end;
 
 procedure TFMain.GoToDateClick(Sender: TObject);
-var len : integer;
-    selectedDate : TTimeStamp;
-    foundFlag : boolean;
+var selectedDate : TTimeStamp;
     acol, arow : integer;
 begin
   if FSelectDate.showModalWithDefault( selectedDateTime ) =mrOK then begin
@@ -9632,8 +9619,6 @@ begin
 end;
 
 procedure TFMain.MenuItem4Click(Sender: TObject);
-var ColoringIndex : shortString;
-    presId : String; presType : String;
 begin
    FLegend.SaveTimeTableNotes;
    dmodule.CommitTrans;
@@ -9718,8 +9703,7 @@ begin
 end;
 
 procedure TFMain.CLASSES_ALLOWEDClick(Sender: TObject);
-var Key: Word;
-    Shift: TShiftState;
+//var Shift: TShiftState;
 begin
   //key := 13;
   //Shift := [];

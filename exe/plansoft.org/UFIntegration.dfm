@@ -234,7 +234,7 @@ inherited FIntegration: TFIntegration
     Top = 169
     Width = 1266
     Height = 421
-    ActivePage = TabSheet4
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 3
     OnChange = PageControl2Change

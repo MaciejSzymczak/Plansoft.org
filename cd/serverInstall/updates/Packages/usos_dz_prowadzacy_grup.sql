@@ -9,33 +9,45 @@ create or replace package usos_dz_prowadzacy_grup  is
 
     /*
     Creates missing records in table dz_prowadzacy_grup@usos.
-    
+
     begin
      usos_dz_prowadzacy_grup.insertRecords(600, 4114641);
     end;
-    
+
     Parameters:
         puserOrRoleId = select Id from planners where name = :your authorization name
-        pper_id = select Id from periods where name = :your periods name
-        
+        (optional) pper_id = select Id from periods where name = :your periods name
+
     @author Maciej Szymczak
     @version 2026.01.28
     */
-    procedure insertRecords( puserOrRoleId number, pper_id number);
-    
+    procedure insertRecords( puserOrRoleId number, pper_id number default null);
+
 end;
 /
 
 create or replace PACKAGE BODY usos_dz_prowadzacy_grup AS
 
-procedure insertRecords( puserOrRoleId number, pper_id number) is 
+usosCykl varchar2(200) := 'USOS_CYKL%';
+
+procedure buildUsosCykl(puserOrRoleId varchar2) as begin
+  if puserOrRoleId is null then return; end if;
+  usosCykl := puserOrRoleId||':USOS_CYKL';
+end;
+
+procedure insertRecords( puserOrRoleId number, pper_id number default null) is 
 begin 
  declare
    pdate_from date;
    pdate_to date;
  begin
-    select date_from, date_to into pdate_from, pdate_to from periods where id = pper_id;
-   
+    if pper_id is not null then
+      select date_from, date_to into pdate_from, pdate_to from periods where id = pper_id;
+    else
+      buildUsosCykl(puserOrRoleId);
+      select date_from, date_to into pdate_from, pdate_to from periods where integration_id = (select value from system_parameters where name like usosCykl);
+    end if;
+
     insert into HELPER_USOS_LEC (gr_nr, zaj_cyk_id, prac_id, lec_id, gro_id, sub_id, for_id)
     select unique
           (select unique usos_gr_nr from tt_combinations where  gro_id = gro_cla.gro_id and sub_id = cla.sub_id and for_id = cla.for_id) gr_nr
@@ -64,16 +76,15 @@ begin
             select gro_id, sub_id, for_id from tt_combinations 
             where lec_id is null
         );
-    
+
     insert into dz_prowadzacy_grup@usos (gr_nr, zaj_cyk_id, prac_id) 
     select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC
     minus
     select gr_nr, zaj_cyk_id, prac_id from dz_prowadzacy_grup@usos;
-    
+
     commit;   
  end;
 end insertRecords;
 
 END usos_dz_prowadzacy_grup;
 /
-

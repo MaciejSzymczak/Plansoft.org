@@ -1,19 +1,19 @@
 inherited FUSOS: TFUSOS
   Left = 441
   Top = 243
-  Width = 1003
+  Width = 1060
   Height = 737
   Caption = 'USOS: Integracja'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 686
-    Width = 995
+    Width = 1052
   end
   object Panel1: TPanel
     Left = 0
     Top = 645
-    Width = 995
+    Width = 1052
     Height = 41
     Align = alBottom
     TabOrder = 1
@@ -54,15 +54,15 @@ inherited FUSOS: TFUSOS
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 995
-    Height = 169
+    Width = 1052
+    Height = 201
     Align = alTop
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 1
       Top = 1
-      Width = 993
-      Height = 167
+      Width = 1050
+      Height = 199
       ActivePage = TabSheet1
       Align = alClient
       TabOrder = 0
@@ -84,32 +84,33 @@ inherited FUSOS: TFUSOS
           TabOrder = 0
           Text = 'USOS_CYKL'
         end
-        object BitBtn2: TBitBtn
+        object BStage1: TBitBtn
           Left = 360
           Top = 8
           Width = 281
           Height = 41
           Caption = 'S'#322'owniki: USOS ====> Plansoft.org'
           TabOrder = 1
-          OnClick = BitBtn2Click
+          OnClick = BStage1Click
         end
-        object BitBtn1: TBitBtn
-          Left = 448
-          Top = 88
+        object BStage3: TBitBtn
+          Left = 824
+          Top = 56
           Width = 193
           Height = 41
-          Caption = 'Rozk'#322'ad: USOS <==== Plansoft.org'
+          Caption = 'Rozk'#322'ad: Plansoft.org ====> USOS'
           TabOrder = 2
-          OnClick = BitBtn1Click
+          Visible = False
+          OnClick = BStage3Click
         end
-        object BitBtn3: TBitBtn
+        object BStage2Plan: TBitBtn
           Left = 360
           Top = 48
           Width = 281
           Height = 41
           Caption = 'Plan: USOS ====> Plansoft.org'
           TabOrder = 3
-          OnClick = BitBtn3Click
+          OnClick = BStage2PlanClick
         end
         object CleanUpMode: TCheckBox
           Left = 648
@@ -127,6 +128,25 @@ inherited FUSOS: TFUSOS
           Caption = 'Utw'#243'rz wersj'#281
           TabOrder = 5
           OnClick = BVersionClick
+        end
+        object BObsada: TBitBtn
+          Left = 736
+          Top = 8
+          Width = 281
+          Height = 41
+          Caption = 'Obsada: Plansoft.org ====> USOS'
+          TabOrder = 6
+          Visible = False
+          OnClick = BObsadaClick
+        end
+        object BStage3_version2: TBitBtn
+          Left = 456
+          Top = 88
+          Width = 185
+          Height = 41
+          Caption = 'Rozk'#322'ad: Plansoft.org ====> USOS'
+          TabOrder = 7
+          OnClick = BStage3_version2Click
         end
       end
       object TabSheet2: TTabSheet
@@ -267,9 +287,9 @@ inherited FUSOS: TFUSOS
   end
   object PageControl2: TPageControl
     Left = 0
-    Top = 169
-    Width = 995
-    Height = 476
+    Top = 201
+    Width = 1052
+    Height = 444
     ActivePage = TabSheet3
     Align = alClient
     TabOrder = 3
@@ -279,8 +299,8 @@ inherited FUSOS: TFUSOS
       object Grid: TRxDBGrid
         Left = 0
         Top = 41
-        Width = 987
-        Height = 406
+        Width = 1044
+        Height = 374
         Align = alClient
         DataSource = Source
         Font.Charset = DEFAULT_CHARSET
@@ -318,7 +338,7 @@ inherited FUSOS: TFUSOS
       object Panel3: TPanel
         Left = 0
         Top = 0
-        Width = 987
+        Width = 1044
         Height = 41
         Align = alTop
         TabOrder = 1

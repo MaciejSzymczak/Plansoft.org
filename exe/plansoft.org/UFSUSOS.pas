@@ -27,11 +27,11 @@ type
     USOS_INTEGRATION_USER: TEdit;
     USOS_CYKL: TEdit;
     Label1: TLabel;
-    BitBtn2: TBitBtn;
-    BitBtn1: TBitBtn;
+    BStage1: TBitBtn;
+    BStage3: TBitBtn;
     Label4: TLabel;
     USOS_ONLINE: TEdit;
-    BitBtn3: TBitBtn;
+    BStage2Plan: TBitBtn;
     CleanUpMode: TCheckBox;
     PageControl2: TPageControl;
     TabSheet3: TTabSheet;
@@ -61,14 +61,16 @@ type
     BVersion: TBitBtn;
     attendanceList: TADOQuery;
     QueryNotSent: TADOQuery;
+    BObsada: TBitBtn;
+    BStage3_version2: TBitBtn;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure BitBtn2Click(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
-    procedure BitBtn3Click(Sender: TObject);
+    procedure BStage1Click(Sender: TObject);
+    procedure BStage3Click(Sender: TObject);
+    procedure BStage2PlanClick(Sender: TObject);
     procedure PageControl2Change(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure ExportEasyClick(Sender: TObject);
@@ -78,6 +80,8 @@ type
     procedure PageControl1Changing(Sender: TObject;
       var AllowChange: Boolean);
     procedure BVersionClick(Sender: TObject);
+    procedure BObsadaClick(Sender: TObject);
+    procedure BStage3_version2Click(Sender: TObject);
   private
     Procedure SaveParams;
     function rolePrivided : boolean;
@@ -163,7 +167,7 @@ begin
   SaveParams;
 end;
 
-procedure TFUSOS.BitBtn2Click(Sender: TObject);
+procedure TFUSOS.BStage1Click(Sender: TObject);
 begin
 if not rolePrivided then exit;
 
@@ -194,11 +198,11 @@ FProgress.Hide;
 end;
 
 
-procedure TFUSOS.BitBtn1Click(Sender: TObject);
+procedure TFUSOS.BStage3Click(Sender: TObject);
 begin
 if not rolePrivided then exit;
 FProgress.Show;
-FProgress.ProgressBar.Position :=  50;
+FProgress.ProgressBar.Position :=  70;
 FProgress.Refresh;
 
     PageControl2.TabIndex := 0;
@@ -229,34 +233,34 @@ if (usosPs=false) then
 end;
 
 
-procedure TFUSOS.BitBtn3Click(Sender: TObject);
+procedure TFUSOS.BStage2PlanClick(Sender: TObject);
 begin
-if not rolePrivided then exit;
-FProgress.Show;
-FProgress.ProgressBar.Position :=  50;
-FProgress.Refresh;
+  if not rolePrivided then exit;
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  50;
+  FProgress.Refresh;
 
-    SaveParams;
+  SaveParams;
 
-    if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
-      //old version, no parameter puserOrRoleId
-      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
-            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-      );
-    end else begin
-      //new version
-      dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode, :puserOrRoleId ); end;'
-            ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-            +';puserOrRoleId='+fMain.getUserOrRoleId
-      );
-    end;
+  if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
+     //old version, no parameter puserOrRoleId
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
+          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+    );
+  end else begin
+    //new version
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode, :puserOrRoleId ); end;'
+          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+          +';puserOrRoleId='+fMain.getUserOrRoleId
+    );
+  end;
 
 
-    QueryLog.Close;
-    QueryLog.Open;
-    PageControl2.TabIndex := 0;
+  QueryLog.Close;
+  QueryLog.Open;
+  PageControl2.TabIndex := 0;
 
-FProgress.Hide;
+  FProgress.Hide;
 end;
 
 procedure TFUSOS.PageControl2Change(Sender: TObject);
@@ -413,6 +417,34 @@ begin
 
   end;
 
+end;
+
+procedure TFUSOS.BObsadaClick(Sender: TObject);
+begin
+  if not rolePrivided then exit;
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  30;
+  FProgress.Refresh;
+
+  SaveParams;
+
+  dmodule.sql('begin usos_dz_prowadzacy_grup.insertRecords ( :puserOrRoleId ); end;'
+     ,'puserOrRoleId='+fMain.getUserOrRoleId
+  );
+
+
+  QueryLog.Close;
+  QueryLog.Open;
+  PageControl2.TabIndex := 0;
+
+  FProgress.Hide;
+end;
+
+procedure TFUSOS.BStage3_version2Click(Sender: TObject);
+begin
+  BObsadaClick(nil);
+  BStage2PlanClick(nil);
+  BStage3Click(nil);
 end;
 
 end.

@@ -209,6 +209,7 @@ End;
 
 procedure TFBrowsePLANNERS.BCheckDatabaseClick(Sender: TObject);
 Var C : Integer;
+    userName : string;
 begin
   inherited;
   With DModule Do Begin
@@ -218,11 +219,25 @@ begin
      // sprawdzenie czy jest user --> ew. dodanie
      C := StrToInt(SingleValue2('SELECT COUNT(1) FROM SYS.ALL_USERS WHERE USERNAME = '''+QWork.FieldByName('NAME').AsString+''''));
      If C = 0 Then Begin
-      Info('U¿ytkownik '+QWork.FieldByName('NAME').AsString+' nie istnieje. U¿ytkownik zostanie utworzony');
-       SQL2('CREATE USER "'+QWork.FieldByName('NAME').AsString+'" IDENTIFIED BY "'+QWork.FieldByName('NAME').AsString+'"');
-       SQL2('GRANT CONNECT TO "'+QWork.FieldByName('NAME').AsString+'" with admin option');
-       SQL2('GRANT PLA_PERMISSION TO "'+QWork.FieldByName('NAME').AsString+'"');
-       SQL2('ALTER USER "'+QWork.FieldByName('NAME').AsString+'" DEFAULT ROLE ALL EXCEPT PLA_PERMISSION');
+       userName := QWork.FieldByName('NAME').AsString;
+       if Pos('\', userName) > 0 then
+       begin
+         //SHOW PARAMETER OS_AUTHENT_PREFIX;
+         // NAME              TYPE   VALUE
+         //----------------- ------ -----
+         //os_authent_prefix string OPS$
+
+         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik zostanie utworzony');
+         SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY');
+       end else begin
+         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik z uwierzytelnianiem zewnêtrzynym zostanie utworzony');
+         SQL2('CREATE USER "'+userName+'" IDENTIFIED BY "'+QWork.FieldByName('NAME').AsString+'"');
+       end;
+
+       SQL2('GRANT CONNECT TO "'+userName+'" with admin option');
+       SQL2('GRANT RESOURCE TO "'+userName+'" with admin option');
+       SQL2('GRANT PLA_PERMISSION TO "'+userName+'"');
+       SQL2('ALTER USER "'+userName+'" DEFAULT ROLE ALL EXCEPT PLA_PERMISSION');
        Info('Sukces');
      End Else Begin
        SingleValue2('select * from SYS.DBA_ROLE_PRIVS WHERE GRANTEE='''+QWork.FieldByName('NAME').AsString+''' AND GRANTED_ROLE=''PLA_PERMISSION''');

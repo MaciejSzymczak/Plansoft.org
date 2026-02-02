@@ -340,7 +340,7 @@ begin
       --select integration_id_sub from int_plan
     end loop;    
       --if (FatalError='YES') then
-      --      raise_application_error(-20000, 'BŁĄD DANYCH');
+      --      raise_application_error(-20000, 'BLAD DANYCH');
       --end if;
     end;
     
@@ -793,12 +793,12 @@ begin
     trace := 'COMBINATIONS.tt_planner.recalc_combination122';
     tt_planner.recalc_combination122( pCleanYpMode, pPER_ID );
 
-    xxmsz_tools.insertIntoEventLog('TO PLANSOFT_PLAN:'||pCleanYpMode||': OK', 'I', 'INT_TO_PLANSOFT' );
+    xxmsz_tools.insertIntoEventLog('TO PLANSOFT_PLAN:'||pperiod_name||':'||pCleanYpMode||': OK', 'I', 'INT_TO_PLANSOFT' );
     delete from xxmsztools_eventlog where module_name = 'INT_TO_PLANSOFT' and created < sysdate - 7;
     commit;
 exception
     when others then
-    xxmsz_tools.insertIntoEventLog(substrb('TO PLANSOFT_PLAN: ' || trace ||': '||sqlerrm,1,230), 'I', 'INT_TO_PLANSOFT' );
+    xxmsz_tools.insertIntoEventLog(substrb('TO PLANSOFT_PLAN: '||pperiod_name||':' || trace ||': '||sqlerrm,1,230), 'I', 'INT_TO_PLANSOFT' );
 end;
 
 
@@ -1016,13 +1016,14 @@ begin
     integration_diff_catcher.diff;
     commit;
 
-    xxmsz_tools.insertIntoEventLog('FROM PLANSOFT:'||pCleanYpMode||': OK', 'I', 'INT_FROM_PLANSOFT' );
+    xxmsz_tools.insertIntoEventLog('FROM PLANSOFT:'||pperiod_name||':'||pCleanYpMode||': OK', 'I', 'INT_FROM_PLANSOFT' );
     delete from xxmsztools_eventlog where module_name = 'INT_FROM_PLANSOFT' and created < sysdate - 7;
     delete from xxmsztools_eventlog where module_name = 'TRACE' and created < sysdate - 7;
     commit;
 exception
     when others then
-    xxmsz_tools.insertIntoEventLog(substrb('FROM PLANSOFT: ' || trace ||': '||sqlerrm,1,230), 'I', 'INT_FROM_PLANSOFT' );
+    xxmsz_tools.insertIntoEventLog(substrb('FROM PLANSOFT: '||pperiod_name||':'|| trace ||': '||sqlerrm,1,230), 'I', 'INT_FROM_PLANSOFT' );
 end;
 
 end;
+/

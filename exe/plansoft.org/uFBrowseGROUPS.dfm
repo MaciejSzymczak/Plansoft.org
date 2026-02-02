@@ -105,7 +105,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             Expanded = False
             FieldName = 'NAME'
             Title.Caption = 'Nazwa'
-            Width = 200
+            Width = 235
             Visible = True
           end
           item
@@ -994,7 +994,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Expanded = False
                     FieldName = 'PARENT_DSP'
                     Title.Caption = 'Nazwa'
-                    Width = 187
+                    Width = 251
                     Visible = True
                   end
                   item
@@ -1200,7 +1200,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Expanded = False
                     FieldName = 'NAME'
                     Title.Caption = 'Nazwa'
-                    Width = 208
+                    Width = 256
                     Visible = True
                   end
                   item
@@ -1438,7 +1438,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                     Expanded = False
                     FieldName = 'res_excluded_dsp'
                     Title.Caption = 'Nazwa'
-                    Width = 188
+                    Width = 257
                     Visible = True
                   end
                   item
