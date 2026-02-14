@@ -93,23 +93,13 @@ inherited FUSOS: TFUSOS
           TabOrder = 1
           OnClick = BStage1Click
         end
-        object BStage3: TBitBtn
-          Left = 824
-          Top = 56
-          Width = 193
-          Height = 41
-          Caption = 'Rozk'#322'ad: Plansoft.org ====> USOS'
-          TabOrder = 2
-          Visible = False
-          OnClick = BStage3Click
-        end
         object BStage2Plan: TBitBtn
           Left = 360
           Top = 48
           Width = 281
           Height = 41
           Caption = 'Plan: USOS ====> Plansoft.org'
-          TabOrder = 3
+          TabOrder = 2
           OnClick = BStage2PlanClick
         end
         object CleanUpMode: TCheckBox
@@ -118,7 +108,7 @@ inherited FUSOS: TFUSOS
           Width = 193
           Height = 17
           Caption = 'Skasuj poprzednie dane'
-          TabOrder = 4
+          TabOrder = 3
         end
         object BVersion: TBitBtn
           Left = 360
@@ -126,18 +116,8 @@ inherited FUSOS: TFUSOS
           Width = 91
           Height = 41
           Caption = 'Utw'#243'rz wersj'#281
-          TabOrder = 5
+          TabOrder = 4
           OnClick = BVersionClick
-        end
-        object BObsada: TBitBtn
-          Left = 736
-          Top = 8
-          Width = 281
-          Height = 41
-          Caption = 'Obsada: Plansoft.org ====> USOS'
-          TabOrder = 6
-          Visible = False
-          OnClick = BObsadaClick
         end
         object BStage3_version2: TBitBtn
           Left = 456
@@ -145,7 +125,7 @@ inherited FUSOS: TFUSOS
           Width = 185
           Height = 41
           Caption = 'Rozk'#322'ad: Plansoft.org ====> USOS'
-          TabOrder = 7
+          TabOrder = 5
           OnClick = BStage3_version2Click
         end
       end

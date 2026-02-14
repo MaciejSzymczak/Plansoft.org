@@ -28,7 +28,6 @@ type
     USOS_CYKL: TEdit;
     Label1: TLabel;
     BStage1: TBitBtn;
-    BStage3: TBitBtn;
     Label4: TLabel;
     USOS_ONLINE: TEdit;
     BStage2Plan: TBitBtn;
@@ -61,15 +60,12 @@ type
     BVersion: TBitBtn;
     attendanceList: TADOQuery;
     QueryNotSent: TADOQuery;
-    BObsada: TBitBtn;
     BStage3_version2: TBitBtn;
     procedure BZamknijClick(Sender: TObject);
     procedure RESCAT_COMB_IDSelClick(Sender: TObject);
     procedure RESCAT_COMB_IDChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure BStage1Click(Sender: TObject);
-    procedure BStage3Click(Sender: TObject);
     procedure BStage2PlanClick(Sender: TObject);
     procedure PageControl2Change(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
@@ -80,13 +76,20 @@ type
     procedure PageControl1Changing(Sender: TObject;
       var AllowChange: Boolean);
     procedure BVersionClick(Sender: TObject);
-    procedure BObsadaClick(Sender: TObject);
     procedure BStage3_version2Click(Sender: TObject);
+    procedure BStage1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     Procedure SaveParams;
-    function rolePrivided : boolean;
   public
+    readyFlag : boolean;
     usosPs : boolean;
+    procedure setup;
+    function roleProvided : boolean;
+    procedure interfaceDictonariesFromUSOS;
+    function  interfaceLecturersToUSOS : boolean;
+    procedure interfacePlanFromUSOS;
+    procedure interfaceScheduleToUSOS;
   end;
 
 var
@@ -99,31 +102,14 @@ implementation
 Uses AutoCreate, DM, UUtilityParent, UProgress, UFFloatingMessage, UFMain,
   FVersions;
 
-procedure TFUSOS.BZamknijClick(Sender: TObject);
-begin
-  Status.Caption := 'Zapisywanie parametrów...';
-  Status.Refresh;
-  SaveParams;
-  Status.Caption := 'Zamykanie okna...';
-  Status.Refresh;
-  Close;
-end;
 
-procedure TFUSOS.RESCAT_COMB_IDSelClick(Sender: TObject);
-Var ID : ShortString;
-begin
-  ID := RESCAT_COMB_ID.Text;
-  If TT_RESCAT_COMBINATIONSShowModalAsSelect(ID) = mrOK Then RESCAT_COMB_ID.Text := ID;
-end;
+{  **********************************************************  }
+{  **********          API - BEGIN             **************  }
+{  **********************************************************  }
 
-procedure TFUSOS.RESCAT_COMB_IDChange(Sender: TObject);
-begin
-    if  (RESCAT_COMB_ID.text <> '') then dmodule.RefreshLookupEdit(Self, TControl(Sender).Name,'tt_planner.get_resource_cat_names(ID)','TT_RESCAT_COMBINATIONS','');
-end;
 
-procedure TFUSOS.FormShow(Sender: TObject);
+procedure TFUSOS.Setup;
 begin
-  inherited;
   PageControl2.TabIndex := 0;
   PageControl1.TabIndex := 0;
   USOS_CYKL.text          := NVL( dmodule.dbgetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL'), {for backward compatibility} dmodule.dbgetSystemParam('USOS_CYKL') );
@@ -136,40 +122,42 @@ begin
   TSNotSent.TabVisible := false;
   usosPs := AnsiUpperCase(USOS_PACKAGE_NAME.Text)='USOS_PS';
   TSSent.TabVisible := false;
+  readyFlag := true;
 end;
 
-procedure TFUSOS.SaveParams;
-  procedure progress(x : string);
-  begin
-    Status.Caption := x;
-    Status.Refresh;
+function TFUSOS.roleProvided: boolean;
+var tmpFile : textfile;
+begin
+  if not readyFlag then Setup;
+  result := true;
+
+  if usosPs then begin
+    if  (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
+      Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
+      result := false;
+      exit;
+    End;
+
+    if Dmodule.SingleValue('select rep_usos_overlaps.errors from dual')<>'0' then begin
+      AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html');
+      rewrite(tmpFile);
+      attendanceList.SQL.Clear;
+      attendanceList.SQL.Add( 'select rep_usos_overlaps.getList from dual' );
+      attendanceList.Open;
+      writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
+      closeFile(tmpFile);
+      ExecuteFile(uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html','','',SW_SHOWMAXIMIZED);
+      Info('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
+
+      result := false;
+      exit;
+    end;
   end;
-begin
-  progress('USOS_CYKL');
-  dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
-  dmodule.dbSetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL', USOS_CYKL.text);
-  progress('USOS_RESCAT_COMB_ID');
-  dmodule.dbSetSystemParam('USOS_RESCAT_COMB_ID', RESCAT_COMB_ID.text);
-  progress('USOS_HOURS_PER_DAY');
-  dmodule.dbSetSystemParam('USOS_HOURS_PER_DAY', USOS_HOURS_PER_DAY.text);
-  progress('USOS_INTEGRATION_USER');
-  dmodule.dbSetSystemParam('USOS_INTEGRATION_USER', USOS_INTEGRATION_USER.text);
-  progress('USOS_ONLINE');
-  dmodule.dbSetSystemParam('USOS_ONLINE', USOS_ONLINE.text);
-  progress('USOS_PACKAGE_NAME');
-  dmodule.dbSetSystemParam('USOS_PACKAGE_NAME', USOS_PACKAGE_NAME.text);
 end;
 
-
-procedure TFUSOS.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFUSOS.interfaceDictonariesFromUSOS;
 begin
-  inherited;
-  SaveParams;
-end;
-
-procedure TFUSOS.BStage1Click(Sender: TObject);
-begin
-if not rolePrivided then exit;
+if not roleProvided then exit;
 
 FProgress.Show;
 FProgress.ProgressBar.Position :=  50;
@@ -197,10 +185,62 @@ FProgress.Refresh;
 FProgress.Hide;
 end;
 
-
-procedure TFUSOS.BStage3Click(Sender: TObject);
+function TFUSOS.interfaceLecturersToUSOS : boolean;
 begin
-if not rolePrivided then exit;
+  result := false;
+  if not roleProvided then exit;
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  30;
+  FProgress.Refresh;
+
+  SaveParams;
+
+  dmodule.sql('begin usos_dz_prowadzacy_grup.insertRecords ( :puserOrRoleId ); end;'
+     ,'puserOrRoleId='+fMain.getUserOrRoleId
+  );
+
+
+  QueryLog.Close;
+  QueryLog.Open;
+  PageControl2.TabIndex := 0;
+
+  FProgress.Hide;
+  result := true;
+end;
+
+procedure TFUSOS.interfacePlanFromUSOS;
+begin
+  if not roleProvided then exit;
+  FProgress.Show;
+  FProgress.ProgressBar.Position :=  50;
+  FProgress.Refresh;
+
+  SaveParams;
+
+  if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
+     //old version, no parameter puserOrRoleId
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
+          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+    );
+  end else begin
+    //new version
+    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode, :puserOrRoleId ); end;'
+          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
+          +';puserOrRoleId='+fMain.getUserOrRoleId
+    );
+  end;
+
+
+  QueryLog.Close;
+  QueryLog.Open;
+  PageControl2.TabIndex := 0;
+
+  FProgress.Hide;
+end;
+
+procedure TFUSOS.interfaceScheduleToUSOS;
+begin
+if not roleProvided then exit;
 FProgress.Show;
 FProgress.ProgressBar.Position :=  70;
 FProgress.Refresh;
@@ -232,36 +272,69 @@ if (usosPs=false) then
   TSSent.TabVisible := true;
 end;
 
+{  **********************************************************  }
+{  **********          API - END               **************  }
+{  **********************************************************  }
 
-procedure TFUSOS.BStage2PlanClick(Sender: TObject);
+
+procedure TFUSOS.BZamknijClick(Sender: TObject);
 begin
-  if not rolePrivided then exit;
-  FProgress.Show;
-  FProgress.ProgressBar.Position :=  50;
-  FProgress.Refresh;
-
+  Status.Caption := 'Zapisywanie parametrów...';
+  Status.Refresh;
   SaveParams;
-
-  if UpperCase(USOS_PACKAGE_NAME.Text)='USOS' then begin
-     //old version, no parameter puserOrRoleId
-    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode ); end;'
-          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-    );
-  end else begin
-    //new version
-    dmodule.sql('begin '+USOS_PACKAGE_NAME.Text+'.integration_from_usos_plan (:pCleanYpMode, :puserOrRoleId ); end;'
-          ,'pCleanYpMode='+iif(CleanUpMode.Checked,'Y','N')
-          +';puserOrRoleId='+fMain.getUserOrRoleId
-    );
-  end;
-
-
-  QueryLog.Close;
-  QueryLog.Open;
-  PageControl2.TabIndex := 0;
-
-  FProgress.Hide;
+  Status.Caption := 'Zamykanie okna...';
+  Status.Refresh;
+  Close;
 end;
+
+procedure TFUSOS.RESCAT_COMB_IDSelClick(Sender: TObject);
+Var ID : ShortString;
+begin
+  ID := RESCAT_COMB_ID.Text;
+  If TT_RESCAT_COMBINATIONSShowModalAsSelect(ID) = mrOK Then RESCAT_COMB_ID.Text := ID;
+end;
+
+procedure TFUSOS.RESCAT_COMB_IDChange(Sender: TObject);
+begin
+    if  (RESCAT_COMB_ID.text <> '') then dmodule.RefreshLookupEdit(Self, TControl(Sender).Name,'tt_planner.get_resource_cat_names(ID)','TT_RESCAT_COMBINATIONS','');
+end;
+
+
+procedure TFUSOS.FormShow(Sender: TObject);
+begin
+  inherited;
+  setup;
+end;
+
+procedure TFUSOS.SaveParams;
+  procedure progress(x : string);
+  begin
+    Status.Caption := x;
+    Status.Refresh;
+  end;
+begin
+  progress('USOS_CYKL');
+  dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
+  dmodule.dbSetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL', USOS_CYKL.text);
+  progress('USOS_RESCAT_COMB_ID');
+  dmodule.dbSetSystemParam('USOS_RESCAT_COMB_ID', RESCAT_COMB_ID.text);
+  progress('USOS_HOURS_PER_DAY');
+  dmodule.dbSetSystemParam('USOS_HOURS_PER_DAY', USOS_HOURS_PER_DAY.text);
+  progress('USOS_INTEGRATION_USER');
+  dmodule.dbSetSystemParam('USOS_INTEGRATION_USER', USOS_INTEGRATION_USER.text);
+  progress('USOS_ONLINE');
+  dmodule.dbSetSystemParam('USOS_ONLINE', USOS_ONLINE.text);
+  progress('USOS_PACKAGE_NAME');
+  dmodule.dbSetSystemParam('USOS_PACKAGE_NAME', USOS_PACKAGE_NAME.text);
+end;
+
+
+procedure TFUSOS.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  SaveParams;
+end;
+
 
 procedure TFUSOS.PageControl2Change(Sender: TObject);
 Var activeTab : integer;
@@ -384,67 +457,32 @@ end;
 
 procedure TFUSOS.BVersionClick(Sender: TObject);
 begin
-  if not rolePrivided then exit;
+  if not roleProvided then exit;
   FVersion.ShowModal;
 end;
 
-function TFUSOS.rolePrivided: boolean;
-var tmpFile : textfile;
+
+procedure TFUSOS.BStage1Click(Sender: TObject);
 begin
-  result := true;
-
-  if usosPs then begin
-    if  (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
-      Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
-      result := false;
-      exit;
-    End;
-
-    if Dmodule.SingleValue('select rep_usos_overlaps.errors from dual')<>'0' then begin
-      AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html');
-      rewrite(tmpFile);
-      attendanceList.SQL.Clear;
-      attendanceList.SQL.Add( 'select rep_usos_overlaps.getList from dual' );
-      attendanceList.Open;
-      writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
-      closeFile(tmpFile);
-      ExecuteFile(uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html','','',SW_SHOWMAXIMIZED);
-      Info('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
-
-      result := false;
-      exit;
-    end;
-
-  end;
-
+  interfaceDictonariesFromUSOS
 end;
 
-procedure TFUSOS.BObsadaClick(Sender: TObject);
+procedure TFUSOS.BStage2PlanClick(Sender: TObject);
 begin
-  if not rolePrivided then exit;
-  FProgress.Show;
-  FProgress.ProgressBar.Position :=  30;
-  FProgress.Refresh;
-
-  SaveParams;
-
-  dmodule.sql('begin usos_dz_prowadzacy_grup.insertRecords ( :puserOrRoleId ); end;'
-     ,'puserOrRoleId='+fMain.getUserOrRoleId
-  );
-
-
-  QueryLog.Close;
-  QueryLog.Open;
-  PageControl2.TabIndex := 0;
-
-  FProgress.Hide;
+  interfacePlanFromUSOS;
 end;
 
 procedure TFUSOS.BStage3_version2Click(Sender: TObject);
 begin
-  BObsadaClick(nil);
-  BStage2PlanClick(nil);
-  BStage3Click(nil);
+  if interfaceLecturersToUSOS = false then exit;
+  interfacePlanFromUSOS;
+  interfaceScheduleToUSOS;
+end;
+
+procedure TFUSOS.FormCreate(Sender: TObject);
+begin
+  inherited;
+  readyFlag := false;
 end;
 
 end.

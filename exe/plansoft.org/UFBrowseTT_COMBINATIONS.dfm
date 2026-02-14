@@ -40,6 +40,15 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           TabOrder = 12
           OnClick = BRecalculateAllQuickClick
         end
+        object BitBtn1: TBitBtn
+          Left = 808
+          Top = 7
+          Width = 99
+          Height = 25
+          Caption = 'Uzupe'#322'nij obsady'
+          TabOrder = 13
+          OnClick = BitBtn1Click
+        end
       end
       inherited Grid: TRxDBGrid
         Top = 209

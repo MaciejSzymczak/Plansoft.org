@@ -100,6 +100,7 @@ type
     BRecalculateAllQuick: TBitBtn;
     QClasses: TADOQuery;
     TimerDetails: TTimer;
+    BitBtn1: TBitBtn;
     procedure QueryAfterScroll(DataSet: TDataSet);
     procedure QClassesBeforeOpen(DataSet: TDataSet);
     procedure Qtt_inclusionsBeforeOpen(DataSet: TDataSet);
@@ -182,6 +183,8 @@ type
     procedure GenericFilterbClearRes1Click(Sender: TObject);
     procedure BRecalculateAllQuickClick(Sender: TObject);
     procedure TimerDetailsTimer(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     Counter  : Integer;
     procedure refreshDetails;
@@ -219,7 +222,8 @@ var
 
 implementation
 
-uses DM, uutilityParent, autocreate, ucommon, ufmain, UFProgramSettings;
+uses DM, uutilityParent, autocreate, ucommon, ufmain, UFProgramSettings,
+  UFSUSOS;
 
 {$R *.dfm}
 
@@ -1447,6 +1451,20 @@ end;
 function TFBrowseTT_COMBINATIONS.canInsert: Boolean;
 begin
  result := isIntegrated=false;
+end;
+
+procedure TFBrowseTT_COMBINATIONS.BitBtn1Click(Sender: TObject);
+begin
+  inherited;
+  if FUSOS.interfaceLecturersToUSOS = false then exit;
+  FUSOS.interfacePlanFromUSOS;
+  BRefreshClick(nil);
+end;
+
+procedure TFBrowseTT_COMBINATIONS.FormShow(Sender: TObject);
+begin
+  inherited;
+  BitBtn1.Visible := isUSOSInstalled;
 end;
 
 end.

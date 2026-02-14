@@ -8,7 +8,7 @@ uses
   UCommon, DM, UFReadString, Menus, UFInfo, Tabs, Mask, DBCtrls, Grids,
   ToolEdit, db, UFDatabaseLogin,
   WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
-  DBGrids, UUtilityParent, DateUtils, XPMan;
+  DBGrids, UUtilityParent, DateUtils, XPMan;                  
 
 var dGeneralDebug : string;
 
@@ -217,7 +217,6 @@ type
     CONGROUP_value: TEdit;
     conResCat0: TEdit;
     conResCat0_value: TEdit;
-    LprofileObjectNameC1: TLabel;
     ConSubject: TEdit;
     CONSUBJECT_value: TEdit;
     Sowniki1: TMenuItem;
@@ -601,6 +600,7 @@ type
     N10: TMenuItem;
     Wersjonowanie1: TMenuItem;
     showbgroups: TCheckBox;
+    LprofileObjectNameC1: TSpeedButton;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -948,6 +948,9 @@ type
     procedure NavigatorTimer(Sender: TObject);
     procedure Wersjonowanie1Click(Sender: TObject);
     procedure showbgroupsClick(Sender: TObject);
+    procedure LprofileObjectNameLClick(Sender: TObject);
+    procedure LprofileObjectNameGClick(Sender: TObject);
+    procedure LprofileObjectNameC1Click(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -1111,6 +1114,7 @@ type
     procedure wlog(messageText : string);
     procedure autoExpandSelection;
     procedure RefreshNavigatorImmediate;
+    function callExternalURL( objType: String ) : boolean;
   end;
 
 var
@@ -4347,10 +4351,10 @@ begin
 
 	  if loginParamsDelivered then
 	  Begin
-	   if upperCase(aDBName) = 'DOK'  then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
+	   if upperCase(aDBName) = 'DOK'          then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
 	   if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
-	   if upperCase(aDBName) = 'PLANSOFT'  then aDBName := 'plansoft:1521/xe';
-	   if upperCase(aDBName) = 'XE'   then aDBName := '127.0.0.1:1521/xe';
+	   if upperCase(aDBName) = 'PLANSOFT'     then aDBName := 'plansoft:1521/xe';
+	   if upperCase(aDBName) = 'XE'            then aDBName := '127.0.0.1:1521/xe';
 
 	   DM.UserName  := aUserName;
 	   DM.Password  := aPassword;
@@ -4416,6 +4420,12 @@ begin
     dm.UserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
         +'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag, EDIT_OBJ_PERMISSIONS, CAN_RUN_INTEGRATION FROM PLANNERS WHERE NAME=USER');
     UserID           := DModule.QWork.Fields[1].AsString;
+    if UserID='' then begin
+      info('Brak uprawnieñ do korzystania z Aplikacji. '+cr+cr+'Skontaktuj siê z administratorem systemu w celu dodania planisty za pomoc¹ menu Dane | Planiœci.');
+      dmodule.CloseDBConnection(false);
+      Result := False;
+      exit;
+    end;
     isAdmin          := DModule.QWork.Fields[2].AsString = '+';
     EditOrgUnits     := DModule.QWork.Fields[3].AsString = '+';
     EditFlex         := DModule.QWork.Fields[4].AsString = '+';
@@ -4497,13 +4507,6 @@ begin
     flegend.notes_after.ReadOnly := false;
     flegend.internal_notes.ReadOnly := false;
   end;
-
-
-  If isBlank(dm.UserName) Then Begin
-    Info('Nie masz uprawnieñ do korzystania z aplikacji - brak informacji w tabeli PLANNERS');
-    Result := False;
-    Exit;
-  End;
 
   If FcellLayout.D1.ItemIndex = -1 Then FcellLayout.D1.ItemIndex := getItemIndex(FcellLayout.D1, 'NONE');
   If FcellLayout.D2.ItemIndex = -1 Then FcellLayout.D2.ItemIndex := getItemIndex(FcellLayout.D2, 'NONE');
@@ -6488,6 +6491,7 @@ end;
 
 procedure TFMain.Zmiehas1Click(Sender: TObject);
 begin
+   if isSSOLogin then begin info('Aby zmieniæ has³o, naciœnij kombinacje klawiszy Alt+Ctrl+Delete i wybierz polecenie Zmieñ has³o.'); exit; end;
    changePassword('');
 end;
 
@@ -7211,6 +7215,10 @@ end;
 procedure TFMain.BRescat0Click(Sender: TObject);
 Var ID : ShortString;
 begin
+  if callExternalURL('externalURL_ROM')
+  //sinfe  ExternalURL has been defined, skip default button action
+  then exit;
+
   ID := dmodule.pResCatId0;
   setSystemParam('ResCatSettings:'+dmodule.pResCatId0+':'+dm.UserName, conResCat0.Text);
   If AutoCreate.RESOURCE_CATEGORIESShowModalAsSelect(ID) = mrOK Then begin
@@ -9787,6 +9795,40 @@ end;
 procedure TFMain.showbgroupsClick(Sender: TObject);
 begin
   RefreshGrid;
+end;
+
+function TFMain.callExternalURL( objType: String ) : boolean;
+var externalURL : String;
+begin
+  result := false;
+  externalURL := dmodule.SingleValue('select value from system_parameters where name = '''+objType+'''');
+  if externalURL = '' then  exit;
+  FFloatingMessage.showModal('Uruchamiam Aplikacjê...');
+  externalURL := searchAndReplace(externalURL,'{pla_id}', getUserOrRoleID);
+  externalURL := searchAndReplace(externalURL,'{lec_id}', conlecturer.text);
+  externalURL := searchAndReplace(externalURL,'{gro_id}', congroup.text);
+  externalURL := searchAndReplace(externalURL,'{rom_id}', conResCat0.text);
+  externalURL := searchAndReplace(externalURL,'{sub_id}', CONSUBJECT.text);
+  externalURL := searchAndReplace(externalURL,'{per_id}', conPeriod.text);
+  externalURL := searchAndReplace(externalURL,'{frm_id}', CONFORM.text);
+  externalURL := searchAndReplace(externalURL,'{who_id}', dm.UserName);
+  ShellExecute(Handle, 'open', PAnsiChar(externalURL), nil, nil, SW_SHOWNORMAL);
+  result := true;
+end;
+
+procedure TFMain.LprofileObjectNameLClick(Sender: TObject);
+begin
+  callExternalURL('externalURL_LEC');
+end;
+
+procedure TFMain.LprofileObjectNameGClick(Sender: TObject);
+begin
+  callExternalURL('externalURL_GRO');
+end;
+
+procedure TFMain.LprofileObjectNameC1Click(Sender: TObject);
+begin
+  callExternalURL('externalURL_SUB');
 end;
 
 initialization

@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 196
-  Top = 96
+  Left = 34
+  Top = 70
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -3282,14 +3282,6 @@ inherited FMain: TFMain
       TabOrder = 1
       OnClick = LeftPanelClick
       OnMouseMove = LeftPanelMouseMove
-      object LprofileObjectNameC1: TLabel
-        Left = 853
-        Top = 82
-        Width = 47
-        Height = 14
-        Alignment = taRightJustify
-        Caption = '&Przedmiot'
-      end
       object LprofileObjectNamePeriod: TLabel
         Left = 859
         Top = 39
@@ -3352,6 +3344,7 @@ inherited FMain: TFMain
         Height = 22
         Caption = 'Wyk'#322'adowcy'
         Flat = True
+        OnClick = LprofileObjectNameLClick
       end
       object LprofileObjectNameG: TSpeedButton
         Left = 5
@@ -3360,6 +3353,7 @@ inherited FMain: TFMain
         Height = 22
         Caption = 'Grupy'
         Flat = True
+        OnClick = LprofileObjectNameGClick
       end
       object lshowAvail: TLabel
         Left = 678
@@ -4213,6 +4207,15 @@ inherited FMain: TFMain
         Caption = 'Utw'#243'rz tygodnie'
         OnClick = CreateWeeksClick
       end
+      object LprofileObjectNameC1: TSpeedButton
+        Left = 837
+        Top = 79
+        Width = 68
+        Height = 22
+        Caption = 'Przedmiot'
+        Flat = True
+        OnClick = LprofileObjectNameC1Click
+      end
       object ValidResCat1: TBitBtn
         Left = 1146
         Top = 28
@@ -4789,8 +4792,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 894
-        Top = 12
+        Left = 1222
+        Top = 28
         Width = 497
         Height = 117
         TabOrder = 35
