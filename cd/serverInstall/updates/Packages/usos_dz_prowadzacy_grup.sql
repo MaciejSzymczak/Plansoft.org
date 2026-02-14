@@ -10,9 +10,14 @@ create or replace package usos_dz_prowadzacy_grup  is
     /*
     Creates missing records in table dz_prowadzacy_grup@usos.
 
-    begin
-     usos_dz_prowadzacy_grup.insertRecords(600, 4114641);
-    end;
+        select id from planners where name like 'USOS: LIDER ROZ'
+        4206575
+        
+        begin
+         usos_dz_prowadzacy_grup.insertRecords(4206575);
+        end;
+        
+        select * from  xxmsztools_eventlog where module_name = 'INTEGRATION_TO_USOS_LEC' order by id desc
 
     Parameters:
         puserOrRoleId = select Id from planners where name = :your authorization name
@@ -76,6 +81,16 @@ begin
             select gro_id, sub_id, for_id from tt_combinations 
             where lec_id is null
         );
+  
+    --Generate changes history (log)
+    for rec in (
+        select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC
+        minus
+        select gr_nr, zaj_cyk_id, prac_id from dz_prowadzacy_grup@usos    
+    ) loop
+      xxmsz_tools.insertIntoEventLog('INSERT INTO dz_prowadzacy_grup(gr_nr, zaj_cyk_id, prac_id) values('||rec.gr_nr||','||rec.zaj_cyk_id||','||rec.prac_id||')', 'I', 'INTEGRATION_TO_USOS_LEC' );
+    end loop;
+    delete from xxmsztools_eventlog where module_name = 'INTEGRATION_TO_USOS_LEC' and created < sysdate - 365;
 
     insert into dz_prowadzacy_grup@usos (gr_nr, zaj_cyk_id, prac_id) 
     select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC
