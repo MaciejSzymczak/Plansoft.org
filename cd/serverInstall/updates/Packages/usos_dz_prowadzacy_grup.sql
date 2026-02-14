@@ -3,30 +3,30 @@ create or replace package usos_dz_prowadzacy_grup  is
    |* version_pkg
    |***************************************************************************************************************************** 
    | History 
-   | 2026.01.28 Maciej Szymczak created  
+   | 2026.02.14 Maciej Szymczak created  
    \-----------------------------------------------------------------------------------------------------------------------------*/ 
 
 
     /*
     Creates missing records in table dz_prowadzacy_grup@usos.
 
-        select id from planners where name like 'USOS: LIDER ROZ'
-        4206575
-        
-        begin
-         usos_dz_prowadzacy_grup.insertRecords(4206575);
-        end;
-        
-        select * from  xxmsztools_eventlog where module_name = 'INTEGRATION_TO_USOS_LEC' order by id desc
+    begin
+     usos_dz_prowadzacy_grup.insertRecords(600, 'Y', 4114641);
+    end;
+    
+    select * from  xxmsztools_eventlog where module_name = 'INTEGRATION_TO_USOS_LEC' order by id desc
 
     Parameters:
         puserOrRoleId = select Id from planners where name = :your authorization name
         (optional) pper_id = select Id from periods where name = :your periods name
+        (optional) palways_flag = 
+            'Y' : Add no matter of
+            'N' : Add only if allocation is missing in USOS (no lecturers at all)
 
     @author Maciej Szymczak
     @version 2026.01.28
     */
-    procedure insertRecords( puserOrRoleId number, pper_id number default null);
+    procedure insertRecords( puserOrRoleId number, palways_flag varchar2 default 'Y', pper_id number default null);
 
 end;
 /
@@ -40,7 +40,7 @@ procedure buildUsosCykl(puserOrRoleId varchar2) as begin
   usosCykl := puserOrRoleId||':USOS_CYKL';
 end;
 
-procedure insertRecords( puserOrRoleId number, pper_id number default null) is 
+procedure insertRecords( puserOrRoleId number, palways_flag varchar2 default 'Y', pper_id number default null) is 
 begin 
  declare
    pdate_from date;
@@ -76,12 +76,17 @@ begin
         and sub_id in (select sub_id from sub_pla where pla_id= nvl(puserOrRoleId, pla_id)  )
         -- specific periods 
         and cla.day between pdate_from and pdate_to
+        and (
+        palways_flag='Y'
+        or
         --plan with no lec
-        and (gro_id, sub_id, for_id) in (
+        (gro_id, sub_id, for_id) in (
             select gro_id, sub_id, for_id from tt_combinations 
             where lec_id is null
-        );
-  
+        )
+        )
+        ;
+
     --Generate changes history (log)
     for rec in (
         select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC

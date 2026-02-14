@@ -87,7 +87,7 @@ type
     procedure setup;
     function roleProvided : boolean;
     procedure interfaceDictonariesFromUSOS;
-    function  interfaceLecturersToUSOS : boolean;
+    function  interfaceLecturersToUSOS(palways_flag : string) : boolean;
     procedure interfacePlanFromUSOS;
     procedure interfaceScheduleToUSOS;
   end;
@@ -185,7 +185,7 @@ FProgress.Refresh;
 FProgress.Hide;
 end;
 
-function TFUSOS.interfaceLecturersToUSOS : boolean;
+function TFUSOS.interfaceLecturersToUSOS(palways_flag : string) : boolean;
 begin
   result := false;
   if not roleProvided then exit;
@@ -195,8 +195,9 @@ begin
 
   SaveParams;
 
-  dmodule.sql('begin usos_dz_prowadzacy_grup.insertRecords ( :puserOrRoleId ); end;'
+  dmodule.sql('begin usos_dz_prowadzacy_grup.insertRecords ( :puserOrRoleId, :palways_flag ); end;'
      ,'puserOrRoleId='+fMain.getUserOrRoleId
+     +';palways_flag='+palways_flag
   );
 
 
@@ -474,7 +475,7 @@ end;
 
 procedure TFUSOS.BStage3_version2Click(Sender: TObject);
 begin
-  if interfaceLecturersToUSOS = false then exit;
+  if interfaceLecturersToUSOS('Y') = false then exit;
   interfacePlanFromUSOS;
   interfaceScheduleToUSOS;
 end;
