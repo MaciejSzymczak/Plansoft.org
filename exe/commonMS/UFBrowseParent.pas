@@ -227,6 +227,7 @@ type
     BRefresh: TBitBtn;
     bexportpopup: TSpeedButton;
     SpeedButton1: TSpeedButton;
+    BSearchValue: TSpeedButton;
     procedure BAddClick(Sender: TObject);
     procedure BEditClick(Sender: TObject);
     procedure BDeleteClick(Sender: TObject);
@@ -312,6 +313,7 @@ type
     procedure EksportujdoExcela1Click(Sender: TObject);
     procedure EFilterClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure BSearchValueClick(Sender: TObject);
   private
    Bookmark        : String[30];
    HotKeys         : Array[1..20] Of Word;
@@ -3589,5 +3591,23 @@ begin
   End;
   result := ids;
 end;
+
+procedure TFBrowseParent.BSearchValueClick(Sender: TObject);
+Var KeyValue : ShortString;
+    stringTokenizer : TStringTokenizer;
+begin
+  KeyValue := '';
+  If FIN_LOOKUP_VALUESShowModalAsMultiselectExt(self.Name,KeyValue) = mrOK Then begin
+    stringTokenizer := TStringTokenizer.Create;
+    with stringTokenizer do begin
+      init(ESearch.Text);
+      addToken(KeyValue,false,false);
+      ESearch.Text := get;
+      close;
+    end;
+    stringTokenizer.Free;
+  end;
+end;
+
 
 End.

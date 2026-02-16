@@ -87,7 +87,9 @@ begin
         )
         ;
 
-    --Generate changes history (log)
+    --
+	delete from HELPER_USOS_LEC where gr_nr is null or zaj_cyk_id is null;
+	--Generate changes history (log)
     for rec in (
         select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC
         minus

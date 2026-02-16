@@ -1456,7 +1456,7 @@ end;
 procedure TFBrowseTT_COMBINATIONS.BitBtn1Click(Sender: TObject);
 begin
   inherited;
-  if FUSOS.interfaceLecturersToUSOS = false then exit;
+  if FUSOS.interfaceLecturersToUSOS('Y') = false then exit;
   FUSOS.interfacePlanFromUSOS;
   BRefreshClick(nil);
 end;
