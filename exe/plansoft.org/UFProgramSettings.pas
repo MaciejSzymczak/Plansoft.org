@@ -378,7 +378,7 @@ end;
 procedure TFProgramSettings.Button1Click(Sender: TObject);
 begin
   SetSystemParam('FBrowseCLASSES','Restore');
-  uutilityparent.info ('Aby wszystkie zmiany zosta³y zastosowane, nale¿y teraz uruchomiæ skrypt SQL. a nastêpnie uruchomiæ program ponownie. '+cr+'Szczegó³y w instrukcji instalacji.');
+  uutilityparent.info ('Aby wszystkie zmiany zosta³y zastosowane, nale¿y uruchomiæ program ponownie.');
   {
   if profileType.ItemIndex = 0 then begin
     dmodule.SQL('begin update resource_categories set name = :name where id = :id; commit; end;', 'name=Sala;id=1');

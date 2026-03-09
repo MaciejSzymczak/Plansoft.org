@@ -25,3 +25,4 @@ order by 1,2,3,4
 -- <parameter name="date_start" dataType="date" caption="Data pocz¹tkowa" value="" type="macro"/>
 -- <parameter name="date_end"   dataType="date" caption="Data koñcowa"    value="" type="macro"/>
 -- <parameter name="res_name"  dataType="string" caption="Nazwa zasobu (%=wszystkie)"  value="%" type="macro"/>
+

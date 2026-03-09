@@ -24,7 +24,7 @@ create or replace package usos_dz_prowadzacy_grup  is
             'N' : Add only if allocation is missing in USOS (no lecturers at all)
 
     @author Maciej Szymczak
-    @version 2026.01.28
+    @version 2026.02.16
     */
     procedure insertRecords( puserOrRoleId number, palways_flag varchar2 default 'Y', pper_id number default null);
 
@@ -89,6 +89,18 @@ begin
 
     --
 	delete from HELPER_USOS_LEC where gr_nr is null or zaj_cyk_id is null;
+	--
+    --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_GR_FK) violated - parent key not found
+    for rec in (
+       select UNIQUE gr_nr
+                , zaj_cyk_id
+            from HELPER_USOS_LEC
+       minus
+       select nr,zaj_cyk_id from dz_grupy@usos 
+    ) loop 
+      raise_application_error(-20001, 'W USOS nie ma grupy (zaj_cyk_id, nr): '||rec.zaj_cyk_id||','||rec.gr_nr);
+    end loop;
+    -- 		
 	--Generate changes history (log)
     for rec in (
         select gr_nr, zaj_cyk_id, prac_id from HELPER_USOS_LEC

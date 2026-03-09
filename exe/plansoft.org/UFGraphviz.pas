@@ -107,7 +107,7 @@ begin
 
 
   if (ChartMode.ItemIndex =0) then begin
-	  htmlContent := '@startuml'+cr+'digraph G {'+cr+'%orientation'+cr;
+	  htmlContent := '@startdot'+cr+'digraph G {'+cr+'%orientation'+cr;  //@startuml
 	  while not generateChart.Eof do begin
 		 htmlContent := htmlContent +  '"' + generateChart.Fields[1].AsString + '"->"' + generateChart.Fields[0].AsString + '"'
 			 + ' ['
@@ -124,11 +124,13 @@ begin
 	  AssignFile(tmpFile, tmpFileName );
 	  rewrite(tmpFile);
 
-	  htmlContent := htmlContent + '}' +cr+ '@enduml';
+	  htmlContent := htmlContent + '}' +cr+ '@enddot'; //@enduml
 	  case orientation of
 	   0:begin htmlContent := searchAndReplace(htmlContent, '%orientation', 'rankdir=LR;'); end;
 	   1:begin htmlContent := searchAndReplace(htmlContent, '%orientation', ''); end;
 	  end;
+
+   // copyToClipboard(htmlContent);
 
     htmlContent := httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode(htmlContent),'Content-Type: application/x-www-form-urlencoded',80);
 

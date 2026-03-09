@@ -1411,7 +1411,7 @@ begin
    If TotalTime > 7 Then Begin
     If GetSystemParam('DISPL_KOM001') <> DateToStr(Date) Then Begin
 
-      DModule.InsertIntoEventLog('KON','KOM-001',Application.Title + '.' + Self.Name,TT,'','','','',dm.UserName);
+      //DModule.InsertIntoEventLog('KON','KOM-001',Application.Title + '.' + Self.Name,TT,'','','','',dm.UserName);
 
       Warning('Czas odœwie¿ania wynosi '+TT+' [sekundy], poproœ administratora, aby skróciæ czas odœwie¿ania tego okna');
      // Warning(
@@ -3593,15 +3593,22 @@ begin
 end;
 
 procedure TFBrowseParent.BSearchValueClick(Sender: TObject);
-Var KeyValue : ShortString;
+Var KeyValues, KeyValue : ShortString;
     stringTokenizer : TStringTokenizer;
+    cnt,t : integer;
 begin
-  KeyValue := '';
-  If FIN_LOOKUP_VALUESShowModalAsMultiselectExt(self.Name,KeyValue) = mrOK Then begin
+  KeyValues := '';
+  If FIN_LOOKUP_VALUESShowModalAsMultiselectExt( searchAndReplace(self.Name,'FBrowse','') ,KeyValues) = mrOK Then begin
     stringTokenizer := TStringTokenizer.Create;
     with stringTokenizer do begin
       init(ESearch.Text);
-      addToken(KeyValue,false,false);
+
+      cnt := WordCount(KeyValues,[',']);
+      for t := 1 To cnt Do begin
+        KeyValue := ExtractWord(t,KeyValues,[',']);
+        addToken(KeyValue,true,false);
+      End;
+
       ESearch.Text := get;
       close;
     end;

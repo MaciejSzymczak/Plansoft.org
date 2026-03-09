@@ -2,7 +2,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
    /*
    Toolkit
-   @version 2025.12.16
+   @version 2026.03.08
    @author Maciej Szymczak
    */
 
@@ -733,18 +733,56 @@ create or replace package body planner_utils is
               , 'Y' /*test_flag*/  );
   end;
 
-
+/*
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure calculate_lgr(     
      cla_id      number,
-     l       out classes.calc_lecturers%type,
-     g       out classes.calc_groups%type,
-     r       out classes.calc_rooms%type,
-     l_id    out classes.calc_lec_ids%type,
-     g_id    out classes.calc_gro_ids%type,
-     r_id    out classes.calc_rom_ids%type,
-     r_resid out classes.calc_rescat_ids%type
+     l       out varchar2,
+     g       out varchar2,
+     r       out varchar2,
+     l_id    out varchar2,
+     g_id    out varchar2,
+     r_id    out varchar2,
+     r_resid out varchar2
    );
+*/
+
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------
+  procedure update_lgr (cla_id number) is
+  begin
+    update classes
+         set    
+         calc_lecturers = 
+            substrb((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY lec_cla.id)
+             from lecturers l,lec_cla  
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id), 1, 500)
+          ,calc_groups    = 
+            substrb((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY gro_cla.id)
+             from groups g, gro_cla 
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id), 1, 500)
+         ,calc_rooms     = 
+            substrb((select listagg(r.name||' '||r.attribs_01,'; ') WITHIN GROUP (ORDER BY rom_cla.id)
+             from rooms r, rom_cla
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 500)
+         ,calc_lec_ids   = 
+            substrb((select listagg(l.id,';') WITHIN GROUP (ORDER BY lec_cla.id)
+             from lecturers l,lec_cla  
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id), 1, 255)
+         ,calc_gro_ids   = 
+            substrb((select listagg(g.id,';') WITHIN GROUP (ORDER BY gro_cla.id)
+             from groups g, gro_cla 
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id), 1, 255)
+         ,calc_rom_ids   = 
+            substrb((select listagg(r.id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+             from rooms r, rom_cla
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 255)
+         ,calc_rescat_ids= 
+            substrb((select listagg(r.rescat_id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+             from rooms r, rom_cla
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 255)
+     where id = cla_id;
+  end;
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure insert_classes(pday              date
@@ -771,13 +809,13 @@ create or replace package body planner_utils is
                          ,pcalc_rescat_ids  varchar2 default null --@@@todo: this parameter should be passed by interface
                         ) is
 
-    vcalc_lecturers  classes.calc_lecturers%type := pcalc_lecturers;
-    vcalc_groups     classes.calc_groups%type := pcalc_groups;
-    vcalc_rooms      classes.calc_rooms%type := pcalc_rooms;
-    vcalc_lec_ids    classes.calc_lec_ids%type := pcalc_lec_ids;
-    vcalc_gro_ids    classes.calc_gro_ids%type := pcalc_gro_ids;
-    vcalc_rom_ids    classes.calc_rom_ids%type := pcalc_rom_ids;
-    vcalc_rescat_ids classes.calc_rescat_ids%type := pcalc_rescat_ids;
+    vcalc_lecturers  classes.calc_lecturers%type  := substrb(pcalc_lecturers,  1, 500);
+    vcalc_groups     classes.calc_groups%type     := substrb(pcalc_groups,     1, 500); 
+    vcalc_rooms      classes.calc_rooms%type      := substrb(pcalc_rooms,      1, 500); 
+    vcalc_lec_ids    classes.calc_lec_ids%type    := substrb(pcalc_lec_ids,    1, 255);
+    vcalc_gro_ids    classes.calc_gro_ids%type    := substrb(pcalc_gro_ids,    1, 255); 
+    vcalc_rom_ids    classes.calc_rom_ids%type    := substrb(pcalc_rom_ids,    1, 255); 
+    vcalc_rescat_ids classes.calc_rescat_ids%type := substrb(pcalc_rescat_ids, 1, 255); 
     pno_conflict_flag varchar2(1) := null;
 
     cla_seq_nextval number;
@@ -1046,14 +1084,13 @@ create or replace package body planner_utils is
       end if;
     end loop;
 
-    if prefreshLGR = 'Y' then calculate_lgr(cla_seq_nextval, vcalc_lecturers, vcalc_groups, vcalc_rooms, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_rescat_ids); end if;
-
     declare
      eOwners varchar2(4000) := addOwners (powner, vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, psub_id, pfor_id);
     begin
         insert into classes
                     (id             , day  ,hour  ,fill  ,sub_id  ,for_id  ,owner  ,calc_lec_ids , calc_gro_ids , calc_rom_ids , calc_lecturers , calc_groups , calc_rooms , created_by        , colour  , desc1, desc2, desc3, desc4, calc_rescat_ids)
              values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,eOwners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
+       if prefreshLGR = 'Y' then update_lgr(cla_seq_nextval); end if;
     end;
 
     if ptt_comb_ids is not null then
@@ -1081,66 +1118,67 @@ create or replace package body planner_utils is
     update classes
          set    
          calc_lecturers = 
-            (select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY lec_cla.id)
+            substrb((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY lec_cla.id)
              from lecturers l,lec_cla  
-             where l.id =lec_id and is_child = 'N' and cla_id=classes.id)
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id), 1, 500)
           ,calc_groups    = 
-            (select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY gro_cla.id)
+            substrb((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY gro_cla.id)
              from groups g, gro_cla 
-             where g.id =gro_id and is_child = 'N' and cla_id=classes.id)
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id), 1, 500)
          ,calc_rooms     = 
-            (select listagg(r.name||' '||r.attribs_01,'; ') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb((select listagg(r.name||' '||r.attribs_01,'; ') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id)
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 500)
          ,calc_lec_ids   = 
-            (select listagg(l.id,';') WITHIN GROUP (ORDER BY lec_cla.id)
+            substrb((select listagg(l.id,';') WITHIN GROUP (ORDER BY lec_cla.id)
              from lecturers l,lec_cla  
-             where l.id =lec_id and is_child = 'N' and cla_id=classes.id)
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id), 1, 255)
          ,calc_gro_ids   = 
-            (select listagg(g.id,';') WITHIN GROUP (ORDER BY gro_cla.id)
+            substrb((select listagg(g.id,';') WITHIN GROUP (ORDER BY gro_cla.id)
              from groups g, gro_cla 
-             where g.id =gro_id and is_child = 'N' and cla_id=classes.id)
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id), 1, 255)
          ,calc_rom_ids   = 
-            (select listagg(r.id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb((select listagg(r.id,';') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id)
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 255)
          ,calc_rescat_ids= 
-            (select listagg(r.rescat_id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb((select listagg(r.rescat_id,';') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id)
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id), 1, 255)
      where             
           nvl(calc_lecturers,'null') <> 
-            nvl((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY lec_cla.id)
+            substrb(nvl((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY lec_cla.id)
              from lecturers l,lec_cla  
-             where l.id =lec_id and is_child = 'N' and cla_id=classes.id),'null') 
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id),'null'), 1, 500) 
           or nvl(calc_groups,'null')    <> 
-            nvl((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY gro_cla.id)
+            substrb(nvl((select listagg(abbreviation,'; ') WITHIN GROUP (ORDER BY gro_cla.id)
              from groups g, gro_cla 
-             where g.id =gro_id and is_child = 'N' and cla_id=classes.id),'null') 
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id),'null'), 1, 500) 
          or nvl(calc_rooms,'null')     <> 
-            nvl((select listagg(r.name||' '||r.attribs_01,'; ') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb(nvl((select listagg(r.name||' '||r.attribs_01,'; ') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null') 
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null'), 1, 500) 
          or nvl(calc_lec_ids,'null')   <>
-            nvl((select listagg(l.id,';') WITHIN GROUP (ORDER BY lec_cla.id)
+            substrb(nvl((select listagg(l.id,';') WITHIN GROUP (ORDER BY lec_cla.id)
              from lecturers l,lec_cla  
-             where l.id =lec_id and is_child = 'N' and cla_id=classes.id),'null') 
+             where l.id =lec_id and is_child = 'N' and cla_id=classes.id),'null'), 1, 255) 
          or nvl(calc_gro_ids,'null')   <> 
-            nvl((select listagg(g.id,';') WITHIN GROUP (ORDER BY gro_cla.id)
+            substrb(nvl((select listagg(g.id,';') WITHIN GROUP (ORDER BY gro_cla.id)
              from groups g, gro_cla 
-             where g.id =gro_id and is_child = 'N' and cla_id=classes.id),'null') 
+             where g.id =gro_id and is_child = 'N' and cla_id=classes.id),'null'), 1, 255) 
          or nvl(calc_rom_ids,'null')   <> 
-            nvl((select listagg(r.id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb(nvl((select listagg(r.id,';') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null') 
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null'), 1,255) 
          or nvl(calc_rescat_ids,'null') <> 
-            nvl((select listagg(r.rescat_id,';') WITHIN GROUP (ORDER BY rom_cla.id)
+            substrb(nvl((select listagg(r.rescat_id,';') WITHIN GROUP (ORDER BY rom_cla.id)
              from rooms r, rom_cla
-             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null');
+             where r.id = rom_id and is_child = 'N' and  cla_id=classes.id),'null'), 1, 255);
      commit;
     enable_trial;
   end;
 
+/*
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure update_lgr (cla_id number) is
     l       classes.calc_lecturers%type;
@@ -1163,16 +1201,17 @@ create or replace package body planner_utils is
      where id = cla_id;
   end;
 
+  
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure calculate_lgr(
      cla_id number,
-     l       out classes.calc_lecturers%type,
-     g       out classes.calc_groups%type,
-     r       out classes.calc_rooms%type,
-     l_id    out classes.calc_lec_ids%type,
-     g_id    out classes.calc_gro_ids%type,
-     r_id    out classes.calc_rom_ids%type,
-     r_resid out classes.calc_rescat_ids%type
+     l       out varchar2,
+     g       out varchar2,
+     r       out varchar2,
+     l_id    out varchar2,
+     g_id    out varchar2,
+     r_id    out varchar2,
+     r_resid out varchar2
   ) is
     cursor cur_l(pcla_id number) is
       select lec.abbreviation x
@@ -1229,8 +1268,17 @@ create or replace package body planner_utils is
      r_id    := xxmsz_tools.merge(r_id   , rec_r.id       , ';' );
      r_resid := xxmsz_tools.merge(r_resid, rec_r.rescat_id, ';' ); 
     end loop;
-  end;
 
+     l       := substrb(l      , 1, 500);
+     g       := substrb(g      , 1, 500);
+     r       := substrb(r      , 1, 500);
+     l_id    := substrb(l_id   , 1, 255);
+     g_id    := substrb(g_id   , 1, 255);
+     r_id    := substrb(r_id   , 1, 255);
+     r_resid := substrb(r_resid, 1, 255);
+
+  end;
+*/
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure insert_dependency_classes (pres_id number, pres_type varchar2, pper_id number, pcleanUpMode varchar2) is
     vdate_from date;

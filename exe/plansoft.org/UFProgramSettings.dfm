@@ -56,7 +56,7 @@ inherited FProgramSettings: TFProgramSettings
     Top = 0
     Width = 921
     Height = 604
-    ActivePage = TabClassDesc
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange
@@ -426,7 +426,7 @@ inherited FProgramSettings: TFProgramSettings
         Top = 64
         Width = 121
         Height = 22
-        TabOrder = 4
+        TabOrder = 3
       end
       object profileObjectNameClassacc: TEdit
         Left = 424
@@ -475,7 +475,7 @@ inherited FProgramSettings: TFProgramSettings
         Top = 64
         Width = 121
         Height = 22
-        TabOrder = 3
+        TabOrder = 4
       end
       object profileObjectNameClassgen: TEdit
         Left = 552

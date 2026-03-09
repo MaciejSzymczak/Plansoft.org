@@ -3283,12 +3283,12 @@ inherited FMain: TFMain
       OnClick = LeftPanelClick
       OnMouseMove = LeftPanelMouseMove
       object LprofileObjectNamePeriod: TLabel
-        Left = 859
+        Left = 869
         Top = 39
-        Width = 38
+        Width = 28
         Height = 13
         Alignment = taRightJustify
-        Caption = 'S&emestr'
+        Caption = 'Okres'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
@@ -6284,7 +6284,8 @@ inherited FMain: TFMain
         OnClick = BDICTFORClick
       end
       object mmprofileObjectNamePeriods: TMenuItem
-        Caption = 'Semestry'
+        Caption = 'Okresy'
+        Hint = 'Semestry'
         OnClick = BDICTPERClick
       end
       object Siatkagodzinowa1: TMenuItem

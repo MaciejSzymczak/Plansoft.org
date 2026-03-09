@@ -26,8 +26,34 @@ inherited FBrowseFIN_LOOKUP_VALUES: TFBrowseFIN_LOOKUP_VALUES
             Expanded = False
             FieldName = 'DESCRIPTION'
             Title.Caption = 'Warto'#347#263' wy'#347'wietlana'
+            Width = 300
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'STR_KEY'
+            Title.Caption = 'Klucz'
             Width = 200
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'AUX_DESC1'
+            Title.Caption = 'Opis 1'
+            Width = 200
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'AUX_DESC2'
+            Title.Caption = 'Opis 2'
+            Width = 200
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ID'
+            Visible = False
           end
           item
             Expanded = False
@@ -35,32 +61,6 @@ inherited FBrowseFIN_LOOKUP_VALUES: TFBrowseFIN_LOOKUP_VALUES
             Title.Caption = 'Typ'
             Width = 100
             Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'STR_KEY'
-            Title.Caption = 'Klucz'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'AUX_DESC1'
-            Title.Caption = 'Opis 1'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'AUX_DESC2'
-            Title.Caption = 'Opis 2'
-            Width = 100
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'ID'
-            Visible = False
           end
           item
             Expanded = False
@@ -378,7 +378,7 @@ inherited FBrowseFIN_LOOKUP_VALUES: TFBrowseFIN_LOOKUP_VALUES
         object con_label: TLabel
           Left = 8
           Top = 12
-          Width = 21
+          Width = 20
           Height = 14
           Caption = 'Typ:'
           Font.Charset = EASTEUROPE_CHARSET
@@ -448,18 +448,18 @@ inherited FBrowseFIN_LOOKUP_VALUES: TFBrowseFIN_LOOKUP_VALUES
     end
     inherited Update: TTabSheet
       object LabelID: TLabel [0]
-        Left = 720
+        Left = 721
         Top = 64
-        Width = 44
+        Width = 43
         Height = 14
         Alignment = taRightJustify
         Caption = 'Kol. wpr.'
         FocusControl = _ID
       end
       object LabelLOOKUP_TYPE: TLabel [1]
-        Left = 95
+        Left = 96
         Top = 16
-        Width = 18
+        Width = 17
         Height = 14
         Alignment = taRightJustify
         Caption = 'Typ'

@@ -1,29 +1,29 @@
 inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
   Left = 413
   Top = 198
-  Width = 1059
+  Width = 1074
   Height = 717
   Caption = 'Plan Studi'#243'w (Ograniczenia)'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 666
-    Width = 1051
+    Width = 1066
   end
   inherited MainPage: TPageControl
-    Width = 1051
+    Width = 1066
     Height = 666
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
-        Left = 710
+        Left = 725
         Top = 209
         Height = 370
         Align = alRight
       end
       inherited TopPanel: TPanel
-        Width = 1043
+        Width = 1058
         object BRecalculateAll: TBitBtn
-          Left = 909
+          Left = 926
           Top = 6
           Width = 129
           Height = 25
@@ -32,7 +32,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           OnClick = BRecalculateAllClick
         end
         object BRecalculateAllQuick: TBitBtn
-          Left = 909
+          Left = 926
           Top = 30
           Width = 129
           Height = 25
@@ -41,8 +41,8 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           OnClick = BRecalculateAllQuickClick
         end
         object BitBtn1: TBitBtn
-          Left = 808
-          Top = 7
+          Left = 828
+          Top = 6
           Width = 99
           Height = 25
           Caption = 'Uzupe'#322'nij obsady'
@@ -52,7 +52,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       end
       inherited Grid: TRxDBGrid
         Top = 209
-        Width = 710
+        Width = 725
         Height = 370
         Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
@@ -436,17 +436,17 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       end
       inherited BottomPanel: TPanel
         Top = 598
-        Width = 1043
+        Width = 1058
       end
       inherited Panel: TPanel
         Top = 579
-        Width = 1043
+        Width = 1058
         inherited StatusBar: TStatusBar
-          Width = 974
+          Width = 989
         end
       end
       inherited CustomPanel: TPanel
-        Width = 1043
+        Width = 1058
         Height = 122
         object lCombType: TLabel
           Left = 804
@@ -596,14 +596,14 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         object Panel4: TPanel
           Left = 1
           Top = 45
-          Width = 1041
+          Width = 1056
           Height = 76
           Align = alBottom
           TabOrder = 6
           inline GenericFilter: TFGenericFilter
             Left = 1
             Top = 1
-            Width = 1039
+            Width = 1054
             Height = 80
             Align = alTop
             TabOrder = 8
@@ -956,10 +956,10 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         end
       end
       inherited SecondRatePanel: TPanel
-        Width = 1043
+        Width = 1058
       end
       object DetPanel: TPanel
-        Left = 713
+        Left = 728
         Top = 209
         Width = 330
         Height = 370
@@ -1079,18 +1079,18 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     inherited Update: TTabSheet
       inherited UpdPanel: TPanel
         Top = 602
-        Width = 1043
+        Width = 1058
       end
       inherited FlexPanel: TPanel
         Top = 257
-        Width = 1043
+        Width = 1058
         Height = 320
         Align = alTop
       end
       object Panel2: TPanel
         Left = 0
         Top = 0
-        Width = 1043
+        Width = 1058
         Height = 49
         Align = alTop
         TabOrder = 2
@@ -1309,7 +1309,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       object Panel3: TPanel
         Left = 0
         Top = 49
-        Width = 1043
+        Width = 1058
         Height = 208
         Align = alTop
         TabOrder = 3
