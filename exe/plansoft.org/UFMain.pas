@@ -8,7 +8,7 @@ uses
   UCommon, DM, UFReadString, Menus, UFInfo, Tabs, Mask, DBCtrls, Grids,
   ToolEdit, db, UFDatabaseLogin,
   WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
-  DBGrids, UUtilityParent, DateUtils, XPMan;                  
+  DBGrids, UUtilityParent, DateUtils, XPMan;
 
 var dGeneralDebug : string;
 
@@ -601,6 +601,7 @@ type
     Wersjonowanie1: TMenuItem;
     showbgroups: TCheckBox;
     LprofileObjectNameC1: TSpeedButton;
+    HeaderGrid: TDrawGrid;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -951,6 +952,9 @@ type
     procedure LprofileObjectNameLClick(Sender: TObject);
     procedure LprofileObjectNameGClick(Sender: TObject);
     procedure LprofileObjectNameC1Click(Sender: TObject);
+    procedure HeaderGridDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure GridTopLeftChanged(Sender: TObject);
   private
     resizeMode: boolean;
     timerShapes : integer;
@@ -994,6 +998,8 @@ type
     procedure HighLightGrid;
     procedure CopyPeriodDays(deleteExisting : boolean);
     procedure setUserOrRoleId;
+    Procedure HighLight(Var grid : TDrawGrid; Rect : TRect);
+    Procedure DrawCross(Var grid : TDrawGrid; Rect : TRect);
   public
     CanShow            : boolean;
     CanBuildCalendar   : boolean;
@@ -1978,11 +1984,14 @@ procedure TFMain.RefreshGrid;
 
 begin
    if CanBuildCalendar = false then exit;
-   grid.Canvas.Font.Assign( gridFont.Font );
-   if FcellLayout.ForceCellWidth.Checked then
-     Grid.DefaultColWidth := FcellLayout.ForcedCellWidth.Position
-   else begin
-     Grid.DefaultColWidth := grid.Canvas.TextWidth('11-12')+2;
+   Grid.Canvas.Font.Assign( gridFont.Font );
+   //HeaderGrid.Canvas.Font.Assign( gridFont.Font );
+   if FcellLayout.ForceCellWidth.Checked then begin
+     Grid.DefaultColWidth := FcellLayout.ForcedCellWidth.Position;
+     HeaderGrid.DefaultColWidth := FcellLayout.ForcedCellWidth.Position;
+   end else begin
+     Grid.DefaultColWidth := Grid.Canvas.TextWidth('11-12')+2;
+     HeaderGrid.DefaultColWidth := HeaderGrid.Canvas.TextWidth('11-12')+2;
      FcellLayout.ForcedCellWidth.Position := Grid.DefaultColWidth;
    end;
 
@@ -1990,15 +1999,20 @@ begin
      Grid.ColWidths[0] := 60;
      Grid.ColWidths[1] := 60;
      Grid.ColWidths[2] := 600;
+     HeaderGrid.ColWidths[0] := 60;
+     HeaderGrid.ColWidths[1] := 60;
+     HeaderGrid.ColWidths[2] := 600;
    end;
 
 
-   if FcellLayout.ForceCellHeight.Checked then
-     Grid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position
-   else
+   if FcellLayout.ForceCellHeight.Checked then begin
+     Grid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position;
+     //HeaderGrid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position;
+   end else
    begin
-     fontHeightInPixels := grid.Canvas.TextHeight('X');
+     fontHeightInPixels := Grid.Canvas.TextHeight('X');
      Grid.DefaultRowHeight := fontHeightInPixels * 1;
+     //HeaderGrid.DefaultRowHeight := fontHeightInPixels * 1;
      If getCode(FcellLayout.D2) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 2;
      If getCode(FcellLayout.D3) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 3;
      If getCode(FcellLayout.D4) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 4;
@@ -2101,6 +2115,8 @@ Begin
   convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
   Grid.ColCount := colCnt;
   Grid.RowCount := rowCnt;
+
+  HeaderGrid.ColCount := colCnt;
 
   RefreshGrid;
 
@@ -2279,26 +2295,6 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 , Rect.Top+RHeight div 2-6
 	 , partB );
 
-	End;
-
-	Procedure HighLight(Var Rect : TRect);
-	Begin
-	 grid.Canvas.Pen.Color := clGray;
-   grid.Canvas.Brush.Color := clGray;
-   grid.Canvas.Font.Color := clWhite;
-   //orig := Grid.Canvas.Pen.Mode;
-   //Grid.Canvas.Pen.Mode  := pmXor;
-   grid.Canvas.Rectangle(Rect);
-   //Grid.Canvas.Pen.Mode := orig;
-	End;
-
-	Procedure DrawCross(Var Rect : TRect);
-	Begin
-	 grid.Canvas.Pen.Color := clBlack;
-	 grid.Canvas.MoveTo(Rect.Left,Rect.Top);
-	 grid.Canvas.LineTo(Rect.Right,Rect.Bottom);
-	 grid.Canvas.MoveTo(Rect.Right,Rect.Top);
-	 grid.Canvas.LineTo(Rect.Left,Rect.Bottom);
 	End;
 
 	Procedure DrawEdge(Var Rect : TRect; edgeNo : integer; lineWidth : integer);
@@ -2733,7 +2729,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
     resType := ReservationsCache.IsReserved(TS, Zajecia);
 	  If resType<>'' Then DrawStriped(Rect, resType);
     If (confineCalendarId<>'') then
-      If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then DrawCross(Rect);
+      If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then DrawCross(grid, Rect);
 	 End;
 
 	 Procedure drawOtherCalendar;
@@ -2759,10 +2755,11 @@ begin
       Exit;
    End;
 
+
    Case convertGrid.ColRowToDate(AObjectId, TS, Zajecia, ACol, ARow) Of
     //ConvDayOfWeek:   If Zajecia=0 Then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,NumToDayOfWeek(ARow div (ConvertDateColRow.MaxIloscGodzin+1))+DateTimeToStr(TimeStampToDateTime(TS)));
     ConvDayOfWeek   :begin
-                       if (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
+                       if (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (grid, Rect);
                        if TS.Date<>-1 then if Zajecia=0 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
 
                        //to do:
@@ -2771,21 +2768,23 @@ begin
 
                      end;
     ConvNumeryZajec :begin
-                       if  (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (Rect);
+                       if  (ARow>0) and (ARow >=grid.Selection.Top) and (ARow <= grid.Selection.Bottom ) then HighLight (grid, Rect);
                        if Zajecia<>0 then
                          if gridHiddenRows[zajecia]=false then
                            Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,gridDefinition.getLabel(Zajecia));
                      end;
-    convOutOfRange  :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); DrawCross(Rect); End;
+    convOutOfRange  :begin Grid.Canvas.Brush.Color := clMenu; Grid.Canvas.FillRect(Rect); DrawCross(grid, Rect); End;
     ConvHeader      :begin
                        Grid.Canvas.Brush.Color := clMenu;
                        Grid.Canvas.FillRect(Rect);
-                       if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (Rect);
+                       if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (grid, Rect);
 
 
                        Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
                          , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
                        );
+
+
                      End;
     ConvClass:
      Begin
@@ -2845,7 +2844,7 @@ begin
       Grid.Canvas.Pen.Style := psSolid;
     end else begin
       if  (Grid.Selection.Left<>Grid.Selection.Right) or (Grid.Selection.Top<>Grid.Selection.Bottom) then
-          HighLight(originalRect);
+          HighLight(grid, originalRect);
     end;
    end;
 
@@ -9784,12 +9783,12 @@ begin
     end;
 end;
 
-
-
 procedure TFMain.refreshGridAndLegend;
 begin
   grid.Refresh;
-  If FLegend.Visible then FLegend.BRefreshClick(nil);
+  HeaderGrid.Visible := not BViewByCrossTable.Down;
+  HeaderGrid.Refresh;
+  //If FLegend.Visible then FLegend.BRefreshClick(nil);
 end;
 
 procedure TFMain.showbgroupsClick(Sender: TObject);
@@ -9829,6 +9828,62 @@ end;
 procedure TFMain.LprofileObjectNameC1Click(Sender: TObject);
 begin
   callExternalURL('externalURL_SUB');
+end;
+
+procedure TFMain.HeaderGridDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+  var cellType : integer;
+begin
+   headerGrid.Canvas.Font.Assign( gridFont.Font );
+   If Not CanShow Then Exit;
+
+   If isBlank(conPeriod.Text) Then Begin
+      GridPanel.Visible := False;
+      Exit;
+   End;
+
+   cellType := convertGrid.ColRowToDate(AObjectId, TS, Zajecia, ACol, Grid.TopRow {!} );
+    if cellType = convOutOfRange  then begin HeaderGrid.Canvas.Brush.Color := clMenu; HeaderGrid.Canvas.FillRect(Rect); DrawCross(HeaderGrid, Rect); End else
+    {ConvHeader, ConvClass}
+    begin
+     headerGrid.Canvas.Brush.Color := clMenu;
+     headerGrid.Canvas.FillRect(Rect);
+     if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (headerGrid, Rect);
+
+     headerGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
+     , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
+     );
+    end;
+
+end;
+
+
+
+procedure TFMain.HighLight(var grid : TDrawGrid; Rect: TRect);
+begin
+	 grid.Canvas.Pen.Color := clGray;
+   grid.Canvas.Brush.Color := clGray;
+   grid.Canvas.Font.Color := clWhite;
+   //orig := Grid.Canvas.Pen.Mode;
+   //Grid.Canvas.Pen.Mode  := pmXor;
+   grid.Canvas.Rectangle(Rect);
+   //Grid.Canvas.Pen.Mode := orig;
+end;
+
+Procedure TFMain.DrawCross(Var grid : TDrawGrid; Rect : TRect);
+Begin
+ grid.Canvas.Pen.Color := clBlack;
+ grid.Canvas.MoveTo(Rect.Left,Rect.Top);
+ grid.Canvas.LineTo(Rect.Right,Rect.Bottom);
+ grid.Canvas.MoveTo(Rect.Right,Rect.Top);
+ grid.Canvas.LineTo(Rect.Left,Rect.Bottom);
+End;
+
+procedure TFMain.GridTopLeftChanged(Sender: TObject);
+begin
+ HeaderGrid.col := Grid.Selection.Left;
+ HeaderGrid.LeftCol := Grid.LeftCol;
+
 end;
 
 initialization

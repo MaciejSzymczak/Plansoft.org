@@ -5106,9 +5106,9 @@ inherited FMain: TFMain
       end
       object Grid: TDrawGrid
         Left = 1
-        Top = 25
+        Top = 43
         Width = 1603
-        Height = 728
+        Height = 710
         Align = alClient
         ColCount = 50
         DefaultColWidth = 28
@@ -5127,6 +5127,7 @@ inherited FMain: TFMain
         OnMouseWheelDown = GridMouseWheelDown
         OnMouseWheelUp = GridMouseWheelUp
         OnSelectCell = GridSelectCell
+        OnTopLeftChanged = GridTopLeftChanged
       end
       object sql_COM_SEARCH: TMemo
         Left = 200
@@ -5169,6 +5170,22 @@ inherited FMain: TFMain
         TabOrder = 2
         Visible = False
         WordWrap = False
+      end
+      object HeaderGrid: TDrawGrid
+        Left = 1
+        Top = 25
+        Width = 1603
+        Height = 18
+        Align = alTop
+        ColCount = 50
+        DefaultColWidth = 28
+        DefaultRowHeight = 15
+        FixedCols = 2
+        RowCount = 1
+        FixedRows = 0
+        ScrollBars = ssNone
+        TabOrder = 3
+        OnDrawCell = HeaderGridDrawCell
       end
     end
   end
