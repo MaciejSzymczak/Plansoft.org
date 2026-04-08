@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<?xml-stylesheet type="text/xsl" href="layout.xslt"?>
+<xml>
+<title name="Plansoft.org - zajęcia"></title>
+<period name="iKalendarz_SWF"></period>
+<description text=""></description>
+<data>
+  <gro href="I6ZG.ics" text="I6ZG"/>
+</data>
+<who lastupdatetext="Aktualizacja: 2017-06-14 17:43:22"></who>
+<extraText text="Plik iKalendarza mogą być otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar"></extraText>
+<href1 href="https://support.google.com/calendar/answer/37118?hl=pl" text="Kliknij w ten link aby dowiedzieć się jak zaimportować rozkład zajęć do Google Kalendarza"  ></href1>
+<href2 href="http://calendar.zoznam.sk/icalendar/ical-pl.php" text="Kliknij w ten link aby dowiedzieć się jeszcze więcej na temat iKalendarzy"  ></href2>
+</xml>

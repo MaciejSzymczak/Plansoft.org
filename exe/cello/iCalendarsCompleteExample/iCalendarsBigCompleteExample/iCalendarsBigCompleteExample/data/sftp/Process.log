@@ -1,0 +1,186 @@
+
+E:\iKalendarze\bin\sftp>call :copyfiles DOK 
+
+E:\iKalendarze\bin\sftp>echo processing DOK 
+processing DOK
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\DOK\DOK.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\DOK\ListOfCalendars.js" "E:\iKalendarze\data\DOK\DOK.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\DOK\DOK.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles IOE 
+
+E:\iKalendarze\bin\sftp>echo processing IOE 
+processing IOE
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\IOE\IOE.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\IOE\ListOfCalendars.js" "E:\iKalendarze\data\IOE\IOE.js" 
+The system cannot find the file specified.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\IOE\IOE.js" "E:\iKalendarze\data\sftp" 
+The system cannot find the file specified.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles SJO 
+
+E:\iKalendarze\bin\sftp>echo processing SJO 
+processing SJO
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\SJO\SJO.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\SJO\ListOfCalendars.js" "E:\iKalendarze\data\SJO\SJO.js" 
+The system cannot find the file specified.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\SJO\SJO.js" "E:\iKalendarze\data\sftp" 
+The system cannot find the file specified.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles SSW 
+
+E:\iKalendarze\bin\sftp>echo processing SSW 
+processing SSW
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\SSW\SSW.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\SSW\ListOfCalendars.js" "E:\iKalendarze\data\SSW\SSW.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\SSW\SSW.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WCY 
+
+E:\iKalendarze\bin\sftp>echo processing WCY 
+processing WCY
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WCY\WCY.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WCY\ListOfCalendars.js" "E:\iKalendarze\data\WCY\WCY.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WCY\WCY.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WEL 
+
+E:\iKalendarze\bin\sftp>echo processing WEL 
+processing WEL
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WEL\WEL.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WEL\ListOfCalendars.js" "E:\iKalendarze\data\WEL\WEL.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WEL\WEL.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WIG 
+
+E:\iKalendarze\bin\sftp>echo processing WIG 
+processing WIG
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WIG\WIG.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WIG\ListOfCalendars.js" "E:\iKalendarze\data\WIG\WIG.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WIG\WIG.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WLO 
+
+E:\iKalendarze\bin\sftp>echo processing WLO 
+processing WLO
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WLO\WLO.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WLO\ListOfCalendars.js" "E:\iKalendarze\data\WLO\WLO.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WLO\WLO.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WME 
+
+E:\iKalendarze\bin\sftp>echo processing WME 
+processing WME
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WME\WME.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WME\ListOfCalendars.js" "E:\iKalendarze\data\WME\WME.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WME\WME.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WML 
+
+E:\iKalendarze\bin\sftp>echo processing WML 
+processing WML
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WML\WML.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WML\ListOfCalendars.js" "E:\iKalendarze\data\WML\WML.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WML\WML.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>call :copyfiles WTC 
+
+E:\iKalendarze\bin\sftp>echo processing WTC 
+processing WTC
+
+E:\iKalendarze\bin\sftp>del "E:\iKalendarze\data\WTC\WTC.js" 
+
+E:\iKalendarze\bin\sftp>copy "E:\iKalendarze\data\WTC\ListOfCalendars.js" "E:\iKalendarze\data\WTC\WTC.js" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\WTC\WTC.js" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>goto :eof 
+
+E:\iKalendarze\bin\sftp>java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar status "E:\iKalendarze\data" 
+C:\Users\ext.mszymczak
+Cello, ver 2017.05.19
+Software Factory Maciej Szymczak, All Rights reserved
+Parameter count 2
+Parameter 0 is status
+Parameter 1 is E:\iKalendarze\data
+Preparing Status
+Done
+
+E:\iKalendarze\bin\sftp>copy /Y "E:\iKalendarze\data\status.xml" "E:\iKalendarze\data\sftp" 
+        1 file(s) copied.
+
+E:\iKalendarze\bin\sftp>cd E:\iKalendarze\data\sftp 
+
+E:\iKalendarze\data\sftp>wscript.exe E:\iKalendarze\bin\sftp\sftp.js 
+
+E:\iKalendarze\data\sftp>cd E:\iKalendarze\bin\sftp 
+
+E:\iKalendarze\bin\sftp>goto :eof 

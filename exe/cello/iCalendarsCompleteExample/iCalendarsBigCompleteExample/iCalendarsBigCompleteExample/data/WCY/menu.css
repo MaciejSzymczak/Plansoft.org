@@ -1,0 +1,20 @@
+#container ul.menu {
+	margin: 5;
+}
+
+#container ul.menu a {
+	display: block;
+	color: #333333;
+	text-decoration: none;
+	outline: none; padding-left:0; padding-right:0; padding-top:2px; padding-bottom:2px;
+}
+
+#container ul.menu a:hover,
+#container ul.menu a:active,
+#container ul.menu a:focus {
+	color: #333333;
+	background: #DDDDDD repeat-x bottom;
+	text-decoration: none;
+}
+
+

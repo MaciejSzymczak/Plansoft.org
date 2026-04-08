@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<?xml-stylesheet type="text/xsl" href="layout.xslt"?>
+<xml>
+<title name="Plansoft.org - zajęcia"></title>
+<period name="sesja zim 2017"></period>
+<description text=""></description>
+<data>
+  <lec href="dr_inz._Chudy_Zdzislaw.ics" text="dr inż. Chudy Zdzisław"/>
+  <lec href="dr_inz._Konopacki_Gustaw.ics" text="dr inż. Konopacki Gustaw"/>
+  <lec href="prof.dr_hab.inz._Konopka_Stanislaw.ics" text="prof.dr hab.inż. Konopka Stanisław"/>
+  <lec href="dr_inz._Wantoch-Rekowski_Roman.ics" text="dr inż. Wantoch-Rekowski Roman"/>
+</data>
+<who lastupdatetext="Aktualizacja: 2017-04-20 07:33:32"></who>
+<extraText text="Plik iKalendarza mogą być otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar"></extraText>
+<href1 href="https://support.google.com/calendar/answer/37118?hl=pl" text="Kliknij w ten link aby dowiedzieć się jak zaimportować rozkład zajęć do Google Kalendarza"  ></href1>
+<href2 href="http://calendar.zoznam.sk/icalendar/ical-pl.php" text="Kliknij w ten link aby dowiedzieć się jeszcze więcej na temat iKalendarzy"  ></href2>
+</xml>

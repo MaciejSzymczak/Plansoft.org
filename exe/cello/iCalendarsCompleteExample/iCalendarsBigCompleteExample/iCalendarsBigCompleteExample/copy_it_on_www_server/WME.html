@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+<!--jQuery dependencies-->
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/base/jquery-ui.css" />    
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+
+<!--PQ Grid files-->
+    <link rel="stylesheet" href="pqgrid.min.css" />
+    <script src="pqgrid.min.js"></script>
+    <script src="WME.js"></script>
+
+<!--PQ Grid Office theme-->
+    <link rel="stylesheet" href="themes/office/pqgrid.css" />
+
+<style>
+.button {
+    text-align: center;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+	width:100px;
+}
+
+.button5:hover {
+    background-color: #555555;
+    color: white;
+}
+</style>
+	
+	
+<script>
+
+//---------------------------------------------------------------------------------
+function executeCopy(text) {
+	var input = document.createElement('textarea');
+	document.body.appendChild(input);                  
+	input.value = text;
+	input.focus();
+	input.select();
+	s = document.execCommand('Copy');
+	if (!s) {
+		MsgBox("Operacja nie powiodła się, spróbuj użyć innej przeglądarki :: Operation failed, try to use another browser", "Internal error");
+	} else input.value = '';
+	alert("Gotowe, link do kalendarza został skopiowany do schowka")
+	input.remove();
+}
+
+//---------------------------------------------------------------------------------
+function openLinkInNewTab(text) {
+    varCalendarId = text.replace("https://calendar.google.com/calendar/ical/","").replace("/public/basic.ics","");
+    window.open("https://calendar.google.com/calendar/embed?src="+varCalendarId+"&ctz=Europe%2FWarsaw", '_blank');
+}
+
+$(function () {
+
+   function filterhandler(evt, ui) {
+ 
+            var $toolbar = $grid.find('.pq-toolbar-search'),
+                $value = $toolbar.find(".filterValue"),
+                value = $value.val(),
+                condition = $toolbar.find(".filterCondition").val(),
+                dataIndx = $toolbar.find(".filterColumn").val(),
+                filterObject;
+ 
+            if (dataIndx == "") {//search through all fields when no field selected.
+                filterObject = [];
+                var CM = $grid.pqGrid("getColModel");
+                for (var i = 0, len = CM.length; i < len; i++) {
+                    var dataIndx = CM[i].dataIndx;
+                    filterObject.push({ dataIndx: dataIndx, condition: condition, value: value });
+                }
+            }
+            else {//search through selected field.
+                filterObject = [{ dataIndx: dataIndx, condition: condition, value: value}];
+            }
+            $grid.pqGrid("filter", {
+                oper: 'replace',
+                data: filterObject
+            });
+        }
+        //filterRender to highlight matching cell text.
+        function filterRender(ui) {
+            //console.debug(ui);
+            //@@@Maciej +"" to avoid an error when colum contains only number 
+            var val = ui.cellData+"",
+                filter = ui.column.filter;
+            if (filter && filter.on && filter.value) {
+                var condition = filter.condition,
+                    valUpper = val.toUpperCase(),
+                    txt = filter.value,
+                    txt = (txt == null) ? "" : txt.toString(),
+                    txtUpper = txt.toUpperCase(),
+                    indx = -1;
+                if (condition == "end") {
+                    indx = valUpper.lastIndexOf(txtUpper);
+                    //if not at the end
+                    if (indx + txtUpper.length != valUpper.length) {
+                        indx = -1;
+                    }
+                }
+                else if (condition == "contain") {
+                    indx = valUpper.indexOf(txtUpper);
+                }
+                else if (condition == "begin") {
+                    indx = valUpper.indexOf(txtUpper);
+                    //if not at the beginning.
+                    if (indx > 0) {
+                        indx = -1;
+                    }
+                }
+                if (indx >= 0) {
+                    var txt1 = val.substring(0, indx);
+                    var txt2 = val.substring(indx, indx + txt.length);
+                    var txt3 = val.substring(indx + txt.length);
+                    return txt1 + "<span style='background:yellow;color:#333;'>" + txt2 + "</span>" + txt3;
+                }
+                else {
+                    return val;
+                }
+            }
+            else {
+                return val;
+            }
+        }
+
+        function renderButtonCopyLink(ui) {
+            var val = ui.cellData+"";
+            return "<center><button class='button button5' onclick='executeCopy(&quot;"+val+"&quot;)'>Kopiuj link</button></center>";
+        }
+        function renderButtonOpenCalendar(ui) {
+            var val = ui.cellData+""; 
+            return "<center><button class='button button5' onclick='openLinkInNewTab(&quot;"+val+"&quot;)'>Otwórz</button></center>";
+        }
+
+        var colM = [
+            { title: "Nazwa kalendarza", width: 300, dataIndx: "calendarName", render: filterRender },
+            { title: "Link do kalendarza", width: 140, dataIndx: "link", render: renderButtonCopyLink },
+            { title: "Otwórz kalendarz", width: 140, dataIndx: "link", render: renderButtonOpenCalendar }
+		];
+
+        var newObj = {
+            flexHeight: true,
+            flexWidth: true,
+            pageModel: { type: 'local' },
+            dataModel: { data: data },
+            colModel: colM,
+            selectionModel: { type: 'cell', mode: 'single' },
+            filterModel: { mode: 'OR' },
+            toolbar: {
+                cls: "pq-toolbar-search",
+                items: [
+                    { type: "<span style='margin:5px;'>Filter</span>" },
+                    { type: 'textbox', attr: 'placeholder="Enter your keyword"', cls: "filterValue", listeners: [{ 'keyup': filterhandler}] },
+                    { type: 'select', cls: "filterColumn",
+                        listeners: [{ 'change': filterhandler}],
+                        options: function (ui) {
+                            var CM = ui.colModel;
+                            var opts = [{ '': '[ All Fields ]'}];
+                            return opts;
+                        }
+                    },
+                    { type: 'select', style: "margin:0px 5px;", cls: "filterCondition",
+                        listeners: [{ 'change': filterhandler}],
+                        options: [
+                        { "contain": "Contains" }
+                        ]
+                    }
+                ]
+            },
+            editable: false,
+            showTitle: false,
+            columnBorders: true
+        };
+		
+		newObj.dataModel = { data: data };
+        var $grid = $("#grid_json").pqGrid(newObj);
+
+
+    });
+	  
+</script>    
+</head>
+<body>
+<div id="fb-root"></div>
+<script>// <![CDATA[
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/pl_PL/all.js#xfbml=1&version=v2.5";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+// ]]></script>
+<div class="fb-like" data-href="https://www.facebook.com/Plansoft.org" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+<h3 style="font-variant: small-caps; text-align: center; color: black; background-color: rgb(211, 225, 241); ">Lista kalendarzy do zaimportowania do Twojego kalendarza Google</h3>
+<center>
+<a class='button button5' href="http://plansoft.org/Sciaga.JakWyswietlicKalendarz.pdf">W jaki sposób mogę pobrać kalendarz?</a>
+<div id="grid_json" style="margin:10px;"></div>
+</center>
+</body>
+
+</html>

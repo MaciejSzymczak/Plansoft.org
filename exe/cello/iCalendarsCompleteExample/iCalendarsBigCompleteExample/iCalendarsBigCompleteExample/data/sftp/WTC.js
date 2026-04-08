@@ -1,0 +1,2 @@
+var data = [
+{ calendarName: 'dr inż. Polański Marek Wykładowca', link: 'https://calendar.google.com/calendar/ical/qcc1fp3jkbc0rf3s3646sjd5cg@group.calendar.google.com/public/basic.ics' },{ calendarName: 'I6ZG Grupa', link: 'https://calendar.google.com/calendar/ical/nb1gduensfh31oi08itnoi3sbk@group.calendar.google.com/public/basic.ics' }];

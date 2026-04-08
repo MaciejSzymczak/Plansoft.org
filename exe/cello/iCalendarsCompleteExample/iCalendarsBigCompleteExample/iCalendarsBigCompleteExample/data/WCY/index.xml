@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<?xml-stylesheet type="text/xsl" href="layout.xslt"?>
+<xml>
+<title name="Plansoft.org - zajęcia"></title>
+<period name="iKalendarz_WCY"></period>
+<description text=""></description>
+<data>
+  <gro href="H5X1S1.ics" text="H5X1S1"/>
+  <gro href="H5X2S1.ics" text="H5X2S1"/>
+  <gro href="H6X1S1.ics" text="H6X1S1"/>
+  <gro href="H6X2S1.ics" text="H6X2S1"/>
+  <gro href="H6X3S1.ics" text="H6X3S1"/>
+  <gro href="I4B1N1.ics" text="I4B1N1"/>
+  <gro href="I4B1S1.ics" text="I4B1S1"/>
+  <gro href="I4B2S1.ics" text="I4B2S1"/>
+  <gro href="I4B3S1.ics" text="I4B3S1"/>
+  <gro href="I4G1S1.ics" text="I4G1S1"/>
+  <gro href="I5D1S4.ics" text="I5D1S4"/>
+  <gro href="I5X1N1.ics" text="I5X1N1"/>
+  <gro href="I5X1S1.ics" text="I5X1S1"/>
+  <gro href="I5X1_3.ics" text="I5X1_3"/>
+  <gro href="I5X2S1.ics" text="I5X2S1"/>
+  <gro href="I5X3S1.ics" text="I5X3S1"/>
+  <gro href="I5X4S1.ics" text="I5X4S1"/>
+  <gro href="I5X5S1.ics" text="I5X5S1"/>
+  <gro href="I5Y1S1.ics" text="I5Y1S1"/>
+  <gro href="I5Y2S1.ics" text="I5Y2S1"/>
+  <gro href="I5Y3S1.ics" text="I5Y3S1"/>
+  <gro href="I5Y4S1.ics" text="I5Y4S1"/>
+  <gro href="I5Y5S1.ics" text="I5Y5S1"/>
+  <gro href="I6B1S4.ics" text="I6B1S4"/>
+  <gro href="I6B2S4.ics" text="I6B2S4"/>
+  <gro href="I6B3S4.ics" text="I6B3S4"/>
+  <gro href="I6D1S4.ics" text="I6D1S4"/>
+  <gro href="I6D2S4.ics" text="I6D2S4"/>
+  <gro href="I6E1S4.ics" text="I6E1S4"/>
+  <gro href="I6G1S4.ics" text="I6G1S4"/>
+  <gro href="I6G2S4.ics" text="I6G2S4"/>
+  <gro href="I6X1N1.ics" text="I6X1N1"/>
+  <gro href="I6X1S1.ics" text="I6X1S1"/>
+  <gro href="I6X1_3.ics" text="I6X1_3"/>
+  <gro href="I6X2N1.ics" text="I6X2N1"/>
+  <gro href="I6X2S1.ics" text="I6X2S1"/>
+  <gro href="I6X3N1.ics" text="I6X3N1"/>
+  <gro href="I6X3S1.ics" text="I6X3S1"/>
+  <gro href="I6X4S1.ics" text="I6X4S1"/>
+  <gro href="I6X5S1.ics" text="I6X5S1"/>
+  <gro href="I6X6S1.ics" text="I6X6S1"/>
+  <gro href="I6X7S1.ics" text="I6X7S1"/>
+  <gro href="I6Y1S1.ics" text="I6Y1S1"/>
+  <gro href="I6Y2S1.ics" text="I6Y2S1"/>
+  <gro href="I6Y3S1.ics" text="I6Y3S1"/>
+  <gro href="I6Y4S1.ics" text="I6Y4S1"/>
+  <gro href="I6Y5S1.ics" text="I6Y5S1"/>
+  <gro href="I6Y6S1.ics" text="I6Y6S1"/>
+  <gro href="I6ZG.ics" text="I6ZG"/>
+  <gro href="K4B1S1.ics" text="K4B1S1"/>
+  <gro href="K4C1N1.ics" text="K4C1N1"/>
+  <gro href="K4C1S1.ics" text="K4C1S1"/>
+  <gro href="K4K1S1.ics" text="K4K1S1"/>
+  <gro href="K5X1S1.ics" text="K5X1S1"/>
+  <gro href="K5X2S1.ics" text="K5X2S1"/>
+  <gro href="K6X1N1.ics" text="K6X1N1"/>
+  <gro href="K6X1S1.ics" text="K6X1S1"/>
+  <gro href="K6X2S1.ics" text="K6X2S1"/>
+  <gro href="K6X3S1.ics" text="K6X3S1"/>
+  <gro href="K6X4S1.ics" text="K6X4S1"/>
+  <gro href="Podyplomowe_Studia_Zarzadzania_Zasobami_Ludzkimi.ics" text="Podyplomowe Studia Zarządzania Zasobami Ludzkimi"/>
+  <gro href="R5K1N1.ics" text="R5K1N1"/>
+  <gro href="R5K1N2.ics" text="R5K1N2"/>
+  <gro href="R5K1S1.ics" text="R5K1S1"/>
+  <gro href="R5K1S2.ics" text="R5K1S2"/>
+  <gro href="R5K2N1.ics" text="R5K2N1"/>
+  <gro href="R5K2N2.ics" text="R5K2N2"/>
+  <gro href="R5K2S1.ics" text="R5K2S1"/>
+  <gro href="R5K2S2.ics" text="R5K2S2"/>
+  <gro href="R5K3S1.ics" text="R5K3S1"/>
+  <gro href="R5K3S2.ics" text="R5K3S2"/>
+  <gro href="R5K4S1.ics" text="R5K4S1"/>
+  <gro href="R5K5S1.ics" text="R5K5S1"/>
+  <gro href="R5K6S1.ics" text="R5K6S1"/>
+  <gro href="R5K7S1.ics" text="R5K7S1"/>
+  <gro href="R5U1S2.ics" text="R5U1S2"/>
+  <gro href="R5X1N3.ics" text="R5X1N3"/>
+  <gro href="R5X1S3.ics" text="R5X1S3"/>
+  <gro href="R6K1N1.ics" text="R6K1N1"/>
+  <gro href="R6K1N2.ics" text="R6K1N2"/>
+  <gro href="R6K1S1.ics" text="R6K1S1"/>
+  <gro href="R6K1S2.ics" text="R6K1S2"/>
+  <gro href="R6K2N1.ics" text="R6K2N1"/>
+  <gro href="R6K2N2.ics" text="R6K2N2"/>
+  <gro href="R6K2S1.ics" text="R6K2S1"/>
+  <gro href="R6K2S2.ics" text="R6K2S2"/>
+  <gro href="R6K3S1.ics" text="R6K3S1"/>
+  <gro href="R6K3S2.ics" text="R6K3S2"/>
+  <gro href="R6K4S1.ics" text="R6K4S1"/>
+  <gro href="R6K5S1.ics" text="R6K5S1"/>
+  <gro href="R6K6S1.ics" text="R6K6S1"/>
+  <gro href="R6U1S2.ics" text="R6U1S2"/>
+  <gro href="R6U2S2.ics" text="R6U2S2"/>
+  <gro href="R6X1_3.ics" text="R6X1_3"/>
+  <gro href="Z5X1S1.ics" text="Z5X1S1"/>
+  <gro href="Z5X2S1.ics" text="Z5X2S1"/>
+  <gro href="Z5X3S1.ics" text="Z5X3S1"/>
+  <gro href="Z5Z1S2.ics" text="Z5Z1S2"/>
+  <gro href="Z5Z2S2.ics" text="Z5Z2S2"/>
+  <gro href="Z6W1S2.ics" text="Z6W1S2"/>
+  <gro href="Z6X1N1.ics" text="Z6X1N1"/>
+  <gro href="Z6X1S1.ics" text="Z6X1S1"/>
+  <gro href="Z6X2S1.ics" text="Z6X2S1"/>
+  <gro href="Z6X3S1.ics" text="Z6X3S1"/>
+  <gro href="Z6X4S1.ics" text="Z6X4S1"/>
+  <gro href="Z6Z1S2.ics" text="Z6Z1S2"/>
+  <gro href="Z6Z2S2.ics" text="Z6Z2S2"/>
+  <lec href="mgr_inz._Adamczyk_Piotr.ics" text="mgr inż. Adamczyk Piotr"/>
+  <lec href="dr_hab._Adamkiewicz_Marek.ics" text="dr hab. Adamkiewicz Marek"/>
+  <lec href="prof._dr_hab._inz._Ameljanczyk_Andrzej.ics" text="prof. dr hab. inż. Ameljańczyk Andrzej"/>
+  <lec href="mgr_inz._Andrzejczak_Michal.ics" text="mgr inż. Andrzejczak Michał"/>
+  <lec href="dr_Antczak_Joanna.ics" text="dr Antczak Joanna"/>
+  <lec href="mgr_inz._Antczak_Karol.ics" text="mgr inż. Antczak Karol"/>
+  <lec href="dr_hab._inz._Antkiewicz_Ryszard.ics" text="dr hab. inż. Antkiewicz Ryszard"/>
+  <lec href="dr_inz._Arciuch_Artur.ics" text="dr inż. Arciuch Artur"/>
+  <lec href="mgr_inz._Augustynowicz_Pawel.ics" text="mgr inż. Augustynowicz Paweł"/>
+  <lec href="inz._Banach_Kamil.ics" text="inż. Banach Kamil"/>
+  <lec href="dr_inz._Barcikowski_Wieslaw.ics" text="dr inż. Barcikowski Wiesław"/>
+  <lec href="mgr_Bielecka_Justyna.ics" text="mgr Bielecka Justyna"/>
+  <lec href="mgr_inz._Bijata_Michal.ics" text="mgr inż. Bijata Michał"/>
+  <lec href="ks._dr_Birus_Ireneusz.ics" text="ks. dr Biruś Ireneusz"/>
+  <lec href="dr_inz._Blizniuk_Grzegorz.ics" text="dr inż. Bliźniuk Grzegorz"/>
+  <lec href="dr_inz._Bora_Piotr.ics" text="dr inż. Bora Piotr"/>
+  <lec href="mgr_Brzozowska_Iwona.ics" text="mgr Brzozowska Iwona"/>
+  <lec href="mgr_inz._Bubrowiecki_Blazej.ics" text="mgr inż. Bubrowiecki Błażej"/>
+  <lec href="mgr_inz._Bugajewski_Dawid.ics" text="mgr inż. Bugajewski Dawid"/>
+  <lec href="dr_Bugalska_Anna.ics" text="dr Bugalska Anna"/>
+  <lec href="dr_inz._Burlaga_Henryk.ics" text="dr inż. Burlaga Henryk"/>
+  <lec href="inz._Baczyk_Piotr.ics" text="inż. Bączyk Piotr"/>
+  <lec href="dr_inz._Chmielewski_Mariusz.ics" text="dr inż. Chmielewski Mariusz"/>
+  <lec href="dr_hab._inz._Chojnacki_Andrzej.ics" text="dr hab. inż. Chojnacki Andrzej"/>
+  <lec href="prof._dr_hab._inz._Chudy_Marian.ics" text="prof. dr hab. inż. Chudy Marian"/>
+  <lec href="dr_inz._Chudzikiewicz_Jan.ics" text="dr inż. Chudzikiewicz Jan"/>
+  <lec href="mgr_Ciechanowski_Karol.ics" text="mgr Ciechanowski Karol"/>
+  <lec href="mgr_inz._Cieslewicz_M..ics" text="mgr inż. Cieślewicz M."/>
+  <lec href="dr_Czuba_Beata.ics" text="dr Czuba Beata"/>
+  <lec href="mgr_Denis_Katarzyna.ics" text="mgr Denis Katarzyna"/>
+  <lec href="mgr_inz._Derski_Tomasz.ics" text="mgr inż. Derski Tomasz"/>
+  <lec href="prof._dr_hab.__Domanski_Wlodzimierz.ics" text="prof. dr hab.  Domański Włodzimierz"/>
+  <lec href="dr_hab._inz._Donigiewicz_Antoni.ics" text="dr hab. inż. Donigiewicz Antoni"/>
+  <lec href="mgr_inz._Drozdowski_Tomasz.ics" text="mgr inż. Drozdowski Tomasz"/>
+  <lec href="dr_Durbajlo_Piotr.ics" text="dr Durbajło Piotr"/>
+  <lec href="dr_inz._Dworecka-Wojcik_Julita.ics" text="dr inż. Dworecka-Wójcik Julita"/>
+  <lec href="mgr_inz._Dyk_Michal.ics" text="mgr inż. Dyk Michał"/>
+  <lec href="mgr_inz._Dziel_Lukasz.ics" text="mgr inż. Dzieł Łukasz"/>
+  <lec href="mgr_inz._Dziegielewska_Olga.ics" text="mgr inż. Dzięgielewska Olga"/>
+  <lec href="mgr_inz._Fraszczak_Damian.ics" text="mgr inż. Frąszczak Damian"/>
+  <lec href="dr_inz._Furtak_Janusz.ics" text="dr inż. Furtak Janusz"/>
+  <lec href="prof._dr__hab._n._mat._inz._Gawinecki_Jerzy.ics" text="prof. dr  hab. n. mat. inż. Gawinecki Jerzy"/>
+  <lec href="mgr_Gefert_Kamil.ics" text="mgr Gefert Kamil"/>
+  <lec href="mgr_inz._Glet_Michal.ics" text="mgr inż. Glet Michał"/>
+  <lec href="dr_Gocalski_Wlodzimierz.ics" text="dr Gocalski Włodzimierz"/>
+  <lec href="mgr_inz._Goluch_Marcin.ics" text="mgr inż. Goluch Marcin"/>
+  <lec href="dr_Gonciarski_Wieslaw.ics" text="dr Gonciarski Wiesław"/>
+  <lec href="dr_inz._Grad_Leszek.ics" text="dr inż. Grad Leszek"/>
+  <lec href="mgr_Grygorczyk_Natalia.ics" text="mgr Grygorczyk Natalia"/>
+  <lec href="mgr_inz._Gumowski_Tomasz.ics" text="mgr inż. Gumowski Tomasz"/>
+  <lec href="mgr_Gurminska_Katarzyna.ics" text="mgr Gurmińska Katarzyna"/>
+  <lec href="mgr_inz_Gzik_Tomasz.ics" text="mgr inż Gzik Tomasz"/>
+  <lec href="dr_inz._Gorski_Tomasz.ics" text="dr inż. Górski Tomasz"/>
+  <lec href="mgr_inz._Glebocki_Pawel.ics" text="mgr inż. Głębocki Paweł"/>
+  <lec href="dr_inz._Hoffmann_Romuald.ics" text="dr inż. Hoffmann Romuald"/>
+  <lec href="dr_Iwanowicz_Izabela.ics" text="dr Iwanowicz Izabela"/>
+  <lec href="dr_hab._Jagusiak_Boguslaw.ics" text="dr hab. Jagusiak Bogusław"/>
+  <lec href="dr_Jakubowska_Matylda.ics" text="dr Jakubowska Matylda"/>
+  <lec href="mgr_inz._Janiec_Hubert.ics" text="mgr inż. Janiec Hubert"/>
+  <lec href="mgr_inz._Jankowski_Maciej.ics" text="mgr inż. Jankowski Maciej"/>
+  <lec href="mgr_inz._Janoska_Artur.ics" text="mgr inż. Janoska Artur"/>
+  <lec href="dr_Jaroszynska_Malgorzata.ics" text="dr Jaroszyńska Małgorzata"/>
+  <lec href="dr_Jasinski_Grzegorz.ics" text="dr Jasiński Grzegorz"/>
+  <lec href="dr_Jaworska_Krystyna.ics" text="dr Jaworska Krystyna"/>
+  <lec href="mgr_Jaworska_Karolina.ics" text="mgr Jaworska Karolina"/>
+  <lec href="dr_Jurkiewicz_Mariusz.ics" text="dr Jurkiewicz Mariusz"/>
+  <lec href="mgr_Jedrzejewski_Jaroslaw.ics" text="mgr Jędrzejewski Jarosław"/>
+  <lec href="dr_Kacprzyk_Piotr.ics" text="dr Kacprzyk Piotr"/>
+  <lec href="prof._dr_hab._Kaczmarek_Waldemar.ics" text="prof. dr hab. Kaczmarek Waldemar"/>
+  <lec href="mgr_inz._Kaczynski_Kamil.ics" text="mgr inż. Kaczyński Kamil"/>
+  <lec href="dr_Kadecki_Marek.ics" text="dr Kadecki Marek"/>
+  <lec href="mgr_inz._Kalman_Leszek.ics" text="mgr inż. Kalman Leszek"/>
+  <lec href="dr_Kaminski_Tomasz.ics" text="dr Kamiński Tomasz"/>
+  <lec href="dr_inz._Kanciak_Krzysztof.ics" text="dr inż. Kanciak Krzysztof"/>
+  <lec href="mgr_inz._Kania_Mieczyslaw.ics" text="mgr inż. Kania Mieczysław"/>
+  <lec href="mgr_inz._Kapalka_Michal.ics" text="mgr inż. Kapałka Michał"/>
+  <lec href="dr_Kasperski_Marian.ics" text="dr Kasperski Marian"/>
+  <lec href="mgr_Kasprzycka_Anna.ics" text="mgr Kasprzycka Anna"/>
+  <lec href="dr_inz._Kasprzyk_Rafal.ics" text="dr inż. Kasprzyk Rafał"/>
+  <lec href="mgr_inz._Kasprzyk_Grzegorz.ics" text="mgr inż. Kasprzyk Grzegorz"/>
+  <lec href="mgr_inz._Kazmierczak_Slawomir.ics" text="mgr inż. Kaźmierczak Sławomir"/>
+  <lec href="dr_inz._Kiedrowicz_Maciej.ics" text="dr inż. Kiedrowicz Maciej"/>
+  <lec href="mgr_inz._Kielan_Aneta.ics" text="mgr inż. Kielan Aneta"/>
+  <lec href="mgr_inz._Kijko_Tomasz.ics" text="mgr inż. Kijko Tomasz"/>
+  <lec href="mgr_inz._Kiryk_Grzegorz.ics" text="mgr inż. Kiryk Grzegorz"/>
+  <lec href="dr_Kobielski_Piotr.ics" text="dr Kobielski Piotr"/>
+  <lec href="mgr_Kochanowski_szymon.ics" text="mgr Kochanowski szymon"/>
+  <lec href="dr_hab._inz._Kojdecki_Marek.ics" text="dr hab. inż. Kojdecki Marek"/>
+  <lec href="dr_inz._Konopacki_Gustaw.ics" text="dr inż. Konopacki Gustaw"/>
+  <lec href="dr_Kopiecki_Ryszard.ics" text="dr Kopiecki Ryszard"/>
+  <lec href="dr_hab._Kosiuczenko_Piotr.ics" text="dr hab. Kosiuczenko Piotr"/>
+  <lec href="dr_hab._Kostecki_Janusz.ics" text="dr hab. Kostecki Janusz"/>
+  <lec href="dr_Kostrzewa-Zorbas_Grzegorz.ics" text="dr Kostrzewa-Zorbas Grzegorz"/>
+  <lec href="dr_inz._Koszela_Jaroslaw.ics" text="dr inż. Koszela Jarosław"/>
+  <lec href="mgr_inz._Kowaleczko_Piotr.ics" text="mgr inż. Kowaleczko Piotr"/>
+  <lec href="dr_Kowalski_Lucjan.ics" text="dr Kowalski Lucjan"/>
+  <lec href="mgr_inz._Kowalski_Arkadiusz.ics" text="mgr inż. Kowalski Arkadiusz"/>
+  <lec href="mgr_Kozarzewski_Robert.ics" text="mgr Kozarzewski Robert"/>
+  <lec href="mgr_Kozarzewski_Piotr.ics" text="mgr Kozarzewski Piotr"/>
+  <lec href="dr_hab._Kolodziejczyk_Adam.ics" text="dr hab. Kołodziejczyk Adam"/>
+  <lec href="mgr_inz._Krajewski_Kamil.ics" text="mgr inż. Krajewski Kamil"/>
+  <lec href="mgr_Krawczyk_Anna.ics" text="mgr Krawczyk Anna"/>
+  <lec href="mgr_inz._Kropiewnicki_Grzegorz.ics" text="mgr inż. Kropiewnicki Grzegorz"/>
+  <lec href="dr_Krzepicka_Alicja.ics" text="dr Krzepicka Alicja"/>
+  <lec href="dr_Kubica_Adam.ics" text="dr Kubica Adam"/>
+  <lec href="dr_Kuczynska-Cesarz_Anna.ics" text="dr Kuczyńska-Cesarz Anna"/>
+  <lec href="mgr_inz._Kukielka_M..ics" text="mgr inż. Kukiełka M."/>
+  <lec href="dr_inz._Kulas_Wojciech.ics" text="dr inż. Kulas Wojciech"/>
+  <lec href="prof._dr_hab._inz._Kwiatkowski_Wlodzimierz.ics" text="prof. dr hab. inż. Kwiatkowski Włodzimierz"/>
+  <lec href="mgr_Kwietniewski_Karol.ics" text="mgr Kwietniewski Karol"/>
+  <lec href="mgr_inz._Laszko_Lukasz.ics" text="mgr inż. Laszko Łukasz"/>
+  <lec href="mgr_Lepionka_Lukasz.ics" text="mgr Lepionka Łukasz"/>
+  <lec href="mgr_inz._Liberadzki_Lukasz.ics" text="mgr inż. Liberadzki Łukasz"/>
+  <lec href="dr_inz._Liderman_Krzysztof.ics" text="dr inż. Liderman Krzysztof"/>
+  <lec href="mgr_Lis_Maciej.ics" text="mgr Lis Maciej"/>
+  <lec href="dr_Lisiecki_Leszek.ics" text="dr Lisiecki Leszek"/>
+  <lec href="dr_Lubowiecki_Pawel.ics" text="dr Lubowiecki Paweł"/>
+  <lec href="mgr_inz._Ludew_Andrzej.ics" text="mgr inż. Ludew Andrzej"/>
+  <lec href="dr_inz._Malinowski_Tomasz.ics" text="dr inż. Malinowski Tomasz"/>
+  <lec href="dr_inz._Marciniak_Piotr.ics" text="dr inż. Marciniak Piotr"/>
+  <lec href="dr_inz_Marczyk_Maciej.ics" text="dr inż Marczyk Maciej"/>
+  <lec href="mgr_inz_Matusiak_Slawomir.ics" text="mgr inż Matusiak Sławomir"/>
+  <lec href="mgr_Matuszewski_Wojciech.ics" text="mgr Matuszewski Wojciech"/>
+  <lec href="mgr_inz._Mazur_Dagmara.ics" text="mgr inż. Mazur Dagmara"/>
+  <lec href="dr_inz._Mazurek_Marcin.ics" text="dr inż. Mazurek Marcin"/>
+  <lec href="mgr_inz._Mazurkiewicz_Tomasz.ics" text="mgr inż. Mazurkiewicz Tomasz"/>
+  <lec href="mgr_inz._Mank_Krzysztof.ics" text="mgr inż. Mańk Krzysztof"/>
+  <lec href="mgr_inz._Melaniuk_Michal.ics" text="mgr inż. Melaniuk Michał"/>
+  <lec href="mgr_inz._Mielniczuk_Lukasz.ics" text="mgr inż. Mielniczuk Łukasz"/>
+  <lec href="mgr_inz_Mierzejewski_Krzysztof.ics" text="mgr inż Mierzejewski Krzysztof"/>
+  <lec href="mgr_inz._Miktus_Artur.ics" text="mgr inż. Miktus Artur"/>
+  <lec href="prof._dr_hab.__Misiuk_Andrzej.ics" text="prof. dr hab.  Misiuk Andrzej"/>
+  <lec href="dr_hab._inz._Miszalski_Wlodzimierz.ics" text="dr hab. inż. Miszalski Włodzimierz"/>
+  <lec href="dr_Miszczak_Marta.ics" text="dr Miszczak Marta"/>
+  <lec href="mgr_Miszczyk_Sylwia.ics" text="mgr Miszczyk Sylwia"/>
+  <lec href="dr_inz._Misztal_Michal.ics" text="dr inż. Misztal Michał"/>
+  <lec href="dr_Moch_Natalia.ics" text="dr Moch Natalia"/>
+  <lec href="mgr_inz._Moszczynski_Pawel.ics" text="mgr inż. Moszczyński Paweł"/>
+  <lec href="dr_Multarzynski_Piotr.ics" text="dr Multarzyński Piotr"/>
+  <lec href="dr_Murawska_Monika.ics" text="dr Murawska Monika"/>
+  <lec href="dr_hab._inz._Murawski_Krzysztof.ics" text="dr hab. inż. Murawski Krzysztof"/>
+  <lec href="mgr_inz._Mysliwiec_Adrian.ics" text="mgr inż. Myśliwiec Adrian"/>
+  <lec href="dr_hab._inz._Najgebauer_Andrzej.ics" text="dr hab. inż. Najgebauer Andrzej"/>
+  <lec href="mgr_Nalepa_Wlodzimierz.ics" text="mgr Nalepa Włodzimierz"/>
+  <lec href="dr_Napiorkowska_Joanna.ics" text="dr Napiórkowska Joanna"/>
+  <lec href="mgr_inz._Napiorkowski_Jaroslaw.ics" text="mgr inż. Napiórkowski Jarosław"/>
+  <lec href="dr_hab._Napiorkowski_Kazimierz.ics" text="dr hab. Napiórkowski Kazimierz"/>
+  <lec href="dr_hab._inz._Nowacki_Gabriel.ics" text="dr hab. inż. Nowacki Gabriel"/>
+  <lec href="dr_Nowakowski_Zenon.ics" text="dr Nowakowski Zenon"/>
+  <lec href="dr_hab._inz._Nowicki_Tadeusz.ics" text="dr hab. inż. Nowicki Tadeusz"/>
+  <lec href="mgr_Nowicki_Piotr.ics" text="mgr Nowicki Piotr"/>
+  <lec href="mgr_inz._Nowotarski_Michal.ics" text="mgr inż. Nowotarski Michał"/>
+  <lec href="mgr_Okolo-Kulak_Marek.ics" text="mgr Około-Kułak Marek"/>
+  <lec href="dr_Olejniczak_Jaroslaw.ics" text="dr Olejniczak Jarosław"/>
+  <lec href="dr_Ostanek_Adam.ics" text="dr Ostanek Adam"/>
+  <lec href="mgr_inz._Ostap_Hubert.ics" text="mgr inż. Ostap Hubert"/>
+  <lec href="mgr_inz._Paciorek_Lukasz.ics" text="mgr inż. Paciorek Łukasz"/>
+  <lec href="mgr_inz._Paciorkowska_Malgorzata.ics" text="mgr inż. Paciorkowska Małgorzata"/>
+  <lec href="mgr_inz._Paciorkowski_Marcin.ics" text="mgr inż. Paciorkowski Marcin"/>
+  <lec href="mgr_inz._Panufnik_Krzysztof.ics" text="mgr inż. Panufnik Krzysztof"/>
+  <lec href="dr_inz._Patkowski_Adam.ics" text="dr inż. Patkowski Adam"/>
+  <lec href="dr__Pawlak-Kolodziejska_Katarzyna_.ics" text="dr  Pawlak-Kołodziejska Katarzyna "/>
+  <lec href="dr__Pawlisiak_Mieczyslaw.ics" text="dr  Pawlisiak Mieczysław"/>
+  <lec href="prof._dr_hab._inz._Pawlow-Niezgodka_Irena.ics" text="prof. dr hab. inż. Pawłow-Niezgódka Irena"/>
+  <lec href="dr_hab._Palaszewski_Henryk.ics" text="dr hab. Pałaszewski Henryk"/>
+  <lec href="dr_inz._Palys_Tomasz.ics" text="dr inż. Pałys Tomasz"/>
+  <lec href="mgr_inz._Paz_Marcin.ics" text="mgr inż. Paź Marcin"/>
+  <lec href="mgr_inz._Paz_Emil.ics" text="mgr inż. Paź Emil"/>
+  <lec href="prof._dr_hab.__Peradzynski_Zbigniew.ics" text="prof. dr hab.  Peradzyński Zbigniew"/>
+  <lec href="mgr_inz._Perka_Marcin.ics" text="mgr inż. Perka Marcin"/>
+  <lec href="dr_Piasecka_Joanna.ics" text="dr Piasecka Joanna"/>
+  <lec href="dr_inz._Pierzchala_Dariusz.ics" text="dr inż. Pierzchała Dariusz"/>
+  <lec href="dr_Piotrkowski_Kazimierz.ics" text="dr Piotrkowski Kazimierz"/>
+  <lec href="dr_inz._Piwowarczyk_Ryszard.ics" text="dr inż. Piwowarczyk Ryszard"/>
+  <lec href="dr_Ploch_Jerzy.ics" text="dr Ploch Jerzy"/>
+  <lec href="mgr_inz._Politowski_Krzysztof.ics" text="mgr inż. Politowski Krzysztof"/>
+  <lec href="dr_inz._Popiel_Henryk.ics" text="dr inż. Popiel Henryk"/>
+  <lec href="mgr_inz._Preibisch_Piotr.ics" text="mgr inż. Preibisch Piotr"/>
+  <lec href="mgr_inz._Protasowicki_Tomasz.ics" text="mgr inż. Protasowicki Tomasz"/>
+  <lec href="dr_Pszczola_Monika.ics" text="dr Pszczoła Monika"/>
+  <lec href="dr_Pszczola_Krzysztof.ics" text="dr Pszczoła Krzysztof"/>
+  <lec href="dr_Ptaszek_Stanislaw.ics" text="dr Ptaszek Stanisław"/>
+  <lec href="mgr_Pulik_Pawel.ics" text="mgr Pulik Paweł"/>
+  <lec href="dr_Rafa_Jozef.ics" text="dr Rafa Józef"/>
+  <lec href="dr_hab._inz._Rokita_Przemyslaw_.ics" text="dr hab. inż. Rokita Przemysław "/>
+  <lec href="dr_inz._Rozmus_Stefan.ics" text="dr inż. Rozmus Stefan"/>
+  <lec href="mgr_inz._Rudnicka_-_Schmidt_Malgorzata.ics" text="mgr inż. Rudnicka - Schmidt Malgorzata"/>
+  <lec href="mgr_Rudnicki_Michal.ics" text="mgr Rudnicki Michał"/>
+  <lec href="dr_inz._Rulka_Jaroslaw.ics" text="dr inż. Rulka Jarosław"/>
+  <lec href="dr_hab._inz._Rybinski_Janusz.ics" text="dr hab. inż. Rybiński Janusz"/>
+  <lec href="mgr_inz._Ryszawa_Pawel.ics" text="mgr inż. Ryszawa Paweł"/>
+  <lec href="mgr_inz._Rozanski_Bartosz.ics" text="mgr inż. Różański Bartosz"/>
+  <lec href="dr_Rozanski_Jerzy.ics" text="dr Różański Jerzy"/>
+  <lec href="mgr_inz._Satala_Wojciech.ics" text="mgr inż. Satała Wojciech"/>
+  <lec href="mgr_Siek_Michal.ics" text="mgr Siek Michał"/>
+  <lec href="prof._dr_hab._inz_Sienkiewicz_Piotr.ics" text="prof. dr hab. inż Sienkiewicz Piotr"/>
+  <lec href="mgr_inz._Skibniewski_Lukasz.ics" text="mgr inż. Skibniewski Łukasz"/>
+  <lec href="mgr_inz._Skrzypecki_Stanislaw.ics" text="mgr inż. Skrzypecki Stanisław"/>
+  <lec href="dr_Skulska_Joanna.ics" text="dr Skulska Joanna"/>
+  <lec href="dr_Skwarski_Andrzej.ics" text="dr Skwarski Andrzej"/>
+  <lec href="dr_inz._Skorska_Irena.ics" text="dr inż. Skórska Irena"/>
+  <lec href="mgr_inz._Sklodowski_Piotr.ics" text="mgr inż. Skłodowski Piotr"/>
+  <lec href="dr_Solek-Borowska_Celina.ics" text="dr Sołek-Borowska Celina"/>
+  <lec href="dr_hab._Soloducha_Krzysztof.ics" text="dr hab. Sołoducha Krzysztof"/>
+  <lec href="mgr_inz._Stachurski_A..ics" text="mgr inż. Stachurski A."/>
+  <lec href="dr_inz._Stanik_Jerzy.ics" text="dr inż. Stanik Jerzy"/>
+  <lec href="dr_inz._Stasiak_Andrzej.ics" text="dr inż. Stasiak Andrzej"/>
+  <lec href="dr_Stanczyk_Jerzy_.ics" text="dr Stańczyk Jerzy "/>
+  <lec href="dr_inz._Stecz_Wojciech.ics" text="dr inż. Stecz Wojciech"/>
+  <lec href="inz._Stefanczyk_Paulina.ics" text="inż. Stefańczyk Paulina"/>
+  <lec href="dr_Stochaj_Justyna.ics" text="dr Stochaj Justyna"/>
+  <lec href="dr_hab._Strasburger_Aleksander.ics" text="dr hab. Strasburger Aleksander"/>
+  <lec href="dr_Strychalski_Andrzej.ics" text="dr Strychalski Andrzej"/>
+  <lec href="dr_inz._Strzelecki_Lukasz.ics" text="dr inż. Strzelecki Łukasz"/>
+  <lec href="mgr_inz._Stapor_Piotr.ics" text="mgr inż. Stąpor Piotr"/>
+  <lec href="mgr_inz._Sulej_Wojciech.ics" text="mgr inż. Sulej Wojciech"/>
+  <lec href="dr_inz._Suski_Zbigniew.ics" text="dr inż. Suski Zbigniew"/>
+  <lec href="dr_hab._inz._Szafranski_Boleslaw.ics" text="dr hab. inż. Szafrański Bolesław"/>
+  <lec href="dr_hab._Szczurek_Tadeusz.ics" text="dr hab. Szczurek Tadeusz"/>
+  <lec href="dr_Szkic-Czech_Ewa.ics" text="dr Szkic-Czech Ewa"/>
+  <lec href="mgr_inz.__Szkolka_Krzysztof.ics" text="mgr inż.  Szkółka Krzysztof"/>
+  <lec href="mgr_Szwarc_Krzysztof_.ics" text="mgr Szwarc Krzysztof "/>
+  <lec href="dr_inz._Szydlowski_Adam.ics" text="dr inż. Szydłowski Adam"/>
+  <lec href="mgr_inz._Szylberg_Waldemar.ics" text="mgr inż. Szylberg Waldemar"/>
+  <lec href="dr_Szymaniec_Arkadiusz.ics" text="dr Szymaniec Arkadiusz"/>
+  <lec href="mgr_inz._Szymczyk_Maciej.ics" text="mgr inż. Szymczyk Maciej"/>
+  <lec href="mgr_Slowik_Jakub.ics" text="mgr Słowik Jakub"/>
+  <lec href="dr_hab._inz._Tarapata_Zbigniew.ics" text="dr hab. inż. Tarapata Zbigniew"/>
+  <lec href="dr_Tarapata_Jolanta.ics" text="dr Tarapata Jolanta"/>
+  <lec href="mgr_inz._Turczyn_Jozef.ics" text="mgr inż. Turczyn Jozef"/>
+  <lec href="prof._dr_hab._inz._Walczak_Andrzej.ics" text="prof. dr hab. inż. Walczak Andrzej"/>
+  <lec href="dr_inz._Wantoch-Rekowski_Roman.ics" text="dr inż. Wantoch-Rekowski Roman"/>
+  <lec href="dr_Warchal_Arnold.ics" text="dr Warchał Arnold"/>
+  <lec href="dr_inz._Waszkowski_Robert.ics" text="dr inż. Waszkowski Robert"/>
+  <lec href="dr_Wereda_Wioletta.ics" text="dr Wereda Wioletta"/>
+  <lec href="dr_Wieprzkowicz_Bohdan.ics" text="dr Wieprzkowicz Bohdan"/>
+  <lec href="dr_inz._Wisniewska_Joanna.ics" text="dr inż. Wiśniewska Joanna"/>
+  <lec href="dr_inz._Wisniewski_Andrzej.ics" text="dr inż. Wiśniewski Andrzej"/>
+  <lec href="mgr_inz._Wnorowski_Mariusz.ics" text="mgr inż. Wnorowski Mariusz"/>
+  <lec href="dr_inz._Woch_Marta.ics" text="dr inż. Woch Marta"/>
+  <lec href="dr_inz._Wojciechowski_Zdzislaw.ics" text="dr inż. Wojciechowski Zdzislaw"/>
+  <lec href="mgr_inz._Wojdygowski_Krystian.ics" text="mgr inż. Wojdygowski Krystian"/>
+  <lec href="mgr_inz._Wojtczuk_Dariusz.ics" text="mgr inż. Wojtczuk Dariusz"/>
+  <lec href="dr_hab._inz._Worwa_Kazimierz.ics" text="dr hab. inż. Worwa Kazimierz"/>
+  <lec href="mgr_Wozniak_Jacek.ics" text="mgr Woźniak Jacek"/>
+  <lec href="mgr_inz._Wozniak_Adrian.ics" text="mgr inż. Woźniak Adrian"/>
+  <lec href="mgr_inz._Wozniak_Jozef.ics" text="mgr inż. Woźniak Józef"/>
+  <lec href="mgr_inz._Wozniak_Radoslaw.ics" text="mgr inż. Woźniak Radosław"/>
+  <lec href="mgr_inz._Wysocka_Paulina.ics" text="mgr inż. Wysocka Paulina"/>
+  <lec href="mgr_inz._Wysocki_Slawomir_.ics" text="mgr inż. Wysocki Sławomir "/>
+  <lec href="mgr_inz._Wojcik_Jaroslaw.ics" text="mgr inż. Wójcik Jarosław"/>
+  <lec href="prof._dr_hab._Wlodarkiewicz_Wojciech.ics" text="prof. dr hab. Włodarkiewicz Wojciech"/>
+  <lec href="mgr_inz._Zabielski_Michal.ics" text="mgr inż. Zabielski Michał"/>
+  <lec href="prof._dr_hab._Zajaczkowski_Wojciech.ics" text="prof. dr hab. Zajaczkowski Wojciech"/>
+  <lec href="dr_hab._Zalewski_Jerzy.ics" text="dr hab. Zalewski Jerzy"/>
+  <lec href="prof._dr_hab._inz._Zaskorski_Piotr.ics" text="prof. dr hab. inż. Zaskórski Piotr"/>
+  <lec href="mgr_Zaloga_Wieslawa.ics" text="mgr Załoga Wiesława"/>
+  <lec href="dr_hab._inz._Zielinski_Zbigniew.ics" text="dr hab. inż. Zielinski Zbigniew"/>
+  <lec href="mgr_Zon_Stanislaw.ics" text="mgr Zoń Stanisław"/>
+  <lec href="dr_Lakoma_Ewa.ics" text="dr Łakoma Ewa"/>
+  <lec href="prof._dr_hab._Lawniczak_Ryszard.ics" text="prof. dr hab. Ławniczak Ryszard"/>
+  <lec href="plk_dr_inz._Lazuka_Jaroslaw.ics" text="płk dr inż. Łazuka Jarosław"/>
+  <lec href="prof._dr_hab._Luba_Tadeusz.ics" text="prof. dr hab. Łuba Tadeusz"/>
+  <lec href="dr_Scislo_Agnieszka.ics" text="dr Ścisło Agnieszka"/>
+  <lec href="dr_Smialek_Wieslaw.ics" text="dr Śmiałek Wiesław"/>
+  <lec href="dr_Smialek_Katarzyna.ics" text="dr Śmiałek Katarzyna"/>
+  <lec href="dr_inz._Swierczynski_Zbigniew.ics" text="dr inż. Świerczynski Zbigniew"/>
+  <lec href="dr_hab._Swiniarski_Janusz.ics" text="dr hab. Świniarski Janusz"/>
+  <lec href="dr_Swiatkowski_Marek.ics" text="dr Świątkowski Marek"/>
+  <lec href="dr_inz._Zorski_Witold.ics" text="dr inż. Żorski Witold"/>
+  <res href="226_S.ics" text="226 S"/>
+  <res href="316_S.ics" text="316 S"/>
+</data>
+<who lastupdatetext="Aktualizacja: 2017-06-14 17:35:25"></who>
+<extraText text="Plik iKalendarza mogą być otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar"></extraText>
+<href1 href="https://support.google.com/calendar/answer/37118?hl=pl" text="Kliknij w ten link aby dowiedzieć się jak zaimportować rozkład zajęć do Google Kalendarza"  ></href1>
+<href2 href="http://calendar.zoznam.sk/icalendar/ical-pl.php" text="Kliknij w ten link aby dowiedzieć się jeszcze więcej na temat iKalendarzy"  ></href2>
+</xml>

@@ -1,0 +1,13 @@
+open %sftp_connection_string% -timeout=200
+lcd "%sftpdata%"
+option batch on
+option confirm off
+option transfer automatic
+cd public_html
+cd plansoft
+cd wat
+put "*.html"
+put "*.js"
+put "*.xml"
+close
+exit

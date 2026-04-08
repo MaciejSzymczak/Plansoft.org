@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<?xml-stylesheet type="text/xsl" href="layout.xslt"?>
+<xml>
+<title name="Plansoft.org - zajęcia"></title>
+<period name="iKalendarz_WEL"></period>
+<description text=""></description>
+<data>
+  <gro href="D6E1S4.ics" text="D6E1S4"/>
+  <gro href="D6E2S4.ics" text="D6E2S4"/>
+  <gro href="D6U1S4.ics" text="D6U1S4"/>
+  <gro href="D6X1N1.ics" text="D6X1N1"/>
+  <gro href="D6X1S1.ics" text="D6X1S1"/>
+  <gro href="D6X2S1.ics" text="D6X2S1"/>
+  <gro href="D6X3S1.ics" text="D6X3S1"/>
+  <gro href="D6X4S1.ics" text="D6X4S1"/>
+  <gro href="E4A1S1.ics" text="E4A1S1"/>
+  <gro href="E4E1S1.ics" text="E4E1S1"/>
+  <gro href="E4L1S1.ics" text="E4L1S1"/>
+  <gro href="E4L2S1.ics" text="E4L2S1"/>
+  <gro href="E4P1S1.ics" text="E4P1S1"/>
+  <gro href="E4T1N1.ics" text="E4T1N1"/>
+  <gro href="E4V1S1.ics" text="E4V1S1"/>
+  <gro href="E5A1S1.ics" text="E5A1S1"/>
+  <gro href="E5A1S4.ics" text="E5A1S4"/>
+  <gro href="E5E1S1.ics" text="E5E1S1"/>
+  <gro href="E5L1S1.ics" text="E5L1S1"/>
+  <gro href="E5L1S4.ics" text="E5L1S4"/>
+  <gro href="E5L2S1.ics" text="E5L2S1"/>
+  <gro href="E5L2S4.ics" text="E5L2S4"/>
+  <gro href="E5P1S1.ics" text="E5P1S1"/>
+  <gro href="E5P1S4.ics" text="E5P1S4"/>
+  <gro href="E5V1S1.ics" text="E5V1S1"/>
+  <gro href="E5V1S4.ics" text="E5V1S4"/>
+  <gro href="E6A1S4.ics" text="E6A1S4"/>
+  <gro href="E6B1S4.ics" text="E6B1S4"/>
+  <gro href="E6C1S4.ics" text="E6C1S4"/>
+  <gro href="E6E1S4.ics" text="E6E1S4"/>
+  <gro href="E6G1S4.ics" text="E6G1S4"/>
+  <gro href="E6L1S4.ics" text="E6L1S4"/>
+  <gro href="E6L2S4.ics" text="E6L2S4"/>
+  <gro href="E6M1S4.ics" text="E6M1S4"/>
+  <gro href="E6P1S4.ics" text="E6P1S4"/>
+  <gro href="E6Q2S1.ics" text="E6Q2S1"/>
+  <gro href="E6Q3S1.ics" text="E6Q3S1"/>
+  <gro href="E6Q4S1.ics" text="E6Q4S1"/>
+  <gro href="E6T1N2.ics" text="E6T1N2"/>
+  <gro href="E6T1N4.ics" text="E6T1N4"/>
+  <gro href="E6V1S4.ics" text="E6V1S4"/>
+  <gro href="E6X1N1.ics" text="E6X1N1"/>
+  <gro href="E6X1S1.ics" text="E6X1S1"/>
+  <gro href="E6X1S3.ics" text="E6X1S3"/>
+  <gro href="E6X2S1.ics" text="E6X2S1"/>
+  <gro href="E6X3S1.ics" text="E6X3S1"/>
+  <gro href="E6X4S1.ics" text="E6X4S1"/>
+  <gro href="E6X5S1.ics" text="E6X5S1"/>
+  <gro href="E6X6S1.ics" text="E6X6S1"/>
+  <gro href="E6Y2S1.ics" text="E6Y2S1"/>
+  <gro href="E6Y3S1.ics" text="E6Y3S1"/>
+  <gro href="E6Y4S1.ics" text="E6Y4S1"/>
+  <gro href="I6ZG.ics" text="I6ZG"/>
+  <lec href="prof._dr_hab._inz._Amanowicz_Marek.ics" text="prof. dr hab. inż. Amanowicz Marek"/>
+  <lec href="doc._dr_inz._Bajda_Artur.ics" text="doc. dr inż. Bajda Artur"/>
+  <lec href="dr_inz._Banasiak_Kazimierz.ics" text="dr inż. Banasiak Kazimierz"/>
+  <lec href="dr_inz._Bednarczyk_Mariusz.ics" text="dr inż. Bednarczyk Mariusz"/>
+  <lec href="dr_inz._Bednarczyk_Wojciech.ics" text="dr inż. Bednarczyk Wojciech"/>
+  <lec href="mgr_inz._Berczynski_Robert.ics" text="mgr inż. Berczyński Robert"/>
+  <lec href="dr_inz._Chudy_Zdzislaw.ics" text="dr inż. Chudy Zdzisław"/>
+  <lec href="mgr_inz._Ciolek_Michal.ics" text="mgr inż. Ciołek Michał"/>
+  <lec href="dr_inz._Jachna_Zbigniew.ics" text="dr inż. Jachna Zbigniew"/>
+  <lec href="dr_inz._Pasierbinski_Jerzy.ics" text="dr inż. Pasierbiński Jerzy"/>
+  <lec href="dr_inz._Poniecki_Andrzej.ics" text="dr inż. Poniecki Andrzej"/>
+  <lec href="dr_inz._Sondej_Tadeusz.ics" text="dr inż. Sondej Tadeusz"/>
+  <lec href="mgr_inz._Sondej_Dominik.ics" text="mgr inż. Sondej Dominik"/>
+  <res href="120_45.ics" text="120 45"/>
+</data>
+<who lastupdatetext="Aktualizacja: 2017-06-14 17:37:24"></who>
+<extraText text="Plik iKalendarza mogą być otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar"></extraText>
+<href1 href="https://support.google.com/calendar/answer/37118?hl=pl" text="Kliknij w ten link aby dowiedzieć się jak zaimportować rozkład zajęć do Google Kalendarza"  ></href1>
+<href2 href="http://calendar.zoznam.sk/icalendar/ical-pl.php" text="Kliknij w ten link aby dowiedzieć się jeszcze więcej na temat iKalendarzy"  ></href2>
+</xml>

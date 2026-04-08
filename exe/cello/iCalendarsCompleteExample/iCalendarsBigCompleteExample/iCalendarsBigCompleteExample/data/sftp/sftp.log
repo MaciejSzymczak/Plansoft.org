@@ -1,0 +1,28 @@
+Connecting to soft.home.pl ...
+Connected
+Starting the session...
+Session started.
+Active session: [1] soft@soft.home.pl
+E:\iKalendarze\data\sftp
+batch           on        
+reconnecttime   120       
+confirm         off       
+transfer        automatic 
+/public_html
+/public_html/plansoft
+/public_html/plansoft/wat
+No file matching '*.html' found.
+DOK.js                    |          166 B |    0,0 KB/s | ascii  | 100%
+SSW.js                    |           1 KB |   19,1 KB/s | ascii  | 100%
+WCY.js                    |          63 KB |  261,9 KB/s | ascii  | 100%
+WEL.js                    |          10 KB |  203,3 KB/s | ascii  | 100%
+WIG.js                    |          166 B |  157,8 KB/s | ascii  | 100%
+WLO.js                    |          17 KB |  149,6 KB/s | ascii  | 100%
+WME.js                    |          31 KB |  156,3 KB/s | ascii  | 100%
+WML.js                    |          166 B |  140,1 KB/s | ascii  | 100%
+WTC.js                    |          344 B |  127,1 KB/s | ascii  | 100%
+sftp.xml                  |           3 KB |    0,0 KB/s | ascii  | 100%
+status.xml                |          996 B |   10,3 KB/s | ascii  | 100%
+Session 'soft@soft.home.pl' closed.
+No session.
+

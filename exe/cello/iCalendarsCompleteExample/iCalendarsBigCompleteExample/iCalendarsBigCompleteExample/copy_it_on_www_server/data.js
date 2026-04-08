@@ -1,0 +1,22 @@
+    var data = [
+        { calendarName: 'Exxon Mobil', link: '339938.0', profits: '36130.0' },
+        { calendarName: 'Wal-Mart Stores', link: '315654.0', profits: '11231.0' },
+        { calendarName: 'Royal Dutch Shell', link: '306731.0', profits: '25311.0' },
+        { calendarName: 'BP', link: '267600.0', profits: '22341.0' },
+        { calendarName: 'General Motors', link: '192604.0', profits: '-10567.0' },
+        { calendarName: 'Chevron', link: '189481.0', profits: '14099.0' },
+        { calendarName: 'DaimlerChrysler', link: '186106.3', profits: '3536.3' },
+        { calendarName: 'Toyota Motor', link: '185805.0', profits: '12119.6' },
+        { calendarName: 'Ford Motor', link: '177210.0', profits: '2024.0' },
+        { calendarName: 'ConocoPhillips', link: '166683.0', profits: '13529.0' },
+        { calendarName: 'General Electric', link: '157153.0', profits: '16353.0' },
+        { calendarName: 'Total', link: '152360.7', profits: '15250.0' },
+        { calendarName: 'ING Group', link: '138235.3', profits: '8958.9' },
+        { calendarName: 'Citigroup', link: '131045.0', profits: '24589.0' },
+        { calendarName: 'AXA', link: '129839.2', profits: '5186.5' },
+        { calendarName: 'Allianz', link: '121406.0', profits: '5442.4' },
+        { calendarName: 'Volkswagen', link: '118376.6', profits: '1391.7' },
+        { calendarName: 'Fortis', link: '112351.4', profits: '4896.3' },
+        { calendarName: 'Crédit Agricole', link: '110764.6', profits: '7434.3' },
+        { calendarName: 'American Intl. Group', link: '108905.0', profits: '10477.0' }
+    ];
