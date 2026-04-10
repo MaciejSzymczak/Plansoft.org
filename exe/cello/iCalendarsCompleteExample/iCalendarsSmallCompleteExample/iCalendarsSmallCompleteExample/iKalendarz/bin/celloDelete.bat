@@ -1,0 +1,1 @@
+java -Dfile.encoding=utf-8 -jar cello.jar deleteCalendars C:\\PlansoftOrg\\iKalendarz\\bin\\WME.json

@@ -1,0 +1,21 @@
+Połączanie do soft.home.pl ...
+Połączone
+Rozpoczynanie sesji...
+Sesja rozpoczęta.
+Aktywna sesja: [1] lublin.wme@soft.home.pl
+C:\Users\Damian\planowanie\iKalendarz\data\sftp
+batch           on        
+confirm         off       
+transfer        automatic 
+Błąd podczas przejścia do katalogu 'public_html'.
+CWD command failed: No such file or directory.
+/
+/plansoft
+/plansoft/pollub
+Nie znaleziono pliku pasującego do '*.html'.
+WME.js                    |          62 KB |  246,5 KB/s | ascii  | 100%
+sftp.xml                  |          668 B |    0,0 KB/s | ascii  | 100%
+status.xml                |          314 B |    2,0 KB/s | ascii  | 100%
+Sesja 'lublin.wme@soft.home.pl' zamknięta.
+Brak sesji
+

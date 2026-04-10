@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session xmlns="http://winscp.net/schema/session/1.0" name="soft@soft.home.pl" start="2018-01-16T14:27:11.977Z">
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\DOK.js" />
+    <destination value="/public_html/plansoft/wat/DOK.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/DOK.js" />
+    <modification value="2018-01-16T14:18:21.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\SSW.js" />
+    <destination value="/public_html/plansoft/wat/SSW.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/SSW.js" />
+    <modification value="2018-01-16T14:18:44.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WCY.js" />
+    <destination value="/public_html/plansoft/wat/WCY.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WCY.js" />
+    <modification value="2018-01-16T14:20:45.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WEL.js" />
+    <destination value="/public_html/plansoft/wat/WEL.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WEL.js" />
+    <modification value="2018-01-16T14:22:08.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WIG.js" />
+    <destination value="/public_html/plansoft/wat/WIG.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WIG.js" />
+    <modification value="2018-01-16T14:22:39.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WLO.js" />
+    <destination value="/public_html/plansoft/wat/WLO.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WLO.js" />
+    <modification value="2018-01-16T14:23:36.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WME.js" />
+    <destination value="/public_html/plansoft/wat/WME.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WME.js" />
+    <modification value="2018-01-16T14:25:13.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WML.js" />
+    <destination value="/public_html/plansoft/wat/WML.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WML.js" />
+    <modification value="2018-01-16T14:25:41.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="E:\iKalendarze\data\sftp\WTC.js" />
+    <destination value="/public_html/plansoft/wat/WTC.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/public_html/plansoft/wat/WTC.js" />
+    <modification value="2018-01-16T14:26:45.000Z" />
+    <result success="true" />
+  </touch>

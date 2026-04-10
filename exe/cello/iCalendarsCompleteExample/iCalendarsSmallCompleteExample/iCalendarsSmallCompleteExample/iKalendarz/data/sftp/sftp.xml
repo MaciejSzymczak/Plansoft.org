@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session xmlns="http://winscp.net/schema/session/1.0" name="lublin.wme@soft.home.pl" start="2018-02-28T06:03:27.463Z">
+  <failure>
+    <message>Błąd podczas przejścia do katalogu 'public_html'.</message>
+    <message>CWD command failed: No such file or directory.</message>
+  </failure>
+  <upload>
+    <filename value="C:\Users\Damian\planowanie\iKalendarz\data\sftp\WME.js" />
+    <destination value="/plansoft/pollub/WME.js" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/plansoft/pollub/WME.js" />
+    <modification value="2018-02-28T06:02:29.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="C:\Users\Damian\planowanie\iKalendarz\data\sftp\sftp.xml" />
+    <destination value="/plansoft/pollub/sftp.xml" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/plansoft/pollub/sftp.xml" />
+    <modification value="2018-02-28T06:03:27.000Z" />
+    <result success="true" />
+  </touch>
+  <upload>
+    <filename value="C:\Users\Damian\planowanie\iKalendarz\data\sftp\status.xml" />
+    <destination value="/plansoft/pollub/status.xml" />
+    <result success="true" />
+  </upload>
+  <touch>
+    <filename value="/plansoft/pollub/status.xml" />
+    <modification value="2018-02-28T06:03:27.000Z" />
+    <result success="true" />
+  </touch>
+</session>

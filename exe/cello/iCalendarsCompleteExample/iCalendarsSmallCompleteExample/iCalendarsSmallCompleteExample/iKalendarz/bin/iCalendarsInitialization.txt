@@ -1,0 +1,3 @@
+C:\PlansoftOrg\iKalendarz\bin\publikacja.exe
+C:\PlansoftOrg\iKalendarz\bin\sftp.exe
+C:\PlansoftOrg\iKalendarz\bin\sync.exe

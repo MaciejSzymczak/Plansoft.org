@@ -47,28 +47,33 @@ goto :eof
 
 :process
 call :log %1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
-java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar uploadIcs E:\\iKalendarze\\bin\\%1.json E:\\iKalendarze\\data\\%1
+set iCal_Home="e:\\iKalendarze"
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+
 goto :eof
 
 :log

@@ -1,0 +1,36 @@
+
+C:\Users\Damian\planowanie\iKalendarz\bin>call :copyfiles WME 
+
+C:\Users\Damian\planowanie\iKalendarz\bin>echo processing WME 
+processing WME
+
+C:\Users\Damian\planowanie\iKalendarz\bin>del "C:\Users\Damian\planowanie\iKalendarz\data\WME\WME.js" 
+
+C:\Users\Damian\planowanie\iKalendarz\bin>copy "C:\Users\Damian\planowanie\iKalendarz\data\WME\ListOfCalendars.js" "C:\Users\Damian\planowanie\iKalendarz\data\WME\WME.js" 
+Liczba skopiowanych plik¢w:         1.
+
+C:\Users\Damian\planowanie\iKalendarz\bin>copy /Y "C:\Users\Damian\planowanie\iKalendarz\data\WME\WME.js" "C:\Users\Damian\planowanie\iKalendarz\data\sftp" 
+Liczba skopiowanych plik¢w:         1.
+
+C:\Users\Damian\planowanie\iKalendarz\bin>goto :eof 
+
+C:\Users\Damian\planowanie\iKalendarz\bin>java -Dfile.encoding=utf-8 -jar C:\\Users\\Damian\\planowanie\\iKalendarz\\bin\\cello.jar status "C:\Users\Damian\planowanie\iKalendarz\data" 
+C:\Users\Damian
+Cello, ver 2017.05.19
+Software Factory Maciej Szymczak, All Rights reserved
+Parameter count 2
+Parameter 0 is status
+Parameter 1 is C:\Users\Damian\planowanie\iKalendarz\data
+Preparing Status
+Done
+
+C:\Users\Damian\planowanie\iKalendarz\bin>copy /Y "C:\Users\Damian\planowanie\iKalendarz\data\status.xml" "C:\Users\Damian\planowanie\iKalendarz\data\sftp" 
+Liczba skopiowanych plik¢w:         1.
+
+C:\Users\Damian\planowanie\iKalendarz\bin>cd C:\Users\Damian\planowanie\iKalendarz\data\sftp 
+
+C:\Users\Damian\planowanie\iKalendarz\data\sftp>wscript.exe C:\Users\Damian\planowanie\iKalendarz\bin\sftp.js 
+
+C:\Users\Damian\planowanie\iKalendarz\data\sftp>cd C:\Users\Damian\planowanie\iKalendarz\bin 
+
+C:\Users\Damian\planowanie\iKalendarz\bin>goto :eof 
