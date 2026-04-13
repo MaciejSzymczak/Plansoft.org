@@ -48,31 +48,30 @@ goto :eof
 :process
 call :log %1
 set iCal_Home="e:\\iKalendarze"
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
-java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+java -Dfile.encoding=utf-8 -jar %iCal_Home%\\bin\\cello.jar uploadIcs %iCal_Home%\\bin\\%1.json %iCal_Home%\\data\\%1 scope:public
+
 
 goto :eof
 
