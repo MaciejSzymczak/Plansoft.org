@@ -1,6 +1,6 @@
 inherited FMain: TFMain
-  Left = 34
-  Top = 70
+  Left = -85
+  Top = 31
   Width = 1928
   Height = 1048
   Caption = 'Plansoft.org        '
@@ -8907,7 +8907,7 @@ inherited FMain: TFMain
     Top = 272
   end
   object FindRGL: TPopupMenu
-    Left = 936
+    Left = 1016
     Top = 416
     object Zajtosal1: TMenuItem
       Caption = 'Zaj'#281'to'#347#263' sal'

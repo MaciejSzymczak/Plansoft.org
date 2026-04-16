@@ -198,6 +198,8 @@ TNodeInfo = class
 
 type tgridCustomLabels = Array[1..dm.maxHours] Of String[20];
 
+
+
 type
   TFMain = class(TFormConfig)
     Holder: TStrHolder;
@@ -6883,9 +6885,9 @@ begin
   end;
 
   canShow := false;
-  ConLecturer.Text := getChildsAndParents(myClass.calc_lec_ids, '', true, false, true);
-  ConGroup.Text := getChildsAndParents(myClass.calc_gro_ids, '', true, false, true);
-  conResCat0.Text := getChildsAndParents(myClass.calc_rom_ids, '', true, false, true);
+  ConLecturer.Text := myClass.calc_lec_ids; //getChildsAndParents(, '', true, false, true);
+  ConGroup.Text := myClass.calc_gro_ids; //getChildsAndParents(, '', true, false, true);
+  conResCat0.Text := myClass.calc_rom_ids; //getChildsAndParents(, '', true, false, true);
 
   ConSubject.Text        := inttostr(myClass.sub_id);
   ConForm.Text           := inttostr(myClass.for_id);
@@ -6893,7 +6895,12 @@ begin
   ConGroup_value.Text    := FChange(ConGroup.text  , sql_GRODESC);
   conResCat0_value.Text  := FChange(conResCat0.text, sql_ResCat0DESC);
   conResCat1_value.Text  := FChange(conResCat1.text, sql_RESCAT1DESC);
+
+  ShowFreeTermsL.Checked := true;
+  ShowFreeTermsG.Checked := true;
+  ShowFreeTermsR.Checked := true;
   canShow := true;
+  deepRefreshDelayed;
 
 end;
 
@@ -9846,13 +9853,22 @@ begin
     if cellType = convOutOfRange  then begin HeaderGrid.Canvas.Brush.Color := clMenu; HeaderGrid.Canvas.FillRect(Rect); DrawCross(HeaderGrid, Rect); End else
     {ConvHeader, ConvClass}
     begin
-     headerGrid.Canvas.Brush.Color := clMenu;
-     headerGrid.Canvas.FillRect(Rect);
-     if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (headerGrid, Rect);
 
-     headerGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
-     , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
-     );
+    {ConvDayOfWeek}
+    if (ACol = 0) then begin
+      HeaderGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
+    end;
+    if (ACol >= 2) then begin
+       headerGrid.Canvas.Brush.Color := clMenu;
+       headerGrid.Canvas.FillRect(Rect);
+       if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (headerGrid, Rect);
+
+       headerGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
+       , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
+       );
+    end;
+
+
     end;
 
 end;
@@ -9883,8 +9899,9 @@ procedure TFMain.GridTopLeftChanged(Sender: TObject);
 begin
  HeaderGrid.col := Grid.Selection.Left;
  HeaderGrid.LeftCol := Grid.LeftCol;
-
+ HeaderGrid.Refresh;
 end;
+
 
 initialization
   Randomize;

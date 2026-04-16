@@ -1615,12 +1615,14 @@ end;
 
 
 procedure TFMatrix.loadPeriod (perId_ : shortString);
+var value : integer;
 begin
     if (perId_='') then exit;
     With DModule do begin
         perId.Text := perId_;
         try
-        Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''), TO_CHAR(DATE_FROM,''MM''), TO_CHAR(DATE_FROM,''DD''), TO_CHAR(DATE_TO,''YYYY''), TO_CHAR(DATE_TO,''MM''), TO_CHAR(DATE_TO,''DD''), NAME FROM PERIODS WHERE ID='+ perId.Text);
+          if TryStrToInt(perId.Text, value) then
+            Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY''), TO_CHAR(DATE_FROM,''MM''), TO_CHAR(DATE_FROM,''DD''), TO_CHAR(DATE_TO,''YYYY''), TO_CHAR(DATE_TO,''MM''), TO_CHAR(DATE_TO,''DD''), NAME FROM PERIODS WHERE ID='+ perId.Text  );
         except {ignore error if any}  end;
         if QWork.IsEmpty then begin
          PerCleanClick(nil);
