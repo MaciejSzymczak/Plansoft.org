@@ -33,7 +33,8 @@ create or replace package USOS is
 end;
 /
 
-create or replace package body USOS is 
+create or replace
+package body USOS is 
 
 --2022.09.19 remove obsolete items from tt_resource_list
 
@@ -189,12 +190,7 @@ begin
             set name=usos.opis || ' (' || usos.kod || ')'
               , date_from=usos.data_od
               , date_to=usos.data_do;    
-    --    
-    delete from per_pla;
-    insert into per_pla (id, per_id, pla_id)
-    select perPLA_SEQ.nextval, periods.id, planners.id
-    from planners, periods;
-    --    
+    --
     trace := 'PERIOD.DELETE ROL_PLA';
     delete from rol_pla where rol_id in (select id rol_id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'));
     trace := 'PERIOD.INSERT ROL_PLA';
@@ -213,33 +209,14 @@ begin
             select kod
                  , nazwa || '('||kod||')' as nazwa
                  --, nazwa || decode(Postfix,1,null,'('||kod||')') as nazwa
-                 , cdyd_kod, orguni_id , gr_codes , gr_descs
-            from
+                 , cdyd_kod, orguni_id  from
             (
             SELECT p.kod
                  , p.nazwa
                  --, ROW_NUMBER() OVER (PARTITION BY nazwa ORDER BY kod ) AS Postfix                 
                  , c.cdyd_kod
-                 , (select Id from org_units where code = p.JED_ORG_KOD) orguni_id 
-                 , gr_codes
-                 , gr_descs
-             from
-             (
-                SELECT 
-                    p.kod,
-                    p.nazwa,
-                    p.JED_ORG_KOD,
-                    LISTAGG(g.kod, ', ') WITHIN GROUP (ORDER BY g.kod) AS gr_codes,
-                    LISTAGG(g.kod ||'(' || g.opis || ')', ', ') WITHIN GROUP (ORDER BY g.kod) AS gr_descs
-                FROM 
-                    dz_przedmioty@USOS p
-                    LEFT JOIN dz_elem_grup_przedmiotow@USOS egp 
-                        ON egp.prz_kod = p.kod
-                    LEFT JOIN dz_grupy_przedmiotow@USOS g 
-                        ON egp.grprz_kod = g.kod
-                GROUP BY 
-                    p.kod,  p.nazwa, p.JED_ORG_KOD
-             ) p
+                 , (select Id from org_units where code = JED_ORG_KOD) orguni_id 
+             from dz_przedmioty@USOS p
             inner join dz_przedmioty_cykli@USOS c on c.prz_kod = p.kod
             where c.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
             )
@@ -251,26 +228,18 @@ begin
          name,
          colour,
          orguni_id,
-         integration_id,
-         ATTRIBS_01,
-         ATTRIBS_02
-         ) 
+         integration_id) 
          values (main_seq.nextval
                , usos.kod  
                , usos.nazwa
                , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255))
                , usos.orguni_id
                , usos.kod
-               , gr_codes
-               , gr_descs
                )
          when matched then update 
             set abbreviation=usos.kod
               , name=usos.nazwa
-              , orguni_id=usos.orguni_id
-              , ATTRIBS_01=usos.gr_codes
-              , ATTRIBS_02=usos.gr_descs
-              ;
+              , orguni_id=usos.orguni_id;
     ---   
     if (pCleanYpMode='Y') then
         trace := 'SUBJECTS.DELETE SUB_PLA';
@@ -482,6 +451,13 @@ begin
     begin
         trace := 'COMBINATIONS. INSERT TT_INTERFACE';
         delete from TT_INTERFACE;
+        declare
+         pcdyd_kod varchar2(100);
+        begin
+          select value 
+            into pcdyd_kod 
+            from system_parameters 
+            where name like 'USOS_CYKL%';
         merge into TT_INTERFACE m using  
         (
             select  
@@ -496,11 +472,11 @@ begin
         from DZ_ZAJECIA_CYKLI@usos zc
         inner join dz_przedmioty@usos p on p.kod = zc.prz_kod
         inner join dz_grupy@usos g on g.zaj_cyk_id = zc.id 
-        left outer join dz_prowadzacy_grup@usos pg on pg.zaj_cyk_id = zc.id and pg.gr_nr = g.nr
+        left outer join dz_prowadzacy_grup@usos pg on pg.zaj_cyk_id = g.zaj_cyk_id and pg.gr_nr = g.nr
         left outer join dz_pracownicy@usos prac on prac.id = pg.prac_id
         left outer join dz_osoby@usos o on o.id = prac.os_id
         inner join dz_typy_zajec@usos tz on tz.kod = zc.tzaj_kod
-        where  zc.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
+        where  zc.cdyd_kod = pcdyd_kod
           and g.opis is not null
           and not g.opis like '% %'
           and length(g.opis)<30
@@ -511,7 +487,9 @@ begin
                     integration_id, lec_integration_id, sub_integration_id, for_integration_id, classes_cnt, gro_integration_id, usos_gr_nr, usos_zaj_cyk_id
                 )
          values ( usos.integration_id, usos.lec_integration_id, usos.sub_integration_id, usos.for_integration_id, usos.classes_cnt, usos.gro_integration_id, usos.usos_gr_nr, usos.usos_zaj_cyk_id
-             );        --
+             );   
+        end;
+        --
         trace := 'COMBINATIONS. UPDATE TT_INTERFACE';
         update tt_interface
           set LEC_ID = (select Id from lecturers where integration_id=LEC_INTEGRATION_ID)
@@ -763,7 +741,7 @@ begin
         from periods
         where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'); 
         select value into pUsosOnline from system_parameters where name = 'USOS_ONLINE';
-        delete from usos_temp where CREATED_BY=user;
+        execute immediate 'truncate table usos_temp';
         insert into usos_temp (day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, classes_sub_id, for_id, gr_nr, sl_id, zaj_cyk_id, desc2)
             select classes.day
                 ,  classes.hour
@@ -793,21 +771,20 @@ begin
          --    
          update usos_temp 
            set rom_id = nvl( (select streaming_id from usos_streaming_room_map where id=rom_id) , rom_id)
-         where created_by=user and upper(desc2) like '%STREAMING%';
+         where upper(desc2) like '%STREAMING%';
          --
-         update usos_temp set lec_id = -1 where created_by=user and lec_id is null;
-         update usos_temp set gro_id = -1 where created_by=user and gro_id is null;
-         update usos_temp set rom_id = -1 where created_by=user and rom_id is null;
-         update usos_temp set sub_id = -1 where created_by=user and sub_id is null;
-         update usos_temp set for_id = -1 where created_by=user and for_id is null;
+         update usos_temp set lec_id = -1 where lec_id is null;
+         update usos_temp set gro_id = -1 where gro_id is null;
+         update usos_temp set rom_id = -1 where rom_id is null;
+         update usos_temp set sub_id = -1 where sub_id is null;
+         update usos_temp set for_id = -1 where for_id is null;
          for rec in (
             select rowid, day, no_from, no_to, lec_id, gro_id, rom_id, sub_id, for_id 
               from usos_temp
-              where created_by=user and (lec_id, gro_id, rom_id, sub_id, for_id, day) in 
+              where (lec_id, gro_id, rom_id, sub_id, for_id, day) in 
               (
                   select lec_id, gro_id, rom_id, sub_id, for_id, day
                     from usos_temp
-                    where created_by=user 
                     group by lec_id, gro_id, rom_id, sub_id, for_id, day
                     having count(1)>1  
               )
@@ -837,11 +814,11 @@ begin
                  prior_rec.for_id := rec.for_id;
              end if;
          end loop;
-         update usos_temp set lec_id = null where created_by=user and lec_id =-1;
-         update usos_temp set gro_id = null where created_by=user and gro_id =-1;
-         update usos_temp set rom_id = null where created_by=user and rom_id =-1;
-         update usos_temp set sub_id = null where created_by=user and sub_id =-1;
-         update usos_temp set for_id = null where created_by=user and for_id =-1;
+         update usos_temp set lec_id = null where lec_id =-1;
+         update usos_temp set gro_id = null where gro_id =-1;
+         update usos_temp set rom_id = null where rom_id =-1;
+         update usos_temp set sub_id = null where sub_id =-1;
+         update usos_temp set for_id = null where for_id =-1;
          commit;
     end;
 
@@ -868,8 +845,7 @@ begin
       set from_hour = (select substr(hour_from,1,2) from grids where no = no_from)
          ,from_min  = (select substr(hour_from,4,2) from grids where no = no_from)
          ,to_hour   = (select substr(hour_to,1,2) from grids where no = no_to)
-         ,to_min    = (select substr(hour_to,4,2) from grids where no = no_to)
-    where created_by=user;
+         ,to_min    = (select substr(hour_to,4,2) from grids where no = no_to);
      commit;    
       --   
       insert into dz_terminy@usos (DZIEN_TYGODNIA,GODZINA_POCZATKU,MINUTA_POCZATKU,GODZINA_KONCA,MINUTA_KONCA)
@@ -879,7 +855,6 @@ begin
              , to_hour GODZINA_KONCA
              , to_min MINUTA_KONCA
         FROM USOS_TEMP
-        where created_by=user
         minus
         select DZIEN_TYGODNIA,GODZINA_POCZATKU,MINUTA_POCZATKU,GODZINA_KONCA,MINUTA_KONCA from dz_terminy@usos;        
     -- ******************************************************************
@@ -895,19 +870,32 @@ begin
                and MINUTA_POCZATKU = from_min 
                and GODZINA_KONCA =  to_hour 
                and MINUTA_KONCA =  to_min      
-      )
-    where created_by=user;
+      );
     --commit; 2025.03.05
     --
      --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_SL_FK) violated - parent key not found
      for rec in (
          select name, integration_id from rooms where integration_id in (
-         select sl_id from usos_temp where created_by=user
+         select sl_id from usos_temp
          minus 
          select id from dz_sale@usos
          )
      ) loop 
        raise_application_error(-20001, 'W USOS nie ma sali: '||rec.name||' Id:'||rec.integration_id);
+     end loop;
+    --  
+     --Avoid the error: ORA-02291: integrity constraint (USOS_PROD_TAB.TRM_GR_GR_FK) violated - parent key not found
+     for rec in (
+        select usos_zaj_cyk_id||','||usos_gr_nr name, integration_id from tt_combinations where (usos_gr_nr, usos_zaj_cyk_id) in
+        (
+        select UNIQUE gr_nr
+                 , zaj_cyk_id
+             from usos_temp
+        minus
+        select nr,zaj_cyk_id from dz_grupy@usos 
+        )
+     ) loop 
+       raise_application_error(-20001, 'W USOS nie ma grupy (zaj_cyk_id, nr, plan_integration_id): '||rec.name||' Id:'||rec.integration_id);
      end loop;
     --  
     insert into dz_terminy_grup@usos (gr_nr, sl_id, zaj_cyk_id, trm_id, czestotliwosc)
@@ -917,7 +905,7 @@ begin
          , zaj_cyk_id
          , trm_id
          , 'INNA_CZESTOTLIWOSC'
-     from usos_temp where created_by=user;
+     from usos_temp;
     --
     -- ******************************************************************
     -- ****************** DZ_TERMINY_GRUP_SPTK.INSERT ************************
@@ -926,8 +914,7 @@ begin
     update usos_temp
       set prac_id = (select id from dz_pracownicy@USOS p where os_id = (select integration_id from lecturers where id = usos_temp.lec_id))
         , USOS_OD_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(from_hour,2,'0')||':'||lpad(from_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS')
-        , USOS_DO_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(to_hour,2,'0')||':'||lpad(to_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS')
-    where created_by=user;
+        , USOS_DO_DATA = to_date(to_char(day,'YYYY-MM-DD')||' '||lpad(to_hour,2,'0')||':'||lpad(to_min,2,'0')||':00','YYYY-MM-DD HH24:MI:SS');
     trace := 'usos_temp.update';
     update usos_temp
        set TRM_GRUP_ID =
@@ -938,8 +925,7 @@ begin
                   and zaj_cyk_id=usos_temp.zaj_cyk_id
                   and trm_id= usos_temp.trm_id 
                   and czestotliwosc='INNA_CZESTOTLIWOSC'
-                )
-    where created_by=user;  
+                );  
     --commit;   2025.03.05          
     --   
     insert into DZ_TERMINY_GRUP_SPTK@usos (TRM_GRUP_ID,SL_ID,OD_DATA,DO_DATA,GR_NR,ZAJ_CYK_ID)
@@ -949,8 +935,7 @@ begin
            , USOS_DO_DATA
            ,GR_NR
            ,ZAJ_CYK_ID
-     from usos_temp
-     where created_by=user;
+     from usos_temp;
     -- commit;  2025.03.05
     --
     -- ******************************************************************
@@ -971,7 +956,6 @@ begin
             ) TGSP_ID
             , prac_id
        from usos_temp
-       where created_by=user
        )
        where prac_id is not null and TGSP_ID is not null;
        -- commit;  2025.03.05

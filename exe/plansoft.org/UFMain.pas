@@ -2439,7 +2439,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                    Grid.Canvas.Brush.Color := clWhite;
                    Grid.Canvas.FillRect(rect);
                    // for reservation show always form regardless of view settings
-                   If Class_.FOR_KIND = 'R' Then Begin
+                   If (Class_.FOR_KIND = 'R') and (getCode(FcellLayout.CellColor)<>'F') Then Begin
                      Rect.Top    := Rect.Top    + 1;
                      Rect.Left   := Rect.Left   + 1;
                      DrawReservation(Class_.FOR_abbreviation, Rect);
@@ -2793,7 +2793,7 @@ begin
       If TabViewType.TabIndex<4 Then BusyClasses;
 
       Case TabViewType.TabIndex Of
-       0: Begin ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);drawReservationsCalendar; End;
+       0: Begin ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        1: Begin ClassByGroupCaches.GetClass   (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,ConGroup.Text   ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar;
           End;
        2: Begin ClassByRoomCaches.GetClass    (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,conResCat0.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
