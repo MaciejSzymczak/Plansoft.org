@@ -9,7 +9,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
   exc_lecgrorom_null   number := -20002; --Class without lecturer and group and resource
-   
+
   classes_selected_count number := -1;
 
   -- output parameters do not work in BDE: Ora-6502 String buffer is to small; no return value is passed
@@ -28,7 +28,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   output_param_num9  number;
   output_param_num10 number;
 
-   
+
   -- parametry diagnostyczne dla procedury
   last_error             varchar2(1000);
   last_cnt               number;
@@ -43,7 +43,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
   procedure enable_trial;
   procedure disable_trial;
- 
+
   procedure setUserOrRoleId(pUserOrRoleId number);
 
   procedure insert_classes(pday            date
@@ -111,7 +111,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function get_class_coeffficient ( aid number, aform_formula_type varchar2, aday date default sysdate) return number;
   function get_last_error return varchar2;
   function get_class_coeffficient_tester ( aid number, aform_formula_type varchar2, aday date default sysdate) return varchar2;
-  
+
   function get_output_param_char1 return varchar2;
   function get_output_param_char2 return varchar2;
   function get_output_param_char3 return varchar2;
@@ -127,8 +127,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function get_output_param_num10 return number;
 
   function get_session_id return number;
-    
-  
+
+
 
   -- returns error_message (is any) by get_output_param_char1 
   --         copied records         by get_output_param_num1
@@ -179,14 +179,14 @@ create or replace package planner_utils AUTHID CURRENT_USER is
                        , del_lec_flag varchar2, del_gro_flag varchar2, del_rom_flag varchar2, del_sub_flag varchar2, del_per_flag varchar2
                        --, classes_deleted out number, lec_deleted out number, gro_deleted out number, rom_deleted out number, sub_deleted out number, per_deleted out number
                        , test_flag varchar2 default 'N');
-                       
-                       
+
+
    procedure merge_RES (save_id number, delete_id number, administrator_merging varchar2);                    
    procedure merge_LEC (save_id number, delete_id number, administrator_merging varchar2);                    
    procedure merge_GRO (save_id number, delete_id number, administrator_merging varchar2);        
    procedure merge_SUB (save_id number, delete_id number, administrator_merging varchar2);        
    procedure merge_FOR (save_id number, delete_id number, administrator_merging varchar2);        
-   
+
    function  insert_str_elem ( pparent_id number, pchild_id number, pstr_name_lov varchar2 default 'STREAM', pexclusive_parent varchar2) return varchar2;           
    procedure insert_str_elem ( pparent_id number, pchild_id number, pstr_name_lov varchar2 default 'STREAM', pexclusive_parent varchar2);           
 
@@ -199,12 +199,12 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   function get_available_rom ( prom_id number ) return number;
 
   function get_classes_selected_count return number;
-    
+
   -- since wm_concat does not exist in Oracle10g  
   function get_group_types (pclass_id number) return varchar2;
-  
+
   function killSessions return varchar2;
-  
+
   FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2;
   PROCEDURE clone_holidays (source_per_id IN NUMBER,target_per_id    IN NUMBER,delete_target   varchar2);
 
@@ -214,9 +214,9 @@ end planner_utils;
 create or replace package body planner_utils is
   UserOrRoleId number := null;
   action_on_no_permission varchar2(50) := 'CONT'; --STOP, SKIP, CONT
-  
+
   deleted_class_id number := null;
-  
+
 
   procedure setUserOrRoleId(pUserOrRoleId number) is begin
     UserOrRoleId := pUserOrRoleId;
@@ -322,7 +322,7 @@ create or replace package body planner_utils is
     if replace_with_Id is not null then
       select name into replace_with_Dsp from groups where Id=replace_with_Id;
     end if;
-  
+
     output_param_char1 := '';
     dest_date_to := dest_date_from + to_number(source_date_to - source_date_from);
 
@@ -382,12 +382,12 @@ create or replace package body planner_utils is
       if own_classes = 'Y' then 
         current_class.owner      := user;
       end if;  
-      
+
       if replace_with_Id is not null then
         current_class.calc_groups  := replace_with_Dsp;
         current_class.calc_gro_ids := replace_with_Id;
       end if;
-      
+
       insert into classes values current_class;
 
       for rec_lec in ( select * from lec_cla where cla_id = rec.id order by id)
@@ -908,7 +908,7 @@ create or replace package body planner_utils is
          raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w semestrze "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
        end loop;   
     end;
-    
+
 
   ----------------------------------------------
   function addOwners (owners varchar2, lec varchar2, gro varchar2, res varchar2, sub varchar2, frm varchar2) return varchar2 is 
@@ -927,7 +927,31 @@ create or replace package body planner_utils is
 
   ----------------------------------------------------------------------------------------  
   begin
-  
+
+    if planner_utils_ext.before_insert_classes(pday
+                         ,phour          
+                         ,pfill          
+                         ,psub_id        
+                         ,pfor_id        
+                         ,powner         
+                         ,pcalc_lec_ids  
+                         ,pcalc_gro_ids  
+                         ,pcalc_rom_ids     
+                         ,pcolour           
+                         ,pdesc1            
+                         ,pdesc2            
+                         ,pdesc3            
+                         ,pdesc4            
+                         ,ptt_comb_ids      
+                         ,pcalc_lecturers   
+                         ,pcalc_groups      
+                         ,pcalc_rooms       
+                         ,pcreator          
+                         ,prefreshLGR       
+                         ,pgrantPermissions 
+                         ,pcalc_rescat_ids  
+                        ) = false then return; end if;
+
    if action_on_no_permission != 'CONT' then
    if UserOrRoleId is not null then
      declare
@@ -1109,6 +1133,30 @@ create or replace package body planner_utils is
     end if;  
 
 
+    planner_utils_ext.after_insert_classes(pday
+                         ,phour          
+                         ,pfill          
+                         ,psub_id        
+                         ,pfor_id        
+                         ,powner         
+                         ,pcalc_lec_ids  
+                         ,pcalc_gro_ids  
+                         ,pcalc_rom_ids     
+                         ,pcolour           
+                         ,pdesc1            
+                         ,pdesc2            
+                         ,pdesc3            
+                         ,pdesc4            
+                         ,ptt_comb_ids      
+                         ,pcalc_lecturers   
+                         ,pcalc_groups      
+                         ,pcalc_rooms       
+                         ,pcreator          
+                         ,prefreshLGR       
+                         ,pgrantPermissions 
+                         ,pcalc_rescat_ids  
+                        );
+
   end insert_classes;
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1201,7 +1249,7 @@ create or replace package body planner_utils is
      where id = cla_id;
   end;
 
-  
+
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure calculate_lgr(
      cla_id number,
@@ -2107,27 +2155,27 @@ create or replace package body planner_utils is
         , email = nvl(email, (select email from lecturers where id=delete_id ))
         , integration_id = nvl(integration_id, (select integration_id from lecturers where id=delete_id ))
     where id = save_id;  
-    
+
     update groups
       set desc1 = nvl(desc1, (select desc1 from groups where id=delete_id ))
         , desc2 = nvl(desc2, (select desc2 from groups where id=delete_id ))
         , email = nvl(email, (select email from groups where id=delete_id ))
         , integration_id = nvl(integration_id, (select integration_id from groups where id=delete_id ))
     where id = save_id;  
-    
+
     update rooms
       set desc1 = nvl(desc1, (select desc1 from rooms where id=delete_id ))
         , desc2 = nvl(desc2, (select desc2 from rooms where id=delete_id ))
         , email = nvl(email, (select email from rooms where id=delete_id ))
         , integration_id = nvl(integration_id, (select integration_id from rooms where id=delete_id ))
     where id = save_id;  
-    
+
     update subjects
       set desc1 = nvl(desc1, (select desc1 from subjects where id=delete_id ))
         , desc2 = nvl(desc2, (select desc2 from subjects where id=delete_id ))
         , integration_id = nvl(integration_id, (select integration_id from subjects where id=delete_id ))
     where id = save_id;  
-    
+
     update forms
       set desc1 = nvl(desc1, (select desc1 from forms where id=delete_id ))
         , desc2 = nvl(desc2, (select desc2 from forms where id=delete_id ))
@@ -2511,7 +2559,7 @@ create or replace package body planner_utils is
  procedure delete_class ( pid number ) is
   l_sum_units number;
  begin 
- 
+
    if action_on_no_permission != 'CONT' then
    if UserOrRoleId is not null then
      declare
@@ -2531,7 +2579,7 @@ create or replace package body planner_utils is
      end;
    end if;
    end if;
- 
+
    --debug('delete_class:'||pid);   
    for rec in (select tt_comb_id from tt_cla where cla_id = pid) loop
      select sum(units) into l_sum_units from tt_cla where cla_id = pid and tt_comb_id = rec.tt_comb_id;
@@ -2551,8 +2599,8 @@ create or replace package body planner_utils is
    rollback; 
    raise;  
  end delete_class;
- 
- 
+
+
  -----------------------------------------------------------------------------------------------------------------------------------------------------
 FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2
 IS
@@ -2592,7 +2640,7 @@ BEGIN
        minus
        SELECT day, hour FROM holiday_days WHERE per_id = target_per_id
        )
-    
+
     ) LOOP
         currrec := rec;
         currrec.id := RES_SEQ.NEXTVAL;
@@ -2601,7 +2649,7 @@ BEGIN
         INSERT INTO holiday_days VALUES currrec;
     END LOOP;
 END;
- 
+
 begin
   begin
     select VALUE into action_on_no_permission from system_parameters where name = 'ACTION_ON_NO_PERMISSION';  --STOP, SKIP, CONT
