@@ -6,6 +6,10 @@ create or replace package planner_utils AUTHID CURRENT_USER is
    @author Maciej Szymczak
    */
 
+  currentUserOrRoleId number := null;
+  currentPerId number := null;
+  action_on_no_permission varchar2(50) := 'CONT'; --STOP, SKIP, CONT
+
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
   exc_lecgrorom_null   number := -20002; --Class without lecturer and group and resource
@@ -44,6 +48,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   procedure enable_trial;
   procedure disable_trial;
 
+  procedure setUserOrRoleId(pUserOrRoleId number, pPerId number);
+  --obsolete, do no use
   procedure setUserOrRoleId(pUserOrRoleId number);
 
   procedure insert_classes(pday            date
@@ -212,14 +218,17 @@ end planner_utils;
 /
 
 create or replace package body planner_utils is
-  UserOrRoleId number := null;
-  action_on_no_permission varchar2(50) := 'CONT'; --STOP, SKIP, CONT
-
   deleted_class_id number := null;
 
+  -- to do: call this function from app
+  procedure setUserOrRoleId(pUserOrRoleId number, pPerId number) is begin
+    currentUserOrRoleId := pUserOrRoleId;
+    currentPerId := pPerId;
+  end;
 
+  -- obsolete, do not use
   procedure setUserOrRoleId(pUserOrRoleId number) is begin
-    UserOrRoleId := pUserOrRoleId;
+    currentUserOrRoleId := pUserOrRoleId;
   end;
 
   function killSessions return varchar2 is
@@ -808,7 +817,9 @@ create or replace package body planner_utils is
                          ,pgrantPermissions varchar2 default 'N'
                          ,pcalc_rescat_ids  varchar2 default null --@@@todo: this parameter should be passed by interface
                         ) is
-
+   
+    vday date := pday;
+    
     vcalc_lecturers  classes.calc_lecturers%type  := substrb(pcalc_lecturers,  1, 500);
     vcalc_groups     classes.calc_groups%type     := substrb(pcalc_groups,     1, 500); 
     vcalc_rooms      classes.calc_rooms%type      := substrb(pcalc_rooms,      1, 500); 
@@ -900,12 +911,12 @@ create or replace package body planner_utils is
               from timetable_notes 
              where locked_by is not null
                --time table found by pday
-               and per_id in (select id from periods where pday between date_from and date_to)
+               and per_id in (select id from periods where vday between date_from and date_to)
                and res_id in (select id from HELPER_RES) 
                -- user is not the locker
                and instr(';'||locked_by,';'||user)=0                 
             ) loop
-         raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(pday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w semestrze "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+         raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(vday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w semestrze "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
        end loop;   
     end;
 
@@ -928,7 +939,8 @@ create or replace package body planner_utils is
   ----------------------------------------------------------------------------------------  
   begin
 
-    if planner_utils_ext.before_insert_classes(pday
+    if planner_utils_ext.before_insert_classes(
+                          vday
                          ,phour          
                          ,pfill          
                          ,psub_id        
@@ -953,13 +965,13 @@ create or replace package body planner_utils is
                         ) = false then return; end if;
 
    if action_on_no_permission != 'CONT' then
-   if UserOrRoleId is not null then
+   if currentUserOrRoleId is not null then
      declare
        psub_name varchar2(500);
        cnt number;
      begin
        if psub_id > 0 then 
-         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
+         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=currentUserOrRoleId;
          if cnt = 0 then
            select name into psub_name from subjects where subjects.id = psub_id;
            if action_on_no_permission='SKIP' then return; end if;                
@@ -977,7 +989,7 @@ create or replace package body planner_utils is
         for rec in (
           select * 
             from periods
-           where pday between date_from and date_to
+           where vday between date_from and date_to
              and locked_flag = '+'
              and created_by <> user 
              and rownum =1
@@ -1046,7 +1058,7 @@ create or replace package body planner_utils is
         lecdesc2 := getLecDesc(desc2Cnt, pdesc2, t);
         lecdesc3 := getLecDesc(desc3Cnt, pdesc3, t);
         lecdesc4 := getLecDesc(desc4Cnt, pdesc4, t);
-        insert into lec_cla (id, lec_id, cla_id, is_child, day, hour, desc1, desc2, desc3, desc4,no_conflict_flag) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', pday, phour
+        insert into lec_cla (id, lec_id, cla_id, is_child, day, hour, desc1, desc2, desc3, desc4,no_conflict_flag) values (leccla_seq.nextval,plec_id,cla_seq_nextval, 'N', vday, phour
         , lecdesc1, lecdesc2, lecdesc3, lecdesc4, pno_conflict_flag);    
 
       -- "and pno_conflict_flag is null" means "do not add child records when you create an alert record" 
@@ -1061,7 +1073,7 @@ create or replace package body planner_utils is
            )
           loop
             if instr(pcalc_lec_ids,rec.child_id)=0 then 
-                insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (leccla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', pday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_lec_ids,';') );   
+                insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (leccla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_lec_ids,';') );   
             end if;
           end loop;
       end if;
@@ -1073,7 +1085,7 @@ create or replace package body planner_utils is
     end;  
 
     for t in 1 .. xxmsz_tools.wordcount(pcalc_gro_ids, ';') loop
-      insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag) values (grocla_seq.nextval,xxmsz_tools.extractword(t,pcalc_gro_ids,';'),cla_seq_nextval, 'N', pday, phour,pno_conflict_flag);   
+      insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag) values (grocla_seq.nextval,xxmsz_tools.extractword(t,pcalc_gro_ids,';'),cla_seq_nextval, 'N', vday, phour,pno_conflict_flag);   
       if pno_conflict_flag is null then
           for rec in (
               select child_id
@@ -1084,14 +1096,14 @@ create or replace package body planner_utils is
            )
           loop
             if instr(pcalc_gro_ids,rec.child_id)=0  then 
-                    insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (grocla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', pday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_gro_ids,';'));   
+                    insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (grocla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_gro_ids,';'));   
             end if;
           end loop;
       end if;
     end loop;
 
     for t in 1 .. xxmsz_tools.wordcount(pcalc_rom_ids, ';') loop
-      insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag) values (romcla_seq.nextval,xxmsz_tools.extractword(t,pcalc_rom_ids,';'),cla_seq_nextval,'N', pday, phour,pno_conflict_flag);
+      insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag) values (romcla_seq.nextval,xxmsz_tools.extractword(t,pcalc_rom_ids,';'),cla_seq_nextval,'N', vday, phour,pno_conflict_flag);
       if pno_conflict_flag is null then
           for rec in (
               select child_id
@@ -1102,7 +1114,7 @@ create or replace package body planner_utils is
            )
           loop
             if instr(pcalc_rom_ids,rec.child_id)=0  then 
-                insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (romcla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', pday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_rom_ids,';'));   
+                insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (romcla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_rom_ids,';'));   
             end if;
           end loop;
       end if;
@@ -1113,7 +1125,7 @@ create or replace package body planner_utils is
     begin
         insert into classes
                     (id             , day  ,hour  ,fill  ,sub_id  ,for_id  ,owner  ,calc_lec_ids , calc_gro_ids , calc_rom_ids , calc_lecturers , calc_groups , calc_rooms , created_by        , colour  , desc1, desc2, desc3, desc4, calc_rescat_ids)
-             values (cla_seq_nextval, pday ,phour ,pfill ,psub_id ,pfor_id ,eOwners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
+             values (cla_seq_nextval, vday ,phour ,pfill ,psub_id ,pfor_id ,eOwners,vcalc_lec_ids, vcalc_gro_ids, vcalc_rom_ids, vcalc_lecturers, vcalc_groups, vcalc_rooms, nvl(pcreator,user), pcolour ,pdesc1,pdesc2,pdesc3,pdesc4, vcalc_rescat_ids);
        if prefreshLGR = 'Y' then update_lgr(cla_seq_nextval); end if;
     end;
 
@@ -1133,7 +1145,7 @@ create or replace package body planner_utils is
     end if;  
 
 
-    planner_utils_ext.after_insert_classes(pday
+    planner_utils_ext.after_insert_classes(vday
                          ,phour          
                          ,pfill          
                          ,psub_id        
@@ -2561,7 +2573,7 @@ create or replace package body planner_utils is
  begin 
 
    if action_on_no_permission != 'CONT' then
-   if UserOrRoleId is not null then
+   if currentUserOrRoleId is not null then
      declare
        psub_id number;
        psub_name varchar2(500);
@@ -2569,7 +2581,7 @@ create or replace package body planner_utils is
      begin
        select sub_id into psub_id from classes where id = pid;
        if psub_id > 0 then 
-         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=UserOrRoleId;
+         select count(1) into cnt from sub_pla where sub_id = psub_id and pla_id=currentUserOrRoleId;
          if cnt = 0 then
            select name into psub_name from subjects where subjects.id = psub_id;
            if action_on_no_permission='SKIP' then return; end if;                

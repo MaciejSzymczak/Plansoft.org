@@ -56,6 +56,7 @@ type
     procedure PER_ORGUNI_IDChange(Sender: TObject);
     procedure PER_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ROL_ID_VALUEClick(Sender: TObject);
+    procedure ChLokedFlagClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -251,6 +252,15 @@ begin
   ID := ROL_ID.Text;
   If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',ID) = mrOK Then
     Query.FieldByName('ROL_ID').AsString := ID;
+end;
+
+procedure TFBrowsePERIODS.ChLokedFlagClick(Sender: TObject);
+begin
+  inherited;
+ if isAdmin = true and ChLokedFlag.Checked then begin
+   ChLokedFlag.Checked := false;
+   info('Ta funkcja jest dostêpna tylko dla administratora systemu');
+ end;
 end;
 
 end.

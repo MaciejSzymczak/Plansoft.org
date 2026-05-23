@@ -18,17 +18,15 @@ type
     RGrid: TStringGrid;
     PopupMenu: TPopupMenu;
     Zmie1: TMenuItem;
-    TabSheetL: TTabSheet;
-    TabSheetG: TTabSheet;
-    TabSheetR: TTabSheet;
+    TabSheetLEC: TTabSheet;
+    TabSheetGRO: TTabSheet;
+    TabSheetRES: TTabSheet;
     TabSheetSUB: TTabSheet;
     TabSheetFOR: TTabSheet;
     TabSheetROL: TTabSheet;
     ROLGrid: TStringGrid;
     SUBGrid: TStringGrid;
     FORGrid: TStringGrid;
-    invertClass: TSpeedButton;
-    MarkSymbol: TRadioGroup;
     Dugieopisy1: TMenuItem;
     Krtkieopisy1: TMenuItem;
     DescLen: TRadioGroup;
@@ -43,13 +41,15 @@ type
     Brefresh2: TBitBtn;
     btransfer: TBitBtn;
     tmp: TEdit;
-    TabSheetPer: TTabSheet;
+    TabSheetPER: TTabSheet;
     PERGrid: TStringGrid;
     Label2: TLabel;
     ORGUNI_ID_VALUE: TEdit;
     ORGUNI_ID: TEdit;
     BitBtnCLEARROLE: TSpeedButton;
     childs: TCheckBox;
+    TypeUSER: TCheckBox;
+    typeROLE: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure AddClassClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
@@ -84,6 +84,9 @@ type
     procedure ORGUNI_IDChange(Sender: TObject);
     procedure BitBtnCLEARROLEClick(Sender: TObject);
     procedure LGridClick(Sender: TObject);
+    procedure mainPageChange(Sender: TObject);
+    procedure TypeUSERClick(Sender: TObject);
+    procedure typeROLEClick(Sender: TObject);
   private
     LChanged   : boolean;
     PERChanged : boolean;
@@ -94,7 +97,7 @@ type
     ROLChanged : boolean;
     SQLStatements : string;
     SQLStatementsCnt : Integer;
-    Procedure LoadGrid;
+    Procedure LoadGrid(tabName : String);
     Procedure InvertSelection(Grid: TStringGrid; Var Flag : Boolean);
     procedure addSelection(Grid: TStringGrid; Var Flag : Boolean);
     procedure deleteSelection(Grid: TStringGrid; Var Flag : Boolean);
@@ -102,6 +105,7 @@ type
     Procedure SaveCellGrid(Grid: TStringGrid; Descriptor : String; Var Flag : Boolean; Col, Row : integer);
     function getRowSearch : string;
     function getPSearch : string;
+    function getUserTypeSearch : string;
   public
     { Public declarations }
   end;
@@ -217,7 +221,20 @@ begin
  result :=  psearch.text;
 end;
 
-procedure TFPlannerPermissions.LoadGrid;
+function TFPlannerPermissions.getUserTypeSearch : string;
+begin
+ result :=  'and TYPE IN('+
+   Merge(
+    iif(TypeUSER.Checked,'''USER''','')
+    ,iif(TypeROLE.Checked,'''ROLE''','')
+    ,',')+
+ ')';
+
+
+end;
+
+
+procedure TFPlannerPermissions.LoadGrid(tabName : String);
 Var x, y : Integer;
     ORGUNI_IDFilter : String;
     PER_ORGUNI_IDFilter : String;
@@ -229,7 +246,7 @@ Var x, y : Integer;
    For y := 1 To Grid.RowCount Do  For x := 1 To Grid.ColCount Do Grid.Cells[x,y] := '';
    With DModule Do Begin
     fmain.wlog ('FplannerPermissions.LoadCells : from '+Descriptor);
-    OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
+    OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
 
     QWork.First;
     While Not QWork.EOF Do Begin
@@ -271,13 +288,12 @@ begin
 
 
   With DModule Do Begin
-   OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
+   OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
    //info (  inttostr(QWork.RecordCount+1) );
    LGrid.ColCount   := QWork.RecordCount+1;
    PERGrid.ColCount := QWork.RecordCount+1;
    GGrid.ColCount   := QWork.RecordCount+1;
    RGrid.ColCount   := QWork.RecordCount+1;
-   ROLGrid.ColCount := QWork.RecordCount+1;
    SUBGrid.ColCount := QWork.RecordCount+1;
    FORGrid.ColCount := QWork.RecordCount+1;
    x := 1;
@@ -292,7 +308,7 @@ begin
 
    dispLog (2,'FplannerPermissions : planners2');
    //zmniejszenie liczby wierszy dla ostatniej siatki
-   OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
+   OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
    ROLGrid.ColCount := QWork.RecordCount+1;
 
 
@@ -317,114 +333,127 @@ begin
      PER_ORGUNI_IDFilter := 'PER_'+ORGUNI_IDFilter;
    end;
 
-   dispLog (3,'FplannerPermissions : LECTURERS');
-   OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
-   LGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    LECS[y].ID := QWork2.Fields[0].AsInteger;
-    LECS[y].NAME := QWork2.Fields[1].AsString;
-    LGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
+   if mainPage.ActivePage=TabSheetLEC then begin
+    dispLog (3,'FplannerPermissions : LECTURERS');
+    OPENSQL2('SELECT LECTURERS.ID, '+sql_LECNAMEORG+' NAME FROM LECTURERS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+' ORDER BY LAST_NAME, FIRST_NAME');
+    LGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     LECS[y].ID := QWork2.Fields[0].AsInteger;
+     LECS[y].NAME := QWork2.Fields[1].AsString;
+     LGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
 
+   if mainPage.ActivePage=TabSheetPER then begin
     dispLog (4,'FplannerPermissions : PERIODS');
-   OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
-   PERGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    PERS[y].ID := QWork2.Fields[0].AsInteger;
-    PERS[y].NAME := QWork2.Fields[1].AsString;
-    PERGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
+    OPENSQL2('SELECT PERIODS.ID, '+sql_PERNAME+' NAME FROM PERIODS where '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+' ORDER BY NAME');
+    PERGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     PERS[y].ID := QWork2.Fields[0].AsInteger;
+     PERS[y].NAME := QWork2.Fields[1].AsString;
+     PERGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
+
+   if mainPage.ActivePage=TabSheetGRO then begin
+    dispLog (5, 'FplannerPermissions : GROUPS');
+    OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
+    GGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     GROS[y].ID := QWork2.Fields[0].AsInteger;
+     GROS[y].NAME := QWork2.Fields[1].AsString;
+     GGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
    End;
 
-   dispLog (5, 'FplannerPermissions : GROUPS');
-   OPENSQL2('SELECT GROUPS.ID, '+sql_GRONAMEORG+' NAME FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+' ORDER BY '+sql_GRONAME);
-   GGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    GROS[y].ID := QWork2.Fields[0].AsInteger;
-    GROS[y].NAME := QWork2.Fields[1].AsString;
-    GGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
+   if mainPage.ActivePage=TabSheetRES then begin
+    dispLog (6, 'FplannerPermissions : ROOMS');
+    OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
+    RGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     ROMS[y].ID := QWork2.Fields[0].AsInteger;
+     ROMS[y].NAME := QWork2.Fields[1].AsString;
+     RGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
 
-   dispLog (6, 'FplannerPermissions : ROOMS');
-   OPENSQL2('SELECT rooms.ID, '+sql_ResCat0NAMEROMORG+' FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+' ORDER BY '+sql_ResCat0NAMEROMORG);
-   RGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    ROMS[y].ID := QWork2.Fields[0].AsInteger;
-    ROMS[y].NAME := QWork2.Fields[1].AsString;
-    RGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
+   if mainPage.ActivePage=TabSheetSUB then begin
+    dispLog (7, 'FplannerPermissions : SUBJECTS');
+    OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
+    SubGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     SUBS[y].ID   := QWork2.Fields[0].AsInteger;
+     SUBS[y].NAME := QWork2.Fields[1].AsString;
+     SUBGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
 
-   dispLog (7, 'FplannerPermissions : SUBJECTS');
-   OPENSQL2('SELECT SUBJECTS.ID, '+sql_SUBNAMEORG+' FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+' ORDER BY '+sql_SUBNAMEORG);
-   SubGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    SUBS[y].ID   := QWork2.Fields[0].AsInteger;
-    SUBS[y].NAME := QWork2.Fields[1].AsString;
-    SUBGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
+   if mainPage.ActivePage=TabSheetFOR then begin
+    dispLog(8, 'FplannerPermissions : FORMS');
+    OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+' ORDER BY '+sql_FORNAME);
+    FORGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     FORS[y].ID := QWork2.Fields[0].AsInteger;
+     FORS[y].NAME := QWork2.Fields[1].AsString;
+     FORGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
 
-
-   dispLog(8, 'FplannerPermissions : FORMS');
-   OPENSQL2('SELECT ID, '+sql_FORNAME+' FROM FORMS where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+' ORDER BY '+sql_FORNAME);
-   FORGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    FORS[y].ID := QWork2.Fields[0].AsInteger;
-    FORS[y].NAME := QWork2.Fields[1].AsString;
-    FORGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
-
-   dispLog(9,'FplannerPermissions : PLANNERS');
-   OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
-   ROLGrid.RowCount := QWork2.RecordCount+1;
-   y := 1;
-   QWork2.First;
-   While Not QWork2.EOF Do Begin
-    ROLS[y].ID := QWork2.Fields[0].AsInteger;
-    ROLS[y].NAME := QWork2.Fields[1].AsString;
-    RolGrid.Cells[0,y] := QWork2.Fields[1].AsString;
-    QWork2.Next;
-    inc(y);
-   End;
+   if mainPage.ActivePage=TabSheetROL then begin
+    dispLog(9,'FplannerPermissions : PLANNERS');
+    OPENSQL2('SELECT ID, '+sql_PLANAME+' NAME FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%'') ORDER BY '+sql_PLANAME);
+    ROLGrid.RowCount := QWork2.RecordCount+1;
+    y := 1;
+    QWork2.First;
+    While Not QWork2.EOF Do Begin
+     ROLS[y].ID := QWork2.Fields[0].AsInteger;
+     ROLS[y].NAME := QWork2.Fields[1].AsString;
+     RolGrid.Cells[0,y] := QWork2.Fields[1].AsString;
+     QWork2.Next;
+     inc(y);
+    End;
+   end;
 
   End;
 
   dispLog (10, 'FplannerPermissions : before LoadCells');
-  LoadCells('LEC', LGrid  ,'lec_id in (SELECT LECTURERS.ID FROM LECTURERS , ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetLEC then LoadCells('LEC', LGrid  ,'lec_id in (SELECT LECTURERS.ID FROM LECTURERS , ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and LECTURERS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_LEC_SEARCH, getRowSearch)+')');
   dispLog (11, 'FplannerPermissions : before LoadCells');
-  LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetPER then LoadCells('PER', PERGrid,'per_id in (SELECT ID FROM PERIODS   where id>0 and '+PER_ORGUNI_IDFilter+' and '+buildFilter(sql_PER_SEARCH, getRowSearch)+')');
   dispLog (12, 'FplannerPermissions : before LoadCells');
-  LoadCells('GRO', GGrid  ,'gro_id in (SELECT GROUPS.ID FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetGRO then LoadCells('GRO', GGrid  ,'gro_id in (SELECT GROUPS.ID FROM GROUPS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and GROUPS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_GRO_SEARCH, getRowSearch)+')');
   dispLog (13, 'FplannerPermissions : before LoadCells');
-  LoadCells('ROM', RGrid  ,'rom_id in (SELECT ROOMS.ID FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetRES then LoadCells('ROM', RGrid  ,'rom_id in (SELECT ROOMS.ID FROM ROOMS, ORG_UNITS where ORGUNI_ID=ORG_UNITS.ID and rooms.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_ROM_SEARCH, getRowSearch)+')');
   dispLog (14, 'FplannerPermissions : before LoadCells');
-  LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%''))');
+  if mainPage.ActivePage=TabSheetROL then LoadCells('ROL', ROLGrid,'rol_id in (SELECT ID FROM PLANNERS  WHERE id>0 and type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+' and  TYPE in(''ROLE'',''EXTERNAL'') and upper(name) like upper(''%'+getRowSearch+'%''))');
   dispLog (15, 'FplannerPermissions : before LoadCells');
-  LoadCells('SUB', SUBGrid,'sub_id in (SELECT SUBJECTS.ID FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetSUB then LoadCells('SUB', SUBGrid,'sub_id in (SELECT SUBJECTS.ID FROM SUBJECTS, ORG_UNITS  where ORGUNI_ID=ORG_UNITS.ID and SUBJECTS.id>0 and '+ORGUNI_IDFilter+' and '+buildFilter(sql_SUB_SEARCH, getRowSearch)+')');
   dispLog (16, 'FplannerPermissions : before LoadCells');
-  LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+')');
+  if mainPage.ActivePage=TabSheetFOR then LoadCells('FOR', FORGrid,'for_id in (SELECT ID FROM FORMS     where id>0 and '+buildFilter(sql_FOR_SEARCH, getRowSearch)+')');
   dispLog (19,'FplannerPermissions : after LoadCells');
 
   LChanged := False;
@@ -445,15 +474,15 @@ begin
  inherited;
 
  with fprogramsettings do begin
-  TabSheetL.caption   := profileObjectNameLs.Text;
-  TabSheetG.caption   := profileObjectNameGs.Text;
-  TabSheetSub.caption := profileObjectNameC1.Text;
-  TabSheetFor.caption := profileObjectNameC2.Text;
+  TabSheetLEC.caption   := profileObjectNameLs.Text;
+  TabSheetGRO.caption   := profileObjectNameGs.Text;
+  TabSheetSUB.caption := profileObjectNameC1.Text;
+  TabSheetFOR.caption := profileObjectNameC2.Text;
  end;
 
  FindPane.Enabled := true;
  //Psearch.Text := CurrentUserName;
- LoadGrid;
+ LoadGrid( mainPage.ActivePage.Name);
 end;
 
 procedure TFPlannerPermissions.InvertSelection(Grid: TStringGrid; Var Flag : Boolean);
@@ -529,24 +558,24 @@ end;
 procedure TFPlannerPermissions.AddClassClick(Sender: TObject);
 begin
   inherited;
- If mainPage.ActivePage = TabSheetL      Then addSelection(LGrid,   LChanged);
- If mainPage.ActivePage = TabSheetPER    Then addSelection(PERGrid, PERChanged);
- If mainPage.ActivePage = TabSheetG      Then addSelection(GGrid,   GChanged);
- If mainPage.ActivePage = TabSheetR      Then addSelection(RGrid,   RChanged);
- If mainPage.ActivePage = TabSheetSub    Then addSelection(SubGrid, SubChanged);
- If mainPage.ActivePage = TabSheetFor    Then addSelection(ForGrid, ForChanged);
- If mainPage.ActivePage = TabSheetRol    Then addSelection(ROLGrid, ROLChanged);
+ If mainPage.ActivePage = TabSheetLEC  Then addSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetPER  Then addSelection(PERGrid, PERChanged);
+ If mainPage.ActivePage = TabSheetGRO  Then addSelection(GGrid,   GChanged);
+ If mainPage.ActivePage = TabSheetRES  Then addSelection(RGrid,   RChanged);
+ If mainPage.ActivePage = TabSheetSUB  Then addSelection(SubGrid, SubChanged);
+ If mainPage.ActivePage = TabSheetFOR  Then addSelection(ForGrid, ForChanged);
+ If mainPage.ActivePage = TabSheetROL  Then addSelection(ROLGrid, ROLChanged);
 end;
 
 procedure TFPlannerPermissions.DeleteClassClick(Sender: TObject);
 begin
   inherited;
- If mainPage.ActivePage = TabSheetL    Then deleteSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetLEC  Then deleteSelection(LGrid,   LChanged);
  If mainPage.ActivePage = TabSheetPER  Then deleteSelection(PERGrid, PERChanged);
- If mainPage.ActivePage = TabSheetG    Then deleteSelection(GGrid,   GChanged);
- If mainPage.ActivePage = TabSheetR    Then deleteSelection(RGrid,   RChanged);
- If mainPage.ActivePage = TabSheetSub  Then deleteSelection(SubGrid, SubChanged);
- If mainPage.ActivePage = TabSheetFor  Then deleteSelection(ForGrid, ForChanged);
+ If mainPage.ActivePage = TabSheetGRO  Then deleteSelection(GGrid,   GChanged);
+ If mainPage.ActivePage = TabSheetRES  Then deleteSelection(RGrid,   RChanged);
+ If mainPage.ActivePage = TabSheetSUB  Then deleteSelection(SubGrid, SubChanged);
+ If mainPage.ActivePage = TabSheetFOR  Then deleteSelection(ForGrid, ForChanged);
  If mainPage.ActivePage = TabSheetROL  Then deleteSelection(ROLGrid, ROLChanged);
 end;
 
@@ -597,10 +626,8 @@ Var Name : String;
 
   procedure DrawBusy(DrawGrid : TStringGrid ;Var Rect : TRect);
   begin
-   if MarkSymbol.ItemIndex = 1 then begin
      DrawGrid.Canvas.Brush.Color := clBlack;
      DrawGrid.Canvas.rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-   end;
   end;
 
 begin
@@ -647,11 +674,10 @@ End;
 
 procedure TFPlannerPermissions.invertClassClick(Sender: TObject);
 begin
-  inherited;
- If mainPage.ActivePage = TabSheetL    Then InvertSelection(LGrid,   LChanged);
+ If mainPage.ActivePage = TabSheetLEC  Then InvertSelection(LGrid,   LChanged);
  If mainPage.ActivePage = TabSheetPER  Then InvertSelection(PERGrid, PERChanged);
- If mainPage.ActivePage = TabSheetG    Then InvertSelection(GGrid,   GChanged);
- If mainPage.ActivePage = TabSheetR    Then InvertSelection(RGrid,   RChanged);
+ If mainPage.ActivePage = TabSheetGRO  Then InvertSelection(GGrid,   GChanged);
+ If mainPage.ActivePage = TabSheetRES  Then InvertSelection(RGrid,   RChanged);
  If mainPage.ActivePage = TabSheetSUB  Then InvertSelection(SubGrid, SubChanged);
  If mainPage.ActivePage = TabSheetFOR  Then InvertSelection(ForGrid, ForChanged);
  If mainPage.ActivePage = TabSheetROL  Then InvertSelection(ROLGrid, ROLChanged);
@@ -718,7 +744,7 @@ begin
   Brefresh2.Visible := false;
   tmp.Visible := false;
   mainPage.Visible := true;
-  LoadGrid;
+  LoadGrid(mainPage.ActivePage.Name);
 end;
 
 procedure TFPlannerPermissions.chRefreshClick(Sender: TObject);
@@ -858,6 +884,22 @@ end;
 procedure TFPlannerPermissions.LGridClick(Sender: TObject);
 begin
    (Sender as TStringGrid).Refresh;
+end;
+
+procedure TFPlannerPermissions.mainPageChange(Sender: TObject);
+begin
+  LoadGrid(mainPage.ActivePage.Name);
+end;
+
+procedure TFPlannerPermissions.TypeUSERClick(Sender: TObject);
+begin
+  inherited;
+  if TypeUSER.Checked=false then TypeROLE.Checked := true;
+end;
+
+procedure TFPlannerPermissions.typeROLEClick(Sender: TObject);
+begin
+  if TypeROLE.Checked=false then TypeUSER.Checked := true;
 end;
 
 end.

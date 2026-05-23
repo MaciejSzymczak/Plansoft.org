@@ -7,7 +7,7 @@ create or replace package planner_utils_ext AUTHID CURRENT_USER is
    */
 
 
-  function before_insert_classes(pday            date
+  function before_insert_classes(pday    in out        date
                          ,phour           number
                          ,pfill           number
                          ,psub_id         number
@@ -67,10 +67,9 @@ create or replace package planner_utils_ext AUTHID CURRENT_USER is
 end planner_utils_ext;
 /
 
-
 create or replace package body planner_utils_ext is
 
-  function before_insert_classes(pday              date
+  function before_insert_classes(pday       in out   date
                          ,phour             number
                          ,pfill             number
                          ,psub_id           number
