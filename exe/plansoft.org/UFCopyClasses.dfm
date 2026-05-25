@@ -26,7 +26,7 @@ inherited FCopyClasses: TFCopyClasses
       '                      do'
   end
   inherited Status: TPanel
-    Top = 408
+    Top = 409
     Width = 689
   end
   object source_date_from: TDateTimePicker
@@ -71,11 +71,10 @@ inherited FCopyClasses: TFCopyClasses
   end
   object Panel1: TPanel
     Left = 0
-    Top = 367
+    Top = 368
     Width = 689
     Height = 41
     Align = alBottom
-    Caption = 'Kopiowanie mo'#380'e zaj'#261#263' kilka minut.'
     TabOrder = 5
     object Anuluj: TBitBtn
       Left = 608
@@ -225,7 +224,7 @@ inherited FCopyClasses: TFCopyClasses
       Top = 48
       Width = 425
       Height = 17
-      Caption = 'Kopiuj wszystko albo nic'
+      Caption = 'Kopiuj wszystko albo nic (Jakikowiek b'#322#261'd przerywa kopiowanie)'
       TabOrder = 2
     end
   end

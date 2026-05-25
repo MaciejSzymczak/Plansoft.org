@@ -367,7 +367,7 @@ create or replace package body planner_utils is
                     and for_id in (
                        select id from forms where kind='R' and CopyR='Y'
                        union 
-                       select id from forms where kind='C' and CopyR='Y'
+                       select id from forms where kind='C' and CopyC='Y'
                     )
                     -- permissions
                     and id in 

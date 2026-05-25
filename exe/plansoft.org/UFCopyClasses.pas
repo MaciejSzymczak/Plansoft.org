@@ -62,7 +62,7 @@ implementation
 {$R *.dfm}
 
 uses uutilityparent, DM, DB, UFMain, autocreate, UFProgramSettings,
-  UProgress;
+  UProgress, DateUtils;
 
 procedure TFCopyClasses.FormShow(Sender: TObject);
 begin
@@ -216,7 +216,13 @@ end;
 procedure TFCopyClasses.BExecuteClick(Sender: TObject);
 var error_message : string;
     cnt           : string;
+    currentDay    : integer;
+    currentDayDsp : string;
+    TotalErrors : integer;
 begin
+   if DModule.ADOConnection.Connected then dmodule.CommitTrans;
+   TotalErrors := 0;
+
  gCanCloseQuery := false;
 
  //if (CopyClasses.Checked) and (replaceWithId<>'') then begin
@@ -224,7 +230,8 @@ begin
  //  exit;
  //end;
 
- FProgress.ProgressBar.Position :=  50;
+ FProgress.ProgressBar.Position :=  0;
+ FProgress.show;
  FProgress.Refresh;
 
  source_date_from.Time := 0;
@@ -238,55 +245,74 @@ begin
  end;
 
  if dayOfWeek(source_date_from.datetime) <> dayOfWeek(dest_date_from.datetime) then
-   if question('Zwróæ uwagê, ¿e okres Ÿród³owy i docelowy zaczynaj¹ siê w ró¿nych dniach tygodnia. Czy chcesz kontynuowaæ ?') <> id_yes then exit;
+   if question('Okresy Ÿród³owy i docelowy zaczynaj¹ siê w ró¿nych dniach tygodnia. Kontynuowaæ ?') <> id_yes then exit;
+
 
  try
-  with dmodule.QWork do begin
-    SQL.Clear;
-    SQL.Add('begin planner_utils.copy_data_v2(:source_date_from, :source_date_to, :dest_date_from, :dest_period_must_be_empty, :own_classes, :planner_id,'+
-          ' :selected_lec_id, :selected_gro_id, :selected_res_id, :replace_with_Id, :copyC, :copyR, :overlapAllowed, :copyAllOrNothing); end;');
-    //it was:   ParamByName('source_date_from').asDateTime    := source_date_from.datetime; @@@test it
-    parameters.ParamByName('source_date_from').value      := source_date_from.datetime;
-    parameters.ParamByName('source_date_to').value        := source_date_to.datetime;
-    parameters.ParamByName('dest_date_from').value        := dest_date_from.datetime;
-    parameters.ParamByName('own_classes').value           := iif(OwnClasses.ItemIndex = 0, 'Y', 'N');
-    parameters.ParamByName('dest_period_must_be_empty').value:= iif( dest_period_must_be_empty.checked , 'Y', 'N');
-    parameters.ParamByName('planner_id').value            := FMain.getUserOrRoleID;
-    parameters.ParamByName('selected_lec_id').value       := iif(whichSheets.ItemIndex = 0,keyValue,'-1');
-    parameters.ParamByName('selected_gro_id').value       := iif(whichSheets.ItemIndex = 1,keyValue,'-1');
-    parameters.ParamByName('selected_res_id').value       := iif(whichSheets.ItemIndex = 2,keyValue,'-1');
-    //v2
-    parameters.ParamByName('replace_with_Id').value       := iif(whichSheets.ItemIndex = 1,replaceWithId,'');
-    parameters.ParamByName('copyC').value                 := iif(CopyClasses.Checked, 'Y', 'N');
-    parameters.ParamByName('copyR').value                 := iif(CopyReservations.Checked, 'Y', 'N');
-    parameters.ParamByName('overlapAllowed').value        := iif(OverlapCheck.Checked, 'Y', 'N');
-    parameters.ParamByName('copyAllOrNothing').value      := iif(copyAllOrNothing.checked, 'Y', 'N');
-    // does not work in BDE: Ora-6502 String buffer is to small; no return value is passed
-    //ParamByName('error_message').DataType      := ftString;
-    //ParamByName('error_message').Size          := 255;
-    //ParamByName('error_message').AsString      := error_message;
-    //ParamByName('error_message').ParamType     := ptOutput;
-    execSQL;
-  end;
-  error_message := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-  if error_message = '' then
-  begin
-    cnt := dmodule.SingleValue('select planner_utils.get_output_param_num1, planner_utils.get_output_param_num2 from dual');
-    info ('Zrobione. '+cr+'Skopiowano rekordów: ' + cnt+ cr + ' Nie skopiowano rekordów: '+ dmodule.QWork.Fields[1].AsString );
-    gCanCloseQuery := true;
-  end
-  else
-  begin
-    info(error_message);
-  end;
+ for currentDay := 0 to Trunc(source_date_to.DateTime - source_date_from.DateTime) Do Begin
+
+       FProgress.ProgressBar.Position :=  Round(currentDay * 100 / Trunc(source_date_to.DateTime - source_date_from.DateTime));
+       currentDayDsp :=       DateTimeToStr  (IncDay(source_date_from.datetime,currentDay));
+       Self.Caption := 'Kopiowanie rozk³adu. KOPIOWANIE DNIA:'+  currentDayDsp ;
+       FProgress.Refresh;
+
+			  with dmodule.QWork do begin
+
+				SQL.Clear;
+				SQL.Add('begin planner_utils.copy_data_v2(:source_date_from, :source_date_to, :dest_date_from, :dest_period_must_be_empty, :own_classes, :planner_id,'+
+					  ' :selected_lec_id, :selected_gro_id, :selected_res_id, :replace_with_Id, :copyC, :copyR, :overlapAllowed, :copyAllOrNothing); end;');
+				parameters.ParamByName('source_date_from').value      := IncDay(source_date_from.datetime,currentDay);
+				parameters.ParamByName('source_date_to').value        := IncDay(source_date_from.datetime,currentDay);
+				parameters.ParamByName('dest_date_from').value        := IncDay(dest_date_from.datetime,currentDay);
+				parameters.ParamByName('own_classes').value           := iif(OwnClasses.ItemIndex = 0, 'Y', 'N');
+				parameters.ParamByName('dest_period_must_be_empty').value:= iif( dest_period_must_be_empty.checked , 'Y', 'N');
+				parameters.ParamByName('planner_id').value            := FMain.getUserOrRoleID;
+				parameters.ParamByName('selected_lec_id').value       := iif(whichSheets.ItemIndex = 0,keyValue,'-1');
+				parameters.ParamByName('selected_gro_id').value       := iif(whichSheets.ItemIndex = 1,keyValue,'-1');
+				parameters.ParamByName('selected_res_id').value       := iif(whichSheets.ItemIndex = 2,keyValue,'-1');
+				//v2
+				parameters.ParamByName('replace_with_Id').value       := iif(whichSheets.ItemIndex = 1,replaceWithId,'');
+				parameters.ParamByName('copyC').value                 := iif(CopyClasses.Checked, 'Y', 'N');
+				parameters.ParamByName('copyR').value                 := iif(CopyReservations.Checked, 'Y', 'N');
+				parameters.ParamByName('overlapAllowed').value        := iif(OverlapCheck.Checked, 'Y', 'N');
+				parameters.ParamByName('copyAllOrNothing').value      := iif(copyAllOrNothing.checked, 'Y', 'N');
+				// does not work in BDE: Ora-6502 String buffer is to small; no return value is passed
+				//ParamByName('error_message').DataType      := ftString;
+				//ParamByName('error_message').Size          := 255;
+				//ParamByName('error_message').AsString      := error_message;
+				//ParamByName('error_message').ParamType     := ptOutput;
+				execSQL;
+			  end;
+			  error_message := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
+
+			  if error_message = '' then
+			  begin
+				cnt := dmodule.SingleValue('select planner_utils.get_output_param_num1, planner_utils.get_output_param_num2 from dual');
+        TotalErrors := TotalErrors + dmodule.QWork.Fields[1].AsInteger;
+				//info ('Zrobione. '+cr+'Skopiowano rekordów: ' + cnt+ cr + ' Nie skopiowano rekordów: '+ dmodule.QWork.Fields[1].AsString );
+				gCanCloseQuery := true;
+			  end
+			  else
+			  begin
+				  info(error_message);
+			  end;
+
+ end;
+
  except
    on E:exception do Begin
      FProgress.Hide;
      Dmodule.RollbackTrans;
-     info(E.Message);
-   end;
+     info('Problem ze skopiowaniem dnia:'+currentDayDsp+cr+'Nie zaznaczaj opcji "wszystko albo nic"'  +cr+ cr + cr + E.Message);
+     end;
  end;
+
  FProgress.Hide;
+ if DModule.ADOConnection.Connected then dmodule.CommitTrans;
+
+ if TotalErrors = 0 then info('Zrobione');
+ if TotalErrors > 0 then info('Zrobione'+cr+cr+'Zignorowano b³êdów:'+IntToStr(TotalErrors));
+
 end;
 
 

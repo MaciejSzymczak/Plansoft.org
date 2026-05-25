@@ -1030,6 +1030,7 @@ Begin
      End;
      //DModule.SQL('DELETE FROM '+TableName+' WHERE '+KeyField+' IN ('+aIDs+')');
    End;
+   if DModule.ADOConnection.InTransaction then DModule.CommitTrans;
    BRefreshClick(nil);
   End;
 End;
@@ -2827,7 +2828,7 @@ Begin
   Result := False;
   If (ActiveControl <> BUpdNew) And (ActiveControl <> BUpdOK) Then FirstControl := ActiveControl;
   //important statement ! - it fires different events associated with activecontrol for example "OnExit" Event for TDBEdit
- ActiveControl := BUpdOK;
+  ActiveControl := BUpdOK;
 
   If Not CheckRecord Then Exit;
   if flexEnabled then
@@ -2855,6 +2856,9 @@ Begin
    End
    Else SError(Komunikaty.Strings[14]+' [4]');
   end;
+
+  if DModule.ADOConnection.InTransaction then DModule.CommitTrans;
+
   AfterCloseDetails;
 
   If CurrOperation in [AInsert,ACopy] Then Begin
