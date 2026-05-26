@@ -327,6 +327,14 @@ create or replace package body planner_utils is
     dest_date_to  date;
     offset number;
     replace_with_Dsp groups.name%type;
+    error_type varchar2(500);
+    error_trace varchar2(500);
+    error_details varchar2(500);
+    
+    vselected_lec_id  number := selected_lec_id;
+    vselected_gro_id  number := selected_gro_id;
+    vselected_res_id  number := selected_res_id;
+    
   begin
     if replace_with_Id is not null then
       select name into replace_with_Dsp from groups where Id=replace_with_Id;
@@ -361,6 +369,17 @@ create or replace package body planner_utils is
     output_param_num1 := 0; --sucess records
     output_param_num2 := 0; --failed records
     offset := dest_date_from - source_date_from;
+    
+    --only one can be selected. -2=NONE -1=ANY
+    declare
+     checkCond boolean := true;
+    begin
+    if checkCond and vselected_lec_id != -1 then vselected_gro_id := -2; vselected_res_id := -2; checkCond := false; end if;
+    if checkCond and vselected_gro_id != -1 then vselected_lec_id := -2; vselected_res_id := -2; checkCond := false; end if;
+    if checkCond and vselected_res_id != -1 then vselected_gro_id := -2; vselected_lec_id := -2; checkCond := false; end if;
+    end;
+    
+    --RAISE_APPLICATION_ERROR(-20000, 'tracer:' || vselected_lec_id ||' '||vselected_gro_id||' '||vselected_res_id);
     for rec in ( select * 
                    from classes 
                   where day between source_date_from and source_date_to
@@ -372,14 +391,15 @@ create or replace package body planner_utils is
                     -- permissions
                     and id in 
                       (
-                       select cla_id from lec_cla where lec_id in (select lec_id from lec_pla where pla_id =  planner_id and (lec_id = selected_lec_id or selected_lec_id =-1) )
+                       select cla_id from lec_cla where lec_id in (select lec_id from lec_pla where pla_id =  planner_id and (lec_id = vselected_lec_id or vselected_lec_id =-1) )
                        union
-                       select cla_id from gro_cla where gro_id in (select gro_id from gro_pla where pla_id =  planner_id and (gro_id = selected_gro_id or selected_gro_id =-1))
+                       select cla_id from gro_cla where gro_id in (select gro_id from gro_pla where pla_id =  planner_id and (gro_id = vselected_gro_id or vselected_gro_id =-1))
                        union
-                       select cla_id from rom_cla where rom_id in (select rom_id from rom_pla where pla_id =  planner_id and (rom_id = selected_res_id or selected_res_id =-1))
+                       select cla_id from rom_cla where rom_id in (select rom_id from rom_pla where pla_id =  planner_id and (rom_id = vselected_res_id or vselected_res_id =-1))
                       )
                )
     loop
+    --RAISE_APPLICATION_ERROR(-20000, 'tracer:' || rec.id);
     savepoint roll;
     begin
       current_class := rec;
@@ -397,6 +417,8 @@ create or replace package body planner_utils is
         current_class.calc_gro_ids := replace_with_Id;
       end if;
 
+      error_type := 'classes';
+      error_details := 'No:' || current_class.hour || ' ClassId:' || rec.id;
       insert into classes values current_class;
 
       for rec_lec in ( select * from lec_cla where cla_id = rec.id order by id)
@@ -405,6 +427,8 @@ create or replace package body planner_utils is
         select leccla_seq.nextval into current_lec.id from dual;
         current_lec.cla_id:= current_class.id;
         current_lec.day   := current_class.day;
+        error_type := 'lec_cla';
+        error_trace := current_lec.lec_id;
         insert into lec_cla values current_lec;
       end loop;
 
@@ -417,6 +441,8 @@ create or replace package body planner_utils is
         if replace_with_Id is not null then
           current_gro.gro_id := replace_with_Id;
         end if;
+        error_type := 'gro_cla';
+        error_trace := current_gro.gro_id;
         insert into gro_cla values current_gro;
       end loop;
 
@@ -426,13 +452,30 @@ create or replace package body planner_utils is
         select romcla_seq.nextval into current_rom.id from dual;
         current_rom.cla_id:= current_class.id;
         current_rom.day   := current_class.day;
-        insert into rom_cla values current_rom;
+        error_type := 'rom_cla';
+        error_trace := current_rom.rom_id;
+       insert into rom_cla values current_rom;
       end loop;
 
     output_param_num1 := output_param_num1 + 1;  
     exception
       when others then 
-        if copyAllOrNothing='Y' then raise; end if;
+        if copyAllOrNothing='Y' then 
+          if error_type = 'lec_cla' then
+            select title||' '||first_name||' '||last_name||' ('||error_trace||')' into error_trace from lecturers where id=error_trace;
+          end if;
+          if error_type = 'gro_cla' then
+            select name||' ('||error_trace||')' into error_trace from groups where id=error_trace;
+          end if;
+          if error_type = 'rom_cla' then
+            select attribs_01||' '||name||' ('||error_trace||')' into error_trace from rooms where id=error_trace;
+          end if;
+          RAISE_APPLICATION_ERROR(
+              -20000,
+              error_trace|| ': ' || error_details|| ': ' || SQLERRM,
+              false   -- <-- true dołącza oryginalny wyjątek do stosu
+            );
+        end if;
         output_param_num2 := output_param_num2 + 1;
         rollback to savepoint roll;
         -- .. and proceed

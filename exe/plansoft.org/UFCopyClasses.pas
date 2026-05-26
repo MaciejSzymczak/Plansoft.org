@@ -230,9 +230,6 @@ begin
  //  exit;
  //end;
 
- FProgress.ProgressBar.Position :=  0;
- FProgress.show;
- FProgress.Refresh;
 
  source_date_from.Time := 0;
  source_date_to.Time   := 0;
@@ -247,11 +244,14 @@ begin
  if dayOfWeek(source_date_from.datetime) <> dayOfWeek(dest_date_from.datetime) then
    if question('Okresy Ÿród³owy i docelowy zaczynaj¹ siê w ró¿nych dniach tygodnia. Kontynuowaæ ?') <> id_yes then exit;
 
+ FProgress.ProgressBar.Position :=  0;
+ FProgress.show;
+ FProgress.Refresh;
 
  try
  for currentDay := 0 to Trunc(source_date_to.DateTime - source_date_from.DateTime) Do Begin
 
-       FProgress.ProgressBar.Position :=  Round(currentDay * 100 / Trunc(source_date_to.DateTime - source_date_from.DateTime));
+       FProgress.ProgressBar.Position :=  Round(currentDay * 100 / (1+Trunc(source_date_to.DateTime - source_date_from.DateTime)));
        currentDayDsp :=       DateTimeToStr  (IncDay(source_date_from.datetime,currentDay));
        Self.Caption := 'Kopiowanie rozk³adu. KOPIOWANIE DNIA:'+  currentDayDsp ;
        FProgress.Refresh;
@@ -294,7 +294,7 @@ begin
 			  end
 			  else
 			  begin
-				  info(error_message);
+				  SError(error_message);
 			  end;
 
  end;
@@ -303,7 +303,7 @@ begin
    on E:exception do Begin
      FProgress.Hide;
      Dmodule.RollbackTrans;
-     info('Problem ze skopiowaniem dnia:'+currentDayDsp+cr+'Nie zaznaczaj opcji "wszystko albo nic"'  +cr+ cr + cr + E.Message);
+     SError('Problem ze skopiowaniem dnia:'+currentDayDsp+cr+'Nie zaznaczaj opcji "wszystko albo nic"'  +cr+ cr + cr + E.Message);
      end;
  end;
 
