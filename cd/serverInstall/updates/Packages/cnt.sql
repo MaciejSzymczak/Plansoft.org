@@ -19,7 +19,7 @@ create or replace package cnt is
 
    |***************************************************************************************************************************** 
    | History 
-   | 2023.11.26 Maciej Szymczak created  
+   | 2026.06.05 Maciej Szymczak updated (Wszystko)  
    \-----------------------------------------------------------------------------------------------------------------------------*/ 
 
     procedure run;
@@ -34,12 +34,12 @@ create or replace PACKAGE BODY CNT AS
 
     insert into helper2 (desc2, hour)
     select created_by, count(1) from classes where creation_date > sysdate - 365 group by created_by;
-    update planners set COUNT1Y = nvl((select hour from helper2 where desc2 = planners.created_by ),0);
+    update planners set COUNT1Y = nvl((select hour from helper2 where desc2 = planners.name ),0);
     commit;
       
     insert into helper2 (desc2, hour)
     select created_by, count(1) from classes where creation_date > sysdate - 5*365 group by created_by;
-    update planners set COUNT1Y = nvl((select hour from helper2 where desc2 = planners.created_by ),0);
+    update planners set COUNT5Y = nvl((select hour from helper2 where desc2 = planners.name ),0);
     commit;
     
     insert into helper2 (id, hour)
@@ -48,7 +48,7 @@ create or replace PACKAGE BODY CNT AS
     commit;
       
     insert into helper2 (id, hour)
-    select sub_id, count(1) from classes where creation_date > sysdate - 5*365 group by for_id;
+    select sub_id, count(1) from classes where creation_date > sysdate - 5*365 group by sub_id;
     update subjects set COUNT5Y = nvl((select hour from helper2 where id = subjects.id ),0);
     commit;
     
@@ -106,6 +106,62 @@ create or replace PACKAGE BODY CNT AS
     select rom_id, count(1) from rom_cla, classes where classes.id = rom_cla.cla_id and classes.creation_date > sysdate - 5*365 group by  rom_id;
     update rooms set COUNT5Y = nvl((select hour from helper2 where id = rooms.id ),0);
     commit;
+    
+    --WSZYSTKO
+    insert into lec_pla (id, lec_id, pla_id)
+    select lecpla_seq.nextval, lec_id,pla_id  from
+    (
+    select l.id lec_id, p.id pla_id from (select Id from lecturers where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select lec_id,pla_id from lec_pla
+    );
+    commit;
+    
+    insert into gro_pla (id, gro_id, pla_id)
+    select gropla_seq.nextval, gro_id,pla_id  from
+    (
+    select l.id gro_id, p.id pla_id from (select Id from groups where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select gro_id,pla_id from gro_pla
+    );
+    commit;
+    
+    insert into rom_pla (id, rom_id, pla_id)
+    select rompla_seq.nextval, rom_id,pla_id  from
+    (
+    select l.id rom_id, p.id pla_id from (select Id from rooms where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select rom_id,pla_id from rom_pla
+    );
+    commit;
+    
+    insert into sub_pla (id, sub_id, pla_id)
+    select subpla_seq.nextval, sub_id,pla_id  from
+    (
+    select l.id sub_id, p.id pla_id from (select Id from subjects where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select sub_id,pla_id from sub_pla
+    );
+    commit;
+    
+    insert into for_pla (id, for_id, pla_id)
+    select forpla_seq.nextval, for_id,pla_id  from
+    (
+    select l.id for_id, p.id pla_id from (select Id from forms where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select for_id,pla_id from for_pla
+    );
+    commit;
+    
+    insert into per_pla (id, per_id, pla_id)
+    select perpla_seq.nextval, per_id,pla_id  from
+    (
+    select l.id per_id, p.id pla_id from (select Id from periods where id>0) l, (select id from planners where name='WSZYSTKO') p
+    minus
+    select per_id,pla_id from per_pla
+    );
+    commit;
+        
   END run;
 
 END CNT;
