@@ -7,12 +7,12 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 691
+    Top = 692
     Width = 985
   end
   inherited MainPage: TPageControl
     Width = 985
-    Height = 691
+    Height = 692
     ActivePage = Update
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
@@ -21,7 +21,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       inherited Grid: TRxDBGrid
         Top = 129
         Width = 977
-        Height = 475
+        Height = 476
         Columns = <
           item
             Expanded = False
@@ -379,11 +379,11 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 623
+        Top = 624
         Width = 977
       end
       inherited Panel: TPanel
-        Top = 604
+        Top = 605
         Width = 977
         inherited StatusBar: TStatusBar
           Width = 908
@@ -985,7 +985,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
         ParentFont = False
       end
       inherited UpdPanel: TPanel
-        Top = 627
+        Top = 628
         Width = 977
         TabOrder = 2
         inherited BFlexDesignMode: TSpeedButton

@@ -210,6 +210,7 @@ End;
 procedure TFBrowsePLANNERS.BCheckDatabaseClick(Sender: TObject);
 Var C : Integer;
     userName : string;
+    domainUser : string;
 begin
   inherited;
   With DModule Do Begin
@@ -219,18 +220,21 @@ begin
      // sprawdzenie czy jest user --> ew. dodanie
      C := StrToInt(SingleValue2('SELECT COUNT(1) FROM SYS.ALL_USERS WHERE USERNAME = '''+QWork.FieldByName('NAME').AsString+''''));
      If C = 0 Then Begin
+       domainUser := QWork.FieldByName('ATTRIBS_01').AsString;
        userName := QWork.FieldByName('NAME').AsString;
-       if Pos('\', userName) > 0 then
+       //if Pos('\', userName) > 0 then
+       if domainUser <> '' then
        begin
          //SHOW PARAMETER OS_AUTHENT_PREFIX;
          // NAME              TYPE   VALUE
          //----------------- ------ -----
          //os_authent_prefix string OPS$
 
-         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik zostanie utworzony');
-         SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY');
-       end else begin
          Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik z uwierzytelnianiem zewnêtrzynym zostanie utworzony');
+         //SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY');
+         SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY AS '''+domainUser+'''');
+       end else begin
+         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik zostanie utworzony');
          SQL2('CREATE USER "'+userName+'" IDENTIFIED BY "'+QWork.FieldByName('NAME').AsString+'"');
        end;
 

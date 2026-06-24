@@ -51,6 +51,7 @@ delete from lecturers where id > 0;
 delete from rooms where id > 0;
 delete from form_formulas where id > 0;
 delete from forms where id > 0;
+delete from periods where name like '%(%' and name like '%)%';
 commit;
 
 
