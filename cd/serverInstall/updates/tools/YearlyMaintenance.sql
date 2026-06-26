@@ -1,3 +1,15 @@
+CHECK OCCUPATION (LIMIT 12GB!)
+=======================================================
+
+SELECT
+    ROUND(SUM(bytes)/1024/1024/1024,2) AS used_gb,
+    12 AS limit_gb,
+    ROUND((12-SUM(bytes)/1024/1024/1024),2) AS free_gb,
+    ROUND(SUM(bytes)/1024/1024/1024/12*100,2) AS used_percent
+FROM dba_segments;
+
+
+
 BEGIN
   FOR idx IN (
     SELECT index_name

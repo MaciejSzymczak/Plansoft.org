@@ -9,7 +9,10 @@ Download
 	PLANSOFT.ORG 		 http://plansoft.org/wp-content/uploads/pdf/install.zip
 
 a. Install free for use Oracle DB, installServer_21C.zip
-
+		Issues with installation?
+			Double check your path (user name) is free from national characters
+			Check installation log (search for *install*.log)
+ 
 b. Use SQLDeveloper to run the installation scripts described below in this file
    
 STEP 1
