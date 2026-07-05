@@ -227,22 +227,22 @@ end;
 procedure thtmlTable.newCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+lCellWIDTH+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+lCellWIDTH+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+lCellWIDTH+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+lCellWIDTH+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 procedure thtmlTable.newCellCol1(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 procedure thtmlTable.newCellCol2(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 
@@ -727,6 +727,21 @@ procedure TFWWWGenerator.ComboSortOrderChange(Sender: TObject);
 begin
   inherited;
   currentPeriodChange(self);
+end;
+
+// Converts a text file written using the system''s ANSI codepage (windows-1250 on a Polish-locale machine)
+// into UTF-8 in place, using the same UTF8Encode idiom already used in UIcsGenerator.pas
+procedure ConvertAnsiFileToUtf8(const aFileName : string);
+var sl : TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(aFileName);
+    sl.Text := UTF8Encode(sl.Text);
+    sl.SaveToFile(aFileName);
+  finally
+    sl.Free;
+  end;
 end;
 
 Procedure TFWWWGenerator.CalendarToHTML(
@@ -1404,7 +1419,7 @@ begin
  WriteLn(f, '<HTML>');
 
  WriteLn(f, '<HEAD>');
- WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
+ WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">');
  WriteLn(f, '<TITLE>Plansoft.org - '+ fprogramSettings.profileObjectNameClassgen.Text +'</TITLE>');
 
  WriteLn(f, ' <style>');
@@ -1653,6 +1668,7 @@ begin
  WriteLn(f, '</BODY></HTML>');
 
  CloseFile(f);
+ ConvertAnsiFileToUtf8(fileName);
 
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
