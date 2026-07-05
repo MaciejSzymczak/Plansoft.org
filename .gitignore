@@ -68,3 +68,14 @@ __recovery/
 modules/
 *.exe
 *.dcu
+
+# OS artifacts
+Thumbs.db
+desktop.ini
+
+# Runtime logs and temp files (not part of source)
+debug.log
+sqlnet.log
+temp.udl
+temp.htm
+*.dcu

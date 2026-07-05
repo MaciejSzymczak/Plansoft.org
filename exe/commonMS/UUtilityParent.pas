@@ -839,10 +839,18 @@ End;
 
 
 Var R : TRegistry;
+    ParamCache : TStringList; // in-memory cache for GetSystemParam, avoids hitting the registry on every call
 
 Function  GetSystemParam(Name : ShortString; const currentUser : boolean = true ) : ShortString;
  var appName : string;
+     cacheKey : string;
 Begin
+ cacheKey := UpperCase(Name);
+ if currentUser then cacheKey := 'U:'+cacheKey else cacheKey := 'M:'+cacheKey;
+ if Assigned(ParamCache) and (ParamCache.IndexOfName(cacheKey) >= 0) then begin
+   Result := ParamCache.Values[cacheKey];
+   Exit;
+ end;
  DiagnosticsMessage('GetSystemParam:1');
  R:=TRegistry.Create;
  DiagnosticsMessage('GetSystemParam:2');
@@ -884,6 +892,9 @@ Begin
  Result  := R.ReadString(Name);
  R.CloseKey;
  R.Destroy;
+
+ if not Assigned(ParamCache) then ParamCache := TStringList.Create;
+ ParamCache.Values[cacheKey] := Result;
 End;
 
 function  GetSystemParam(Name : ShortString; defaultValue : shortString) : ShortString;
@@ -1035,6 +1046,7 @@ Begin
  R.WriteString(Name, Value);
  R.CloseKey;
  R.Destroy;
+ if Assigned(ParamCache) then ParamCache.Clear;
 End;
 
 function  encGetSystemParam(Name : ShortString) : ShortString; overload;
@@ -1908,4 +1920,5 @@ initialization
  CheckValid := TCheckValid.Create;
 finalization
  ZachowajParametry;
+ ParamCache.Free;
 end.
