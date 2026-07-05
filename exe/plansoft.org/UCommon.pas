@@ -2,7 +2,7 @@ unit UCommon;
 
 interface
 
-Uses DM, UUtilityParent, SysUtils, StdCtrls, StrUtils;
+Uses DM, UUtilityParent, SysUtils, StdCtrls, StrUtils, Classes;
 
 
 Procedure ValidValues(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; const separator : char = ';');
@@ -106,14 +106,45 @@ End;
 
 //--------------------------------------------------------------------------------------
 function FChange(field : string; SQLString : String; const separator : char = ';') : string;
-Var t : Integer;
-    value : String;
+Var t        : Integer;
+    value    : String;
+    idList   : String;
+    batchSQL : String;
+    nameMap  : TStringList;
+    idx      : Integer;
 begin
   result := '';
+  idList := '';
   For t := 1 To WordCount( field,[ separator ]) Do Begin
    value := ExtractWord(t, field, [ separator ]);
-   result := Merge( result,DModule.SingleValue(SQLString+VALUE), separator);
+   if not isBlank(value) then idList := Merge(idList, value, ',');
   End;
+
+  nameMap := TStringList.Create;
+  try
+    if idList <> '' then begin
+      batchSQL := StringReplace(SQLString, 'SELECT ', 'SELECT ID, ', []);
+      batchSQL := Copy(batchSQL, 1, Length(batchSQL)-1) + ' IN (' + idList + ')';
+      DModule.openSQL2(batchSQL);
+      With DModule.QWork2 Do Begin
+        First;
+        While Not Eof Do Begin
+          nameMap.Values[Fields[0].AsString] := Fields[1].AsString;
+          Next;
+        End;
+        Close;
+      End;
+    end;
+
+    For t := 1 To WordCount( field,[ separator ]) Do Begin
+      value := ExtractWord(t, field, [ separator ]);
+      idx := nameMap.IndexOfName(value);
+      if idx >= 0 then result := Merge(result, nameMap.ValueFromIndex[idx], separator)
+                  else result := Merge(result, '', separator);
+    End;
+  finally
+    nameMap.Free;
+  end;
 end;
 
 

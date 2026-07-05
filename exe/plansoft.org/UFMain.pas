@@ -699,6 +699,7 @@ type
     procedure Ustawieniakonfiguracyjne1Click(Sender: TObject);
     procedure mmconsolidationClick(Sender: TObject);
     procedure MMDiagramClick(Sender: TObject);
+    procedure DostepneMiejsce1Click(Sender: TObject);
     procedure AutoSaverTimer(Sender: TObject);
     procedure bmoveUpClick(Sender: TObject);
     procedure bmoveDownClick(Sender: TObject);
@@ -1149,7 +1150,7 @@ Uses AutoCreate, UFDetails,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
-  FVersions, StrUtils, UFCustomConnectionString;
+  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace;
 
 var dummy : string;
 
@@ -5852,6 +5853,13 @@ begin
   FDataDiagramShowModalAsBrowser;
 end;
 
+procedure TFMain.DostepneMiejsce1Click(Sender: TObject);
+begin
+  FDBSpace := TFDBSpace.Create(Application);
+  FDBSpace.ShowModal;
+  FDBSpace.Free;
+end;
+
 procedure TFMain.AutoSaverTimer(Sender: TObject);
 begin
   If AutoSaveCounterDown >= 0 then  AutoSaveCounterDown := AutoSaveCounterDown -1;
@@ -6651,6 +6659,10 @@ begin
   BLoginClick(nil);
   if not DModule.ADOConnection.Connected then exit;
 
+  TreeMode.OnChange := nil;
+  TreeMode.ItemIndex := 0;
+  TreeMode.OnChange := TreeModeChange;
+
   RefreshAfterOnShow.Enabled := true;
   setupFillButton;
 end;
@@ -7267,7 +7279,7 @@ try
   if emergencyExit then exit;
 
   //save user from long queries
-  if TreeMode.ItemIndex > 1 then TreeMode.ItemIndex := 0;
+  if TreeMode.ItemIndex > 2 then TreeMode.ItemIndex := 0;
 
   inherited;
 
@@ -8964,6 +8976,11 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
 Begin
   PanelRecentlyUsed.Visible := elementEnabled('"Ostatnio u¿ywane"','2016.09.12', true);
 
+  if TreeMode.ItemIndex <= 0 then begin
+    TreeRecentlyused.Items.Clear;
+    Exit;
+  end;
+
   panelName := TreeMode.Items[TreeMode.ItemIndex];
   startDate := now;
   //tree is refreshed and panel was not changed
@@ -8990,21 +9007,21 @@ Begin
     nodeC := nil;
     nodeB := nil;
 
-    if TreeMode.ItemIndex = 0 then begin
+    if TreeMode.ItemIndex = 1 then begin
         sqlString := recentlyUsedQuery.Lines.Text;
         dmodule.openSQL(fastQuery, sqlString ,
          'LIMIT='+ getSystemParam('FastQueryMaxRecords','1000')+
          ';PLA_ID='+ getUserOrRoleID
          );
     end;
-    if TreeMode.ItemIndex = 1 then begin
+    if TreeMode.ItemIndex = 2 then begin
         sqlString := mostlyUsedQuery.Lines.Text;
         dmodule.openSQL(fastQuery, sqlString ,
          'LIMIT='+ getSystemParam('FastQueryMaxRecords','1000')+
          ';PLA_ID='+ getUserOrRoleID
          );
     end;
-    if TreeMode.ItemIndex = 2 then begin
+    if TreeMode.ItemIndex = 3 then begin
         sqlString := topCntQuery.Lines.Text;
         sqlString := stringreplace(sqlString, '%PERMISSIONS_L', getWhereClause('LECTURERS','LEC_CLA','LEC_ID'), []);
         sqlString := stringreplace(sqlString, '%PERMISSIONS_G', getWhereClause('GROUPS','GRO_CLA','GRO_ID'), []);
@@ -9014,7 +9031,7 @@ Begin
         sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
     end;
-    if TreeMode.ItemIndex = 3 then begin
+    if TreeMode.ItemIndex = 4 then begin
         if conPeriod.Text = '' then exit;
         sqlString := topCntPeriodQuery.Lines.Text;
         sqlString := stringreplace(sqlString, '%PERMISSIONS_L', getWhereClause('LECTURERS','LEC_CLA','LEC_ID'), []);
@@ -9078,7 +9095,7 @@ end;
 procedure TFMain.TreeModeChange(Sender: TObject);
 begin
  refreshRecentlyUsed('');
- TreeModeCleanup.Visible := TreeMode.ItemIndex<=1;
+ TreeModeCleanup.Visible := TreeMode.ItemIndex<=2;
 end;
 
 procedure TFMain.SearchMenu1Click(Sender: TObject);

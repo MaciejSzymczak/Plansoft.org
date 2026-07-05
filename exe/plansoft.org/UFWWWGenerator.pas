@@ -227,22 +227,22 @@ end;
 procedure thtmlTable.newCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+lCellWIDTH+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+lCellWIDTH+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+lCellWIDTH+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 procedure thtmlTable.newCellCol1(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 procedure thtmlTable.newCellCol2(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'px" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" HEIGHT="'+lCellHeight+'" WIDTH="'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
 End;
 
 

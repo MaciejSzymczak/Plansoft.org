@@ -5703,9 +5703,10 @@ inherited FMain: TFMain
           MaxLength = 255
           ParentCtl3D = False
           TabOrder = 0
-          Text = 'Ostatnio u'#380'ywane'
+          Text = 'Wybierz z listy'
           OnChange = TreeModeChange
           Items.Strings = (
+            'Wybierz z listy'
             'Ostatnio u'#380'ywane'
             'Najcz'#281#347'ciej u'#380'ywane'
             'Najwi'#281'cej zaj'#281#263
@@ -6545,6 +6546,13 @@ inherited FMain: TFMain
       object MMDiagram: TMenuItem
         Caption = 'Diagram tabel'
         OnClick = MMDiagramClick
+      end
+      object N30: TMenuItem
+        Caption = '-'
+      end
+      object DostepneMiejsce1: TMenuItem
+        Caption = 'Dost'#281'pne miejsce'
+        OnClick = DostepneMiejsce1Click
       end
     end
     object Finanse1: TMenuItem

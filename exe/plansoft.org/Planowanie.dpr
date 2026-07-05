@@ -103,7 +103,8 @@ uses
   UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment},
   UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY},
   FVersions in 'FVersions.pas' {FVersion},
-  UFCustomConnectionString in 'UFCustomConnectionString.pas' {FCustomConnectionString};
+  UFCustomConnectionString in 'UFCustomConnectionString.pas' {FCustomConnectionString},
+  UFDBSpace in 'UFDBSpace.pas' {FDBSpace};
 
 {$R *.RES}
 
