@@ -1071,6 +1071,7 @@ end;
 procedure TFMatrix.generate (prog : string);
 var
     columnValues, subColumnValues, rowValues : array of string;
+    columnValuesCnt, subColumnValuesCnt, rowValuesCnt : integer; // counters for pre-sized arrays below
     weeklyTables : tweeklyTables;
     weeklyTable  : tweeklyTable;
     f            : textFile;
@@ -1264,17 +1265,20 @@ begin
           raise;
         end;
         
+        setLength(columnValues, lookupQuery.RecordCount);
+        columnValuesCnt := 0;
         while not lookupQuery.Eof do begin
             //if lookupQuery.fields[0].AsString <> '' then begin
-                setLength(columnValues, length(columnValues)+1);
                 colColumnValue := nvl(lookupQuery.fields[0].AsString,'*brak*');
                 if upperCase(Prog)='EXCEL.EXE' then begin
                  colColumnValue := '="'+colColumnValue+'"';
                 end;
-                columnValues[length(columnValues)-1] := colColumnValue;
+                columnValues[columnValuesCnt] := colColumnValue;
+                inc(columnValuesCnt);
             //end;
             lookupQuery.next;
         end;
+        setLength(columnValues, columnValuesCnt);
 
         UpdStatus('Pobieranie danych (2/4 Nag³ówki podkolumn)', 30);
         if colsubColumn <> 'DUMMY_NULL' then begin
@@ -1286,17 +1290,20 @@ begin
               copyToClipboard(lookupQuery.SQL.Text);
               raise;
             end;
+            setLength(subcolumnValues, lookupQuery.RecordCount);
+            subColumnValuesCnt := 0;
             while not lookupQuery.Eof do begin
                 //if lookupQuery.fields[0].AsString <> '' then begin
-                    setLength(subcolumnValues, length(subcolumnValues)+1);
                     colSubColumnValue := nvl( lookupQuery.fields[0].AsString, '*brak*');
                     if upperCase(Prog)='EXCEL.EXE' then begin
                      colSubColumnValue := '="'+colSubColumnValue+'"';
                     end;
-                    subcolumnValues[length(subcolumnValues)-1] := colSubColumnValue;
+                    subcolumnValues[subColumnValuesCnt] := colSubColumnValue;
+                    inc(subColumnValuesCnt);
                 //end;
                 lookupQuery.next;
             end;
+            setLength(subcolumnValues, subColumnValuesCnt);
         end;
 
         UpdStatus('Pobieranie danych (3/4 Nag³ówki wierszy)', 40);
@@ -1309,9 +1316,10 @@ begin
           copyToClipboard(lookupQuery.SQL.Text);
           raise;
         end;
+        setLength(rowValues, lookupQuery.RecordCount);
+        rowValuesCnt := 0;
         while not lookupQuery.Eof do begin
             //if lookupQuery.fields[0].AsString <> '' then begin
-                setLength(rowValues, length(rowValues)+1);
                 colRowValue := nvl( merge(merge(merge(merge(merge(
                        lookupQuery.fields[0].AsString
                      , lookupQuery.fields[1].AsString, ':')
@@ -1323,10 +1331,12 @@ begin
                 if upperCase(Prog)='EXCEL.EXE' then begin
                  colRowValue := '="'+colRowValue+'"';
                 end;
-                rowValues[length(rowValues)-1] := colRowValue;
+                rowValues[rowValuesCnt] := colRowValue;
+                inc(rowValuesCnt);
             //end;
             lookupQuery.next;
         end;
+        setLength(rowValues, rowValuesCnt);
     end;
 
     matrix_id := '';

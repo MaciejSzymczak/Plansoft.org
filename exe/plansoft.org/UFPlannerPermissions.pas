@@ -131,48 +131,47 @@ Var
     SUBS    : Array[1..MaxAllSubjects]  Of Record ID: Integer; NAME : String; End;
     FORS    : Array[1..MaxAllForms]     Of Record ID: Integer; NAME : String; End;
     PLAS    : Array[1..MaxAllPlanners]  Of Record ID: Integer; NAME : String; End;
+    LEC_IDX : TStringList;
+    PER_IDX : TStringList;
+    GRO_IDX : TStringList;
+    ROM_IDX : TStringList;
+    ROL_IDX : TStringList;
+    SUB_IDX : TStringList;
+    FOR_IDX : TStringList;
+    PLA_IDX : TStringList; // ID->array-index caches for XXX_IDtoY/IDtoX, avoid O(n) linear scans
+
+Function IndexLookup(List : TStringList; ID : Integer) : Integer;
+Var idx : Integer;
+Begin
+  Result := -1;
+  if not Assigned(List) then Exit;
+  idx := List.IndexOf(IntToStr(ID));
+  if idx >= 0 then Result := Integer(List.Objects[idx]);
+End;
 
 Function IDtoX(ID : Integer) : Integer;
-Var x : Integer;
-Begin x := 1;  While (PLAS[x].ID <> ID) and (x <= MaxAllPlanners-1) Do inc(x);  if x = MaxAllPlanners then result := -1 else Result := x; End;
+Begin Result := IndexLookup(PLA_IDX, ID); End;
 
 Function LEC_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin
-  y := 1;
-  While (LECS[y].ID <> ID) and (y < MaxAllLecturers) Do
-    inc(y);
-  if y = MaxAllLecturers-1 then result := -1 else Result := y;
-End;
+Begin Result := IndexLookup(LEC_IDX, ID); End;
 
 Function PER_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin
-  y := 1;
-  While (PERS[y].ID <> ID) and (y < maxPeriods) Do
-    inc(y);
-  if y = maxPeriods-1 then result := -1 else Result := y;
-End;
+Begin Result := IndexLookup(PER_IDX, ID); End;
 
 Function GRO_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin  y := 1; While (GROS[y].ID <> ID) and (y < MaxAllGroups-1) Do inc(y); if y = MaxAllGroups then result := -1 else Result := y; End;
+Begin Result := IndexLookup(GRO_IDX, ID); End;
 
 Function ROM_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin  y := 1; While (ROMS[y].ID <> ID) and (y < MaxAllRooms-1)  Do inc(y); if y = MaxAllRooms then result := -1 else Result := y; End;
+Begin Result := IndexLookup(ROM_IDX, ID); End;
 
 Function ROL_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin  y := 1; While (ROLS[y].ID <> ID) and (y< MaxAllRoles-1) Do inc(y); if y = MaxAllRoles then result := -1 else Result := y; End;
+Begin Result := IndexLookup(ROL_IDX, ID); End;
 
 Function SUB_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin  y := 1; While (SUBS[y].ID <> ID) and (y< MaxAllSubjects-1) Do inc(y); if y = MaxAllSubjects then result := -1 else Result := y; End;
+Begin Result := IndexLookup(SUB_IDX, ID); End;
 
 Function FOR_IDtoY(ID : Integer) : Integer;
-Var y : Integer;
-Begin  y := 1; While (FORS[y].ID <> ID) and (y< MaxAllForms-1) Do inc(y); if y = MaxAllForms then result := -1 else Result := y; End;
+Begin Result := IndexLookup(FOR_IDX, ID); End;
 
 Procedure TFPlannerPermissions.SaveCellGrid(Grid: TStringGrid; Descriptor : String; Var Flag : Boolean; Col, Row : integer);
 Var x, y : Integer;
@@ -243,7 +242,13 @@ Var x, y : Integer;
   Var x, y : Integer;
   Begin
    fmain.wlog ('FplannerPermissions.LoadCells : Begin');
-   For y := 1 To Grid.RowCount Do  For x := 1 To Grid.ColCount Do Grid.Cells[x,y] := '';
+   Grid.Perform(WM_SETREDRAW, 0, 0);
+   try
+     For y := 1 To Grid.RowCount Do  For x := 1 To Grid.ColCount Do Grid.Cells[x,y] := '';
+   finally
+     Grid.Perform(WM_SETREDRAW, 1, 0);
+     Grid.Invalidate;
+   end;
    With DModule Do Begin
     fmain.wlog ('FplannerPermissions.LoadCells : from '+Descriptor);
     OPENSQL('select * from '+Descriptor+'_pla where pla_id in ('+   'select id from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'')'   +') and '+sqlWhereClause);
@@ -306,6 +311,10 @@ begin
     inc(x);
    End;
 
+   if not Assigned(PLA_IDX) then PLA_IDX := TStringList.Create;
+   PLA_IDX.Clear; PLA_IDX.Sorted := True; PLA_IDX.Duplicates := dupIgnore;
+   For y := 1 To x-1 Do PLA_IDX.AddObject(IntToStr(PLAS[y].ID), TObject(y));
+
    dispLog (2,'FplannerPermissions : planners2');
    //zmniejszenie liczby wierszy dla ostatniej siatki
    OPENSQL('SELECT * FROM PLANNERS WHERE type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'') and TYPE = ''USER''');
@@ -346,6 +355,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(LEC_IDX) then LEC_IDX := TStringList.Create;
+    LEC_IDX.Clear; LEC_IDX.Sorted := True; LEC_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do LEC_IDX.AddObject(IntToStr(LECS[x].ID), TObject(x));
    end;
 
    if mainPage.ActivePage=TabSheetPER then begin
@@ -361,6 +374,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(PER_IDX) then PER_IDX := TStringList.Create;
+    PER_IDX.Clear; PER_IDX.Sorted := True; PER_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do PER_IDX.AddObject(IntToStr(PERS[x].ID), TObject(x));
    end;
 
    if mainPage.ActivePage=TabSheetGRO then begin
@@ -376,6 +393,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(GRO_IDX) then GRO_IDX := TStringList.Create;
+    GRO_IDX.Clear; GRO_IDX.Sorted := True; GRO_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do GRO_IDX.AddObject(IntToStr(GROS[x].ID), TObject(x));
    End;
 
    if mainPage.ActivePage=TabSheetRES then begin
@@ -391,6 +412,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(ROM_IDX) then ROM_IDX := TStringList.Create;
+    ROM_IDX.Clear; ROM_IDX.Sorted := True; ROM_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do ROM_IDX.AddObject(IntToStr(ROMS[x].ID), TObject(x));
    end;
 
    if mainPage.ActivePage=TabSheetSUB then begin
@@ -406,6 +431,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(SUB_IDX) then SUB_IDX := TStringList.Create;
+    SUB_IDX.Clear; SUB_IDX.Sorted := True; SUB_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do SUB_IDX.AddObject(IntToStr(SUBS[x].ID), TObject(x));
    end;
 
    if mainPage.ActivePage=TabSheetFOR then begin
@@ -421,6 +450,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(FOR_IDX) then FOR_IDX := TStringList.Create;
+    FOR_IDX.Clear; FOR_IDX.Sorted := True; FOR_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do FOR_IDX.AddObject(IntToStr(FORS[x].ID), TObject(x));
    end;
 
    if mainPage.ActivePage=TabSheetROL then begin
@@ -436,6 +469,10 @@ begin
      QWork2.Next;
      inc(y);
     End;
+
+    if not Assigned(ROL_IDX) then ROL_IDX := TStringList.Create;
+    ROL_IDX.Clear; ROL_IDX.Sorted := True; ROL_IDX.Duplicates := dupIgnore;
+    For x := 1 To y-1 Do ROL_IDX.AddObject(IntToStr(ROLS[x].ID), TObject(x));
    end;
 
   End;
@@ -902,4 +939,7 @@ begin
   if TypeROLE.Checked=false then TypeUSER.Checked := true;
 end;
 
+//finalization
+// LEC_IDX.Free; PER_IDX.Free; GRO_IDX.Free; ROM_IDX.Free;
+// ROL_IDX.Free; SUB_IDX.Free; FOR_IDX.Free; PLA_IDX.Free;
 end.
