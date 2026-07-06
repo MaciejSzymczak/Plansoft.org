@@ -773,6 +773,9 @@ Procedure TDModule.openSQL2(S : String; const pparams : String = '');
      t : integer;
 Begin
 try
+ //2011.05.14 to aviod problem "object was open"
+ resetConnection ( Dmodule.QWork2 );
+
  if pparams <> '' then logSQLStart ('openSQL2', S + ' : params = ' + pparams)
                   else logSQLStart ('openSQL2', S);
  With Dmodule.QWork2 Do Begin
