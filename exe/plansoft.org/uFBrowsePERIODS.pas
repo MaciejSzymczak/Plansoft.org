@@ -45,6 +45,7 @@ type
     PER_ORGUNI_ID_VALUE: TEdit;
     Label5: TLabel;
     WEEK_VISIBILITY: TDBEdit;
+    WEEK_VISIBILITY_BTN: TSpeedButton;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -59,6 +60,7 @@ type
     procedure PER_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ROL_ID_VALUEClick(Sender: TObject);
     procedure ChLokedFlagClick(Sender: TObject);
+    procedure WEEK_VISIBILITY_BTNClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -80,7 +82,7 @@ var
 implementation
 
 uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain,
-  UFFloatingMessage, UCommon, UFSharing;
+  UFFloatingMessage, UCommon, UFSharing, UFWeekVisibility;
 
 {$R *.DFM}
 
@@ -263,6 +265,15 @@ begin
    ChLokedFlag.Checked := false;
    info('Ta funkcja jest dostêpna tylko dla administratora systemu');
  end;
+end;
+
+procedure TFBrowsePERIODS.WEEK_VISIBILITY_BTNClick(Sender: TObject);
+Var s : String;
+begin
+  s := WEEK_VISIBILITY.Text;
+  if FWeekVisibility = nil then Application.CreateForm(TFWeekVisibility, FWeekVisibility);
+  if FWeekVisibility.ShowModalWithDefaults(DATE_FROM.Date, DATE_TO.Date, s) = mrOk then
+    Query.FieldByName('ATTRIBS_13').AsString := s;
 end;
 
 end.
