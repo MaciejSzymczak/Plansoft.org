@@ -779,26 +779,11 @@ create or replace package body planner_utils is
         from periods
         where pdate_from <= date_from and pdate_to >= date_to;
 
-    purge_data (pdate_from, pdate_to                       
+    purge_data (pdate_from, pdate_to
               , del_lec_flag, del_gro_flag, del_rom_flag, del_sub_flag, del_per_flag
               --, classes_deleted, lec_deleted, gro_deleted, rom_deleted, sub_deleted, per_deleted
               , 'Y' /*test_flag*/  );
   end;
-
-/*
-  -----------------------------------------------------------------------------------------------------------------------------------------------------
-  procedure calculate_lgr(     
-     cla_id      number,
-     l       out varchar2,
-     g       out varchar2,
-     r       out varchar2,
-     l_id    out varchar2,
-     g_id    out varchar2,
-     r_id    out varchar2,
-     r_resid out varchar2
-   );
-*/
-
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure update_lgr (cla_id number) is
@@ -1281,107 +1266,6 @@ create or replace package body planner_utils is
     enable_trial;
   end;
 
-/*
-  -----------------------------------------------------------------------------------------------------------------------------------------------------
-  procedure update_lgr (cla_id number) is
-    l       classes.calc_lecturers%type;
-    g       classes.calc_groups%type;
-    r       classes.calc_rooms%type;
-    l_id    classes.calc_lec_ids%type;
-    g_id    classes.calc_gro_ids%type;
-    r_id    classes.calc_rom_ids%type;
-    r_resid classes.calc_rescat_ids%type;
-  begin
-     calculate_lgr(cla_id, l, g, r, l_id, g_id, r_id, r_resid);
-     update classes
-     set    calc_lecturers = l,
-            calc_groups    = g,
-            calc_rooms     = r,
-            calc_lec_ids   = l_id,
-            calc_gro_ids   = g_id,
-            calc_rom_ids   = r_id,
-            calc_rescat_ids= r_resid
-     where id = cla_id;
-  end;
-
-
-  -----------------------------------------------------------------------------------------------------------------------------------------------------
-  procedure calculate_lgr(
-     cla_id number,
-     l       out varchar2,
-     g       out varchar2,
-     r       out varchar2,
-     l_id    out varchar2,
-     g_id    out varchar2,
-     r_id    out varchar2,
-     r_resid out varchar2
-  ) is
-    cursor cur_l(pcla_id number) is
-      select lec.abbreviation x
-           , lec.id
-        from lecturers lec
-           , lec_cla
-       where lec.id = lec_id 
-         and is_child = 'N'
-             -- params
-         and cla_id = pcla_id
-             -- sort by user creating order  
-       order by lec_cla.id; 
-    --
-    cursor cur_g(pcla_id number) is
-      select gro.abbreviation x
-           , gro.id
-        from groups gro
-           , gro_cla
-       where gro.id = gro_id
-         and is_child = 'N'
-          -- params
-         and cla_id = pcla_id
-       order by gro_cla.id;
-    --
-    cursor cur_r(pcla_id number) is
-      select rom.name||' '||rom.attribs_01 x
-           , rom.id
-           , rom.rescat_id 
-        from rooms rom
-           , rom_cla
-       where rom.id = rom_id
-         and is_child = 'N'
-          -- params
-         and cla_id = pcla_id
-       order by rom_cla.id;
-    --
-  begin
-    l    := '';
-    l_id := '';
-    for rec_l in cur_l(cla_id) loop
-     l    := xxmsz_tools.merge(l   , rec_l.x , '; ');
-     l_id := xxmsz_tools.merge(l_id, rec_l.id, ';');
-    end loop;
-    g    := '';
-    g_id := '';
-    for rec_g in cur_g(cla_id) loop
-     g    := xxmsz_tools.merge(g   , rec_g.x , '; ');
-     g_id := xxmsz_tools.merge(g_id, rec_g.id, ';');
-    end loop;
-    r    := '';
-    r_id := '';
-    for rec_r in cur_r(cla_id) loop
-     r       := xxmsz_tools.merge(r      , rec_r.x        , '; ');
-     r_id    := xxmsz_tools.merge(r_id   , rec_r.id       , ';' );
-     r_resid := xxmsz_tools.merge(r_resid, rec_r.rescat_id, ';' ); 
-    end loop;
-
-     l       := substrb(l      , 1, 500);
-     g       := substrb(g      , 1, 500);
-     r       := substrb(r      , 1, 500);
-     l_id    := substrb(l_id   , 1, 255);
-     g_id    := substrb(g_id   , 1, 255);
-     r_id    := substrb(r_id   , 1, 255);
-     r_resid := substrb(r_resid, 1, 255);
-
-  end;
-*/
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   procedure insert_dependency_classes (pres_id number, pres_type varchar2, pper_id number, pcleanUpMode varchar2) is
     vdate_from date;

@@ -5914,6 +5914,15 @@ function TFMain.modifyClass;
 	   end;
 
 
+	function CommitClassChange : boolean;
+	   begin
+		 result := false;
+		 if not deleteClass ( oldClass, oldClass.id ) then exit;
+		 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+		 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+		 result := true;
+	   end;
+
 	begin //internalModifyClass
 	  result := false;
 
@@ -6013,9 +6022,7 @@ function TFMain.modifyClass;
            end;
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				 if not CommitClassChange then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteOwner:
@@ -6033,9 +6040,7 @@ function TFMain.modifyClass;
            if newClass.owner = '' then newClass.owner := newClass.created_by;
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				 if not CommitClassChange then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteGro:
@@ -6052,9 +6057,7 @@ function TFMain.modifyClass;
            end;
 				 end;
 				 // omit cell if operation is not allowed
-				 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				 if not CommitClassChange then exit;
 				 succesFlag := true;
 			   end;
 	   clDeleteRes:
@@ -6071,9 +6074,7 @@ function TFMain.modifyClass;
            end;
 				 end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-  				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteSub:
@@ -6087,9 +6088,7 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-  				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc1:
@@ -6103,9 +6102,7 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc2:
@@ -6119,9 +6116,7 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-  				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc3:
@@ -6135,9 +6130,7 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-  				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clDeleteDesc4:
@@ -6151,9 +6144,7 @@ function TFMain.modifyClass;
 				 //  newClass.calc_lec_ids := unplugValue(newClass.calc_lec_ids,keyValue);
 				 //end;
 				 // omit cell if operation is not allowed
-				   if not deleteClass ( oldClass, oldClass.id ) then exit;
-  				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				   if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				   if not CommitClassChange then exit;
 				   succesFlag := true;
 			   end;
 	   clAttachLec:
@@ -6166,9 +6157,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_lec_ids := merge(newClass.calc_lec_ids, keyValues,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6182,9 +6171,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_gro_ids := merge(newClass.calc_gro_ids,keyValues,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6198,9 +6185,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.calc_rom_ids := merge(newClass.calc_rom_ids,keyValues,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6210,9 +6195,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.owner := merge(newClass.owner, keyValues,';');
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6227,9 +6210,7 @@ function TFMain.modifyClass;
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=2            , newClass.desc3);
 				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=2            , newClass.desc4);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6244,9 +6225,7 @@ function TFMain.modifyClass;
 				   newClass.desc3 := copyValue(keyValueDsp, Fprogramsettings.CopyField3.itemindex=3         , newClass.desc3);
 				   newClass.desc4 := copyValue(keyValueDsp, Fprogramsettings.CopyField4.itemindex=3         , newClass.desc4);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6257,9 +6236,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.owner := keyValues;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6270,9 +6247,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.class_colour := strToInt(keyValues);
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6283,9 +6258,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc1 := keyValues;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6296,9 +6269,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc2 := keyValues;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6309,9 +6280,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc3 := keyValues;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
@@ -6322,9 +6291,7 @@ function TFMain.modifyClass;
 				 begin
 				   newClass.desc4 := keyValues;
 				   // omit cell if operation is not allowed
-					 if not deleteClass ( oldClass, oldClass.id ) then exit;
-				   if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-					 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+					 if not CommitClassChange then exit;
 					 succesFlag := true;
 				 end;
 			   end;
