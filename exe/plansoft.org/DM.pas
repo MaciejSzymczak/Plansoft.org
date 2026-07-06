@@ -606,7 +606,7 @@ Begin
      wholeString  := extractWord(t,pparams,[';']);
      paramName  := extractWord(1,wholeString,['=']);
      paramValue := extractWord(2,wholeString,['=']);
-     S := searchAndReplace(S,':'+paramName,''''+paramValue+'''');
+     S := searchAndReplace(S,':'+paramName,QuotedStr(paramValue));
    end;
    SQL.Clear;
    SQL.Add(S);

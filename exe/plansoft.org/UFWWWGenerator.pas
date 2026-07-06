@@ -189,6 +189,7 @@ type thtmlTable = class
        procedure writeCell (s : string; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
        private
        procedure doSpan ( spanType : integer );
+       procedure newCellWithWidth(Command, S, Color, Width : String; const colSpan : integer; const rowSpan : integer; const ignoreFlag : boolean);
      end;
 
 procedure thtmlTable.init(aCellWIDTH, aCellHeight : string; aspanEmptycellsFlag  : boolean);
@@ -224,32 +225,40 @@ begin
 end;
 
 
-procedure thtmlTable.newCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+function htmlColorValue(Color : String) : String;
+begin
+  Result := Color;
+  if (Length(Result) >= 2) and (Result[1] = '"') and (Result[Length(Result)] = '"') then
+    Result := Copy(Result, 2, Length(Result)-2);
+end;
+
+procedure thtmlTable.newCellWithWidth(Command, S, Color, Width : String; const colSpan : integer; const rowSpan : integer; const ignoreFlag : boolean);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+lCellWIDTH+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+lCellWIDTH+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+Width+'px;background-color:'+htmlColorValue(Color)+'" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+Width+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+End;
+
+procedure thtmlTable.newCell(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+Begin
+  newCellWithWidth(Command, S, Color, lCellWIDTH, colSpan, rowSpan, ignoreFlag);
 End;
 
 procedure thtmlTable.newCellCol1(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
-  If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthDay'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  newCellWithWidth(Command, S, Color, NVL(GetSystemParam('CellWidthDay'),lCellWIDTH), colSpan, rowSpan, ignoreFlag);
 End;
 
 procedure thtmlTable.newCellCol2(Command, S, Color : String; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
 Begin
-  If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' BGCOLOR='+Color+'>'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
-                  Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="height:'+lCellHeight+'px;width:'+NVL(GetSystemParam('CellWidthHour'),lCellWIDTH)+'px" '+Command+' >'+S+'</TD>',colSpan, rowSpan, ignoreFlag)
+  newCellWithWidth(Command, S, Color, NVL(GetSystemParam('CellWidthHour'),lCellWIDTH), colSpan, rowSpan, ignoreFlag);
 End;
 
 
 procedure thtmlTable.newCellWidth(Command, S, Color, Width : String);
 Begin
   If isBlank(S) Then S := '&nbsp';
-  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" WIDTH='+WIDTH+' '+Command+' BGCOLOR='+Color+'>'+S+'</TD>')
+  If Color <> '0' Then writeCell ( '<TD ROWSPAN="?" COLSPAN="?" WIDTH='+WIDTH+' style="background-color:'+htmlColorValue(Color)+'" '+Command+' >'+S+'</TD>')
                   Else writeCell ( '<TD ROWSPAN="?" COLSPAN="?" WIDTH='+WIDTH+' '+Command+' >'+S+'</TD>')
 End;
 
@@ -1339,7 +1348,7 @@ Var xp, yp          : Integer;
       If Lgnd[legendRow].Colour = 0 Then Begin
 		      htmlTable.newCell(
             //mergeWith attribute is to avoid merge for cells inside legend
-			      'WIDTH="'+CellWIDTH +'" mergeWith="'+Lgnd[legendRow].Name+'"'
+			      'mergeWith="'+Lgnd[legendRow].Name+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,'0'
 		      );
@@ -1353,7 +1362,7 @@ Var xp, yp          : Integer;
       Else Begin
 		      htmlTable.newCell(
             //mergeWith attribute is to avoid merge for cells inside legend
-			       'WIDTH="'+CellWIDTH +'" mergeWith="'+Lgnd[legendRow].Name+'"'
+			       'mergeWith="'+Lgnd[legendRow].Name+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,DelphiColourToHTML(Lgnd[legendRow].Colour)
 		      );
@@ -1545,11 +1554,11 @@ begin
                      end;
     convOutOfRange : Begin
                        //no width (auto) in weeklyView.
-                       if weeklyView then htmlTable.writeCell ( '<TD ROWSPAN="?" COLSPAN="?" BGCOLOR="silver">&nbsp;</TD>')
+                       if weeklyView then htmlTable.writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="background-color:silver">&nbsp;</TD>')
                        else htmlTable.newCell('background="outofrange.gif"','','"silver"');
                      End;
     ConvHeader     : Begin
-                       if weeklyView then htmlTable.writeCell ( '<TD ROWSPAN="?" COLSPAN="?" BGCOLOR="silver">&nbsp;</TD>')
+                       if weeklyView then htmlTable.writeCell ( '<TD ROWSPAN="?" COLSPAN="?" style="background-color:silver">&nbsp;</TD>')
                        else htmlTable.newCell('',GetDate(TS.Date),'"silver"');
                       ;
                      End;

@@ -5,14 +5,11 @@ inherited FDBSpace: TFDBSpace
   Height = 150
   Caption = 'Dost'#281'pne miejsce'
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
   Font.Name = 'Tahoma'
-  Font.Style = []
   PixelsPerInch = 96
   TextHeight = 13
   inherited Status: TPanel
-    Top = 114
+    Top = 100
     Width = 642
   end
   object TopPanel: TPanel
@@ -26,22 +23,22 @@ inherited FDBSpace: TFDBSpace
     object LUsed: TLabel
       Left = 8
       Top = 42
-      Width = 90
-      Height = 16
+      Width = 80
+      Height = 13
       Caption = 'Wykorzystano: -'
     end
     object LLimit: TLabel
       Left = 180
       Top = 42
-      Width = 60
-      Height = 16
+      Width = 32
+      Height = 13
       Caption = 'Limit: -'
     end
     object LFree: TLabel
       Left = 300
       Top = 42
-      Width = 65
-      Height = 16
+      Width = 41
+      Height = 13
       Caption = 'Wolne: -'
     end
     object UsageBar: TPaintBox
@@ -65,18 +62,17 @@ inherited FDBSpace: TFDBSpace
     Left = 0
     Top = 64
     Width = 642
-    Height = 320
+    Height = 36
     Align = alClient
     DataSource = DS
-    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     ReadOnly = True
     TabOrder = 2
-    Visible = False
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
-    TitleFont.Height = -12
+    TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
-    TitleFont.Style = [fsBold]
+    TitleFont.Style = []
+    Visible = False
     OnDrawColumnCell = GridDrawColumnCell
   end
   object DS: TDataSource
