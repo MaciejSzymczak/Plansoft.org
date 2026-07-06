@@ -66,7 +66,7 @@ Begin
   For i := 0 to NumWeeks - 1 do Begin
     WMonday := StartMonday + i * 7;
     CheckListBox1.Items.Add('Tydzieñ '+IntToStr(i+1)+':   '+FormatDateTime('dd.mm.yyyy', WMonday)+' - '+FormatDateTime('dd.mm.yyyy', WMonday+6));
-    If (i+1 <= Length(weekVisibility)) Then ch := weekVisibility[i+1] Else ch := '+';
+    If Length(weekVisibility) = 0 Then ch := '+' Else ch := weekVisibility[(i mod Length(weekVisibility)) + 1];
     CheckListBox1.Checked[i] := (ch <> '-');
   End;
 

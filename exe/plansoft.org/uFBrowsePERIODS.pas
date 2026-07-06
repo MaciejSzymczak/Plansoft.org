@@ -34,6 +34,7 @@ type
     BClearROL_ID: TBitBtn;
     ChLokedFlag: TDBCheckBox;
     HIDE_ROWS: TDBEdit;
+    HIDE_ROWS_BTN: TSpeedButton;
     Label1: TLabel;
     SpeedButton4: TSpeedButton;
     Label3: TLabel;
@@ -61,6 +62,7 @@ type
     procedure ROL_ID_VALUEClick(Sender: TObject);
     procedure ChLokedFlagClick(Sender: TObject);
     procedure WEEK_VISIBILITY_BTNClick(Sender: TObject);
+    procedure HIDE_ROWS_BTNClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -82,7 +84,7 @@ var
 implementation
 
 uses DM, UUtilityParent, UUtilities, UFProgramSettings, AutoCreate, UFMain,
-  UFFloatingMessage, UCommon, UFSharing, UFWeekVisibility;
+  UFFloatingMessage, UCommon, UFSharing, UFWeekVisibility, UFHideRows;
 
 {$R *.DFM}
 
@@ -274,6 +276,15 @@ begin
   if FWeekVisibility = nil then Application.CreateForm(TFWeekVisibility, FWeekVisibility);
   if FWeekVisibility.ShowModalWithDefaults(DATE_FROM.Date, DATE_TO.Date, s) = mrOk then
     Query.FieldByName('ATTRIBS_13').AsString := s;
+end;
+
+procedure TFBrowsePERIODS.HIDE_ROWS_BTNClick(Sender: TObject);
+Var s : String;
+begin
+  s := HIDE_ROWS.Text;
+  if FHideRows = nil then Application.CreateForm(TFHideRows, FHideRows);
+  if FHideRows.ShowModalWithDefaults(StrToIntDef(HOURS_PER_DAY.Text, dm.maxHours), s) = mrOk then
+    Query.FieldByName('ATTRIBS_15').AsString := s;
 end;
 
 end.
