@@ -562,6 +562,28 @@ Procedure TConvertSingleObject.Init(StartDate, EndDate : Integer; Var LiczbaKolu
 
 Var StartRows : Array[1..7] Of Integer;
     StartRow  : Integer;
+    StartMonday : Integer;
+
+  Function MondayOf(D : Integer) : Integer;
+  Var ts : TTimeStamp;
+      dw : Integer;
+  Begin
+    ts.Date := D;
+    ts.Time := 0;
+    dw := DayOfWeek(TimeStampToDateTime(ts));
+    Result := D - ((dw - 2 + 7) mod 7);
+  End;
+
+  Procedure OmitWeeks;
+  Var wk : Integer;
+  Begin
+    wk := (MondayOf(Date) - StartMonday) div 7;
+    While (Date <= EndDate) and (wk+1 <= Length(ufmain.week_visibility)) and (ufmain.week_visibility[wk+1] = '-') do Begin
+      Date := MondayOf(Date) + 7;
+      OmitDays(Date);
+      wk := (MondayOf(Date) - StartMonday) div 7;
+    End;
+  End;
 
 Begin
  SetLength(ColRowDate, EndDate - StartDate + 2 );       // inicjuje dlugosc tabeli dynamicznej ...
@@ -573,7 +595,9 @@ Begin
  Len := 0;
 
  Date := StartDate;
+ StartMonday := MondayOf(StartDate);
  OmitDays(Date);
+ OmitWeeks;
 
  TimeStamp.Date := Date;
  TimeStamp.Time := 0;
@@ -625,6 +649,7 @@ Begin
   If _Row=StartRow Then
    Begin
     _Row := 0;
+    OmitWeeks;
     _Col := _Col +1;
    End;
  Until Date > EndDate;

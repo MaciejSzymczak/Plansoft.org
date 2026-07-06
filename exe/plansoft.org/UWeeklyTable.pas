@@ -2,6 +2,8 @@ unit UWeeklyTable;
 
 interface
 
+uses Classes;
+
 type tcell = class
          cntMode : boolean;
          hidden : boolean;
@@ -59,6 +61,7 @@ type tweeklyTable = class
              procedure doRowSpan;
              procedure doColSpan;
          private
+             rowLabelIndex, colLabelIndex : TStringList; // caption -> array index, avoids O(n) scans in rowLabelToId/colLabelToId
              function simpleGreyCell    (s: string) : tcell;
              function colUsed (x : integer) : boolean;
              function rowUsed (x : integer) : boolean;
@@ -172,6 +175,18 @@ begin
              rowLabels[t].Used:= false;
         end;
     end;
+
+    rowLabelIndex := TStringList.Create;
+    rowLabelIndex.Sorted := True;
+    rowLabelIndex.Duplicates := dupIgnore;
+    for t := 0 to Length(rowLabels)-1 do
+        rowLabelIndex.AddObject(rowLabels[t].caption, TObject(t));
+
+    colLabelIndex := TStringList.Create;
+    colLabelIndex.Sorted := True;
+    colLabelIndex.Duplicates := dupIgnore;
+    for t := 0 to Length(colLabels)-1 do
+        colLabelIndex.AddObject(colLabels[t].caption, TObject(t));
 end;
 
 //------------------------------------------------------------------------------
@@ -181,25 +196,25 @@ var r,c : integer;
     var t : integer;
     begin
         result := -1;
-        for t := 0 to length(rowLabels)-1 do
-          if rowLabels[t].caption = s then begin
-              result := t + rowLabelsOffset;
-              if supressNAValues and (Pos('*brak*', searchIn)>0) then {do not mark row as used - hide it}
-              else rowLabels[t].Used := true;
-              break;
-          end;
+        t := rowLabelIndex.IndexOf(s);
+        if t >= 0 then begin
+            t := Integer(rowLabelIndex.Objects[t]);
+            result := t + rowLabelsOffset;
+            if supressNAValues and (Pos('*brak*', searchIn)>0) then {do not mark row as used - hide it}
+            else rowLabels[t].Used := true;
+        end;
     end;
     function colLabelToId ( s, searchIn  : string ) : integer;
     var t : integer;
     begin
         result := -1;
-        for t := 0 to length(colLabels)-1 do
-          if colLabels[t].caption = s then begin
-              result := t + colLabelsOffset;
-              if supressNAValues and (Pos('*brak*', searchIn)>0) then {do not mark col as used - hide it}
-              else colLabels[t].Used := true;
-              break;
-          end;
+        t := colLabelIndex.IndexOf(s);
+        if t >= 0 then begin
+            t := Integer(colLabelIndex.Objects[t]);
+            result := t + colLabelsOffset;
+            if supressNAValues and (Pos('*brak*', searchIn)>0) then {do not mark col as used - hide it}
+            else colLabels[t].Used := true;
+        end;
     end;
 begin
   if colsubLabelMode then begin
@@ -461,6 +476,8 @@ begin
   finalize( colLabels );
   finalize( rowLabels );
   finalize( table );
+  rowLabelIndex.Free; rowLabelIndex := nil;
+  colLabelIndex.Free; colLabelIndex := nil;
 end;
 
 

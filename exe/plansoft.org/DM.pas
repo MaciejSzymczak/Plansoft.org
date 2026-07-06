@@ -537,6 +537,7 @@ Begin
  logSQLStop;
  except
    on E:exception do Begin
+     Dmodule.QWork.ParamCheck := true;
      fmain.wlog('*** error' + e.Message );
      info(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport

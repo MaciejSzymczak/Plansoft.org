@@ -176,6 +176,19 @@ Begin Result := IndexLookup(FOR_IDX, ID); End;
 Procedure TFPlannerPermissions.SaveCellGrid(Grid: TStringGrid; Descriptor : String; Var Flag : Boolean; Col, Row : integer);
 Var x, y : Integer;
     S    : String;
+    resId : Integer;
+
+  Function GetResId : Integer;
+  Begin
+    If Descriptor = 'LEC' Then Result := LECS[y].ID Else
+    If Descriptor = 'PER' Then Result := PERS[y].ID Else
+    If Descriptor = 'GRO' Then Result := GROS[y].ID Else
+    If Descriptor = 'ROM' Then Result := ROMS[y].ID Else
+    If Descriptor = 'ROL' Then Result := ROLS[y].ID Else
+    If Descriptor = 'SUB' Then Result := SUBS[y].ID Else
+    If Descriptor = 'FOR' Then Result := FORS[y].ID;
+  End;
+
 begin
   If Not Flag Then Exit;
 
@@ -184,23 +197,13 @@ begin
   //
   x := col;
   y := row;
-       If Descriptor = 'LEC' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(LECS[y].ID)+'';
-       If Descriptor = 'PER' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(PERS[y].ID)+'';
-       If Descriptor = 'GRO' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(GROS[y].ID)+'';
-       If Descriptor = 'ROM' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(ROMS[y].ID)+'';
-       If Descriptor = 'ROL' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(ROLS[y].ID)+'';
-       If Descriptor = 'SUB' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(SUBS[y].ID)+'';
-       If Descriptor = 'FOR' Then S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(FORS[y].ID)+'';
-       SQLStatements := SQLStatements + S + '; ';
+  resId := GetResId;
+
+  S := 'DELETE FROM '+Descriptor+'_PLA WHERE PLA_ID='+IntToStr(PLAS[x].ID)+' AND '+Descriptor+'_ID='+IntToStr(resId)+'';
+  SQLStatements := SQLStatements + S + '; ';
 
      If Grid.Cells[x,y] <> '' Then Begin
-       If Descriptor = 'LEC' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(LECS[y].ID)+')';
-       If Descriptor = 'PER' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(PERS[y].ID)+')';
-       If Descriptor = 'GRO' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(GROS[y].ID)+')';
-       If Descriptor = 'ROM' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(ROMS[y].ID)+')';
-       If Descriptor = 'ROL' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(ROLS[y].ID)+')';
-       If Descriptor = 'SUB' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(SUBS[y].ID)+')';
-       If Descriptor = 'FOR' Then S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(FORS[y].ID)+')';
+       S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(resId)+')';
        //DModule.SQL(S);
        SQLStatements := SQLStatements + S + '; ';
        SQLStatementsCnt := SQLStatementsCnt +1;

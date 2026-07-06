@@ -43,6 +43,8 @@ type
     Label4: TLabel;
     PER_ORGUNI_ID: TDBEdit;
     PER_ORGUNI_ID_VALUE: TEdit;
+    Label5: TLabel;
+    WEEK_VISIBILITY: TDBEdit;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);

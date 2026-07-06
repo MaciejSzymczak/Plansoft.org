@@ -1131,6 +1131,8 @@ var
   // passing parameters via procedure worked sometimes badly !
   dummyTS : TTimeStamp;
   dummyHour : Integer;
+  // '+' = show week, '-' = hide week; loaded from PERIODS.ATTRIBS_13 in conPeriodChange (see OmitWeeks in UUtilities.pas)
+  week_visibility : String;
 
 var
     TS : TTimeStamp;
@@ -1153,6 +1155,7 @@ Uses AutoCreate, UFDetails,
   FVersions, StrUtils, UFCustomConnectionString, UFDBSpace;
 
 var dummy : string;
+const LastValidatedPeriodId : string = '###invalid###'; // typed constant = writable global, cache for the PERIODS existence check in BuildCalendar
 
 
 { -------------------------------------------------------------------------------------------------------------------------------------------- }
@@ -2105,9 +2108,12 @@ Begin
     Exit;
   End;
 
-  If Dmodule.SingleValue('SELECT COUNT(1) FROM PERIODS WHERE ID='+conPeriod.TEXT) <> '1' Then Begin
-    conPeriod.TEXT := '';
-    Exit;
+  If conPeriod.TEXT <> LastValidatedPeriodId Then Begin
+    If Dmodule.SingleValue('SELECT COUNT(1) FROM PERIODS WHERE ID='+conPeriod.TEXT) <> '1' Then Begin
+      conPeriod.TEXT := '';
+      Exit;
+    End;
+    LastValidatedPeriodId := conPeriod.TEXT;
   End;
 
   TabViewType.Tabs[0] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameL.text+' '+ExtractWord(1, ConLecturer_value.Text,  [';'])  , fprogramsettings.profileObjectNameLs.text);
@@ -2192,7 +2198,7 @@ begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
    //and date_to - date_from <=7 is to do not treat 2025.01.01 - 2025.12.31 as single week
-   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag, ATTRIBS_15 HIDE_ROWS,ATTRIBS_14 GRID_LABELS','PERIODS','');
+   DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME,  case when TO_CHAR(date_from, ''IW'') =  TO_CHAR(date_to, ''IW'') and date_to - date_from <=7  then ''yes'' else ''no'' end as one_week_flag, ATTRIBS_15 HIDE_ROWS,ATTRIBS_14 GRID_LABELS,ATTRIBS_13 WEEK_VISIBILITY','PERIODS','');
    SetVisibles;
 
   //autoExpandSelection:setup
@@ -2204,6 +2210,12 @@ begin
     gridHiddenRows[i] := hide_rows[i]='-';
     gridCustomLabels[i] :=  Copy(extractWord(i, Dmodule.QWork.Fields[3].AsString, [',']),1,20);
   end;
+
+  //hiding weeks in the grid (see OmitWeeks in UUtilities.pas): PERIODS.ATTRIBS_13, same convention as ATTRIBS_15/hide_rows above
+  week_visibility := Dmodule.QWork.Fields[4].AsString;
+  if week_visibility='' then week_visibility := '+';
+  while length(week_visibility) < 120 do
+   week_visibility := week_visibility + week_visibility;
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
    CreateWeeks.Visible := not FSettings.WeeklyView.Checked;
@@ -4059,7 +4071,7 @@ end;
 
 procedure TFMain.commandLineMatrix     (inifilename : string);
 var  iniFile : tinifile;
-     exportMethod : shortstring;
+     //exportMethod : shortstring;
      setupFileName, poutFileName     : tfilename;
 begin
  iniFile := TIniFile.Create( inifilename );
@@ -4107,7 +4119,7 @@ begin
    pDoNotGenerateTableOfCon := ReadBool   ('wwwgenerator','DoNotGenerateTableOfCon',false);
    pGoogleUser              := ReadString ('wwwgenerator','GoogleUser','');
    pGooglePassword          := ReadString ('wwwgenerator','GooglePassword','');
-   pGoogleSavePassword      := ReadBool   ('wwwgenerator','GoogleSavePassword',false);
+   //pGoogleSavePassword      := ReadBool   ('wwwgenerator','GoogleSavePassword',false);
    pRoleName                := ReadString ('wwwgenerator','RoleName','');
    pGroups                  := ReadBool   ('wwwgenerator','Groups',true);
    pResources               := ReadBool   ('wwwgenerator','Resources',true);
@@ -5381,7 +5393,7 @@ procedure TFMain._selectg;
 Var KeyValues : String;
     KeyValue  : string;
     t         : integer;
-    resultString : string;
+//    resultString : string;
 begin
   KeyValue := '';
   If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
@@ -9611,6 +9623,7 @@ end;
 procedure TFMain.CreateWeeksClick(Sender: TObject);
 begin
   if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
+    Dmodule.QWork.ParamCheck := false;
     DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
     info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
   end;

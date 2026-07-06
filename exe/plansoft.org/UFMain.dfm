@@ -4202,9 +4202,10 @@ inherited FMain: TFMain
       object CreateWeeks: TSpeedButton
         Left = 1200
         Top = 32
-        Width = 89
+        Width = 25
         Height = 22
-        Caption = 'Utw'#243'rz tygodnie'
+        Hint = 'Utw'#243'rz tygodnie'
+        Caption = '...'
         OnClick = CreateWeeksClick
       end
       object LprofileObjectNameC1: TSpeedButton
