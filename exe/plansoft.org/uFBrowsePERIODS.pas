@@ -105,6 +105,9 @@ Begin
     If Not ((SHOW_MON.Checked) Or  (SHOW_TUE.Checked) Or (SHOW_WED.Checked)  Or (SHOW_THU.Checked)  Or (SHOW_FRI.Checked)  Or (SHOW_SAT.Checked) Or (SHOW_SUN.Checked)) Then
     addError('Semestr musi zawieraæ przynajmniej jeden dzieñ');
 
+    If (WEEK_VISIBILITY.Text <> '') and (Pos('+', WEEK_VISIBILITY.Text) = 0) Then
+    addError('Widocznoœæ tygodni musi zawieraæ przynajmniej jeden widoczny tydzieñ (znak +)');
+
     Result := ShowMessage;
   End;
 End;

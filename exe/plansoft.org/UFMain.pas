@@ -4101,7 +4101,6 @@ var  iniFile : tinifile;
      pDoNotGenerateTableOfCon   : boolean;
      pGoogleUser                : string ;
      pGooglePassword            : string ;
-     pGoogleSavePassword        : boolean;
      pGroups                    : boolean;
      pResources                 : boolean;
      pLecturers                 : boolean;
@@ -9853,7 +9852,7 @@ begin
 
     {ConvDayOfWeek}
     if (ACol = 0) then begin
-      HeaderGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
+      if TS.Date<>-1 then HeaderGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
     end;
     if (ACol >= 2) then begin
        headerGrid.Canvas.Brush.Color := clMenu;
