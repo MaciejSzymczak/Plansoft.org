@@ -4199,14 +4199,15 @@ inherited FMain: TFMain
           FFFFFFFFFFFF2B2B2BFFB3B3B3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         OnClick = GoToDateClick
       end
-      object CreateWeeks: TSpeedButton
+      object EditPeriod: TSpeedButton
         Left = 1200
         Top = 32
         Width = 25
         Height = 22
-        Hint = 'Utw'#243'rz tygodnie'
+        Hint = 'Edytuj semestr'
         Caption = '...'
-        OnClick = CreateWeeksClick
+        Visible = False
+        OnClick = EditPeriodClick
       end
       object LprofileObjectNameC1: TSpeedButton
         Left = 837

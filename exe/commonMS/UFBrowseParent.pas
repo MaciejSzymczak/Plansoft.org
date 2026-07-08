@@ -2274,6 +2274,7 @@ Begin
  // to aviod "Nie mo¿na zmieniæ w³aœciwoœci ActiveConnection obiektu Recordset, którego Ÿród³em jest obiekt Command"
  // error occured on close aplication
  dmodule.resetConnection(Query);
+ result := mrOK;
 End;
 
 //------------------------------------------------------------------

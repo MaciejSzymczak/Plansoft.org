@@ -57,6 +57,7 @@ type
     procedure FHelpClick(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
+    procedure BUpdChild3Click(Sender: TObject);
     procedure PER_ORGUNI_IDChange(Sender: TObject);
     procedure PER_ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure ROL_ID_VALUEClick(Sender: TObject);
@@ -232,6 +233,15 @@ procedure TFBrowsePERIODS.BUpdChild2Click(Sender: TObject);
 begin
    FSharing.init('U','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
    dmodule.CommitTrans;
+end;
+
+procedure TFBrowsePERIODS.BUpdChild3Click(Sender: TObject);
+begin
+  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
+    Dmodule.QWork.ParamCheck := false;
+    DModule.SQL(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text));
+    info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
+  end;
 end;
 
 procedure TFBrowsePERIODS.AfterPost;

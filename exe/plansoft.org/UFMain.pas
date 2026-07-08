@@ -587,7 +587,7 @@ type
     estujAPI1: TMenuItem;
     GoToDate: TSpeedButton;
     SQLCreateWeeks: TMemo;
-    CreateWeeks: TSpeedButton;
+    EditPeriod: TSpeedButton;
     PPreview: TPopupMenu;
     MenuItem4: TMenuItem;
     MenuItem11: TMenuItem;
@@ -941,7 +941,7 @@ type
     procedure Zajtowykadowcw1Click(Sender: TObject);
     procedure estujAPI1Click(Sender: TObject);
     procedure GoToDateClick(Sender: TObject);
-    procedure CreateWeeksClick(Sender: TObject);
+    procedure EditPeriodClick(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure CLASSES_ALLOWEDClick(Sender: TObject);
@@ -2218,7 +2218,6 @@ begin
    week_visibility := week_visibility + week_visibility;
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
-   CreateWeeks.Visible := not FSettings.WeeklyView.Checked;
 
    //invalid period id, deleted period?
    If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
@@ -2246,6 +2245,7 @@ Begin
   FcellLayout.CellColor.Visible     := not isBlank(conPeriod.Text);
   FcellLayout.selectFill.Visible   := not isBlank(conPeriod.Text);
   FcellLayout.DESCRIPTIONS.Visible := not isBlank(conPeriod.Text);
+  EditPeriod.Visible                := not isBlank(conPeriod.Text);
 End;
 
 procedure TFMain.zoomInClick(Sender: TObject);
@@ -4495,7 +4495,6 @@ begin
 
   isUSOSInstalled := dmodule.dbgetSystemParam('USOS_CYKL')<>'';
   BFastSearchNew.Visible := isIntegrated = false;
-  CreateWeeks.Visible := isIntegrated = false;
 
   buildMenu;
 
@@ -9619,13 +9618,15 @@ begin
   end;
 end;
 
-procedure TFMain.CreateWeeksClick(Sender: TObject);
+procedure TFMain.EditPeriodClick(Sender: TObject);
+var KeyValue : ShortString;
 begin
-  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
-    Dmodule.QWork.ParamCheck := false;
-    DModule.SQL(searchAndReplace(SQLCreateWeeks.Text, ':pid',conPeriod.Text));
-    info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
-  end;
+  if isBlank(conPeriod.Text) then exit;
+  KeyValue := conPeriod.Text;
+  If PERIODSShowModalAsSingleRecord(aedit, KeyValue) = mrOK Then Begin
+    conPeriodChange(conPeriod);
+    deepRefreshDelayed;
+  End;
 end;
 
 procedure TFMain.MenuItem4Click(Sender: TObject);
