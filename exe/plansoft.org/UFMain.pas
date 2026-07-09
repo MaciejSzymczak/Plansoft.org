@@ -429,6 +429,7 @@ type
     BitBtnSUB: TSpeedButton;
     BitBtnFORM: TSpeedButton;
     BClearS: TSpeedButton;
+    BClearF: TSpeedButton;
     BitBtnCLEARROLE: TSpeedButton;
     BSelectComb: TSpeedButton;
     Listazajchistoriazmian1: TMenuItem;
@@ -825,6 +826,7 @@ type
     procedure BitBtnSUBClick(Sender: TObject);
     procedure BitBtnFORMClick(Sender: TObject);
     procedure BClearSClick(Sender: TObject);
+    procedure BClearFClick(Sender: TObject);
     procedure BitBtnCLEARROLEClick(Sender: TObject);
     procedure BSelectCombClick(Sender: TObject);
     procedure Listazajchistoriazmian1Click(Sender: TObject);
@@ -2246,6 +2248,7 @@ Begin
   FcellLayout.selectFill.Visible   := not isBlank(conPeriod.Text);
   FcellLayout.DESCRIPTIONS.Visible := not isBlank(conPeriod.Text);
   EditPeriod.Visible                := not isBlank(conPeriod.Text);
+  LeftPanel.Invalidate;
 End;
 
 procedure TFMain.zoomInClick(Sender: TObject);
@@ -7687,6 +7690,12 @@ begin
   ConSubject.Text := '';
 end;
 
+procedure TFMain.BClearFClick(Sender: TObject);
+begin
+  inherited;
+  ConForm.Text := '';
+end;
+
 procedure TFMain.BitBtnCLEARROLEClick(Sender: TObject);
 begin
   conRole.Text := '';
@@ -8842,6 +8851,9 @@ begin
  LCONROLE_VALUE.Parent           := parentPanel;
  CONROLE_VALUE.Parent            := parentPanel;
  BitBtnCLEARROLE.Parent          := parentPanel;
+
+ LeftPanel.Invalidate;
+ CalViewPanel.Invalidate;
 end;
 
 procedure TFMain.TabViewTypeChange(Sender: TObject; NewTab: Integer;

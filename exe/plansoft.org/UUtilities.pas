@@ -665,7 +665,6 @@ Function  TConvertSingleObject.DateToColRow(_Date, _Hour : Integer; var Col, Row
 var i : integer;
 begin
   result := false;
-  len := high(convertGrid.convertSingleObject.ColRowDate);
   i := 1;
   While (i<=Len) And  (Not((ColRowDate[i].Date=_Date) )) Do begin
     i := i + 1;
