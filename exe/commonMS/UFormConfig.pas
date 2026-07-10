@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ComCtrls, Tabnotbk, Spin, StrHlder, dbtables, Db,
-  RxQuery, RXLookup, ExtCtrls;
+  RxQuery, RXLookup, ExtCtrls, DBGrids;
 
 type
   TFormConfig = class(TForm)
@@ -31,12 +31,13 @@ Function  GetFormName(Form : TForm) : ShortString;
 Procedure SaveFormConfiguration(Form : TForm);
 Procedure LoadFormConfiguration(Form : TForm);
 procedure setFontSize(Form : TForm);
+Procedure AutoFitGridColumns(Grid : TDBGrid; DataSet : TDataSet);
 
 implementation
 
 {$R *.DFM}
 
-Uses UUtilityParent, menus, ToolEdit, dbgrids,
+Uses UUtilityParent, menus, ToolEdit,
      Tabs, DBChart, Chart, dm;
 
 Function GetFileNameWithExtension(Form : TForm; Extension : ShortString) : ShortString;
@@ -649,6 +650,27 @@ begin
    If form.Components[t] is TMemo    Then (form.Components[t] as tmemo).Font.Size    := FontSize;
   end;
 
+end;
+
+
+//ZMIANA_20270710: generic content-based column autofit tool, shared by TFDBSpace and TFLegend (both descend from TFormConfig)
+Procedure AutoFitGridColumns(Grid : TDBGrid; DataSet : TDataSet);
+Var i, maxWidth, w : Integer;
+begin
+  Grid.Canvas.Font := Grid.Font;
+  For i := 0 To Grid.Columns.Count - 1 Do Begin
+    maxWidth := Grid.Canvas.TextWidth(Grid.Columns[i].Title.Caption) + 18;
+    DataSet.DisableControls;
+    DataSet.First;
+    While Not DataSet.Eof Do Begin
+      w := Grid.Canvas.TextWidth(Grid.Columns[i].Field.DisplayText) + 14;
+      If w > maxWidth Then maxWidth := w;
+      DataSet.Next;
+    End;
+    DataSet.First;
+    DataSet.EnableControls;
+    Grid.Columns[i].Width := maxWidth;
+  End;
 end;
 
 end.

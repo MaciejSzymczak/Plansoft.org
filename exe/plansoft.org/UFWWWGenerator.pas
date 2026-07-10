@@ -1034,9 +1034,25 @@ Procedure TFWWWGenerator.CalendarToHTML(
           LegendRowNumber : Integer;
           MaxL : Integer;
           ChildsAndParents : string;
+          groupByGroup : boolean;
+          groupJoin, groupWhere, groupSelect, groupByCol : string;
     begin
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, printMode),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
+
+    //ZMIANA_20270709: additional grouping by GROUPS.NAME in summary legend mode (bit 8 of LegendMode)
+    groupByGroup := (LegendMode and 8 = 8);
+    if groupByGroup then begin
+      groupJoin   := '   , GRO_CLA GRO_CLA3    , GROUPS GRO3 ';
+      groupWhere  := 'AND GRO_CLA3.CLA_ID(+) =  CLA.ID AND GRO_CLA3.IS_CHILD(+) = ''N'' AND GRO3.ID(+) = GRO_CLA3.GRO_ID ';
+      groupSelect := ' || '' '' || GRO3.NAME';
+      groupByCol  := ',GRO3.NAME';
+    end else begin
+      groupJoin   := '';
+      groupWhere  := '';
+      groupSelect := '';
+      groupByCol  := '';
+    end;
 
     For LegendRowNumber := 1 To High(Lgnd) Do Begin
      Lgnd[LegendRowNumber].Name     := '';
@@ -1157,13 +1173,14 @@ Procedure TFWWWGenerator.CalendarToHTML(
       if (LegendMode and 1 = 1) then begin
         if presType='LEC' then
          //todo:  2025.09.10 Change the query around LEC_CLA like it was done for GRO_CLA in section GRO
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC_CLA >- LEC
+                  groupJoin+
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
@@ -1173,11 +1190,12 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
+                    groupWhere+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
         if presType='GRO' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1186,6 +1204,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   //'   , GRO_CLA '+
                    //  GRO_CLA >- CLA -< LEC_CLA >- LEC
                   //'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
+                  groupJoin+
                     'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     //'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
@@ -1195,11 +1214,12 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
+                    groupWhere+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
         if presType='ROM' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1208,6 +1228,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   //'   , ROM_CLA '+
                   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   //'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
+                  groupJoin+
                   'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     //'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
@@ -1217,7 +1238,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND '+periodClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
+                    groupWhere+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
       end;

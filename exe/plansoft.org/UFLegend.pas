@@ -404,6 +404,8 @@ procedure TFLegend.QueryCOUNTERAfterOpen(DataSet: TDataSet);
 var i : integer;
     fName : string;
 begin
+  //ZMIANA_20270710: content-based auto width (shared tool in UFormConfig), then re-hide technical ID columns and clamp overly wide ones
+  UFormConfig.AutoFitGridColumns(gridCounter, DataSet);
   for i := 0 to gridCounter.FieldCount-1 do begin
     fName := gridCounter.columns[i].FieldName;
     //info(fName);
@@ -416,15 +418,6 @@ begin
     if fName = 'CALC_ROM_IDS' then gridCounter.Columns[i].Width := 0;
     if fName = 'CALC_CLA_IDS' then gridCounter.Columns[i].Width := 0;
     if fName = 'ROM_ID' then gridCounter.Columns[i].Width := 0;
-    if fName = 'Przedmiot' then gridCounter.Columns[i].Width := 150;
-    if fName = 'Forma' then gridCounter.Columns[i].Width := 100;
-    if fName = 'Liczba godzin' then gridCounter.Columns[i].Width := 60;
-    if fName =  fprogramSettings.getClassDescPlural(1) then gridCounter.Columns[i].Width := 60;
-    if fName =  fprogramSettings.getClassDescPlural(2) then gridCounter.Columns[i].Width := 60;
-    if fName =  fprogramSettings.getClassDescPlural(3) then gridCounter.Columns[i].Width := 60;
-    if fName =  fprogramSettings.getClassDescPlural(4) then gridCounter.Columns[i].Width := 60;
-  end;
-  for i := 0 to gridCounter.FieldCount-1 do begin
     if gridCounter.Columns[i].Width>250 then gridCounter.Columns[i].Width := 250;
   end;
 end;
@@ -570,6 +563,7 @@ begin
       ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
       );
     QueryL.Open;
+    UFormConfig.AutoFitGridColumns(gridL, QueryL);
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridL);
   end;
 
@@ -592,6 +586,7 @@ begin
         ,':ClassesSelectedTotal',ClassesSelectedTotal.Text)
         );
     QueryG.Open;
+    UFormConfig.AutoFitGridColumns(gridG, QueryG);
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridG);
   end;
 
@@ -614,6 +609,7 @@ begin
     );
     //copytoclipboard(QueryR.sql.Text);
     QueryR.Open;
+    UFormConfig.AutoFitGridColumns(gridR, QueryR);
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridR);
   end;
 
@@ -624,6 +620,7 @@ begin
     QueryS.SQL.Clear;
     QueryS.SQL.Add('SELECT * FROM SUBJECTS WHERE '+getWhereClause('SUBJECTS')+' AND '+ fmain.getWhereFastFilter(self.filterS.text, 'SUBJECTS')+' order by name');
     QueryS.Open;
+    UFormConfig.AutoFitGridColumns(gridS, QueryS);
     UUtilityParent.GridLayoutLoadFromFile (self.Name,gridS);
   end;
 

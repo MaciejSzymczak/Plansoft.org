@@ -209,6 +209,9 @@ type
     llegendECTS: TCheckBox;
     glegendECTS: TCheckBox;
     rlegendECTS: TCheckBox;
+    llegendSummaryGroup: TCheckBox;
+    glegendSummaryGroup: TCheckBox;
+    rlegendSummaryGroup: TCheckBox;
     WeeklyView: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure BHtmlClick(Sender: TObject);
@@ -302,7 +305,7 @@ begin
     If FMain.TabViewType.TabIndex = 0 Then Begin
       ColoringIndex := getCode(LViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'LEC',getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked,
-            iif(llegendECTS.checked,1,0)*4 + iif(llegendAbbr.checked,1,0)*2 + iif(llegendSummary.checked,1,0)*1
+            iif(llegendECTS.checked,1,0)*4 + iif(llegendAbbr.checked,1,0)*2 + iif(llegendSummary.checked,1,0)*1 + iif(llegendSummaryGroup.checked,1,0)*8
           , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked, weeklyView.Checked );
       if LPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
@@ -312,7 +315,7 @@ begin
     If FMain.TabViewType.TabIndex = 1 Then Begin
       ColoringIndex := getCode(GViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'GRO',getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked,
-            iif(glegendECTS.checked,1,0)*4 + iif(glegendAbbr.checked,1,0)*2 + iif(glegendSummary.checked,1,0)*1,gAddCreationDate.itemindex
+            iif(glegendECTS.checked,1,0)*4 + iif(glegendAbbr.checked,1,0)*2 + iif(glegendSummary.checked,1,0)*1 + iif(glegendSummaryGroup.checked,1,0)*8,gAddCreationDate.itemindex
           , ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked, weeklyView.Checked);
       if GPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
@@ -322,7 +325,7 @@ begin
     If (FMain.TabViewType.TabIndex = 2) or (FMain.TabViewType.TabIndex = 3) Then Begin
       ColoringIndex := getCode(RViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'ROM',getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked,
-            iif(rlegendECTS.checked,1,0)*4 + iif(rlegendAbbr.checked,1,0)*2 + iif(rlegendSummary.checked,1,0)*1
+            iif(rlegendECTS.checked,1,0)*4 + iif(rlegendAbbr.checked,1,0)*2 + iif(rlegendSummary.checked,1,0)*1 + iif(rlegendSummaryGroup.checked,1,0)*8
           , rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked);
       if RPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
@@ -397,6 +400,7 @@ begin
                                      iif(llegendECTS.checked,1,0)*4
                                    + iif(llegendAbbr.checked,1,0)*2
                                    + iif(llegendSummary.checked,1,0)*1
+                                   + iif(llegendSummaryGroup.checked,1,0)*8
                                      ));
    WriteInteger('L','AddCreationDate',lAddCreationDate.itemindex);
    WriteString ('L','HEADER'    ,SearchAndReplace(LHEADER.Lines.CommaText,'"','^') );
@@ -442,6 +446,7 @@ begin
         iif(glegendECTS.checked,1,0)*4
       + iif(glegendAbbr.checked,1,0)*2
       + iif(glegendSummary.checked,1,0)*1
+      + iif(glegendSummaryGroup.checked,1,0)*8
    ));
    WriteInteger('G','AddCreationDate',gAddCreationDate.itemindex);
    WriteString ('G','HEADER'    ,SearchAndReplace(GHEADER.Lines.CommaText,'"','^'));
@@ -484,6 +489,7 @@ begin
       iif(rlegendECTS.checked,1,0)*4
      +iif(rlegendAbbr.checked,1,0)*2
      +iif(rlegendSummary.checked,1,0)*1
+     +iif(rlegendSummaryGroup.checked,1,0)*8
    ));
    WriteInteger('R','AddCreationDate',rAddCreationDate.itemindex);
    WriteString ('R','HEADER'    ,SearchAndReplace(RHEADER.Lines.CommaText,'"','^'));
@@ -576,12 +582,15 @@ begin
    llegendAbbr.checked     := (strToInt(ReadString('L','LegendMode','0')) and 2) = 2;
    llegendSummary.checked  := (strToInt(ReadString('L','LegendMode','0')) and 1) = 1;
    llegendECTS.checked     := (strToInt(ReadString('L','LegendMode','1')) and 4) = 4;
+   llegendSummaryGroup.checked := (strToInt(ReadString('L','LegendMode','0')) and 8) = 8;
    glegendAbbr.checked     := (strToInt(ReadString('G','LegendMode','0')) and 2) = 2;
    glegendSummary.checked  := (strToInt(ReadString('G','LegendMode','0')) and 1) = 1;
    glegendECTS.checked     := (strToInt(ReadString('G','LegendMode','1')) and 4) = 4;
+   glegendSummaryGroup.checked := (strToInt(ReadString('G','LegendMode','0')) and 8) = 8;
    rlegendAbbr.checked     := (strToInt(ReadString('R','LegendMode','0')) and 2) = 2;
    rlegendSummary.checked  := (strToInt(ReadString('R','LegendMode','0')) and 1) = 1;
    rlegendECTS.checked     := (strToInt(ReadString('R','LegendMode','1')) and 4) = 4;
+   rlegendSummaryGroup.checked := (strToInt(ReadString('R','LegendMode','0')) and 8) = 8;
 
    lAddCreationDate.itemindex  := ReadInteger('L','AddCreationDate',0);
    LHEADER.Lines.CommaText   := SearchAndReplace(ReadString ('L','HEADER',''),'^','"');

@@ -32,7 +32,6 @@ type
     FSegmentsLoaded : Boolean;
     Procedure RefreshSummary;
     Procedure LoadSegments;
-    Procedure AutoFitGridColumns;
   public
     { Public declarations }
   end;
@@ -117,30 +116,11 @@ begin
       copyToClipboard(SegmentsSQL);
       raise;
     end;
-    AutoFitGridColumns;
+    UFormConfig.AutoFitGridColumns(Grid, SegmentsQuery);
     FSegmentsLoaded := True;
   finally
     Screen.Cursor := crDefault;
   end;
-end;
-
-Procedure TFDBSpace.AutoFitGridColumns;
-Var i, maxWidth, w : Integer;
-begin
-  Grid.Canvas.Font := Grid.Font;
-  For i := 0 To Grid.Columns.Count - 1 Do Begin
-    maxWidth := Grid.Canvas.TextWidth(Grid.Columns[i].Title.Caption) + 18;
-    SegmentsQuery.DisableControls;
-    SegmentsQuery.First;
-    While Not SegmentsQuery.Eof Do Begin
-      w := Grid.Canvas.TextWidth(Grid.Columns[i].Field.DisplayText) + 14;
-      If w > maxWidth Then maxWidth := w;
-      SegmentsQuery.Next;
-    End;
-    SegmentsQuery.First;
-    SegmentsQuery.EnableControls;
-    Grid.Columns[i].Width := maxWidth;
-  End;
 end;
 
 procedure TFDBSpace.UsageBarPaint(Sender: TObject);

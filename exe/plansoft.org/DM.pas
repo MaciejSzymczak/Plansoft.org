@@ -1314,8 +1314,7 @@ begin
 end;
 
 Procedure TDModule.ExportToExcel(aGrid : TDBGrid );
-    var FileName : string;
-        aQuery : TADOQuery;
+    var aQuery : TADOQuery;
 
     Procedure doExport;
     var LineNumber, LCID : Integer;
