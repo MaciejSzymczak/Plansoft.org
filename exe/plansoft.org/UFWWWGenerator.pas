@@ -1038,8 +1038,13 @@ Procedure TFWWWGenerator.CalendarToHTML(
           ChildsAndParents : string;
           groupByGroup : boolean;
           groupLabelExpr, groupSelect, groupByCol : string;
-          colorByGroup : boolean;
           outerScopeClause : string;
+    const
+      LEGEND_COLOR_SUBJECT  = 0;
+      LEGEND_COLOR_GROUP    = 1;
+      LEGEND_COLOR_LECTURER = 2;
+      LEGEND_COLOR_FORM     = 3;
+      LEGEND_COLOR_ROOM     = 4;
     begin
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, printMode),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
@@ -1057,14 +1062,20 @@ Procedure TFWWWGenerator.CalendarToHTML(
       groupByCol  := '';
     end;
 
-    //ZMIANA_20270716: "Kolory w legendzie" (FSettings) -- when LegendColorBy=1, the legend's outer entries (and thus
-    //the colours used both here and on the calendar cells) enumerate GROUPS instead of SUBJECTS. outerScopeClause
-    //replaces the old hardcoded CLA.SUB_ID=:SUB_ID in every inner query below with the right scoping condition for
-    //whichever dimension is currently selected -- adding a future dimension (Sala/Wykladowca/Forma) means adding one
-    //more branch here and one more outer-query variant per presType, nothing else in this function changes.
-    colorByGroup := (LegendColorBy = 1);
-    if colorByGroup then
+    //ZMIANA_20270721: "Kolory w legendzie" (FSettings) -- LegendColorBy selects which dimension the legend's outer
+    //entries (and thus the colours used both here and on the calendar cells) enumerate: 0=Przedmiot (default,
+    //backward compatible), 1=Grupa, 2=Wykladowca, 3=Forma, 4=Sala. outerScopeClause replaces the old hardcoded
+    //CLA.SUB_ID=:SUB_ID in every inner query below with the right scoping condition for whichever dimension is
+    //currently selected. Adding a further dimension means adding one more branch here and one more outer-query
+    //variant per presType (LEC/GRO/ROM), nothing else in this function changes.
+    if LegendColorBy = LEGEND_COLOR_GROUP then
       outerScopeClause := 'CLA.ID in (select CLA_ID from GRO_CLA where GRO_ID = :SUB_ID and IS_CHILD=''N'') '
+    else if LegendColorBy = LEGEND_COLOR_LECTURER then
+      outerScopeClause := 'CLA.ID in (select CLA_ID from LEC_CLA where LEC_ID = :SUB_ID and IS_CHILD=''N'') '
+    else if LegendColorBy = LEGEND_COLOR_FORM then
+      outerScopeClause := 'CLA.FOR_ID    = :SUB_ID '
+    else if LegendColorBy = LEGEND_COLOR_ROOM then
+      outerScopeClause := 'CLA.ID in (select CLA_ID from ROM_CLA where ROM_ID = :SUB_ID and IS_CHILD=''N'') '
     else
       outerScopeClause := 'CLA.SUB_ID     = :SUB_ID ';
 
@@ -1081,7 +1092,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
      periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + pPeriodId ,'CLA.');
      weekVisibilityClause := UCommon.getWeekVisibilityClause(pPeriodId);
 
-     if (presType='LEC') and (not colorByGroup) then
+     if (presType='LEC') and (LegendColorBy=LEGEND_COLOR_SUBJECT) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, LEC_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
@@ -1091,7 +1102,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
 
-     if (presType='LEC') and colorByGroup then
+     if (presType='LEC') and (LegendColorBy=LEGEND_COLOR_GROUP) then
         OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
                 '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA GCO, LEC_CLA '+
                 ' WHERE LEC_CLA.CLA_ID = CLA.ID'+
@@ -1101,7 +1112,37 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY GRO.NAME');
 
-      if (presType='GRO') and (not colorByGroup) then
+     if (presType='LEC') and (LegendColorBy=LEGEND_COLOR_LECTURER) then
+        OpenSQL('SELECT DISTINCT LEC.ID, '+sql_LECNAME+' LEC_NAME, LEC.ABBREVIATION, LEC.COLOUR '+
+                '  FROM CLASSES CLA, LECTURERS LEC, LEC_CLA '+
+                ' WHERE LEC_CLA.CLA_ID = CLA.ID'+
+                '   AND LEC_CLA.LEC_ID = LEC.ID'+
+                '   AND LEC_CLA.LEC_ID in '+ChildsAndParents+
+                '   AND LEC_CLA.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY LEC_NAME');
+
+     if (presType='LEC') and (LegendColorBy=LEGEND_COLOR_FORM) then
+        OpenSQL('SELECT DISTINCT FORM.ID, FORM.NAME, FORM.ABBREVIATION, FORM.COLOUR '+
+                '  FROM CLASSES CLA, FORMS FORM, LEC_CLA '+
+                ' WHERE LEC_CLA.CLA_ID = CLA.ID'+
+                '   AND LEC_CLA.LEC_ID in '+ChildsAndParents+
+                '   AND LEC_CLA.IS_CHILD = ''N'' '+
+                '   AND FORM.ID = CLA.FOR_ID '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY FORM.NAME');
+
+     if (presType='LEC') and (LegendColorBy=LEGEND_COLOR_ROOM) then
+        OpenSQL('SELECT DISTINCT ROM.ID, ROM.NAME, ROM.NAME, ROM.COLOUR '+
+                '  FROM CLASSES CLA, ROOMS ROM, ROM_CLA RCO, LEC_CLA '+
+                ' WHERE LEC_CLA.CLA_ID = CLA.ID'+
+                '   AND LEC_CLA.LEC_ID in '+ChildsAndParents+
+                '   AND LEC_CLA.IS_CHILD = ''N'' '+
+                '   AND RCO.CLA_ID = CLA.ID AND RCO.ROM_ID = ROM.ID AND RCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY ROM.NAME');
+
+      if (presType='GRO') and (LegendColorBy=LEGEND_COLOR_SUBJECT) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, GRO_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
@@ -1111,7 +1152,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
 
-      if (presType='GRO') and colorByGroup then
+      if (presType='GRO') and (LegendColorBy=LEGEND_COLOR_GROUP) then
         OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
                 '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA '+
                 ' WHERE GRO_CLA.CLA_ID = CLA.ID'+
@@ -1121,7 +1162,37 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY GRO.NAME');
 
-      if (presType='ROM') and (not colorByGroup) then
+      if (presType='GRO') and (LegendColorBy=LEGEND_COLOR_LECTURER) then
+        OpenSQL('SELECT DISTINCT LEC.ID, '+sql_LECNAME+' LEC_NAME, LEC.ABBREVIATION, LEC.COLOUR '+
+                '  FROM CLASSES CLA, LECTURERS LEC, LEC_CLA LCO, GRO_CLA '+
+                ' WHERE GRO_CLA.CLA_ID = CLA.ID'+
+                '   AND GRO_CLA.GRO_ID in '+ChildsAndParents+
+                '   AND GRO_CLA.IS_CHILD = ''N'' '+
+                '   AND LCO.CLA_ID = CLA.ID AND LCO.LEC_ID = LEC.ID AND LCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY LEC_NAME');
+
+      if (presType='GRO') and (LegendColorBy=LEGEND_COLOR_FORM) then
+        OpenSQL('SELECT DISTINCT FORM.ID, FORM.NAME, FORM.ABBREVIATION, FORM.COLOUR '+
+                '  FROM CLASSES CLA, FORMS FORM, GRO_CLA '+
+                ' WHERE GRO_CLA.CLA_ID = CLA.ID'+
+                '   AND GRO_CLA.GRO_ID in '+ChildsAndParents+
+                '   AND GRO_CLA.IS_CHILD = ''N'' '+
+                '   AND FORM.ID = CLA.FOR_ID '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY FORM.NAME');
+
+      if (presType='GRO') and (LegendColorBy=LEGEND_COLOR_ROOM) then
+        OpenSQL('SELECT DISTINCT ROM.ID, ROM.NAME, ROM.NAME, ROM.COLOUR '+
+                '  FROM CLASSES CLA, ROOMS ROM, ROM_CLA RCO, GRO_CLA '+
+                ' WHERE GRO_CLA.CLA_ID = CLA.ID'+
+                '   AND GRO_CLA.GRO_ID in '+ChildsAndParents+
+                '   AND GRO_CLA.IS_CHILD = ''N'' '+
+                '   AND RCO.CLA_ID = CLA.ID AND RCO.ROM_ID = ROM.ID AND RCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY ROM.NAME');
+
+      if (presType='ROM') and (LegendColorBy=LEGEND_COLOR_SUBJECT) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
@@ -1131,7 +1202,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
 
-      if (presType='ROM') and colorByGroup then
+      if (presType='ROM') and (LegendColorBy=LEGEND_COLOR_GROUP) then
         OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
                 '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA GCO, ROM_CLA '+
                 ' WHERE ROM_CLA.CLA_ID = CLA.ID'+
@@ -1140,6 +1211,36 @@ Procedure TFWWWGenerator.CalendarToHTML(
                 '   AND GCO.CLA_ID = CLA.ID AND GCO.GRO_ID = GRO.ID AND GCO.IS_CHILD = ''N'' '+
                 '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY GRO.NAME');
+
+      if (presType='ROM') and (LegendColorBy=LEGEND_COLOR_LECTURER) then
+        OpenSQL('SELECT DISTINCT LEC.ID, '+sql_LECNAME+' LEC_NAME, LEC.ABBREVIATION, LEC.COLOUR '+
+                '  FROM CLASSES CLA, LECTURERS LEC, LEC_CLA LCO, ROM_CLA '+
+                ' WHERE ROM_CLA.CLA_ID = CLA.ID'+
+                '   AND ROM_CLA.ROM_ID in '+ChildsAndParents+
+                '   AND ROM_CLA.IS_CHILD = ''N'' '+
+                '   AND LCO.CLA_ID = CLA.ID AND LCO.LEC_ID = LEC.ID AND LCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY LEC_NAME');
+
+      if (presType='ROM') and (LegendColorBy=LEGEND_COLOR_FORM) then
+        OpenSQL('SELECT DISTINCT FORM.ID, FORM.NAME, FORM.ABBREVIATION, FORM.COLOUR '+
+                '  FROM CLASSES CLA, FORMS FORM, ROM_CLA '+
+                ' WHERE ROM_CLA.CLA_ID = CLA.ID'+
+                '   AND ROM_CLA.ROM_ID in '+ChildsAndParents+
+                '   AND ROM_CLA.IS_CHILD = ''N'' '+
+                '   AND FORM.ID = CLA.FOR_ID '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY FORM.NAME');
+
+      if (presType='ROM') and (LegendColorBy=LEGEND_COLOR_ROOM) then
+        OpenSQL('SELECT DISTINCT ROM.ID, ROM.NAME, ROM.NAME, ROM.COLOUR '+
+                '  FROM CLASSES CLA, ROOMS ROM, ROM_CLA '+
+                ' WHERE ROM_CLA.CLA_ID = CLA.ID'+
+                '   AND ROM_CLA.ROM_ID = ROM.ID'+
+                '   AND ROM_CLA.ROM_ID in '+ChildsAndParents+
+                '   AND ROM_CLA.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY ROM.NAME');
 
      While Not QWork.Eof Do Begin
       LegendRowNumber := LegendRowNumber + 1;

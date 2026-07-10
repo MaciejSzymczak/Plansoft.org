@@ -1,0 +1,1361 @@
+inherited FBrowsePERIODS: TFBrowsePERIODS
+  Left = 673
+  Top = 232
+  Width = 969
+  Height = 733
+  Caption = 'Okresy'
+  PixelsPerInch = 96
+  TextHeight = 14
+  inherited Status: TPanel
+    Top = 683
+    Width = 961
+  end
+  inherited MainPage: TPageControl
+    Width = 961
+    Height = 683
+    ActivePage = Update
+    inherited Browse: TTabSheet
+      inherited TopPanel: TPanel
+        Width = 953
+      end
+      inherited Grid: TRxDBGrid
+        Width = 953
+        Height = 501
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'NAME'
+            Title.Caption = 'Nazwa'
+            Width = 400
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DATE_FROM'
+            Title.Caption = 'Data od'
+            Width = 80
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'DATE_TO'
+            Title.Caption = 'Data do'
+            Width = 80
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CLASSES_CNT'
+            Title.Caption = 'Liczba zaj'#281#263
+            Width = 80
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'HOURS_PER_DAY'
+            Title.Caption = 'Bloki'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_MON'
+            Title.Caption = 'Pon.'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_TUE'
+            Title.Caption = 'Wt.'
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_WED'
+            Title.Caption = #346'r.'
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_THU'
+            Title.Caption = 'Czw.'
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_FRI'
+            Title.Caption = 'Pt.'
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_SAT'
+            Title.Caption = 'Sob.'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SHOW_SUN'
+            Title.Caption = 'Nd.'
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CREATED_BY'
+            Title.Caption = 'Utworzy'#322
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'LOCKED_FLAG'
+            Title.Caption = 'Zablokowane'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ROLE'
+            Title.Caption = 'Domy'#347'lna autoryzacja'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_01'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_02'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_03'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_04'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_05'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_06'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_07'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_08'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_09'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_10'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_11'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_12'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_13'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_14'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBS_15'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_01'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_02'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_03'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_04'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_05'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_06'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_07'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_08'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_09'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_10'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_11'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_12'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_13'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_14'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBD_15'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_01'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_02'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_03'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_04'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_05'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_06'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_07'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_08'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_09'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_10'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_11'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_12'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_13'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_14'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ATTRIBN_15'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ID'
+            Title.Caption = 'Kol. wpr.'
+            Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'INTEGRATION_ID'
+            Title.Caption = 'Integration Id'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SC'
+            Title.Caption = 'Jednostka'
+            Width = 200
+            Visible = True
+          end>
+      end
+      inherited BottomPanel: TPanel
+        Top = 615
+        Width = 953
+      end
+      inherited Panel: TPanel
+        Top = 596
+        Width = 953
+        inherited StatusBar: TStatusBar
+          Width = 884
+        end
+      end
+      inherited CustomPanel: TPanel
+        Width = 953
+      end
+      inherited SecondRatePanel: TPanel
+        Width = 953
+        inherited BChild3: TBitBtn
+          Width = 90
+          Visible = True
+        end
+        inherited BChild2: TBitBtn
+          Glyph.Data = {
+            86050000424DC605000000000000B60000002800000012000000120000000100
+            2000000000001005000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+            C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFFFF00FFFF
+            FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0
+            C000C0C0C000FFFFFF00C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00808080008080800080808000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C00080808000808080008080
+            800080808000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080
+            8000808080008080800080808000808080008080800080808000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00C0C0C00080808000C0C0C000FFFFFF00C0C0C000C0C0C000808080008080
+            800080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00808080008080800080808000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080800080808000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000808080008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF008080
+            8000C0C0C000C0C0C00080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00C0C0C000C0C0C000FFFFFF00FFFFFF00C0C0C000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00808080008080800080808000C0C0
+            C000FFFFFF00FFFFFF00C0C0C00080808000FFFFFF00FFFFFF0080808000C0C0
+            C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000FFFF
+            FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00C0C0C000808080008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF008080
+            8000FFFFFF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00C0C0C00080808000C0C0C000C0C0C000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00}
+        end
+      end
+    end
+    inherited Update: TTabSheet
+      object LabelID: TLabel [0]
+        Left = 656
+        Top = 8
+        Width = 166
+        Height = 14
+        Caption = 'Kol. wpr.:........................................'
+        FocusControl = ID
+        Visible = False
+      end
+      object LabelNAME: TLabel [1]
+        Left = 110
+        Top = 8
+        Width = 35
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Nazwa'
+        FocusControl = NAME
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object LabelDATE_FROM: TLabel [2]
+        Left = 108
+        Top = 32
+        Width = 37
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Data od'
+        FocusControl = DATE_FROM
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object LabelDATE_TO: TLabel [3]
+        Left = 108
+        Top = 56
+        Width = 37
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Data do'
+        FocusControl = DATE_TO
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label2: TLabel [4]
+        Left = 9
+        Top = 80
+        Width = 136
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Liczba blok'#243'w godz. w dniu'
+      end
+      object LabelROL_ID: TLabel [5]
+        Left = 42
+        Top = 219
+        Width = 103
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Domy'#347'lna autoryzacja'
+        FocusControl = ROL_ID
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label1: TLabel [6]
+        Left = 42
+        Top = 128
+        Width = 103
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Widoczno'#347#263' wierszy'
+      end
+      object SpeedButton4: TSpeedButton [7]
+        Left = 600
+        Top = 68
+        Width = 25
+        Height = 26
+        AllowAllUp = True
+        GroupIndex = 1
+        Glyph.Data = {
+          76060000424D7606000000000000360000002800000014000000140000000100
+          2000000000004006000000000000000000000000000000000000FFFEFE00FEFE
+          FF00FFFEFD00FDFCF900FFFFFF00FDFEFB00EEDBC300E6BB8500DAA56A00D499
+          6000D7955D00D19C6500D8A97900E3C1A400E5E2DB00F2F8FA00FEFDFC00FFFF
+          FE00FEFEFE00FEFEFE00F8FDFE00FFFEF600F6FAFC00F6FFFF00F0DFC400DE9F
+          5600E2883300ED8F3600F59B3E00FAA04300FC9F4600F7A04100F2983C00E188
+          4000CE884F00D9B39000DAE6E600F6F9FB00FBFFF900F9FDFE00F8FEFC00F6FB
+          F900FFFFFC00E7C68D00D8872A00F79D3500FFAA5300FFAA5900FFAD5700FFAE
+          5500FFAF5500FFB05A00FFB25F00FFB36100FCAA5800E0864500C5926A00D4DA
+          CD00FCF2F800FEFEFF00FCFCF700F6FFFF00E1BE8900E58A1E00FEAC4C00FDAD
+          5600FDA94E00FEAA4F00F7AA5800ECAA5C00F0AB5B00F7AE5E00FCAF6000FEB1
+          6200FBB56600FDB96E00F09A3F00CD876200D6D5D700F3FBF400FDFFFF00E7D3
+          AA00D7882500FFAE5500FAAC5700FCAB5300FEAE5500FBAA5200ECBB7E00F6ED
+          D100F5EDDD00EFCE9200F3AF5F00FFB36700FDB66400F7B56900FCBF7300EA95
+          4C00BE936E00E4E5E200F8F5E600E4943000F8A94900FAAD5900FEAD5500FCAE
+          5700FAB05D00FAAC5400E6C39200FDFFFF00FBFFFF00F2D6AB00F5AC6400FCB7
+          6C00FBB96900FFB56F00F5B57600F9C37500E0884700E1B29C00E0C49800EF92
+          2800FDB26200FAAC5D00FEAF5D00FCB05F00FCB36000FDB15E00F3BB7800F7DD
+          AE00F4DDB900F7C48B00FEB06A00FBBA6E00F9BB7200FEB97500FABB7500FBC0
+          7C00F4AD6600CE8A5F00DEA65800F8A34900FEB16100FDB06100FEB26300FDB3
+          6300FDB46400FDB36A00FBB46800F3B06300EEAE6A00F2B46F00FFB97200FCBB
+          7100FABB7900FEBB7B00FBBD7B00FBBF7C00FFC28000D1895200EA9E2F00FEB0
+          5E00FDB16400FEB36200FEB46700FDB56800FEB86900FAB36600F2CD9D00F9F1
+          DF00F9F0E200F3D6AA00F5B37700FBBE7D00FBBD7E00FDBE7F00FDC07F00FDC0
+          7F00FEC98900E4975100EC9C3000FEB66100FBB66300FEB36800FEB56900FDB7
+          6C00FEBA7000F9B76C00F0C5A000F8FFFF00F6FFFF00F9F4E700E6BE9200FBBC
+          7D00FFC28100FBC08300FBC18300FCC28400FECB8F00EAA15800E99C3700FFB8
+          6600FBB56C00FEB66E00FEB96D00FEBA7200FDBB7500FCBD7700F6B67800F2DB
+          B600FCFFFA00FBFEFF00FBF4E300F2C69700FAC08300FBC38600FBC48800FCC5
+          8800FECE9300E9A15B00E59C3B00FEB86800FCB57600FDBA7000FDBB7200FCBC
+          7600FBBD7900FCBD7B00FFC27600F5BB7B00F2DABE00FAFDFC00FCFFFF00FAF2
+          E100F2C49000FEC58900FDC58D00FCC58C00FED19700E29A5900E8A74D00F7B1
+          5F00FEBB7A00FDBE7000FCBE7800FBBF7A00FCC07E00FABB7B00F3C07C00FFC1
+          8200F5BA8000F8E9D700F6FEFE00F6FFFC00F2D6AD00FCC48A00FEC99200FDC8
+          9100FFCF9800D2905200EAC38300EDA14300FBC28500FCBB7C00FDC17B00FCC2
+          7700F1C79800F6DFBF00EDC99B00F3C38B00F3C58E00FAECDA00FAFDFE00F9FE
+          FE00F3D8BA00FBC29600F8CD9300FDCDA100F8BF8300CF935C00F3F1DF00DF9A
+          3200FFC17100F6C08900FBC08500FEC07C00EECA9C00FBFFFF00FCFCF700F7F2
+          E500F6F5ED00FAFEFE00F9FFFF00FCFCF200F4D0A700FBCC9500FCC7A000FFDB
+          A200DC954F00E9C5A300F9FFFF00EDCE9400E2973400FCCC8C00FBC28A00FEC0
+          8400F4C89400F3EDE200F9F9F700FCFFFE00F9FFFF00FAFBF900FAF5E800F0D8
+          B800F8CA9A00FECE9600FEDCAE00E5AE6B00DC9B6B00FEFDF600FCFCFC00FDFF
+          FD00DEB97200EA9D3400FFCD8F00FCCB9200FBC39100F5C49300F7CD9E00F9D4
+          AC00F9D6B000F7D2AF00F7CC9E00FACB9500FFCEA500FFDCB300EBB36900D292
+          5B00F7F2EB00FFFCFF00FFFDFD00FCFCFE00FFFFFB00E4BE7D00D9983B00F8C1
+          7000FCD29D00FDD1A100FECD9D00FBCB9E00F9CC9F00FED09F00FCD6AB00FCDA
+          B100FCD09B00DDA25700D39D6400FBF2E900F8FFFF00FEFCFC00FEFEFE00FEFE
+          FD00FDFDFE00FFFFFF00ECDEB300D4A64E00E29E4900EFB46700F8C67D00FACC
+          8D00F5CB9600F6C88D00F2BD7500E4A65800D5994D00E0C29200FBFFF200F3FE
+          FF00F6FDFB00FEFEFB00FEFFFE00FEFEFE00FEFEFD00F8FDFA00FCFFFF00FCFB
+          FE00EEDDB100E4BD7800DEAE6500DCA85600E4AB5000DAA96200E2B47500EACF
+          A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = SpeedButton4Click
+      end
+      object Label3: TLabel [8]
+        Left = 34
+        Top = 152
+        Width = 111
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Siatka: W'#322'asne etykiety'
+      end
+      object FHelp: TSpeedButton [9]
+        Left = 457
+        Top = 0
+        Width = 25
+        Height = 25
+        Hint = 'Kto i kiedy utworzy'#322' rekord'
+        AllowAllUp = True
+        GroupIndex = 1
+        Glyph.Data = {
+          76060000424D7606000000000000360000002800000014000000140000000100
+          2000000000004006000000000000000000000000000000000000FFFEFE00FEFE
+          FF00FFFEFD00FDFCF900FFFFFF00FDFEFB00EEDBC300E6BB8500DAA56A00D499
+          6000D7955D00D19C6500D8A97900E3C1A400E5E2DB00F2F8FA00FEFDFC00FFFF
+          FE00FEFEFE00FEFEFE00F8FDFE00FFFEF600F6FAFC00F6FFFF00F0DFC400DE9F
+          5600E2883300ED8F3600F59B3E00FAA04300FC9F4600F7A04100F2983C00E188
+          4000CE884F00D9B39000DAE6E600F6F9FB00FBFFF900F9FDFE00F8FEFC00F6FB
+          F900FFFFFC00E7C68D00D8872A00F79D3500FFAA5300FFAA5900FFAD5700FFAE
+          5500FFAF5500FFB05A00FFB25F00FFB36100FCAA5800E0864500C5926A00D4DA
+          CD00FCF2F800FEFEFF00FCFCF700F6FFFF00E1BE8900E58A1E00FEAC4C00FDAD
+          5600FDA94E00FEAA4F00F7AA5800ECAA5C00F0AB5B00F7AE5E00FCAF6000FEB1
+          6200FBB56600FDB96E00F09A3F00CD876200D6D5D700F3FBF400FDFFFF00E7D3
+          AA00D7882500FFAE5500FAAC5700FCAB5300FEAE5500FBAA5200ECBB7E00F6ED
+          D100F5EDDD00EFCE9200F3AF5F00FFB36700FDB66400F7B56900FCBF7300EA95
+          4C00BE936E00E4E5E200F8F5E600E4943000F8A94900FAAD5900FEAD5500FCAE
+          5700FAB05D00FAAC5400E6C39200FDFFFF00FBFFFF00F2D6AB00F5AC6400FCB7
+          6C00FBB96900FFB56F00F5B57600F9C37500E0884700E1B29C00E0C49800EF92
+          2800FDB26200FAAC5D00FEAF5D00FCB05F00FCB36000FDB15E00F3BB7800F7DD
+          AE00F4DDB900F7C48B00FEB06A00FBBA6E00F9BB7200FEB97500FABB7500FBC0
+          7C00F4AD6600CE8A5F00DEA65800F8A34900FEB16100FDB06100FEB26300FDB3
+          6300FDB46400FDB36A00FBB46800F3B06300EEAE6A00F2B46F00FFB97200FCBB
+          7100FABB7900FEBB7B00FBBD7B00FBBF7C00FFC28000D1895200EA9E2F00FEB0
+          5E00FDB16400FEB36200FEB46700FDB56800FEB86900FAB36600F2CD9D00F9F1
+          DF00F9F0E200F3D6AA00F5B37700FBBE7D00FBBD7E00FDBE7F00FDC07F00FDC0
+          7F00FEC98900E4975100EC9C3000FEB66100FBB66300FEB36800FEB56900FDB7
+          6C00FEBA7000F9B76C00F0C5A000F8FFFF00F6FFFF00F9F4E700E6BE9200FBBC
+          7D00FFC28100FBC08300FBC18300FCC28400FECB8F00EAA15800E99C3700FFB8
+          6600FBB56C00FEB66E00FEB96D00FEBA7200FDBB7500FCBD7700F6B67800F2DB
+          B600FCFFFA00FBFEFF00FBF4E300F2C69700FAC08300FBC38600FBC48800FCC5
+          8800FECE9300E9A15B00E59C3B00FEB86800FCB57600FDBA7000FDBB7200FCBC
+          7600FBBD7900FCBD7B00FFC27600F5BB7B00F2DABE00FAFDFC00FCFFFF00FAF2
+          E100F2C49000FEC58900FDC58D00FCC58C00FED19700E29A5900E8A74D00F7B1
+          5F00FEBB7A00FDBE7000FCBE7800FBBF7A00FCC07E00FABB7B00F3C07C00FFC1
+          8200F5BA8000F8E9D700F6FEFE00F6FFFC00F2D6AD00FCC48A00FEC99200FDC8
+          9100FFCF9800D2905200EAC38300EDA14300FBC28500FCBB7C00FDC17B00FCC2
+          7700F1C79800F6DFBF00EDC99B00F3C38B00F3C58E00FAECDA00FAFDFE00F9FE
+          FE00F3D8BA00FBC29600F8CD9300FDCDA100F8BF8300CF935C00F3F1DF00DF9A
+          3200FFC17100F6C08900FBC08500FEC07C00EECA9C00FBFFFF00FCFCF700F7F2
+          E500F6F5ED00FAFEFE00F9FFFF00FCFCF200F4D0A700FBCC9500FCC7A000FFDB
+          A200DC954F00E9C5A300F9FFFF00EDCE9400E2973400FCCC8C00FBC28A00FEC0
+          8400F4C89400F3EDE200F9F9F700FCFFFE00F9FFFF00FAFBF900FAF5E800F0D8
+          B800F8CA9A00FECE9600FEDCAE00E5AE6B00DC9B6B00FEFDF600FCFCFC00FDFF
+          FD00DEB97200EA9D3400FFCD8F00FCCB9200FBC39100F5C49300F7CD9E00F9D4
+          AC00F9D6B000F7D2AF00F7CC9E00FACB9500FFCEA500FFDCB300EBB36900D292
+          5B00F7F2EB00FFFCFF00FFFDFD00FCFCFE00FFFFFB00E4BE7D00D9983B00F8C1
+          7000FCD29D00FDD1A100FECD9D00FBCB9E00F9CC9F00FED09F00FCD6AB00FCDA
+          B100FCD09B00DDA25700D39D6400FBF2E900F8FFFF00FEFCFC00FEFEFE00FEFE
+          FD00FDFDFE00FFFFFF00ECDEB300D4A64E00E29E4900EFB46700F8C67D00FACC
+          8D00F5CB9600F6C88D00F2BD7500E4A65800D5994D00E0C29200FBFFF200F3FE
+          FF00F6FDFB00FEFEFB00FEFFFE00FEFEFE00FEFEFD00F8FDFA00FCFFFF00FCFB
+          FE00EEDDB100E4BD7800DEAE6500DCA85600E4AB5000DAA96200E2B47500EACF
+          A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = FHelpClick
+      end
+      object SpeedButton2: TSpeedButton [10]
+        Left = 433
+        Top = 208
+        Width = 25
+        Height = 25
+        Hint = 'Kto i kiedy utworzy'#322' rekord'
+        AllowAllUp = True
+        GroupIndex = 1
+        Glyph.Data = {
+          76060000424D7606000000000000360000002800000014000000140000000100
+          2000000000004006000000000000000000000000000000000000FFFEFE00FEFE
+          FF00FFFEFD00FDFCF900FFFFFF00FDFEFB00EEDBC300E6BB8500DAA56A00D499
+          6000D7955D00D19C6500D8A97900E3C1A400E5E2DB00F2F8FA00FEFDFC00FFFF
+          FE00FEFEFE00FEFEFE00F8FDFE00FFFEF600F6FAFC00F6FFFF00F0DFC400DE9F
+          5600E2883300ED8F3600F59B3E00FAA04300FC9F4600F7A04100F2983C00E188
+          4000CE884F00D9B39000DAE6E600F6F9FB00FBFFF900F9FDFE00F8FEFC00F6FB
+          F900FFFFFC00E7C68D00D8872A00F79D3500FFAA5300FFAA5900FFAD5700FFAE
+          5500FFAF5500FFB05A00FFB25F00FFB36100FCAA5800E0864500C5926A00D4DA
+          CD00FCF2F800FEFEFF00FCFCF700F6FFFF00E1BE8900E58A1E00FEAC4C00FDAD
+          5600FDA94E00FEAA4F00F7AA5800ECAA5C00F0AB5B00F7AE5E00FCAF6000FEB1
+          6200FBB56600FDB96E00F09A3F00CD876200D6D5D700F3FBF400FDFFFF00E7D3
+          AA00D7882500FFAE5500FAAC5700FCAB5300FEAE5500FBAA5200ECBB7E00F6ED
+          D100F5EDDD00EFCE9200F3AF5F00FFB36700FDB66400F7B56900FCBF7300EA95
+          4C00BE936E00E4E5E200F8F5E600E4943000F8A94900FAAD5900FEAD5500FCAE
+          5700FAB05D00FAAC5400E6C39200FDFFFF00FBFFFF00F2D6AB00F5AC6400FCB7
+          6C00FBB96900FFB56F00F5B57600F9C37500E0884700E1B29C00E0C49800EF92
+          2800FDB26200FAAC5D00FEAF5D00FCB05F00FCB36000FDB15E00F3BB7800F7DD
+          AE00F4DDB900F7C48B00FEB06A00FBBA6E00F9BB7200FEB97500FABB7500FBC0
+          7C00F4AD6600CE8A5F00DEA65800F8A34900FEB16100FDB06100FEB26300FDB3
+          6300FDB46400FDB36A00FBB46800F3B06300EEAE6A00F2B46F00FFB97200FCBB
+          7100FABB7900FEBB7B00FBBD7B00FBBF7C00FFC28000D1895200EA9E2F00FEB0
+          5E00FDB16400FEB36200FEB46700FDB56800FEB86900FAB36600F2CD9D00F9F1
+          DF00F9F0E200F3D6AA00F5B37700FBBE7D00FBBD7E00FDBE7F00FDC07F00FDC0
+          7F00FEC98900E4975100EC9C3000FEB66100FBB66300FEB36800FEB56900FDB7
+          6C00FEBA7000F9B76C00F0C5A000F8FFFF00F6FFFF00F9F4E700E6BE9200FBBC
+          7D00FFC28100FBC08300FBC18300FCC28400FECB8F00EAA15800E99C3700FFB8
+          6600FBB56C00FEB66E00FEB96D00FEBA7200FDBB7500FCBD7700F6B67800F2DB
+          B600FCFFFA00FBFEFF00FBF4E300F2C69700FAC08300FBC38600FBC48800FCC5
+          8800FECE9300E9A15B00E59C3B00FEB86800FCB57600FDBA7000FDBB7200FCBC
+          7600FBBD7900FCBD7B00FFC27600F5BB7B00F2DABE00FAFDFC00FCFFFF00FAF2
+          E100F2C49000FEC58900FDC58D00FCC58C00FED19700E29A5900E8A74D00F7B1
+          5F00FEBB7A00FDBE7000FCBE7800FBBF7A00FCC07E00FABB7B00F3C07C00FFC1
+          8200F5BA8000F8E9D700F6FEFE00F6FFFC00F2D6AD00FCC48A00FEC99200FDC8
+          9100FFCF9800D2905200EAC38300EDA14300FBC28500FCBB7C00FDC17B00FCC2
+          7700F1C79800F6DFBF00EDC99B00F3C38B00F3C58E00FAECDA00FAFDFE00F9FE
+          FE00F3D8BA00FBC29600F8CD9300FDCDA100F8BF8300CF935C00F3F1DF00DF9A
+          3200FFC17100F6C08900FBC08500FEC07C00EECA9C00FBFFFF00FCFCF700F7F2
+          E500F6F5ED00FAFEFE00F9FFFF00FCFCF200F4D0A700FBCC9500FCC7A000FFDB
+          A200DC954F00E9C5A300F9FFFF00EDCE9400E2973400FCCC8C00FBC28A00FEC0
+          8400F4C89400F3EDE200F9F9F700FCFFFE00F9FFFF00FAFBF900FAF5E800F0D8
+          B800F8CA9A00FECE9600FEDCAE00E5AE6B00DC9B6B00FEFDF600FCFCFC00FDFF
+          FD00DEB97200EA9D3400FFCD8F00FCCB9200FBC39100F5C49300F7CD9E00F9D4
+          AC00F9D6B000F7D2AF00F7CC9E00FACB9500FFCEA500FFDCB300EBB36900D292
+          5B00F7F2EB00FFFCFF00FFFDFD00FCFCFE00FFFFFB00E4BE7D00D9983B00F8C1
+          7000FCD29D00FDD1A100FECD9D00FBCB9E00F9CC9F00FED09F00FCD6AB00FCDA
+          B100FCD09B00DDA25700D39D6400FBF2E900F8FFFF00FEFCFC00FEFEFE00FEFE
+          FD00FDFDFE00FFFFFF00ECDEB300D4A64E00E29E4900EFB46700F8C67D00FACC
+          8D00F5CB9600F6C88D00F2BD7500E4A65800D5994D00E0C29200FBFFF200F3FE
+          FF00F6FDFB00FEFEFB00FEFFFE00FEFEFE00FEFEFD00F8FDFA00FCFFFF00FCFB
+          FE00EEDDB100E4BD7800DEAE6500DCA85600E4AB5000DAA96200E2B47500EACF
+          A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = SpeedButton2Click
+      end
+      object Label4: TLabel [11]
+        Left = 96
+        Top = 187
+        Width = 49
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Jednostka'
+        FocusControl = PER_ORGUNI_ID
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label5: TLabel [12]
+        Left = 495
+        Top = 128
+        Width = 98
+        Height = 14
+        Alignment = taRightJustify
+        Caption = 'Widoczno'#347#263' tygodni'
+      end
+      object HIDE_ROWS_BTN: TSpeedButton [13]
+        Left = 458
+        Top = 128
+        Width = 34
+        Height = 22
+        Caption = '...'
+        Flat = True
+        OnClick = HIDE_ROWS_BTNClick
+      end
+      object WEEK_VISIBILITY_BTN: TSpeedButton [14]
+        Left = 906
+        Top = 128
+        Width = 34
+        Height = 22
+        Caption = '...'
+        Flat = True
+        OnClick = WEEK_VISIBILITY_BTNClick
+      end
+      inherited UpdPanel: TPanel
+        Top = 619
+        Width = 953
+        TabOrder = 7
+        inherited BUpdChild1: TBitBtn
+          Caption = 'Finanse'
+          Visible = True
+        end
+        inherited BUpdChild2: TBitBtn
+          Caption = 'Dost'#281'p'
+          Visible = True
+          Glyph.Data = {
+            86050000424DC605000000000000B60000002800000012000000120000000100
+            2000000000001005000000000000000000001000000000000000000000000000
+            8000008000000080800080000000800080008080000080808000C0C0C0000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+            C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0080808000FFFFFF00FFFF
+            FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0
+            C000C0C0C000FFFFFF00C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00808080008080800080808000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C00080808000808080008080
+            800080808000C0C0C000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080
+            8000808080008080800080808000808080008080800080808000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00C0C0C00080808000C0C0C000FFFFFF00C0C0C000C0C0C000808080008080
+            800080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00808080008080800080808000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080800080808000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C0008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000808080008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF008080
+            8000C0C0C000C0C0C00080808000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00C0C0C00080808000C0C0C000FFFFFF00FFFFFF00FFFF
+            FF00C0C0C000C0C0C000FFFFFF00FFFFFF00C0C0C000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00808080008080800080808000C0C0
+            C000FFFFFF00FFFFFF00C0C0C00080808000FFFFFF00FFFFFF0080808000C0C0
+            C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000FFFF
+            FF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00C0C0C000808080008080
+            8000C0C0C000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF008080
+            8000FFFFFF00FFFFFF00FFFFFF0080808000FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00C0C0C00080808000C0C0C000C0C0C000C0C0C000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00C0C0C000C0C0C000C0C0C000FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00}
+        end
+        inherited BUpdChild3: TBitBtn
+          Caption = 'Utw'#243'rz tygodnie'
+          Visible = True
+        end
+      end
+      inherited FlexPanel: TPanel
+        Top = 240
+        TabOrder = 11
+      end
+      object ID: TDBEdit
+        Left = 801
+        Top = 0
+        Width = 150
+        Height = 22
+        Hint = 'ID'
+        Color = clMenu
+        DataField = 'ID'
+        DataSource = Source
+        MaxLength = 10
+        ReadOnly = True
+        TabOrder = 6
+        Visible = False
+      end
+      object NAME: TDBEdit
+        Left = 153
+        Top = 0
+        Width = 300
+        Height = 22
+        Hint = 'NAZWA'
+        DataField = 'NAME'
+        DataSource = Source
+        TabOrder = 0
+      end
+      object DATE_FROM: TDBDateEdit
+        Left = 153
+        Top = 24
+        Width = 121
+        Height = 21
+        Hint = 'DATA OD'
+        DataField = 'DATE_FROM'
+        DataSource = Source
+        NumGlyphs = 2
+        TabOrder = 1
+      end
+      object DATE_TO: TDBDateEdit
+        Left = 153
+        Top = 48
+        Width = 121
+        Height = 21
+        Hint = 'DATA DO'
+        DataField = 'DATE_TO'
+        DataSource = Source
+        NumGlyphs = 2
+        TabOrder = 2
+      end
+      object GroupBox1: TGroupBox
+        Left = 504
+        Top = 0
+        Width = 225
+        Height = 97
+        Caption = 'Pokazuj dni tygodnia'
+        TabOrder = 5
+        object SHOW_MON: TDBCheckBox
+          Left = 8
+          Top = 24
+          Width = 97
+          Height = 17
+          Caption = 'Poniedzia'#322'ki'
+          DataField = 'SHOW_MON'
+          DataSource = Source
+          TabOrder = 0
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_TUE: TDBCheckBox
+          Left = 8
+          Top = 40
+          Width = 97
+          Height = 17
+          Caption = 'Wtorki'
+          DataField = 'SHOW_TUE'
+          DataSource = Source
+          TabOrder = 1
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_WED: TDBCheckBox
+          Left = 8
+          Top = 56
+          Width = 97
+          Height = 17
+          Caption = #346'rody'
+          DataField = 'SHOW_WED'
+          DataSource = Source
+          TabOrder = 2
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_THU: TDBCheckBox
+          Left = 8
+          Top = 72
+          Width = 97
+          Height = 17
+          Caption = 'Czwartki'
+          DataField = 'SHOW_THU'
+          DataSource = Source
+          TabOrder = 3
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_FRI: TDBCheckBox
+          Left = 104
+          Top = 24
+          Width = 81
+          Height = 17
+          Caption = 'Pi'#261'tki'
+          DataField = 'SHOW_FRI'
+          DataSource = Source
+          TabOrder = 4
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_SAT: TDBCheckBox
+          Left = 104
+          Top = 40
+          Width = 73
+          Height = 17
+          Caption = 'Soboty'
+          DataField = 'SHOW_SAT'
+          DataSource = Source
+          TabOrder = 5
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+        object SHOW_SUN: TDBCheckBox
+          Left = 104
+          Top = 56
+          Width = 89
+          Height = 17
+          Caption = 'Niedziele'
+          DataField = 'SHOW_SUN'
+          DataSource = Source
+          TabOrder = 6
+          ValueChecked = '+'
+          ValueUnchecked = '-'
+        end
+      end
+      object HOURS_PER_DAY: TDBEdit
+        Left = 153
+        Top = 72
+        Width = 32
+        Height = 22
+        Hint = 'LICZBA GODZIN W CI'#260'GU DNIA'
+        DataField = 'HOURS_PER_DAY'
+        DataSource = Source
+        TabOrder = 3
+      end
+      object ROL_ID: TDBEdit
+        Left = 145
+        Top = 208
+        Width = 150
+        Height = 22
+        Hint = 'DOMY'#346'LNA AUTORYZACJA'
+        DataField = 'ROL_ID'
+        DataSource = Source
+        MaxLength = 10
+        TabOrder = 8
+        Visible = False
+        OnChange = ROL_IDChange
+      end
+      object ROL_ID_VALUE: TEdit
+        Left = 152
+        Top = 208
+        Width = 257
+        Height = 22
+        Hint = 'RODZAJ'
+        ReadOnly = True
+        TabOrder = 9
+        OnClick = ROL_ID_VALUEClick
+      end
+      object BClearROL_ID: TBitBtn
+        Left = 408
+        Top = 208
+        Width = 25
+        Height = 24
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 10
+        OnClick = BClearROL_IDClick
+        Glyph.Data = {
+          DE030000424DDE03000000000000420000002800000015000000150000000100
+          1000030000009C03000000000000000000000000000000000000007C0000E003
+          00001F0000001863186318631863186318631863186318631863186318631863
+          1863186318631863186318631863186300001863007C007C007C007C007C007C
+          007C007C007C007C007C007C007C007C007C007C007C007C1863186300001863
+          1863186318631863186318631863186318631863186318631863186318631863
+          186318631863186300001863007C007C007C007C007C007C007C007C007C007C
+          007C007C007C007C007C18631863186318631863000018631863186318631863
+          1863186318631863186318631863186318631863186318631863186318631863
+          00001863186318631863007C007C007C007C007C007C007C007C007C007C007C
+          007C007C007C007C186318630000186318631863186318631863186300000000
+          1042186318631863186318631863186318631863186318630000186318631863
+          18631863186300001F0018630000104218631863186318631863186318631863
+          1863186300001863186318631863186300001F0018631F001863000010421863
+          186318631863186318631863186318630000186318631863186300001F001863
+          1F00186318631863000010421863186318631863186318631863186300001863
+          186318631863000018631F001863186318630000FF7F00001042186318631863
+          18631863186318630000186318631863186318630000FF7F186318630000FF7F
+          0000000010421863186318631863186318631863000018631863186318631863
+          18630000FF7F0000FF7F00001042000010421863186318631863186318631863
+          000018631863186318631863186318630000FF7F000010421042000010421863
+          1863186318631863186318630000186318631863186318631863186318630000
+          0000000000001042000010421863186318631863186318630000186318631863
+          1863186318631863186318631863186318630000104200001042186318631863
+          1863186300001863186318631863186318631863186318631863186318631863
+          0000104200001042186318631863186300001863186318631863186318631863
+          1863186318631863186318631863000010420000104218631863186300001863
+          1863186318631863186318631863186318631863186318631863186300000000
+          1863186318631863000018631863186318631863186318631863186318631863
+          1863186318631863186318631863186318631863000018631863186318631863
+          1863186318631863186318631863186318631863186318631863186318631863
+          0000}
+      end
+      object ChLokedFlag: TDBCheckBox
+        Left = 152
+        Top = 104
+        Width = 249
+        Height = 17
+        Caption = 'Planowanie zablokowane dla innych'
+        DataField = 'locked_flag'
+        DataSource = Source
+        TabOrder = 12
+        ValueChecked = '+'
+        ValueUnchecked = '-'
+        OnClick = ChLokedFlagClick
+      end
+      object HIDE_ROWS: TDBEdit
+        Left = 153
+        Top = 128
+        Width = 300
+        Height = 22
+        DataField = 'ATTRIBS_15'
+        DataSource = Source
+        TabOrder = 4
+      end
+      object GRID_LABELS: TDBEdit
+        Left = 153
+        Top = 152
+        Width = 792
+        Height = 22
+        DataField = 'ATTRIBS_14'
+        DataSource = Source
+        TabOrder = 13
+      end
+      object PER_ORGUNI_ID: TDBEdit
+        Left = 145
+        Top = 184
+        Width = 150
+        Height = 22
+        Hint = 'JEDNOSTKA ORGANIZACYJNA'
+        DataField = 'PER_ORGUNI_ID'
+        DataSource = Source
+        MaxLength = 10
+        TabOrder = 14
+        Visible = False
+        OnChange = PER_ORGUNI_IDChange
+      end
+      object PER_ORGUNI_ID_VALUE: TEdit
+        Left = 152
+        Top = 184
+        Width = 257
+        Height = 22
+        Hint = 'JEDNOSTKA ORGANIZACYJNA'
+        ReadOnly = True
+        TabOrder = 15
+        OnClick = PER_ORGUNI_ID_VALUEClick
+      end
+      object WEEK_VISIBILITY: TDBEdit
+        Left = 600
+        Top = 128
+        Width = 300
+        Height = 22
+        DataField = 'ATTRIBS_13'
+        DataSource = Source
+        TabOrder = 16
+      end
+    end
+  end
+  inherited Source: TDataSource
+    Left = 384
+    Top = 16
+  end
+  inherited PMenu: TPopupMenu
+    Left = 400
+    Top = 256
+  end
+  inherited HolderSortOrder: TStrHolder
+    Capacity = 8
+    Left = 632
+    Top = 64
+    StrData = (
+      ''
+      
+        '504552494f44532e435245415445445f42592c20444154455f46524f4d206465' +
+        '73637c5574776f727a79b32b44617461206f64206d616c656ab9636f'
+      '4e414d457c4e617a7761'
+      '444154455f46524f4d20646573637c44617461206f64206d616c656ab9636f'
+      '444154455f544f20646573637c4461746120646f206d616c656ab9636f'
+      '504552494f44532e494420444553437c4f737461746e696f20646f64616e65')
+  end
+  inherited GridLayout: TStrHolder
+    Left = 496
+    Top = 256
+  end
+  inherited Komunikaty: TStrHolder
+    Left = 712
+    Top = 16
+  end
+  inherited ConditionsWhereClause: TStrHolder
+    Left = 712
+    Top = 64
+  end
+  inherited AvailColumnsWhereClause: TStrHolder
+    Left = 536
+    Top = 64
+  end
+  inherited Others: TStrHolder
+    Capacity = 76
+    Left = 584
+    Top = 248
+    StrData = (
+      ''
+      '4d494e5f4845494748543d2d31'
+      '4d494e5f57494454483d2d31'
+      '4c4546543d2d31'
+      '544f503d2d31'
+      '44656c657465486f744b65793d3436'
+      '45646974486f744b65793d3133'
+      '496e73657274486f744b65793d3435'
+      '4368616e676546696c746572486f744b65793d313139'
+      '436c656172536561726368486f744b65793d3332'
+      '5570726177446f776e3d46616c7365'
+      '50616e656c446f776e3d54727565'
+      '53656172636853514c3d303d30'
+      '466f726d43617074696f6e3d'
+      '4558504f52545f44656661756c744578743d20747874'
+      
+        '4558504f52545f46696c7465723d506c696b692074656b73746f776520282a2e' +
+        '747874297c2a2e5458547c57737a7973746b696520706c696b6920282a2e2a29' +
+        '7c2a2e2a'
+      '475249445f464f4e545f434841525345543d31'
+      '475249445f464f4e545f434f4c4f523d30'
+      '475249445f464f4e545f4845494748543d2d3131'
+      '475249445f464f4e545f4e414d453d4d532053616e73205365726966'
+      '475249445f464f4e545f50495443483d667044656661756c74'
+      '475249445f464f4e545f53495a453d38'
+      '475249445f464f4e545f5354594c453d30'
+      '4b45594649454c443d4944'
+      '4d6178466574636865733d3230303030'
+      '53686f77496e666f49664d6178466574636865733d54727565'
+      '436f6d626f536f72744f726465724974656d496e6465783d2d31'
+      '4f4c454558504f5254434f4c554d4e533d'
+      '4d61784e756d65724f665265636f726473496e477269643d32303030'
+      '5365636f6e645261746550616e656c446f776e3d54727565'
+      '414c4941533a4e414d453d504552494f44532e4e414d45'
+      
+        '414c4941533a435245415445445f42593d504552494f44532e43524541544544' +
+        '5f4259'
+      
+        '414c4941533a415454524942535f30313d504552494f44532e41545452494253' +
+        '5f3031'
+      
+        '414c4941533a415454524942535f30323d504552494f44532e41545452494253' +
+        '5f3032'
+      
+        '414c4941533a415454524942535f30333d504552494f44532e41545452494253' +
+        '5f3033'
+      
+        '414c4941533a415454524942535f30343d504552494f44532e41545452494253' +
+        '5f3034'
+      
+        '414c4941533a415454524942535f30353d504552494f44532e41545452494253' +
+        '5f3035'
+      
+        '414c4941533a415454524942535f30363d504552494f44532e41545452494253' +
+        '5f3036'
+      
+        '414c4941533a415454524942535f30373d504552494f44532e41545452494253' +
+        '5f3037'
+      
+        '414c4941533a415454524942535f30383d504552494f44532e41545452494253' +
+        '5f3038'
+      
+        '414c4941533a415454524942535f30393d504552494f44532e41545452494253' +
+        '5f3039'
+      
+        '414c4941533a415454524942535f31303d504552494f44532e41545452494253' +
+        '5f3130'
+      
+        '414c4941533a415454524942535f31313d504552494f44532e41545452494253' +
+        '5f3131'
+      
+        '414c4941533a415454524942535f31323d504552494f44532e41545452494253' +
+        '5f3132'
+      
+        '414c4941533a415454524942535f31333d504552494f44532e41545452494253' +
+        '5f3133'
+      
+        '414c4941533a415454524942535f31343d504552494f44532e41545452494253' +
+        '5f3134'
+      
+        '414c4941533a415454524942535f31353d504552494f44532e41545452494253' +
+        '5f3135'
+      
+        '414c4941533a415454524942445f30313d504552494f44532e41545452494244' +
+        '5f3031'
+      
+        '414c4941533a415454524942445f30323d504552494f44532e41545452494244' +
+        '5f3032'
+      
+        '414c4941533a415454524942445f30333d504552494f44532e41545452494244' +
+        '5f3033'
+      
+        '414c4941533a415454524942445f30343d504552494f44532e41545452494244' +
+        '5f3034'
+      
+        '414c4941533a415454524942445f30353d504552494f44532e41545452494244' +
+        '5f3035'
+      
+        '414c4941533a415454524942445f30363d504552494f44532e41545452494244' +
+        '5f3036'
+      
+        '414c4941533a415454524942445f30373d504552494f44532e41545452494244' +
+        '5f3037'
+      
+        '414c4941533a415454524942445f30383d504552494f44532e41545452494244' +
+        '5f3038'
+      
+        '414c4941533a415454524942445f30393d504552494f44532e41545452494244' +
+        '5f3039'
+      
+        '414c4941533a415454524942445f31303d504552494f44532e41545452494244' +
+        '5f3130'
+      
+        '414c4941533a415454524942445f31313d504552494f44532e41545452494244' +
+        '5f3131'
+      
+        '414c4941533a415454524942445f31323d504552494f44532e41545452494244' +
+        '5f3132'
+      
+        '414c4941533a415454524942445f31333d504552494f44532e41545452494244' +
+        '5f3133'
+      
+        '414c4941533a415454524942445f31343d504552494f44532e41545452494244' +
+        '5f3134'
+      
+        '414c4941533a415454524942445f31353d504552494f44532e41545452494244' +
+        '5f3135'
+      
+        '414c4941533a4154545249424e5f30313d504552494f44532e4154545249424e' +
+        '5f3031'
+      
+        '414c4941533a4154545249424e5f30323d504552494f44532e4154545249424e' +
+        '5f3032'
+      
+        '414c4941533a4154545249424e5f30333d504552494f44532e4154545249424e' +
+        '5f3033'
+      
+        '414c4941533a4154545249424e5f30343d504552494f44532e4154545249424e' +
+        '5f3034'
+      
+        '414c4941533a4154545249424e5f30353d504552494f44532e4154545249424e' +
+        '5f3035'
+      
+        '414c4941533a4154545249424e5f30363d504552494f44532e4154545249424e' +
+        '5f3036'
+      
+        '414c4941533a4154545249424e5f30373d504552494f44532e4154545249424e' +
+        '5f3037'
+      
+        '414c4941533a4154545249424e5f30383d504552494f44532e4154545249424e' +
+        '5f3038'
+      
+        '414c4941533a4154545249424e5f30393d504552494f44532e4154545249424e' +
+        '5f3039'
+      
+        '414c4941533a4154545249424e5f31303d504552494f44532e4154545249424e' +
+        '5f3130'
+      
+        '414c4941533a4154545249424e5f31313d504552494f44532e4154545249424e' +
+        '5f3131'
+      
+        '414c4941533a4154545249424e5f31323d504552494f44532e4154545249424e' +
+        '5f3132'
+      
+        '414c4941533a4154545249424e5f31333d504552494f44532e4154545249424e' +
+        '5f3133'
+      
+        '414c4941533a4154545249424e5f31343d504552494f44532e4154545249424e' +
+        '5f3134'
+      
+        '414c4941533a4154545249424e5f31353d504552494f44532e4154545249424e' +
+        '5f313520')
+  end
+  inherited Messages: TStrHolder
+    Left = 632
+    Top = 16
+  end
+  inherited SearchTimer: TTimer
+    Left = 440
+    Top = 16
+  end
+  inherited Query: TADOQuery
+    CursorType = ctStatic
+    SQL.Strings = (
+      'SELECT PERIODS.*'
+      '     , PLANNERS.NAME AS ROLE'
+      
+        '     ,(select count(1) from classes where owner !='#39'AUTO'#39' and day' +
+        ' between date_from and date_to and rownum < 100) CLASSES_CNT'
+      '    , SUBSTR(ORG_UNITS.STRUCT_CODE, 1, 63) SC'
+      'FROM PERIODS'
+      ',    PLANNERS'
+      '   , ORG_UNITS'
+      'WHERE PER_ORGUNI_ID = ORG_UNITS.ID(+)'
+      
+        '   AND (PERIODS.ROL_ID = PLANNERS.ID(+)) AND %CONDITIONALS AND %' +
+        'SEARCH'
+      '   AND %CONPERMISSIONS'
+      '%SORTORDER')
+    Left = 368
+    Top = 256
+  end
+end

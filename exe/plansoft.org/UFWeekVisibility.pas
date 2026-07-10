@@ -4,15 +4,22 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, CheckLst;
+  Dialogs, StdCtrls, Buttons, CheckLst, Menus;
 
 type
   TFWeekVisibility = class(TForm)
+    LSelectAll: TLabel;
+    LDeselectAll: TLabel;
     CheckListBox1: TCheckListBox;
-    SpeedButton1: TSpeedButton;
-    SpeedButton2: TSpeedButton;
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
+    BOK: TBitBtn;
+    BCancel: TBitBtn;
+    CheckPopup: TPopupMenu;
+    MSelectAll: TMenuItem;
+    MDeselectAll: TMenuItem;
+    procedure BOKClick(Sender: TObject);
+    procedure BCancelClick(Sender: TObject);
+    procedure MSelectAllClick(Sender: TObject);
+    procedure MDeselectAllClick(Sender: TObject);
   private
     mr : TModalResult;
   public
@@ -35,18 +42,30 @@ Begin
   Result := Trunc(D) - ((dw - 2 + 7) mod 7);
 End;
 
-procedure TFWeekVisibility.SpeedButton1Click(Sender: TObject);
+procedure TFWeekVisibility.BOKClick(Sender: TObject);
 begin
  mr := mrOk;
  Close;
 end;
 
-procedure TFWeekVisibility.SpeedButton2Click(Sender: TObject);
+procedure TFWeekVisibility.BCancelClick(Sender: TObject);
 begin
  mr := mrCancel;
  Close;
 end;
 
+procedure TFWeekVisibility.MSelectAllClick(Sender: TObject);
+Var i : Integer;
+begin
+  For i := 0 to CheckListBox1.Items.Count - 1 do CheckListBox1.Checked[i] := True;
+end;
+
+procedure TFWeekVisibility.MDeselectAllClick(Sender: TObject);
+Var i : Integer;
+begin
+  For i := 0 to CheckListBox1.Items.Count - 1 do CheckListBox1.Checked[i] := False;
+end;
+                      
 function TFWeekVisibility.ShowModalWithDefaults(DateFrom, DateTo : TDateTime; var weekVisibility : string) : TModalResult;
 Var
   i, NumWeeks : Integer;
@@ -57,7 +76,7 @@ Begin
   NumWeeks := Trunc(MondayOfDate(DateTo) - StartMonday) div 7 + 1;
 
   If NumWeeks > MAX_WEEKS Then Begin
-    ShowMessage('Ukrywanie tygodni jest dostêpne maksymalnie dla '+IntToStr(MAX_WEEKS)+' tygodni (1 rok). Ten okres obejmuje '+IntToStr(NumWeeks)+' tygodni.');
+    ShowMessage('Ukrywanie tygodni jest dost'#281'pne maksymalnie dla '+IntToStr(MAX_WEEKS)+' tygodni (1 rok). Ten okres obejmuje '+IntToStr(NumWeeks)+' tygodni.');
     Result := mrCancel;
     Exit;
   End;

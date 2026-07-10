@@ -2784,6 +2784,8 @@ Begin
    BorderStyle     := bsDialog;
 
    MainPage.ActivePage := Update;
+   Update.Invalidate;  //ZMIANA_20270722: some controls (e.g. TDBCheckBox in a TGroupBox) don't repaint until the
+                       //mouse moves over them after this tab becomes visible -- force a proper redraw here instead
 
    FormResize(nil);
 

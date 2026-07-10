@@ -153,7 +153,7 @@ implementation
 Uses UUtilityParent, UFBrowseLECTURERS, UFBrowseGROUPS, UFBrowseROOMS, UFBrowseSUBJECTS, UFBrowseFORMS, UFBrowsePERIODS, UFBrowseRESERVATIONS_KINDS,
      UFBrowseCLASSES, UFBrowseCLASSES_HISTORY, UFBrowsePLANNERS, UFBrowseRESOURCE_CATEGORIES, UFBrowseORG_UNITS, UFBrowseFORM_FORMULAS, UFConsolidation, UFDataDiagram, UFBrowseVALUE_SETS
      ,UFBrowseLOOKUPS, UFBrowseFLEX_COL_USAGE, UFBrowseTT_RESCAT_COMBINATIONS, UFBrowseTT_COMBINATIONS, UFBrowseFIN_PARTIES, UFBrowseFIN_BATCHES, UFBrowseFIN_DOCS, UFBrowseFIN_LINES, UFBrowseFIN_LOOKUP_VALUES, dm,
-     UFBrowseGRIDS, UFBrowseRES_HINTS, SysUtils;
+     UFBrowseGRIDS, UFBrowseRES_HINTS, SysUtils, UFMain, QControls;
 
 procedure RES_HINTSCreate;
 begin
@@ -610,6 +610,13 @@ Begin
  PERIODSCreate;
  Result := FBrowsePERIODS.ShowModalAsSingleRecord(Action,ID);
  PERIODSFree;
+ //ZMIANA_20270722: refresh FMain's own cached period data (week_visibility, hide_rows, grid) whenever the edited
+ //period is the one currently selected on FMain -- otherwise editing PERIODS from elsewhere (e.g. FGrouping's
+ //EditPeriod button) leaves FMain showing stale data until the user manually touches FMain's own period selector.
+ If (Result = mrOK) and (not isBlank(ID)) and (ID = FMain.conPeriod.Text) Then Begin
+   FMain.conPeriodChange(FMain.conPeriod);
+   FMain.deepRefreshDelayed;
+ End;
 End;
 
 Procedure PERIODSFree;

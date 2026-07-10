@@ -4,15 +4,22 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, CheckLst;
+  Dialogs, StdCtrls, Buttons, CheckLst, Menus;
 
 type
   TFHideRows = class(TForm)
+    LSelectAll: TLabel;
+    LDeselectAll: TLabel;
     CheckListBox1: TCheckListBox;
-    SpeedButton1: TSpeedButton;
-    SpeedButton2: TSpeedButton;
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
+    BOK: TBitBtn;
+    BCancel: TBitBtn;
+    CheckPopup: TPopupMenu;
+    MSelectAll: TMenuItem;
+    MDeselectAll: TMenuItem;
+    procedure BOKClick(Sender: TObject);
+    procedure BCancelClick(Sender: TObject);
+    procedure MSelectAllClick(Sender: TObject);
+    procedure MDeselectAllClick(Sender: TObject);
   private
     mr : TModalResult;
   public
@@ -28,16 +35,28 @@ uses DM;
 
 {$R *.dfm}
 
-procedure TFHideRows.SpeedButton1Click(Sender: TObject);
+procedure TFHideRows.BOKClick(Sender: TObject);
 begin
  mr := mrOk;
  Close;
 end;
 
-procedure TFHideRows.SpeedButton2Click(Sender: TObject);
+procedure TFHideRows.BCancelClick(Sender: TObject);
 begin
  mr := mrCancel;
  Close;
+end;
+
+procedure TFHideRows.MSelectAllClick(Sender: TObject);
+Var i : Integer;
+begin
+  For i := 0 to CheckListBox1.Items.Count - 1 do CheckListBox1.Checked[i] := True;
+end;
+
+procedure TFHideRows.MDeselectAllClick(Sender: TObject);
+Var i : Integer;
+begin
+  For i := 0 to CheckListBox1.Items.Count - 1 do CheckListBox1.Checked[i] := False;
 end;
 
 function TFHideRows.ShowModalWithDefaults(BlocksPerDay : Integer; var hideRows : string) : TModalResult;

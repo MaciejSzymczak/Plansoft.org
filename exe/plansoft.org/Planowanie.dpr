@@ -104,7 +104,8 @@ uses
   UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY},
   FVersions in 'FVersions.pas' {FVersion},
   UFCustomConnectionString in 'UFCustomConnectionString.pas' {FCustomConnectionString},
-  UFDBSpace in 'UFDBSpace.pas' {FDBSpace};
+  UFDBSpace in 'UFDBSpace.pas' {FDBSpace},
+  UFWeekVisibility in 'UFWeekVisibility.pas' {FWeekVisibility};
 
 {$R *.RES}
 
@@ -199,6 +200,7 @@ begin
   Application.CreateForm(TFDataEnrichment, FDataEnrichment);
   Application.CreateForm(TFVersion, FVersion);
   Application.CreateForm(TFCustomConnectionString, FCustomConnectionString);
+  Application.CreateForm(TFWeekVisibility, FWeekVisibility);
   //Application.CreateForm(TFCharASCI, FCharASCI);
   FExp := nil;
   FImp := nil;

@@ -212,9 +212,12 @@ type
     llegendSummaryGroup: TCheckBox;
     glegendSummaryGroup: TCheckBox;
     rlegendSummaryGroup: TCheckBox;
-    llegendColorBy: TRadioGroup;
-    glegendColorBy: TRadioGroup;
-    rlegendColorBy: TRadioGroup;
+    llegendColorByLabel: TLabel;
+    llegendColorBy: TComboBox;
+    glegendColorByLabel: TLabel;
+    glegendColorBy: TComboBox;
+    rlegendColorByLabel: TLabel;
+    rlegendColorBy: TComboBox;
     WeeklyView: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure BHtmlClick(Sender: TObject);
@@ -875,6 +878,7 @@ procedure TFSettings.LLShowLegendClick(Sender: TObject);
 begin
  lLegendMode.Visible := (sender as tcheckbox).Checked and (sender as tcheckbox).visible;
  llegendColorBy.Visible := lLegendMode.Visible;  //ZMIANA_20270716
+ llegendColorByLabel.Visible := lLegendMode.Visible;
  lLegendMode.Parent.Invalidate;  //ZMIANA_20270712: fixes controls left blank until mouse-hover after showing/hiding this GroupBox
 end;
 
@@ -882,6 +886,7 @@ procedure TFSettings.gGShowLegendClick(Sender: TObject);
 begin
  gLegendMode.Visible := (sender as tcheckbox).Checked and (sender as tcheckbox).visible;
  glegendColorBy.Visible := gLegendMode.Visible;
+ glegendColorByLabel.Visible := gLegendMode.Visible;
  gLegendMode.Parent.Invalidate;
 end;
 
@@ -889,6 +894,7 @@ procedure TFSettings.rRShowLegendClick(Sender: TObject);
 begin
  rLegendMode.Visible := (sender as tcheckbox).Checked and (sender as tcheckbox).visible;
  rlegendColorBy.Visible := rLegendMode.Visible;
+ rlegendColorByLabel.Visible := rLegendMode.Visible;
  rLegendMode.Parent.Invalidate;
 end;
 

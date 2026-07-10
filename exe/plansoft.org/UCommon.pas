@@ -334,15 +334,23 @@ end;
 //otherwise totals don't match what's actually shown on the schedule grid. Skipped entirely (zero query cost,
 //no extra SQL round-trip) when nothing is hidden -- the overwhelming common case.
 function getWeekVisibilityClause(periodId : string; const tablePrefix : String = 'CLA.') : string;
-var periodDateFromStr : string;
+var periodDateFromStr, weekVisibility : string;
     ts, weekStartTs, weekEndTs : TTimeStamp;
     dw, startMonday, i : integer;
     hiddenRanges : string;
 begin
   result := '';
-  if Pos('-', ufmain.week_visibility) = 0 then exit;
-  periodDateFromStr := Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD'') FROM PERIODS WHERE ID='+periodId);
+  if isBlank(periodId) then exit;
+  //ZMIANA_20270720: musi czytac ATTRIBS_13 zawsze na swiezo dla konkretnego periodId, a nie z globalnego
+  //ufmain.week_visibility (ten jest zwiazany wylacznie z okresem aktualnie wybranym na FMain -- gdy wywolujacy
+  //to np. FGrouping z innym/wlasnie edytowanym okresem, stara wartosc globalna dawala nieaktualny/bledny wynik).
+  Dmodule.OPENSQL('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''), ATTRIBS_13 FROM PERIODS WHERE ID='+periodId);
+  periodDateFromStr := Dmodule.QWork.Fields[0].AsString;
+  weekVisibility     := Dmodule.QWork.Fields[1].AsString;
   if isBlank(periodDateFromStr) then exit;
+  if weekVisibility = '' then weekVisibility := '+';
+  while length(weekVisibility) < 120 do weekVisibility := weekVisibility + weekVisibility;
+  if Pos('-', weekVisibility) = 0 then exit;
 
   ts.Date := DateTimeToTimeStamp(EncodeDate(StrToInt(Copy(periodDateFromStr,1,4)),StrToInt(Copy(periodDateFromStr,6,2)),StrToInt(Copy(periodDateFromStr,9,2)))).Date;
   ts.Time := 0;
@@ -350,8 +358,8 @@ begin
   startMonday := ts.Date - ((dw - 2 + 7) mod 7);  //Monday of the period-start week, mirrors MondayOf in UUtilities.pas
 
   hiddenRanges := '';
-  for i := 1 to length(ufmain.week_visibility) do begin
-    if ufmain.week_visibility[i] = '-' then begin
+  for i := 1 to length(weekVisibility) do begin
+    if weekVisibility[i] = '-' then begin
       weekStartTs.Date := startMonday + (i-1)*7; weekStartTs.Time := 0;
       weekEndTs.Date   := startMonday + (i-1)*7 + 6; weekEndTs.Time := 0;
       if hiddenRanges <> '' then hiddenRanges := hiddenRanges + ' OR ';
