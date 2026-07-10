@@ -484,6 +484,7 @@ end;
 procedure TFLegend.BRefreshClick(Sender: TObject);
 Var forms_filter,hours_filter : string;
     periodClauseCLA  : string;
+    weekVisibilityClauseCLA : string;
     periodClause  : string;
     groupByClause : string;
     orderByClause : string;
@@ -680,6 +681,7 @@ begin
 
       periodClauseCLA  :=UCommon.getWhereClausefromPeriod('ID = ' + NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');
       periodClause  := replace(periodClauseCLA,'CLA.','');
+      weekVisibilityClauseCLA := UCommon.getWeekVisibilityClause(NVL(Fmain.CONPERIOD.Text,'-1'),'CLA.');  //ZMIANA_20270714: exclude classes in weeks hidden via ufmain.week_visibility
       queryString :=
         'select * from ('+cr+
        'SELECT '+mergeStrings(',',[
@@ -716,7 +718,7 @@ begin
           iif( groupByLDesc1.Checked or groupByLDesc2.Checked or groupByLDesc3.Checked or groupByLDesc4.Checked or groupByL.Checked, ',LEC_CLA, LECTURERS LEC ' + CR,'')+
           iif( groupByG.Checked and chGnewLine.Checked, ',GRO_CLA, GROUPS GRO ' + CR,'')+
           iif( groupByR.Checked                       , ',ROM_CLA, ROOMS ROM ' + CR,'')+
-    ' WHERE cla.owner <> ''AUTO'' and '+ periodClauseCLA + CR +
+    ' WHERE cla.owner <> ''AUTO'' and '+ periodClauseCLA + weekVisibilityClauseCLA + CR +
       ' AND ('
           + fmain.getWhereFastFilter(self.filterSummary.text, 'SUB')
           + ' or ' + fmain.getWhereFastFilter(self.filterSummary.text, 'FR')

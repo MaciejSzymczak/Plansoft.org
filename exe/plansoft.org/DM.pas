@@ -1051,7 +1051,7 @@ Begin
     SQL('INSERT INTO '+OWNER+'.EVENTLOG (ID,KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME) VALUES ('+OWNER+'.ELO_SEQ.NEXTVAL,''INSERT_LOG_FAIL'','+MODULE+','+''''''+','+KIND+','+''''''+','+''''''+','+''''''+','+USERNAME+')');
   Except
      //silent
-     //SError('Nastapi³ b³¹d podczas próby odnotowania b³êdu w Dzienniku zdarzeñ');
+     //SError('Nasta¹pi³ b³¹d podczas próby odnotowania b³êdu w Dzienniku zdarzeñ');
   End;
  End;
 End;

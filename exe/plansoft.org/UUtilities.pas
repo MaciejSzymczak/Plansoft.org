@@ -1422,7 +1422,7 @@ Begin
  //_row := 2; // row 0 -> name of day
               // row 1 -> day
  if High(ObjIds) > MaxAllLecturers then
-      info('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
+      info('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê z administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
  SetLength(ObjectIds, High(ObjIds) + 3);
  For t:= 0 To High(ObjIds)  do begin
   ObjectIds[t+1].id   := ObjIds[t];
@@ -1910,14 +1910,14 @@ begin
       Dmodule.RollbackTrans;
 
       if Pos(sKeyViolation, E.Message)<>0 then
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na konflikt '+cr+cr+
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na konflikt '+cr+cr+
               'Szczegó³y: ' + cr+ e.message)
       else if Pos('ORA-20000', E.Message)<>0 then
         //show user message only
         info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr
               + Copy(e.message, Pos('ORA-20000', E.Message)+10, Pos(chr(10), E.Message)-10 ) )
       else
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' za wzglêdu na nieoczekiwany b³¹d w bazie danych'+cr+cr+cr+
+        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na nieoczekiwany b³¹d w bazie danych'+cr+cr+cr+
               'Komunikat, który zwróci³a baza danych jest nastêpuj¹cy: ' + cr+ e.message);
 
     end;
@@ -2009,7 +2009,7 @@ begin
  if convertMode= ConvSingleObject then begin
    result := convertSingleObject.DateToColRow(_Date, -1,  Col, Row);
  end else begin
-   info('W tym widoku funkcja nie jest obslugiwana');
+   info('W tym widoku funkcja nie jest obs³ugiwana');
    result := false;
  end;
 

@@ -119,13 +119,13 @@ begin
   lastDateRun := nvl( encGetSystemParam('lastDateRun') , '0');
 
   if extractFileName(SysUtils.lowercase(Application.exeName)) <> 'planowanie.exe' then begin
-   serror('Wykryto próbê ominiêcia zabezpieczeñ programu (1). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. Application.exeName= ' + Application.exeName );
+   serror('Wykryto prï¿½bï¿½ ominiï¿½cia zabezpieczeï¿½ programu (1). Uruchomienie programu nie bï¿½dzie moï¿½liwe do czasu, gdy nie zostanï¿½ przywrï¿½cone poprzednie ustawienia. Application.exeName= ' + Application.exeName );
    dmodule.CloseDBConnection(true);
    Application.Terminate;
   end;
 
   if lastDateRun > UUtilityParent.DateToYYYYMMDD_HHMMSSMI(now)  then begin
-    serror('Zmieniono datê systemow¹ na tym komputerze, uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia');
+    serror('Zmieniono datï¿½ systemowï¿½ na tym komputerze, uruchomienie programu nie bï¿½dzie moï¿½liwe do czasu, gdy nie zostanï¿½ przywrï¿½cone poprzednie ustawienia');
     dmodule.CloseDBConnection(true);
     Application.Terminate;
   end else begin
@@ -142,7 +142,7 @@ begin
     end;
 
     if getTerminalName <> extractWord(2,licenseType,[';']) then begin
-     serror('Wykryto próbê ominiêcia zabezpieczeñ programu (2). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. getTerminalName='+getTerminalName+' licenseType=' + licenseType);
+     serror('Wykryto prï¿½bï¿½ ominiï¿½cia zabezpieczeï¿½ programu (2). Uruchomienie programu nie bï¿½dzie moï¿½liwe do czasu, gdy nie zostanï¿½ przywrï¿½cone poprzednie ustawienia. getTerminalName='+getTerminalName+' licenseType=' + licenseType);
      dmodule.CloseDBConnection(true);
      Application.Terminate;
     end;
@@ -154,7 +154,7 @@ begin
        installMarker := encGetSystemParam('installMarker');
 
        if getTerminalName <> extractWord(2,installMarker,[';']) then begin
-        serror('Wykryto próbê ominiêcia zabezpieczeñ programu (3). Uruchomienie programu nie bêdzie mo¿liwe do czasu, gdy nie zostan¹ przywrócone poprzednie ustawienia. getTerminalName='+getTerminalName+' installMarker='+installMarker);
+        serror('Wykryto prï¿½bï¿½ ominiï¿½cia zabezpieczeï¿½ programu (3). Uruchomienie programu nie bï¿½dzie moï¿½liwe do czasu, gdy nie zostanï¿½ przywrï¿½cone poprzednie ustawienia. getTerminalName='+getTerminalName+' installMarker='+installMarker);
         dmodule.CloseDBConnection(true);
         Application.Terminate;
        end;
@@ -162,9 +162,9 @@ begin
       installDate := strToInt ( nvl( extractWord(1,installMarker,[';']), '0') );
       daysRemaining := installDate + 120 - todayMarker;
       if daysRemaining > 0 then begin
-        info('Uruchomiono demonstracyjn¹ wersjê programu Planowanie. Mo¿esz korzystaæ z tej wersji programu jeszcze przez nastêpuj¹c¹ liczbê dni: ' + intToStr(daysRemaining));
+        info('Uruchomiono demonstracyjnï¿½ wersjï¿½ programu Planowanie. Moï¿½esz korzystaï¿½ z tej wersji programu jeszcze przez nastï¿½pujï¿½cï¿½ liczbï¿½ dni: ' + intToStr(daysRemaining));
       end else begin
-        warning('Uruchomiono demonstracyjn¹ wersjê programu Planowanie. Nie mo¿esz ju¿ korzystaæ z tej wersji programu, poniewa¿ minê³o 120 dni od dnia, kiedy program zosta³ zainstalowany. Skontaktuj siê z dostawc¹ oprogramowania');
+        warning('Uruchomiono demonstracyjnï¿½ wersjï¿½ programu Planowanie. Nie moï¿½esz juï¿½ korzystaï¿½ z tej wersji programu, poniewaï¿½ minï¿½o 120 dni od dnia, kiedy program zostaï¿½ zainstalowany. Skontaktuj siï¿½ z dostawcï¿½ oprogramowania');
         Application.Terminate;
       end;
     end;

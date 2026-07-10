@@ -2987,7 +2987,7 @@ Procedure TFMain.insertClasses;
      //The code below is working, but has been disabled.
      //if you consider to uncomment it: take into consideration this function requires the combination having exact PER_ID (if there is diff PER_ID with the same dates, an alert "missing combination" will be shown
      if wordCount(resourceList,[','])>=16 then
-       info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu', showOnceaday)
+       info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu', showOnceaday)
      else
      begin
        dmodule.sql('begin tt_planner.verify (:p_pla_id, :p_res_ids, :p_auto_fix ); end;'
@@ -3820,7 +3820,7 @@ begin
  USOSIntegracja1.Visible := isUSOSInstalled;
 
  if MM.Items[3].Caption <> '&Dane' then begin
-  SError('B³¹d w procedurze buildMenu. Jest:"'+MM.Items[3].Caption+'". Powinno byæ:"&S³owniki". Zg³oœ problem asyœcie technicznej');
+  SError('B³¹d w procedurze buildMenu. Jest:"'+MM.Items[3].Caption+'". Powinno byæ:"&S³owniki". Zg³oœ problem serwisowi technicznemu');
  end;
 
  // usuñ pozycje menu ( je¿eli s¹ )
@@ -5055,7 +5055,7 @@ begin
    X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
    Y := QWork.FieldByName('HOUR').AsInteger;
    t := X-FirstDay;
-   if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem asyœcie technicznej');
+   if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem serwisowi technicznemu');
    if y<=maxHours then
      Storage[t][y] := QWork.FieldByName('CLASSES_ALLOWED').AsString + ':' + QWork.FieldByName('TYPE').AsString;
 
@@ -5144,7 +5144,7 @@ begin
 
    t := X-FirstDay;
 
-   if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem asyœcie technicznej');
+   if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem serwisowi technicznemu');
 
    if y > MaxHours then begin
      //Warning('Zarezerwowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi');
@@ -5224,7 +5224,7 @@ procedure TFMain.InvertOtherCalendar;
 Var xp, yp : Integer;
 begin
   if CALID.text='-1' then begin
-    info('Najpierw wybierz kaledarz, na którym chesz wprowadzaæ zmiany');
+    info('Najpierw wybierz kalendarz, na którym chcesz wprowadzaæ zmiany');
     CALID_VALUEClick(nil);
     exit;
   end;
@@ -5313,8 +5313,8 @@ begin
     app_version_info  := '5.0';
     db_version_info := dmodule.dbGetSystemParam('PLANOWANIE.VERSION_INFO');
     if db_version_info <> app_version_info then begin
-      //info('Na tym komputerze jest zainstalowana nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Program pobierze teraz i zainstaluje aktualizacjê.'+cr+'Pobieranie aktualizacji mo¿e potrwaæ od kilku sekund do kilkunastu minut, czas ten zale¿y od jakoœci po³¹czenia z Internetem');
-      info('Na tym komputerze jest zainstalowana nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Uruchom program Aktualizacja w celu pobrania nowej wersji');
+      //info('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Program pobierze teraz i zainstaluje aktualizacjê.'+cr+'Pobieranie aktualizacji mo¿e potrwaæ od kilku sekund do kilkunastu minut, czas ten zale¿y od jakoœci po³¹czenia z Internetem');
+      info('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Uruchom program Aktualizacja w celu pobrania nowej wersji');
     end;
    except
     on E:exception do begin
@@ -6480,7 +6480,7 @@ end;
 
 procedure TFMain.Zmiehas1Click(Sender: TObject);
 begin
-   if isSSOLogin then begin info('Aby zmieniæ has³o, naciœnij kombinacje klawiszy Alt+Ctrl+Delete i wybierz polecenie Zmieñ has³o.'); exit; end;
+   if isSSOLogin then begin info('Aby zmieniæ has³o, naciœnij kombinacjê klawiszy Alt+Ctrl+Delete i wybierz polecenie Zmieñ has³o.'); exit; end;
    changePassword('');
 end;
 
@@ -9176,7 +9176,7 @@ end;
 procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);
 begin
   SetSystemParam('MESSAGE.SkipCapacityOverflow','-');
-  Info('Otrze¿enie o przekroczonej zajêtoœci sal zosta³y przywrócone');
+  Info('Ostrze¿enia o przekroczonej zajêtoœci sal zosta³y przywrócone');
 end;
 
 procedure TFMain.recreateDependenciesClick(Sender: TObject);
@@ -9804,7 +9804,7 @@ begin
   grid.Refresh;
   HeaderGrid.Visible := not BViewByCrossTable.Down;
   HeaderGrid.Refresh;
-  //If FLegend.Visible then FLegend.BRefreshClick(nil);
+  refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
 end;
 
 procedure TFMain.showbgroupsClick(Sender: TObject);

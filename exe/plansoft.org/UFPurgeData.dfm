@@ -311,7 +311,7 @@ inherited FPurgeData: TFPurgeData
             end
           end
           object TabSheet4: TTabSheet
-            Caption = 'Przemioty'
+            Caption = 'Przedmioty'
             ImageIndex = 3
             object DBGrid4: TDBGrid
               Left = 0

@@ -58,7 +58,7 @@ var LCID : Integer;
     function verifyHeader ( cols, expectedCols : string ) : boolean;
     begin
       if lowercase(cols) <> lowercase(expectedCols) then begin
-        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powininen zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedCols+cr + 'JEST:'+ cols);
+        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powinien zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedCols+cr + 'JEST:'+ cols);
         result := false;
         exit;
       end;

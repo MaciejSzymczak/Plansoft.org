@@ -142,7 +142,8 @@ type
            notes_before : boolean;
            notes_after : boolean;
            pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
-           weeklyView : boolean
+           weeklyView : boolean;
+           const LegendColorBy : Integer = 0  //ZMIANA_20270716: 0=Przedmiot (default, backward compatible), 1=Grupa
     );
   end;
 
@@ -210,7 +211,6 @@ begin
 end;
 
 procedure thtmlTable.writeCell (s : string; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
-var style : string;
 begin
   //add vertical lines
   if Pos(intToStr(colCount),verticalLines)<>0  then
@@ -777,7 +777,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
            notes_before : boolean;
            notes_after : boolean;
            pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
-           weeklyView : boolean
+           weeklyView : boolean;
+           const LegendColorBy : Integer = 0
     );
 
     Var F : TextFile;
@@ -1031,28 +1032,41 @@ Procedure TFWWWGenerator.CalendarToHTML(
     //--------------------------------------------------------
     function RefreshLegend : integer;
       var periodClause : String;
+          weekVisibilityClause : string;
           LegendRowNumber : Integer;
           MaxL : Integer;
           ChildsAndParents : string;
           groupByGroup : boolean;
-          groupJoin, groupWhere, groupSelect, groupByCol : string;
+          groupLabelExpr, groupSelect, groupByCol : string;
+          colorByGroup : boolean;
+          outerScopeClause : string;
     begin
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, printMode),';',',')+')';  //2024.07.25 ignoreExclusiveParent=false
     MaxL := StrToInt(NVL(GetSystemParam('MaxLecturersInLegend'),'1000'));
 
-    //ZMIANA_20270709: additional grouping by GROUPS.NAME in summary legend mode (bit 8 of LegendMode)
+    //ZMIANA_20270711: additional grouping by GROUPS.NAME in legend (bit 8 of LegendMode).
+    //groupLabelExpr is a scalar correlated subquery (not a join!) so a class linked to several groups
+    //produces ONE combined label (e.g. 'GR1,GR2') instead of fanning out into duplicate/double-counted rows.
     groupByGroup := (LegendMode and 8 = 8);
+    groupLabelExpr := 'NVL((SELECT LISTAGG(G.NAME, '','') WITHIN GROUP (ORDER BY G.NAME) FROM GRO_CLA GC, GROUPS G WHERE GC.CLA_ID = CLA.ID AND GC.IS_CHILD = ''N'' AND G.ID = GC.GRO_ID), ''Brak grupy'')';
     if groupByGroup then begin
-      groupJoin   := '   , GRO_CLA GRO_CLA3    , GROUPS GRO3 ';
-      groupWhere  := 'AND GRO_CLA3.CLA_ID(+) =  CLA.ID AND GRO_CLA3.IS_CHILD(+) = ''N'' AND GRO3.ID(+) = GRO_CLA3.GRO_ID ';
-      groupSelect := ' || '' '' || GRO3.NAME';
-      groupByCol  := ',GRO3.NAME';
+      groupSelect := ' || '' '' || '+groupLabelExpr;
+      groupByCol  := ','+groupLabelExpr;
     end else begin
-      groupJoin   := '';
-      groupWhere  := '';
       groupSelect := '';
       groupByCol  := '';
     end;
+
+    //ZMIANA_20270716: "Kolory w legendzie" (FSettings) -- when LegendColorBy=1, the legend's outer entries (and thus
+    //the colours used both here and on the calendar cells) enumerate GROUPS instead of SUBJECTS. outerScopeClause
+    //replaces the old hardcoded CLA.SUB_ID=:SUB_ID in every inner query below with the right scoping condition for
+    //whichever dimension is currently selected -- adding a future dimension (Sala/Wykladowca/Forma) means adding one
+    //more branch here and one more outer-query variant per presType, nothing else in this function changes.
+    colorByGroup := (LegendColorBy = 1);
+    if colorByGroup then
+      outerScopeClause := 'CLA.ID in (select CLA_ID from GRO_CLA where GRO_ID = :SUB_ID and IS_CHILD=''N'') '
+    else
+      outerScopeClause := 'CLA.SUB_ID     = :SUB_ID ';
 
     For LegendRowNumber := 1 To High(Lgnd) Do Begin
      Lgnd[LegendRowNumber].Name     := '';
@@ -1065,36 +1079,67 @@ Procedure TFWWWGenerator.CalendarToHTML(
     With DModule Do Begin
 
      periodClause  :=UCommon.getWhereClausefromPeriod('ID = ' + pPeriodId ,'CLA.');
+     weekVisibilityClause := UCommon.getWeekVisibilityClause(pPeriodId);
 
-     if presType='LEC' then
+     if (presType='LEC') and (not colorByGroup) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, LEC_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND LEC_ID in '+ChildsAndParents+
                 '   AND LEC_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
-                '   AND '+periodClause+' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
 
-      if presType='GRO' then
+     if (presType='LEC') and colorByGroup then
+        OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
+                '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA GCO, LEC_CLA '+
+                ' WHERE LEC_CLA.CLA_ID = CLA.ID'+
+                '   AND LEC_CLA.LEC_ID in '+ChildsAndParents+
+                '   AND LEC_CLA.IS_CHILD = ''N'' '+
+                '   AND GCO.CLA_ID = CLA.ID AND GCO.GRO_ID = GRO.ID AND GCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY GRO.NAME');
+
+      if (presType='GRO') and (not colorByGroup) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, GRO_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND GRO_ID in '+ChildsAndParents+
                 '   AND GRO_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
-                '   AND '+periodClause+' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
 
-      if presType='ROM' then
+      if (presType='GRO') and colorByGroup then
+        OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
+                '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA '+
+                ' WHERE GRO_CLA.CLA_ID = CLA.ID'+
+                '   AND GRO_CLA.GRO_ID = GRO.ID'+
+                '   AND GRO_CLA.GRO_ID in '+ChildsAndParents+
+                '   AND GRO_CLA.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY GRO.NAME');
+
+      if (presType='ROM') and (not colorByGroup) then
         OpenSQL('SELECT DISTINCT SUB.ID, SUB.NAME, SUB.ABBREVIATION, SUB.COLOUR '+
                 '  FROM CLASSES CLA, SUBJECTS SUB, ROM_CLA '+
                 ' WHERE CLA_ID = CLA.ID'+
                 '   AND ROM_ID in '+ChildsAndParents+
                 '   AND ROM_CLA.IS_CHILD = ''N'' '+
                 '   AND CLA.SUB_ID = SUB.ID AND SUB.ID<>-1 AND SUB.ID<>-2 '+
-                '   AND '+periodClause+' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
                 'ORDER BY SUB.NAME');
+
+      if (presType='ROM') and colorByGroup then
+        OpenSQL('SELECT DISTINCT GRO.ID, GRO.NAME, GRO.ABBREVIATION, GRO.COLOUR '+
+                '  FROM CLASSES CLA, GROUPS GRO, GRO_CLA GCO, ROM_CLA '+
+                ' WHERE ROM_CLA.CLA_ID = CLA.ID'+
+                '   AND ROM_CLA.ROM_ID in '+ChildsAndParents+
+                '   AND ROM_CLA.IS_CHILD = ''N'' '+
+                '   AND GCO.CLA_ID = CLA.ID AND GCO.GRO_ID = GRO.ID AND GCO.IS_CHILD = ''N'' '+
+                '   AND '+periodClause+weekVisibilityClause+' '+
+                'ORDER BY GRO.NAME');
 
      While Not QWork.Eof Do Begin
       LegendRowNumber := LegendRowNumber + 1;
@@ -1122,7 +1167,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
       Lgnd[LegendRowNumber].Colour   := 0;
 
       //no summary mode
-      if (LegendMode and 1 = 0) then begin
+      //no summary, no group mode -- unchanged, original behaviour (backward compatible)
+      if (LegendMode and 1 = 0) and (not groupByGroup) then begin
         if presType='LEC' then
          OpenSQL2('SELECT DISTINCT lec.abbreviation, '+sql_LECNAME+' NAME, NULL '+
                   'FROM CLASSES CLA'+
@@ -1133,8 +1179,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND '+periodClause+' '+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                   'ORDER BY 1'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
 
@@ -1148,8 +1194,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND '+periodClause+' '+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                   'ORDER BY 1'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
 
@@ -1163,39 +1209,106 @@ Procedure TFWWWGenerator.CalendarToHTML(
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID =  CLA.ID '+
                     'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
-                    'AND '+periodClause+' '+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                   'ORDER BY 1'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
       end;
 
-      //summary mode
-      if (LegendMode and 1 = 1) then begin
+      //ZMIANA_20270711b: group-only mode (Summary off, SummaryGroup on) -- exclusively lists class counts per group combination.
+      //Oracle forbids a subquery expression directly in GROUP BY (ORA-22818), so the label is computed once in an inline
+      //view (o.GRP) and the outer query groups by that column instead of by the subquery itself.
+      if (LegendMode and 1 = 0) and groupByGroup then begin
         if presType='LEC' then
-         //todo:  2025.09.10 Change the query around LEC_CLA like it was done for GRO_CLA in section GRO
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
+         OpenSQL2('SELECT NULL, NULL NAME, o.GRP || '' '' || TO_CHAR(COUNT(*)) FROM ('+
+                  'SELECT CLA.ID, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA'+
+                  '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC
+                  'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+
+                  ') o '+
+                  'GROUP BY o.GRP '+
+                  'ORDER BY 3'
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+
+        if presType='GRO' then
+         OpenSQL2('SELECT NULL, NULL NAME, o.GRP || '' '' || TO_CHAR(COUNT(*)) FROM ('+
+                  'SELECT CLA.ID, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA '+
+                  'WHERE CLA.ID in (SELECT CLA_ID FROM GRO_CLA where IS_CHILD = ''N'' and  GRO_ID in '+ChildsAndParents+' ) '+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+
+                  ') o '+
+                  'GROUP BY o.GRP '+
+                  'ORDER BY 3'
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+
+        if presType='ROM' then
+         OpenSQL2('SELECT NULL, NULL NAME, o.GRP || '' '' || TO_CHAR(COUNT(*)) FROM ('+
+                  'SELECT CLA.ID, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA '+
+                  'WHERE CLA.ID in (SELECT CLA_ID FROM ROM_CLA where IS_CHILD = ''N'' and  ROM_ID in '+ChildsAndParents+' ) '+
+                    'AND '+outerScopeClause+
+                    'AND '+periodClause+weekVisibilityClause+
+                  ') o '+
+                  'GROUP BY o.GRP '+
+                  'ORDER BY 3'
+                , 'SUB_ID='+QWork.Fields[0].AsString);
+      end;
+
+      //summary mode. When groupByGroup is set, wrapped in an inline view for the same ORA-22818 reason as above;
+      //when not set, the SQL is byte-identical to the original (pre-group-feature) query -- backward compatible.
+      if (LegendMode and 1 = 1) then begin
+        if presType='LEC' then begin
+         if not groupByGroup then
+          //todo:  2025.09.10 Change the query around LEC_CLA like it was done for GRO_CLA in section GRO
+          OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation || '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
                   '   , LEC_CLA'+
                   '   , LECTURERS LEC'+
                   '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC_CLA >- LEC
-                  groupJoin+
                   'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
                     'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND '+outerScopeClause+
                     'AND LEC_CLA.IS_CHILD = ''N'' '+
-                    'AND '+periodClause+' '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    groupWhere+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
+                , 'SUB_ID='+QWork.Fields[0].AsString)
+         else
+          OpenSQL2('SELECT o.abbreviation, o.NAME, o.FORM_ABBR || '' '' || o.GRP || '' '' || SUM(o.DUR), o.SORT FROM ('+
+                  'SELECT lec.abbreviation abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation FORM_ABBR, GRIDS.DURATION*CLA.FILL/100 DUR, FORM.SORT_ORDER_ON_REPORTS SORT, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA'+
+                  '   , FORMS FORM'+
+                  '   , GRIDS '+
+                  '   , LEC_CLA'+
+                  '   , LECTURERS LEC'+
+                  '   , LEC_CLA LEC_CLA2 '+   //  LEC_CLA2 >- CLA -< LEC_CLA >- LEC
+                  'WHERE LEC_CLA2.CLA_ID =  CLA.ID '+
+                    'AND LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
+                    'AND LEC_CLA2.LEC_ID in '+ChildsAndParents+
+                    'AND '+outerScopeClause+
+                    'AND LEC_CLA.IS_CHILD = ''N'' '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
+                    'AND FORM.ID = CLA.FOR_ID '+
+                    'and cla.hour = grids.no '+
+                  ') o '+
+                  'GROUP BY o.abbreviation, o.NAME, o.FORM_ABBR, o.SORT, o.GRP '+
+                  'ORDER BY o.SORT'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
-        if presType='GRO' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
+        end;
+        if presType='GRO' then begin
+         if not groupByGroup then
+          OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1204,22 +1317,41 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   //'   , GRO_CLA '+
                    //  GRO_CLA >- CLA -< LEC_CLA >- LEC
                   //'WHERE GRO_CLA.CLA_ID =  CLA.ID '+
-                  groupJoin+
                     'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     //'AND GRO_CLA.GRO_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND '+outerScopeClause+
                     //'AND GRO_CLA.IS_CHILD = ''N'' '+
                     'AND CLA.ID in (SELECT CLA_ID FROM GRO_CLA where IS_CHILD = ''N'' and  GRO_ID in '+ChildsAndParents+' ) '+
-                    'AND '+periodClause+' '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    groupWhere+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
+                , 'SUB_ID='+QWork.Fields[0].AsString)
+         else
+          OpenSQL2('SELECT o.abbreviation, o.NAME, o.FORM_ABBR || '' '' || o.GRP || '' '' || SUM(o.DUR), o.SORT FROM ('+
+                  'SELECT lec.abbreviation abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation FORM_ABBR, GRIDS.DURATION*CLA.FILL/100 DUR, FORM.SORT_ORDER_ON_REPORTS SORT, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA'+
+                  '   , FORMS FORM'+
+                  '   , GRIDS '+
+                  '   , LEC_CLA'+
+                  '   , LECTURERS LEC '+
+                    'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
+                    'AND '+outerScopeClause+
+                    'AND CLA.ID in (SELECT CLA_ID FROM GRO_CLA where IS_CHILD = ''N'' and  GRO_ID in '+ChildsAndParents+' ) '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
+                    'AND FORM.ID = CLA.FOR_ID '+
+                    'and cla.hour = grids.no '+
+                  ') o '+
+                  'GROUP BY o.abbreviation, o.NAME, o.FORM_ABBR, o.SORT, o.GRP '+
+                  'ORDER BY o.SORT'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
-        if presType='ROM' then
-         OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100)'+groupSelect+', FORM.SORT_ORDER_ON_REPORTS '+
+        end;
+        if presType='ROM' then begin
+         if not groupByGroup then
+          OpenSQL2('SELECT lec.abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation|| '' '' || SUM( GRIDS.DURATION*CLA.FILL/100), FORM.SORT_ORDER_ON_REPORTS '+
                   'FROM CLASSES CLA'+
                   '   , FORMS FORM'+
                   '   , GRIDS '+
@@ -1228,20 +1360,38 @@ Procedure TFWWWGenerator.CalendarToHTML(
                   //'   , ROM_CLA '+
                   //  ROM_CLA >- CLA -< LEC_CLA >- LEC
                   //'WHERE ROM_CLA.CLA_ID =  CLA.ID '+
-                  groupJoin+
                   'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
                     'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
                     //'AND ROM_CLA.ROM_ID in '+ChildsAndParents+
-                    'AND CLA.SUB_ID     = :SUB_ID '+
+                    'AND '+outerScopeClause+
                     //'AND ROM_CLA.IS_CHILD = ''N'' '+
                     'AND CLA.ID in (SELECT CLA_ID FROM ROM_CLA where IS_CHILD = ''N'' and  ROM_ID in '+ChildsAndParents+' ) '+
-                    'AND '+periodClause+' '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
                     'AND FORM.ID = CLA.FOR_ID '+
                     'and cla.hour = grids.no '+
-                    groupWhere+
-                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS'+groupByCol+' '+
+                    'GROUP BY lec.abbreviation, LEC.TITLE, LEC.FIRST_NAME, LEC.LAST_NAME,FORM.abbreviation,FORM.SORT_ORDER_ON_REPORTS '+
                   'ORDER BY FORM.SORT_ORDER_ON_REPORTS'
+                , 'SUB_ID='+QWork.Fields[0].AsString)
+         else
+          OpenSQL2('SELECT o.abbreviation, o.NAME, o.FORM_ABBR || '' '' || o.GRP || '' '' || SUM(o.DUR), o.SORT FROM ('+
+                  'SELECT lec.abbreviation abbreviation, '+sql_LECNAME+' NAME, FORM.abbreviation FORM_ABBR, GRIDS.DURATION*CLA.FILL/100 DUR, FORM.SORT_ORDER_ON_REPORTS SORT, '+groupLabelExpr+' GRP '+
+                  'FROM CLASSES CLA'+
+                  '   , FORMS FORM'+
+                  '   , GRIDS '+
+                  '   , LEC_CLA'+
+                  '   , LECTURERS LEC '+
+                  'WHERE LEC_CLA.LEC_ID =  LEC.ID(+) '+
+                    'AND LEC_CLA.CLA_ID(+) =  CLA.ID '+
+                    'AND '+outerScopeClause+
+                    'AND CLA.ID in (SELECT CLA_ID FROM ROM_CLA where IS_CHILD = ''N'' and  ROM_ID in '+ChildsAndParents+' ) '+
+                    'AND '+periodClause+weekVisibilityClause+' '+
+                    'AND FORM.ID = CLA.FOR_ID '+
+                    'and cla.hour = grids.no '+
+                  ') o '+
+                  'GROUP BY o.abbreviation, o.NAME, o.FORM_ABBR, o.SORT, o.GRP '+
+                  'ORDER BY o.SORT'
                 , 'SUB_ID='+QWork.Fields[0].AsString);
+        end;
       end;
 
 
@@ -1262,7 +1412,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
         if (LegendMode and 2 = 2) then
             Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[0].AsString,'<BR/>');
 
-        if (LegendMode and 1 = 1) then
+        if (LegendMode and 1 = 1) or groupByGroup then  //ZMIANA_20270712: group-only text (field[2]) must land in shortcut (left column), same as summary text
             Lgnd[LegendRowNumber].shortcut := Merge(Lgnd[LegendRowNumber].shortcut,QWork2.Fields[2].AsString,'<BR/>');
 
         Qwork2.Next;
@@ -1369,8 +1519,10 @@ Var xp, yp          : Integer;
 
       If Lgnd[legendRow].Colour = 0 Then Begin
 		      htmlTable.newCell(
-            //mergeWith attribute is to avoid merge for cells inside legend
-			      'mergeWith="'+Lgnd[legendRow].Name+'"'
+            //mergeWith attribute is to avoid merge for cells inside legend. ZMIANA_20270713: appended legendRow (always
+            //unique) -- grouped legend rows can legitimately repeat the same lecturer Name on adjacent rows, which used
+            //to defeat this anti-merge guard and let the generic grid RowSpan() collapse them into one visible row.
+			      'mergeWith="'+Lgnd[legendRow].Name+IntToStr(legendRow)+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,'0'
 		      );
@@ -1383,8 +1535,8 @@ Var xp, yp          : Integer;
       End
       Else Begin
 		      htmlTable.newCell(
-            //mergeWith attribute is to avoid merge for cells inside legend
-			       'mergeWith="'+Lgnd[legendRow].Name+'"'
+            //mergeWith attribute is to avoid merge for cells inside legend. ZMIANA_20270713: see note above.
+			       'mergeWith="'+Lgnd[legendRow].Name+IntToStr(legendRow)+'"'
 			      ,Lgnd[legendRow].ShortCut
 			      ,DelphiColourToHTML(Lgnd[legendRow].Colour)
 		      );
@@ -1828,7 +1980,7 @@ var ColoringIndex    : shortString;
                , gpdfg.checked
                , gpdfl.checked
                , gpdfo.checked
-               , gpdfs.checked, weeklyView.Checked );
+               , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex );
              end;
            end;
          end;
@@ -1838,7 +1990,7 @@ var ColoringIndex    : shortString;
              if LList.Checked[t] then begin
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                ColoringIndex := getCode(FSettings.LViewType);
-               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked);
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex);
              end;
            end;
          end;
@@ -1849,7 +2001,7 @@ var ColoringIndex    : shortString;
                WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
-                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked );
+                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex );
                except
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;

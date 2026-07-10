@@ -349,7 +349,7 @@ inherited FIntegration: TFIntegration
           item
             Expanded = False
             FieldName = 'CREATED_BY'
-            Title.Caption = 'Utworzyl'
+            Title.Caption = 'Utworzy'#322
             Width = 100
             Visible = True
           end

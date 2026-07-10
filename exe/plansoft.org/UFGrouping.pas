@@ -95,6 +95,7 @@ type
     egzaminiwykadwoddzielnejliniitak2: TMenuItem;
     egzaminiwykadwoddzielnejliniinie2: TMenuItem;
     bClearPeriod: TSpeedButton;
+    EditPeriod: TSpeedButton;
     bClearL: TSpeedButton;
     bClearG: TSpeedButton;
     bClearRes0: TSpeedButton;
@@ -106,9 +107,6 @@ type
     RSettings: TStrHolder;
     SSettings: TStrHolder;
     FSettings: TStrHolder;
-    PERPopup: TPopupMenu;
-    Filtrprosty1: TMenuItem;
-    Filtrzaawansowany1: TMenuItem;
     LPopup: TPopupMenu;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
@@ -195,13 +193,13 @@ type
     procedure egzaminiwykadwoddzielnejliniitak2Click(Sender: TObject);
     procedure egzaminiwykadwoddzielnejliniinie2Click(Sender: TObject);
     procedure bClearPeriodClick(Sender: TObject);
+    procedure EditPeriodClick(Sender: TObject);
     procedure bClearLClick(Sender: TObject);
     procedure bClearGClick(Sender: TObject);
     procedure bClearRes0Click(Sender: TObject);
     procedure bClearSClick(Sender: TObject);
     procedure bClearFClick(Sender: TObject);
     procedure Filtrprosty1Click(Sender: TObject);
-    procedure Filtrzaawansowany1Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem7Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
@@ -262,7 +260,7 @@ uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
 
 procedure TFGrouping.BRefreshClick(Sender: TObject);
 Var columnsSelect, columnsGroupBy      : String;
-    S, _CONL, _CONG, _CONR, _CONS, _CONF, _CONPERIOD, genericFilter  : string;
+    S, _CONL, _CONG, _CONR, _CONS, _CONF, _CONPERIOD, _weekVisibility, genericFilter  : string;
     _CONL2, _CONG2, _CONR2 : string;
     _PERMISSIONSL, _PERMISSIONSG, _PERMISSIONSR, _PERMISSIONSS, _PERMISSIONSF : string;
     summary1, summary2, summary3, summary4, summary5 : string;
@@ -463,6 +461,13 @@ begin
   If (CONPERIOD.Text <> '') or (PERSettings.Strings.Values['SQL.Category:DEFAULT'] <> '') Then
     _CONPERIOD := Ucommon.getWhereClausefromPeriod(NVL(PERSettings.Strings.Values['SQL.Category:DEFAULT'], 'ID='+CONPERIOD.Text));
 
+  //ZMIANA_20270715: must also exclude classes falling in weeks hidden via ufmain.week_visibility for this period,
+  //consistent with the printed legend and gridCounter summary. Only applies to the simple single-period selection
+  //(CONPERIOD.Text) -- the legacy multi-period advanced filter has no single period to derive week ranges from.
+  _weekVisibility := '';
+  If CONPERIOD.Text <> '' Then
+    _weekVisibility := Ucommon.getWeekVisibilityClause(CONPERIOD.Text, '');
+
   _CONL := GetCLASSESforL('CLASSES.ID', 'CLA_ID', nvl(CONL.Text, LSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',LSettings.Strings.Values['FilterType']);
   _CONG := GetCLASSESforG('CLASSES.ID', 'CLA_ID', nvl(CONG.Text, GSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',GSettings.Strings.Values['FilterType']);
   _CONR := GetCLASSESforR('CLASSES.ID', 'CLA_ID', nvl(conResCat0.Text, RSettings.Strings.Values['SQL.Category:DEFAULT']) ,'',RSettings.Strings.Values['FilterType']);
@@ -548,7 +553,7 @@ begin
    ' and '+_CONR+CR+
    ' and '+_CONS+CR+
    ' and '+_CONF+CR+
-   ' and '+_CONPERIOD +CR+
+   ' and '+_CONPERIOD +_weekVisibility+CR+
    ' and '+_PERMISSIONSL+CR+
    ' and '+_PERMISSIONSG+CR+
    ' and '+_PERMISSIONSR+CR+
@@ -680,7 +685,6 @@ begin
  Point.x := 0;
  Point.y := btn.Height;
  Point   := btn.ClientToScreen(Point);
- if btn.Name = 'CONPERIOD_VALUE' then PERPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'CONL_VALUE'      then LPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'CONG_VALUE'      then GPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'conResCat0_value'then RPopup.Popup(Point.X,Point.Y);
@@ -1397,6 +1401,16 @@ begin
   CONPERIOD.Text := '';
 end;
 
+procedure TFGrouping.EditPeriodClick(Sender: TObject);
+var KeyValue : ShortString;
+begin
+  if isBlank(CONPERIOD.Text) then exit;
+  KeyValue := CONPERIOD.Text;
+  If PERIODSShowModalAsSingleRecord(aedit, KeyValue) = mrOK Then Begin
+    BRefreshClick(nil);
+  End;
+end;
+
 procedure TFGrouping.bClearLClick(Sender: TObject);
 begin
   CONL_VALUE.Text := '';
@@ -1500,17 +1514,6 @@ end;
 //  End;
 //end;
 
-procedure TFGrouping.Filtrzaawansowany1Click(Sender: TObject);
-begin
-  autocreate.PERIODSCreate;
-
-  If UFModuleFilter.ShowModal( PerSettings.Strings, fBrowsePERIODS.AvailColumnsWhereClause.Strings, 'DEFAULT') = mrOK Then Begin
-      CONPERIOD.Text := '';
-      CONPERIOD_VALUE.Text := PERSettings.Strings.Values['Notes.Category:DEFAULT'];
-      PERSettings.Strings.Values['FilterType'] := 'a';
-  End;
-end;
-
 procedure TFGrouping.MenuItem6Click(Sender: TObject);
 begin
   autocreate.LECTURERSCreate;
@@ -1566,6 +1569,7 @@ end;
 procedure TFGrouping.CONPERIOD_VALUEChange(Sender: TObject);
 begin
   bClearPeriod.Visible := (sender as tedit).Text <> '';
+  EditPeriod.Visible := (sender as tedit).Text <> '';
 end;
 
 procedure TFGrouping.CONL_VALUEChange(Sender: TObject);

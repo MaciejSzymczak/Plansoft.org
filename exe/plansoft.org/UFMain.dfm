@@ -6257,19 +6257,19 @@ inherited FMain: TFMain
         Caption = '-'
       end
       object FavOff: TMenuItem
-        Caption = 'Wy'#322#261'cz preferowane termny'
+        Caption = 'Wy'#322#261'cz preferowane terminy'
         GroupIndex = 1
         RadioItem = True
         OnClick = FavOffClick
       end
       object FavSelected: TMenuItem
-        Caption = 'W'#322#261'cz preferowne terminy - bie'#380#261'cy obiekt'
+        Caption = 'W'#322#261'cz preferowane terminy - bie'#380#261'cy obiekt'
         GroupIndex = 1
         RadioItem = True
         OnClick = FavSelectedClick
       end
       object FavAll: TMenuItem
-        Caption = 'W'#322#261'cz preferowne terminy - wszystkie obiekty'
+        Caption = 'W'#322#261'cz preferowane terminy - wszystkie obiekty'
         Checked = True
         GroupIndex = 1
         RadioItem = True
@@ -6520,7 +6520,7 @@ inherited FMain: TFMain
           end
         end
         object Przedmiotyvswykladowcy1: TMenuItem
-          Caption = 'Przedmioty vs wykladowcy'
+          Caption = 'Przedmioty vs wyk'#322'adowcy'
           OnClick = Przedmiotyvswykladowcy1Click
         end
         object Przedmiotyvsgrupy1: TMenuItem
@@ -6532,11 +6532,11 @@ inherited FMain: TFMain
           OnClick = Przedmiotyvssale1Click
         end
         object Wykladowcyvsgrupy1: TMenuItem
-          Caption = 'Wykladowcy vs grupy'
+          Caption = 'Wyk'#322'adowcy vs grupy'
           OnClick = Wykladowcyvsgrupy1Click
         end
         object Wykladowcyvssale1: TMenuItem
-          Caption = 'Wykladowcy vs sale'
+          Caption = 'Wyk'#322'adowcy vs sale'
           OnClick = Wykladowcyvssale1Click
         end
         object Grupyvssale1: TMenuItem
@@ -7935,7 +7935,7 @@ inherited FMain: TFMain
       OnClick = N100Zdecydowanienieplanujwtymterminie1Click
     end
     object N000Terminneutrealny1: TMenuItem
-      Caption = 'Termin neutrealny'
+      Caption = 'Termin neutralny'
       OnClick = N000Terminneutrealny1Click
     end
     object Lepiejplanuj1: TMenuItem

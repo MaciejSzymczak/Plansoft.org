@@ -72,6 +72,20 @@ function TFSelectDate.showModalWithDefault(
 begin
  mr := mrCancel;
  self.date.DateTime := date;
+
+ //ZMIANA_20270717: disable day-of-week buttons for days hidden on the current period (PERIODS.SHOW_MON..SHOW_SUN),
+ //same reasoning/data as getFirstDayOfWeekInPeriod below -- D1..D7 map to Mon..Sun.
+ With DModule do begin
+   Dmodule.SingleValue('SELECT SHOW_MON,SHOW_TUE,SHOW_WED,SHOW_THU,SHOW_FRI,SHOW_SAT,SHOW_SUN FROM PERIODS WHERE ID='+FMain.conPeriod.Text);
+   D1.Enabled := QWork.Fields[0].AsString = '+';
+   D2.Enabled := QWork.Fields[1].AsString = '+';
+   D3.Enabled := QWork.Fields[2].AsString = '+';
+   D4.Enabled := QWork.Fields[3].AsString = '+';
+   D5.Enabled := QWork.Fields[4].AsString = '+';
+   D6.Enabled := QWork.Fields[5].AsString = '+';
+   D7.Enabled := QWork.Fields[6].AsString = '+';
+ End;
+
  showModal;
  result := mr;
 end;

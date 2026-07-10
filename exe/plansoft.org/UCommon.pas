@@ -17,6 +17,7 @@ function getWhereClause ( tableName  : string; const tableAlias : String = ''; c
 
 Var PeriodSelectionDsp : shortString;
 function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : String = '') : string;
+function getWeekVisibilityClause(periodId : string; const tablePrefix : String = 'CLA.') : string;
 function getResourcesByType(pResCatId : string; pResCatIds : string; pdesc : string) : string;
 function repeatString(pStr : string; pcnt : integer; pSep : string) : string;
 
@@ -326,6 +327,40 @@ function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : S
     previousResult :=  result;
 end;
 
+
+//--------------------------------------------------------------------------------------
+//ZMIANA_20270714: shared by UFWWWGenerator.pas (printed legend) and UFLegend.pas (gridCounter summary) -- both
+//must exclude classes falling in weeks hidden via ufmain.week_visibility (see OmitWeeks in UUtilities.pas),
+//otherwise totals don't match what's actually shown on the schedule grid. Skipped entirely (zero query cost,
+//no extra SQL round-trip) when nothing is hidden -- the overwhelming common case.
+function getWeekVisibilityClause(periodId : string; const tablePrefix : String = 'CLA.') : string;
+var periodDateFromStr : string;
+    ts, weekStartTs, weekEndTs : TTimeStamp;
+    dw, startMonday, i : integer;
+    hiddenRanges : string;
+begin
+  result := '';
+  if Pos('-', ufmain.week_visibility) = 0 then exit;
+  periodDateFromStr := Dmodule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD'') FROM PERIODS WHERE ID='+periodId);
+  if isBlank(periodDateFromStr) then exit;
+
+  ts.Date := DateTimeToTimeStamp(EncodeDate(StrToInt(Copy(periodDateFromStr,1,4)),StrToInt(Copy(periodDateFromStr,6,2)),StrToInt(Copy(periodDateFromStr,9,2)))).Date;
+  ts.Time := 0;
+  dw := DayOfWeek(TimeStampToDateTime(ts));
+  startMonday := ts.Date - ((dw - 2 + 7) mod 7);  //Monday of the period-start week, mirrors MondayOf in UUtilities.pas
+
+  hiddenRanges := '';
+  for i := 1 to length(ufmain.week_visibility) do begin
+    if ufmain.week_visibility[i] = '-' then begin
+      weekStartTs.Date := startMonday + (i-1)*7; weekStartTs.Time := 0;
+      weekEndTs.Date   := startMonday + (i-1)*7 + 6; weekEndTs.Time := 0;
+      if hiddenRanges <> '' then hiddenRanges := hiddenRanges + ' OR ';
+      hiddenRanges := hiddenRanges +
+        '('+tablePrefix+'DAY BETWEEN TO_DATE('''+FormatDateTime('YYYY/MM/DD',TimeStampToDateTime(weekStartTs))+''',''YYYY/MM/DD'') AND TO_DATE('''+FormatDateTime('YYYY/MM/DD',TimeStampToDateTime(weekEndTs))+''',''YYYY/MM/DD''))';
+    end;
+  end;
+  if not isBlank(hiddenRanges) then result := ' AND NOT (' + hiddenRanges + ') ';
+end;
 
 //--------------------------------------------------------------------------------------
 function getResourcesByType(pResCatId : string; pResCatIds : string; pdesc : string) : string;

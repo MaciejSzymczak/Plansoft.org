@@ -166,7 +166,7 @@ object FToolWindow: TFToolWindow
     Top = 23
     Width = 19
     Height = 17
-    Hint = 'Przesu'#324' zaznaczony obszar w d'#243'l'
+    Hint = 'Przesu'#324' zaznaczony obszar w d'#243#322
     Flat = True
     Glyph.Data = {
       36050000424D3605000000000000360400002800000010000000100000000100

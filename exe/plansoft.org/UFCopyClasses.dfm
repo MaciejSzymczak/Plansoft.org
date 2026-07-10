@@ -224,7 +224,7 @@ inherited FCopyClasses: TFCopyClasses
       Top = 48
       Width = 425
       Height = 17
-      Caption = 'Kopiuj wszystko albo nic (Jakikowiek b'#322#261'd przerywa kopiowanie)'
+      Caption = 'Kopiuj wszystko albo nic (Jakikolwiek b'#322#261'd przerywa kopiowanie)'
       TabOrder = 2
     end
   end
