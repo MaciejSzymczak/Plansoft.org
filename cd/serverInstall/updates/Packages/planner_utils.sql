@@ -213,6 +213,7 @@ create or replace package planner_utils AUTHID CURRENT_USER is
 
   FUNCTION get_excluded_res_ids(p1 IN VARCHAR2) RETURN VARCHAR2;
   PROCEDURE clone_holidays (source_per_id IN NUMBER,target_per_id    IN NUMBER,delete_target   varchar2);
+  PROCEDURE clone_holidays_to_childs (source_per_id IN NUMBER, delete_target varchar2);
 
 end planner_utils;
 /
@@ -2587,6 +2588,27 @@ BEGIN
 
         INSERT INTO holiday_days VALUES currrec;
     END LOOP;
+END;
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+PROCEDURE clone_holidays_to_childs (source_per_id IN NUMBER, delete_target varchar2)
+IS
+BEGIN
+    IF delete_target = 'Y' THEN
+        DELETE FROM holiday_days WHERE per_id IN (SELECT id FROM periods WHERE parent_per_id = source_per_id);
+    END IF;
+
+    INSERT INTO holiday_days (id, day, hour, type, classes_allowed, per_id)
+    SELECT RES_SEQ.NEXTVAL, hd.day, hd.hour, hd.type, hd.classes_allowed, chld.id
+    FROM holiday_days hd
+    JOIN periods chld ON chld.parent_per_id = source_per_id
+    WHERE hd.per_id = source_per_id
+      AND NOT EXISTS (
+        SELECT 1 FROM holiday_days existing
+        WHERE existing.per_id = chld.id
+          AND existing.day = hd.day
+          AND existing.hour = hd.hour
+      );
 END;
 
 begin

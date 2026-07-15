@@ -9029,11 +9029,18 @@ inherited FMain: TFMain
       OnClick = Nieusuwajistniajcedniwolne1Click
     end
   end
-  object Navigator: TTimer
+  object TTNavigator: TTimer
     Enabled = False
     Interval = 500
-    OnTimer = NavigatorTimer
+    OnTimer = TTNavigatorTimer
     Left = 1140
+    Top = 272
+  end
+  object HolidaysQueueTimer: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = HolidaysQueueTimerTimer
+    Left = 1180
     Top = 272
   end
 end

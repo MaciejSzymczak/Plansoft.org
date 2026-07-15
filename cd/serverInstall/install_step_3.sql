@@ -11,6 +11,18 @@ begin
 end; 
 /
 
+begin
+  dbms_scheduler.create_job(
+	  job_name => 'WAITING_TASKS_PROCESSOR_TASK'
+	 ,job_type => 'PLSQL_BLOCK'
+	 ,job_action => 'begin waiting_tasks_processor.run; end;'
+	, repeat_interval => 'FREQ=MINUTELY;INTERVAL=5'
+	, enabled            =>  true
+	 ,comments => '');
+--DISPLAY SCHEDULED JOBS:  select * from dba_scheduler_jobs
+--DROP JOB              :  begin dbms_scheduler.drop_job('WAITING_TASKS_PROCESSOR'); end;
+end;
+
 
 insert into system_parameters (name, value) values ('DIFF_MODE', 'SCHEDULER');
 Commit;

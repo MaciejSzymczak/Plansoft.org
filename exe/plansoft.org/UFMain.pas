@@ -134,6 +134,7 @@ type TClassByResCaches = class
                       Procedure ReservationsCacheLoadPeriod(PPER_ID : String);
                       Function IsReserved(TS: TTimeStamp; Zajecia : Integer) : String;
                       Procedure Invert(TS: TTimeStamp; Zajecia: Integer);
+                      Procedure QueueCloneHolidaysToChilds;
 
                      private
                       Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
@@ -599,7 +600,8 @@ type
     Przedskopiowanieskasujistniajcedniwolne1: TMenuItem;
     Nieusuwajistniajcedniwolne1: TMenuItem;
     sql_COM_SEARCH: TMemo;
-    Navigator: TTimer;
+    TTNavigator: TTimer;
+    HolidaysQueueTimer: TTimer;
     N10: TMenuItem;
     Wersjonowanie1: TMenuItem;
     showbgroups: TCheckBox;
@@ -951,7 +953,8 @@ type
     procedure Przedskopiowanieskasujistniajcedniwolne1Click(
       Sender: TObject);
     procedure Nieusuwajistniajcedniwolne1Click(Sender: TObject);
-    procedure NavigatorTimer(Sender: TObject);
+    procedure TTNavigatorTimer(Sender: TObject);
+    procedure HolidaysQueueTimerTimer(Sender: TObject);
     procedure Wersjonowanie1Click(Sender: TObject);
     procedure showbgroupsClick(Sender: TObject);
     procedure LprofileObjectNameLClick(Sender: TObject);
@@ -975,6 +978,7 @@ type
     dockingPanel  : integer;
     SearchCounter   : Integer;
     NavigatorCnt   : Integer;
+    HolidaysQueueCnt   : Integer;
     gridRefreshCounter   : Integer;
     userLogged : boolean;
     ignoreEvents : boolean;
@@ -5071,6 +5075,13 @@ begin
  Result := Storage[t1][Zajecia];
 end;
 
+procedure TReservationsCache.QueueCloneHolidaysToChilds;
+begin
+  DModule.SQL('delete from Waiting_tasks  where code=''CLONE_HOLIDAYS_TO_CHILDS'' and per_id='+PER_ID);
+  DModule.SQL('INSERT INTO Waiting_tasks (id, code, per_id) VALUES (MAIN_SEQ.nextval, ''CLONE_HOLIDAYS_TO_CHILDS'', '+PER_ID+')');
+  FMain.Zapisz1Click(nil);
+end;
+
 procedure TReservationsCache.Invert(TS: TTimeStamp; Zajecia: Integer);
 Var t1 : Integer;
 begin
@@ -5083,6 +5094,8 @@ begin
      DModule.SQL('INSERT INTO HOLIDAY_DAYS (ID, DAY, HOUR, TYPE, CLASSES_ALLOWED, PER_ID) VALUES (RES_SEQ.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+', '''+nvl(fmain.ReservationType.Text,'HOLIDAY')+''','''+BoolToStr(fmain.CLASSES_ALLOWED.checked)+''','''+PER_ID+''')');
      Storage[t1][Zajecia] := BoolToStr(fmain.CLASSES_ALLOWED.checked) + ':' + nvl(fmain.ReservationType.Text,'HOLIDAY');
    end;
+ fmain.HolidaysQueueCnt := 5;
+ fmain.HolidaysQueueTimer.Enabled := true;
 end;
 
 
@@ -8366,7 +8379,7 @@ end;
 procedure TFMain.SearchMenu1Change(Sender: TObject);
 begin
   NavigatorCnt := 2;
-  Navigator.Enabled := true;
+  TTNavigator.Enabled := true;
 end;
 
 procedure TFMain.TreeView1Click(Sender: TObject);
@@ -9762,6 +9775,8 @@ procedure TFMain.Przedskopiowanieskasujistniajcedniwolne1Click(
   Sender: TObject);
 begin
  DModule.SQL('BEGIN delete from holiday_days where per_id='+conPeriod.Text+'; commit; END;');
+ HolidaysQueueCnt := 5;
+ HolidaysQueueTimer.Enabled := true;
  DeepRefreshImmediate('DeepRefreshButtonClick');
 end;
 
@@ -9770,13 +9785,22 @@ begin
   CopyPeriodDays(false);
 end;
 
-procedure TFMain.NavigatorTimer(Sender: TObject);
+procedure TFMain.TTNavigatorTimer(Sender: TObject);
 begin
   If NavigatorCnt = 1 Then Begin
-    Navigator.Enabled := false;
+    TTNavigator.Enabled := false;
     RefreshNavigatorImmediate;
   end;
   If NavigatorCnt > 0 Then NavigatorCnt := NavigatorCnt - 1;
+end;
+
+procedure TFMain.HolidaysQueueTimerTimer(Sender: TObject);
+begin
+  If HolidaysQueueCnt = 1 Then Begin
+    HolidaysQueueTimer.Enabled := false;
+    ReservationsCache.QueueCloneHolidaysToChilds;
+  end;
+  If HolidaysQueueCnt > 0 Then HolidaysQueueCnt := HolidaysQueueCnt - 1;
 end;
 
 procedure TFMain.Wersjonowanie1Click(Sender: TObject);

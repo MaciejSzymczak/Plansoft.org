@@ -8,12 +8,12 @@ inherited FListOrganizer: TFListOrganizer
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 379
+    Top = 380
     Width = 451
   end
   object Panel1: TPanel
     Left = 0
-    Top = 320
+    Top = 321
     Width = 451
     Height = 59
     Align = alBottom
@@ -141,7 +141,7 @@ inherited FListOrganizer: TFListOrganizer
       TabOrder = 2
       OnClick = BAddClick
       Glyph.Data = {
-        42090000424D4209000000000000360400002800000013000000110000000100
+        42090000424D420D000000000000360800002800000013000000110000000100
         2000000000000C05000000000000000000000001000000000000000000008080
         8000000080000080800000800000808000008000000080008000408080004040
         0000FF80000080400000FF00400000408000FFFFFF00C0C0C0000000FF0000FF
@@ -222,7 +222,7 @@ inherited FListOrganizer: TFListOrganizer
       Top = 6
       Width = 105
       Height = 43
-      Hint = 'Usu'#324' wszystkie dane, aktualnie wy'#347'wietlane w li'#347'cie'
+      Hint = 'Pokaz wszystkie nadrz'#281'dne i podrz'#281'dne'
       Caption = 'Zale'#380'ne'
       ParentShowHint = False
       ShowHint = True
@@ -425,7 +425,7 @@ inherited FListOrganizer: TFListOrganizer
     Left = 0
     Top = 0
     Width = 44
-    Height = 320
+    Height = 321
     Align = alLeft
     TabOrder = 2
     Visible = False
@@ -584,14 +584,14 @@ inherited FListOrganizer: TFListOrganizer
     Left = 44
     Top = 0
     Width = 407
-    Height = 320
+    Height = 321
     Align = alClient
     TabOrder = 3
     object lbNames: TListBox
       Left = 1
       Top = 1
       Width = 405
-      Height = 318
+      Height = 319
       Align = alClient
       DragMode = dmAutomatic
       ItemHeight = 14

@@ -242,6 +242,10 @@ type
     procedure RHideEmptyRowsBClick(Sender: TObject);
   private
     procedure showHideEditButton;
+    procedure SyncLegendColorBy(ViewCombo, ColorByCombo: TComboBox);
+    procedure LViewTypeChange(Sender: TObject);
+    procedure GViewTypeChange(Sender: TObject);
+    procedure RViewTypeChange(Sender: TObject);
   public
     Path : String;
     LHideDows : string;
@@ -282,6 +286,31 @@ begin
   if not fileExists (path+'A4') and fileExists(exePath+'A4') then
     copyFile(PAnsiChar(exePath+'A4'), PAnsiChar(path+'A4'), false);
 
+  LViewType.OnChange := LViewTypeChange;
+  GViewType.OnChange := GViewTypeChange;
+  RViewType.OnChange := RViewTypeChange;
+end;
+
+procedure TFSettings.SyncLegendColorBy(ViewCombo, ColorByCombo: TComboBox);
+var idx: Integer;
+begin
+  idx := ColorByCombo.Items.IndexOf(ViewCombo.Text);
+  if idx >= 0 then ColorByCombo.ItemIndex := idx;
+end;
+
+procedure TFSettings.LViewTypeChange(Sender: TObject);
+begin
+  SyncLegendColorBy(LViewType, llegendColorBy);
+end;
+
+procedure TFSettings.GViewTypeChange(Sender: TObject);
+begin
+  SyncLegendColorBy(GViewType, glegendColorBy);
+end;
+
+procedure TFSettings.RViewTypeChange(Sender: TObject);
+begin
+  SyncLegendColorBy(RViewType, rlegendColorBy);
 end;
 
 procedure TFSettings.HTML(Prog : String);
