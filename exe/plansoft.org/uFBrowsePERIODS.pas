@@ -47,6 +47,11 @@ type
     Label5: TLabel;
     WEEK_VISIBILITY: TDBEdit;
     WEEK_VISIBILITY_BTN: TSpeedButton;
+    LabelPARENT_PER_ID: TLabel;
+    PARENT_PER_ID: TDBEdit;
+    PARENT_PER_ID_VALUE: TEdit;
+    BClearPARENT_PER_ID: TBitBtn;
+    SpeedButton5: TSpeedButton;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -64,8 +69,12 @@ type
     procedure ChLokedFlagClick(Sender: TObject);
     procedure WEEK_VISIBILITY_BTNClick(Sender: TObject);
     procedure HIDE_ROWS_BTNClick(Sender: TObject);
+    procedure PARENT_PER_IDChange(Sender: TObject);
+    procedure PARENT_PER_ID_VALUEClick(Sender: TObject);
+    procedure BClearPARENT_PER_IDClick(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
   private
-    { Private declarations }
+    ParentPerIdChanged : Boolean;
   public
     Procedure GetTableName;  override;
     Function  CheckRecord : Boolean;       override;
@@ -250,6 +259,10 @@ begin
     FSharing.init('I','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
     dmodule.CommitTrans;
  end;
+ If ParentPerIdChanged Then begin
+    DModule.SQL('INSERT INTO Waiting_tasks (id, code, per_id) VALUES (MAIN_SEQ.nextval, ''CLONE_HOLIDAYS_TO_CHILDS'', '+Query.FieldByName('PARENT_PER_ID').AsString+')');
+    ParentPerIdChanged := False;
+ end;
 end;
 
 procedure TFBrowsePERIODS.PER_ORGUNI_IDChange(Sender: TObject);
@@ -263,6 +276,33 @@ begin
   ID := PER_ORGUNI_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
   If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PER_ORGUNI_ID').AsString := ID;
+end;
+
+procedure TFBrowsePERIODS.PARENT_PER_IDChange(Sender: TObject);
+begin
+    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PERIODS','');
+end;
+
+procedure TFBrowsePERIODS.PARENT_PER_ID_VALUEClick(Sender: TObject);
+Var ID : ShortString;
+    Filter : String;
+begin
+  ID := PARENT_PER_ID.Text;
+  if Self.ID.Text <> '' then Filter := 'ID<>'+Self.ID.Text else Filter := '0=0';
+  If LookupWindow(false, DModule.ADOConnection, 'PERIODS','','NAME','NAZWA SEMESTRU','NAME',Filter,'',ID) = mrOK Then begin
+    Query.FieldByName('PARENT_PER_ID').AsString := ID;
+    ParentPerIdChanged := True;
+  end;
+end;
+
+procedure TFBrowsePERIODS.BClearPARENT_PER_IDClick(Sender: TObject);
+begin
+ Query.FieldByName('PARENT_PER_ID').Clear;
+end;
+
+procedure TFBrowsePERIODS.SpeedButton5Click(Sender: TObject);
+begin
+  SError('Wybierz semestr nadrzêdny, je¿eli chcesz aby dni wolne automatycznie kopiowa³y siê z tego semestru');
 end;
 
 procedure TFBrowsePERIODS.ROL_ID_VALUEClick(Sender: TObject);

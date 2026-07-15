@@ -29,6 +29,14 @@ status varchar2(30) DEFAULT 'WAITING',
 priority number default 99 
 );
 
+alter table lec_pla add ( Access_Type varchar2(1) default 'E');
+alter table gro_pla add ( Access_Type varchar2(1) default 'E');
+alter table rom_pla add ( Access_Type varchar2(1) default 'E');
+alter table sub_pla add ( Access_Type varchar2(1) default 'E');
+alter table for_pla add ( Access_Type varchar2(1) default 'E');
+alter table per_pla add ( Access_Type varchar2(1) default 'E');
+alter table rol_pla add ( Access_Type varchar2(1) default 'E');
+
 *** install package planner_utils
 *** install package waiting_tasks_processor
 
