@@ -17,6 +17,8 @@ type
     Panel5: TPanel;
     SGNewClass: TStringGrid;
     SGConflicts: TStringGrid;
+    SGHints: TStringGrid;
+    PanelHints: TPanel;
     infoDeleteForbiden: TLabel;
     procedure SGConflictsDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);

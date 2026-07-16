@@ -96,6 +96,11 @@ Type TSingleClass = Record
                       conflictReason: string[255];
                     End;
 
+Type TSingleHint = Record
+                      ResName : string[255];
+                      Ratio   : integer;
+                    End;
+
 Type TCheckConflicts = Class
            NewClassWithChilds : TSingleClass;
            NewClassToCreate : TSingleClass;
@@ -104,6 +109,7 @@ Type TCheckConflicts = Class
            Completion       : Boolean;
            CanDelete        : Boolean;
            currentClassId   : Integer;
+           Hints            : Array Of TSingleHint;
 
            private
              procedure internalCreate(
@@ -133,6 +139,8 @@ Type TCheckConflicts = Class
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
              function  empty : Boolean;
              function  checkConflictsInsert ( ttCombIds        : string ) : Boolean;
+             function  hintsReport(Day : TTimeStamp; Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
+             procedure getHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
          End;
 
 Var
@@ -1189,6 +1197,16 @@ Begin
  End;
 End;
 
+Function BlokLabel(Hour : Integer) : String;
+Begin
+  //grids.caption bywa u niektorych klientow ustawiony na sam numer bloku - wtedy pokaz zakres godzin
+  //(hour_from/hour_to sa juz wczesniej zaladowane do pamieci przez gridDefinition.internalCreate - brak dodatkowego zapytania do bazy)
+  If (Trim(gridDefinition.hour_from[Hour]) <> '') or (Trim(gridDefinition.hour_to[Hour]) <> '') Then
+    Result := Trim(gridDefinition.hour_from[Hour]) + '-' + Trim(gridDefinition.hour_to[Hour])
+  Else
+    Result := gridDefinition.getLabel(Hour);
+End;
+
 Procedure TCheckConflicts.GetDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
  Function GetLecturers(Pointers : TPointers) : String;
  Var t : Integer;
@@ -1233,7 +1251,7 @@ Begin
  L.Visible := Not CanDelete;
 
  SGNewClass.Cells[0,1] := GetDate(NewClassToCreate.Day.Date);
- SGNewClass.Cells[1,1] := IntToStr(NewClassToCreate.Hour);
+ SGNewClass.Cells[1,1] := BlokLabel(NewClassToCreate.Hour);
  SGNewClass.Cells[2,1] := GetLecturers(NewClassToCreate.Lecturers);
  SGNewClass.Cells[3,1] := GetGroups(NewClassToCreate.Groups);
  SGNewClass.Cells[4,1] := GetRooms(NewClassToCreate.Rooms);
@@ -1259,7 +1277,7 @@ Begin
     if pos('G', ConflictsClasses[t].conflictReason)<>0 then MarkG := '>> ';
     if pos('S', ConflictsClasses[t].conflictReason)<>0 then MarkR := '>> ';
     Cells[0,t] := GetDate(ConflictsClasses[t].Day.Date);
-    Cells[1,t] := IntToStr(ConflictsClasses[t].Hour);
+    Cells[1,t] := BlokLabel(ConflictsClasses[t].Hour);
     Cells[2,t] := MarkL+GetLecturers(ConflictsClasses[t].Lecturers);
     Cells[3,t] := MarkG+GetGroups(ConflictsClasses[t].Groups);
     Cells[4,t] := MarkR+GetRooms(ConflictsClasses[t].Rooms);
@@ -1282,8 +1300,58 @@ Begin
  End;
 End;
 
-Function GetCLASSESforL(colName, colname2, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
-var lmode : shortString;
+Function TCheckConflicts.HintsReport(Day : TTimeStamp; Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
+Var t   : Integer;
+    ids : String;
+Begin
+  ids := '';
+  For t := 1 To maxInClass Do Begin
+    If Lecturers[t] <> 0 Then ids := merge(ids, IntToStr(Lecturers[t]), ',');
+    If Groups[t]    <> 0 Then ids := merge(ids, IntToStr(Groups[t]),    ',');
+    If Rooms[t]     <> 0 Then ids := merge(ids, IntToStr(Rooms[t]),     ',');
+  End;
+
+  SetLength(Hints, 0);
+
+  If ids <> '' Then Begin
+    DModule.openSQL(
+      'select resources.name res_name, res_hints.ratio '+
+      'from res_hints, resources '+
+      'where res_hints.res_id = resources.id '+
+      '  and res_hints.day = '+TSDateToOracle(Day)+' '+
+      '  and res_hints.hour = '+IntToStr(Hour)+' '+
+      '  and res_hints.res_id in ('+ids+') '+
+      '  and res_hints.ratio < 0 '+
+      'order by res_hints.ratio');
+    While Not DModule.QWork.EOF Do Begin
+      SetLength(Hints, Length(Hints)+1);
+      Hints[High(Hints)].ResName := DModule.QWork.FieldByName('res_name').AsString;
+      Hints[High(Hints)].Ratio   := DModule.QWork.FieldByName('ratio').AsInteger;
+      DModule.QWork.Next;
+    End;
+  End;
+
+  Result := Length(Hints) > 0;
+End;
+
+Procedure TCheckConflicts.GetHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
+Var t : Integer;
+Begin
+  With SGHints Do Begin
+    RowCount := Length(Hints) + 1; //+1 for header
+    For t := 0 To High(Hints) Do Begin
+      Cells[0, t+1] := GetDate(Day.Date);
+      Cells[1, t+1] := BlokLabel(Hour);
+      Cells[2, t+1] := Hints[t].ResName;
+      Cells[3, t+1] := 'NIE ' + IntToStr(Abs(Hints[t].Ratio)); //SQL already filters ratio<0, so always negative/discouraged here
+
+      dataStamp := dataStamp +
+        'Hint:'+IntToStr(t)+',R:'+Hints[t].ResName+',V:'+IntToStr(Hints[t].Ratio);
+    End;
+  End;
+End;
+
+Function GetCLASSESforL(colName, colname2, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;var lmode : shortString;
     ChildsAndParents : string;
 begin
 

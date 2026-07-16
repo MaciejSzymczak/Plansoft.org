@@ -8,6 +8,54 @@ SELECT
     ROUND(SUM(bytes)/1024/1024/1024/12*100,2) AS used_percent
 FROM dba_segments;
 
+SELECT owner,
+       segment_name,
+       segment_type,
+       ROUND(bytes/1024/1024,2) MB
+FROM dba_segments
+ORDER BY bytes DESC
+FETCH FIRST 20 ROWS ONLY;
+
+ALTER TABLE CLASSES ENABLE ROW MOVEMENT;
+ALTER TABLE CLASSES SHRINK SPACE CASCADE;
+ALTER TABLE CLASSES DISABLE ROW MOVEMENT;
+
+SELECT owner,
+       ROUND(SUM(bytes)/1024/1024/1024,2) GB
+FROM dba_segments
+GROUP BY owner
+ORDER BY GB DESC;
+
+SELECT COUNT(DISTINCT sql_id)
+FROM v$sql;
+
+
+BEGIN
+  DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(
+    topnsql => 30,
+    interval => 60
+  );
+END;
+/
+
+BEGIN
+  DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(
+    retention => 11520  -- 8 dni
+  );
+END;
+/
+
+BEGIN
+  DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(
+    low_snap_id  => 1,
+    high_snap_id => 200
+  );
+END;
+/
+
+
+REBUILD
+=======================================================
 
 
 BEGIN

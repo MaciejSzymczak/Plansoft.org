@@ -928,7 +928,7 @@ create or replace package body planner_utils is
     ----------------------------------------------
     procedure check_locks is 
     begin
-      IdsIntoHelper (pcalc_lec_ids, pcalc_gro_ids,pcalc_rom_ids,'','' );
+      -- HELPER_RES (lec+gro+rom ids) is already built once upfront, shared with addOwners below - no rebuild needed here
        for rec in (
             select (select title||' '||last_name||' '||first_name from lecturers where id=timetable_notes.res_id) 
                 || (select nvl(abbreviation, name) from groups where id=timetable_notes.res_id)
@@ -954,7 +954,10 @@ create or replace package body planner_utils is
   function addOwners (owners varchar2, lec varchar2, gro varchar2, res varchar2, sub varchar2, frm varchar2) return varchar2 is 
     out_owners varchar2(1000) := owners;
   begin
-      IdsIntoHelper(lec, gro, res, sub, frm);
+      -- HELPER_RES already holds lec+gro+rom ids from the shared upfront build; just add subject+form on top
+      -- (matches the original combined set this function used to rebuild from scratch: lec+gro+rom+sub+frm)
+      if sub is not null then insert into HELPER_RES (id) values (sub); end if;
+      if frm is not null then insert into HELPER_RES (id) values (frm); end if;
       out_owners := replace(';'||owners,' ','');
       for rec in (select unique pla.name from owners, planners pla where owners.pla_id = pla.id and res_id in (select id from HELPER_RES)) loop
         if INSTR(out_owners, ';'||rec.name) = 0 then
@@ -1011,6 +1014,9 @@ create or replace package body planner_utils is
    end if;  
    end if;
 
+    -- build HELPER_RES (lec+gro+rom ids) once here - shared by check_locks and addOwners below, avoiding a redundant second rebuild
+    IdsIntoHelper (pcalc_lec_ids, pcalc_gro_ids, pcalc_rom_ids, '', '');
+
     if (psub_id=-1 or psub_id=-2) then
       pno_conflict_flag := '+';
     else
@@ -1026,7 +1032,10 @@ create or replace package body planner_utils is
         loop
           raise_application_error(-20000, 'Planowanie zajec w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zostalo zablokowane przez uzytkownika '||rec.created_by);
         end loop;   
-        check_locks;
+        -- skip the whole lock-check machinery (scratch-table rebuild + correlated-subquery scan) when nothing is locked anywhere - cheap existence check, safe no-op when it returns false
+        if exists (select 1 from timetable_notes where locked_by is not null and rownum = 1) then
+          check_locks;
+        end if;
         --
         if pgrantPermissions = 'Y' then auto_grant_permissions; end if;
     end if;

@@ -2886,6 +2886,7 @@ Procedure TFMain.insertClasses;
  var priorDataStamp : string;
      priorAnswer    : TModalResult;
      Answer    : TModalResult;
+     anyHintsExist  : Boolean;
 
  function XAddClass : boolean;
  var t : Integer;
@@ -2898,6 +2899,7 @@ Procedure TFMain.insertClasses;
      resourceList                : string;
      ttCombIds                   : string;
      subjectIds                  : string;
+     hintsFound                  : Boolean;
  Begin
     For t := 1 To maxInClass Do Begin
       PLecturers[t] :=0;
@@ -3050,12 +3052,26 @@ Procedure TFMain.insertClasses;
      , pdesc4);
     End;
 
+    if anyHintsExist then
+      hintsFound := checkConflicts.HintsReport(TS, Zajecia, PLecturers, PGroups, PRooms)
+    else
+      hintsFound := false;
+
     result := false;
-    If Not checkConflicts.Empty Then
+    If (Not checkConflicts.Empty) or hintsFound Then
     begin
 
       priorDataStamp := fShowConflicts.dataStamp;
       checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
+      checkConflicts.GetHintsDesc(fShowConflicts.SGHints, TS, Zajecia, fShowConflicts.dataStamp);
+
+      fShowConflicts.PanelHints.Visible := hintsFound;
+      fShowConflicts.PanelIs.Visible := Not checkConflicts.Empty;
+      fShowConflicts.Panel5.Visible  := Not checkConflicts.Empty;
+      if checkConflicts.Empty then
+        fShowConflicts.BDelete.Caption := 'Kontynuuj'
+      else
+        fShowConflicts.BDelete.Caption := format('Kontynuuj - usuñ istniej¹ce %s', [fprogramsettings.profileObjectNameClasses.Text]);
 
       priorAnswer := answer;
 
@@ -3119,6 +3135,9 @@ begin
 
 
  If FDetails.ShowModal = mrOK Then Begin
+
+    //fix perf: check ONCE per batch whether any negative res_hints exist at all, so XAddClass can skip the per-cell query entirely in the common case
+    anyHintsExist := DModule.SingleValue('select case when exists (select 1 from res_hints where ratio<0) then 1 else 0 end val from dual') = '1';
 
     {
     calendarSelected := fdetails.CALID.Text<>'-1';
@@ -4009,7 +4028,7 @@ begin
 
    with fShowConflicts do begin
      PanelNew.Caption           := format('%s - nowe', [profileObjectNameClass.Text]);
-     PanelIs.Caption            := format('%s - istniej¹ce', [profileObjectNameClasses.Text]);
+     PanelIs.Caption            := format('Istniej¹ce %s', [profileObjectNameClasses.Text]);
      infoDeleteForbiden.Caption := format('Nie powiedzie siê usuniêcie %s, poniewa¿ w³aœcicielem tych danych jest inny %s', [profileObjectNameClassgen.Text, profileObjectNamePlanner.Text]);
      BDelete.Caption            := format('Usuñ istniej¹ce %s a nastêpnie dopisz nowe', [profileObjectNameClasses.Text]);
 
@@ -4031,6 +4050,11 @@ begin
      SGConflicts.Cells[6,0] := profileObjectNameC2.Text + '/ rezerwacja';
      SGConflicts.Cells[7,0] := 'W³aœciel';
      SGConflicts.Cells[8,0] := 'Przyczyna';
+
+     SGHints.Cells[0,0] := 'Data';
+     SGHints.Cells[1,0] := 'Blok';
+     SGHints.Cells[2,0] := 'Zasób';
+     SGHints.Cells[3,0] := 'Preferencja';
    end;
    //uprawnienia do obj +texts
    // dict windows - details + rzutnik +hints
