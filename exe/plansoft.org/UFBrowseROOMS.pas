@@ -150,6 +150,7 @@ type
     Function  getSearchFilter : string;  override;
    function  getFindCaption : string;   override;
     Function  canEditPermission : Boolean;   override;
+    Function  IsRecordReadOnly : Boolean;   override;
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;  end;
 
@@ -675,6 +676,11 @@ end;
 function TFBrowseROOMS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
+end;
+
+function TFBrowseROOMS.IsRecordReadOnly: Boolean;
+begin
+ result := isReadOnlyAccess('ROOMS', TFBrowseParent(Self).ID);
 end;
 
 function TFBrowseROOMS.canInsert: Boolean;

@@ -65,6 +65,7 @@ type
     Procedure CustomConditions; override;
     Procedure AfterPost; override;
     Function  canEditPermission : Boolean;   override;
+    Function  IsRecordReadOnly : Boolean;   override;
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;
     Function  getSearchFilter : string;  override;
@@ -215,6 +216,11 @@ end;
 function TFBrowseFORMS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
+end;
+
+function TFBrowseFORMS.IsRecordReadOnly: Boolean;
+begin
+ result := isReadOnlyAccess('FORMS', TFBrowseParent(Self).ID);
 end;
 
 function TFBrowseFORMS.canInsert: Boolean;

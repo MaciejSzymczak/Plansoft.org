@@ -8,7 +8,7 @@ uses
   Placemnt, Db, RxQuery, UFormConfig, StrHlder,
   RxDBComb, UFReadString, ComCtrls, UFDatabaseError, MaxMin,
   UFlex, ToolEdit, ImgList, adodb, Mask, OleServer,
-  TlHelp32, variants, ActiveX, ExcelXP;
+  TlHelp32, variants, ActiveX, ExcelXP, TypInfo;
 
   const maxFlexs = 15;
 
@@ -334,6 +334,8 @@ type
    Function  GetFieldType(Field : TField) : ShortString;
    procedure LockNotUpdatable;
    procedure UnLockNotUpdatable;
+   procedure LockAllDataControls;
+   procedure UnlockAllDataControls;
    function  UpdApplyAndClose : boolean;
    function  getOrderByClause : String;
   public
@@ -387,6 +389,7 @@ type
    Function  canShow      : Boolean;        virtual;
    Function  canEditIntegrity  : Boolean;   Virtual;
    Function  canEditPermission : Boolean;   Virtual;
+   Function  IsRecordReadOnly : Boolean;      Virtual;
    Function  canInsert    : Boolean;        Virtual;
    Function  canDelete    : Boolean;        Virtual;
    Function  canDeleteRecord    : Boolean;        Virtual;
@@ -509,6 +512,12 @@ End;
 Function TFBrowseParent.canEditPermission : Boolean;
 Begin
  Result := True;
+End;
+
+//------------------------------------------------------------------
+Function TFBrowseParent.IsRecordReadOnly : Boolean;
+Begin
+ Result := False;
 End;
 
 //------------------------------------------------------------------
@@ -1012,7 +1021,7 @@ Begin
   id := Query.FieldByName(KeyField).AsString;
   //
   If Not BDelete.Enabled Then Exit;
-  If Not CanDeleteRecord Then Begin
+  If (Not CanDeleteRecord) or IsRecordReadOnly Then Begin
     Warning(Komunikaty.Strings[3]);
     Exit;
   End;
@@ -1478,7 +1487,7 @@ Begin
 
     Query.First;
     While Not Query.EOF Do Begin
-     If CanDeleteRecord Then Begin
+     If CanDeleteRecord and (not IsRecordReadOnly) Then Begin
       Execute(ADelete,'');
      End Else Begin
        Warning(Komunikaty.Strings[3]);
@@ -2663,6 +2672,7 @@ Try
   BUpdChild4.Enabled := True;
   BUpdChild5.Enabled := True;
   LockNotUpdatable;
+  If IsRecordReadOnly Then LockAllDataControls;
  End
  Else Begin
   BUpdChild1.Enabled := False;
@@ -2671,6 +2681,7 @@ Try
   BUpdChild4.Enabled := False;
   BUpdChild5.Enabled := False;
   UnLockNotUpdatable;
+  UnlockAllDataControls;
  End;
 
  flexRefreshFormView;
@@ -3151,6 +3162,44 @@ Begin
  For t := 0 To not_updatable_labels.C Do
   TLabel(not_updatable_labels.A[t]).Color := clBtnFace;
 End;
+
+//------------------------------------------------------------------
+procedure TFBrowseParent.LockAllDataControls;
+  procedure LockRecursive(AParent : TWinControl);
+  Var i : Integer;
+  Begin
+    For i := 0 To AParent.ControlCount - 1 Do Begin
+      If IsPublishedProp(AParent.Controls[i], 'DataField') or IsPublishedProp(AParent.Controls[i], 'ReadOnly') Then
+        TControl(AParent.Controls[i]).Enabled := False
+      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
+        TControl(AParent.Controls[i]).Enabled := False
+      Else If AParent.Controls[i] is TWinControl Then
+        LockRecursive(TWinControl(AParent.Controls[i]));
+    End;
+  End;
+begin
+  LockRecursive(Update);
+  BUpdOK.Enabled := False;
+end;
+
+//------------------------------------------------------------------
+procedure TFBrowseParent.UnlockAllDataControls;
+  procedure UnlockRecursive(AParent : TWinControl);
+  Var i : Integer;
+  Begin
+    For i := 0 To AParent.ControlCount - 1 Do Begin
+      If IsPublishedProp(AParent.Controls[i], 'DataField') or IsPublishedProp(AParent.Controls[i], 'ReadOnly') Then
+        TControl(AParent.Controls[i]).Enabled := True
+      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
+        TControl(AParent.Controls[i]).Enabled := True
+      Else If AParent.Controls[i] is TWinControl Then
+        UnlockRecursive(TWinControl(AParent.Controls[i]));
+    End;
+  End;
+begin
+  UnlockRecursive(Update);
+  BUpdOK.Enabled := True;
+end;
 
 //------------------------------------------------------------------
 procedure TFBrowseParent.bUpdNewClick(Sender: TObject);

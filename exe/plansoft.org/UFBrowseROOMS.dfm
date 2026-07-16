@@ -7,18 +7,18 @@ inherited FBrowseROOMS: TFBrowseROOMS
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 639
+    Top = 640
     Width = 1185
   end
   inherited MainPage: TPageControl
     Width = 1185
-    Height = 639
+    Height = 640
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 1142
         Top = 145
         Width = 4
-        Height = 407
+        Height = 408
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -27,7 +27,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
       inherited Grid: TRxDBGrid
         Top = 145
         Width = 1142
-        Height = 407
+        Height = 408
         Columns = <
           item
             Expanded = False
@@ -319,11 +319,11 @@ inherited FBrowseROOMS: TFBrowseROOMS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 571
+        Top = 572
         Width = 1177
       end
       inherited Panel: TPanel
-        Top = 552
+        Top = 553
         Width = 1177
         inherited StatusBar: TStatusBar
           Width = 1108
@@ -649,7 +649,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Left = 1146
         Top = 145
         Width = 31
-        Height = 407
+        Height = 408
         ActivePage = Hierarchy
         Align = alRight
         MultiLine = True
@@ -662,7 +662,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
             Left = 0
             Top = 0
             Width = 4
-            Height = 399
+            Height = 400
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
@@ -888,7 +888,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               Left = 1
               Top = 194
               Width = 2
-              Height = 204
+              Height = 205
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 1
@@ -903,7 +903,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
               end
               object Panel3: TPanel
                 Left = 1
-                Top = 162
+                Top = 163
                 Width = 0
                 Height = 41
                 Align = alBottom
@@ -1053,7 +1053,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
                 Left = 1
                 Top = 17
                 Width = 0
-                Height = 145
+                Height = 146
                 Align = alClient
                 DataSource = DSDetails
                 Font.Charset = DEFAULT_CHARSET
@@ -1355,7 +1355,7 @@ inherited FBrowseROOMS: TFBrowseROOMS
         Visible = False
       end
       inherited UpdPanel: TPanel
-        Top = 575
+        Top = 576
         Width = 1177
         TabOrder = 6
         inherited BUpdChild1: TBitBtn

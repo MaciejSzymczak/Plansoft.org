@@ -7,18 +7,18 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 804
+    Top = 805
     Width = 1187
   end
   inherited MainPage: TPageControl
     Width = 1187
-    Height = 804
+    Height = 805
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 811
         Top = 145
         Width = 4
-        Height = 572
+        Height = 573
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -80,7 +80,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       inherited Grid: TRxDBGrid
         Top = 145
         Width = 811
-        Height = 572
+        Height = 573
         Columns = <
           item
             Expanded = False
@@ -402,11 +402,11 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 736
+        Top = 737
         Width = 1179
       end
       inherited Panel: TPanel
-        Top = 717
+        Top = 718
         Width = 1179
         inherited StatusBar: TStatusBar
           Width = 1110
@@ -750,7 +750,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Left = 815
         Top = 145
         Width = 364
-        Height = 572
+        Height = 573
         ActivePage = Hierarchy
         Align = alRight
         Font.Charset = EASTEUROPE_CHARSET
@@ -770,7 +770,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
             Left = 0
             Top = 0
             Width = 337
-            Height = 564
+            Height = 565
             Align = alClient
             TabOrder = 0
             object Splitter2: TSplitter
@@ -1248,7 +1248,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               Left = 1
               Top = 401
               Width = 335
-              Height = 162
+              Height = 163
               Align = alClient
               Caption = 'pdetails'
               TabOrder = 3
@@ -1263,7 +1263,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
               end
               object Panel7: TPanel
                 Left = 1
-                Top = 120
+                Top = 121
                 Width = 333
                 Height = 41
                 Align = alBottom
@@ -1413,7 +1413,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
                 Left = 1
                 Top = 17
                 Width = 333
-                Height = 103
+                Height = 104
                 Align = alClient
                 DataSource = DSExclusions
                 Font.Charset = DEFAULT_CHARSET
@@ -1706,7 +1706,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
         Visible = False
       end
       inherited UpdPanel: TPanel
-        Top = 740
+        Top = 741
         Width = 1179
         TabOrder = 10
         inherited BUpdChild1: TBitBtn

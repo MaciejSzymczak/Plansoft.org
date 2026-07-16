@@ -131,6 +131,7 @@ type
     Procedure GetTableName;                        override;
 
    Function  canEditPermission : Boolean;   override;
+    Function  IsRecordReadOnly : Boolean;   override;
    Function  canInsert    : Boolean;        override;
    Function  canDelete    : Boolean;        override;
 
@@ -504,6 +505,11 @@ end;
 function TFBrowseLECTURERS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
+end;
+
+function TFBrowseLECTURERS.IsRecordReadOnly: Boolean;
+begin
+ result := isReadOnlyAccess('LECTURERS', TFBrowseParent(Self).ID);
 end;
 
 function TFBrowseLECTURERS.canInsert: Boolean;

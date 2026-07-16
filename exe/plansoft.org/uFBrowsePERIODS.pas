@@ -82,6 +82,7 @@ type
     Procedure CustomConditions;      override;
     Procedure AfterPost;             override;
     Function  CanEditPermission : Boolean; override;
+    Function  IsRecordReadOnly : Boolean;   override;
     Function  CanDelete    : Boolean;      override;
     Function  CanDeleteRecord    : Boolean;      override;
     Function  getSearchFilter : string;  override;
@@ -144,6 +145,11 @@ begin
  // Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
  // result := false;
  //End;
+end;
+
+function TFBrowsePERIODS.IsRecordReadOnly: Boolean;
+begin
+ result := isReadOnlyAccess('PERIODS', TFBrowseParent(Self).ID);
 end;
 
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
@@ -248,7 +254,7 @@ procedure TFBrowsePERIODS.BUpdChild3Click(Sender: TObject);
 begin
   if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
     Dmodule.QWork.ParamCheck := false;
-    DModule.SQL(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text));
+    DModule.SQL(searchAndReplace(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text), ':plaid',FMain.getUserOrRoleID));
     info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
   end;
 end;

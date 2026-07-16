@@ -27,7 +27,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
     Align = alBottom
     TabOrder = 1
     object DeleteClass: TSpeedButton
-      Left = 40
+      Left = 136
       Top = 8
       Width = 28
       Height = 28
@@ -65,12 +65,13 @@ inherited FPlannerPermissions: TFPlannerPermissions
       ShowHint = True
       OnClick = DeleteClassClick
     end
-    object AddClass: TSpeedButton
+    object Edycja: TSpeedButton
       Left = 8
       Top = 8
-      Width = 28
+      Width = 60
       Height = 28
-      Hint = 'Dodaj'
+      Hint = 'Edycja (Access_Type=E)'
+      Caption = 'Edycja'
       AllowAllUp = True
       Flat = True
       Glyph.Data = {
@@ -110,10 +111,23 @@ inherited FPlannerPermissions: TFPlannerPermissions
         1863186318631863186318631863186318631863186318630000}
       ParentShowHint = False
       ShowHint = True
-      OnClick = AddClassClick
+      OnClick = EdycjaClick
+    end
+    object Odczyt: TSpeedButton
+      Left = 72
+      Top = 8
+      Width = 60
+      Height = 28
+      Hint = 'Odczyt (Access_Type=R)'
+      Caption = 'Odczyt'
+      AllowAllUp = True
+      Flat = True
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = OdczytClick
     end
     object BOK: TBitBtn
-      Left = 79
+      Left = 168
       Top = 8
       Width = 75
       Height = 25
@@ -141,7 +155,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       NumGlyphs = 2
     end
     object DescLen: TRadioGroup
-      Left = 161
+      Left = 250
       Top = 2
       Width = 136
       Height = 33
@@ -531,7 +545,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
     Top = 225
     object Zmie1: TMenuItem
       Caption = 'Zmie'#324
-      OnClick = AddClassClick
+      OnClick = invertClassClick
     end
     object Dugieopisy1: TMenuItem
       Caption = 'D'#322'ugie opisy'

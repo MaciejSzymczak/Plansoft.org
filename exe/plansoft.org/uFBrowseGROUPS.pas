@@ -187,6 +187,7 @@ type
     Procedure GetTableName;              override;
 
     Function  canEditPermission : Boolean;   override;
+    Function  IsRecordReadOnly : Boolean;   override;
     Function  canInsert    : Boolean;        override;
     Function  canDelete    : Boolean;        override;
   end;
@@ -719,6 +720,11 @@ end;
 function TFBrowseGROUPS.canEditPermission: Boolean;
 begin
  result := isBlank(confineCalendarId);
+end;
+
+function TFBrowseGROUPS.IsRecordReadOnly: Boolean;
+begin
+ result := isReadOnlyAccess('GROUPS', TFBrowseParent(Self).ID);
 end;
 
 function TFBrowseGROUPS.canInsert: Boolean;

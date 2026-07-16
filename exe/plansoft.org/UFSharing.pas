@@ -111,8 +111,18 @@ begin
    if cruid = 'U' then
        tmp.Free;
 
+   if DModule.SingleValue('SELECT NVL(MAX(ACCESS_TYPE),''E'') FROM '+resourceType+'_PLA WHERE '+resourceType+'_ID='+resourceId+' AND PLA_ID='+FMain.getUserOrRoleID) = 'R' then begin
+     CheckListBox.Enabled := false;
+     ChangeAll.Enabled := false;
+     BitBtn1.Enabled := false;
+     BitBtn2.Enabled := false;
+     BAdv.Enabled := false;
+     BOK.Enabled := false;
+   end;
+
    if (Fmain.MapPlanners.cnt=1) or (FSharing.showModal = mrOK) then begin
-     executeSQL(resourceType, resourceId);
+     if DModule.SingleValue('SELECT NVL(MAX(ACCESS_TYPE),''E'') FROM '+resourceType+'_PLA WHERE '+resourceType+'_ID='+resourceId+' AND PLA_ID='+FMain.getUserOrRoleID) <> 'R' then
+       executeSQL(resourceType, resourceId);
    end;
 
 end;

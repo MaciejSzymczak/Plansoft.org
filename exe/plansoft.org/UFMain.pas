@@ -979,6 +979,7 @@ type
     SearchCounter   : Integer;
     NavigatorCnt   : Integer;
     HolidaysQueueCnt   : Integer;
+    PeriodHolidaysReadOnly : Boolean;
     gridRefreshCounter   : Integer;
     userLogged : boolean;
     ignoreEvents : boolean;
@@ -2227,6 +2228,7 @@ begin
 
    //invalid period id, deleted period?
    If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
+   PeriodHolidaysReadOnly := isReadOnlyAccess('PERIODS', conPeriod.Text);
 
    If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
@@ -5212,6 +5214,10 @@ Var xp, yp : Integer;
 begin
   if not editReservations then begin
     info ('Nie masz uprawnieñ do modyfikacji dni wolnych');
+    exit;
+  end;
+  if PeriodHolidaysReadOnly then begin
+    info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie');
     exit;
   end;
   dmodule.CommitTrans;
@@ -9757,6 +9763,7 @@ begin
   inherited;
   KeyValue := conPeriod.Text;
   If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
+    if PeriodHolidaysReadOnly then begin info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
 
     with dmodule.QWork do begin
       SQL.Clear;
@@ -9774,6 +9781,7 @@ end;
 procedure TFMain.Przedskopiowanieskasujistniajcedniwolne1Click(
   Sender: TObject);
 begin
+ if PeriodHolidaysReadOnly then begin info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
  DModule.SQL('BEGIN delete from holiday_days where per_id='+conPeriod.Text+'; commit; END;');
  HolidaysQueueCnt := 5;
  HolidaysQueueTimer.Enabled := true;

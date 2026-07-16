@@ -11,7 +11,8 @@ type
     Panel1: TPanel;
     BOK: TBitBtn;
     DeleteClass: TSpeedButton;
-    AddClass: TSpeedButton;
+    Edycja: TSpeedButton;
+    Odczyt: TSpeedButton;
     mainPage: TPageControl;
     LGrid: TStringGrid;
     GGrid: TStringGrid;
@@ -51,7 +52,8 @@ type
     TypeUSER: TCheckBox;
     typeROLE: TCheckBox;
     procedure FormShow(Sender: TObject);
-    procedure AddClassClick(Sender: TObject);
+    procedure EdycjaClick(Sender: TObject);
+    procedure OdczytClick(Sender: TObject);
     procedure DeleteClassClick(Sender: TObject);
     procedure LGridDblClick(Sender: TObject);
     procedure LGridKeyDown(Sender: TObject; var Key: Word;
@@ -99,7 +101,7 @@ type
     SQLStatementsCnt : Integer;
     Procedure LoadGrid(tabName : String);
     Procedure InvertSelection(Grid: TStringGrid; Var Flag : Boolean);
-    procedure addSelection(Grid: TStringGrid; Var Flag : Boolean);
+    procedure addSelection(Grid: TStringGrid; Var Flag : Boolean; AccessType : String);
     procedure deleteSelection(Grid: TStringGrid; Var Flag : Boolean);
     procedure runSQL;
     Procedure SaveCellGrid(Grid: TStringGrid; Descriptor : String; Var Flag : Boolean; Col, Row : integer);
@@ -203,7 +205,7 @@ begin
   SQLStatements := SQLStatements + S + '; ';
 
      If Grid.Cells[x,y] <> '' Then Begin
-       S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(resId)+')';
+       S := 'INSERT INTO '+Descriptor+'_PLA (ID, PLA_ID, '+Descriptor+'_ID, ACCESS_TYPE) VALUES ('+Descriptor+'PLA_SEQ.NEXTVAL,'+IntToStr(PLAS[x].ID)+','+IntToStr(resId)+','''+Grid.Cells[x,y]+''')';
        //DModule.SQL(S);
        SQLStatements := SQLStatements + S + '; ';
        SQLStatementsCnt := SQLStatementsCnt +1;
@@ -272,7 +274,7 @@ Var x, y : Integer;
      if y <> -1 then begin
        x := IDtoX(QWork.FieldByName('PLA_ID').AsInteger);
        if x <> -1 then
-         Grid.Cells[x, y] := '+';
+         Grid.Cells[x, y] := QWork.FieldByName('ACCESS_TYPE').AsString;
      end;
 
      QWork.Next;
@@ -535,7 +537,7 @@ begin
   with Grid Do
    For xp:=Selection.Left To Selection.Right Do begin
    For yp:=Selection.Top To Selection.Bottom Do begin
-     If Cells[xp, yp] = '' Then Cells[xp, yp] := '+' Else Cells[xp, yp] := '';
+     If Cells[xp, yp] = '' Then Cells[xp, yp] := 'E' Else If Cells[xp, yp] = 'E' Then Cells[xp, yp] := 'R' Else Cells[xp, yp] := '';
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'PERGRID' then SaveCellGrid(PERGrid, 'PER',PERCHANGED,xp, yp);
        if upperCase(grid.Name) = 'GGRID'   then SaveCellGrid(GGrid,   'GRO',GCHANGED  ,xp, yp);
@@ -548,7 +550,7 @@ begin
   end;
 end;
 
-procedure TFPlannerPermissions.addSelection(Grid: TStringGrid; Var Flag : Boolean);
+procedure TFPlannerPermissions.addSelection(Grid: TStringGrid; Var Flag : Boolean; AccessType : String);
 Var xp, yp : Integer;
 begin
   inherited;
@@ -558,7 +560,7 @@ begin
   with Grid Do
    For xp:=Selection.Left To Selection.Right Do Begin
    For yp:=Selection.Top To Selection.Bottom Do begin
-       Cells[xp, yp] := '+';
+       Cells[xp, yp] := AccessType;
        if upperCase(grid.Name) = 'LGRID'   then SaveCellGrid(LGrid,   'LEC',LCHANGED  ,xp, yp);
        if upperCase(grid.Name) = 'PERGRID' then SaveCellGrid(PERGrid, 'PER',PERCHANGED,xp, yp);
        if upperCase(grid.Name) = 'GGRID'   then SaveCellGrid(GGrid,   'GRO',GCHANGED  ,xp, yp);
@@ -595,16 +597,28 @@ begin
 end;
 
 
-procedure TFPlannerPermissions.AddClassClick(Sender: TObject);
+procedure TFPlannerPermissions.EdycjaClick(Sender: TObject);
 begin
   inherited;
- If mainPage.ActivePage = TabSheetLEC  Then addSelection(LGrid,   LChanged);
- If mainPage.ActivePage = TabSheetPER  Then addSelection(PERGrid, PERChanged);
- If mainPage.ActivePage = TabSheetGRO  Then addSelection(GGrid,   GChanged);
- If mainPage.ActivePage = TabSheetRES  Then addSelection(RGrid,   RChanged);
- If mainPage.ActivePage = TabSheetSUB  Then addSelection(SubGrid, SubChanged);
- If mainPage.ActivePage = TabSheetFOR  Then addSelection(ForGrid, ForChanged);
- If mainPage.ActivePage = TabSheetROL  Then addSelection(ROLGrid, ROLChanged);
+ If mainPage.ActivePage = TabSheetLEC  Then addSelection(LGrid,   LChanged, 'E');
+ If mainPage.ActivePage = TabSheetPER  Then addSelection(PERGrid, PERChanged, 'E');
+ If mainPage.ActivePage = TabSheetGRO  Then addSelection(GGrid,   GChanged, 'E');
+ If mainPage.ActivePage = TabSheetRES  Then addSelection(RGrid,   RChanged, 'E');
+ If mainPage.ActivePage = TabSheetSUB  Then addSelection(SubGrid, SubChanged, 'E');
+ If mainPage.ActivePage = TabSheetFOR  Then addSelection(ForGrid, ForChanged, 'E');
+ If mainPage.ActivePage = TabSheetROL  Then addSelection(ROLGrid, ROLChanged, 'E');
+end;
+
+procedure TFPlannerPermissions.OdczytClick(Sender: TObject);
+begin
+  inherited;
+ If mainPage.ActivePage = TabSheetLEC  Then addSelection(LGrid,   LChanged, 'R');
+ If mainPage.ActivePage = TabSheetPER  Then addSelection(PERGrid, PERChanged, 'R');
+ If mainPage.ActivePage = TabSheetGRO  Then addSelection(GGrid,   GChanged, 'R');
+ If mainPage.ActivePage = TabSheetRES  Then addSelection(RGrid,   RChanged, 'R');
+ If mainPage.ActivePage = TabSheetSUB  Then addSelection(SubGrid, SubChanged, 'R');
+ If mainPage.ActivePage = TabSheetFOR  Then addSelection(ForGrid, ForChanged, 'R');
+ If mainPage.ActivePage = TabSheetROL  Then addSelection(ROLGrid, ROLChanged, 'R');
 end;
 
 procedure TFPlannerPermissions.DeleteClassClick(Sender: TObject);
@@ -664,12 +678,6 @@ Var Name : String;
    //Grid.Canvas.Pen.Mode := orig;
 	End;
 
-  procedure DrawBusy(DrawGrid : TStringGrid ;Var Rect : TRect);
-  begin
-     DrawGrid.Canvas.Brush.Color := clBlack;
-     DrawGrid.Canvas.rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-  end;
-
 begin
   inherited;
 
@@ -698,8 +706,13 @@ begin
   end;
 
   { Body }
-  if (Sender as TStringGrid).Cells [ACol, ARow] = '+' then
-    DrawBusy ((Sender as TStringGrid), Rect );
+  S := (Sender as TStringGrid).Cells [ACol, ARow];
+  if (S = 'E') or (S = 'R') then begin
+    if S = 'E' then (Sender as TStringGrid).Canvas.Brush.Color := clGreen
+                else (Sender as TStringGrid).Canvas.Brush.Color := clBlue;
+    (Sender as TStringGrid).Canvas.Font.Color := clWhite;
+    (Sender as TStringGrid).Canvas.TextRect(Rect, Rect.Left + (Rect.Right-Rect.Left) div 2 - 3, Rect.Top + 2, S);
+  end;
 
 end;
 

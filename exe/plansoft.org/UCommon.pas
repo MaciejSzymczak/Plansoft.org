@@ -14,6 +14,8 @@ procedure GetEnabledLGR(ConLecturer, ConGroup, ConRoom, ConSubject, ConForm, Own
                         const objectType : string = ''
                        );
 function getWhereClause ( tableName  : string; const tableAlias : String = ''; const columnName : String = 'ID'): string;
+function getAccessType ( tableName : string; objId : string ) : string;
+function isReadOnlyAccess ( tableName : string; objId : string ) : Boolean;
 
 Var PeriodSelectionDsp : shortString;
 function getWhereClausefromPeriod(periodSelector : string; const tablePrefix : String = '') : string;
@@ -265,6 +267,28 @@ begin
  if tableName = 'PERIODS'   then result := tAlias+'.'+columnName+' IN (SELECT PER_ID FROM PER_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+')';
  if tableName = 'PLANNERS'  then result := '0=0';
  if result = '0=1' then SError('B³¹d programu - funkcja getWhereClause, wartoœæ ' + tableName);
+end;
+//--------------------------------------------------------------------------------------
+function getAccessType ( tableName : string; objId : string ) : string;
+  var plaTable, idCol : string;
+begin
+  tableName := UpperCase(tableName);
+  tableName := replace(tableName,'PLANNER.','');
+  plaTable := ''; idCol := '';
+  if tableName = 'LECTURERS' then begin plaTable := 'LEC_PLA'; idCol := 'LEC_ID'; end;
+  if tableName = 'GROUPS'    then begin plaTable := 'GRO_PLA'; idCol := 'GRO_ID'; end;
+  if tableName = 'ROOMS'     then begin plaTable := 'ROM_PLA'; idCol := 'ROM_ID'; end;
+  if tableName = 'SUBJECTS'  then begin plaTable := 'SUB_PLA'; idCol := 'SUB_ID'; end;
+  if tableName = 'FORMS'     then begin plaTable := 'FOR_PLA'; idCol := 'FOR_ID'; end;
+  if tableName = 'PERIODS'   then begin plaTable := 'PER_PLA'; idCol := 'PER_ID'; end;
+  if plaTable = '' then begin SError('B³¹d programu - funkcja getAccessType, wartoœæ ' + tableName); exit; end;
+  result := DModule.SingleValue('SELECT NVL(MAX(ACCESS_TYPE),''E'') FROM '+plaTable+' WHERE '+idCol+'='+objId+' AND PLA_ID='+FMain.getUserOrRoleID);
+end;
+
+//--------------------------------------------------------------------------------------
+function isReadOnlyAccess ( tableName : string; objId : string ) : Boolean;
+begin
+  result := getAccessType(tableName, objId) = 'R';
 end;
 
 //--------------------------------------------------------------------------------------
