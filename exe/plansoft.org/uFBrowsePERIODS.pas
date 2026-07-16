@@ -329,8 +329,10 @@ Var s : String;
 begin
   s := WEEK_VISIBILITY.Text;
   if FWeekVisibility = nil then Application.CreateForm(TFWeekVisibility, FWeekVisibility);
-  if FWeekVisibility.ShowModalWithDefaults(DATE_FROM.Date, DATE_TO.Date, s) = mrOk then
+  if FWeekVisibility.ShowModalWithDefaults(DATE_FROM.Date, DATE_TO.Date, s) = mrOk then begin
+    if not (Query.State in [dsEdit, dsInsert]) then Query.Edit;
     Query.FieldByName('ATTRIBS_13').AsString := s;
+  end;
 end;
 
 procedure TFBrowsePERIODS.HIDE_ROWS_BTNClick(Sender: TObject);
@@ -338,8 +340,10 @@ Var s : String;
 begin
   s := HIDE_ROWS.Text;
   if FHideRows = nil then Application.CreateForm(TFHideRows, FHideRows);
-  if FHideRows.ShowModalWithDefaults(StrToIntDef(HOURS_PER_DAY.Text, dm.maxHours), s) = mrOk then
+  if FHideRows.ShowModalWithDefaults(StrToIntDef(HOURS_PER_DAY.Text, dm.maxHours), s) = mrOk then begin
+    if not (Query.State in [dsEdit, dsInsert]) then Query.Edit;
     Query.FieldByName('ATTRIBS_15').AsString := s;
+  end;
 end;
 
 end.

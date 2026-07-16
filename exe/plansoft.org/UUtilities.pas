@@ -4,7 +4,7 @@ unit UUtilities;
 
 interface
 
-Uses SysUtils, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning, UFMain;
+Uses SysUtils, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning, UFMain, UFormConfig;
 
 Const convOutOfRange   = 0;
       ConvHeader       = 1;
@@ -1298,6 +1298,8 @@ Begin
              +',O:'+ConflictsClasses[t]._Owner;
    End;
  End;
+ UFormConfig.AutoFitStringGridColumns(SGNewClass);
+ UFormConfig.AutoFitStringGridColumns(SGConflicts);
 End;
 
 Function TCheckConflicts.HintsReport(Day : TTimeStamp; Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
@@ -1349,9 +1351,11 @@ Begin
         'Hint:'+IntToStr(t)+',R:'+Hints[t].ResName+',V:'+IntToStr(Hints[t].Ratio);
     End;
   End;
+  UFormConfig.AutoFitStringGridColumns(SGHints);
 End;
 
-Function GetCLASSESforL(colName, colname2, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;var lmode : shortString;
+Function GetCLASSESforL(colName, colname2, condition : String; const postfix : String = ''; const mode : shortstring ='e') : String;
+var lmode : shortString;
     ChildsAndParents : string;
 begin
 

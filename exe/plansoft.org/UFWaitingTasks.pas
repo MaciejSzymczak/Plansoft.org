@@ -11,9 +11,12 @@ type
     Grid: TDBGrid;
     DS: TDataSource;
     Query: TADOQuery;
+    RefreshTimer: TTimer;
     procedure FormShow(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure RefreshTimerTimer(Sender: TObject);
   private
+    Procedure RefreshData;
     { Private declarations }
   public
     { Public declarations }
@@ -28,9 +31,8 @@ implementation
 
 uses dm, UUtilityParent;
 
-procedure TFWaitingTasks.FormShow(Sender: TObject);
+procedure TFWaitingTasks.RefreshData;
 begin
-  inherited;
   Screen.Cursor := crHourGlass;
   try
     Query.Close;
@@ -55,6 +57,18 @@ begin
   finally
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TFWaitingTasks.FormShow(Sender: TObject);
+begin
+  inherited;
+  RefreshData;
+  RefreshTimer.Enabled := True;
+end;
+
+procedure TFWaitingTasks.RefreshTimerTimer(Sender: TObject);
+begin
+  if Visible then RefreshData;
 end;
 
 procedure TFWaitingTasks.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);

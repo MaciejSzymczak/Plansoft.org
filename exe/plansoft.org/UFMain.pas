@@ -230,8 +230,8 @@ type
     mmprofileObjectNameC2s: TMenuItem;
     mmprofileObjectNamePeriods: TMenuItem;
     Legend: TSpeedButton;
-    zoomIn: TSpeedButton;
-    zoomOut: TSpeedButton;
+    xzoomIn: TSpeedButton;
+    xzoomOut: TSpeedButton;
     Normal: TSpeedButton;
     bReports: TSpeedButton;
     BAddClass: TSpeedButton;
@@ -316,7 +316,7 @@ type
     Zmiehas1: TMenuItem;
     Shape8a: TShape;
     Shape7a: TShape;
-    Shape4a: TShape;
+    xShape4a: TShape;
     Shape2a: TShape;
     Shape1a: TShape;
     bcopyarea: TSpeedButton;
@@ -620,8 +620,8 @@ type
     procedure conResCat0Change(Sender: TObject);
     procedure ConSubjectChange(Sender: TObject);
     procedure conPeriodChange(Sender: TObject);
-    procedure zoomInClick(Sender: TObject);
-    procedure zoomOutClick(Sender: TObject);
+    procedure xzoomInClick(Sender: TObject);
+    procedure xzoomOutClick(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure BAddClassClick(Sender: TObject);
@@ -687,8 +687,6 @@ type
     procedure Dodaj2Click(Sender: TObject);
     procedure Zmie1Click(Sender: TObject);
     procedure Usu2Click(Sender: TObject);
-    procedure powiksz1Click(Sender: TObject);
-    procedure pomniejsz1Click(Sender: TObject);
     procedure CONLECTURER_valueDblClick(Sender: TObject);
     procedure CONGROUP_valueDblClick(Sender: TObject);
     procedure conResCat0_valueDblClick(Sender: TObject);
@@ -719,7 +717,7 @@ type
       Y: Integer);
     procedure bconflictspopupMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure zoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
+    procedure xzoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure BIMPMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
@@ -1972,8 +1970,8 @@ procedure TFMain.RefreshGrid;
   bpastearea.Visible := V;
   bclearselection.Visible := V;
   GoToDate.Visible := TabViewType.TabIndex <4;
-  zoomIn.Visible := V;
-  zoomOut.Visible := V;
+  //zoomIn.Visible := V;
+  //zoomOut.Visible := V;
   bwww.Visible := V;
   BViewByWeek.Visible := TabViewType.TabIndex <4;
   BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
@@ -1987,7 +1985,7 @@ procedure TFMain.RefreshGrid;
   bmoveRight.Visible := v;
   Shape1a.Visible := v;
   Shape2a.Visible := v;
-  Shape4a.Visible := v;
+  //Shape4a.Visible := v;
   Shape7a.Visible := v;
   Shape8a.Visible := v;
   Shape9a.Visible := v;
@@ -2258,13 +2256,13 @@ Begin
   LeftPanel.Invalidate;
 End;
 
-procedure TFMain.zoomInClick(Sender: TObject);
+procedure TFMain.xzoomInClick(Sender: TObject);
 begin
  gridFont.Font.Size := gridFont.Font.Size + 1;
  RefreshGrid;
 end;
 
-procedure TFMain.zoomOutClick(Sender: TObject);
+procedure TFMain.xzoomOutClick(Sender: TObject);
 begin
  If gridFont.Font.Size > 1  Then
   Begin
@@ -3065,9 +3063,7 @@ Procedure TFMain.insertClasses;
       checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
       checkConflicts.GetHintsDesc(fShowConflicts.SGHints, TS, Zajecia, fShowConflicts.dataStamp);
 
-      fShowConflicts.PanelHints.Visible := hintsFound;
-      fShowConflicts.PanelIs.Visible := Not checkConflicts.Empty;
-      fShowConflicts.Panel5.Visible  := Not checkConflicts.Empty;
+      fShowConflicts.SetSectionsVisible(Not checkConflicts.Empty, hintsFound);
       if checkConflicts.Empty then
         fShowConflicts.BDelete.Caption := 'Kontynuuj'
       else
@@ -5811,16 +5807,6 @@ begin
   BDeleteClassClick(nil);
 end;
 
-procedure TFMain.powiksz1Click(Sender: TObject);
-begin
-  zoomInClick(nil);
-end;
-
-procedure TFMain.pomniejsz1Click(Sender: TObject);
-begin
-  zoomOutClick(nil);
-end;
-
 procedure TFMain.CONLECTURER_valueDblClick(Sender: TObject);
 begin
  CONLECTURER.Text := LROR(CONLECTURER.Text,';');
@@ -6548,10 +6534,10 @@ procedure TFMain.setActiveShape( no : integer);
 begin
  s[ 1] := Shape1a;
  s[ 2] := Shape2a;
- s[ 3] := Shape4a; //dummy value- currently not used
- s[ 4] := Shape4a;
- s[ 5] := Shape4a; //dummy value- currently not used
- s[ 6] := Shape4a; //dummy value- currently not used
+ s[ 3] := xShape4a; //dummy value- currently not used
+ s[ 4] := xShape4a; //dummy value- currently not used
+ s[ 5] := xShape4a; //dummy value- currently not used
+ s[ 6] := xShape4a; //dummy value- currently not used
  s[ 7] := Shape7a;
  s[ 8] := Shape8a;
  s[ 9] := Shape9a;
@@ -6598,7 +6584,7 @@ begin
   setActiveShape(3);
 end;
 
-procedure TFMain.zoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TFMain.xzoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   setActiveShape(4);
@@ -7348,13 +7334,13 @@ end;
 procedure TFMain.GridMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- if ssCtrl in Shift then zoomOutClick(self) else inherited;
+ //if ssCtrl in Shift then zoomOutClick(self) else inherited;
 end;
 
 procedure TFMain.GridMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- if ssCtrl in Shift then zoomInClick(self) else inherited;
+ //if ssCtrl in Shift then zoomInClick(self) else inherited;
 end;
 
 procedure TFMain.pRightDockPanelUnDock(Sender: TObject; Client: TControl;

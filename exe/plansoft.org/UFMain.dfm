@@ -226,14 +226,15 @@ inherited FMain: TFMain
         Pen.Mode = pmNotXor
         Shape = stRoundRect
       end
-      object Shape4a: TShape
-        Left = 658
+      object xShape4a: TShape
+        Left = 970
         Top = 2
         Width = 90
         Height = 43
         Pen.Color = clGray
         Pen.Mode = pmNotXor
         Shape = stRoundRect
+        Visible = False
       end
       object Shape8a: TShape
         Left = 429
@@ -389,8 +390,8 @@ inherited FMain: TFMain
         OnClick = LegendClick
         OnMouseMove = LegendMouseMove
       end
-      object zoomIn: TSpeedButton
-        Left = 664
+      object xzoomIn: TSpeedButton
+        Left = 976
         Top = 4
         Width = 39
         Height = 39
@@ -529,11 +530,12 @@ inherited FMain: TFMain
           0000000000000000000000000000000000000000000000000000}
         ParentShowHint = False
         ShowHint = True
-        OnClick = zoomInClick
-        OnMouseMove = zoomInMouseMove
+        Visible = False
+        OnClick = xzoomInClick
+        OnMouseMove = xzoomInMouseMove
       end
-      object zoomOut: TSpeedButton
-        Left = 704
+      object xzoomOut: TSpeedButton
+        Left = 1016
         Top = 4
         Width = 39
         Height = 39
@@ -672,8 +674,9 @@ inherited FMain: TFMain
           0000000000000000000000000000000000000000000000000000}
         ParentShowHint = False
         ShowHint = True
-        OnClick = zoomOutClick
-        OnMouseMove = zoomInMouseMove
+        Visible = False
+        OnClick = xzoomOutClick
+        OnMouseMove = xzoomInMouseMove
       end
       object Normal: TSpeedButton
         Left = 649
@@ -701,7 +704,7 @@ inherited FMain: TFMain
         Visible = False
       end
       object bReports: TSpeedButton
-        Left = 795
+        Left = 699
         Top = 4
         Width = 39
         Height = 39
@@ -947,7 +950,7 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object DeepRefreshButton: TSpeedButton
-        Left = 750
+        Left = 654
         Top = 4
         Width = 39
         Height = 39
@@ -1456,7 +1459,7 @@ inherited FMain: TFMain
         OnClick = BLoginClick
       end
       object bwww: TSpeedButton
-        Left = 839
+        Left = 743
         Top = 4
         Width = 39
         Height = 39
@@ -2620,7 +2623,7 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object BFullScreen: TSpeedButton
-        Left = 877
+        Left = 781
         Top = 4
         Width = 39
         Height = 39
@@ -2750,7 +2753,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BTraceHistory: TSpeedButton
-        Left = 1001
+        Left = 905
         Top = 4
         Width = 39
         Height = 39
@@ -2895,7 +2898,7 @@ inherited FMain: TFMain
         OnClick = BTraceHistoryClick
       end
       object bthpopup: TSpeedButton
-        Left = 1040
+        Left = 944
         Top = 4
         Width = 15
         Height = 39
@@ -3029,7 +3032,7 @@ inherited FMain: TFMain
         OnClick = SwitchMenuClick
       end
       object BCloseApp: TSpeedButton
-        Left = 959
+        Left = 863
         Top = 4
         Width = 39
         Height = 39
@@ -3140,7 +3143,7 @@ inherited FMain: TFMain
         OnClick = BCloseAppClick
       end
       object SpeedButton5: TSpeedButton
-        Left = 917
+        Left = 821
         Top = 4
         Width = 39
         Height = 39
@@ -6252,11 +6255,9 @@ inherited FMain: TFMain
       end
       object powiksz1: TMenuItem
         Caption = 'Powi'#281'ksz'
-        OnClick = powiksz1Click
       end
       object pomniejsz1: TMenuItem
         Caption = 'Pomniejsz'
-        OnClick = pomniejsz1Click
       end
       object N17: TMenuItem
         Caption = '-'

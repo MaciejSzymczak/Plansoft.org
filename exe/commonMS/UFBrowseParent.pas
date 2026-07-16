@@ -1407,6 +1407,9 @@ begin
      GridRelayoutRequired := false;
    end;
 
+   //nice narrow auto-sized columns by default; skip if the user already saved a custom layout for this grid
+   if GridLayout.Strings.Count = 0 then UFormConfig.AutoFitGridColumns(Grid, Query);
+
    ClientStartTime := Now;
    If ExactlyLocate(Query,KeyField,Bookmark,StrToInt(Others.Strings.Values['MaxFetches'])) = False Then
    If Others.Strings.Values['ShowInfoIfMaxFetches']='True' Then Info(Komunikaty.Strings[13]);
@@ -3171,7 +3174,7 @@ procedure TFBrowseParent.LockAllDataControls;
     For i := 0 To AParent.ControlCount - 1 Do Begin
       If IsPublishedProp(AParent.Controls[i], 'DataField') or IsPublishedProp(AParent.Controls[i], 'ReadOnly') Then
         TControl(AParent.Controls[i]).Enabled := False
-      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
+      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton) or (AParent.Controls[i] is TShape)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
         TControl(AParent.Controls[i]).Enabled := False
       Else If AParent.Controls[i] is TWinControl Then
         LockRecursive(TWinControl(AParent.Controls[i]));
@@ -3190,7 +3193,7 @@ procedure TFBrowseParent.UnlockAllDataControls;
     For i := 0 To AParent.ControlCount - 1 Do Begin
       If IsPublishedProp(AParent.Controls[i], 'DataField') or IsPublishedProp(AParent.Controls[i], 'ReadOnly') Then
         TControl(AParent.Controls[i]).Enabled := True
-      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
+      Else If ((AParent.Controls[i] is TBitBtn) or (AParent.Controls[i] is TSpeedButton) or (AParent.Controls[i] is TShape)) and (Copy(AParent.Controls[i].Name, 1, 4) <> 'BUpd') Then
         TControl(AParent.Controls[i]).Enabled := True
       Else If AParent.Controls[i] is TWinControl Then
         UnlockRecursive(TWinControl(AParent.Controls[i]));

@@ -40,4 +40,11 @@ inherited FWaitingTasks: TFWaitingTasks
     Left = 32
     Top = 96
   end
+  object RefreshTimer: TTimer
+    Interval = 300000
+    Enabled = False
+    OnTimer = RefreshTimerTimer
+    Left = 160
+    Top = 96
+  end
 end

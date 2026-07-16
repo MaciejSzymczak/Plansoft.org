@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ComCtrls, Tabnotbk, Spin, StrHlder, dbtables, Db,
-  RxQuery, RXLookup, ExtCtrls, DBGrids;
+  RxQuery, RXLookup, ExtCtrls, DBGrids, Grids;
 
 type
   TFormConfig = class(TForm)
@@ -32,6 +32,7 @@ Procedure SaveFormConfiguration(Form : TForm);
 Procedure LoadFormConfiguration(Form : TForm);
 procedure setFontSize(Form : TForm);
 Procedure AutoFitGridColumns(Grid : TDBGrid; DataSet : TDataSet);
+Procedure AutoFitStringGridColumns(Grid : TStringGrid);
 
 implementation
 
@@ -655,17 +656,20 @@ end;
 
 //ZMIANA_20270710: generic content-based column autofit tool, shared by TFDBSpace and TFLegend (both descend from TFormConfig)
 Procedure AutoFitGridColumns(Grid : TDBGrid; DataSet : TDataSet);
-Var i, maxWidth, w : Integer;
+Const cAutoFitSampleRows = 200; //bound the scan cost on large datasets (e.g. FBrowseParent descendants) - a sample is enough for a good-enough width
+Var i, maxWidth, w, sampleCnt : Integer;
 begin
   Grid.Canvas.Font := Grid.Font;
   For i := 0 To Grid.Columns.Count - 1 Do Begin
     maxWidth := Grid.Canvas.TextWidth(Grid.Columns[i].Title.Caption) + 18;
     DataSet.DisableControls;
     DataSet.First;
-    While Not DataSet.Eof Do Begin
+    sampleCnt := 0;
+    While (Not DataSet.Eof) and (sampleCnt < cAutoFitSampleRows) Do Begin
       w := Grid.Canvas.TextWidth(Grid.Columns[i].Field.DisplayText) + 14;
       If w > maxWidth Then maxWidth := w;
       DataSet.Next;
+      Inc(sampleCnt);
     End;
     DataSet.First;
     DataSet.EnableControls;
@@ -673,4 +677,21 @@ begin
   End;
 end;
 
+//content-based auto width for TStringGrid-based grids (e.g. UFShowConflicts' SGNewClass/SGConflicts/SGHints)
+Procedure AutoFitStringGridColumns(Grid : TStringGrid);
+Const cAutoFitSampleRows = 200; //bound the scan cost, same rationale as AutoFitGridColumns
+Var c, r, maxWidth, w, lastRow : Integer;
+begin
+  Grid.Canvas.Font := Grid.Font;
+  lastRow := Grid.RowCount - 1;
+  If lastRow > cAutoFitSampleRows Then lastRow := cAutoFitSampleRows;
+  For c := 0 To Grid.ColCount - 1 Do Begin
+    maxWidth := 0;
+    For r := 0 To lastRow Do Begin
+      w := Grid.Canvas.TextWidth(Grid.Cells[c, r]) + 14;
+      If w > maxWidth Then maxWidth := w;
+    End;
+    Grid.ColWidths[c] := maxWidth;
+  End;
+end;
 end.

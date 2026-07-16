@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=DEBUG_ON
+RunParams=
 HostApplication=
 Launcher=
 UseLauncher=0

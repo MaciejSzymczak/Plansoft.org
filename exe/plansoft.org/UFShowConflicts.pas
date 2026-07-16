@@ -26,6 +26,7 @@ type
     { Private declarations }
   public
     dataStamp : String;
+    Procedure SetSectionsVisible(ShowConflicts, ShowHints : Boolean);
   end;
 
 var
@@ -52,4 +53,22 @@ with SGConflicts do
      Canvas.TextOut(Rect.Left + 3, Rect.Top + 5, replace(Cells[ACol,ARow],'>>',''));
    end
 end;
+
+Procedure TFShowConflicts.SetSectionsVisible(ShowConflicts, ShowHints : Boolean);
+Const cConflictsSectionHeight = 31 + 222; //PanelIs + Panel5 design heights (see .dfm)
+      cHintsSectionHeight     = 140;      //PanelHints design height (see .dfm)
+begin
+  if ShowConflicts <> PanelIs.Visible then begin
+    PanelIs.Visible := ShowConflicts;
+    Panel5.Visible  := ShowConflicts;
+    if ShowConflicts then ClientHeight := ClientHeight + cConflictsSectionHeight
+                      else ClientHeight := ClientHeight - cConflictsSectionHeight;
+  end;
+  if ShowHints <> PanelHints.Visible then begin
+    PanelHints.Visible := ShowHints;
+    if ShowHints then ClientHeight := ClientHeight + cHintsSectionHeight
+                  else ClientHeight := ClientHeight - cHintsSectionHeight;
+  end;
+end;
+
 end.
