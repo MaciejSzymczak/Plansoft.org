@@ -294,7 +294,7 @@ begin
     writeData (qr);
     writeLn(f, '    Przedmioty');
     writeData (qs);
-    writeLn(f, '    Semestry');
+    writeLn(f, '    Okresy');
     writeData (qp);
     writeLn(f, '');
     writeLn(f, 'Podsumowanie - liczba danych do usuniêcia');
@@ -303,7 +303,7 @@ begin
     writeLn(f, '    Grupy     :' + G.caption);
     writeLn(f, '    Zasoby    :' + R.caption);
     writeLn(f, '    Przedmioty:' + S.caption);
-    writeLn(f, '    Semestry  :' + P.caption);
+    writeLn(f, '    Okresy    :' + P.caption);
     CloseFile(f);
     info('Dane zosta³y pomyœlnie zapisane w pliku');
  end;

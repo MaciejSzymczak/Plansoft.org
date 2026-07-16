@@ -50,7 +50,7 @@ type TClassByChildCache = Class
                      Count    : Integer;
                      FirstDay : Integer;
                      MaxHours : integer;
-                     // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
+                     // Data[0] - 1 dzieñ okresu, Data[1]- drugi itd.
                      Classes : Array Of  //day
                              Array Of //hour
                                Record
@@ -127,7 +127,7 @@ type TClassByResCaches = class
                      FirstDay : Integer;
                      maxHours : integer;
                      PER_ID: ShortString;
-                     // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
+                     // Data[0] - 1 dzieñ okresu, Data[1]- drugi itd.
                      Storage : Array Of Array Of String;
 
                      public
@@ -144,7 +144,7 @@ type TClassByResCaches = class
                      FirstDay : Integer;
                      maxHours : integer;
                      resId    : String;
-                     // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
+                     // Data[0] - 1 dzieñ okresu, Data[1]- drugi itd.
                      Data : Array  Of
                              Array Of Integer;
 
@@ -163,7 +163,7 @@ Type
                      FirstDay : Integer;
                      Valid    : Boolean;
                      maxHours : integer;
-                     // Data[0] - 1 dzieñ semestru, Data[1]- drugi itd.
+                     // Data[0] - 1 dzieñ okresu, Data[1]- drugi itd.
                      global : Array Of
                              Array Of
                                Record
@@ -1390,7 +1390,7 @@ begin
          ' X='+inttostr(x)+
          ' FirstDay='+inttostr(FirstDay)
          ) else
-     if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordow nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
+     if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordow nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
      else begin
        global[t][y].isBusy := True;
        global[t][y].busyCnt := global[t][y].busyCnt + QWork.FieldByName('cnt').AsInteger;
@@ -1431,7 +1431,7 @@ begin
        Y := QWork.FieldByName('HOUR').AsInteger;
        t := X-FirstDay;
        if  (t < 0) or (t >high(ratio)) then SError('Wyst¹pi³o zdarzenie "2 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
-       if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
+       if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
        else begin
          ratio[t][y].ratio := QWork.FieldByName('ratio').AsInteger;
        end;
@@ -1671,7 +1671,7 @@ begin
         try Data[t].Cache.free; except end;
 
  if reloadFromDatabase then maxLength := 0;
- if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie semestr
+ if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie okres
  PER_ID := aPER_ID;
 end;
 
@@ -1818,7 +1818,7 @@ begin
         try Data[t].Cache.free; except end;
 
  if reloadFromDatabase then maxLength := 0;
- if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie semestr
+ if PER_ID <> aPER_ID then maxLength :=  0; // czysc cache gdy zmienil sie okres
  PER_ID := aPER_ID;
 end;
 
@@ -3726,7 +3726,7 @@ begin
    t := X-FirstDay;
 
    if  (t < 0) or (t >high(Classes)) then SError('Wyst¹pi³o zdarzenie "3 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
-   if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: '+'1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
+   if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: '+'1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
    else begin
      //dGeneralDebug := 'Status='+inttostr(Data[t][y].Status) + 'day='+ dateToYYYYMMDD_HHMMSSMI(QWork.FieldByName('DAY').AsDateTime) +'hour='+ QWork.FieldByName('HOUR').AsString + ' ' + qwork.SQL.Text; //@@@@
      Classes[t][y].Status := SuccStatus(Classes[t][y].Status);
@@ -5183,7 +5183,7 @@ begin
    if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem serwisowi technicznemu');
 
    if y > MaxHours then begin
-     //Warning('Zarezerwowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla semestru. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla semestru lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi');
+     //Warning('Zarezerwowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi');
      //komunikat jest prawdziwy, ale nie trzeba go wyswietlac, to ze rezerwacje nie pojawiaja sie nie ma zadnych konsekwencji
    end else begin
      ratio := QWork.FieldByName('RATIO').AsInteger;
@@ -7677,7 +7677,7 @@ begin
    conPeriodChange(conPeriod);
    deepRefreshDelayed;
   End else
-    if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono semestru, to mogly zostac zmienione parametry semestru ( np. liczba godzin ). dlatego odswiezam uklad
+    if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono okresu, to mogly zostac zmienione parametry okresu ( np. liczba godzin ). dlatego odswiezam uklad
 
    if not isBlank (conPeriod.Text) then
    With DModule Do Begin
@@ -7685,7 +7685,7 @@ begin
     roleId := QWork.Fields[0].AsString;
     if not isBlank(roleId) then begin
      roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+' AND ROL_ID = ' +roleId);
-     if isBlank(roleID) then info('Brak uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego semestru.')
+     if isBlank(roleID) then info('Brak uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego okresu.')
                         else conRole.Text := roleID;
     end;
    end;
@@ -8788,7 +8788,7 @@ begin
 8 Poprzedni miesi¹æ
 9 Bie¿¹cy miesi¹c
 10 Za miesi¹c
-11 Bie¿¹cy semestr
+11 Bie¿¹cy okres
 }
 end;
 
@@ -9724,7 +9724,7 @@ var      myRect: TGridRect;
 begin
  //autoExpandSelection:do
  //
- // zmienna hiddenRows powinna byc trzymana jako pole w semestrze, dekoduj strin xxxx11xxx
+ // zmienna hiddenRows powinna byc trzymana jako pole w okresie, dekoduj strin xxxx11xxx
  // opcjonalne zaznaczanie blokow
  // doc
  //

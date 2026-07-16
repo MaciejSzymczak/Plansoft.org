@@ -110,7 +110,7 @@ inherited FPurgeData: TFPurgeData
             Top = 80
             Width = 105
             Height = 17
-            Caption = 'Semestry'
+            Caption = 'Okresy'
             Checked = True
             State = cbChecked
             TabOrder = 4
@@ -129,7 +129,7 @@ inherited FPurgeData: TFPurgeData
             Top = 120
             Width = 105
             Height = 17
-            Caption = 'Semestry'
+            Caption = 'Okresy'
             Enabled = False
             TabOrder = 6
           end
@@ -330,7 +330,7 @@ inherited FPurgeData: TFPurgeData
             end
           end
           object TabSheet5: TTabSheet
-            Caption = 'Semestry'
+            Caption = 'Okresy'
             ImageIndex = 4
             object DBGrid5: TDBGrid
               Left = 0
@@ -384,7 +384,7 @@ inherited FPurgeData: TFPurgeData
               Top = 104
               Width = 49
               Height = 14
-              Caption = 'Semestry:'
+              Caption = 'Okresy:'
             end
             object L: TLabel
               Left = 80

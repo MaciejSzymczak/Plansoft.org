@@ -781,7 +781,7 @@ object FGenericFilter: TFGenericFilter
     BorderStyle = bsNone
     ReadOnly = True
     TabOrder = 22
-    Text = 'Semestr'
+    Text = 'Okres'
   end
   object ShowPlanner: TEdit
     Left = 712

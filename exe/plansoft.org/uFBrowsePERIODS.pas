@@ -114,7 +114,7 @@ Begin
     End;
 
     If Not ((SHOW_MON.Checked) Or  (SHOW_TUE.Checked) Or (SHOW_WED.Checked)  Or (SHOW_THU.Checked)  Or (SHOW_FRI.Checked)  Or (SHOW_SAT.Checked) Or (SHOW_SUN.Checked)) Then
-    addError('Semestr musi zawieraæ przynajmniej jeden dzieñ');
+    addError('Okres musi zawieraæ przynajmniej jeden dzieñ');
 
     If (WEEK_VISIBILITY.Text <> '') and (Pos('+', WEEK_VISIBILITY.Text) = 0) Then
     addError('Widocznoœæ tygodni musi zawieraæ przynajmniej jeden widoczny tydzieñ (znak +)');
@@ -221,12 +221,12 @@ end;
 
 procedure TFBrowsePERIODS.FHelpClick(Sender: TObject);
 begin
-  SError('Zalecany sposób nazywania semestrów:'+cr+' Kod wydzia³u + rodzaj studiów + okres'+cr+' np. WEL_STAC_2030Z');
+  SError('Zalecany sposób nazywania okresów:'+cr+' Kod wydzia³u + rodzaj studiów + okres'+cr+' np. WEL_STAC_2030Z');
 end;
 
 procedure TFBrowsePERIODS.SpeedButton2Click(Sender: TObject);
 begin
-  SError('Zaleca siê, aby autoryzacja mia³a dok³adnie tak¹ sam¹ nazwê co semestr.'+cr+
+  SError('Zaleca siê, aby autoryzacja mia³a dok³adnie tak¹ sam¹ nazwê co okres.'+cr+
 ''+cr+
 'W oknie "Planiœci/Autoryzacje" utwórz autoryzacjê.'+cr+
 'W oknie Uprawnienia wska¿, które zasoby bêd¹ widoczne po wybraniu autoryzacji.'+cr+
@@ -248,7 +248,7 @@ end;
 
 procedure TFBrowsePERIODS.BUpdChild3Click(Sender: TObject);
 begin
-  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego semestru?') = id_yes then begin
+  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego okresu?') = id_yes then begin
     Dmodule.QWork.ParamCheck := false;
     DModule.SQL(searchAndReplace(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text), ':plaid',FMain.getUserOrRoleID));
     info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
@@ -291,7 +291,7 @@ Var ID : ShortString;
 begin
   ID := PARENT_PER_ID.Text;
   if Self.ID.Text <> '' then Filter := 'ID<>'+Self.ID.Text else Filter := '0=0';
-  If LookupWindow(false, DModule.ADOConnection, 'PERIODS','','NAME','NAZWA SEMESTRU','NAME',Filter,'',ID) = mrOK Then begin
+  If LookupWindow(false, DModule.ADOConnection, 'PERIODS','','NAME','NAZWA OKRESU','NAME',Filter,'',ID) = mrOK Then begin
     Query.FieldByName('PARENT_PER_ID').AsString := ID;
     ParentPerIdChanged := True;
   end;

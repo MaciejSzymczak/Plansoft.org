@@ -3503,7 +3503,7 @@ inherited FDataDiagram: TFDataDiagram
     Top = 545
     Width = 123
     Height = 25
-    Caption = 'Semestry'
+    Caption = 'Okresy'
     TabOrder = 13
     OnClick = BitBtn14Click
   end

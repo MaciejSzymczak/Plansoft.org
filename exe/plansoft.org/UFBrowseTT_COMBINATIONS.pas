@@ -541,7 +541,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conPer.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego semestru')
+      Then Info('Nie mo¿na wybraæ ponownie tego samego okresu')
       Else begin
         conPer.Text := Merge(KeyValue, conPer.Text, ';');
       end;

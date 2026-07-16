@@ -2427,7 +2427,7 @@ end;
 
 procedure TFWWWGenerator.SpeedButton1Click(Sender: TObject);
 begin
-  info('Je¿eli w witrynie chcesz umieœciæ dodatkow¹ informacjê nt. semestru (np. wersja robocza), umieœæ j¹ w tym polu');
+  info('Je¿eli w witrynie chcesz umieœciæ dodatkow¹ informacjê nt. okresu (np. wersja robocza), umieœæ j¹ w tym polu');
 
 end;
 

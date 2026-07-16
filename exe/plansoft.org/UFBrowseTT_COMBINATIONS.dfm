@@ -1367,7 +1367,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           Width = 46
           Height = 14
           Alignment = taRightJustify
-          Caption = 'Semestry'
+          Caption = 'Okresy'
         end
         object lpla: TLabel
           Left = 37
@@ -2292,7 +2292,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           Top = 152
           Width = 144
           Height = 17
-          Caption = 'Semestry - wszyscy'
+          Caption = 'Okresy - wszyscy'
           TabOrder = 38
           OnClick = lecAllClick
         end

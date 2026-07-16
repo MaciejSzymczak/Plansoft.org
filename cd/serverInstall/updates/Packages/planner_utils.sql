@@ -331,11 +331,11 @@ create or replace package body planner_utils is
     error_type varchar2(500);
     error_trace varchar2(500);
     error_details varchar2(500);
-    
+
     vselected_lec_id  number := selected_lec_id;
     vselected_gro_id  number := selected_gro_id;
     vselected_res_id  number := selected_res_id;
-    
+
   begin
     if replace_with_Id is not null then
       select name into replace_with_Dsp from groups where Id=replace_with_Id;
@@ -370,7 +370,7 @@ create or replace package body planner_utils is
     output_param_num1 := 0; --sucess records
     output_param_num2 := 0; --failed records
     offset := dest_date_from - source_date_from;
-    
+
     --only one can be selected. -2=NONE -1=ANY
     declare
      checkCond boolean := true;
@@ -379,7 +379,7 @@ create or replace package body planner_utils is
     if checkCond and vselected_gro_id != -1 then vselected_lec_id := -2; vselected_res_id := -2; checkCond := false; end if;
     if checkCond and vselected_res_id != -1 then vselected_gro_id := -2; vselected_lec_id := -2; checkCond := false; end if;
     end;
-    
+
     --RAISE_APPLICATION_ERROR(-20000, 'tracer:' || vselected_lec_id ||' '||vselected_gro_id||' '||vselected_res_id);
     for rec in ( select * 
                    from classes 
@@ -846,9 +846,9 @@ create or replace package body planner_utils is
                          ,pgrantPermissions varchar2 default 'N'
                          ,pcalc_rescat_ids  varchar2 default null --@@@todo: this parameter should be passed by interface
                         ) is
-   
+
     vday date := pday;
-    
+
     vcalc_lecturers  classes.calc_lecturers%type  := substrb(pcalc_lecturers,  1, 500);
     vcalc_groups     classes.calc_groups%type     := substrb(pcalc_groups,     1, 500); 
     vcalc_rooms      classes.calc_rooms%type      := substrb(pcalc_rooms,      1, 500); 
@@ -945,7 +945,7 @@ create or replace package body planner_utils is
                -- user is not the locker
                and instr(';'||locked_by,';'||user)=0                 
             ) loop
-         raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(vday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w semestrze "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
+         raise_application_error(-20000, 'Planowanie zajec w terminie '||to_char(vday,'yyyy-mm-dd')||' dla '||rec.name||' zostalo zablokowane w okresie "'|| rec.period_name||'" przez uzytkownika '||rec.locked_by||' z powodu '||rec.locked_reason);                 
        end loop;   
     end;
 
@@ -1033,9 +1033,9 @@ create or replace package body planner_utils is
           raise_application_error(-20000, 'Planowanie zajec w terminie od '||to_char(rec.date_from,'yyyy-mm-dd')||' do '||to_char(rec.date_to,'yyyy-mm-dd')||' zostalo zablokowane przez uzytkownika '||rec.created_by);
         end loop;   
         -- skip the whole lock-check machinery (scratch-table rebuild + correlated-subquery scan) when nothing is locked anywhere - cheap existence check, safe no-op when it returns false
-        if exists (select 1 from timetable_notes where locked_by is not null and rownum = 1) then
+        --if exists (select 1 from timetable_notes where locked_by is not null and rownum = 1) then
           check_locks;
-        end if;
+       -- end if;
         --
         if pgrantPermissions = 'Y' then auto_grant_permissions; end if;
     end if;

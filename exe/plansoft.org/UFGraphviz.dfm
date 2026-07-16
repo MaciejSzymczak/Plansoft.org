@@ -106,7 +106,7 @@ inherited FGraphviz: TFGraphviz
     Text = 'Wszystkie grupy'
     Items.Strings = (
       'Wszystkie grupy'
-      'Grupy z bie'#380#261'cego semestru'
+      'Grupy z bie'#380#261'cego okresu'
       'Grupy powi'#261'zane z wybran'#261' grup'#261)
   end
   object orientation: TComboBox

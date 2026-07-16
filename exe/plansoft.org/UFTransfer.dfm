@@ -196,7 +196,7 @@ inherited FTransfer: TFTransfer
       Top = 16
       Width = 97
       Height = 17
-      Caption = 'Semestry'
+      Caption = 'Okresy'
       Checked = True
       State = cbChecked
       TabOrder = 6

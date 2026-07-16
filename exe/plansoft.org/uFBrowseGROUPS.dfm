@@ -2527,7 +2527,7 @@ inherited FBrowseGROUPS: TFBrowseGROUPS
       OnClick = Wszystkiegrupy1Click
     end
     object ylkogrupyzbiecegosemestru1: TMenuItem
-      Caption = 'Grupy z bie'#380#261'cego semestru'
+      Caption = 'Grupy z bie'#380#261'cego okresu'
       OnClick = ylkogrupyzbiecegosemestru1Click
     end
     object ylkogrupypowizanezwybrangrup1: TMenuItem

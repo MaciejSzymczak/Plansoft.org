@@ -564,7 +564,7 @@ Procedure TConvertSingleObject.Init(StartDate, EndDate : Integer; Var LiczbaKolu
      If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
      If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
      If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
-     If fuse = 8 Then Begin SError('Semestr musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection (true); halt; End;
+     If fuse = 8 Then Begin SError('Okres musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection (true); halt; End;
     Until Changed = False;
   End;
 

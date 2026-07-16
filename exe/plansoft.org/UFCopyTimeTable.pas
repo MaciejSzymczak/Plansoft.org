@@ -123,16 +123,16 @@ procedure TFCopyTimeTable.BitBtn3Click(Sender: TObject);
 Var V : ShortString;
 begin
   inherited;
-  If Empty(P1.Text) Then Begin SError('Sk¹d: Semestr musi zostaæ wybrany');  Exit; End;
-  If Empty(P2.Text) Then Begin SError('Dok¹d: Semestr musi zostaæ wybrany'); Exit; End;
+  If Empty(P1.Text) Then Begin SError('Sk¹d: Okres musi zostaæ wybrany');  Exit; End;
+  If Empty(P2.Text) Then Begin SError('Dok¹d: Okres musi zostaæ wybrany'); Exit; End;
   If Empty(G1.Text) Then Begin SError('Sk¹d: Grupa musi zostaæ wybrana');    Exit; End;
   If Empty(G2.Text) Then Begin SError('Dok¹d: Grupa musi zostaæ wybrana');   Exit; End;
-  If (P1.Text = P2.Text) And (G1.Text = G2.Text) Then Begin SError('Semestr i grupa w sekcjach Sk¹d i dok¹d nie mog¹ byæ takie same'); Exit; End;
+  If (P1.Text = P2.Text) And (G1.Text = G2.Text) Then Begin SError('Okres i grupa w sekcjach Sk¹d i dok¹d nie mog¹ byæ takie same'); Exit; End;
 
   With DModule Do Begin
     V := SingleValue('SELECT COUNT(1) FROM TIMETABLE WHERE GRO_ID='+G2.Text+' AND PER_ID= '+P2.Text);
     If V <> '0' Then Begin
-     If Question('W semestrze '+P2_VALUE.Text+' dla grupy '+G2_VALUE.Text+' okreœlano ju¿ zajêæ:'+V+'. Czy chcesz kontynuowaæ?') = ID_NO Then Exit; 
+     If Question('W okresie '+P2_VALUE.Text+' dla grupy '+G2_VALUE.Text+' okreœlano ju¿ zajêæ:'+V+'. Czy chcesz kontynuowaæ?') = ID_NO Then Exit; 
     End;
 
     dmodule.ADOConnection.CommitTrans;

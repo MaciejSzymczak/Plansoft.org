@@ -72,7 +72,7 @@ inherited FIntegration: TFIntegration
           Top = 8
           Width = 40
           Height = 14
-          Caption = 'Semestr'
+          Caption = 'Okres'
         end
         object BConfirmation2: TLabel
           Left = 504

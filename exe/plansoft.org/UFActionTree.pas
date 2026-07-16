@@ -58,7 +58,7 @@ begin
  if actionType = 'G' then Option1.Caption := 'Przejdü do rozk≥adu';
  if actionType = 'R' then Option1.Caption := 'Przejdü do rozk≥adu';
  if actionType = 'C' then Option1.Caption := 'Przejdü do kalendarza';
- if actionType = 'P' then Option1.Caption := 'Ustaw aktywny semestr';
+ if actionType = 'P' then Option1.Caption := 'Ustaw aktywny okres';
  if actionType = 'S' then Option1.Caption := 'Ustaw aktywny przedmiot';
  if actionType = 'F' then Option1.Caption := 'Ustaw aktywnπ formÍ';
 

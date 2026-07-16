@@ -2740,7 +2740,7 @@ inherited FProgramSettings: TFProgramSettings
         Width = 388
         Height = 14
         Caption = 
-          'Wpisz dat'#281'  ko'#324'cow'#261' aktuallnie trwaj'#261'cego semestru w formacie YY' +
+          'Wpisz dat'#281'  ko'#324'cow'#261' aktuallnie trwaj'#261'cego okresu w formacie YY' +
           'YY-MM-DD'
       end
       object DIFF_MODE: TEdit
@@ -3137,7 +3137,7 @@ inherited FProgramSettings: TFProgramSettings
           ''
           
             'Rozmiar bufora powinien by'#263' ustawiony optymalnie w zale'#380'no'#347'ci od' +
-            ': liczby dost'#281'pnej pami'#281'ci operacyjnej, liczby dni w semestrze, ' +
+            ': liczby dost'#281'pnej pami'#281'ci operacyjnej, liczby dni w okresie, ' +
             'liczby '
           'godzin w ci'#261'gu dnia, '
           'liczby danych wy'#347'wietlanych na ekranie jednocze'#347'nie.'
@@ -3156,7 +3156,7 @@ inherited FProgramSettings: TFProgramSettings
           'pomoc'#261' wzoru:'
           ''
           
-            'ROZMIAR ARKUSZA = liczba dni w semestrze * liczba zaj'#281#263' w ci'#261'gu ' +
+            'ROZMIAR ARKUSZA = liczba dni w okresie * liczba zaj'#281#263' w ci'#261'gu ' +
             'dnia * rozmiar pami'#281'ci potrzebny do przechowania pojedynczego za' +
             'j'#281'cia.'
           ''

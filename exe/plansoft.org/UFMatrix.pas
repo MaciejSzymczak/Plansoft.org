@@ -1677,7 +1677,7 @@ var iniFile : TIniFile;
     f : textFile;
 begin
   if (perId.Text='') then begin
-    Info('Najpierw wybierz semestr naciskaj¹c przycisk Wybierz | Wybierz semestr');
+    Info('Najpierw wybierz okres naciskaj¹c przycisk Wybierz | Wybierz okres');
     exit;
   end;
   saveDialog.fileName := 'matrix.ini';

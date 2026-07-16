@@ -361,7 +361,7 @@ begin
       //SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where rownum =1');
       if dmodule.QWork.RecordCount = 0 then begin
         FProgress.Hide;
-        info('Nie odnaleziono semestru o podanym kodzie cyklu:'+USOS_CYKL.Text);
+        info('Nie odnaleziono okresu o podanym kodzie cyklu:'+USOS_CYKL.Text);
         exit;
       end;
       DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';

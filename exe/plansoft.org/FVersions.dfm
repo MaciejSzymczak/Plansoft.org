@@ -70,7 +70,7 @@ inherited FVersion: TFVersion
         Top = 32
         Width = 43
         Height = 14
-        Caption = 'Semestr:'
+        Caption = 'Okres:'
       end
       object Label3: TLabel
         Left = 8
@@ -212,7 +212,7 @@ inherited FVersion: TFVersion
           Top = 32
           Width = 43
           Height = 14
-          Caption = 'Semestr:'
+          Caption = 'Okres:'
         end
         object Label6: TLabel
           Left = 8

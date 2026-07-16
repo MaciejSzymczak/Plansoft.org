@@ -278,10 +278,10 @@ begin
 
   case profileType.ItemIndex of
    0:begin
-     profileObjectNamePeriod.Text   := 'Semestr';
-     profileObjectNamePeriods.Text  := 'Semestry';
-     profileObjectNamePeriodacc.Text:= 'semestr';
-     profileObjectNamePeriodgen.Text:= 'semestru';
+     profileObjectNamePeriod.Text   := 'Okres';
+     profileObjectNamePeriods.Text  := 'Okresy';
+     profileObjectNamePeriodacc.Text:= 'okres';
+     profileObjectNamePeriodgen.Text:= 'okresu';
      profileObjectNameClass.Text    := 'Zajêcie';
      profileObjectNameClasses.Text  := 'Zajêcia';
      profileObjectNameClassacc.Text := 'zajêcie';

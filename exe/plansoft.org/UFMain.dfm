@@ -138,7 +138,7 @@ inherited FMain: TFMain
       Top = 296
       Width = 129
       Height = 33
-      Caption = 'Wybierz semestr'
+      Caption = 'Wybierz okres'
       Flat = True
       OnClick = SpeedButton1Click
     end
@@ -4207,7 +4207,7 @@ inherited FMain: TFMain
         Top = 32
         Width = 25
         Height = 22
-        Hint = 'Edytuj semestr'
+        Hint = 'Edytuj okres'
         Caption = '...'
         Visible = False
         OnClick = EditPeriodClick
@@ -5167,7 +5167,7 @@ inherited FMain: TFMain
             'Poprzednie 30dni'
             'Bie'#380#261'ce 30dni'
             'Za 30dni'
-            'Aktywny semestr'
+            'Aktywny okres'
             '<Wybierz daty>')
         end
         object BCrossTableMaxRows: TButton
@@ -5786,7 +5786,7 @@ inherited FMain: TFMain
             'Ostatnio u'#380'ywane'
             'Najcz'#281#347'ciej u'#380'ywane'
             'Najwi'#281'cej zaj'#281#263
-            'Najwi'#281'cej zaj'#281#263' (bie'#380#261'cy semestr)')
+            'Najwi'#281'cej zaj'#281#263' (bie'#380#261'cy okres)')
         end
       end
       object TreeRecentlyused: TTreeView
@@ -6377,7 +6377,7 @@ inherited FMain: TFMain
       end
       object mmprofileObjectNamePeriods: TMenuItem
         Caption = 'Okresy'
-        Hint = 'Semestry'
+        Hint = 'Okresy'
         OnClick = BDICTPERClick
       end
       object Siatkagodzinowa1: TMenuItem
@@ -8900,7 +8900,7 @@ inherited FMain: TFMain
       OnClick = Nowyprzedmiot1Click
     end
     object Nowysemestr1: TMenuItem
-      Caption = 'Nowy semestr'
+      Caption = 'Nowy okres'
       OnClick = Nowysemestr1Click
     end
   end
@@ -9019,7 +9019,7 @@ inherited FMain: TFMain
     Left = 848
     Top = 304
     object MenuItem4: TMenuItem
-      Caption = 'Grafik semestralny'
+      Caption = 'Grafik okresowy'
       OnClick = MenuItem4Click
     end
     object MenuItem11: TMenuItem
@@ -9031,11 +9031,11 @@ inherited FMain: TFMain
     Left = 735
     Top = 149
     object Przedskopiowanieskasujistniajcedniwolne1: TMenuItem
-      Caption = 'Usu'#324' wszystkie dni wolne z bie'#380#261'cego semestru'
+      Caption = 'Usu'#324' wszystkie dni wolne z bie'#380#261'cego okresu'
       OnClick = Przedskopiowanieskasujistniajcedniwolne1Click
     end
     object Nieusuwajistniajcedniwolne1: TMenuItem
-      Caption = 'Skopiuj dni z innego semestru (dodaj do istniej'#261'cych)'
+      Caption = 'Skopiuj dni z innego okresu (dodaj do istniej'#261'cych)'
       OnClick = Nieusuwajistniajcedniwolne1Click
     end
   end
