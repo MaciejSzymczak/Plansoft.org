@@ -6,6 +6,8 @@ inherited FDBSpace: TFDBSpace
   Caption = 'Dost'#281'pne miejsce'
   Font.Charset = DEFAULT_CHARSET
   Font.Name = 'Tahoma'
+  KeyPreview = True
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   inherited Status: TPanel

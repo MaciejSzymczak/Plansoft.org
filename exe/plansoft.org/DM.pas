@@ -193,6 +193,7 @@ type
     function  dbGetSystemParam(Name : ShortString) : ShortString; overload;
     function  dbgetSystemParam(Name : ShortString; defaultValue : shortString) : ShortString; overload;
     procedure dbSetSystemParam(Name, Value : ShortString);
+    procedure dbSetSystemParamBulk(Params : TStrings);
     function  dbEncGetSystemParam(Name : ShortString) : ShortString; overload;
     function  dbEncGetSystemParam(Name : ShortString; defaultValue : shortString) : ShortString; overload;
     Procedure dbEncSetSystemParam(Name, Value : ShortString);
@@ -1253,6 +1254,33 @@ begin
  if DModule.ADOConnection.Connected then begin
    dmodule.CommitTrans;
  end;
+end;
+//----------------------------------------------------------------
+Procedure TDModule.dbSetSystemParamBulk(Params : TStrings);
+const QUOTE = '''';
+Var t : Integer;
+    sql, nameList, paramName, paramValue : String;
+begin
+  if Params.Count = 0 then exit;
+  nameList := '';
+  for t := 0 to Params.Count - 1 do begin
+    paramName := Params.Names[t];
+    if nameList <> '' then nameList := nameList + ',';
+    nameList := nameList + QUOTE + searchAndReplace(paramName, QUOTE, QUOTE+QUOTE) + QUOTE;
+  end;
+
+  sql := 'BEGIN'+cr;
+  sql := sql + 'DELETE FROM system_parameters WHERE name IN ('+nameList+');'+cr;
+  for t := 0 to Params.Count - 1 do begin
+    paramName := Params.Names[t];
+    paramValue := Params.ValueFromIndex[t];
+    sql := sql + 'INSERT INTO system_parameters (name, value) VALUES ('
+                + QUOTE + searchAndReplace(paramName, QUOTE, QUOTE+QUOTE) + QUOTE + ','
+                + QUOTE + searchAndReplace(paramValue, QUOTE, QUOTE+QUOTE) + QUOTE + ');'+cr;
+  end;
+  sql := sql + 'COMMIT;'+cr+'END;';
+
+  dmodule.SQL(sql);
 end;
 
 //----------------------------------------------------------------

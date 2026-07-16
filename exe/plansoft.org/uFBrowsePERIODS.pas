@@ -160,11 +160,7 @@ end;
 Function  TFBrowsePERIODS.CanDeleteRecord    : Boolean;
 begin
  result := true;
- if not Query.Active then exit;
- If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>dm.UserName) Then Begin
-  //Info('Rekord mo¿e skasowaæ tylko u¿ytkownik, który utworzy³ rekord');
-  result := false;
- End;
+ //ownership/supervisor restriction removed 2026.07.16 - Access_Type (per_pla) is now the sole gate, see IsRecordReadOnly
 end;
 
 
@@ -308,7 +304,7 @@ end;
 
 procedure TFBrowsePERIODS.SpeedButton5Click(Sender: TObject);
 begin
-  SError('Wybierz semestr nadrzêdny, je¿eli chcesz aby dni wolne automatycznie kopiowa³y siê z tego semestru');
+  SError('Wybierz okres nadrzêdny, je¿eli chcesz aby dni wolne (ka¿da zmiana) automatycznie kopiowa³y siê z wybranego okresu nadrzêdnego. Zmiany s¹ aktualizowane z 5min opóŸnieniem.');
 end;
 
 procedure TFBrowsePERIODS.ROL_ID_VALUEClick(Sender: TObject);

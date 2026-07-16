@@ -3735,7 +3735,7 @@ inherited FMain: TFMain
         OnClick = BitBtnROLEClick
       end
       object BitBtnSUB: TSpeedButton
-        Left = 1223
+        Left = 1247
         Top = 102
         Width = 23
         Height = 22
@@ -3822,7 +3822,7 @@ inherited FMain: TFMain
         Visible = False
         OnClick = BitBtnFORMClick
       end
-      object BClearS: TSpeedButton
+      object BClearSx: TSpeedButton
         Left = 1223
         Top = 78
         Width = 23
@@ -3886,7 +3886,7 @@ inherited FMain: TFMain
           C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
           C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6
           C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600C6C6C600}
-        OnClick = BClearSClick
+        OnClick = BClearSxClick
       end
       object BitBtnCLEARROLE: TSpeedButton
         Left = 1222
@@ -4860,8 +4860,8 @@ inherited FMain: TFMain
         OnClick = DrawSuppressionSClick
       end
       object CalViewPanel: TPanel
-        Left = 1222
-        Top = 28
+        Left = 1382
+        Top = 4
         Width = 497
         Height = 117
         TabOrder = 35
@@ -4990,8 +4990,9 @@ inherited FMain: TFMain
             'd.Name and rownum = 1;'
           '        if c = 0 then'
           '          INSERT INTO periods VALUES v_record;'
-          '          INSERT INTO per_pla (id, per_id, pla_id) VALUES (perpla' +
-            '_seq.nextval, v_record.id, plaId);'
+          
+            '          INSERT INTO per_pla (id, per_id, pla_id) VALUES (perpl' +
+            'a_seq.nextval, v_record.id, plaId);'
           '        end if;'
           '      end;'
           '   end loop;   '
@@ -6625,6 +6626,10 @@ inherited FMain: TFMain
       object DostepneMiejsce1: TMenuItem
         Caption = 'Dost'#281'pne miejsce'
         OnClick = DostepneMiejsce1Click
+      end
+      object OczekujaceZadania1: TMenuItem
+        Caption = 'Oczekuj'#261'ce zadania'
+        OnClick = OczekujaceZadania1Click
       end
     end
     object Finanse1: TMenuItem

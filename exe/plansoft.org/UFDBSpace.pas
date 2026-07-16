@@ -23,6 +23,7 @@ type
     SegmentsQuery: TADOQuery;
     UsageBar: TPaintBox;
     procedure FormShow(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure BDetailsClick(Sender: TObject);
     procedure UsageBarPaint(Sender: TObject);
     procedure GridDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -52,6 +53,11 @@ begin
   Height          := cCollapsedHeight;
   FSegmentsLoaded := False;
   RefreshSummary;
+end;
+
+procedure TFDBSpace.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then Close;
 end;
 
 procedure TFDBSpace.BDetailsClick(Sender: TObject);

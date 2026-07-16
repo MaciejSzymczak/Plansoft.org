@@ -71,8 +71,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       Width = 60
       Height = 28
       Hint = 'Edycja (Access_Type=E)'
-      Caption = 'Edycja'
       AllowAllUp = True
+      Caption = 'Edycja'
       Flat = True
       Glyph.Data = {
         36040000424D3604000000000000420000002800000015000000170000000100
@@ -119,8 +119,8 @@ inherited FPlannerPermissions: TFPlannerPermissions
       Width = 60
       Height = 28
       Hint = 'Odczyt (Access_Type=R)'
-      Caption = 'Odczyt'
       AllowAllUp = True
+      Caption = 'Odczyt'
       Flat = True
       ParentShowHint = False
       ShowHint = True
@@ -183,7 +183,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
     Top = 0
     Width = 1096
     Height = 574
-    ActivePage = TabSheetSUB
+    ActivePage = TabSheetLEC
     Align = alClient
     TabOrder = 2
     Visible = False
@@ -314,7 +314,7 @@ inherited FPlannerPermissions: TFPlannerPermissions
       end
     end
     object TabSheetPER: TTabSheet
-      Caption = 'Semestry'
+      Caption = 'Okresy'
       ImageIndex = 6
       object PERGrid: TStringGrid
         Left = 0

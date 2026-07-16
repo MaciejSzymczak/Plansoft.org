@@ -429,7 +429,7 @@ type
     BitBtnROLE: TSpeedButton;
     BitBtnSUB: TSpeedButton;
     BitBtnFORM: TSpeedButton;
-    BClearS: TSpeedButton;
+    BClearSx: TSpeedButton;
     BClearF: TSpeedButton;
     BitBtnCLEARROLE: TSpeedButton;
     BSelectComb: TSpeedButton;
@@ -703,6 +703,7 @@ type
     procedure mmconsolidationClick(Sender: TObject);
     procedure MMDiagramClick(Sender: TObject);
     procedure DostepneMiejsce1Click(Sender: TObject);
+    procedure OczekujaceZadania1Click(Sender: TObject);
     procedure AutoSaverTimer(Sender: TObject);
     procedure bmoveUpClick(Sender: TObject);
     procedure bmoveDownClick(Sender: TObject);
@@ -827,7 +828,7 @@ type
     procedure BitBtnROLEClick(Sender: TObject);
     procedure BitBtnSUBClick(Sender: TObject);
     procedure BitBtnFORMClick(Sender: TObject);
-    procedure BClearSClick(Sender: TObject);
+    procedure BClearSxClick(Sender: TObject);
     procedure BClearFClick(Sender: TObject);
     procedure BitBtnCLEARROLEClick(Sender: TObject);
     procedure BSelectCombClick(Sender: TObject);
@@ -1159,7 +1160,7 @@ Uses AutoCreate, UFDetails,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
-  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace;
+  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks;
 
 var dummy : string;
 const LastValidatedPeriodId : string = '###invalid###'; // typed constant = writable global, cache for the PERIODS existence check in BuildCalendar
@@ -5892,6 +5893,13 @@ begin
   FDBSpace.Free;
 end;
 
+procedure TFMain.OczekujaceZadania1Click(Sender: TObject);
+begin
+  FWaitingTasks := TFWaitingTasks.Create(Application);
+  FWaitingTasks.ShowModal;
+  FWaitingTasks.Free;
+end;
+
 procedure TFMain.AutoSaverTimer(Sender: TObject);
 begin
   If AutoSaveCounterDown >= 0 then  AutoSaveCounterDown := AutoSaveCounterDown -1;
@@ -7703,7 +7711,7 @@ begin
   // w polu where jest 0=0 (a nie np. (KIND<>''R'' OR KIND IS NULL))
 end;
 
-procedure TFMain.BClearSClick(Sender: TObject);
+procedure TFMain.BClearSxClick(Sender: TObject);
 begin
   inherited;
   ConSubject.Text := '';
@@ -8821,7 +8829,8 @@ procedure TFMain.updateLeftPanel;
 var parentPanel : Twincontrol;
   procedure setParent (parentPanel : Twincontrol);
   begin
-   BClearS.Parent := parentPanel;
+   BClearSx.Parent := parentPanel;
+   BClearF.Parent := parentPanel;
    Preview.Parent := parentPanel;
    BCopy.Parent := parentPanel;
    BPaste.Parent := parentPanel;
@@ -9383,47 +9392,51 @@ end;
 
 procedure TFMain.SavePulpit;
 Var prefix : string;
+    Params : TStringList;
 begin
  if DModule.ADOConnection.Connected then begin
    prefix := upperCase(username)+'.PULPIT'+inttostr(activePulpit);
-   With Dmodule do begin
-   dbSetSystemParam(prefix+'.TABVIEWTYPE.TABINDEX',  IntToStr(TabViewType.TabIndex) );
-   dbSetSystemParam(prefix+'.CONLECTURER',  conlecturer.Text );
-   dbSetSystemParam(prefix+'.CONGROUP',     congroup.Text    );
-   dbSetSystemParam(prefix+'.CONRESCAT0',   conResCat0.Text  );
-   dbSetSystemParam(prefix+'.CONRESCAT1',   conResCat1.Text  );
-   dbSetSystemParam(prefix+'.CONPERIOD',    conPeriod.Text   );
-   dbSetSystemParam(prefix+'.CONROLE',      conRole.Text     );
-   dbSetSystemParam(prefix+'.CONSUBJECT',   consubject.Text  );
-   dbSetSystemParam(prefix+'.CONFORM',      conform.Text     );
-   dbSetSystemParam(prefix+'.CELL_COLORING',      IntToStr(FCellLayout.CellColor.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D1',      IntToStr(FCellLayout.D1.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D2',      IntToStr(FCellLayout.D2.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D3',      IntToStr(FCellLayout.D3.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D4',      IntToStr(FCellLayout.D4.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D5',      IntToStr(FCellLayout.D5.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D6',      IntToStr(FCellLayout.D6.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D7',      IntToStr(FCellLayout.D7.ItemIndex)  );
-   dbSetSystemParam(prefix+'.CELL_D8',      IntToStr(FCellLayout.D8.ItemIndex)  );
-   dbSetSystemParam(prefix+'.HideTheSameDesc'       , BoolToStr(FCellLayout.HideTheSameDesc.Checked) );
-   dbSetSystemParam(prefix+'.GRIDFONT.SIZE'        , inttostr(gridFont.Font.Size) );
-   dbSetSystemParam(prefix+'.GRIDFONT.NAME'        , gridFont.Font.name);
-   dbSetSystemParam(prefix+'.FORCECELLWIDTH'       , BoolToStr(FcellLayout.ForceCellWidth.Checked) );
-   dbSetSystemParam(prefix+'.FORCECELLHEIGHT'      , BoolToStr(FcellLayout.ForceCellHeight.Checked) );
-   dbSetSystemParam(prefix+'.FORCEDCELLHEIGHT'     , intToStr(FcellLayout.ForcedCellHeight.position) );
-   dbSetSystemParam(prefix+'.FORCEDCELLWIDTH'      , intToStr(FcellLayout.ForcedCellWidth.position) );
-   dbSetSystemParam(prefix+'.RESOURCE_CATEGORY_ID1', dmodule.pResCatId1);
-   dbSetSystemParam(prefix+'.RESOURCE_CATEGORY_ID0', dmodule.pResCatId0);
-
-   dbSetSystemParam(prefix+'.SHOWFREETERMSL'       , BoolToStr(ShowFreeTermsL.Checked) );
-   dbSetSystemParam(prefix+'.SHOWFREETERMSG'       , BoolToStr(ShowFreeTermsG.Checked) );
-   dbSetSystemParam(prefix+'.SHOWFREETERMSR'       , BoolToStr(ShowFreeTermsR.Checked) );
-   dbSetSystemParam(prefix+'.SHOWFREETERMSRESCAT1' , BoolToStr(ShowFreeTermsResCat1.Checked) );
-   dbSetSystemParam(prefix+'.DRAWSUPPRESSIONS'     , BoolToStr(DrawSuppressionS.Checked) );
-   dbSetSystemParam(prefix+'.DRAWSUPPRESSIONF'     , BoolToStr(DrawSuppressionF.Checked) );
-   dbSetSystemParam(prefix+'.RESPECTCOMPLETIONS'   , BoolToStr(RespectCompletions.Checked) );
-   dbSetSystemParam(prefix+'.showbgroups'           , BoolToStr(showbgroups.Checked) );
-   End;
+   Params := TStringList.Create;
+   try
+   Params.Add(prefix+'.TABVIEWTYPE.TABINDEX='+IntToStr(TabViewType.TabIndex));
+   Params.Add(prefix+'.CONLECTURER='+conlecturer.Text);
+   Params.Add(prefix+'.CONGROUP='+congroup.Text);
+   Params.Add(prefix+'.CONRESCAT0='+conResCat0.Text);
+   Params.Add(prefix+'.CONRESCAT1='+conResCat1.Text);
+   Params.Add(prefix+'.CONPERIOD='+conPeriod.Text);
+   Params.Add(prefix+'.CONROLE='+conRole.Text);
+   Params.Add(prefix+'.CONSUBJECT='+consubject.Text);
+   Params.Add(prefix+'.CONFORM='+conform.Text);
+   Params.Add(prefix+'.CELL_COLORING='+IntToStr(FCellLayout.CellColor.ItemIndex));
+   Params.Add(prefix+'.CELL_D1='+IntToStr(FCellLayout.D1.ItemIndex));
+   Params.Add(prefix+'.CELL_D2='+IntToStr(FCellLayout.D2.ItemIndex));
+   Params.Add(prefix+'.CELL_D3='+IntToStr(FCellLayout.D3.ItemIndex));
+   Params.Add(prefix+'.CELL_D4='+IntToStr(FCellLayout.D4.ItemIndex));
+   Params.Add(prefix+'.CELL_D5='+IntToStr(FCellLayout.D5.ItemIndex));
+   Params.Add(prefix+'.CELL_D6='+IntToStr(FCellLayout.D6.ItemIndex));
+   Params.Add(prefix+'.CELL_D7='+IntToStr(FCellLayout.D7.ItemIndex));
+   Params.Add(prefix+'.CELL_D8='+IntToStr(FCellLayout.D8.ItemIndex));
+   Params.Add(prefix+'.HideTheSameDesc='+BoolToStr(FCellLayout.HideTheSameDesc.Checked));
+   Params.Add(prefix+'.GRIDFONT.SIZE='+inttostr(gridFont.Font.Size));
+   Params.Add(prefix+'.GRIDFONT.NAME='+gridFont.Font.name);
+   Params.Add(prefix+'.FORCECELLWIDTH='+BoolToStr(FcellLayout.ForceCellWidth.Checked));
+   Params.Add(prefix+'.FORCECELLHEIGHT='+BoolToStr(FcellLayout.ForceCellHeight.Checked));
+   Params.Add(prefix+'.FORCEDCELLHEIGHT='+intToStr(FcellLayout.ForcedCellHeight.position));
+   Params.Add(prefix+'.FORCEDCELLWIDTH='+intToStr(FcellLayout.ForcedCellWidth.position));
+   Params.Add(prefix+'.RESOURCE_CATEGORY_ID1='+dmodule.pResCatId1);
+   Params.Add(prefix+'.RESOURCE_CATEGORY_ID0='+dmodule.pResCatId0);
+   Params.Add(prefix+'.SHOWFREETERMSL='+BoolToStr(ShowFreeTermsL.Checked));
+   Params.Add(prefix+'.SHOWFREETERMSG='+BoolToStr(ShowFreeTermsG.Checked));
+   Params.Add(prefix+'.SHOWFREETERMSR='+BoolToStr(ShowFreeTermsR.Checked));
+   Params.Add(prefix+'.SHOWFREETERMSRESCAT1='+BoolToStr(ShowFreeTermsResCat1.Checked));
+   Params.Add(prefix+'.DRAWSUPPRESSIONS='+BoolToStr(DrawSuppressionS.Checked));
+   Params.Add(prefix+'.DRAWSUPPRESSIONF='+BoolToStr(DrawSuppressionF.Checked));
+   Params.Add(prefix+'.RESPECTCOMPLETIONS='+BoolToStr(RespectCompletions.Checked));
+   Params.Add(prefix+'.showbgroups='+BoolToStr(showbgroups.Checked));
+   Dmodule.dbSetSystemParamBulk(Params);
+   finally
+     Params.Free;
+   end;
  end;
 end;
 
