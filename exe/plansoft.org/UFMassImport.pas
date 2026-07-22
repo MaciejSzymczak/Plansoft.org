@@ -69,9 +69,9 @@ var LCID : Integer;
       procedure add(pwhoId : String);
       begin
        dmodule.SQL(myQuery,
-         'merge into '+pObjectAlias+'_PLA m using dual on (PLA_ID = :ppla_id and '+pObjectAlias+'_ID=:pobj_id)'+
-        ' when not matched then insert (id, PLA_ID, '+pObjectAlias+'_ID) values '+'('+pObjectAlias+'PLA_SEQ.NEXTVAL, :ppla_id, :pobj_id)'
-       , 'ppla_id='+pwhoId+';pobj_id='+pId);
+         'merge into '+pObjectAlias+'_PLA m using dual on (PLA_ID = :ppla_id_1 and '+pObjectAlias+'_ID=:pobj_id_1)'+
+        ' when not matched then insert (id, PLA_ID, '+pObjectAlias+'_ID) values '+'('+pObjectAlias+'PLA_SEQ.NEXTVAL, :ppla_id_2, :pobj_id_2)'
+       , 'ppla_id_1='+pwhoId+';pobj_id_1='+pId+';ppla_id_2='+pwhoId+';pobj_id_2='+pId);
       end;
     begin
       add(UserID);
@@ -214,10 +214,10 @@ begin
           case importType.ItemIndex of
             0: begin
                  dmodule.SQL(myQuery,
-                             'merge into lecturers m using dual on (integration_id = :integration_id)'+
-	                           ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id, diff_notifications) '+'values (main_seq.nextval, :abbreviation, :title, :first_name, :last_name, :colour, :orguni_id, :desc1, :desc2, :integration_id, ''-'')'+
-                             ' when matched then update set title=:title, first_name=:first_name, last_name=:last_name,  desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
-                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
+                             'merge into lecturers m using dual on (integration_id = :integration_id_1)'+
+                             ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id, diff_notifications) '+'values (main_seq.nextval, :abbreviation_1, :title_1, :first_name_1, :last_name_1, :colour, :orguni_id_1, :desc1_1, :desc2_1, :integration_id_2, ''-'')'+
+                             ' when matched then update set title=:title_2, first_name=:first_name_2, last_name=:last_name_2,  desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
+                           , 'abbreviation_1='+l_col1+';title_1='+l_col2+';first_name_1='+l_col3+';last_name_1='+l_col4+';colour='+l_colour+';orguni_id_1='+l_orguni_id+';desc1_1='+l_col5+';desc2_1='+l_col6+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';title_2='+l_col2+';first_name_2='+l_col3+';last_name_2='+l_col4+';orguni_id_2='+l_orguni_id+';desc1_2='+l_col5+';desc2_2='+l_col6+';integration_id_2='+integrationId);
                  pId := dmodule.SingleValue('select id from lecturers where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('LEC', pId);
                end;
@@ -231,28 +231,28 @@ begin
                    exit;
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into groups m using dual on (integration_id = :integration_id)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation, :name, :colour, :group_type, :number_of_peoples, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, group_type=:group_type, number_of_peoples=:number_of_peoples, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
+                           , 'merge into groups m using dual on (integration_id = :integration_id_1)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation_1, :name_1, :colour, :group_type_1, :number_of_peoples_1, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_2)'+
+                             ' when matched then update set name=:name_2, group_type=:group_type_2, number_of_peoples=:number_of_peoples_2, desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
+                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';colour='+l_colour+';group_type_1='+l_col4+';number_of_peoples_1='+l_col3+';orguni_id_1='+l_orguni_id+';desc1_1='+l_col5+';desc2_1='+l_col6+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';group_type_2='+l_col4+';number_of_peoples_2='+l_col3+';orguni_id_2='+l_orguni_id+';desc1_2='+l_col5+';desc2_2='+l_col6+';integration_id_2='+integrationId);
                  pId := dmodule.SingleValue('select id from groups where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('GRO', pId);
                end;
             2: begin
                  dmodule.SQL(myQuery
-                            , 'merge into rooms m using dual on (name = :name and attribs_01 = :attribs_01)'+
-	                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :name, :colour, :rescat_id, :attribs_01, :attribn_01, :desc1, :desc2, :orguni_id, :integration_id)'+
-		                          ' when matched then update set attribn_01 = :attribn_01, desc1=:desc1, desc2=:desc2, integration_id = :integration_id, orguni_id = :orguni_id'
-                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+integrationId);
+                            , 'merge into rooms m using dual on (name = :name_1 and attribs_01 = :attribs_01_1)'+
+                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) '+'values (main_seq.nextval, :name_2, :colour, :rescat_id, :attribs_01_2, :attribn_01_1, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_1)'+
+                            ' when matched then update set attribn_01 = :attribn_01_2, desc1=:desc1_2, desc2=:desc2_2, integration_id = :integration_id_2, orguni_id = :orguni_id_2'
+                            , 'name_1='+l_col1+';name_2='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01_1='+l_col2+';attribs_01_2='+l_col2+';attribn_01_1='+l_col3+';attribn_01_2='+l_col3+';orguni_id_1='+l_orguni_id+';orguni_id_2='+l_orguni_id+';desc1_1='+l_col4+';desc1_2='+l_col4+';desc2_1='+l_col5+';desc2_2='+l_col5+';integration_id_1='+integrationId+';integration_id_2='+integrationId);
                  pId := dmodule.SingleValue('select id from rooms where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('ROM', pId);
                end;
             3: begin
                  dmodule.SQL(myQuery
-                           , 'merge into subjects m using dual on (integration_id = :integration_id)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation, :name, :colour, :desc1, :desc2, :orguni_id, :integration_id)'+
-                             ' when matched then update set name=:name, desc1=:desc1, desc2=:desc2, abbreviation = :abbreviation, orguni_id = :orguni_id'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+integrationId);
+                           , 'merge into subjects m using dual on (integration_id = :integration_id_1)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation_1, :name_1, :colour, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_2)'+
+                             ' when matched then update set name=:name_2, desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
+                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';colour='+l_colour+';desc1_1='+l_col3+';orguni_id_1='+l_orguni_id+';desc2_1='+l_col4+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';desc1_2='+l_col3+';orguni_id_2='+l_orguni_id+';desc2_2='+l_col4+';integration_id_2='+integrationId);
                  pId := dmodule.SingleValue('select id from subjects where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('SUB', pId);
                end;
@@ -261,10 +261,10 @@ begin
                    SError('W kolumnie 3 dozwolone wartoœci to: "C" lub "R". C=rodzaj zajêcia. R=rodzaj rezerwacji');
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into forms m using dual on (integration_id = :integration_id)'+
-                             ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation, :name, :kind, :colour, :integration_id)'+
-                             ' when matched then update set name=:name, kind=:kind, abbreviation = :abbreviation'
-                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+integrationId);
+                           , 'merge into forms m using dual on (integration_id = :integration_id_1)'+
+                             ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation_1, :name_1, :kind_1, :colour, :integration_id_2)'+
+                             ' when matched then update set name=:name_2, kind=:kind_2, abbreviation = :abbreviation_2'
+                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';kind_1='+l_col3+';colour='+l_colour+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';kind_2='+l_col3+';integration_id_2='+integrationId);
                  pId := dmodule.SingleValue('select id from forms where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('FOR', pId);
                end;
