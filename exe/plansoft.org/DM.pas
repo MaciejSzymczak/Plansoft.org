@@ -556,6 +556,7 @@ Procedure TDModule.SQL(var query : tadoquery; S : String; const pparams : String
      paramName   : String;
      paramValue  : String;
      t : integer;
+     I : integer;
 Begin
  try
  logSQLStart ('SQL', S);
@@ -571,6 +572,12 @@ Begin
      paramValue := extractWord(2,wholeString,['=']);
      parameters.ParamByName(paramName).value   := paramValue;
    end;
+
+   //!!!
+//info(BoolToStr(query.ParamCheck));
+//info(IntToStr(query.Parameters.Count));
+ //for I := 0 to query.Parameters.Count - 1 do
+  //  info(query.Parameters[I].Name);
 
 
   ExecSQL;

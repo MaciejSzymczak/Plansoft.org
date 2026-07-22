@@ -1175,9 +1175,9 @@ Var canForceUnlock : boolean;
 Begin
   canForceUnlock := isAdmin;
   LockTimeTable.Visible := locked_by.text ='';
-  UnlockTimeTable.Visible := (inStr(';'+locked_by.text,';'+dm.UserName)<>0) OR (canForceUnlock and (LockTimeTable.Visible=false));
-  locked_reason.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+dm.UserName)=0) and (canForceUnlock=false);
-  locked_by.ReadOnly := (locked_by.text<>'') and (inStr(';'+locked_by.text,';'+dm.UserName)=0) and (canForceUnlock=false);
+  UnlockTimeTable.Visible := isOwner(locked_by.text) OR (canForceUnlock and (LockTimeTable.Visible=false));
+  locked_reason.ReadOnly := (locked_by.text<>'') and (not isOwner(locked_by.text)) and (canForceUnlock=false);
+  locked_by.ReadOnly := (locked_by.text<>'') and (not isOwner(locked_by.text)) and (canForceUnlock=false);
   if locked_reason.ReadOnly then locked_reason.Color := clBtnFace else locked_reason.Color := clWindow;
   if locked_by.ReadOnly then locked_by.Color := clBtnFace else locked_by.Color := clWindow;
   SelectAnotherLocker.Visible := not locked_by.ReadOnly;
@@ -1225,7 +1225,7 @@ begin
   end;
 
   KeyValue := '';
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then Begin
+  If PLANNERSShowModalAsSelect(KeyValue, 'PLANNERS.TYPE=''USER''') = mrOK Then Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     if ExistsValue(QueryTimetableNotes.FieldByName('locked_by').AsString, [';'], KeyValue)
       then //

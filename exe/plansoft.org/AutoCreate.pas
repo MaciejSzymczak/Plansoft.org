@@ -93,7 +93,7 @@ Procedure CLASSES_HISTORYFree;
 
 procedure PLANNERSCreate;
 Procedure PLANNERSShowModalAsBrowser;
-Function  PLANNERSShowModalAsSelect(var ID : ShortString) : TModalResult;
+Function  PLANNERSShowModalAsSelect(var ID : ShortString; aTypeFilter : String) : TModalResult;
 function  PLANNERSShowModalAsSingleRecord(Action : Integer; Var ID : ShortString) : TModalResult;
 Procedure PLANNERSFree;
 
@@ -779,13 +779,15 @@ end;
 Procedure PLANNERSShowModalAsBrowser;
 Begin
  PLANNERSCreate;
+ FBrowsePLANNERS.TypeFilter := '0=0';
  FBrowsePLANNERS.ShowModalAsBrowser('');
  If GetSystemParam('SAVERESOURCES') = 'Yes' Then PLANNERSFree;
 End;
 
-Function PLANNERSShowModalAsSelect(var ID : ShortString) : TModalResult;
+Function PLANNERSShowModalAsSelect(var ID : ShortString; aTypeFilter : String) : TModalResult;
 Begin
  PLANNERSCreate;
+ FBrowsePLANNERS.TypeFilter := aTypeFilter;
  Result := FBrowsePLANNERS.ShowModalAsSelect(ID);
  If GetSystemParam('SAVERESOURCES') = 'Yes' Then PLANNERSFree;
 End;
@@ -793,6 +795,7 @@ End;
 function PLANNERSShowModalAsSingleRecord(Action : Integer; Var ID : ShortString) : TModalResult;
 Begin
  PLANNERSCreate;
+ FBrowsePLANNERS.TypeFilter := '0=0';
  Result := FBrowsePLANNERS.ShowModalAsSingleRecord(Action,ID);
  PLANNERSFree;
 End;

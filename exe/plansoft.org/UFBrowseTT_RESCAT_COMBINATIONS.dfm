@@ -7,18 +7,18 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 697
+    Top = 698
     Width = 955
   end
   inherited MainPage: TPageControl
     Width = 955
-    Height = 697
+    Height = 698
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 692
         Top = 95
         Width = 4
-        Height = 515
+        Height = 516
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -26,7 +26,7 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
       end
       inherited Grid: TRxDBGrid
         Width = 692
-        Height = 515
+        Height = 516
         Columns = <
           item
             Expanded = False
@@ -291,11 +291,11 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 629
+        Top = 630
         Width = 947
       end
       inherited Panel: TPanel
-        Top = 610
+        Top = 611
         Width = 947
         inherited StatusBar: TStatusBar
           Width = 878
@@ -311,7 +311,7 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
         Left = 696
         Top = 95
         Width = 251
-        Height = 515
+        Height = 516
         Align = alRight
         TabOrder = 6
         object PanelDetails: TPanel
@@ -327,7 +327,7 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
           Left = 1
           Top = 25
           Width = 249
-          Height = 448
+          Height = 449
           Align = alClient
           DataSource = DSDetails
           Font.Charset = DEFAULT_CHARSET
@@ -356,7 +356,7 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
         end
         object Panel4: TPanel
           Left = 1
-          Top = 473
+          Top = 474
           Width = 249
           Height = 41
           Align = alBottom
@@ -524,7 +524,7 @@ inherited FBrowseTT_RESCAT_COMBINATIONS: TFBrowseTT_RESCAT_COMBINATIONS
         Top = 264
       end
       inherited UpdPanel: TPanel [3]
-        Top = 633
+        Top = 634
         Width = 947
       end
       object ListBoxAll: TListBox

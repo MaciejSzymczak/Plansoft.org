@@ -7,17 +7,17 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 666
+    Top = 667
     Width = 1066
   end
   inherited MainPage: TPageControl
     Width = 1066
-    Height = 666
+    Height = 667
     inherited Browse: TTabSheet
       object Splitter1: TSplitter [0]
         Left = 725
         Top = 209
-        Height = 370
+        Height = 371
         Align = alRight
       end
       inherited TopPanel: TPanel
@@ -53,7 +53,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
       inherited Grid: TRxDBGrid
         Top = 209
         Width = 725
-        Height = 370
+        Height = 371
         Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
         Columns = <
@@ -435,11 +435,11 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           end>
       end
       inherited BottomPanel: TPanel
-        Top = 598
+        Top = 599
         Width = 1058
       end
       inherited Panel: TPanel
-        Top = 579
+        Top = 580
         Width = 1058
         inherited StatusBar: TStatusBar
           Width = 989
@@ -962,7 +962,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
         Left = 728
         Top = 209
         Width = 330
-        Height = 370
+        Height = 371
         Align = alRight
         TabOrder = 6
         object DetPanel1: TPanel
@@ -978,7 +978,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           Left = 1
           Top = 25
           Width = 328
-          Height = 344
+          Height = 345
           Align = alClient
           DataSource = DStt_resource_lists
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
@@ -1078,7 +1078,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
     end
     inherited Update: TTabSheet
       inherited UpdPanel: TPanel
-        Top = 602
+        Top = 603
         Width = 1058
       end
       inherited FlexPanel: TPanel
@@ -1362,9 +1362,9 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
           Caption = 'Formy zaj'#281#263
         end
         object lper: TLabel
-          Left = 27
+          Left = 38
           Top = 152
-          Width = 46
+          Width = 35
           Height = 14
           Alignment = taRightJustify
           Caption = 'Okresy'

@@ -662,17 +662,19 @@ begin
   Grid.Canvas.Font := Grid.Font;
   For i := 0 To Grid.Columns.Count - 1 Do Begin
     maxWidth := Grid.Canvas.TextWidth(Grid.Columns[i].Title.Caption) + 18;
-    DataSet.DisableControls;
-    DataSet.First;
-    sampleCnt := 0;
-    While (Not DataSet.Eof) and (sampleCnt < cAutoFitSampleRows) Do Begin
-      w := Grid.Canvas.TextWidth(Grid.Columns[i].Field.DisplayText) + 14;
-      If w > maxWidth Then maxWidth := w;
-      DataSet.Next;
-      Inc(sampleCnt);
+    If Assigned(Grid.Columns[i].Field) Then Begin
+      DataSet.DisableControls;
+      DataSet.First;
+      sampleCnt := 0;
+      While (Not DataSet.Eof) and (sampleCnt < cAutoFitSampleRows) Do Begin
+        w := Grid.Canvas.TextWidth(Grid.Columns[i].Field.DisplayText) + 14;
+        If w > maxWidth Then maxWidth := w;
+        DataSet.Next;
+        Inc(sampleCnt);
+      End;
+      DataSet.First;
+      DataSet.EnableControls;
     End;
-    DataSet.First;
-    DataSet.EnableControls;
     Grid.Columns[i].Width := maxWidth;
   End;
 end;

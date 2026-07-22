@@ -1866,6 +1866,7 @@ inherited FBrowsePLANNERS: TFBrowsePLANNERS
       '   AND %CONDITIONALS'
       '   AND %SEARCH'
       '   AND %TTENABLED'
+      '   AND %TYPEFILTER'
       '%SORTORDER')
     Left = 144
     Top = 216

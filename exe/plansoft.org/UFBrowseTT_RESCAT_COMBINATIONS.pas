@@ -212,7 +212,7 @@ Var keyValue : ShortString;
     end;
 begin
   keyValue := '';
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then begin
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then begin
        try
        dmodule.sql('begin insert into tt_pla (id, pla_id, rescat_comb_id) values (tt_seq.nextval, :pla_id, :rescat_comb_id ); end;'
                   ,'pla_id='+keyValue+';rescat_comb_id='+Id

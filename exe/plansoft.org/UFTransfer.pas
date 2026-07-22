@@ -73,14 +73,14 @@ procedure TFTransfer.BitBtnROLEClick(Sender: TObject);
 Var KeyValue : ShortString;
 begin
   KeyValue := ufrom.Text;
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then ufrom.Text := KeyValue;
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then ufrom.Text := KeyValue;
 end;
 
 procedure TFTransfer.SpeedButton1Click(Sender: TObject);
 Var KeyValue : ShortString;
 begin
   KeyValue := uto.Text;
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then uto.Text := KeyValue;
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then uto.Text := KeyValue;
 end;
 
 procedure TFTransfer.BCreateClick(Sender: TObject);

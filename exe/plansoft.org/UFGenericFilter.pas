@@ -195,7 +195,7 @@ Var KeyValue : ShortString;
 begin
   inherited;
   KeyValue := CONPLA.Text;
-  If PlannersShowModalAsSelect(KeyValue) = mrOK Then Begin
+  If PlannersShowModalAsSelect(KeyValue,'0=0') = mrOK Then Begin
    CONPLA.Text := KeyValue;
   End;
   //to aviod problem "label vanished"
@@ -546,7 +546,7 @@ Var KeyValue : ShortString;
 begin
   inherited;
   KeyValue := CONPLA.Text;
-  If PlannersShowModalAsSelect(KeyValue) = mrOK Then Begin
+  If PlannersShowModalAsSelect(KeyValue,'0=0') = mrOK Then Begin
    CONPLA.Text := KeyValue;
   End;
   //to aviod problem "label vanished"

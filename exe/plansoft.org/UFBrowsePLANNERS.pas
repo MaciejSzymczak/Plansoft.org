@@ -99,6 +99,7 @@ type
     procedure PLA_ORGUNI_ID_VALUEClick(Sender: TObject);
   private
   public
+    TypeFilter : String;
     Function  CheckRecord : Boolean; override;
     Procedure DefaultValues; override;
     Procedure CustomConditions;    override;
@@ -311,6 +312,7 @@ procedure TFBrowsePLANNERS.CustomConditions;
 begin
  if ttEnabled.Checked then DM.macros.setMacro( Query, 'TTENABLED', '(PLANNERS.ID IN (SELECT  ID FROM TT_IDS WHERE TT_FOUND IS NOT NULL) OR (SELECT COUNT(1) FROM TT_IDS)=0)')
                       else DM.macros.setMacro( Query, 'TTENABLED', '0=0');
+ DM.macros.setMacro(Query, 'TYPEFILTER', iif(TypeFilter='', '0=0', TypeFilter));
 end;
 
 procedure TFBrowsePLANNERS.ttEnabledClick(Sender: TObject);

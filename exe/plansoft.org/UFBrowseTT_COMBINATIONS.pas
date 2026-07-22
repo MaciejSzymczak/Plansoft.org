@@ -556,7 +556,7 @@ Var KeyValues : shortString;
 begin
   KeyValue := '';
   //@@@should be FormSShowModalAsMultiSelect
-  If plannersShowModalAsSelect(KeyValues) = mrOK Then  Begin
+  If plannersShowModalAsSelect(KeyValues,'0=0') = mrOK Then  Begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conPla.Text, [';'], KeyValue)

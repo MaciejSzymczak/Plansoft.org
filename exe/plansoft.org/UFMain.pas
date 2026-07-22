@@ -4704,7 +4704,7 @@ var keyValue : shortString;
 begin
   keyValue := '';
   if not unplugAll then begin
-    If PLANNERSShowModalAsSelect(KeyValue) <> mrOK Then exit;
+    If PLANNERSShowModalAsSelect(KeyValue,'0=0') <> mrOK Then exit;
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
   end;
 
@@ -4777,7 +4777,7 @@ procedure TFMain.attachOwner;
 Var KeyValue : ShortString;
 begin
   KeyValue := '';
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then
   Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     modifyClasses(0,0,clAttachOwner,KeyValue,'', false);
@@ -4814,7 +4814,7 @@ Var KeyValue : ShortString;
 begin
   KeyValue := '';
 
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then
   Begin
     keyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     modifyClasses(0,0,clChangeOwner,KeyValue,'');

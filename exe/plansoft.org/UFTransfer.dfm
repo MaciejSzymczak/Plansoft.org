@@ -121,7 +121,7 @@ inherited FTransfer: TFTransfer
     ParentFont = False
   end
   inherited Status: TPanel
-    Top = 237
+    Top = 238
     Width = 393
   end
   object GroupBox1: TGroupBox
@@ -252,7 +252,7 @@ inherited FTransfer: TFTransfer
   end
   object topPanel: TPanel
     Left = 0
-    Top = 196
+    Top = 197
     Width = 393
     Height = 41
     Align = alBottom

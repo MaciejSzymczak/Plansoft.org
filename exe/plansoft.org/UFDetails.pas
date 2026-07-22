@@ -1219,7 +1219,7 @@ begin
   KeyValue := '';
   //2023.02.11 We switched from set_res_limitation to set_res_limitation122. Do not limit this type of resource
   //setResLimitation(g_planner);
-  If PLANNERSShowModalAsSelect(KeyValue) = mrOK Then Begin
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then Begin
     KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
     if ExistsValue(Owner_.Text, [';'], KeyValue)
       then //
