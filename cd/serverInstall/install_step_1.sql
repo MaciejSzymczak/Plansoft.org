@@ -44,6 +44,7 @@ CREATE OR REPLACE VIEW sys.v_locked_object_ext AS SELECT * FROM v$locked_object;
 GRANT SELECT ON sys.v_locked_object_ext TO planner;
 CREATE OR REPLACE VIEW sys.v_lock_ext AS SELECT * FROM v$lock;
 GRANT SELECT ON sys.v_lock_ext TO planner;
+GRANT EXECUTE ON SYS.DBMS_LOCK TO PLANNER;
 
 
 create or replace procedure purge_audit_trail (days in number) as

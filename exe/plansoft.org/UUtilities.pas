@@ -182,6 +182,8 @@ function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; 
 function deleteClass(Class_ : TClass_; const currentClassId : integer =-1) : Boolean;
 Procedure DeleteOrphanedClasses;
 
+var suppressedDeleteClassOwners : string = ''; //names already warned about via DeleteClass within the current batch operation (insertClasses/modifyClasses reset this) - avoids showing the identical 'cannot change classes of X' popup once per conflicting/edited class in a multi-cell batch
+
 procedure importPreviousGridSettings;
 
 function isOwner(classOwners : String): boolean;
@@ -1670,7 +1672,10 @@ Begin
 
  If _Owner<>'' Then
   If (not isOwner(_Owner)) Then Begin
-   Info('Nie mo¿esz zmieniaæ zajêæ u¿ytkownika '+_Owner);
+   if not ExistsValue(suppressedDeleteClassOwners, [';'], _Owner) then begin
+     Info('Nie mo¿esz zmieniaæ zajêæ u¿ytkownika '+_Owner);
+     suppressedDeleteClassOwners := Merge(suppressedDeleteClassOwners, _Owner, ';');
+   end;
    Result := False;
    Exit;
   End;
@@ -1984,6 +1989,8 @@ begin
       if Pos(sKeyViolation, E.Message)<>0 then
         info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na konflikt '+cr+cr+
               'Szczegó³y: ' + cr+ e.message)
+      else if Pos('ORA-20050', E.Message)<>0 then
+        info('Inny u¿ytkownik w³aœnie modyfikuje dane, spróbuj za chwilê.')
       else if Pos('ORA-20000', E.Message)<>0 then
         //show user message only
         info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr

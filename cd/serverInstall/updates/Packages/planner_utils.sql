@@ -1061,7 +1061,7 @@ create or replace package body planner_utils is
         from dual;
     end if;    
 
-    output_param_num1 := cla_seq_nextval;     
+    output_param_num1 := cla_seq_nextval;
 
     --declare
     --  c number;
@@ -1070,6 +1070,78 @@ create or replace package body planner_utils is
       --raise_application_error(-20000, 'trace=' || c );
     --end;
 
+    -- 2026.07: fail fast instead of blocking indefinitely when another, not-yet-committed
+    -- session is inserting lec_cla/gro_cla/rom_cla for the same resource+day+hour (Oracle's
+    -- implicit unique-index duplicate-key wait has no NOWAIT equivalent for plain INSERT, so we
+    -- take an explicit NOWAIT advisory lock per involved resource before touching those tables).
+    declare
+      type t_str_tab is table of varchar2(4000) index by pls_integer;
+      lec_tab t_str_tab; lec_cnt pls_integer;
+      gro_tab t_str_tab; gro_cnt pls_integer;
+      rom_tab t_str_tab; rom_cnt pls_integer;
+
+      -- single-pass split, unlike xxmsz_tools.extractword which re-walks the string from
+      -- position 1 on every call (O(n) per call -> O(n^2) to extract all n words one by one)
+      procedure split_words(p_str varchar2, p_sep varchar2, p_tab out nocopy t_str_tab, p_cnt out pls_integer) is
+        v_str   varchar2(4000) := p_str || p_sep;
+        v_pos   pls_integer;
+        v_start pls_integer := 1;
+      begin
+        p_cnt := 0;
+        loop
+          v_pos := instr(v_str, p_sep, v_start);
+          exit when v_pos = 0;
+          p_cnt := p_cnt + 1;
+          p_tab(p_cnt) := substr(v_str, v_start, v_pos - v_start);
+          v_start := v_pos + length(p_sep);
+        end loop;
+      end;
+
+      procedure lock_resource_nowait(presType varchar2, presId varchar2) is
+        lockname   varchar2(128);
+        lockid     integer;
+        lockstatus integer;
+      begin
+        lockname := 'CLA:'||presType||':'||presId||':'||to_char(vday,'YYYYMMDD')||':'||phour;
+        -- NOTE: deliberately NOT using dbms_lock.allocate_unique here - it issues an implicit
+        -- COMMIT of the caller's transaction as a side effect (undocumented-ish but well-known
+        -- Oracle behaviour), which silently broke batched multi-class inserts (each class ended
+        -- up committed on its own, so "undo last action" only reverted the last one instead of
+        -- the whole batch). get_hash_value is a pure, in-memory, side-effect-free function -
+        -- a hash collision would at worst cause two unrelated resources to briefly serialize
+        -- against each other, never a correctness problem.
+        lockid := dbms_utility.get_hash_value(lockname, 0, 1073741823);
+        lockstatus := dbms_lock.request(
+                         id                => lockid,
+                         lockmode          => dbms_lock.x_mode,
+                         timeout           => 0, -- NOWAIT
+                         release_on_commit => true);
+        -- 0 = granted, 4 = this same session already owns this lock (e.g. re-touching the
+        -- same day+hour+resource later in the same still-open transaction) - both are fine.
+        -- only 1 (timeout, i.e. someone else holds it) is the "busy" case we want to report;
+        -- 2/3/5 (deadlock/param/handle error) shouldn't happen here but are not "busy", so they
+        -- get a distinct message rather than being misreported as "another user is editing".
+        if lockstatus = 1 then
+          raise_application_error(-20050, 'Inny uzytkownik wlasnie modyfikuje dane, sprobuj za chwile.');
+        elsif lockstatus not in (0,4) then
+          raise_application_error(-20051, 'Blad wewnetrzny blokady zasobu (kod '||lockstatus||').');
+        end if;
+      end;
+    begin
+      split_words(pcalc_lec_ids, ';', lec_tab, lec_cnt);
+      split_words(pcalc_gro_ids, ';', gro_tab, gro_cnt);
+      split_words(pcalc_rom_ids, ';', rom_tab, rom_cnt);
+
+      for t in 1 .. lec_cnt loop
+        lock_resource_nowait('L', lec_tab(t));
+      end loop;
+      for t in 1 .. gro_cnt loop
+        lock_resource_nowait('G', gro_tab(t));
+      end loop;
+      for t in 1 .. rom_cnt loop
+        lock_resource_nowait('R', rom_tab(t));
+      end loop;
+    end;
 
     declare
       plec_id number;

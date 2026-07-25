@@ -3128,6 +3128,7 @@ Var xp, yp           : Integer;
 begin
  priorDataStamp := '';
  fShowConflicts.dataStamp := '';
+ uutilities.suppressedDeleteClassOwners := ''; //fresh batch: show each owner's 'cannot change' message at most once
 
 
  If FDetails.ShowModal = mrOK Then Begin
@@ -6391,6 +6392,7 @@ procedure TFMain.modifyClasses;
 begin
   cellsSucceed := 0;
   cellsNotSucceed := 0;
+  uutilities.suppressedDeleteClassOwners := ''; //fresh batch: show each owner's 'cannot change' message at most once
 
   dmodule.CommitTrans;
 
