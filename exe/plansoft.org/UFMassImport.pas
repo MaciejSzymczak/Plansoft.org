@@ -54,6 +54,8 @@ var LCID : Integer;
     uniqueCheck : TMap;
     uniqueKey, integrationId,pId : shortString;
     uniqueCheckErrorMessage : string;
+    l_raw_integration_id : string;
+    isDeleteRow, rowHasData : boolean;
 
     function verifyHeader ( cols, expectedCols : string ) : boolean;
     begin
@@ -65,17 +67,42 @@ var LCID : Integer;
       result := true;
     end;
 
+    function allEmpty ( const vals : array of string ) : boolean;
+    var i : integer;
+    begin
+      result := true;
+      for i := low(vals) to high(vals) do
+        if vals[i] <> '' then begin result := false; exit; end;
+    end;
+
     procedure addPermission( pObjectAlias : string; pId : String );
       procedure add(pwhoId : String);
       begin
        dmodule.SQL(myQuery,
-         'merge into '+pObjectAlias+'_PLA m using dual on (PLA_ID = :ppla_id_1 and '+pObjectAlias+'_ID=:pobj_id_1)'+
-        ' when not matched then insert (id, PLA_ID, '+pObjectAlias+'_ID) values '+'('+pObjectAlias+'PLA_SEQ.NEXTVAL, :ppla_id_2, :pobj_id_2)'
-       , 'ppla_id_1='+pwhoId+';pobj_id_1='+pId+';ppla_id_2='+pwhoId+';pobj_id_2='+pId);
+         'merge into '+pObjectAlias+'_PLA m using (select :ppla_id ppla_id, :pobj_id pobj_id from dual) new on (m.PLA_ID = new.ppla_id and m.'+pObjectAlias+'_ID = new.pobj_id)'+
+        ' when not matched then insert (id, PLA_ID, '+pObjectAlias+'_ID) values '+'('+pObjectAlias+'PLA_SEQ.NEXTVAL, new.ppla_id, new.pobj_id)'
+       , 'ppla_id='+pwhoId+';pobj_id='+pId);
       end;
     begin
       add(UserID);
       if not isBlank(FMain.conrole.Text) then add(FMain.CONROLE.Text);
+    end;
+
+    function deleteIfPermitted( pObjectAlias, pTableName : string ) : boolean;
+    var objId : shortString;
+    begin
+      result := true;
+      objId := dmodule.SingleValue('select max(id) from '+pTableName+' where integration_id = :integration_id','integration_id='+l_raw_integration_id);
+      if objId = '' then exit;
+
+      if dmodule.SingleValue('select count(1) from '+pObjectAlias+'_PLA where PLA_ID = :pla_id and '+pObjectAlias+'_ID = :obj_id and ACCESS_TYPE=''E'''
+                            , 'pla_id='+FMain.getUserOrRoleID+';obj_id='+objId) = '0' then begin
+        SError(l_entire + 'Brak uprawnienia do usuniecia rekordu (integration_id='+l_raw_integration_id+'). Wymagane jest uprawnienie '+pObjectAlias+'_PLA dla biezacego uzytkownika lub roli.');
+        result := false;
+        exit;
+      end;
+
+      dmodule.SQL(myQuery, 'delete from '+pTableName+' where id = :id', 'id='+objId);
     end;
 
 begin
@@ -164,6 +191,7 @@ begin
       l_col7 := ExcelApplication.Range['G'+strLineNum,'G'+strLineNum].Value2;
       l_col8 := ExcelApplication.Range['H'+strLineNum,'H'+strLineNum].Value2;
       l_colour       := intToStr( getRandomColor );
+      rowHasData := (l_col1<>'') or (l_col2<>'') or (l_col3<>'') or (l_col4<>'') or (l_col5<>'') or (l_col6<>'') or (l_col7<>'') or (l_col8<>'');
 
       l_entire       := 'Rekord danych:' + cr+ cr + 'Wiersz:' +  strLineNum + cr;
       if c_col1 <> '' then l_entire := l_entire + c_col1 + ':'+ l_col1 + cr;
@@ -177,12 +205,21 @@ begin
       l_entire := l_entire + cr +cr;
 
       case importType.ItemIndex of
-        0: begin uniqueKey := l_col1;             integrationId := nvl(l_col7, uniqueKey); end;
-        1: begin uniqueKey := l_col1;             integrationId := nvl(l_col7, uniqueKey); end;
-        2: begin uniqueKey := l_col1+', '+l_col2; integrationId := nvl(l_col6, uniqueKey); end;
-        3: begin uniqueKey := l_col1;             integrationId := nvl(l_col5, uniqueKey); end;
-        4: begin uniqueKey := l_col1;             integrationId := nvl(l_col4, uniqueKey); end;
-        5: begin uniqueKey := l_col7;             integrationId := uniqueKey;              end;
+        0: begin uniqueKey := l_col1;             l_raw_integration_id := l_col7; integrationId := nvl(l_col7, uniqueKey); end;
+        1: begin uniqueKey := l_col1;             l_raw_integration_id := l_col7; integrationId := nvl(l_col7, uniqueKey); end;
+        2: begin uniqueKey := l_col1+', '+l_col2; l_raw_integration_id := l_col6; integrationId := nvl(l_col6, uniqueKey); end;
+        3: begin uniqueKey := l_col1;             l_raw_integration_id := l_col5; integrationId := nvl(l_col5, uniqueKey); end;
+        4: begin uniqueKey := l_col1;             l_raw_integration_id := l_col4; integrationId := nvl(l_col4, uniqueKey); end;
+        5: begin uniqueKey := l_col7;             l_raw_integration_id := l_col7; integrationId := uniqueKey;              end;
+      end;
+
+      case importType.ItemIndex of
+        0: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3,l_col4,l_col5,l_col6,l_col8]);
+        1: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3,l_col4,l_col5,l_col6,l_col8]);
+        2: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3,l_col4,l_col5,l_col7]);
+        3: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3,l_col4,l_col6]);
+        4: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3]);
+        5: isDeleteRow := (l_raw_integration_id<>'') and allEmpty([l_col1,l_col2,l_col3,l_col4,l_col5,l_col6]);
       end;
 
       //l_orguni_id
@@ -200,6 +237,7 @@ begin
         l_orguni_id :=  dmodule.SingleValue('select id from org_units where integration_id = '''+l_orguni+''' or name = '''+l_orguni+''' or code = '''+l_orguni+'''');
       l_orguni_id := nvl(l_orguni_id, l_orguni_id_default);
 
+      if (not isDeleteRow) then begin
       if ( uniqueCheck.getIndex(uniqueKey) <> -1 ) then begin
         uniqueCheckErrorMessage := merge( uniqueCheckErrorMessage, format('%s', [uniqueKey]), cr);
         //uniqueCheckErrorFlag := true;
@@ -208,20 +246,29 @@ begin
         uniqueCheck.addKeyValue(uniqueKey, uniqueKey);
         uniqueCheck.prepare;
       end;
+      end;
 
-      if l_col1 <> '' then begin
+      if rowHasData then begin
         try
           case importType.ItemIndex of
             0: begin
+                 if isDeleteRow then begin
+                   if not deleteIfPermitted('LEC','lecturers') then begin dmodule.RollbackTrans; exit; end;
+                 end else begin
                  dmodule.SQL(myQuery,
-                             'merge into lecturers m using dual on (integration_id = :integration_id_1)'+
-                             ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id, diff_notifications) '+'values (main_seq.nextval, :abbreviation_1, :title_1, :first_name_1, :last_name_1, :colour, :orguni_id_1, :desc1_1, :desc2_1, :integration_id_2, ''-'')'+
-                             ' when matched then update set title=:title_2, first_name=:first_name_2, last_name=:last_name_2,  desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
-                           , 'abbreviation_1='+l_col1+';title_1='+l_col2+';first_name_1='+l_col3+';last_name_1='+l_col4+';colour='+l_colour+';orguni_id_1='+l_orguni_id+';desc1_1='+l_col5+';desc2_1='+l_col6+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';title_2='+l_col2+';first_name_2='+l_col3+';last_name_2='+l_col4+';orguni_id_2='+l_orguni_id+';desc1_2='+l_col5+';desc2_2='+l_col6+';integration_id_2='+integrationId);
+                             'merge into lecturers m using (select :abbreviation abbreviation, :title title, :first_name first_name, :last_name last_name, :colour colour, :orguni_id orguni_id, :desc1 desc1, :desc2 desc2, :integration_id integration_id from dual) new'+
+                             ' on (m.integration_id = new.integration_id)'+
+                             ' when not matched then insert (id, abbreviation, title, first_name, last_name, colour, orguni_id, desc1, desc2, integration_id, diff_notifications) '+'values (main_seq.nextval, new.abbreviation, new.title, new.first_name, new.last_name, new.colour, new.orguni_id, new.desc1, new.desc2, new.integration_id, ''-'')'+
+                             ' when matched then update set title=new.title, first_name=new.first_name, last_name=new.last_name, desc1=new.desc1, desc2=new.desc2, abbreviation=new.abbreviation, orguni_id=new.orguni_id'
+                           , 'abbreviation='+l_col1+';title='+l_col2+';first_name='+l_col3+';last_name='+l_col4+';colour='+l_colour+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from lecturers where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('LEC', pId);
+                 end;
                end;
             1: begin
+                 if isDeleteRow then begin
+                   if not deleteIfPermitted('GRO','groups') then begin dmodule.RollbackTrans; exit; end;
+                 end else begin
                  if lowerCase(l_col4) = 'stacjonarne' then l_col4 := 'STATIONARY';
                  if lowerCase(l_col4) = 'niestacjonarne' then l_col4 := 'EXTRAMURAL';
                  if lowerCase(l_col4) = 'inne' then l_col4 := 'OTHER';
@@ -231,46 +278,68 @@ begin
                    exit;
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into groups m using dual on (integration_id = :integration_id_1)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, :abbreviation_1, :name_1, :colour, :group_type_1, :number_of_peoples_1, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_2)'+
-                             ' when matched then update set name=:name_2, group_type=:group_type_2, number_of_peoples=:number_of_peoples_2, desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
-                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';colour='+l_colour+';group_type_1='+l_col4+';number_of_peoples_1='+l_col3+';orguni_id_1='+l_orguni_id+';desc1_1='+l_col5+';desc2_1='+l_col6+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';group_type_2='+l_col4+';number_of_peoples_2='+l_col3+';orguni_id_2='+l_orguni_id+';desc1_2='+l_col5+';desc2_2='+l_col6+';integration_id_2='+integrationId);
+                           , 'merge into groups m using (select :abbreviation abbreviation, :name name, :colour colour, :group_type group_type, :number_of_peoples number_of_peoples, :desc1 desc1, :desc2 desc2, :orguni_id orguni_id, :integration_id integration_id from dual) new'+
+                             ' on (m.integration_id = new.integration_id)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, group_type, number_of_peoples, desc1, desc2, orguni_id, integration_id) values '+'(main_seq.nextval, new.abbreviation, new.name, new.colour, new.group_type, new.number_of_peoples, new.desc1, new.desc2, new.orguni_id, new.integration_id)'+
+                             ' when matched then update set name=new.name, group_type=new.group_type, number_of_peoples=new.number_of_peoples, desc1=new.desc1, desc2=new.desc2, abbreviation=new.abbreviation, orguni_id=new.orguni_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';group_type='+l_col4+';number_of_peoples='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col5+';desc2='+l_col6+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from groups where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('GRO', pId);
+                 end;
                end;
             2: begin
+                 if isDeleteRow then begin
+                   if not deleteIfPermitted('ROM','rooms') then begin dmodule.RollbackTrans; exit; end;
+                 end else begin
                  dmodule.SQL(myQuery
-                            , 'merge into rooms m using dual on (name = :name_1 and attribs_01 = :attribs_01_1)'+
-                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) '+'values (main_seq.nextval, :name_2, :colour, :rescat_id, :attribs_01_2, :attribn_01_1, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_1)'+
-                            ' when matched then update set attribn_01 = :attribn_01_2, desc1=:desc1_2, desc2=:desc2_2, integration_id = :integration_id_2, orguni_id = :orguni_id_2'
-                            , 'name_1='+l_col1+';name_2='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01_1='+l_col2+';attribs_01_2='+l_col2+';attribn_01_1='+l_col3+';attribn_01_2='+l_col3+';orguni_id_1='+l_orguni_id+';orguni_id_2='+l_orguni_id+';desc1_1='+l_col4+';desc1_2='+l_col4+';desc2_1='+l_col5+';desc2_2='+l_col5+';integration_id_1='+integrationId+';integration_id_2='+integrationId);
+                            , 'merge into rooms m using (select :name name, :colour colour, :rescat_id rescat_id, :attribs_01 attribs_01, :attribn_01 attribn_01, :desc1 desc1, :desc2 desc2, :orguni_id orguni_id, :integration_id integration_id from dual) new'+
+                            ' on (m.name = new.name and m.attribs_01 = new.attribs_01)'+
+                            ' when not matched then insert (id, name, colour, rescat_id, attribs_01, attribn_01, desc1, desc2, orguni_id, integration_id) '+'values (main_seq.nextval, new.name, new.colour, new.rescat_id, new.attribs_01, new.attribn_01, new.desc1, new.desc2, new.orguni_id, new.integration_id)'+
+                            ' when matched then update set attribn_01=new.attribn_01, desc1=new.desc1, desc2=new.desc2, integration_id=new.integration_id, orguni_id=new.orguni_id'
+                            , 'name='+l_col1+';colour='+l_colour+';rescat_id=1;attribs_01='+l_col2+';attribn_01='+l_col3+';orguni_id='+l_orguni_id+';desc1='+l_col4+';desc2='+l_col5+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from rooms where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('ROM', pId);
+                 end;
                end;
             3: begin
+                 if isDeleteRow then begin
+                   if not deleteIfPermitted('SUB','subjects') then begin dmodule.RollbackTrans; exit; end;
+                 end else begin
                  dmodule.SQL(myQuery
-                           , 'merge into subjects m using dual on (integration_id = :integration_id_1)'+
-                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, :abbreviation_1, :name_1, :colour, :desc1_1, :desc2_1, :orguni_id_1, :integration_id_2)'+
-                             ' when matched then update set name=:name_2, desc1=:desc1_2, desc2=:desc2_2, abbreviation = :abbreviation_2, orguni_id = :orguni_id_2'
-                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';colour='+l_colour+';desc1_1='+l_col3+';orguni_id_1='+l_orguni_id+';desc2_1='+l_col4+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';desc1_2='+l_col3+';orguni_id_2='+l_orguni_id+';desc2_2='+l_col4+';integration_id_2='+integrationId);
+                           , 'merge into subjects m using (select :abbreviation abbreviation, :name name, :colour colour, :desc1 desc1, :desc2 desc2, :orguni_id orguni_id, :integration_id integration_id from dual) new'+
+                             ' on (m.integration_id = new.integration_id)'+
+                             ' when not matched then insert (id, abbreviation, name, colour, desc1, desc2, orguni_id, integration_id) values (main_seq.nextval, new.abbreviation, new.name, new.colour, new.desc1, new.desc2, new.orguni_id, new.integration_id)'+
+                             ' when matched then update set name=new.name, desc1=new.desc1, desc2=new.desc2, abbreviation=new.abbreviation, orguni_id=new.orguni_id'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';colour='+l_colour+';desc1='+l_col3+';orguni_id='+l_orguni_id+';desc2='+l_col4+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from subjects where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('SUB', pId);
+                 end;
                end;
             4: begin
+                 if isDeleteRow then begin
+                   if not deleteIfPermitted('FOR','forms') then begin dmodule.RollbackTrans; exit; end;
+                 end else begin
                  if (l_col3<>'C') and (l_col3<>'R') then begin
                    SError('W kolumnie 3 dozwolone wartoœci to: "C" lub "R". C=rodzaj zajêcia. R=rodzaj rezerwacji');
                  end;
                  dmodule.SQL(myQuery
-                           , 'merge into forms m using dual on (integration_id = :integration_id_1)'+
-                             ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, :abbreviation_1, :name_1, :kind_1, :colour, :integration_id_2)'+
-                             ' when matched then update set name=:name_2, kind=:kind_2, abbreviation = :abbreviation_2'
-                           , 'abbreviation_1='+l_col1+';name_1='+l_col2+';kind_1='+l_col3+';colour='+l_colour+';integration_id_1='+integrationId+';abbreviation_2='+l_col1+';name_2='+l_col2+';kind_2='+l_col3+';integration_id_2='+integrationId);
+                           , 'merge into forms m using (select :abbreviation abbreviation, :name name, :kind kind, :colour colour, :integration_id integration_id from dual) new'+
+                             ' on (m.integration_id = new.integration_id)'+
+                             ' when not matched then insert (id, abbreviation, name, kind, colour, integration_id) values (main_seq.nextval, new.abbreviation, new.name, new.kind, new.colour, new.integration_id)'+
+                             ' when matched then update set name=new.name, kind=new.kind, abbreviation=new.abbreviation'
+                           , 'abbreviation='+l_col1+';name='+l_col2+';kind='+l_col3+';colour='+l_colour+';integration_id='+integrationId);
                  pId := dmodule.SingleValue('select id from forms where integration_id = :integration_id','integration_id='+integrationId);
                  addPermission ('FOR', pId);
+                 end;
                end;
 
             5: begin
-                 if integrationId='' then begin
+                 if isDeleteRow then begin
+                   //rekord pomijany w TT_INTERFACE (tabela jest czyszczona dla biezacego uzytkownika na poczatku importu) i kasowany z docelowej tabeli TT_COMBINATIONS
+                   dmodule.SQL(myQuery, 'delete from tt_resource_lists where tt_comb_id in (select id from TT_COMBINATIONS where integration_id = :integration_id)', 'integration_id='+integrationId);
+                   dmodule.SQL(myQuery, 'delete from TT_INCLUSIONS where tt_comb_id in (select id from TT_COMBINATIONS where integration_id = :integration_id)', 'integration_id='+integrationId);
+                   dmodule.SQL(myQuery, 'delete from TT_COMBINATIONS where integration_id = :integration_id', 'integration_id='+integrationId);
+                 end else if integrationId='' then begin
                    dmodule.SQLNoBinding(myQuery
                            , 'insert into TT_INTERFACE (integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+
                              ' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, :classes_cnt)'
@@ -309,7 +378,7 @@ begin
           end;
         end;
       end;
-    until l_col1 = '';
+    until not rowHasData;
 
     uniqueCheck.Free;
 
