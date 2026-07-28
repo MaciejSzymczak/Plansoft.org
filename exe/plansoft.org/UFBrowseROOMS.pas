@@ -511,6 +511,7 @@ begin
      BMassImport.Visible := false;
    end;
   end;
+  RightPage.Visible := dmodule.dbgetSystemParam('CHILD_AND_PARENTS_ROM','-') = '+'; //2026-07: hide childs/parents hierarchy tab when planner_utils skips this expansion for rooms
   google_locationExit(nil);
 end;
 

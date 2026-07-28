@@ -298,6 +298,7 @@ begin
 
   UpperPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
   BottomPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
+  BottomPanel.Parent.Invalidate; //2026-07: fixes controls left blank inside BottomPanel until mouse-hover after showing/hiding it (same fix as UFSettings.pas ZMIANA_20270712)
 
   refreshAllowed := false;
   inherited;
@@ -347,6 +348,7 @@ procedure TFLegend.FLegendTabsChange(Sender: TObject);
 begin
   UpperPanel.Visible  := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
   BottomPanel.Visible := FLegendTabs.ActivePage <> TabsheetTimetableNotes;
+  BottomPanel.Parent.Invalidate; //2026-07: fixes controls left blank inside BottomPanel until mouse-hover after showing/hiding it (same fix as UFSettings.pas ZMIANA_20270712)
   BRefreshClick(nil);
 end;
 

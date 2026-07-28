@@ -57,18 +57,24 @@ end;
 Procedure TFShowConflicts.SetSectionsVisible(ShowConflicts, ShowHints : Boolean);
 Const cConflictsSectionHeight = 31 + 222; //PanelIs + Panel5 design heights (see .dfm)
       cHintsSectionHeight     = 140;      //PanelHints design height (see .dfm)
+Var baseHeight : integer;
 begin
-  if ShowConflicts <> PanelIs.Visible then begin
-    PanelIs.Visible := ShowConflicts;
-    Panel5.Visible  := ShowConflicts;
-    if ShowConflicts then ClientHeight := ClientHeight + cConflictsSectionHeight
-                      else ClientHeight := ClientHeight - cConflictsSectionHeight;
-  end;
-  if ShowHints <> PanelHints.Visible then begin
-    PanelHints.Visible := ShowHints;
-    if ShowHints then ClientHeight := ClientHeight + cHintsSectionHeight
-                  else ClientHeight := ClientHeight - cHintsSectionHeight;
-  end;
+  //2026-07: derive the "both sections hidden" baseline from the CURRENT ClientHeight and CURRENT
+  //visibility instead of blindly adding/subtracting relative to the previous call. The old code
+  //could drift (window shrinking/growing over repeated calls) if this form's visible state ever
+  //got out of step with what it last set - this version is idempotent: calling it repeatedly with
+  //the same or different values always converges to the same, correct height.
+  baseHeight := ClientHeight;
+  if PanelIs.Visible    then baseHeight := baseHeight - cConflictsSectionHeight;
+  if PanelHints.Visible then baseHeight := baseHeight - cHintsSectionHeight;
+
+  PanelIs.Visible    := ShowConflicts;
+  Panel5.Visible     := ShowConflicts;
+  PanelHints.Visible := ShowHints;
+
+  ClientHeight := baseHeight
+    + (ord(ShowConflicts) * cConflictsSectionHeight)
+    + (ord(ShowHints) * cHintsSectionHeight);
 end;
 
 end.

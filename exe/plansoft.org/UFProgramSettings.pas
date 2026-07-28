@@ -124,6 +124,12 @@ type
     Button4: TButton;
     Check: TButton;
     value: TEdit;
+    GroupBox5: TGroupBox;
+    Label35: TLabel;
+    ActionOnNoPermission: TComboBox;
+    ChildsAndParentsGro: TCheckBox;
+    ChildAndParentsLec: TCheckBox;
+    ChildAndParentsRom: TCheckBox;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -230,6 +236,10 @@ begin
   dmodule.dbsetSystemParam('COPY_FIELD3', IntToStr(CopyField3.itemIndex));
   dmodule.dbsetSystemParam('COPY_FIELD4', IntToStr(CopyField4.itemIndex));
 
+  dmodule.dbSetSystemParam('ACTION_ON_NO_PERMISSION', ActionOnNoPermission.Items[ActionOnNoPermission.ItemIndex]);
+  dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_GRO', iif(ChildsAndParentsGro.Checked,'+','-'));
+  dmodule.dbSetSystemParam('CHILD_AND_PARENTS_LEC' , iif(ChildAndParentsLec.Checked ,'+','-'));
+  dmodule.dbSetSystemParam('CHILD_AND_PARENTS_ROM' , iif(ChildAndParentsRom.Checked ,'+','-'));
 
 end;
 
@@ -260,6 +270,15 @@ begin
   //
   DIFF_MODE.text     := dmodule.dbgetSystemParam('DIFF_MODE');
   DIFF_END_DATE.text := dmodule.dbgetSystemParam('DIFF_END_DATE');
+
+  ActionOnNoPermission.ItemIndex := ActionOnNoPermission.Items.IndexOf(dmodule.dbgetSystemParam('ACTION_ON_NO_PERMISSION','CONT'));
+  if ActionOnNoPermission.ItemIndex = -1 then ActionOnNoPermission.ItemIndex := ActionOnNoPermission.Items.IndexOf('CONT');
+  ChildsAndParentsGro.Checked := dmodule.dbgetSystemParam('CHILDS_AND_PARENTS_GRO','+') = '+';
+  ChildAndParentsLec.Checked  := dmodule.dbgetSystemParam('CHILD_AND_PARENTS_LEC' ,'-') = '+';
+  ChildAndParentsRom.Checked  := dmodule.dbgetSystemParam('CHILD_AND_PARENTS_ROM' ,'-') = '+';
+
+  Pages.ActivePage := SAdvanced;
+  Pages.ActivePage.Invalidate; //2026-07: fixes controls left blank until mouse-hover after switching tabs (same fix as UFSettings.pas ZMIANA_20270712 / UFLegend.pas)
 end;
 
 
@@ -520,6 +539,7 @@ begin
   if Pages.ActivePage = TabClassDesc then begin
     if not elementEnabled('"Komentarze dla zajêæ"','2012.06.21', false) then Pages.ActivePage := TabNumbering;
   end;
+  Pages.ActivePage.Invalidate; //2026-07: fixes controls left blank until mouse-hover after switching tabs (same fix as UFSettings.pas ZMIANA_20270712 / UFLegend.pas)
 end;
 
 procedure TFProgramSettings.BGridClick(Sender: TObject);

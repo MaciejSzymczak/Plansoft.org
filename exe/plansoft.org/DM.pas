@@ -1241,7 +1241,11 @@ end;
 //----------------------------------------------------------------
 function  TDModule.dbgetSystemParam(Name : ShortString; defaultValue : shortString) : ShortString;
 begin
- result := nvl( dmodule.SingleValue('select value from system_parameters where name = :paramName', 'paramName='+Name), defaultValue);
+ //2026-07: wrapped in a "select ... from dual" scalar subquery so this ALWAYS returns exactly one row
+ //(value=NULL when the parameter row does not exist yet) - otherwise SingleValue throws on an empty
+ //resultset before nvl() ever gets a chance to apply defaultValue, and the caller sees an error dialog
+ //instead of a graceful default.
+ result := nvl( dmodule.SingleValue(' select (select value from system_parameters where name = :paramName) from dual ', 'paramName='+Name), defaultValue);
 end;
 
 //----------------------------------------------------------------

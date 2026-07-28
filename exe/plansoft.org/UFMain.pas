@@ -1052,6 +1052,8 @@ type
 
     PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
     calculateWithChilds : boolean;
+    batchConflictCheckDayList, batchConflictCheckHourList : string; //2026-07: whole-batch (day,hour) universe, built once before the insert loop
+    batchConfirmedNoConflicts : boolean; //2026-07: true once the batch-wide pre-check proves zero conflicts, letting every class in the batch skip its own conflict lookup
 
     procedure setHistoryEnabled;
     function  getCurrentObjectId : integer;
@@ -1116,7 +1118,7 @@ type
     procedure OpenFGrouping(resourceType : String; resourceId : String);
     procedure propagateDependencyChanges(parentId : String; res_type : String );
     Procedure refreshGrid;
-    Procedure refreshGridAndLegend;
+    Procedure refreshGridAndLegend(const refreshCounterToo : boolean = true);
     function LecToNames (lec_ids : string) : string;
     //--
     procedure LoadPulpit;
@@ -2073,7 +2075,7 @@ begin
  If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
- refreshGridAndLegend;
+ refreshGridAndLegend(false); //2026-07: BuildCalendar runs on mere cell-click/resource-selection navigation, not an actual schedule change - do not refresh Podsumowanie godzin here
 end;
 
 Procedure TFMain.BuildCalendar (triggeredObject : String);
@@ -2898,6 +2900,8 @@ Procedure TFMain.insertClasses;
      ttCombIds                   : string;
      subjectIds                  : string;
      hintsFound                  : Boolean;
+     capacityOverflowVal         : integer;
+     hasConflictFlag             : Boolean;
  Begin
     For t := 1 To maxInClass Do Begin
       PLecturers[t] :=0;
@@ -2963,6 +2967,13 @@ Procedure TFMain.insertClasses;
          value := ExtractWord(t, RWithChildsAndParents, [';']);
          PRoomsWithChilds[t] := StrToInt(Value)
         End;
+
+        //2026-07: one-time, whole-batch conflict existence pre-check. If NO existing class conflicts
+        //with ANY (day,hour) combination in this batch, every subsequent class can skip its own
+        //per-class conflict lookup entirely (capacity+hints below are still computed per class).
+        batchConfirmedNoConflicts := not checkConflicts.BatchHasAnyConflict(
+          batchConflictCheckDayList, batchConflictCheckHourList,
+          PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds);
      end;
 
 
@@ -3016,17 +3027,45 @@ Procedure TFMain.insertClasses;
      end;
      }
 
-     with dmodule do begin
-       openSQL('select unique found_tt from tt_check_results where found_tt is not null');
-       while not qwork.eof do begin
-         ttCombIds := merge(ttCombIds, qwork.fieldByName('found_tt').AsString, ',');
-         qwork.Next;
-       end;
-     end;
+     //2026-07: usunieto zapytanie do tt_check_results - jedyny writer (tt_planner.verify) jest wywolywany
+     //tylko w wylaczonym bloku powyzej, wiec ten SELECT zawsze operowal na pustej lub nieaktualnej
+     //(z innego okna: UFTTCheckResults) tabeli, kosztujac zbedny round-trip na kazda dodawana klase.
+     ttCombIds := '';
 
      // passing parameters sometimes failed !
      TS      := UFmain.dummyTS;
      Zajecia := UFmain.dummyHour;
+
+     if batchConfirmedNoConflicts then begin
+       hintsFound := checkConflicts.QuickPreCheck(
+         TS
+       , Zajecia
+       , PLecturers
+       , PGroups
+       , PRooms
+       , PLecturersWithChilds
+       , PGroupsWithChilds
+       , PRoomsWithChilds
+       , anyHintsExist
+       , capacityOverflowVal
+       , hasConflictFlag
+       , true); //skipConflictCheck: batch-wide pre-check already proved no conflicts exist
+       hasConflictFlag := false;
+     end else begin
+       hintsFound := checkConflicts.QuickPreCheck(
+         TS
+       , Zajecia
+       , PLecturers
+       , PGroups
+       , PRooms
+       , PLecturersWithChilds
+       , PGroupsWithChilds
+       , PRoomsWithChilds
+       , anyHintsExist
+       , capacityOverflowVal
+       , hasConflictFlag);
+     end;
+
      checkConflicts.ConflictsReport(
        TS
      , Zajecia
@@ -3047,13 +3086,9 @@ Procedure TFMain.insertClasses;
      , pdesc1
      , pdesc2
      , pdesc3
-     , pdesc4);
+     , pdesc4
+     , not hasConflictFlag);
     End;
-
-    if anyHintsExist then
-      hintsFound := checkConflicts.HintsReport(TS, Zajecia, PLecturers, PGroups, PRooms)
-    else
-      hintsFound := false;
 
     result := false;
     If (Not checkConflicts.Empty) or hintsFound Then
@@ -3073,17 +3108,18 @@ Procedure TFMain.insertClasses;
 
       if (priorDataStamp = fShowConflicts.dataStamp) then
         answer := priorAnswer
-      else
+      else begin
         answer := fShowConflicts.ShowModal;
+      end;
 
       if answer <> mrCancel Then
       begin
-        checkConflicts.checkConflictsInsert ( ttCombIds );
+        checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true );
         result := true;
       end;
     end
     else begin
-      checkConflicts.checkConflictsInsert ( ttCombIds );
+      checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true );
       result := true;
     End;
  End;
@@ -3155,9 +3191,23 @@ begin
       dmodule.CommitTrans;
 
       calculateWithChilds := true;
+      batchConfirmedNoConflicts := false;
 
       classesCount := 0;
       classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
+
+      //2026-07: pre-pass over the selection to collect the (day,hour) universe of this batch,
+      //used by the one-time whole-batch conflict pre-check (see calculateWithChilds block in XAddClass).
+      batchConflictCheckDayList := '';
+      batchConflictCheckHourList := '';
+      For xp:=Selection.Left To Selection.Right Do
+       For yp:=Selection.Top To Selection.Bottom Do
+         If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
+           if pos(TSDateToOracle(TS), batchConflictCheckDayList)=0 then
+             batchConflictCheckDayList := merge(batchConflictCheckDayList, TSDateToOracle(TS), ',');
+           if pos(';'+IntToStr(Zajecia)+';', ';'+batchConflictCheckHourList+';')=0 then
+             batchConflictCheckHourList := merge(batchConflictCheckHourList, IntToStr(Zajecia), ',');
+         end;
 
       FProgress.Show;
       currentCnt := 0;
@@ -5970,7 +6020,7 @@ function TFMain.modifyClass;
 		 result := false;
 		 if not deleteClass ( oldClass, oldClass.id ) then exit;
 		 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
-		 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+		 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 		 result := true;
 	   end;
 
@@ -6047,7 +6097,7 @@ function TFMain.modifyClass;
 					 else newClass.owner := upperCase(dm.UserName);
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 			   end;
 	   clCopy: begin
 				 newClass.hour := newZajecia;
@@ -6056,7 +6106,7 @@ function TFMain.modifyClass;
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
-				 if not planner_utils_insert_classes ( newClass, pttCombIds ) then exit;
+				 if not planner_utils_insert_classes ( newClass, pttCombIds, -1, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 			   end;
 	   //following operations are in mode: single class level
 	   clDeleteLec:
@@ -9856,12 +9906,13 @@ begin
     end;
 end;
 
-procedure TFMain.refreshGridAndLegend;
+procedure TFMain.refreshGridAndLegend(const refreshCounterToo : boolean = true);
 begin
   grid.Refresh;
   HeaderGrid.Visible := not BViewByCrossTable.Down;
   HeaderGrid.Refresh;
-  refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
+  if refreshCounterToo then
+    refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
 end;
 
 procedure TFMain.showbgroupsClick(Sender: TObject);

@@ -2,18 +2,18 @@ inherited FProgramSettings: TFProgramSettings
   Left = 297
   Top = 226
   Width = 929
-  Height = 696
+  Height = 615
   Caption = 'Ustawienia konfiguracyjne'
   OnCloseQuery = FormCloseQuery
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 645
+    Top = 565
     Width = 921
   end
   object Panel1: TPanel
     Left = 0
-    Top = 604
+    Top = 524
     Width = 921
     Height = 41
     Align = alBottom
@@ -55,8 +55,8 @@ inherited FProgramSettings: TFProgramSettings
     Left = 0
     Top = 0
     Width = 921
-    Height = 604
-    ActivePage = TabSheet3
+    Height = 524
+    ActivePage = SAdvanced
     Align = alClient
     TabOrder = 2
     OnChange = PagesChange
@@ -2406,8 +2406,8 @@ inherited FProgramSettings: TFProgramSettings
         end
       end
       object GroupBox4: TGroupBox
-        Left = 8
-        Top = 408
+        Left = 568
+        Top = 264
         Width = 553
         Height = 89
         Caption = 'Map tester'
@@ -2447,6 +2447,58 @@ inherited FProgramSettings: TFProgramSettings
           Height = 22
           TabOrder = 3
           Text = 'value'
+        end
+      end
+      object GroupBox5: TGroupBox
+        Left = 8
+        Top = 409
+        Width = 553
+        Height = 76
+        Caption = 'Ustawienia globalne'
+        TabOrder = 9
+        object Label35: TLabel
+          Left = 8
+          Top = 24
+          Width = 140
+          Height = 14
+          Caption = 'Akcja przy braku uprawnie'#324':'
+        end
+        object ActionOnNoPermission: TComboBox
+          Left = 170
+          Top = 20
+          Width = 100
+          Height = 22
+          Style = csDropDownList
+          ItemHeight = 14
+          TabOrder = 0
+          Items.Strings = (
+            'STOP'
+            'SKIP'
+            'CONT')
+        end
+        object ChildsAndParentsGro: TCheckBox
+          Left = 8
+          Top = 50
+          Width = 170
+          Height = 17
+          Caption = 'Grupy podrz'#281'dne'
+          TabOrder = 1
+        end
+        object ChildAndParentsLec: TCheckBox
+          Left = 185
+          Top = 50
+          Width = 170
+          Height = 17
+          Caption = 'Wyk'#322'adowcy podrz'#281'dne'
+          TabOrder = 2
+        end
+        object ChildAndParentsRom: TCheckBox
+          Left = 362
+          Top = 50
+          Width = 180
+          Height = 17
+          Caption = 'Sale podrz'#281'dne'
+          TabOrder = 3
         end
       end
     end
@@ -2737,11 +2789,11 @@ inherited FProgramSettings: TFProgramSettings
       object Label32: TLabel
         Left = 248
         Top = 56
-        Width = 388
+        Width = 376
         Height = 14
         Caption = 
-          'Wpisz dat'#281'  ko'#324'cow'#261' aktuallnie trwaj'#261'cego okresu w formacie YY' +
-          'YY-MM-DD'
+          'Wpisz dat'#281'  ko'#324'cow'#261' aktuallnie trwaj'#261'cego okresu w formacie YYYY' +
+          '-MM-DD'
       end
       object DIFF_MODE: TEdit
         Left = 120
@@ -3137,8 +3189,8 @@ inherited FProgramSettings: TFProgramSettings
           ''
           
             'Rozmiar bufora powinien by'#263' ustawiony optymalnie w zale'#380'no'#347'ci od' +
-            ': liczby dost'#281'pnej pami'#281'ci operacyjnej, liczby dni w okresie, ' +
-            'liczby '
+            ': liczby dost'#281'pnej pami'#281'ci operacyjnej, liczby dni w okresie, li' +
+            'czby '
           'godzin w ci'#261'gu dnia, '
           'liczby danych wy'#347'wietlanych na ekranie jednocze'#347'nie.'
           
@@ -3156,9 +3208,9 @@ inherited FProgramSettings: TFProgramSettings
           'pomoc'#261' wzoru:'
           ''
           
-            'ROZMIAR ARKUSZA = liczba dni w okresie * liczba zaj'#281#263' w ci'#261'gu ' +
-            'dnia * rozmiar pami'#281'ci potrzebny do przechowania pojedynczego za' +
-            'j'#281'cia.'
+            'ROZMIAR ARKUSZA = liczba dni w okresie * liczba zaj'#281#263' w ci'#261'gu dn' +
+            'ia * rozmiar pami'#281'ci potrzebny do przechowania pojedynczego zaj'#281 +
+            'cia.'
           ''
           
             'W celu p'#322'ynnego dzia'#322'ania widoku tabeli krzy'#380'owej liczba arkuszy' +

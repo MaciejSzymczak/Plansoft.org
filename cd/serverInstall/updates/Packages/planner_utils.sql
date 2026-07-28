@@ -10,6 +10,12 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   currentPerId number := null;
   action_on_no_permission varchar2(50) := 'CONT'; --STOP, SKIP, CONT
 
+  -- 2026.07: +/- switches to skip the exclusive_parent childs/parents expansion entirely for a
+  -- given resource type - significantly faster when '-' (no str_elems lookup, no extra inserts)
+  childs_and_parents_GRO varchar2(1) := '+';
+  child_and_parents_LEC  varchar2(1) := '-';
+  child_and_parents_ROM  varchar2(1) := '-';
+
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
   exc_lecgrorom_null   number := -20002; --Class without lecturer and group and resource
@@ -1172,20 +1178,28 @@ create or replace package body planner_utils is
         , lecdesc1, lecdesc2, lecdesc3, lecdesc4, pno_conflict_flag);    
 
       -- "and pno_conflict_flag is null" means "do not add child records when you create an alert record" 
-      if pno_conflict_flag is null then
-          for rec in (
-              select child_id
-                from str_elems
-                where level=1 and STR_NAME_LOV='STREAM'
-                    and exclusive_parent = '+'
-                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+'
-                start with parent_id= xxmsz_tools.extractword(t,pcalc_lec_ids,';')          
-           )
-          loop
-            if instr(pcalc_lec_ids,rec.child_id)=0 then 
-                insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (leccla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_lec_ids,';') );   
+      if child_and_parents_LEC = '+' then
+        if pno_conflict_flag is null then
+          declare
+            type t_ids is table of str_elems.child_id%type;
+            v_ids t_ids;
+            v_parent str_elems.parent_id%type := xxmsz_tools.extractword(t,pcalc_lec_ids,';');
+          begin
+            select child_id
+              bulk collect into v_ids
+              from str_elems
+              where parent_id = v_parent
+                and STR_NAME_LOV='STREAM'
+                and exclusive_parent = '+'
+                and instr(pcalc_lec_ids, child_id) = 0;
+
+            if v_ids.count > 0 then
+              forall i in v_ids.first .. v_ids.last
+                insert into lec_cla (id, lec_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id)
+                values (leccla_seq.nextval, v_ids(i), cla_seq_nextval, 'Y', vday, phour, pno_conflict_flag, v_parent);
             end if;
-          end loop;
+          end;
+        end if;
       end if;
 
       end loop;
@@ -1196,37 +1210,55 @@ create or replace package body planner_utils is
 
     for t in 1 .. xxmsz_tools.wordcount(pcalc_gro_ids, ';') loop
       insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag) values (grocla_seq.nextval,xxmsz_tools.extractword(t,pcalc_gro_ids,';'),cla_seq_nextval, 'N', vday, phour,pno_conflict_flag);   
-      if pno_conflict_flag is null then
-          for rec in (
-              select child_id
-                from str_elems
-                where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '+'
-                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+'
-                start with parent_id= xxmsz_tools.extractword(t,pcalc_gro_ids,';')          
-           )
-          loop
-            if instr(pcalc_gro_ids,rec.child_id)=0  then 
-                    insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (grocla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_gro_ids,';'));   
+      if childs_and_parents_GRO = '+' then
+        if pno_conflict_flag is null then
+          declare
+            type t_ids is table of str_elems.child_id%type;
+            v_ids t_ids;
+            v_parent str_elems.parent_id%type := xxmsz_tools.extractword(t,pcalc_gro_ids,';');
+          begin
+            select child_id
+              bulk collect into v_ids
+              from str_elems
+              where parent_id = v_parent
+                and STR_NAME_LOV='STREAM'
+                and exclusive_parent = '+'
+                and instr(pcalc_gro_ids, child_id) = 0;
+
+            if v_ids.count > 0 then
+              forall i in v_ids.first .. v_ids.last
+                insert into gro_cla (id, gro_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id)
+                values (grocla_seq.nextval, v_ids(i), cla_seq_nextval, 'Y', vday, phour, pno_conflict_flag, v_parent);
             end if;
-          end loop;
+          end;
+        end if;
       end if;
     end loop;
 
     for t in 1 .. xxmsz_tools.wordcount(pcalc_rom_ids, ';') loop
       insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag) values (romcla_seq.nextval,xxmsz_tools.extractword(t,pcalc_rom_ids,';'),cla_seq_nextval,'N', vday, phour,pno_conflict_flag);
-      if pno_conflict_flag is null then
-          for rec in (
-              select child_id
-                from str_elems
-                where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '+'
-                CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+' 
-                start with parent_id= xxmsz_tools.extractword(t,pcalc_rom_ids,';')          
-           )
-          loop
-            if instr(pcalc_rom_ids,rec.child_id)=0  then 
-                insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id) values (romcla_seq.nextval,rec.child_id,cla_seq_nextval, 'Y', vday, phour,pno_conflict_flag, xxmsz_tools.extractword(t,pcalc_rom_ids,';'));   
+      if child_and_parents_ROM = '+' then
+        if pno_conflict_flag is null then
+          declare
+            type t_ids is table of str_elems.child_id%type;
+            v_ids t_ids;
+            v_parent str_elems.parent_id%type := xxmsz_tools.extractword(t,pcalc_rom_ids,';');
+          begin
+            select child_id
+              bulk collect into v_ids
+              from str_elems
+              where parent_id = v_parent
+                and STR_NAME_LOV='STREAM'
+                and exclusive_parent = '+'
+                and instr(pcalc_rom_ids, child_id) = 0;
+
+            if v_ids.count > 0 then
+              forall i in v_ids.first .. v_ids.last
+                insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag, parent_id)
+                values (romcla_seq.nextval, v_ids(i), cla_seq_nextval, 'Y', vday, phour, pno_conflict_flag, v_parent);
             end if;
-          end loop;
+          end;
+        end if;
       end if;
     end loop;
 
@@ -1359,14 +1391,14 @@ create or replace package body planner_utils is
     select date_from, date_to into vdate_from, vdate_to from periods where id = pper_id;
 
        --recreate exclusive parent=-
-       if (pres_type='R') then
+       if (pres_type='R') and (child_and_parents_ROM = '+') then
            if  (pcleanUpMode='+') then
               for rec in (
                   select child_id
                     from str_elems
-                    where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '+'
-                    CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+'
-                    start with parent_id= pres_id          
+                    where parent_id = pres_id
+                      and STR_NAME_LOV='STREAM'
+                      and exclusive_parent = '+'
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
@@ -1380,14 +1412,14 @@ create or replace package body planner_utils is
               end loop;
           end if;
       end if;
-      if (pres_type='G') then
+      if (pres_type='G') and (childs_and_parents_GRO = '+') then
            if  (pcleanUpMode='+') then
               for rec in (
                   select child_id
                     from str_elems
-                    where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '+'
-                    CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+'
-                    start with parent_id= pres_id          
+                    where parent_id = pres_id
+                      and STR_NAME_LOV='STREAM'
+                      and exclusive_parent = '+'
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
@@ -1401,14 +1433,14 @@ create or replace package body planner_utils is
               end loop;
           end if;
       end if;
-       if (pres_type='L') then
+       if (pres_type='L') and (child_and_parents_LEC = '+') then
            if  (pcleanUpMode='+') then
              for rec in (
                   select child_id
                     from str_elems
-                    where level=1 and STR_NAME_LOV='STREAM' and exclusive_parent = '+'
-                    CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id  and exclusive_parent = '+'
-                    start with parent_id= pres_id          
+                    where parent_id = pres_id
+                      and STR_NAME_LOV='STREAM'
+                      and exclusive_parent = '+'
                )
               loop
                 if instr(pres_id,rec.child_id)=0  then
@@ -1429,19 +1461,17 @@ create or replace package body planner_utils is
           --childs
           (select child_id id, 'C'
             from str_elems_v
-            where level=1 and STR_NAME_LOV='STREAM' 
-            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior child_id = parent_id
-            start with parent_id=pres_id)
+            where parent_id=pres_id
+              and STR_NAME_LOV='STREAM')
            union 
           --parents
            (select parent_id id, 'P'
               from str_elems_v
-              where level=1 and STR_NAME_LOV='STREAM' 
-            CONNECT BY PRIOR STR_NAME_LOV='STREAM' and prior parent_id = child_id
-            start with child_id=pres_id
+              where child_id=pres_id
+                and STR_NAME_LOV='STREAM'
            );
 
-    if (pres_type='R') then
+    if (pres_type='R') and (child_and_parents_ROM = '+') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -1624,7 +1654,7 @@ create or replace package body planner_utils is
     end if; --if (pres_type='R')
 
     -- very similar code for groups
-    if (pres_type='G') then
+    if (pres_type='G') and (childs_and_parents_GRO = '+') then
 
          -- optional clean up
          -- clean up may be necesary when the hierarchy of resources was modified
@@ -1773,7 +1803,7 @@ create or replace package body planner_utils is
     end if; --if (pres_type='G')
 
     -- very similar code for Lecturers
-    if (pres_type='L') then
+    if (pres_type='L') and (child_and_parents_LEC = '+') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -2695,6 +2725,21 @@ END;
 begin
   begin
     select VALUE into action_on_no_permission from system_parameters where name = 'ACTION_ON_NO_PERMISSION';  --STOP, SKIP, CONT
+    exception
+    when no_data_found then null;
+  end;
+  begin
+    select VALUE into childs_and_parents_GRO from system_parameters where name = 'CHILDS_AND_PARENTS_GRO';
+    exception
+    when no_data_found then null;
+  end;
+  begin
+    select VALUE into child_and_parents_LEC from system_parameters where name = 'CHILD_AND_PARENTS_LEC';
+    exception
+    when no_data_found then null;
+  end;
+  begin
+    select VALUE into child_and_parents_ROM from system_parameters where name = 'CHILD_AND_PARENTS_ROM';
     exception
     when no_data_found then null;
   end;

@@ -620,6 +620,8 @@ begin
   end;
  end;
 
+ RightPage.Visible := dmodule.dbgetSystemParam('CHILDS_AND_PARENTS_GRO','+') = '+'; //2026-07: hide childs/parents hierarchy tab when planner_utils skips this expansion for groups
+
 end;
 
 procedure TFBrowseGROUPS.BMassImportClick(Sender: TObject);

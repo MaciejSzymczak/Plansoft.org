@@ -135,11 +135,24 @@ Type TCheckConflicts = Class
                LecturersWithChilds : TPointers;
                GroupsWithChilds: TPointers;
                RoomsWithChilds: TPointers;
-               Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String ) : Boolean;
+               Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String;
+               const skipConflictQuery : boolean = false ) : Boolean;
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
              function  empty : Boolean;
-             function  checkConflictsInsert ( ttCombIds        : string ) : Boolean;
+             function  checkConflictsInsert ( ttCombIds        : string; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ) : Boolean;
              function  hintsReport(Day : TTimeStamp; Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
+             function  quickPreCheck(
+               Day : TTimeStamp; Hour : Integer;
+               Lecturers, Groups, Rooms : TPointers;
+               LecturersWithChilds, GroupsWithChilds, RoomsWithChilds : TPointers;
+               const includeHints : boolean;
+               var capacityOverflow : integer;
+               var hasConflict : boolean;
+               const skipConflictCheck : boolean = false ) : Boolean;
+             function  batchHasAnyConflict(
+               const dayList : string;
+               const hourList : string;
+               LecturersWithChilds, GroupsWithChilds, RoomsWithChilds : TPointers ) : Boolean;
              procedure getHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
          End;
 
@@ -176,9 +189,11 @@ function canInsertClass (
              theClass : TClass_;
              cla_id : integer;
              var resultMessage : string;
-             const fastCheck : boolean = false //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
+             const fastCheck : boolean = false; //omits some optional checks. Thus it is faster. Database will examine this checks when insertClass in involved
+             const knownCapacityOverflow : integer = 0;
+             const capacityOverflowKnown : boolean = false
          ) : boolean;
-function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1 ) : boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1; const skipCanInsertCheck : boolean = false; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ) : boolean;
 function deleteClass(Class_ : TClass_; const currentClassId : integer =-1) : Boolean;
 Procedure DeleteOrphanedClasses;
 
@@ -1008,7 +1023,8 @@ Function TCheckConflicts.ConflictsReport(
   LecturersWithChilds : TPointers;
   GroupsWithChilds: TPointers;
   RoomsWithChilds: TPointers;
-  Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String) : Boolean;
+  Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String;
+  const skipConflictQuery : boolean = false) : Boolean;
 Var L      : Integer;
     Status : String;
     Class_ : TClass_;
@@ -1072,7 +1088,7 @@ Begin
       listOfval := merge(listOfval,IntToStr(RoomsWithChilds[L]), ',');
     End Else Break;
 
-  if listOfval <> '' then begin
+  if (not skipConflictQuery) and (listOfval <> '') then begin
      listOfval := '('+listOfval+')';
      dm.DBGetClassByLGR(TSDateToOracle(Day), TSDateToOracle(Day), Hour, listOfval, Status, Class_);
      if Status =  'ClassNotFound' then Begin End
@@ -1154,7 +1170,7 @@ Begin
     End;
 End;
 
-Function TCheckConflicts.checkConflictsInsert ( ttCombIds : string ): Boolean;
+Function TCheckConflicts.checkConflictsInsert ( ttCombIds : string; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ): Boolean;
  Var t            : Integer;
   	 calc_lec_ids : string;
 		 calc_gro_ids : string;
@@ -1195,7 +1211,7 @@ Begin
   myClass.desc3         := newClassToCreate.desc3;
   myClass.desc4         := newClassToCreate.desc4;
 
-  result := planner_utils_insert_classes (myClass, ttCombIds, currentClassId);
+  result := planner_utils_insert_classes (myClass, ttCombIds, currentClassId, false, knownCapacityOverflow, capacityOverflowKnown);
  End;
 End;
 
@@ -1336,6 +1352,132 @@ Begin
   End;
 
   Result := Length(Hints) > 0;
+End;
+
+Function TCheckConflicts.QuickPreCheck(
+  Day : TTimeStamp; Hour : Integer;
+  Lecturers, Groups, Rooms : TPointers;
+  LecturersWithChilds, GroupsWithChilds, RoomsWithChilds : TPointers;
+  const includeHints : boolean;
+  var capacityOverflow : integer;
+  var hasConflict : boolean;
+  const skipConflictCheck : boolean = false
+) : Boolean;
+Var t : Integer;
+    groIds, romIds, hintIds, conflictIds : string;
+    dayExpr : string;
+    hintsSql : string;
+    confSql : string;
+Begin
+
+  groIds := '';
+  romIds := '';
+  hintIds := '';
+  For t := 1 To maxInClass Do Begin
+    If Groups[t]    <> 0 Then Begin groIds  := merge(groIds,  IntToStr(Groups[t]),    ',');    hintIds := merge(hintIds, IntToStr(Groups[t]),    ','); End;
+    If Rooms[t]     <> 0 Then Begin romIds  := merge(romIds,  IntToStr(Rooms[t]),     ',');    hintIds := merge(hintIds, IntToStr(Rooms[t]),     ','); End;
+    If Lecturers[t] <> 0 Then                                                                    hintIds := merge(hintIds, IntToStr(Lecturers[t]), ',');
+  End;
+
+  conflictIds := '';
+  For t := 1 To maxInClass Do
+    If GroupsWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(GroupsWithChilds[t]), ',');
+  For t := 1 To maxInClass Do
+    If LecturersWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(LecturersWithChilds[t]), ',');
+  For t := 1 To maxInClass Do
+    If RoomsWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(RoomsWithChilds[t]), ',');
+
+  dayExpr := TSDateToOracle(Day);
+
+  SetLength(Hints, 0);
+  capacityOverflow := 0;
+  hasConflict := false;
+
+  hintsSql := '';
+  if includeHints then
+    hintsSql :=
+      ' union all '+
+      ' select ''HINT'' rowtype, resources.name col1, to_char(res_hints.ratio) col2, 3 type_order, res_hints.ratio hint_order '+
+      '   from res_hints, resources '+
+      '  where res_hints.res_id = resources.id and res_hints.day = '+dayExpr+' and res_hints.hour = '+IntToStr(Hour)+
+      '    and res_hints.res_id in ('+nvl(hintIds,'0')+') and res_hints.ratio < 0 ';
+
+  confSql := '';
+  if not skipConflictCheck then
+    confSql :=
+      ' union all '+
+      ' select ''CONF'' rowtype, to_char(count(*)) col1, to_char(null) col2, 2 type_order, 0 hint_order '+
+      '   from ( select cla_id from lec_cla where lec_id in ('+nvl(conflictIds,'0')+') and no_conflict_flag is null and day = '+dayExpr+' and hour = '+IntToStr(Hour)+
+      '          union '+
+      '          select cla_id from rom_cla where rom_id in ('+nvl(conflictIds,'0')+') and no_conflict_flag is null and day = '+dayExpr+' and hour = '+IntToStr(Hour)+
+      '          union '+
+      '          select cla_id from gro_cla where gro_id in ('+nvl(conflictIds,'0')+') and no_conflict_flag is null and day = '+dayExpr+' and hour = '+IntToStr(Hour)+
+      '        ) where rownum <= 1';
+
+  DModule.openSQL(
+    'select rowtype, col1, col2 from ( '+
+    ' select ''CAP'' rowtype, to_char(nvl(group_capacity - resource_capacity,0)) col1, to_char(null) col2, 1 type_order, 0 hint_order '+
+    '   from (select sum(nvl(number_of_peoples,0)) group_capacity from groups where id in ('+nvl(groIds,'0')+'))'+
+    '      , (select sum(nvl(attribn_01,9999)) resource_capacity from rooms where id in ('+nvl(romIds,'0')+'))'+
+    confSql+
+    hintsSql+
+    ') order by type_order, hint_order'
+  );
+
+  With DModule Do Begin
+    While Not QWork.EOF Do Begin
+      if QWork.FieldByName('rowtype').AsString = 'CAP' then
+        capacityOverflow := StrToInt(Trim(QWork.FieldByName('col1').AsString))
+      else if QWork.FieldByName('rowtype').AsString = 'CONF' then
+        hasConflict := StrToInt(Trim(QWork.FieldByName('col1').AsString)) > 0
+      else begin
+        SetLength(Hints, Length(Hints)+1);
+        Hints[High(Hints)].ResName := QWork.FieldByName('col1').AsString;
+        Hints[High(Hints)].Ratio   := StrToInt(Trim(QWork.FieldByName('col2').AsString));
+      end;
+      QWork.Next;
+    End;
+  End;
+
+
+  Result := Length(Hints) > 0;
+End;
+
+Function TCheckConflicts.BatchHasAnyConflict(
+  const dayList : string;
+  const hourList : string;
+  LecturersWithChilds, GroupsWithChilds, RoomsWithChilds : TPointers
+) : Boolean;
+Var t : Integer;
+    conflictIds : string;
+Begin
+  Result := true; //conservative: assume a conflict might exist unless proven otherwise
+  if (dayList = '') or (hourList = '') then exit;
+
+  conflictIds := '';
+  For t := 1 To maxInClass Do
+    If GroupsWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(GroupsWithChilds[t]), ',');
+  For t := 1 To maxInClass Do
+    If LecturersWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(LecturersWithChilds[t]), ',');
+  For t := 1 To maxInClass Do
+    If RoomsWithChilds[t] <> 0 Then conflictIds := merge(conflictIds, IntToStr(RoomsWithChilds[t]), ',');
+
+  if conflictIds = '' then begin
+    Result := false; //no resources selected at all - cannot conflict with anything
+    exit;
+  end;
+
+  DModule.openSQL(
+    'select count(*) cnt from ( '+
+    '  select cla_id from lec_cla where lec_id in ('+conflictIds+') and no_conflict_flag is null and day in ('+dayList+') and hour in ('+hourList+') '+
+    '  union '+
+    '  select cla_id from rom_cla where rom_id in ('+conflictIds+') and no_conflict_flag is null and day in ('+dayList+') and hour in ('+hourList+') '+
+    '  union '+
+    '  select cla_id from gro_cla where gro_id in ('+conflictIds+') and no_conflict_flag is null and day in ('+dayList+') and hour in ('+hourList+') '+
+    ') where rownum <= 1'
+  );
+
+  Result := StrToInt(Trim(DModule.QWork.FieldByName('cnt').AsString)) > 0;
 End;
 
 Procedure TCheckConflicts.GetHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
@@ -1701,7 +1843,7 @@ Begin
  end;
 End;
 
-function canInsertClass ( theClass : TClass_; cla_id : integer;  var resultMessage : string; const fastCheck : boolean = false ) : boolean;
+function canInsertClass ( theClass : TClass_; cla_id : integer;  var resultMessage : string; const fastCheck : boolean = false; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ) : boolean;
 var sql_text, select_clause, from_clause : string;
     t : integer;
     free_capacity : integer;
@@ -1747,11 +1889,15 @@ begin
       '  from (    select sum(nvl(number_of_peoples,0   )) group_capacity from groups where id in ( '+nvl(replace(theClass.calc_gro_ids, ';',','),'0')+' )    )  ' + cr +
       '     , (    select sum(nvl(attribn_01,9999)) resource_capacity from rooms  where id in ( '+nvl(replace(theClass.calc_rom_ids, ';',','),'0')+' )    )  ';
 
-  free_capacity :=
-    strToInt(
-    dmodule.SingleValue(
-    sql_text
-    ));
+  if capacityOverflowKnown then
+    free_capacity := knownCapacityOverflow
+  else begin
+    free_capacity :=
+      strToInt(
+      dmodule.SingleValue(
+      sql_text
+      ));
+  end;
   if free_capacity > 0 then begin
      resultMessage := classDesc+cr+'Licznoœæ grup/y przekracza pojemnoœæ sal/i o ' + intToStr(free_capacity);
      //Result := false;
@@ -1913,7 +2059,7 @@ begin
   end;
 end;
 
-function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1 ) : boolean;
+function planner_utils_insert_classes ( myClass : TClass_; pttCombIds : string; const currentClassId : integer =-1; const skipCanInsertCheck : boolean = false; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ) : boolean;
  var  resultMessage   : string;
 begin
   Result := False;
@@ -1928,14 +2074,16 @@ begin
      exit;
   end;
 
-  if not canInsertClass ( myClass , currentClassId, resultMessage, true ) then
-  begin
-    info (resultMessage);
-    Result := False;
-    exit;
-  end;
-  if resultMessage<>'' then begin
-    FWarning.showMessage('SkipCapacityOverflow', resultMessage);
+  if not skipCanInsertCheck then begin
+    if not canInsertClass ( myClass , currentClassId, resultMessage, true, knownCapacityOverflow, capacityOverflowKnown ) then
+    begin
+      info (resultMessage);
+      Result := False;
+      exit;
+    end;
+    if resultMessage<>'' then begin
+      FWarning.showMessage('SkipCapacityOverflow', resultMessage);
+    end;
   end;
 
   try
