@@ -304,7 +304,7 @@ end;
 
 procedure TFBrowsePERIODS.SpeedButton5Click(Sender: TObject);
 begin
-  SError('Wybierz okres nadrzêdny, je¿eli chcesz aby dni wolne (ka¿da zmiana) automatycznie kopiowa³y siê z wybranego okresu nadrzêdnego. Zmiany s¹ aktualizowane z 5min opóŸnieniem.');
+  SError('Wybierz okres nadrzêdny, je¿eli chcesz aby dni wolne (ka¿da zmiana) automatycznie kopiowa³y siê z wybranego okresu. Zmiany s¹ aktualizowane co 5min');
 end;
 
 procedure TFBrowsePERIODS.ROL_ID_VALUEClick(Sender: TObject);

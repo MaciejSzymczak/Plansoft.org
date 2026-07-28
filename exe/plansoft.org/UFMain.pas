@@ -983,6 +983,7 @@ type
     userLogged : boolean;
     ignoreEvents : boolean;
     activePulpit : integer;
+    suppressCounterRefresh : boolean; //2026-07: guards refreshPanels' Podsumowanie godzin (Counter tab) requery during pure navigation, see BuildCalendar
     Procedure stop;
     procedure setPeriod;
     Procedure fillPanel(Col, Row: Integer);
@@ -1118,7 +1119,7 @@ type
     procedure OpenFGrouping(resourceType : String; resourceId : String);
     procedure propagateDependencyChanges(parentId : String; res_type : String );
     Procedure refreshGrid;
-    Procedure refreshGridAndLegend(const refreshCounterToo : boolean = true);
+    Procedure refreshGridAndLegend;
     function LecToNames (lec_ids : string) : string;
     //--
     procedure LoadPulpit;
@@ -1998,6 +1999,8 @@ procedure TFMain.RefreshGrid;
 
 begin
    if CanBuildCalendar = false then exit;
+   LockWindowUpdate(Self.Handle); //2026-07: suspend repaint while grid dims/header/legend refresh sequentially below - avoids the double-flicker from separate grid.Refresh + HeaderGrid.Refresh calls in refreshGridAndLegend
+   try
    Grid.Canvas.Font.Assign( gridFont.Font );
    //HeaderGrid.Canvas.Font.Assign( gridFont.Font );
    if FcellLayout.ForceCellWidth.Checked then begin
@@ -2075,7 +2078,11 @@ begin
  If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
- refreshGridAndLegend(false); //2026-07: BuildCalendar runs on mere cell-click/resource-selection navigation, not an actual schedule change - do not refresh Podsumowanie godzin here
+ refreshGridAndLegend;
+ finally
+   LockWindowUpdate(0);
+   Self.Refresh;
+ end;
 end;
 
 Procedure TFMain.BuildCalendar (triggeredObject : String);
@@ -2086,6 +2093,8 @@ Begin
   if not canShow Then exit;
   if not CanBuildCalendar then exit;
   Cursor := crHourGlass;
+  suppressCounterRefresh := true; //2026-07: BuildCalendar runs on mere cell-click/resource-selection navigation - refreshPanels below (direct + via RefreshGrid) must not requery Podsumowanie godzin
+  try
 
   if instr('L#G#R',triggeredObject)<>0 then begin
   if not BViewByCrossTable.Down then begin
@@ -2137,6 +2146,9 @@ Begin
 
   RefreshGrid;
 
+  finally
+    suppressCounterRefresh := false;
+  end;
   Cursor := crDefault;
 End;
 
@@ -3282,6 +3294,7 @@ begin
  //Refresh recently used
  refreshRecentlyUsed('');
  //Refresh Legend
+ if not suppressCounterRefresh then //2026-07: set by BuildCalendar around its own work, so mere cell-click/resource navigation does not requery Podsumowanie godzin
  if FLegend.Visible then
    if (FLegend.FLegendTabs.ActivePage = FLegend.TabSheetCOUNTER) or (FLegend.FLegendTabs.ActivePage = FLegend.TabSheetTimetableNotes) then
      FLegend.BRefreshClick(nil);
@@ -5426,8 +5439,10 @@ begin
    if conResCat1.Text=''  then conResCat1.Text  := dmodule.SingleValue('Select max(id) from rooms where rescat_id='+dmodule.pResCatId1+' and id in (select rom_id from rom_pla where pla_id = '+UserID+')');
    if conPeriod.Text=''   then conPeriod.Text   := dmodule.SingleValue('Select max(id) from periods');
 
-   If Not isBlank(conPeriod.Text) Then setPeriod;
-   RefreshGrid;
+   //2026-07: setPeriod already performs a full refresh (SetVisibles + DeepRefreshImmediate -> BuildCalendar -> RefreshGrid);
+   //calling RefreshGrid again right after made the grid visibly rebuild/flicker twice on first login. Only fall back
+   //to a plain RefreshGrid when there is no period at all (setPeriod would have been skipped, e.g. brand-new/empty DB).
+   If Not isBlank(conPeriod.Text) Then setPeriod else RefreshGrid;
    //BIMP.Enabled := False;
    //BEXP.Enabled := False;
  End
@@ -9613,7 +9628,12 @@ begin
   If gridRefreshCounter > 0 Then gridRefreshCounter := gridRefreshCounter - 1;
   If gridRefreshCounter = 1 Then Begin
     gridRefresh.Enabled := false;
-    refreshGridAndLegend;
+    suppressCounterRefresh := true; //2026-07: HighLightGrid (mouse move / arrow keys) just re-highlights the selection, not an actual schedule change - do not requery Podsumowanie godzin
+    try
+      refreshGridAndLegend;
+    finally
+      suppressCounterRefresh := false;
+    end;
   end;
 end;
 
@@ -9906,13 +9926,12 @@ begin
     end;
 end;
 
-procedure TFMain.refreshGridAndLegend(const refreshCounterToo : boolean = true);
+procedure TFMain.refreshGridAndLegend;
 begin
   grid.Refresh;
   HeaderGrid.Visible := not BViewByCrossTable.Down;
   HeaderGrid.Refresh;
-  if refreshCounterToo then
-    refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
+  refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
 end;
 
 procedure TFMain.showbgroupsClick(Sender: TObject);
