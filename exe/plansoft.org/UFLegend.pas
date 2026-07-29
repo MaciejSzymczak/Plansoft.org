@@ -171,6 +171,7 @@ type
     gridsFontSize : integer;
     refreshAllowed : boolean;
     procedure refreshGridSize;
+    procedure FormActivate(Sender: TObject); //2026-07: fixes controls left blank inside BottomPanel after switching back via Alt+Tab (same root cause as the FormShow/FLegendTabsChange fix); wired at runtime in FormCreate since UFLegend.dfm is binary-format and cannot be safely text-edited
   public
     CondL, CondG, CondR : String;
     FormsListIds : Array of string;
@@ -264,6 +265,7 @@ begin
   CondL := '0=0';
   CondG := '0=0';
   CondR := '0=0';
+  OnActivate := FormActivate;
 end;
 
 Procedure TFLegend.SetWheres(aCondL, aCondG, aCondR : String);
@@ -342,6 +344,12 @@ begin
   refreshGridSize;
   refreshAllowed := true;
   BRefreshClick(nil);
+end;
+
+procedure TFLegend.FormActivate(Sender: TObject);
+begin
+  BottomPanel.Parent.Invalidate; //2026-07: fixes controls left blank inside BottomPanel after Alt+Tab back to the app (same fix as FormShow/FLegendTabsChange)
+  UpperPanel.Parent.Invalidate;
 end;
 
 procedure TFLegend.FLegendTabsChange(Sender: TObject);

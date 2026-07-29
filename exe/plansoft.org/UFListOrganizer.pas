@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls, Menus;
+  Dialogs, UFormConfig, StdCtrls, Buttons, ExtCtrls;
 
 type
   TFListOrganizer = class(TFormConfig)
@@ -19,25 +19,33 @@ type
     BAdd: TBitBtn;
     lbIds: TListBox;
     BitBtn1: TBitBtn;
-    beditpopup: TSpeedButton;
-    addPopup: TPopupMenu;
-    MenuItem2: TMenuItem;
-    BitBtn2: TBitBtn;
+    BClearAndSelect: TSpeedButton; //2026-07: renamed from beditpopup - no longer opens a popup menu, directly clears the list and reopens the picker
+    BSetPrimary: TBitBtn; //2026-07: renamed from BitBtn2 - moves the selected resource to the top of the list and confirms the dialog (shared with lbNamesDblClick), making it the primary resource
+    PanelRowButtons: TPanel; //2026-07: hosts dynamically-created per-row SetPrimary/Delete buttons for lbNames
     procedure lbNamesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure lbNamesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
     procedure lbNamesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure lbNamesDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     procedure BUpClick(Sender: TObject);
     procedure BDownClick(Sender: TObject);
     procedure BDeleteClick(Sender: TObject);
     procedure lbNamesDblClick(Sender: TObject);
     procedure BAddClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
-    procedure beditpopupClick(Sender: TObject);
-    procedure MenuItem2Click(Sender: TObject);
+    procedure BClearAndSelectClick(Sender: TObject);
   private
     resType: string;
+    RowButtonsHooked: boolean;
+    OldLbNamesWndProc: TWndMethod;
+    RowSetButtons: array of TSpeedButton;
+    RowDelButtons: array of TSpeedButton;
+    procedure NewLbNamesWndProc(var Message: TMessage);
+    procedure RefreshRowButtons;
+    procedure RowSetPrimaryClick(Sender: TObject);
+    procedure RowDeleteClick(Sender: TObject);
+    procedure WMRowDelete(var Msg: TMessage); message WM_USER + 100; //2026-07: deletion is deferred via PostMessage - freeing the row TSpeedButton synchronously from within its own OnClick caused an intermittent Access Violation
   public
     function showList (presType: string; Sender: TObject; ids, displayedItems : string; WordDelim : Char) : tmodalResult;
   end;
@@ -79,6 +87,14 @@ begin
  lbNames.ItemIndex := 0;
  resType := presType;
  //BSelect.Enabled := lbNames.Items.Count >0;
+
+ if not RowButtonsHooked then begin
+   OldLbNamesWndProc := lbNames.WindowProc;
+   lbNames.WindowProc := NewLbNamesWndProc;
+   RowButtonsHooked := true;
+ end;
+ RefreshRowButtons;
+
  result := showModal;
 end;
 
@@ -110,6 +126,24 @@ procedure TFListOrganizer.lbNamesDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept:=Source=lbNames;
+end;
+
+procedure TFListOrganizer.lbNamesDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+var s : string;
+begin
+  with (Control as TListBox).Canvas do begin
+    if odSelected in State then begin
+      Brush.Color := clHighlight;
+      Font.Color  := clHighlightText;
+    end else begin
+      Brush.Color := (Control as TListBox).Color;
+      Font.Color  := (Control as TListBox).Font.Color;
+    end;
+    FillRect(Rect);
+    s := (Control as TListBox).Items[Index];
+    TextOut(Rect.Left + 4, Rect.Top + (Rect.Bottom - Rect.Top - TextHeight(s)) div 2, s);
+  end;
+  if odFocused in State then (Control as TListBox).Canvas.DrawFocusRect(Rect);
 end;
 
 procedure TFListOrganizer.lbNamesMouseDown(Sender: TObject;
@@ -161,6 +195,7 @@ begin
  end;
 
  //BSelect.Enabled := lbNames.Items.Count >0;
+ RefreshRowButtons;
 end;
 
 procedure TFListOrganizer.lbNamesDblClick(Sender: TObject);
@@ -187,7 +222,7 @@ if resType ='L' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';') , [';'], KeyValue)
-     Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
+     Then Info('Ten zasób ju¿ zosta³ wybrany')
      Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_LECDESC+KeyValue) );
@@ -206,7 +241,7 @@ if resType='G' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameG.Text)
+      Then Info('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_GRODESC+KeyValue) );
@@ -225,7 +260,7 @@ if resType='R' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then Info('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_ResCat0DESC+KeyValue) );
@@ -244,7 +279,7 @@ if resType='R2' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If existsValue(replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then Info('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_ResCat1DESC+KeyValue) );
@@ -258,6 +293,7 @@ if resType='R2' then begin
 end;
 
  //BSelect.Enabled := lbNames.Items.Count >0;
+ RefreshRowButtons;
 end;
 
 procedure TFListOrganizer.BitBtn1Click(Sender: TObject);
@@ -292,24 +328,90 @@ begin
       lbNames.Items.Add( ExtractWord(t,OutItems_dsp ,[WordDelim]) );
   end;
 
-
+  RefreshRowButtons;
 end;
 
-procedure TFListOrganizer.beditpopupClick(Sender: TObject);
-var point : tpoint;
-    btn   : tcontrol;
-begin
- btn     := sender as tcontrol;
- Point.x := 0;
- Point.y := btn.Height;
- Point   := btn.ClientToScreen(Point);
- addPopup.Popup(Point.X,Point.Y);
-end;
-procedure TFListOrganizer.MenuItem2Click(Sender: TObject);
+procedure TFListOrganizer.BClearAndSelectClick(Sender: TObject);
 begin
   lbNames.Items.Clear;
   lbIds.Items.Clear;
   BAddClick(Sender);
+end;
+
+procedure TFListOrganizer.NewLbNamesWndProc(var Message: TMessage);
+begin
+  OldLbNamesWndProc(Message);
+  if (Message.Msg = WM_VSCROLL) or (Message.Msg = WM_MOUSEWHEEL) then
+    RefreshRowButtons;
+end;
+
+procedure TFListOrganizer.RefreshRowButtons;
+const
+  RowBtnGapH = 19; //~0.5cm at 96dpi
+  RowBtnGapV = 3;
+var
+  i, row, y, lastVisible, btnWidth, btnHeight : integer;
+  btnSet, btnDel : TSpeedButton;
+begin
+  for i := 0 to High(RowSetButtons) do begin
+    RowSetButtons[i].Free;
+    RowDelButtons[i].Free;
+  end;
+  SetLength(RowSetButtons, 0);
+  SetLength(RowDelButtons, 0);
+
+  if lbNames.Items.Count = 0 then Exit;
+
+  SetLength(RowSetButtons, lbNames.Items.Count);
+  SetLength(RowDelButtons, lbNames.Items.Count);
+
+  btnHeight := lbNames.ItemHeight - RowBtnGapV*2;
+  btnWidth  := (PanelRowButtons.ClientWidth - RowBtnGapH*3) div 2;
+
+  lastVisible := lbNames.TopIndex + (lbNames.ClientHeight div lbNames.ItemHeight);
+  for i := lbNames.TopIndex to lastVisible do begin
+    if (i < 0) or (i >= lbNames.Items.Count) then continue;
+    row := i - lbNames.TopIndex;
+    y := row * lbNames.ItemHeight + RowBtnGapV;
+    if y + btnHeight > lbNames.ClientHeight then break;
+
+    btnSet := TSpeedButton.Create(PanelRowButtons);
+    btnSet.Parent := PanelRowButtons;
+    btnSet.SetBounds(RowBtnGapH, y, btnWidth, btnHeight);
+    btnSet.Glyph.Assign(BSetPrimary.Glyph);
+    btnSet.Hint := 'Wybierz ten zasób';
+    btnSet.ShowHint := true;
+    btnSet.Tag := i;
+    btnSet.OnClick := RowSetPrimaryClick;
+    RowSetButtons[i] := btnSet;
+
+    btnDel := TSpeedButton.Create(PanelRowButtons);
+    btnDel.Parent := PanelRowButtons;
+    btnDel.SetBounds(RowBtnGapH*2+btnWidth, y, btnWidth, btnHeight);
+    btnDel.Glyph.Assign(BDelete.Glyph);
+    btnDel.Hint := 'Usuñ z listy';
+    btnDel.ShowHint := true;
+    btnDel.Tag := i;
+    btnDel.OnClick := RowDeleteClick;
+    RowDelButtons[i] := btnDel;
+  end;
+end;
+
+procedure TFListOrganizer.RowSetPrimaryClick(Sender: TObject);
+begin
+  lbNames.ItemIndex := TSpeedButton(Sender).Tag;
+  lbNamesDblClick(Sender);
+end;
+
+procedure TFListOrganizer.RowDeleteClick(Sender: TObject);
+begin
+  lbNames.ItemIndex := TSpeedButton(Sender).Tag;
+  PostMessage(Handle, WM_USER + 100, 0, 0);
+end;
+
+procedure TFListOrganizer.WMRowDelete(var Msg: TMessage);
+begin
+  BDeleteClick(Self);
 end;
 
 end.
