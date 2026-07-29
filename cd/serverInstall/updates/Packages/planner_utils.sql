@@ -1491,30 +1491,34 @@ create or replace package body planner_utils is
          end if;    
 
          -- delete dependency classes with wrong description 
-         for rec in (
-           select * from
-           (
-             select existing_dep.desc2, existing_dep.id
-                  , (
-                    select listagg(rom.attribs_01||' '||rom.name, '; ') within group (order by rom.attribs_01||' '||rom.name)
+         delete from helper2;
+         insert into helper2
+             select unique cla.id, desc2, cla.day, cla.hour
+             from rom_cla
+                , classes cla
+             where no_conflict_flag = '+'
+              and rom_cla.cla_id = cla.id
+              and rom_id  = pres_id 
+              and rom_cla.day between vdate_from and vdate_to;
+
+         delete from helper3;
+         insert into helper3 (day, hour, str)
+                    select day, hour, listagg(rom.attribs_01||' '||rom.name, '; ') within group (order by rom.attribs_01||' '||rom.name) descCorrect
                       from rom_cla
                          , rooms rom 
                     where no_conflict_flag is null
                      and rom_cla.rom_id = rom.id 
                        and rom_id in 
-                            (select id from helper1) 
-                       and day = existing_dep.day and hour = existing_dep.hour) correct_desc2
-               from
-                     (
-                       select unique cla.id, desc2, cla.day, cla.hour
-                         from rom_cla
-                            , classes cla
-                         where no_conflict_flag = '+'
-                          and rom_cla.cla_id = cla.id
-                          and rom_id  = pres_id 
-                          and rom_cla.day between vdate_from and vdate_to
-                      ) existing_dep
-          ) where desc2 <> correct_desc2
+                            (select id from helper1)
+                       and rom_cla.day between vdate_from and vdate_to
+                      group by day, hour;      
+         for rec in (
+
+             select existing_dep.id, existing_dep.desc2, correct_desc2.descCorrect, existing_dep.day , correct_desc2.hour
+               from helper2 existing_dep
+                  , (select day, hour, str descCorrect from helper3 ) correct_desc2
+           where correct_desc2.day = existing_dep.day and correct_desc2.hour = existing_dep.hour
+             and existing_dep.desc2 <> correct_desc2.descCorrect         
          ) 
          loop
            delete_class (rec.id);
@@ -1523,15 +1527,15 @@ create or replace package body planner_utils is
          --create child dependencies
          for rec in (
             --classes of childs
-            select unique day, hour  
+            select day, hour
+                 , listagg(rom.attribs_01||' '||rom.name, '; ') within group (order by rom.attribs_01||' '||rom.name) child_parent_names
+                 , listagg(helper1.attribs_01, '; ') within group (order by rom.attribs_01||' '||rom.name) child_parent_flag
               from rom_cla 
+                 , rooms rom 
+                 , helper1
             where no_conflict_flag is null
-             and rom_id in 
-              (select child_id id
-                from str_elems_v
-                where level=1 and STR_NAME_LOV='STREAM'
-                connect by prior STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                start with parent_id = pres_id)
+             and rom_cla.rom_id = rom.id 
+             and rom_id = helper1.id
             and day between vdate_from and vdate_to
             --do not create dependency classes if base resource has already the classes, either own classes or dependency classes created earlier
             and (day,hour) not in 
@@ -1540,88 +1544,56 @@ create or replace package body planner_utils is
                 where rom_id  = pres_id 
                  and day between vdate_from and vdate_to
               )
+            group by day, hour  
          ) 
          loop
-            select listagg(rom.attribs_01||' '||rom.name, '; ') within group (order by rom.attribs_01||' '||rom.name)
-              into pchild_names
-              from rom_cla
-                 , rooms rom 
-            where no_conflict_flag is null
-             and rom_cla.rom_id = rom.id 
-               and rom_id in 
-                  --childs
-                  (select child_id id
-                    from str_elems_v
-                    where level=1 and STR_NAME_LOV='STREAM'
-                    connect by prior STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                    start with parent_id=pres_id)
-               and day = rec.day and hour = rec.hour;
-            insert_classes(rec.day
-               ,rec.hour
-               ,100
-               ,-1
-               ,-1
-               ,'AUTO'
-               ,-1 /*lec*/
-               ,-1 /*gro*/
-               ,pres_id /*res*/
-               ,null
-               ,'Zajecia podrzedne'           
-               , substrb(pchild_names,1,200)
-               ,null            
-               ,null);            
+            if (instr(rec.child_parent_flag,'C')>0) then
+                insert_classes(rec.day
+                   ,rec.hour
+                   ,100
+                   ,-1
+                   ,-1
+                   ,'AUTO'
+                   ,-1 /*lec*/
+                   ,-1 /*gro*/
+                   ,pres_id /*res*/
+                   ,null
+                   ,'Zajecia podrzedne'           
+                   , substrb(rec.child_parent_names,1,200)
+                   ,null            
+                   ,null);         
+            else
+                insert_classes(rec.day
+                   ,rec.hour
+                   ,100
+                   ,-2
+                   ,-2
+                   ,'AUTO'
+                   ,-2 /*lec*/
+                   ,-2 /*gro*/
+                   ,pres_id /*res*/
+                   ,null
+                   ,'Zajecia nadrzedne'           
+                   , substrb(rec.child_parent_names,1,200)
+                   ,null            
+                   ,null);            
+            end if;
          end loop;
 
-         --create parent dependencies
-         for rec in (
-            --classes of parents
-            select unique day, hour  
-              from rom_cla 
-            where no_conflict_flag is null
-             and rom_id in 
-              (select parent_id id
-                 from str_elems_v
-                where level=1 and STR_NAME_LOV='STREAM'
-              connect by prior STR_NAME_LOV='STREAM' and prior parent_id = child_id
-              start with child_id = pres_id)
-            and day between vdate_from and vdate_to
-            --do not create dependency classes if base resource has already the classes, either own classes or dependency classes created earlier
-            and (day,hour) not in 
-              (select day,hour 
-                from rom_cla 
-                where rom_id  = pres_id 
-                 and day between vdate_from and vdate_to)) 
-         loop
-            select listagg(rom.attribs_01||' '||rom.name, '; ') within group (order by rom.attribs_01||' '||rom.name)
-              into pchild_names
-              from rom_cla
-                 , rooms rom 
-            where no_conflict_flag is null
-              and rom_cla.rom_id = rom.id 
-              and rom_id in 
-                  --parents
-                  (select parent_id id
-                     from str_elems_v
-                    where level=1 and STR_NAME_LOV='STREAM'
-                  connect by prior STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                  start with child_id = pres_id)
-              and day = rec.day and hour = rec.hour;
-            insert_classes(rec.day
-               ,rec.hour
-               ,100
-               ,-2
-               ,-2
-               ,'AUTO'
-               ,-2 /*lec*/
-               ,-2 /*gro*/
-               ,pres_id /*res*/
-               ,null
-               ,'Zajecia nadrzedne'           
-               , substrb(pchild_names,1,200)
-               ,null            
-               ,null);            
-         end loop;
-
+         delete from helper2;
+         insert into helper2 (day, hour)
+                  select unique day, hour  
+                    from rom_cla 
+                  where no_conflict_flag is null
+                    and rom_id in (select id from helper1)
+                  and day between vdate_from and vdate_to     
+                  minus
+                  --delete record if class for base record exists
+                  select day,hour 
+                  from rom_cla 
+                  where rom_id  = pres_id 
+                   and no_conflict_flag is null
+                   and day between vdate_from and vdate_to;
          for rec in (
            --candidate to delete
            select unique cla_id
@@ -1631,21 +1603,7 @@ create or replace package body planner_utils is
               and day between vdate_from and vdate_to
               --dependency no longer exists
               and (day,hour) not in 
-                (        
-                  select unique day, hour  
-                    from rom_cla 
-                  where no_conflict_flag is null
-                    and rom_id in
-                        (select id from helper1) 
-                  and day between vdate_from and vdate_to     
-                  minus
-                  --delete record if class for base record exists
-                  select day,hour 
-                  from rom_cla 
-                  where rom_id  = pres_id 
-                   and no_conflict_flag is null
-                   and day between vdate_from and vdate_to
-               )
+                (select day, hour from helper2)
          ) 
          loop
            delete_class (rec.cla_id);
@@ -1823,30 +1781,34 @@ create or replace package body planner_utils is
          end if;    
 
          -- delete dependency classes with wrong description 
-         for rec in (
-           select * from
-           (
-             select existing_dep.desc2, existing_dep.id
-                  , (
-                    select listagg(lec.title||' '||lec.first_name||' '||lec.last_name, '; ') within group (order by lec.last_name)
+         delete from helper2;
+         insert into helper2
+             select unique cla.id, cla.desc2, cla.day, cla.hour
+             from lec_cla
+                , classes cla
+             where no_conflict_flag = '+'
+              and lec_cla.cla_id = cla.id
+              and lec_id  = pres_id 
+              and lec_cla.day between vdate_from and vdate_to;
+
+         delete from helper3;
+         insert into helper3 (day, hour, str)
+                    select day, hour, listagg(lec.title||' '||lec.first_name||' '||lec.last_name, '; ') within group (order by lec.last_name) descCorrect
                       from lec_cla
                          , lecturers lec 
                     where no_conflict_flag is null
                      and lec_cla.lec_id = lec.id 
                        and lec_id in 
-                            (select id from helper1) 
-                       and day = existing_dep.day and hour = existing_dep.hour) correct_desc2
-               from
-                     (
-                       select unique cla.id, cla.desc2, cla.day, cla.hour
-                         from lec_cla
-                            , classes cla
-                         where no_conflict_flag = '+'
-                          and lec_cla.cla_id = cla.id
-                          and lec_id  = pres_id 
-                          and lec_cla.day between vdate_from and vdate_to
-                      ) existing_dep
-          ) where desc2 <> correct_desc2
+                            (select id from helper1)
+                       and lec_cla.day between vdate_from and vdate_to
+                      group by day, hour;      
+         for rec in (
+
+             select existing_dep.id, existing_dep.desc2, correct_desc2.descCorrect, existing_dep.day , correct_desc2.hour
+               from helper2 existing_dep
+                  , (select day, hour, str descCorrect from helper3 ) correct_desc2
+           where correct_desc2.day = existing_dep.day and correct_desc2.hour = existing_dep.hour
+             and existing_dep.desc2 <> correct_desc2.descCorrect         
          ) 
          loop
            delete_class (rec.id);
@@ -1855,105 +1817,73 @@ create or replace package body planner_utils is
          --create child dependencies
          for rec in (
             --classes of childs
-            select unique day, hour  
+            select day, hour
+                 , listagg(lec.title||' '||lec.first_name||' '||lec.last_name, '; ') within group (order by lec.last_name) child_parent_names
+                 , listagg(helper1.attribs_01, '; ') within group (order by lec.last_name) child_parent_flag
               from lec_cla 
+                 , lecturers lec 
+                 , helper1
             where no_conflict_flag is null
-             and lec_id in 
-              (select child_id id
-                from str_elems_v
-                where level=1 and STR_NAME_LOV='STREAM'
-                connect by prior STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                start with parent_id = pres_id)
+             and lec_cla.lec_id = lec.id 
+             and lec_id = helper1.id
             and day between vdate_from and vdate_to
-            --do not create dependency classes if base group has already the classes, either own classes or dependency classes created earlier
+            --do not create dependency classes if base resource has already the classes, either own classes or dependency classes created earlier
             and (day,hour) not in 
               (select day,hour 
                 from lec_cla 
                 where lec_id  = pres_id 
                  and day between vdate_from and vdate_to
               )
+            group by day, hour  
          ) 
          loop
-            select listagg(lec.title||' '||lec.first_name||' '||lec.last_name, '; ') within group (order by lec.last_name)
-              into pchild_names
-              from lec_cla
-                 , lecturers lec 
-            where no_conflict_flag is null
-             and lec_cla.lec_id = lec.id 
-               and lec_id in 
-                  --childs
-                  (select child_id id
-                    from str_elems_v
-                    where level=1 and STR_NAME_LOV='STREAM'
-                    connect by prior STR_NAME_LOV='STREAM' and prior child_id = parent_id
-                    start with parent_id=pres_id)
-               and day = rec.day and hour = rec.hour;
-            insert_classes(rec.day
-               ,rec.hour
-               ,100
-               ,-1
-               ,-1
-               ,'AUTO'
-               ,pres_id /*lec*/
-               ,-1 /*gro*/
-               ,-1 /*res*/
-               ,null
-               ,'Zajecia podrzedne'           
-               , substrb(pchild_names,1,200)
-               ,null            
-               ,null);            
+            if (instr(rec.child_parent_flag,'C')>0) then
+                insert_classes(rec.day
+                   ,rec.hour
+                   ,100
+                   ,-1
+                   ,-1
+                   ,'AUTO'
+                   ,pres_id /*lec*/
+                   ,-1 /*gro*/
+                   ,-1 /*res*/
+                   ,null
+                   ,'Zajecia podrzedne'           
+                   , substrb(rec.child_parent_names,1,200)
+                   ,null            
+                   ,null);         
+            else
+                insert_classes(rec.day
+                   ,rec.hour
+                   ,100
+                   ,-2
+                   ,-2
+                   ,'AUTO'
+                   ,pres_id /*lec*/
+                   ,-2 /*gro*/
+                   ,-2 /*res*/
+                   ,null
+                   ,'Zajecia nadrzedne'           
+                   , substrb(rec.child_parent_names,1,200)
+                   ,null            
+                   ,null);            
+            end if;
          end loop;
 
-         --create parent dependencies
-         for rec in (
-            --classes of parents
-            select unique day, hour  
-              from lec_cla 
-            where no_conflict_flag is null
-             and lec_id in 
-              (select parent_id id
-                 from str_elems_v
-                where level=1 and STR_NAME_LOV='STREAM'
-              connect by prior STR_NAME_LOV='STREAM' and prior parent_id = child_id
-              start with child_id = pres_id)
-            and day between vdate_from and vdate_to
-            --do not create dependency classes if base group has already the classes, either own classes or dependency classes created earlier
-            and (day,hour) not in 
-              (select day,hour 
-                from lec_cla 
-                where lec_id  = pres_id 
-                 and day between vdate_from and vdate_to)) 
-         loop
-            select listagg(lec.title||' '||lec.first_name||' '||lec.last_name, '; ') within group (order by lec.last_name)
-              into pchild_names
-              from lec_cla
-                 , lecturers lec 
-            where no_conflict_flag is null
-              and lec_cla.lec_id = lec.id 
-              and lec_id in 
-                  --parents
-                  (select parent_id id
-                     from str_elems_v
-                    where level=1 and STR_NAME_LOV='STREAM'
-                  connect by prior STR_NAME_LOV='STREAM' and prior parent_id = child_id
-                  start with child_id = pres_id)
-              and day = rec.day and hour = rec.hour;
-            insert_classes(rec.day
-               ,rec.hour
-               ,100
-               ,-2
-               ,-2
-               ,'AUTO'
-               ,pres_id /*lec*/
-               ,-2 /*gro*/
-               ,-2 /*res*/
-               ,null
-               ,'Zajecia nadrzedne'           
-               , substrb(pchild_names,1,200)
-               ,null            
-               ,null);            
-         end loop;
-
+         delete from helper2;
+         insert into helper2 (day, hour)
+                  select unique day, hour  
+                    from lec_cla 
+                  where no_conflict_flag is null
+                    and lec_id in (select id from helper1)
+                  and day between vdate_from and vdate_to     
+                  minus
+                  --delete record if class for base record exists
+                  select day,hour 
+                  from lec_cla 
+                  where lec_id  = pres_id 
+                   and no_conflict_flag is null
+                   and day between vdate_from and vdate_to;
          for rec in (
            --candidate to delete
            select unique cla_id
@@ -1963,21 +1893,7 @@ create or replace package body planner_utils is
               and day between vdate_from and vdate_to
               --dependency no longer exists
               and (day,hour) not in 
-                (        
-                  select unique day, hour  
-                    from lec_cla 
-                  where no_conflict_flag is null
-                    and lec_id in
-                       (select id from helper1) 
-                  and day between vdate_from and vdate_to     
-                  minus
-                  --delete record if class for base record exists
-                  select day,hour 
-                  from lec_cla 
-                  where lec_id  = pres_id 
-                   and no_conflict_flag is null
-                   and day between vdate_from and vdate_to
-               )
+                (select day, hour from helper2)
          ) 
          loop
            delete_class (rec.cla_id);
