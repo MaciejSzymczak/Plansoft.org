@@ -18,14 +18,15 @@ inherited FListOrganizer: TFListOrganizer
     Height = 59
     Align = alBottom
     TabOrder = 1
-    object BClearAndSelect: TSpeedButton
+    object BClearAndSelect: TBitBtn
       Left = 258
       Top = 8
       Width = 130
       Height = 28
       Hint = 'Wyczy'#347#263' list'#281' i wybierz ponownie'
       Caption = 'Wyczy'#347#263' i wybierz'
-      Flat = True
+      ParentShowHint = False
+      ShowHint = True
       Glyph.Data = {
         42090000424D4209000000000000360400002800000013000000110000000100
         2000000000000C05000000000000000000000001000000000000000000008080
@@ -656,7 +657,7 @@ inherited FListOrganizer: TFListOrganizer
     object PanelRowButtons: TPanel
       Left = 376
       Top = 1
-      Width = 120
+      Width = 170
       Height = 573
       Align = alRight
       BevelOuter = bvNone
@@ -687,6 +688,7 @@ inherited FListOrganizer: TFListOrganizer
       OnDragDrop = lbNamesDragDrop
       OnDragOver = lbNamesDragOver
       OnDrawItem = lbNamesDrawItem
+      OnKeyDown = lbNamesKeyDown
       OnMouseDown = lbNamesMouseDown
     end
     object lbIds: TListBox

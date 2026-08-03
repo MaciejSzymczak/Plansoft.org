@@ -19,7 +19,7 @@ type
     BAdd: TBitBtn;
     lbIds: TListBox;
     BitBtn1: TBitBtn;
-    BClearAndSelect: TSpeedButton; //2026-07: renamed from beditpopup - no longer opens a popup menu, directly clears the list and reopens the picker
+    BClearAndSelect: TBitBtn; //2026-07: renamed from beditpopup - no longer opens a popup menu, directly clears the list and reopens the picker
     BSetPrimary: TBitBtn; //2026-07: renamed from BitBtn2 - moves the selected resource to the top of the list and confirms the dialog (shared with lbNamesDblClick), making it the primary resource
     PanelRowButtons: TPanel; //2026-07: hosts dynamically-created per-row SetPrimary/Delete buttons for lbNames
     procedure lbNamesDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -28,6 +28,7 @@ type
     procedure lbNamesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure lbNamesDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+    procedure lbNamesKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure BUpClick(Sender: TObject);
     procedure BDownClick(Sender: TObject);
     procedure BDeleteClick(Sender: TObject);
@@ -41,10 +42,12 @@ type
     OldLbNamesWndProc: TWndMethod;
     RowSetButtons: array of TSpeedButton;
     RowDelButtons: array of TSpeedButton;
+    RowDetailsButtons: array of TSpeedButton;
     procedure NewLbNamesWndProc(var Message: TMessage);
     procedure RefreshRowButtons;
     procedure RowSetPrimaryClick(Sender: TObject);
     procedure RowDeleteClick(Sender: TObject);
+    procedure RowDetailsClick(Sender: TObject);
     procedure WMRowDelete(var Msg: TMessage); message WM_USER + 100; //2026-07: deletion is deferred via PostMessage - freeing the row TSpeedButton synchronously from within its own OnClick caused an intermittent Access Violation
   public
     function showList (presType: string; Sender: TObject; ids, displayedItems : string; WordDelim : Char) : tmodalResult;
@@ -95,6 +98,7 @@ begin
  end;
  RefreshRowButtons;
 
+ ActiveControl := lbNames;
  result := showModal;
 end;
 
@@ -144,6 +148,14 @@ begin
     TextOut(Rect.Left + 4, Rect.Top + (Rect.Bottom - Rect.Top - TextHeight(s)) div 2, s);
   end;
   if odFocused in State then (Control as TListBox).Canvas.DrawFocusRect(Rect);
+end;
+
+procedure TFListOrganizer.lbNamesKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then begin
+    lbNamesDblClick(Sender);
+    Key := 0;
+  end;
 end;
 
 procedure TFListOrganizer.lbNamesMouseDown(Sender: TObject;
@@ -351,22 +363,25 @@ const
   RowBtnGapV = 3;
 var
   i, row, y, lastVisible, btnWidth, btnHeight : integer;
-  btnSet, btnDel : TSpeedButton;
+  btnSet, btnDel, btnDetails : TSpeedButton;
 begin
   for i := 0 to High(RowSetButtons) do begin
     RowSetButtons[i].Free;
     RowDelButtons[i].Free;
+    RowDetailsButtons[i].Free;
   end;
   SetLength(RowSetButtons, 0);
   SetLength(RowDelButtons, 0);
+  SetLength(RowDetailsButtons, 0);
 
   if lbNames.Items.Count = 0 then Exit;
 
   SetLength(RowSetButtons, lbNames.Items.Count);
   SetLength(RowDelButtons, lbNames.Items.Count);
+  SetLength(RowDetailsButtons, lbNames.Items.Count);
 
   btnHeight := lbNames.ItemHeight - RowBtnGapV*2;
-  btnWidth  := (PanelRowButtons.ClientWidth - RowBtnGapH*3) div 2;
+  btnWidth  := (PanelRowButtons.ClientWidth - RowBtnGapH*4) div 3;
 
   lastVisible := lbNames.TopIndex + (lbNames.ClientHeight div lbNames.ItemHeight);
   for i := lbNames.TopIndex to lastVisible do begin
@@ -394,6 +409,16 @@ begin
     btnDel.Tag := i;
     btnDel.OnClick := RowDeleteClick;
     RowDelButtons[i] := btnDel;
+
+    btnDetails := TSpeedButton.Create(PanelRowButtons);
+    btnDetails.Parent := PanelRowButtons;
+    btnDetails.SetBounds(RowBtnGapH*3+btnWidth*2, y, btnWidth, btnHeight);
+    btnDetails.Caption := '...';
+    btnDetails.Hint := 'Edytuj szczegó³y zasobu';
+    btnDetails.ShowHint := true;
+    btnDetails.Tag := i;
+    btnDetails.OnClick := RowDetailsClick;
+    RowDetailsButtons[i] := btnDetails;
   end;
 end;
 
@@ -407,6 +432,23 @@ procedure TFListOrganizer.RowDeleteClick(Sender: TObject);
 begin
   lbNames.ItemIndex := TSpeedButton(Sender).Tag;
   PostMessage(Handle, WM_USER + 100, 0, 0);
+end;
+
+procedure TFListOrganizer.RowDetailsClick(Sender: TObject);
+var recId : ShortString;
+    idx   : integer;
+begin
+  idx := TSpeedButton(Sender).Tag;
+  recId := lbIds.Items[idx];
+
+  if resType = 'L'  then LECTURERSShowModalAsSingleRecord(AEdit, recId);
+  if resType = 'G'  then GROUPSShowModalAsSingleRecord(AEdit, recId);
+  if (resType = 'R') or (resType = 'R2') then ROOMSShowModalAsSingleRecord(AEdit, recId);
+
+  if resType ='L'  then lbNames.Items[idx] := DModule.SingleValue(sql_LECDESC+recId);
+  if resType ='G'  then lbNames.Items[idx] := DModule.SingleValue(sql_GRODESC+recId);
+  if resType ='R'  then lbNames.Items[idx] := DModule.SingleValue(sql_ResCat0DESC+recId);
+  if resType ='R2' then lbNames.Items[idx] := DModule.SingleValue(sql_ResCat1DESC+recId);
 end;
 
 procedure TFListOrganizer.WMRowDelete(var Msg: TMessage);
