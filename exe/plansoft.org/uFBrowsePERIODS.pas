@@ -277,7 +277,10 @@ Var ID : ShortString;
 begin
   ID := PER_ORGUNI_ID.Text;
   //If AutoCreate.ORG_UNITSShowModalAsSelect(ID) = mrOK Then Query.FieldByName('ORGUNI_ID').AsString := ID;
-  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then Query.FieldByName('PER_ORGUNI_ID').AsString := ID;
+  If LookupWindow(false, DModule.ADOConnection, 'ORG_UNITS','','SUBSTR(NAME ||'' (''||STRUCT_CODE||'')'',1,63)','NAZWA I KOD STRUKTURY','NAME','0=0','',ID) = mrOK Then begin
+    if not (Query.State in [dsEdit, dsInsert]) then Query.Edit;
+    Query.FieldByName('PER_ORGUNI_ID').AsString := ID;
+  end;
 end;
 
 procedure TFBrowsePERIODS.PARENT_PER_IDChange(Sender: TObject);
@@ -292,6 +295,7 @@ begin
   ID := PARENT_PER_ID.Text;
   if Self.ID.Text <> '' then Filter := 'ID<>'+Self.ID.Text else Filter := '0=0';
   If LookupWindow(false, DModule.ADOConnection, 'PERIODS','','NAME','NAZWA OKRESU','NAME',Filter,'',ID) = mrOK Then begin
+    if not (Query.State in [dsEdit, dsInsert]) then Query.Edit;
     Query.FieldByName('PARENT_PER_ID').AsString := ID;
     ParentPerIdChanged := True;
   end;
@@ -311,8 +315,10 @@ procedure TFBrowsePERIODS.ROL_ID_VALUEClick(Sender: TObject);
 Var ID : ShortString;
 begin
   ID := ROL_ID.Text;
-  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',ID) = mrOK Then
+  If LookupWindow(false, DModule.ADOConnection, 'PLANNERS','','NAME','NAZWA','NAME','(TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+'))','',ID) = mrOK Then begin
+    if not (Query.State in [dsEdit, dsInsert]) then Query.Edit;
     Query.FieldByName('ROL_ID').AsString := ID;
+  end;
 end;
 
 procedure TFBrowsePERIODS.ChLokedFlagClick(Sender: TObject);
