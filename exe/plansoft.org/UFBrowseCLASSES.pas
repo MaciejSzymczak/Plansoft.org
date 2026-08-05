@@ -119,7 +119,7 @@ var
 
 implementation
 
-uses DM, UUtilities, UUtilityParent, UFMain, UCommon, UFProgramSettings;
+uses DM, UUtilities, UUtilityParent, UFMain, UCommon, UFProgramSettings, UFormConfig;
 
 {$R *.DFM}
 
@@ -433,6 +433,8 @@ begin
     self.Caption := capitalize(profileObjectNameClasses.Text);
   end;
 
+  // content-based column widths, same as FLegend
+  UFormConfig.AutoFitGridColumns(Grid, Query);
 end;
 
 procedure TFBrowseCLASSES.FGenericFilter1conlChange(Sender: TObject);

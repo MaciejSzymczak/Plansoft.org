@@ -14,15 +14,15 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       inherited TopPanel: TPanel
         Width = 1299
         object Label1: TLabel [5]
-          Left = 806
-          Top = 8
+          Left = 828
+          Top = 13
           Width = 181
           Height = 14
           Caption = 'Czy zaplanowane w dniach wolnych'
         end
         object ConflictWithReservations: TComboBox
-          Left = 805
-          Top = 22
+          Left = 828
+          Top = 27
           Width = 188
           Height = 22
           Style = csOwnerDrawFixed
@@ -42,7 +42,7 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       inherited Grid: TRxDBGrid
         Top = 273
         Width = 1299
-        Height = 228
+        Height = 229
         Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit, dgMultiSelect]
         MultiSelect = True
         Columns = <

@@ -1,0 +1,83 @@
+autoRun.ps1 - automatyczne uruchamianie po starcie systemu
+============================================================
+
+Skrypt autoRun.ps1 wykonuje po kolei:
+  1. E:\iKalendarze\bin\ICSCREATION.exe
+  2. E:\iKalendarze\bin\ICSPUBLICATION.exe
+  3. E:\iKalendarze\bin\SFTP.exe
+  4. E:\backups\DBBACKUP.exe
+
+Wynik (start/koniec/kod wyjscia/bledy) zapisuje do pliku autoRun.log w tym samym
+folderze co skrypt.
+
+Skrypt wymaga uprawnien administratora, dlatego zwykly skrot w folderze
+Autostart (shell:startup) NIE wystarczy - Windows i tak pokaze okno UAC albo
+w ogole nie uruchomi skryptu bez zalogowanego uzytkownika. Prawidlowy sposob to
+zadanie w Harmonogramie zadan (Task Scheduler) uruchamiane "z najwyzszymi
+uprawnieniami" przy starcie systemu.
+
+KROK 1 - dopuszczenie uruchamiania skryptow PowerShell (jednorazowo)
+----------------------------------------------------------------------
+Otworz PowerShell jako Administrator i wykonaj:
+
+    Set-ExecutionPolicy -Scope LocalMachine RemoteSigned
+
+(Scope LocalMachine, bo zadanie bedzie uruchamiane w kontekscie systemowym/
+innego uzytkownika niz Twoj profil, w ktorym ustawiles CurrentUser).
+
+KROK 2 - utworzenie zadania w Harmonogramie zadan
+----------------------------------------------------------------------
+1. Otworz "Harmonogram zadan" (Task Scheduler) - Win+S i wpisz "Harmonogram
+   zadan" / "Task Scheduler".
+2. W panelu po prawej kliknij "Utworz zadanie..." (Create Task...) - NIE
+   "Utworz zadanie podstawowe" (Basic Task), bo wersja podstawowa nie daje
+   dostepu do opcji "Uruchom z najwyzszymi uprawnieniami".
+3. Zakladka "Ogolne" (General):
+   - Nazwa: np. "autoRun - iKalendarze/backup"
+   - Zaznacz "Uruchom niezaleznie od tego, czy uzytkownik jest zalogowany"
+     (Run whether user is logged on or not)
+   - Zaznacz "Uruchom z najwyzszymi uprawnieniami" (Run with highest
+     privileges)
+   - Konfiguruj dla: wybierz wersje Windows zainstalowana na tym komputerze
+4. Zakladka "Wyzwalacze" (Triggers):
+   - Nowy... (New...) -> Rozpocznij zadanie: "Podczas uruchamiania systemu"
+     (At startup)
+   - OK
+5. Zakladka "Akcje" (Actions):
+   - Nowa... (New...)
+   - Akcja: "Uruchom program" (Start a program)
+   - Program/skrypt: powershell.exe
+   - Dodaj argumenty:
+       -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Maciek\Documents\GitHub\Plansoft2.org\exe\plansoft.org\autoRun.ps1"
+   - Rozpocznij w (opcjonalnie):
+       C:\Users\Maciek\Documents\GitHub\Plansoft2.org\exe\plansoft.org
+   - OK
+6. Zakladka "Warunki" (Conditions):
+   - Odznacz "Uruchamiaj zadanie tylko wtedy, gdy komputer jest zasilany z
+     sieci" (Start the task only if the computer is on AC power), jesli to
+     laptop - w przeciwnym razie zadanie moze sie nie uruchomic na baterii.
+7. Zakladka "Ustawienia" (Settings):
+   - Mozesz zaznaczyc "Jesli zadanie nie powiodlo sie, uruchom ponownie co..."
+     (If the task fails, restart every...) jako dodatkowe zabezpieczenie.
+8. Kliknij OK. System poprosi o podanie hasla konta, na ktorym zadanie ma
+   dzialac (musi to byc konto z uprawnieniami administratora) - to normalne,
+   dzieki temu zadanie moze wystartowac "z najwyzszymi uprawnieniami" bez
+   pytania o UAC przy kazdym starcie systemu.
+
+KROK 3 - test
+----------------------------------------------------------------------
+1. W Harmonogramie zadan kliknij prawym na utworzone zadanie -> "Uruchom"
+   (Run), zeby przetestowac bez restartu komputera.
+2. Sprawdz plik autoRun.log w folderze skryptu - powinny pojawic sie wpisy
+   START/KONIEC dla kazdego z czterech programow.
+3. Jesli chcesz przetestowac rzeczywisty scenariusz startowy, zrestartuj
+   komputer i sprawdz autoRun.log ponownie.
+
+Uwagi
+----------------------------------------------------------------------
+- Jesli ktorys z plikow .exe nie istnieje pod podana sciezka, skrypt zapisze
+  odpowiedni wpis "BLAD" w logu i przejdzie do kolejnego kroku (nie przerywa
+  calego procesu, tak jak oryginalny plik .bat z poleceniami "call").
+- Sciezki do plikow .exe (E:\iKalendarze\bin\..., E:\backups\...) sa na sztywno
+  wpisane w autoRun.ps1 - jesli zmienia sie na docelowej maszynie, trzeba je
+  zaktualizowac bezposrednio w skrypcie.

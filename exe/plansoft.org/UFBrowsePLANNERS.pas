@@ -493,7 +493,8 @@ begin
 
  dmodule.SQL(Format('alter user "%s" identified by "%s"',[userName, autGeneratedPassword]));
  SError (Format(
-    'Konto u¿ytkownika zosta³o odblokowane, a has³o zmienione.'+#13+#10+#13+#10+
+    'Konto jest gotowe do pracy.'+#13+#10+
+    'Je¿eli jest to nowy u¿ytkownik, to pamiêtaj o nadaniu uprawnieñ w oknie Uprawnienia i do³¹czenie u¿ytkownika do powiadomieñ.'+#13+#10+#13+#10+
     '*************************'+#13+#10+
     'Baza danych: %s'+#13+#10+
     'Nazwa u¿ytkownika: %s'+#13+#10+

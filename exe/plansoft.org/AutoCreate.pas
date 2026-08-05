@@ -669,8 +669,15 @@ Begin
   IsBlankDateFrom := DateToOracle(FDAY_FROM.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
   IsBlankDateTo   := DateToOracle(FDAY_TO.Date) = 'TO_DATE(''1899.12.30'',''YYYY.MM.DD'')';
 
-  if IsBlankDateFrom then FDAY_FROM.Date := now();
-  if IsBlankDateTo then FDAY_TO.Date := now();
+  // default to the full current period (semester) range instead of just today
+  if (IsBlankDateFrom or IsBlankDateTo) and not isBlank(FMain.conPeriod.Text) then begin
+    DModule.SingleValue('SELECT TO_CHAR(DATE_FROM,''YYYY-MM-DD''),TO_CHAR(DATE_TO,''YYYY-MM-DD'') FROM PERIODS WHERE ID='+FMain.conPeriod.Text);
+    if IsBlankDateFrom then FDAY_FROM.Date := YYYYMMDDToDateTime(DModule.QWork.Fields[0].AsString);
+    if IsBlankDateTo   then FDAY_TO.Date   := YYYYMMDDToDateTime(DModule.QWork.Fields[1].AsString);
+  end else begin
+    if IsBlankDateFrom then FDAY_FROM.Date := now();
+    if IsBlankDateTo then FDAY_TO.Date := now();
+  end;
 
   ComboSortOrderChange(nil);
   CanRefresh := true;

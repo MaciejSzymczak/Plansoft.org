@@ -191,7 +191,7 @@ inherited FMain: TFMain
       Align = alTop
       TabOrder = 0
       object Shape9a: TShape
-        Left = 262
+        Left = 206
         Top = 2
         Width = 164
         Height = 43
@@ -200,7 +200,7 @@ inherited FMain: TFMain
         Shape = stRoundRect
       end
       object Shape7a: TShape
-        Left = 511
+        Left = 455
         Top = 2
         Width = 43
         Height = 43
@@ -209,7 +209,7 @@ inherited FMain: TFMain
         Shape = stRoundRect
       end
       object Shape1a: TShape
-        Left = 106
+        Left = 48
         Top = 2
         Width = 153
         Height = 43
@@ -218,7 +218,7 @@ inherited FMain: TFMain
         Shape = stRoundRect
       end
       object Shape2a: TShape
-        Left = 563
+        Left = 507
         Top = 2
         Width = 84
         Height = 43
@@ -227,7 +227,7 @@ inherited FMain: TFMain
         Shape = stRoundRect
       end
       object xShape4a: TShape
-        Left = 970
+        Left = 906
         Top = 2
         Width = 90
         Height = 43
@@ -237,7 +237,7 @@ inherited FMain: TFMain
         Visible = False
       end
       object Shape8a: TShape
-        Left = 429
+        Left = 381
         Top = 2
         Width = 65
         Height = 43
@@ -246,7 +246,7 @@ inherited FMain: TFMain
         Shape = stRoundRect
       end
       object Legend: TSpeedButton
-        Left = 514
+        Left = 458
         Top = 4
         Width = 39
         Height = 39
@@ -391,7 +391,7 @@ inherited FMain: TFMain
         OnMouseMove = LegendMouseMove
       end
       object xzoomIn: TSpeedButton
-        Left = 976
+        Left = 912
         Top = 4
         Width = 39
         Height = 39
@@ -535,7 +535,7 @@ inherited FMain: TFMain
         OnMouseMove = xzoomInMouseMove
       end
       object xzoomOut: TSpeedButton
-        Left = 1016
+        Left = 952
         Top = 4
         Width = 39
         Height = 39
@@ -704,7 +704,7 @@ inherited FMain: TFMain
         Visible = False
       end
       object bReports: TSpeedButton
-        Left = 699
+        Left = 635
         Top = 4
         Width = 39
         Height = 39
@@ -805,7 +805,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BAddClass: TSpeedButton
-        Left = 109
+        Left = 53
         Top = 4
         Width = 39
         Height = 39
@@ -950,7 +950,7 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object DeepRefreshButton: TSpeedButton
-        Left = 654
+        Left = 598
         Top = 4
         Width = 39
         Height = 39
@@ -1093,7 +1093,7 @@ inherited FMain: TFMain
         OnClick = DeepRefreshButtonClick
       end
       object BDeleteClass: TSpeedButton
-        Left = 202
+        Left = 146
         Top = 4
         Width = 39
         Height = 39
@@ -1237,7 +1237,7 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object BEditClass: TSpeedButton
-        Left = 148
+        Left = 92
         Top = 4
         Width = 39
         Height = 39
@@ -1381,7 +1381,7 @@ inherited FMain: TFMain
         OnMouseMove = BAddClassMouseMove
       end
       object BLogin: TSpeedButton
-        Left = 48
+        Left = 1192
         Top = 4
         Width = 39
         Height = 39
@@ -1456,10 +1456,11 @@ inherited FMain: TFMain
           0F0F0F0F0F0E0E0A00D0D8D8D0D0909090000000000000000000}
         ParentShowHint = False
         ShowHint = True
+        Visible = False
         OnClick = BLoginClick
       end
       object bwww: TSpeedButton
-        Left = 743
+        Left = 679
         Top = 4
         Width = 39
         Height = 39
@@ -1606,7 +1607,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BViewByWeek: TSpeedButton
-        Left = 567
+        Left = 511
         Top = 4
         Width = 39
         Height = 38
@@ -1719,7 +1720,7 @@ inherited FMain: TFMain
         OnMouseMove = BViewByWeekMouseMove
       end
       object BViewByCrossTable: TSpeedButton
-        Left = 605
+        Left = 549
         Top = 4
         Width = 39
         Height = 39
@@ -1831,7 +1832,7 @@ inherited FMain: TFMain
         OnMouseMove = BViewByWeekMouseMove
       end
       object bmoveUp: TSpeedButton
-        Left = 453
+        Left = 405
         Top = 6
         Width = 19
         Height = 17
@@ -1886,7 +1887,7 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveDown: TSpeedButton
-        Left = 453
+        Left = 405
         Top = 23
         Width = 19
         Height = 17
@@ -1941,7 +1942,7 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveright: TSpeedButton
-        Left = 472
+        Left = 424
         Top = 23
         Width = 19
         Height = 17
@@ -1996,7 +1997,7 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bmoveLeft: TSpeedButton
-        Left = 434
+        Left = 386
         Top = 23
         Width = 19
         Height = 17
@@ -2051,7 +2052,7 @@ inherited FMain: TFMain
         OnMouseMove = bmoveLeftMouseMove
       end
       object bcopyarea: TSpeedButton
-        Left = 266
+        Left = 210
         Top = 4
         Width = 40
         Height = 39
@@ -2194,7 +2195,7 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bcutarea: TSpeedButton
-        Left = 306
+        Left = 250
         Top = 4
         Width = 39
         Height = 39
@@ -2337,7 +2338,7 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bpastearea: TSpeedButton
-        Left = 345
+        Left = 289
         Top = 4
         Width = 39
         Height = 39
@@ -2480,7 +2481,7 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object bclearselection: TSpeedButton
-        Left = 384
+        Left = 328
         Top = 4
         Width = 39
         Height = 39
@@ -2623,7 +2624,7 @@ inherited FMain: TFMain
         OnMouseMove = bcopyareaMouseMove
       end
       object BFullScreen: TSpeedButton
-        Left = 781
+        Left = 717
         Top = 4
         Width = 39
         Height = 39
@@ -2711,7 +2712,7 @@ inherited FMain: TFMain
         OnClick = BFullScreenClick
       end
       object beditpopup: TSpeedButton
-        Left = 187
+        Left = 131
         Top = 4
         Width = 15
         Height = 39
@@ -2732,7 +2733,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object bdelpopup: TSpeedButton
-        Left = 241
+        Left = 185
         Top = 4
         Width = 15
         Height = 39
@@ -2753,7 +2754,7 @@ inherited FMain: TFMain
         OnClick = bdelpopupClick
       end
       object BTraceHistory: TSpeedButton
-        Left = 905
+        Left = 841
         Top = 4
         Width = 39
         Height = 39
@@ -2898,7 +2899,7 @@ inherited FMain: TFMain
         OnClick = BTraceHistoryClick
       end
       object bthpopup: TSpeedButton
-        Left = 944
+        Left = 880
         Top = 4
         Width = 15
         Height = 39
@@ -3032,7 +3033,7 @@ inherited FMain: TFMain
         OnClick = SwitchMenuClick
       end
       object BCloseApp: TSpeedButton
-        Left = 863
+        Left = 799
         Top = 4
         Width = 39
         Height = 39
@@ -3143,7 +3144,7 @@ inherited FMain: TFMain
         OnClick = BCloseAppClick
       end
       object SpeedButton5: TSpeedButton
-        Left = 821
+        Left = 757
         Top = 4
         Width = 39
         Height = 39
@@ -3254,7 +3255,7 @@ inherited FMain: TFMain
         OnClick = SpeedButton5Click
       end
       object sqlCheckConflicts: TMemo
-        Left = 1064
+        Left = 1024
         Top = 8
         Width = 25
         Height = 25
