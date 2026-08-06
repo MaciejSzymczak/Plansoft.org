@@ -37,6 +37,7 @@ uses
   UFBrowsePLANNERS in 'UFBrowsePLANNERS.pas' {FBrowsePLANNERS},
   UFPlannerPermissions in 'UFPlannerPermissions.pas' {FPlannerPermissions},
   UFWWWGenerator in 'UFWWWGenerator.pas' {FWWWGenerator},
+  UFWWWGeneratorSUB in 'UFWWWGeneratorSUB.pas',
   UFMatrix in 'UFMatrix.pas' {FMatrix},
   textnum in '..\CommonMS\textnum.pas',
   UFIntro in '..\CommonMS\UFIntro.pas' {FIntro},

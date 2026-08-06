@@ -1481,5 +1481,61 @@ inherited FBrowseCLASSES: TFBrowseCLASSES
       Caption = 'Usu'#324' wszystkich wyk'#322'adowc'#243'w'
       OnClick = ActionLEC_DEL_ALLClick
     end
+    object ActionGRO_ADD: TMenuItem
+      Caption = 'Przypisz grup'#281
+      OnClick = ActionGRO_ADDClick
+    end
+    object ActionGRO_DEL: TMenuItem
+      Caption = 'Usu'#324' wybran'#261' grup'#281
+      OnClick = ActionGRO_DELClick
+    end
+    object ActionGRO_DEL_ALL: TMenuItem
+      Caption = 'Usu'#324' wszystkie grupy'
+      OnClick = ActionGRO_DEL_ALLClick
+    end
+    object ActionRES_ADD: TMenuItem
+      Caption = 'Przypisz sal'#281
+      OnClick = ActionRES_ADDClick
+    end
+    object ActionRES_DEL: TMenuItem
+      Caption = 'Usu'#324' wybran'#261' sal'#281
+      OnClick = ActionRES_DELClick
+    end
+    object ActionRES_DEL_ALL: TMenuItem
+      Caption = 'Usu'#324' wszystkie sale'
+      OnClick = ActionRES_DEL_ALLClick
+    end
+    object ActionOWNER_ADD: TMenuItem
+      Caption = 'Do'#322#261'cz w'#322'a'#347'ciciela'
+      OnClick = ActionOWNER_ADDClick
+    end
+    object ActionOWNER_DEL: TMenuItem
+      Caption = 'Od'#322#261'cz w'#322'a'#347'ciciela'
+      OnClick = ActionOWNER_DELClick
+    end
+    object ActionSUB_CHANGE: TMenuItem
+      Caption = 'Zmie'#324' przedmiot'
+      OnClick = ActionSUB_CHANGEClick
+    end
+    object ActionFOR_CHANGE: TMenuItem
+      Caption = 'Zmie'#324' form'#281
+      OnClick = ActionFOR_CHANGEClick
+    end
+    object ActionDESC1_CHANGE: TMenuItem
+      Caption = 'Zmie'#324' info dla planist'#243'w'
+      OnClick = ActionDESC1_CHANGEClick
+    end
+    object ActionDESC2_CHANGE: TMenuItem
+      Caption = 'Zmie'#324' info dla student'#243'w'
+      OnClick = ActionDESC2_CHANGEClick
+    end
+    object ActionCOLOR_CHANGE: TMenuItem
+      Caption = 'Zmie'#324' kolor zaj'#281'cia'
+      OnClick = ActionCOLOR_CHANGEClick
+    end
+  end
+  object ColorDialog1: TColorDialog
+    Left = 820
+    Top = 380
   end
 end

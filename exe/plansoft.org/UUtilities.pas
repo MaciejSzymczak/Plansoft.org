@@ -1839,6 +1839,7 @@ Begin
  ClassByGroupCaches.ResetByCLA_ID   (Class_.ID,Class_.day, Class_.hour);
  ClassByRoomCaches.ResetByCLA_ID    (Class_.ID,Class_.day, Class_.hour);
  ClassByResCat1Caches.ResetByCLA_ID (Class_.ID,Class_.day, Class_.hour);
+ ClassBySubjectCaches.resetByCLA_ID (Class_.ID,Class_.day, Class_.hour);
  BusyClassesCache.ClearCache;
  end;
 End;

@@ -1,8 +1,8 @@
 object FLegendNavigation: TFLegendNavigation
   Left = 621
-  Top = 470
-  Width = 521
-  Height = 175
+  Top = 300
+  Width = 560
+  Height = 620
   VertScrollBar.Style = ssFlat
   Caption = 'Nawigacja'
   Color = clBtnFace
@@ -14,170 +14,146 @@ object FLegendNavigation: TFLegendNavigation
   OldCreateOrder = False
   Position = poScreenCenter
   OnShow = FormShow
-  DesignSize = (
-    513
-    144)
   PixelsPerInch = 96
   TextHeight = 13
-  object dspL: TLabel
-    Left = 163
-    Top = 7
-    Width = 23
+  object LabelL: TLabel
+    Left = 8
+    Top = 8
+    Width = 57
     Height = 13
-    Caption = 'dspL'
-    ParentShowHint = False
-    ShowHint = True
-    OnClick = dspLClick
-    OnMouseEnter = dspLMouseEnter
-    OnMouseLeave = dspLMouseLeave
+    Caption = 'Wyk'#322'adowca'
   end
-  object dspG: TLabel
-    Left = 163
+  object LabelG: TLabel
+    Left = 8
+    Top = 124
+    Width = 32
+    Height = 13
+    Caption = 'Grupa'
+  end
+  object LabelR: TLabel
+    Left = 8
+    Top = 240
+    Width = 20
+    Height = 13
+    Caption = 'Sala'
+  end
+  object LabelS: TLabel
+    Left = 8
+    Top = 356
+    Width = 48
+    Height = 13
+    Caption = 'Przedmiot'
+  end
+  object LabelF: TLabel
+    Left = 8
+    Top = 472
+    Width = 29
+    Height = 13
+    Caption = 'Forma'
+  end
+  object ListL: TListBox
+    Left = 8
     Top = 26
-    Width = 25
-    Height = 13
-    Caption = 'dspG'
-    ParentShowHint = False
-    ShowHint = True
-    OnClick = dspLClick
-    OnMouseEnter = dspLMouseEnter
-    OnMouseLeave = dspLMouseLeave
+    Width = 250
+    Height = 92
+    Style = lbOwnerDrawFixed
+    ItemHeight = 28
+    OnDrawItem = ListDrawItem
+    TabOrder = 0
+    OnDblClick = ListDblClick
   end
-  object dspR: TLabel
-    Left = 163
-    Top = 46
-    Width = 25
-    Height = 13
-    Caption = 'dspR'
-    ParentShowHint = False
-    ShowHint = True
-    OnClick = dspLClick
-    OnMouseEnter = dspLMouseEnter
-    OnMouseLeave = dspLMouseLeave
+  object ListG: TListBox
+    Left = 8
+    Top = 142
+    Width = 250
+    Height = 92
+    Style = lbOwnerDrawFixed
+    ItemHeight = 28
+    OnDrawItem = ListDrawItem
+    TabOrder = 1
+    OnDblClick = ListDblClick
   end
-  object dspS: TLabel
-    Left = 163
-    Top = 65
-    Width = 24
-    Height = 13
-    Caption = 'dspS'
-    ParentShowHint = False
-    ShowHint = True
-    OnClick = dspLClick
-    OnMouseEnter = dspLMouseEnter
-    OnMouseLeave = dspLMouseLeave
+  object ListR: TListBox
+    Left = 8
+    Top = 258
+    Width = 250
+    Height = 92
+    Style = lbOwnerDrawFixed
+    ItemHeight = 28
+    OnDrawItem = ListDrawItem
+    TabOrder = 2
+    OnDblClick = ListDblClick
   end
-  object dspF: TLabel
-    Left = 163
-    Top = 85
-    Width = 23
-    Height = 13
-    Caption = 'dspF'
-    ParentShowHint = False
-    ShowHint = True
-    OnClick = dspLClick
-    OnMouseEnter = dspLMouseEnter
-    OnMouseLeave = dspLMouseLeave
+  object ListS: TListBox
+    Left = 8
+    Top = 374
+    Width = 250
+    Height = 92
+    Style = lbOwnerDrawFixed
+    ItemHeight = 28
+    OnDrawItem = ListDrawItem
+    TabOrder = 3
+    OnDblClick = ListDblClick
   end
-  object EditL: TSpeedButton
-    Left = 7
-    Top = 7
-    Width = 52
-    Height = 17
-    Caption = 'Edytuj'
-    Flat = True
-    OnClick = dspLClick
+  object ListF: TListBox
+    Left = 8
+    Top = 490
+    Width = 250
+    Height = 92
+    Style = lbOwnerDrawFixed
+    ItemHeight = 28
+    OnDrawItem = ListDrawItem
+    TabOrder = 4
+    OnDblClick = ListDblClick
   end
-  object EditG: TSpeedButton
-    Left = 7
+  object PanelRowL: TPanel
+    Left = 264
     Top = 26
-    Width = 52
-    Height = 18
-    Caption = 'Edytuj'
-    Flat = True
-    OnClick = dspLClick
+    Width = 270
+    Height = 92
+    BevelOuter = bvNone
+    TabOrder = 5
   end
-  object EditR: TSpeedButton
-    Left = 7
-    Top = 46
-    Width = 52
-    Height = 17
-    Caption = 'Edytuj'
-    Flat = True
-    OnClick = dspLClick
+  object PanelRowG: TPanel
+    Left = 264
+    Top = 142
+    Width = 270
+    Height = 92
+    BevelOuter = bvNone
+    TabOrder = 6
   end
-  object EditS: TSpeedButton
-    Left = 7
-    Top = 65
-    Width = 52
-    Height = 18
-    Caption = 'Edytuj'
-    Flat = True
-    OnClick = dspLClick
+  object PanelRowR: TPanel
+    Left = 264
+    Top = 258
+    Width = 270
+    Height = 92
+    BevelOuter = bvNone
+    TabOrder = 7
   end
-  object EditF: TSpeedButton
-    Left = 7
-    Top = 85
-    Width = 52
-    Height = 17
-    Caption = 'Edytuj'
-    Flat = True
-    OnClick = dspLClick
+  object PanelRowS: TPanel
+    Left = 264
+    Top = 374
+    Width = 270
+    Height = 92
+    BevelOuter = bvNone
+    TabOrder = 8
   end
-  object StatL: TSpeedButton
-    Left = 65
-    Top = 7
-    Width = 85
-    Height = 17
-    Caption = 'Podsumowanie'
-    Flat = True
-    OnClick = dspLClick
-  end
-  object StatG: TSpeedButton
-    Left = 65
-    Top = 26
-    Width = 85
-    Height = 18
-    Caption = 'Podsumowanie'
-    Flat = True
-    OnClick = dspLClick
-  end
-  object StatR: TSpeedButton
-    Left = 65
-    Top = 46
-    Width = 85
-    Height = 17
-    Caption = 'Podsumowanie'
-    Flat = True
-    OnClick = dspLClick
-  end
-  object StatS: TSpeedButton
-    Left = 65
-    Top = 65
-    Width = 85
-    Height = 18
-    Caption = 'Podsumowanie'
-    Flat = True
-    OnClick = dspLClick
-  end
-  object StatF: TSpeedButton
-    Left = 65
-    Top = 85
-    Width = 85
-    Height = 17
-    Caption = 'Podsumowanie'
-    Flat = True
-    OnClick = dspLClick
+  object PanelRowF: TPanel
+    Left = 264
+    Top = 490
+    Width = 270
+    Height = 92
+    BevelOuter = bvNone
+    TabOrder = 9
   end
   object Bcancel: TBitBtn
-    Left = 7
-    Top = 114
+    Left = 8
+    Top = 588
     Width = 61
     Height = 20
-    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Anuluj'
-    TabOrder = 0
+    TabOrder = 10
     OnClick = BcancelClick
   end
 end

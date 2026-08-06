@@ -140,6 +140,9 @@ Type TClass_    = Record
                   desc4           : string[255];
                  End;
 
+// list of parallel classes occupying one day/hour cell (used by the Przedmiot/subject view, where several classes can run in the same slot)
+Type TClassArray = Array Of TClass_;
+
 type
   TDModule = class(TDataModule)
     AdditionalPerrmisions: TStrHolder;

@@ -219,6 +219,62 @@ type
     rlegendColorByLabel: TLabel;
     rlegendColorBy: TComboBox;
     WeeklyView: TCheckBox;
+    TabSheetS: TTabSheet;
+    SViewTypeGroup: TGroupBox;
+    SViewType: TComboBox;
+    SHEADER: TMemo;
+    Snotes_before: TCheckBox;
+    SFOOTER: TMemo;
+    SDescGroup: TGroupBox;
+    Label8: TLabel;
+    SD1: TComboBox;
+    SD2: TComboBox;
+    SD3: TComboBox;
+    SD4: TComboBox;
+    SD5: TComboBox;
+    SS1: TEdit;
+    SS2: TEdit;
+    SS3: TEdit;
+    SS4: TEdit;
+    SS5: TEdit;
+    SB5: TCheckBox;
+    SB4: TCheckBox;
+    SB3: TCheckBox;
+    SB2: TCheckBox;
+    SB1: TCheckBox;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    SW: TEdit;
+    SH: TEdit;
+    SCELLSIZE: TEdit;
+    SRShowLegend: TCheckBox;
+    SRepeatMonthNames: TCheckBox;
+    SHideEmptyRows: TCheckBox;
+    STransposition: TCheckBox;
+    SHideEmptyRowsB: TSpeedButton;
+    ScomboSpan: TComboBox;
+    ScomboSpanlabel: TLabel;
+    SlegendMode: TGroupBox;
+    SlegendColorByLabel: TLabel;
+    SlegendAbbr: TCheckBox;
+    SlegendSummary: TCheckBox;
+    SlegendECTS: TCheckBox;
+    SlegendSummaryGroup: TCheckBox;
+    SlegendColorBy: TComboBox;
+    Shelp: TSpeedButton;
+    Snotes_after: TCheckBox;
+    SspanEmptyCells: TCheckBox;
+    SVerticalLines: TCheckBox;
+    SAddCreationDate: TComboBox;
+    SPdfPrintOut: TCheckBox;
+    Spdfg: TCheckBox;
+    Spdfl: TCheckBox;
+    Spdfo: TCheckBox;
+    Spdfs: TCheckBox;
+    Sheadergroup: TGroupBox;
+    Sfootergroup: TGroupBox;
+    SCellSizes: TGroupBox;
     procedure FormCreate(Sender: TObject);
     procedure BHtmlClick(Sender: TObject);
     procedure BSaveClick(Sender: TObject);
@@ -240,17 +296,21 @@ type
     procedure LHideEmptyRowsBClick(Sender: TObject);
     procedure GHideEmptyRowsBClick(Sender: TObject);
     procedure RHideEmptyRowsBClick(Sender: TObject);
+    procedure SShowLegendClick(Sender: TObject);
+    procedure SHideEmptyRowsBClick(Sender: TObject);
   private
     procedure showHideEditButton;
     procedure SyncLegendColorBy(ViewCombo, ColorByCombo: TComboBox);
     procedure LViewTypeChange(Sender: TObject);
     procedure GViewTypeChange(Sender: TObject);
     procedure RViewTypeChange(Sender: TObject);
+    procedure SViewTypeChange(Sender: TObject);
   public
     Path : String;
     LHideDows : string;
     GHideDows : string;
     RHideDows : string;
+    SHideDows : string;
 
     Procedure Save(fileName : ShortString);
     Procedure Load(fileName : ShortString);
@@ -265,7 +325,7 @@ var
 
 implementation
 
-uses UFMain, UUtilityParent, UFWWWGenerator, UFProgramSettings, DM,
+uses UFMain, UUtilityParent, UFWWWGenerator, UFWWWGeneratorSUB, UFProgramSettings, DM,
   UFSalectDaysOfWeek;
 
 {$R *.DFM}
@@ -277,6 +337,7 @@ begin
   LHideDows := '+++++++';
   GHideDows := '+++++++';
   RHideDows := '+++++++';
+  SHideDows := '+++++++';
 
   exePath := GetD +'\';
   Path := uutilityParent.ApplicationDocumentsPath;
@@ -289,6 +350,7 @@ begin
   LViewType.OnChange := LViewTypeChange;
   GViewType.OnChange := GViewTypeChange;
   RViewType.OnChange := RViewTypeChange;
+  SViewType.OnChange := SViewTypeChange;
 end;
 
 procedure TFSettings.SyncLegendColorBy(ViewCombo, ColorByCombo: TComboBox);
@@ -313,6 +375,11 @@ begin
   SyncLegendColorBy(RViewType, rlegendColorBy);
 end;
 
+procedure TFSettings.SViewTypeChange(Sender: TObject);
+begin
+  SyncLegendColorBy(SViewType, SlegendColorBy);
+end;
+
 procedure TFSettings.HTML(Prog : String);
 var ColoringIndex : shortString;
     tmpFileName   : shortString;
@@ -334,6 +401,7 @@ begin
    1: begin presId:=ExtractWord(1,FMain.congroup.Text,[';']);    presType:='GRO'; end;
    2: begin presId:=ExtractWord(1,FMain.conResCat0.Text,[';']); presType:='ROM'; end;
    3: begin presId:=ExtractWord(1,FMain.conResCat1.Text,[';']); presType:='ROM'; end;
+   6: begin presId:=ExtractWord(1,FMain.consubject.Text,[';']); presType:='SUB'; end;
   end;
 
   //If PageControl.ActivePage = TabSheetL Then
@@ -365,6 +433,14 @@ begin
       if RPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
     //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
+
+    If FMain.TabViewType.TabIndex = 6 Then Begin
+      ColoringIndex := getCode(SViewType);
+      UFWWWGeneratorSUB.CalendarToHTMLSubject(FMain.conPeriod.Text, presId, getCode(SD1), getCode(SD2), getCode(SD3), getCode(SD4), getCode(SD5), SHEADER.Lines, SFOOTER.Lines, SRShowLegend.Checked,
+            iif(SlegendECTS.checked,1,0)*4 + iif(SlegendAbbr.checked,1,0)*2 + iif(SlegendSummary.checked,1,0)*1 + iif(SlegendSummaryGroup.checked,1,0)*8
+          , SAddCreationDate.itemindex, ColoringIndex, SW.Text, SH.Text, SCELLSIZE.Text, SS1.Text, SS2.Text, SS3.Text, SS4.Text, SS5.Text, SB1.Checked, SB2.Checked, SB3.Checked, SB4.Checked, SB5.Checked, tmpFileName, SRepeatMonthNames.Checked, SHideEmptyRows.Checked, SHideDows, ScomboSpan.itemIndex, SspanEmptyCells.checked, STransposition.checked, SVerticalLines.checked, Snotes_before.checked, Snotes_after.checked, SPdfprintOut.checked, Spdfg.checked, Spdfl.checked, Spdfo.checked, Spdfs.checked, weeklyView.Checked, SlegendColorBy.ItemIndex );
+      if SPdfprintOut.checked then tmpFileName := pdfFileName;
+    End;
 
    if fileExists(tmpFileName) then begin
        If isBlank(Prog)
@@ -532,7 +608,50 @@ begin
    WriteInteger('R','AddCreationDate',rAddCreationDate.itemindex);
    WriteString ('R','HEADER'    ,SearchAndReplace(RHEADER.Lines.CommaText,'"','^'));
    WriteString ('R','FOOTER'    ,SearchAndReplace(RFOOTER.Lines.CommaText,'"','^'));
-  End;
+
+
+   WriteString('S', 'HideDows', SHideDows);
+   WriteString('S','D1Code'     ,getCode(SD1));
+   WriteString('S','D2Code'     ,getCode(SD2));
+   WriteString('S','D3Code'     ,getCode(SD3));
+   WriteString('S','D4Code'     ,getCode(SD4));
+   WriteString('S','D5Code'     ,getCode(SD5));
+
+   Writestring('S','SS1',SS1.Text);
+   Writestring('S','SS2',SS2.Text);
+   Writestring('S','SS3',SS3.Text);
+   Writestring('S','SS4',SS4.Text);
+   Writestring('S','SS5',SS5.Text);
+   writeBool('S','SB1', SB1.Checked);
+   writeBool('S','SB2', SB2.Checked);
+   writeBool('S','SB3', SB3.Checked);
+   writeBool('S','SB4', SB4.Checked);
+   writeBool('S','SB5', SB5.Checked);
+   writeBool('S','Snotes_before', Snotes_before.Checked);
+   writeBool('S','Snotes_after', Snotes_after.Checked);
+   writeBool('S','SPdfprintOut', SPdfprintOut.Checked);
+
+   WriteString ('S','ViewTypeCode'  ,getCode(SViewType));
+   WriteString ('S','W'         ,SW.Text);
+   WriteString ('S','H'         ,SH.Text);
+   WriteString ('S','CELLSIZE'  ,SCELLSIZE.Text);
+   WriteBool   ('S','ShowLegend',SRShowLegend.Checked);
+   WriteBool   ('S','RepeatMonthNames',SRepeatMonthNames.Checked);
+   WriteBool   ('S','HideEmptyRows',SHideEmptyRows.Checked);
+   WriteBool   ('S','Transposite',STransposition.Checked);
+   WriteBool   ('S','VerticalLines',SVerticalLines.Checked);
+   WriteBool   ('S','spanEmptyCells',SspanEmptyCells.checked);
+   WriteString ('S','ComboSpan',intToStr(ScomboSpan.itemIndex));
+   WriteString ('S','LegendMode',intToStr(
+      iif(SlegendECTS.checked,1,0)*4
+     +iif(SlegendAbbr.checked,1,0)*2
+     +iif(SlegendSummary.checked,1,0)*1
+     +iif(SlegendSummaryGroup.checked,1,0)*8
+   ));
+   WriteInteger('S','LegendColorBy', SlegendColorBy.ItemIndex);
+   WriteInteger('S','AddCreationDate',SAddCreationDate.itemindex);
+   WriteString ('S','HEADER'    ,SearchAndReplace(SHEADER.Lines.CommaText,'"','^'));
+   WriteString ('S','FOOTER'    ,SearchAndReplace(SFOOTER.Lines.CommaText,'"','^'));  End;
 
 end;
 
@@ -611,6 +730,7 @@ begin
    LHideDows := ReadString ('L', 'HideDows', '+++++++');
    GHideDows := ReadString ('G', 'HideDows', '+++++++');
    RHideDows := ReadString ('R', 'HideDows', '+++++++');
+   SHideDows := ReadString ('S', 'HideDows', '+++++++');
 
    Ltransposition.Checked      := ReadBool('L','Transposite',False);
    lVerticalLines.Checked    := ReadBool('L','VerticalLines',False);
@@ -629,11 +749,16 @@ begin
    rlegendSummary.checked  := (strToInt(ReadString('R','LegendMode','0')) and 1) = 1;
    rlegendECTS.checked     := (strToInt(ReadString('R','LegendMode','1')) and 4) = 4;
    rlegendSummaryGroup.checked := (strToInt(ReadString('R','LegendMode','0')) and 8) = 8;
+   SlegendAbbr.checked     := (strToInt(ReadString('S','LegendMode','0')) and 2) = 2;
+   SlegendSummary.checked  := (strToInt(ReadString('S','LegendMode','0')) and 1) = 1;
+   SlegendECTS.checked     := (strToInt(ReadString('S','LegendMode','1')) and 4) = 4;
+   SlegendSummaryGroup.checked := (strToInt(ReadString('S','LegendMode','0')) and 8) = 8;
 
    //ZMIANA_20270716: "Kolory w legendzie" -- missing value (old configs) defaults to 0 = Przedmiot, backward compatible
    llegendColorBy.ItemIndex := ReadInteger('L','LegendColorBy',0);
    glegendColorBy.ItemIndex := ReadInteger('G','LegendColorBy',0);
    rlegendColorBy.ItemIndex := ReadInteger('R','LegendColorBy',0);
+   SlegendColorBy.ItemIndex := ReadInteger('S','LegendColorBy',0);
 
    lAddCreationDate.itemindex  := ReadInteger('L','AddCreationDate',0);
    LHEADER.Lines.CommaText   := SearchAndReplace(ReadString ('L','HEADER',''),'^','"');
@@ -775,7 +900,65 @@ begin
    rpdfo.Checked  := readBool('R','rpdfo', false);
    rpdfs.Checked  := readBool('R','rpdfs', false);
 
-  End;
+
+
+   setCombo (SD1, 'S', 'D1', 'D1Code');
+   setCombo (SD2, 'S', 'D2', 'D2Code');
+   setCombo (SD3, 'S', 'D3', 'D3Code');
+   setCombo (SD4, 'S', 'D4', 'D4Code');
+   setCombo (SD5, 'S', 'D5', 'D5Code');
+
+   tmp  := ReadInteger('S','ViewType'  , -100);
+   case tmp of
+     0: ViewTypeCode := 'L';
+     1: ViewTypeCode := 'G';
+     2: ViewTypeCode := 'ALL_RES';
+     3: ViewTypeCode := 'S';
+     4: ViewTypeCode := 'F';
+     5: ViewTypeCode := 'OWNER';
+     6: ViewTypeCode := 'CREATED_BY';
+     7: ViewTypeCode := 'CLASS';
+     8: ViewTypeCode := 'NONE';
+     9: ViewTypeCode := 'DESC1';
+    10: ViewTypeCode := 'DESC2';
+    11: ViewTypeCode := 'DESC3';
+    12: ViewTypeCode := 'DESC4';
+    else ViewTypeCode := ReadString('S','ViewTypeCode'  , 'S');
+   end;
+   SViewType.ItemIndex     := getItemIndex ( SViewType,  ViewTypeCode);
+
+   SW.Text                   := ReadString ('S','W'         ,'15');
+   SH.Text                   := ReadString ('S','H'         ,'10');
+   SCELLSIZE.Text            := ReadString ('S','CELLSIZE'  ,'10');
+   SRShowLegend.Checked      := ReadBool   ('S','ShowLegend',False);
+   SShowLegendClick(SRShowLegend);
+   SRepeatMonthNames.Checked := ReadBool('S','RepeatMonthNames',False);
+   SHideEmptyRows.Checked    := ReadBool('S','HideEmptyRows',False);
+   STransposition.Checked    := ReadBool('S','Transposite',False);
+   SVerticalLines.Checked    := ReadBool('S','VerticalLines',False);
+   SspanEmptyCells.checked   := ReadBool('S','spanEmptyCells',False);
+   ScomboSpan.itemIndex      := strToInt(ReadString('S','ComboSpan','0'));
+   SAddCreationDate.itemindex  := ReadInteger('S','AddCreationDate',0);
+   SHEADER.Lines.CommaText   := SearchAndReplace(ReadString ('S','HEADER',''),'^','"');
+   SFOOTER.Lines.CommaText   := SearchAndReplace(ReadString ('S','FOOTER',''),'^','"');
+
+   SS1.Text := readString('S','SS1',SS1.Text);
+   SS2.Text := readString('S','SS2',SS2.Text);
+   SS3.Text := readString('S','SS3',SS3.Text);
+   SS4.Text := readString('S','SS4',SS4.Text);
+   SS5.Text := readString('S','SS5',SS5.Text);
+   SB1.Checked := readBool('S','SB1', SB1.Checked);
+   SB2.Checked := readBool('S','SB2', SB2.Checked);
+   SB3.Checked := readBool('S','SB3', SB3.Checked);
+   SB4.Checked := readBool('S','SB4', SB4.Checked);
+   SB5.Checked := readBool('S','SB5', SB5.Checked);
+   Snotes_before.Checked := readBool('S','Snotes_before', true);
+   Snotes_after.Checked  := readBool('S','Snotes_after', true);
+   SPdfprintOut.Checked  := readBool('S','SPdfprintOut', true);
+   Spdfg.Checked  := readBool('S','Spdfg', false);
+   Spdfl.Checked  := readBool('S','Spdfl', false);
+   Spdfo.Checked  := readBool('S','Spdfo', false);
+   Spdfs.Checked  := readBool('S','Spdfs', false);  End;
 
 end;
 
@@ -927,6 +1110,14 @@ begin
  rLegendMode.Parent.Invalidate;
 end;
 
+procedure TFSettings.SShowLegendClick(Sender: TObject);
+begin
+ SlegendMode.Visible := (sender as tcheckbox).Checked and (sender as tcheckbox).visible;
+ SlegendColorBy.Visible := SlegendMode.Visible;
+ SlegendColorByLabel.Visible := SlegendMode.Visible;
+ SlegendMode.Parent.Invalidate;
+end;
+
 procedure TFSettings.lhelpClick(Sender: TObject);
 begin
   info(
@@ -960,6 +1151,11 @@ begin
     rpdfl.visible      := rPdfPrintOut.Checked;
     rpdfo.visible      := rPdfPrintOut.Checked;
     rpdfs.visible      := rPdfPrintOut.Checked;
+
+    Spdfg.visible      := SPdfPrintOut.Checked;
+    Spdfl.visible      := SPdfPrintOut.Checked;
+    Spdfo.visible      := SPdfPrintOut.Checked;
+    Spdfs.visible      := SPdfPrintOut.Checked;
 end;
 
 procedure TFSettings.LHideEmptyRowsBClick(Sender: TObject);
@@ -983,12 +1179,20 @@ begin
   RHideEmptyRows.Checked := RHideDows <> '-------';
 end;
 
+procedure TFSettings.SHideEmptyRowsBClick(Sender: TObject);
+begin
+  if FSelectDaysOfWeek = nil then Application.CreateForm(TFSelectDaysOfWeek, FSelectDaysOfWeek);
+  FSelectDaysOfWeek.showModalWithDefaults(SHideDows);
+  SHideEmptyRows.Checked := SHideDows <> '-------';
+end;
+
 procedure TFSettings.showHideEditButton;
 begin
  BWord.Enabled :=
       ((PageControl.TabIndex=0) and (LPdfPrintOut.Checked=false))
    or ((PageControl.TabIndex=1) and (GPdfPrintOut.Checked=false))
-   or ((PageControl.TabIndex=2) and (RPdfPrintOut.Checked=false));
+   or ((PageControl.TabIndex=2) and (RPdfPrintOut.Checked=false))
+   or ((PageControl.TabIndex=3) and (SPdfPrintOut.Checked=false));
 end;
 
 end.

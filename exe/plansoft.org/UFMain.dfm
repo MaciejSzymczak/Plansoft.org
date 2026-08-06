@@ -52,7 +52,8 @@ inherited FMain: TFMain
         'Zas'#243'b'
         'Zas'#243'b2'
         'Kalendarz dni wolnych'
-        'Kalendarz szczeg'#243'lny')
+        'Kalendarz szczeg'#243'lny'
+        'Przedmiot')
       TabIndex = 0
       OnClick = TabViewTypeClick
       OnChange = TabViewTypeChange

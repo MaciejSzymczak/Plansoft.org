@@ -8,7 +8,7 @@ uses
   UCommon, DM, UFReadString, Menus, UFInfo, Tabs, Mask, DBCtrls, Grids,
   ToolEdit, db, UFDatabaseLogin,
   WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
-  DBGrids, UUtilityParent, DateUtils, XPMan;
+  DBGrids, UUtilityParent, DateUtils, XPMan, UFLegendNavigation;
 
 var dGeneralDebug : string;
 
@@ -121,6 +121,24 @@ type TClassByResCaches = class
                                Procedure reset(aPER_ID: Integer; reloadFromDatabase : boolean);
                                Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                                Procedure resetByDay(TS : TTimeStamp; Zajecia: Integer);
+                             end;
+     // Przedmiot (subject) view: several classes can run in parallel in the same day/hour slot
+     // for one subject, so each cell holds a LIST of TClass_, not a single one like the caches above.
+     // Deliberately kept separate from TClassByChildCache/TClassByXCaches: no dependency-classes
+     // stored proc, no link table (direct CLASSES.SUB_ID filter), single-selection only (no cross-table).
+     TClassBySubjectCache = class
+                               PER_ID   : Integer;
+                               SubId    : String;
+                               FirstDay : Integer;
+                               Count    : Integer;
+                               MaxHours : Integer;
+                               Loaded   : Boolean;
+                               Classes  : Array Of Array Of TClassArray; //[day][hour] -> parallel classes in that slot
+                               Procedure init;
+                               Procedure ccLoadPeriod(aPER_ID : Integer; aSubId : String);
+                               Function  GetClasses(TS : TTimeStamp; Zajecia: Integer; aPER_ID : Integer; aSubId : String) : TClassArray;
+                               Procedure reset(aPER_ID: Integer; reloadFromDatabase : boolean);
+                               Procedure resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
                              end;
      TReservationsCache = Class
                      Count    : Integer;
@@ -1031,6 +1049,7 @@ type
     ClassByGroupCaches    : tClassByGroupCaches;
     ClassByRoomCaches     : tClassByResCaches;
     ClassByResCat1Caches  : tClassByResCaches;
+    ClassBySubjectCaches  : TClassBySubjectCache;
     ReservationsCache     : tReservationsCache;
     otherCalendar         : tOtherCalendar;
     confineCalendar       : tOtherCalendar;
@@ -1110,6 +1129,7 @@ type
     procedure deleteSubFromSelection;
     procedure deleteDescFromSelection(i : integer);
     procedure showAvailableTerms;
+    procedure ShowSubjectCellNavigation;
     procedure setupFillButton;
     procedure showClasses(ignoreLgr, selectedDatesOnly, hideEdit : boolean);
     function getWhereFastFilter(filter, tableName : string) : string;
@@ -1841,6 +1861,94 @@ begin
  end;
 end;
 
+{****************************************************************************}
+{***** Przedmiot (subject) view cache - list of classes per day/hour cell ***}
+{****************************************************************************}
+
+procedure TClassBySubjectCache.init;
+begin
+  PER_ID := -1;
+  SubId  := '';
+  Loaded := False;
+end;
+
+procedure TClassBySubjectCache.ccLoadPeriod(aPER_ID : Integer; aSubId : String);
+var DateFrom, DateTo : String;
+    X, Y, t, t2 : Integer;
+begin
+  PER_ID := aPER_ID;
+  SubId  := aSubId;
+  Loaded := False;
+  Classes := nil;
+  Count := 0; FirstDay := 0; MaxHours := 0;
+
+  If (aPER_ID = 0) or (aPER_ID = -1) then Exit;
+  If isBlank(aSubId) then Exit;
+
+  With DModule Do Begin
+    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+IntToStr(aPER_ID)));
+    DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
+    DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
+    Count    := QWork.Fields[2].AsInteger+1;
+    FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
+    MaxHours := QWork.Fields[4].AsInteger;
+
+    SetLength(Classes, Count);
+    For t := 0 To Count-1 Do SetLength(Classes[t], MaxHours+1);
+
+    OPENSQL(
+     'SELECT CLA.*, '+
+     '       SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
+     '       FRM.abbreviation FOR_abbreviation,FRM.NAME FOR_NAME,FRM.KIND FOR_KIND '+
+     'FROM CLASSES CLA, '+
+     '     subjects SUB, '+
+     '     FORMS FRM, '+
+     '     PLANNERS OWNER, '+
+     '     PLANNERS CREATOR '+
+     'WHERE SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND '+
+     '      CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' AND '+
+     '      CLA.SUB_ID = '+aSubId);
+
+    While Not QWork.EOF Do Begin
+      X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
+      Y := QWork.FieldByName('HOUR').AsInteger;
+      t := X - FirstDay;
+      if (t>=0) and (t<=high(Classes)) and (Y>=1) and (Y<=MaxHours) then begin
+        t2 := Length(Classes[t][Y]);
+        SetLength(Classes[t][Y], t2+1);
+        Classes[t][Y][t2] := QWorkToClass(Dmodule.QWork);
+      end;
+      QWork.Next;
+    End;
+  End;
+
+  Loaded := True;
+end;
+
+function TClassBySubjectCache.GetClasses(TS : TTimeStamp; Zajecia: Integer; aPER_ID : Integer; aSubId : String) : TClassArray;
+var t : Integer;
+begin
+  Result := nil;
+  if (not Loaded) or (PER_ID<>aPER_ID) or (SubId<>aSubId) then ccLoadPeriod(aPER_ID, aSubId);
+  if not Loaded then Exit;
+  t := TS.Date - FirstDay;
+  if (t<0) or (t>high(Classes)) then Exit;
+  if (Zajecia<1) or (Zajecia>MaxHours) then Exit;
+  Result := Classes[t][Zajecia];
+end;
+
+procedure TClassBySubjectCache.reset(aPER_ID: Integer; reloadFromDatabase : boolean);
+begin
+  if reloadFromDatabase then Loaded := False;
+  if aPER_ID <> PER_ID then Loaded := False;
+end;
+
+procedure TClassBySubjectCache.resetByCLA_ID(CLA_ID : Integer; pday : ttimestamp; phour : integer);
+begin
+  // simplest safe invalidation: a full reload is one cheap query and this path is not hot
+  Loaded := False;
+end;
+
 Procedure TFMain.Stop;
 Begin
   AutoCreate.LECTURERSFree;
@@ -1859,6 +1967,7 @@ procedure TFMain.FormCreate(Sender: TObject);
    ClassByGroupCaches    := TClassByGroupCaches.create;
    ClassByRoomCaches     := TClassByResCaches.create;
    ClassByResCat1Caches  := TClassByResCaches.create;
+   ClassBySubjectCaches  := TClassBySubjectCache.create;
    ReservationsCache     := tReservationsCache.Create;
    otherCalendar         := totherCalendar.Create;
    confineCalendar       := totherCalendar.Create;
@@ -1870,6 +1979,7 @@ procedure TFMain.FormCreate(Sender: TObject);
    ClassByGroupCaches.init;
    ClassByRoomCaches.init;
    ClassByResCat1Caches.init;
+   ClassBySubjectCaches.init;
 
   end;
 begin
@@ -1949,8 +2059,8 @@ procedure TFMain.RefreshGrid;
  Begin
   GridPanel.Visible := V;
   filterPanel.Visible := BViewByCrossTable.Down;
-  Legend.Visible := TabViewType.TabIndex <4;
-  Shape7a.Visible := TabViewType.TabIndex <4;
+  Legend.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  Shape7a.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
   bAddClass.Visible := V;
   bAddClass.Enabled := canInsert;
   bmoveLeft.Enabled := canInsert and canDelete;
@@ -1972,16 +2082,16 @@ procedure TFMain.RefreshGrid;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
   bclearselection.Visible := V;
-  GoToDate.Visible := TabViewType.TabIndex <4;
+  GoToDate.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
   //zoomIn.Visible := V;
   //zoomOut.Visible := V;
   bwww.Visible := V;
-  BViewByWeek.Visible := TabViewType.TabIndex <4;
+  BViewByWeek.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
   BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
-  CONROLE_VALUE.Visible  := TabViewType.TabIndex <4;
-  LCONROLE_VALUE.Visible  := TabViewType.TabIndex <4;
-  GoToDate.Visible  := TabViewType.TabIndex <4;
-  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
+  CONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  LCONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  GoToDate.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
   bmoveDown.Visible := v;
   bmoveUp.Visible := v;
   bmoveLeft.Visible := v;
@@ -2076,6 +2186,7 @@ begin
  If (TabViewType.TabIndex = 1) And (isBlank(ConGroup.Text))    Then Begin SetButtons(False); Exit; End;
  If (TabViewType.TabIndex = 2) And (isBlank(conResCat0.Text))  Then Begin SetButtons(False); Exit; End;
  If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 6) And (isBlank(ConSubject.Text))   Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
  refreshGridAndLegend;
@@ -2114,6 +2225,7 @@ Begin
     1:With DModule do begin rName := ExtractWord(1, ConGroup_value.Text,  [';']);  self.Caption := rname;  end;
     2:With DModule do begin rName := ExtractWord(1, conResCat0_value.Text,  [';']);  self.Caption := rname; end;
     3:With DModule do begin rName := ExtractWord(1, conResCat1_value.Text,  [';']);  self.Caption := rname; end;
+    6:With DModule do begin rName := ExtractWord(1, CONSUBJECT_value.Text,  [';']);  self.Caption := rname; end;
     4:begin self.Caption := 'Edycja kalendarza dni wolnych'; end;
     5:begin self.Caption := 'Edycja kalendarza szczególnego'; end;
   end;
@@ -2137,6 +2249,7 @@ Begin
   TabViewType.Tabs[1] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']) , fprogramsettings.profileObjectNameGs.text);
   TabViewType.Tabs[2] := iif( BViewByWeek.down,  dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';'])                      , dmodule.pResCatName0 );
   TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
+  TabViewType.Tabs[6] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';'])    , fprogramsettings.profileObjectNameC1s.text);
 
   convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
   Grid.ColCount := colCnt;
@@ -2196,6 +2309,7 @@ begin
   If CanShow Then begin
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME||''(''||abbreviation||'')''','SUBJECTS','');
    UpsertRecentlyUsed(ExtractWord(1, TEdit(Sender).Text,  [';']),'S');
+   ClassBySubjectCaches.reset(StringToInt(conPeriod.Text), bool_NOTreloadFromDatbase);
    BuildCalendar('S');
   end;
 end;
@@ -2780,6 +2894,146 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
         Then DrawTriangle(Rect, ratio);
 	 End;
 
+	 // Przedmiot (subject) view: a cell can hold several parallel classes, so this bypasses
+	 // DrawRect/Generic entirely (those assume exactly one Class_ per cell) and draws its own
+	 // compact stacked list instead - up to 5 short lines, then an ellipsis line if there are more.
+	 // Both the per-line color and the per-line text are still driven by FCellLayout (CellColor / D1-D5),
+	 // exactly like the single-class tabs - just resolved once per class instead of once per cell,
+	 // and collapsed to a single representative color/line instead of Generic's multi-segment/multi-row layout.
+	 Procedure DrawSubjectMulti;
+   Var classList : TClassArray;
+       n, shown, lineH, rowOffset : Integer;
+       lineY : Integer;
+       lineText : string;
+       lineColor : TColor;
+       lineRect : TRect;
+       hex : ShortString;
+       isDark : Boolean;
+       colorCode : shortString;
+
+     Function GetLineColor(const pClass : TClass_) : TColor;
+     Var resourceIdList : string;
+     Begin
+       If colorCode = 'NONE' Then Begin Result := clWhite; Exit; End;
+       If colorCode = 'L' Then Begin
+         If pClass.CALC_LEC_IDS <> '' Then Result := dmodule.LecturerGetColour(ExtractWord(1, pClass.CALC_LEC_IDS, [';'])) Else Result := clWhite;
+       End
+       Else If colorCode = 'G' Then Begin
+         If pClass.CALC_GRO_IDS <> '' Then Result := dmodule.GroupGetColour(ExtractWord(1, pClass.CALC_GRO_IDS, [';'])) Else Result := clWhite;
+       End
+       Else If colorCode = 'S'          Then Result := pClass.SUB_COLOUR
+       Else If colorCode = 'F'          Then Result := pClass.FOR_COLOUR
+       Else If colorCode = 'OWNER'      Then Result := pClass.OWNER_COLOUR
+       Else If colorCode = 'CREATED_BY' Then Result := pClass.CREATOR_COLOUR
+       Else If colorCode = 'CLASS'      Then Result := pClass.CLASS_COLOUR
+       Else If colorCode = 'DESC1'      Then Begin If not isBlank(pClass.desc1) Then Result := clRed Else Result := clSilver; End
+       Else If colorCode = 'DESC2'      Then Begin If not isBlank(pClass.desc2) Then Result := clRed Else Result := clSilver; End
+       Else If colorCode = 'DESC3'      Then Begin If not isBlank(pClass.desc3) Then Result := clRed Else Result := clSilver; End
+       Else If colorCode = 'DESC4'      Then Begin If not isBlank(pClass.desc4) Then Result := clRed Else Result := clSilver; End
+       Else If colorCode = 'ALL_RES'    Then Begin
+         If pClass.CALC_ROM_IDS <> '' Then Result := dmodule.RoomGetColour(ExtractWord(1, pClass.CALC_ROM_IDS, [';'])) Else Result := clWhite;
+       End
+       Else Begin
+         resourceIdList := ucommon.getResourcesByType(colorCode, pClass.CALC_RESCAT_IDS, pClass.CALC_ROM_IDS);
+         If resourceIdList <> '' Then Result := dmodule.RoomGetColour(ExtractWord(1, resourceIdList, [';'])) Else Result := clWhite;
+       End;
+     End;
+
+     Function GetLineText(const pClass : TClass_) : string;
+     Var t : Integer;
+         slotCode : shortString;
+         ComboBoxes : Array[1..8] Of TComboBox;
+         part : string;
+     Begin
+       ComboBoxes[1] := FcellLayout.D1;
+       ComboBoxes[2] := FcellLayout.D2;
+       ComboBoxes[3] := FcellLayout.D3;
+       ComboBoxes[4] := FcellLayout.D4;
+       ComboBoxes[5] := FcellLayout.D5;
+       ComboBoxes[6] := FcellLayout.D6;
+       ComboBoxes[7] := FcellLayout.D7;
+       ComboBoxes[8] := FcellLayout.D8;
+
+       Result := '';
+       For t := 1 To 5 Do Begin
+         slotCode := getCode(ComboBoxes[t]);
+         part := '';
+         If     slotCode = 'NONE'       Then part := ''
+         Else If slotCode = 'L'          Then part := pClass.CALC_LECTURERS
+         Else If slotCode = 'L+'         Then part := LecToNames(pClass.calc_lec_ids)
+         Else If slotCode = 'G'          Then part := pClass.CALC_GROUPS
+         Else If slotCode = 'S'          Then part := pClass.SUB_abbreviation
+         Else If slotCode = 'F'          Then part := pClass.FOR_abbreviation
+         Else If slotCode = 'SF'         Then part := pClass.SUB_abbreviation+'('+pClass.FOR_abbreviation+')'
+         Else If slotCode = 'SF+'        Then part := pClass.sub_name+'('+pClass.FOR_abbreviation+')'
+         Else If slotCode = 'OWNER'      Then part := pClass.Owner
+         Else If slotCode = 'CREATED_BY' Then part := pClass.Created_by
+         Else If slotCode = 'DESC1'      Then part := pClass.desc1
+         Else If slotCode = 'DESC2'      Then part := pClass.desc2
+         Else If slotCode = 'DESC3'      Then part := pClass.desc3
+         Else If slotCode = 'DESC4'      Then part := pClass.desc4
+         Else If slotCode = 'ALL_RES'    Then part := pClass.CALC_ROOMS
+         Else part := ucommon.getResourcesByType(slotCode, pClass.CALC_RESCAT_IDS, pClass.CALC_ROOMS);
+
+         If part <> '' Then Begin
+           If Result <> '' Then Result := Result + '  ';
+           Result := Result + part;
+         End;
+       End;
+     End;
+
+	 Begin
+    classList := ClassBySubjectCaches.GetClasses(TS, Zajecia, StrToInt(conPeriod.Text), ConSubject.Text);
+    if Length(classList) = 0 then Exit;
+
+    colorCode := getCode(FcellLayout.CellColor);
+
+    Grid.Canvas.Brush.Color := clWhite;
+    Grid.Canvas.FillRect(Rect);
+
+    lineH := Grid.Canvas.TextHeight('X');
+    shown := Length(classList);
+    if shown > 5 then shown := 5;
+
+    // put the "there's more" marker FIRST, not last, so a long list is obvious at a glance
+    // instead of only after scanning past all 5 shown entries
+    rowOffset := 0;
+    if Length(classList) > 5 then begin
+      rowOffset := 1;
+      lineY := Rect.Top + 1;
+      if lineY + lineH <= Rect.Bottom then begin
+        Grid.Canvas.Font.Color := clBlack;
+        Grid.Canvas.Brush.Style := bsClear;
+        Grid.Canvas.TextOut(Rect.Left+2, lineY, '...');
+        Grid.Canvas.Brush.Style := bsSolid;
+      end;
+    end;
+
+    for n := 0 to shown-1 do begin
+      lineColor := GetLineColor(classList[n]);
+
+      lineY := Rect.Top + 1 + (n+rowOffset)*lineH;
+      if lineY + lineH > Rect.Bottom then break;
+
+      lineRect.Left   := Rect.Left+1;
+      lineRect.Right  := Rect.Right-1;
+      lineRect.Top    := lineY;
+      lineRect.Bottom := lineY+lineH;
+      Grid.Canvas.Brush.Color := lineColor;
+      Grid.Canvas.FillRect(lineRect);
+
+      lineText := GetLineText(classList[n]);
+
+      hex := IntToHex(lineColor, 6);
+      isDark := (Copy(hex,5,2) < '80') and (Copy(hex,3,2) < '80') and (Copy(hex,1,2) < '80');
+      if isDark then Grid.Canvas.Font.Color := clWhite else Grid.Canvas.Font.Color := clBlack;
+
+      Grid.Canvas.Brush.Style := bsClear;
+      Grid.Canvas.TextOut(lineRect.Left+1, lineRect.Top, lineText);
+      Grid.Canvas.Brush.Style := bsSolid;
+    end;
+	 End;
+
 //----------------------GridDrawCell
 begin
    grid.Canvas.Font.Assign( gridFont.Font );
@@ -2835,6 +3089,7 @@ begin
        3: Begin ClassByResCat1Caches.GetClass (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,CONResCat1.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        4: drawReservationsCalendar;
        5: drawOtherCalendar;
+       6: DrawSubjectMulti;
       End;
 
       If (TabViewType.TabIndex = 0) or (TabViewType.TabIndex = 1) or (TabViewType.TabIndex = 2) or (TabViewType.TabIndex = 3)
@@ -3247,6 +3502,7 @@ procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
+ If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  With FDetails Do Begin
 
@@ -3480,6 +3736,7 @@ begin
        3: ResPanel;
        4: ClearPanel;
        5: ClearPanel;
+       6: ClearPanel; // Przedmiot: a cell can hold several classes, no single one to summarize here
       End;
       if not drawDone then
           If TabViewType.TabIndex<4 Then
@@ -3555,12 +3812,20 @@ var triggredObject : string[10];
 begin
  if not userLogged then exit;
  if (CALID.text='-1') and (TabViewType.TabIndex=5) then CALID_VALUEClick(nil);
+ // Przedmiot has no cross-table concept (single-subject selection only) - force week/single mode
+ // the same way a real click on BViewByWeek would, but only when actually leaving cross-table mode.
+ if (TabViewType.TabIndex=6) and (not BViewByWeek.Down) then begin
+   BViewByWeek.Down := true;
+   BViewByWeekClick(nil);
+ end;
  UpdateLeftPanel;
  if TabViewType.TabIndex = 0 then triggredObject := 'L';
  if TabViewType.TabIndex = 1 then triggredObject := 'G';
  if TabViewType.TabIndex = 2 then triggredObject := 'R';
+ if TabViewType.TabIndex = 6 then triggredObject := 'S';
 
  BuildCalendar(triggredObject);
+ refreshPanels; // BuildCalendar suppresses its own Podsumowanie godzin requery - a tab switch is exactly the kind of change that must still force one
 end;
 
 procedure TFMain.BDeleteClassClick(Sender: TObject);
@@ -3601,6 +3866,7 @@ Var xp, yp  : Integer;
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
+ If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  If TabViewType.TabIndex = -1 Then Begin
   SError( Format('Jeœli chcesz usun¹æ %s, wybierz kalendarz %s, %s lub zasobu', [fprogramsettings.profileObjectNameClass.text, fprogramsettings.profileObjectNameLgen.text, fprogramsettings.profileObjectNameGgen.text]) );
@@ -3929,6 +4195,7 @@ begin
  synchronizeComboboxColor ( FSettings.LViewType );
  synchronizeComboboxColor ( FSettings.GViewType );
  synchronizeComboboxColor ( FSettings.RViewType );
+ synchronizeComboboxColor ( FSettings.SViewType );
 
  synchronizeComboboxDesc ( FcellLayout.D1 );
  synchronizeComboboxDesc ( FcellLayout.D2 );
@@ -3955,6 +4222,11 @@ begin
  synchronizeComboboxDesc ( RD3 );
  synchronizeComboboxDesc ( RD4 );
  synchronizeComboboxDesc ( RD5 );
+ synchronizeComboboxDesc ( SD1 );
+ synchronizeComboboxDesc ( SD2 );
+ synchronizeComboboxDesc ( SD3 );
+ synchronizeComboboxDesc ( SD4 );
+ synchronizeComboboxDesc ( SD5 );
  end;
 
  with fprogramsettings do begin
@@ -4932,6 +5204,7 @@ end;
 Function TFMain.GetClassByRowCol(Col, Row: Integer; Var Class_ : TClass_ ) : Integer;
 Var  Status : Integer;
 Begin
+ Status := ClassNotFound; // default for tabs with no single-class lookup here (e.g. 6=Przedmiot, read-only, several classes per cell)
  If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Col,Row) = ConvClass Then Begin
       Case TabViewType.TabIndex Of
        0: ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
@@ -4950,6 +5223,7 @@ begin
  fcellLayout.Hide;
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
+ If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then Begin
    if Class_.owner ='AUTO' then begin
@@ -5027,9 +5301,73 @@ Var Class_ : TClass_;
 begin
   If TabViewType.TabIndex = 4 Then begin InvertReservations; exit; end;
   If TabViewType.TabIndex = 5 Then begin InvertOtherCalendar; exit; end;
+  If TabViewType.TabIndex = 6 Then begin ShowSubjectCellNavigation; exit; end;
   If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound
       Then bEditClassClick(nil)
       Else if canInsert then Fmain.AddClassToGrid(gFirstResourceFlag);
+end;
+
+// Przedmiot (subject) view double-click: the cell can hold several classes with different
+// lecturers/groups/rooms, so instead of editing one class this offers the existing "Nawigacja"
+// popup (the same one used from Legend's counter grid) to jump to one of the involved
+// lecturer/group/room schedules - one row per object (any count), not one comma-joined label.
+procedure TFMain.ShowSubjectCellNavigation;
+var classList : TClassArray;
+    n, t : Integer;
+    itemsL, itemsG, itemsR, itemsS, itemsF : TStringList;
+
+  procedure AppendUniqueItem(list : TStringList; id, dispName : string);
+  var k : Integer;
+      idPrefix : string;
+      found : Boolean;
+  begin
+    if id = '' then Exit;
+    idPrefix := id + '|';
+    found := False;
+    for k := 0 to list.Count - 1 do
+      if Pos(idPrefix, list[k]) = 1 then begin found := True; break; end;
+    if not found then list.Add(id + '|' + dispName);
+  end;
+
+begin
+  if convertGrid.ColRowToDate(AObjectId, TS, Zajecia, Grid.Col, Grid.Row) <> ConvClass then Exit;
+
+  classList := ClassBySubjectCaches.GetClasses(TS, Zajecia, StrToInt(conPeriod.Text), ConSubject.Text);
+  if Length(classList) = 0 then Exit;
+
+  itemsL := TStringList.Create;
+  itemsG := TStringList.Create;
+  itemsR := TStringList.Create;
+  itemsS := TStringList.Create;
+  itemsF := TStringList.Create;
+  try
+    for n := 0 to High(classList) do begin
+      for t := 1 to WordCount(classList[n].calc_lec_ids, [';']) do
+        AppendUniqueItem(itemsL, ExtractWord(t, classList[n].calc_lec_ids, [';']), ExtractWord(t, classList[n].CALC_LECTURERS, [';']));
+
+      for t := 1 to WordCount(classList[n].calc_gro_ids, [';']) do
+        AppendUniqueItem(itemsG, ExtractWord(t, classList[n].calc_gro_ids, [';']), ExtractWord(t, classList[n].CALC_GROUPS, [';']));
+
+      for t := 1 to WordCount(classList[n].calc_rom_ids, [';']) do
+        AppendUniqueItem(itemsR, ExtractWord(t, classList[n].calc_rom_ids, [';']), ExtractWord(t, classList[n].CALC_ROOMS, [';']));
+    end;
+
+    FLegendNavigation.Open(itemsL, itemsG, itemsR, itemsF, itemsS);
+
+    if FLegendNavigation.selectedOption='dspL' then begin TabViewType.TabIndex := 0; ConLecturer.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspG' then begin TabViewType.TabIndex := 1; ConGroup.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspR' then begin TabViewType.TabIndex := 2; conResCat0.Text := FLegendNavigation.selectedId; end;
+
+    if FLegendNavigation.selectedOption='EditL' then LECTURERSShowModalAsSingleRecord(aedit, FLegendNavigation.selectedId);
+    if FLegendNavigation.selectedOption='EditG' then GROUPSShowModalAsSingleRecord(aedit, FLegendNavigation.selectedId);
+    if FLegendNavigation.selectedOption='EditR' then ROOMSShowModalAsSingleRecord(aedit, FLegendNavigation.selectedId);
+
+    if FLegendNavigation.selectedOption='StatL' then OpenFGrouping('L', FLegendNavigation.selectedId);
+    if FLegendNavigation.selectedOption='StatG' then OpenFGrouping('G', FLegendNavigation.selectedId);
+    if FLegendNavigation.selectedOption='StatR' then OpenFGrouping('R', FLegendNavigation.selectedId);
+  finally
+    itemsL.Free; itemsG.Free; itemsR.Free; itemsS.Free; itemsF.Free;
+  end;
 end;
 
 procedure TFMain.refreshLegend;
@@ -5071,6 +5409,7 @@ begin
     1: PageControl.ActivePage := TabSheetG;
     2: PageControl.ActivePage := TabSheetR;
     3: PageControl.ActivePage := TabSheetR;
+    6: PageControl.ActivePage := TabSheetS;
    End;
    ShowModal;
    DeepRefreshImmediate('DeepRefreshButtonClick');
@@ -5428,7 +5767,7 @@ begin
     end;
    end;
 
-  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
 
    Self.Menu := MM;
 
@@ -5902,7 +6241,7 @@ procedure TFMain.conRoleChange(Sender: TObject);
 begin
   If CanShow Then Begin
    if isBlank(conRole.Text) then begin conRole_value.Text := ''; exit; end;
-   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and (TabViewType.TabIndex <4);
+   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
    setUserOrRoleId;
   End;
@@ -6039,6 +6378,85 @@ function TFMain.modifyClass;
 		 result := true;
 	   end;
 
+    // 2026-08: clMove/clCopy (mouse drag AND keyboard/toolbar cut-copy-paste all end up here via
+    // modifyClasses->modifyClass) used to skip the conflicts+preferred-times confirmation that
+    // InsertClasses shows when adding a class normally. This mirrors that exact same sequence
+    // (QuickPreCheck+ConflictsReport+fShowConflicts) for a single class being moved/copied, so the
+    // user gets the identical warning-and-continue prompt regardless of how the class got here.
+    // Result=false means the user cancelled - the caller must abort the move/copy.
+    function checkMoveCopyConflicts(pClass : TClass_; pExcludeClassId : integer) : Boolean;
+      var PLecturers, PGroups, PRooms : TPointers;
+          PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
+          LWithChildsAndParents, GWithChildsAndParents, RWithChildsAndParents : string;
+          ct : integer;
+          cvalue : string;
+          hintsFound : boolean;
+          capacityOverflowVal : integer;
+          hasConflictFlag : boolean;
+          answer : integer;
+      begin
+        result := true; // true = no conflicts, or user chose to continue anyway
+
+        For ct := 1 To maxInClass Do Begin
+          PLecturers[ct] := 0; PGroups[ct] := 0; PRooms[ct] := 0;
+          PLecturersWithChilds[ct] := 0; PGroupsWithChilds[ct] := 0; PRoomsWithChilds[ct] := 0;
+        End;
+
+        For ct := 1 To WordCount(pClass.calc_lec_ids,[';']) Do PLecturers[ct] := StrToInt(ExtractWord(ct, pClass.calc_lec_ids, [';']));
+        For ct := 1 To WordCount(pClass.calc_gro_ids,[';']) Do PGroups[ct]    := StrToInt(ExtractWord(ct, pClass.calc_gro_ids, [';']));
+        For ct := 1 To WordCount(pClass.calc_rom_ids,[';']) Do PRooms[ct]     := StrToInt(ExtractWord(ct, pClass.calc_rom_ids, [';']));
+
+        LWithChildsAndParents := pClass.calc_lec_ids;
+        For ct := 1 To WordCount(pClass.calc_lec_ids,[';']) Do Begin
+          cvalue := ExtractWord(ct, pClass.calc_lec_ids, [';']);
+          LWithChildsAndParents := getChildsAndParents(cvalue, LWithChildsAndParents, false, false, true);
+        End;
+        For ct := 1 To WordCount(LWithChildsAndParents,[';']) Do PLecturersWithChilds[ct] := StrToInt(ExtractWord(ct, LWithChildsAndParents, [';']));
+
+        GWithChildsAndParents := pClass.calc_gro_ids;
+        For ct := 1 To WordCount(pClass.calc_gro_ids,[';']) Do Begin
+          cvalue := ExtractWord(ct, pClass.calc_gro_ids, [';']);
+          GWithChildsAndParents := getChildsAndParents(cvalue, GWithChildsAndParents, false, false, true);
+        End;
+        For ct := 1 To WordCount(GWithChildsAndParents,[';']) Do PGroupsWithChilds[ct] := StrToInt(ExtractWord(ct, GWithChildsAndParents, [';']));
+
+        RWithChildsAndParents := pClass.calc_rom_ids;
+        For ct := 1 To WordCount(pClass.calc_rom_ids,[';']) Do Begin
+          cvalue := ExtractWord(ct, pClass.calc_rom_ids, [';']);
+          RWithChildsAndParents := getChildsAndParents(cvalue, RWithChildsAndParents, false, false, true);
+        End;
+        For ct := 1 To WordCount(RWithChildsAndParents,[';']) Do PRoomsWithChilds[ct] := StrToInt(ExtractWord(ct, RWithChildsAndParents, [';']));
+
+        hintsFound := checkConflicts.QuickPreCheck(
+          pClass.day, pClass.hour,
+          PLecturers, PGroups, PRooms,
+          PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds,
+          true, capacityOverflowVal, hasConflictFlag);
+
+        checkConflicts.ConflictsReport(
+          pClass.day, pClass.hour, pExcludeClassId,
+          PLecturers, PGroups, PRooms,
+          PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds,
+          pClass.sub_id, pClass.for_id, 0, pClass.fill, pClass.class_colour,
+          pClass.created_by, pClass.owner, pClass.desc1, pClass.desc2, pClass.desc3, pClass.desc4,
+          not hasConflictFlag);
+
+        if (Not checkConflicts.Empty) or hintsFound then begin
+          checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
+          checkConflicts.GetHintsDesc(fShowConflicts.SGHints, pClass.day, pClass.hour, fShowConflicts.dataStamp);
+          fShowConflicts.SetSectionsVisible(Not checkConflicts.Empty, hintsFound);
+          if checkConflicts.Empty then
+            fShowConflicts.BDelete.Caption := 'Kontynuuj'
+          else
+            fShowConflicts.BDelete.Caption := format('Kontynuuj - usuñ istniej¹ce %s', [fprogramsettings.profileObjectNameClasses.Text]);
+
+          answer := fShowConflicts.ShowModal;
+          result := (answer <> mrCancel);
+          if result and (not checkConflicts.Empty) then
+            checkConflicts.checkConflictsInsert(pttCombIds, capacityOverflowVal, true);
+        end;
+      end;
+
 	begin //internalModifyClass
 	  result := false;
 
@@ -6110,6 +6528,7 @@ function TFMain.modifyClass;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
+         if not checkMoveCopyConflicts(newClass, oldClass.id) then exit;
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
@@ -6120,6 +6539,7 @@ function TFMain.modifyClass;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
+         if not checkMoveCopyConflicts(newClass, -1) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, -1, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 			   end;
@@ -8927,7 +9347,8 @@ var parentPanel : Twincontrol;
   end;
 begin
 
- if tabViewType.TabIndex >= 4 then begin
+ // tab 6 (Przedmiot) is a resource view like 0-3, not a special calendar like 4/5
+ if tabViewType.TabIndex in [4,5] then begin
    parentPanel := CalViewPanel;
    CalViewPanel.Visible := true;
    CalViewPanel.Align := alClient;
@@ -8964,7 +9385,7 @@ end;
 procedure TFMain.TabViewTypeChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
-  Legend.Visible := NewTab <4;
+  Legend.Visible := (NewTab <4) or (NewTab=6);
   AllowChange := true;
   if (not isBlank(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
 end;
@@ -9602,12 +10023,14 @@ begin
   If (Not isBlank(conPeriod.Text)) Then ClassByGroupCaches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
   If (Not isBlank(conPeriod.Text)) Then ClassByRoomCaches.reset(StringToInt(conPeriod.Text), bool_reloadFromDatbase);
   If (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
+  If (Not isBlank(conPeriod.Text)) Then ClassBySubjectCaches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
   If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
   If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
   gridDefinition.internalCreate(gridCustomLabels);
   BuildCalendar('X');
   grid.Visible := true;
+  refreshPanels; // BuildCalendar suppresses its own Podsumowanie godzin requery (see suppressCounterRefresh) - Deep Refresh must still force one, now that the suppression has been lifted
 end;
 
 

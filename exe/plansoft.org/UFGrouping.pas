@@ -763,6 +763,11 @@ begin
   if not ignoreIni then
   if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FGrouping.ini') then
       LoadFromIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FGrouping.ini');
+
+  if CONPERIOD_VALUE.Text = '' then
+    CONPERIOD.Text := FMain.conPeriod.Text;
+
+  CONPERIOD_VALUEChange(CONPERIOD_VALUE);
 end;
 
 Procedure TFGrouping.UpdStatus(S : String);

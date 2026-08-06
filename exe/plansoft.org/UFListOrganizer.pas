@@ -22,6 +22,10 @@ type
     BClearAndSelect: TBitBtn; //2026-07: renamed from beditpopup - no longer opens a popup menu, directly clears the list and reopens the picker
     BSetPrimary: TBitBtn; //2026-07: renamed from BitBtn2 - moves the selected resource to the top of the list and confirms the dialog (shared with lbNamesDblClick), making it the primary resource
     PanelRowButtons: TPanel; //2026-07: hosts dynamically-created per-row SetPrimary/Delete buttons for lbNames
+    BOpenList: TBitBtn;
+    BSaveList: TBitBtn;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     procedure lbNamesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure lbNamesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -36,6 +40,8 @@ type
     procedure BAddClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure BClearAndSelectClick(Sender: TObject);
+    procedure BOpenListClick(Sender: TObject);
+    procedure BSaveListClick(Sender: TObject);
   private
     resType: string;
     RowButtonsHooked: boolean;
@@ -43,11 +49,13 @@ type
     RowSetButtons: array of TSpeedButton;
     RowDelButtons: array of TSpeedButton;
     RowDetailsButtons: array of TSpeedButton;
+    RowStatButtons: array of TSpeedButton;
     procedure NewLbNamesWndProc(var Message: TMessage);
     procedure RefreshRowButtons;
     procedure RowSetPrimaryClick(Sender: TObject);
     procedure RowDeleteClick(Sender: TObject);
     procedure RowDetailsClick(Sender: TObject);
+    procedure RowStatClick(Sender: TObject);
     procedure WMRowDelete(var Msg: TMessage); message WM_USER + 100; //2026-07: deletion is deferred via PostMessage - freeing the row TSpeedButton synchronously from within its own OnClick caused an intermittent Access Violation
   public
     function showList (presType: string; Sender: TObject; ids, displayedItems : string; WordDelim : Char) : tmodalResult;
@@ -89,7 +97,6 @@ begin
 
  lbNames.ItemIndex := 0;
  resType := presType;
- //BSelect.Enabled := lbNames.Items.Count >0;
 
  if not RowButtonsHooked then begin
    OldLbNamesWndProc := lbNames.WindowProc;
@@ -350,6 +357,73 @@ begin
   BAddClick(Sender);
 end;
 
+procedure TFListOrganizer.BSaveListClick(Sender: TObject);
+var i : integer;
+    lines : TStringList;
+begin
+  if lbIds.Items.Count = 0 then begin
+    Info('Lista jest pusta - nie ma czego zapisywaæ');
+    Exit;
+  end;
+  if SaveDialog1.Execute then begin
+    lines := TStringList.Create;
+    try
+      for i := 0 to lbIds.Items.Count - 1 do
+        lines.Add(lbIds.Items[i]);
+      lines.SaveToFile(SaveDialog1.FileName);
+    finally
+      lines.Free;
+    end;
+  end;
+end;
+
+// reads back a list of ids saved by BSaveListClick, resolving each id's current display name
+// the same way BAddClick does - and, per requirement, silently skipping any record the current
+// user has no PLA row for (hasResourceAccess checks row existence, not ACCESS_TYPE's value).
+procedure TFListOrganizer.BOpenListClick(Sender: TObject);
+var i, skippedCount : integer;
+    lines : TStringList;
+    id, tableName, sqlS : string;
+begin
+  tableName := '';
+  sqlS := '';
+  if resType = 'L'  then begin tableName := 'LECTURERS'; sqlS := sql_LECDESC; end;
+  if resType = 'G'  then begin tableName := 'GROUPS';    sqlS := sql_GRODESC; end;
+  if resType = 'R'  then begin tableName := 'ROOMS';     sqlS := sql_ResCat0DESC; end;
+  if resType = 'R2' then begin tableName := 'ROOMS';     sqlS := sql_ResCat1DESC; end;
+  if tableName = '' then Exit;
+
+  if not OpenDialog1.Execute then Exit;
+
+  lines := TStringList.Create;
+  try
+    lines.LoadFromFile(OpenDialog1.FileName);
+
+    lbNames.Items.Clear;
+    lbIds.Items.Clear;
+    skippedCount := 0;
+
+    for i := 0 to lines.Count - 1 do begin
+      id := Trim(lines[i]);
+      if id = '' then continue;
+      if not hasResourceAccess(tableName, id) then begin
+        Inc(skippedCount);
+        continue;
+      end;
+      lbIds.Items.Add(id);
+      lbNames.Items.Add(DModule.SingleValue(sqlS + id));
+    end;
+  finally
+    lines.Free;
+  end;
+
+  if skippedCount > 0 then
+    Info('Pominiêto ' + IntToStr(skippedCount) + ' rekordów, do których nie masz dostêpu.');
+
+  if lbNames.Items.Count > 0 then lbNames.ItemIndex := 0;
+  RefreshRowButtons;
+end;
+
 procedure TFListOrganizer.NewLbNamesWndProc(var Message: TMessage);
 begin
   OldLbNamesWndProc(Message);
@@ -359,29 +433,42 @@ end;
 
 procedure TFListOrganizer.RefreshRowButtons;
 const
-  RowBtnGapH = 19; //~0.5cm at 96dpi
+  RowBtnGapH = 6;
   RowBtnGapV = 3;
 var
-  i, row, y, lastVisible, btnWidth, btnHeight : integer;
-  btnSet, btnDel, btnDetails : TSpeedButton;
+  i, row, y, lastVisible, totalWidth, setWidth, delWidth, detailsWidth, statWidth, btnHeight : integer;
+  btnSet, btnDel, btnDetails, btnStat : TSpeedButton;
 begin
   for i := 0 to High(RowSetButtons) do begin
     RowSetButtons[i].Free;
     RowDelButtons[i].Free;
     RowDetailsButtons[i].Free;
+    RowStatButtons[i].Free;
   end;
   SetLength(RowSetButtons, 0);
   SetLength(RowDelButtons, 0);
   SetLength(RowDetailsButtons, 0);
+  SetLength(RowStatButtons, 0);
+
+  // reordering a single item is meaningless - only show Up/Down once there is something to reorder
+  BUp.Visible := lbNames.Items.Count > 1;
+  BDown.Visible := lbNames.Items.Count > 1;
 
   if lbNames.Items.Count = 0 then Exit;
 
   SetLength(RowSetButtons, lbNames.Items.Count);
   SetLength(RowDelButtons, lbNames.Items.Count);
   SetLength(RowDetailsButtons, lbNames.Items.Count);
+  SetLength(RowStatButtons, lbNames.Items.Count);
 
   btnHeight := lbNames.ItemHeight - RowBtnGapV*2;
-  btnWidth  := (PanelRowButtons.ClientWidth - RowBtnGapH*4) div 3;
+  // Rozklad carries an icon AND a caption, so it needs more room than the icon-only Usun
+  // button - split unevenly instead of evenly across all 4.
+  totalWidth   := PanelRowButtons.ClientWidth - RowBtnGapH*5;
+  setWidth     := (totalWidth * 3) div 10;
+  delWidth     := (totalWidth * 3) div 20;
+  detailsWidth := (totalWidth * 11) div 40;
+  statWidth    := totalWidth - setWidth - delWidth - detailsWidth;
 
   lastVisible := lbNames.TopIndex + (lbNames.ClientHeight div lbNames.ItemHeight);
   for i := lbNames.TopIndex to lastVisible do begin
@@ -392,9 +479,10 @@ begin
 
     btnSet := TSpeedButton.Create(PanelRowButtons);
     btnSet.Parent := PanelRowButtons;
-    btnSet.SetBounds(RowBtnGapH, y, btnWidth, btnHeight);
+    btnSet.SetBounds(RowBtnGapH, y, setWidth, btnHeight);
     btnSet.Glyph.Assign(BSetPrimary.Glyph);
-    btnSet.Hint := 'Wybierz ten zasób';
+    btnSet.Caption := 'Rozk³ad';
+    btnSet.Hint := 'Rozk³ad';
     btnSet.ShowHint := true;
     btnSet.Tag := i;
     btnSet.OnClick := RowSetPrimaryClick;
@@ -402,7 +490,7 @@ begin
 
     btnDel := TSpeedButton.Create(PanelRowButtons);
     btnDel.Parent := PanelRowButtons;
-    btnDel.SetBounds(RowBtnGapH*2+btnWidth, y, btnWidth, btnHeight);
+    btnDel.SetBounds(RowBtnGapH*2+setWidth, y, delWidth, btnHeight);
     btnDel.Glyph.Assign(BDelete.Glyph);
     btnDel.Hint := 'Usuñ z listy';
     btnDel.ShowHint := true;
@@ -412,14 +500,36 @@ begin
 
     btnDetails := TSpeedButton.Create(PanelRowButtons);
     btnDetails.Parent := PanelRowButtons;
-    btnDetails.SetBounds(RowBtnGapH*3+btnWidth*2, y, btnWidth, btnHeight);
-    btnDetails.Caption := '...';
+    btnDetails.SetBounds(RowBtnGapH*3+setWidth+delWidth, y, detailsWidth, btnHeight);
+    btnDetails.Caption := 'Szczegó³y';
     btnDetails.Hint := 'Edytuj szczegó³y zasobu';
     btnDetails.ShowHint := true;
     btnDetails.Tag := i;
     btnDetails.OnClick := RowDetailsClick;
     RowDetailsButtons[i] := btnDetails;
+
+    btnStat := TSpeedButton.Create(PanelRowButtons);
+    btnStat.Parent := PanelRowButtons;
+    btnStat.SetBounds(RowBtnGapH*4+setWidth+delWidth+detailsWidth, y, statWidth, btnHeight);
+    btnStat.Caption := 'Podsum.';
+    btnStat.Hint := 'Podsumowanie';
+    btnStat.ShowHint := true;
+    btnStat.Tag := i;
+    btnStat.OnClick := RowStatClick;
+    RowStatButtons[i] := btnStat;
   end;
+end;
+
+procedure TFListOrganizer.RowStatClick(Sender: TObject);
+var idx : integer;
+    recId : ShortString;
+    statResType : string;
+begin
+  idx := TSpeedButton(Sender).Tag;
+  recId := lbIds.Items[idx];
+  statResType := resType;
+  if statResType = 'R2' then statResType := 'R'; // OpenFGrouping has no separate ResCat1 bucket - R is the closest match
+  Fmain.OpenFGrouping(statResType, recId);
 end;
 
 procedure TFListOrganizer.RowSetPrimaryClick(Sender: TObject);

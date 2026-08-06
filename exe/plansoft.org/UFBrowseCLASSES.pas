@@ -48,6 +48,20 @@ type
     ActionLEC_ADD: TMenuItem;
     ActionLEC_DEL: TMenuItem;
     ActionLEC_DEL_ALL: TMenuItem;
+    ActionGRO_ADD: TMenuItem;
+    ActionGRO_DEL: TMenuItem;
+    ActionGRO_DEL_ALL: TMenuItem;
+    ActionRES_ADD: TMenuItem;
+    ActionRES_DEL: TMenuItem;
+    ActionRES_DEL_ALL: TMenuItem;
+    ActionOWNER_ADD: TMenuItem;
+    ActionOWNER_DEL: TMenuItem;
+    ActionSUB_CHANGE: TMenuItem;
+    ActionFOR_CHANGE: TMenuItem;
+    ActionDESC1_CHANGE: TMenuItem;
+    ActionDESC2_CHANGE: TMenuItem;
+    ActionCOLOR_CHANGE: TMenuItem;
+    ColorDialog1: TColorDialog;
     BitBtn1: TBitBtn;
     procedure CONPERIODChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -90,6 +104,19 @@ type
     procedure BMassEditClick(Sender: TObject);
     procedure ActionLEC_DELClick(Sender: TObject);
     procedure ActionLEC_DEL_ALLClick(Sender: TObject);
+    procedure ActionGRO_ADDClick(Sender: TObject);
+    procedure ActionGRO_DELClick(Sender: TObject);
+    procedure ActionGRO_DEL_ALLClick(Sender: TObject);
+    procedure ActionRES_ADDClick(Sender: TObject);
+    procedure ActionRES_DELClick(Sender: TObject);
+    procedure ActionRES_DEL_ALLClick(Sender: TObject);
+    procedure ActionOWNER_ADDClick(Sender: TObject);
+    procedure ActionOWNER_DELClick(Sender: TObject);
+    procedure ActionSUB_CHANGEClick(Sender: TObject);
+    procedure ActionFOR_CHANGEClick(Sender: TObject);
+    procedure ActionDESC1_CHANGEClick(Sender: TObject);
+    procedure ActionDESC2_CHANGEClick(Sender: TObject);
+    procedure ActionCOLOR_CHANGEClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
@@ -766,6 +793,322 @@ begin
   End;
   Fmain.DeepRefreshImmediate('ActionLEC_DEL_ALLClick');
   BRefreshClick(nil);
+end;
+
+procedure TFBrowseCLASSES.ActionGRO_ADDClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachGro,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachGro,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshImmediate('ActionGRO_ADDClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionGRO_DELClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If GROUPSShowModalAsMultiSelect(KeyValues,'','0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteGro,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteGro,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshImmediate('ActionGRO_DELClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionGRO_DEL_ALLClick(Sender: TObject);
+Var tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  dmodule.CommitTrans;
+  //Dmodule.RollbackTrans: TFMain.modifyClass calls Dmodule.RollbackTranson on error
+
+  if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteGro,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  end;
+  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+	      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteGro,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  End;
+  Fmain.DeepRefreshImmediate('ActionGRO_DEL_ALLClick');
+  BRefreshClick(nil);
+end;
+
+procedure TFBrowseCLASSES.ActionRES_ADDClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachRes,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachRes,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshImmediate('ActionRES_ADDClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionRES_DELClick(Sender: TObject);
+Var KeyValues : String;
+    KeyValue  : string;
+    t,tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If ROOMSShowModalAsMultiSelect(dmodule.pResCatId0,'',KeyValues,'0=0','') = mrOK Then Begin
+    dmodule.CommitTrans;
+    for t := 1 to wordCount(KeyValues, [',']) do begin
+      KeyValue := extractWord(t,KeyValues, [',']);
+
+			 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteRes,keyValue,'',successFlag,false); quickInsertMode := false;
+       end;
+			 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+			  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteRes,keyValue,'',successFlag,false); quickInsertMode := false;
+			 End;
+    end;
+    Fmain.DeepRefreshImmediate('ActionRES_DELClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionRES_DEL_ALLClick(Sender: TObject);
+Var tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  dmodule.CommitTrans;
+  //Dmodule.RollbackTrans: TFMain.modifyClass calls Dmodule.RollbackTranson on error
+
+  if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteRes,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  end;
+  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+	      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteRes,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  End;
+  Fmain.DeepRefreshImmediate('ActionRES_DEL_ALLClick');
+  BRefreshClick(nil);
+end;
+
+procedure TFBrowseCLASSES.ActionOWNER_ADDClick(Sender: TObject);
+Var KeyValue : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If PLANNERSShowModalAsSelect(KeyValue,'0=0') = mrOK Then Begin
+    KeyValue := DModule.SingleValue('SELECT NAME FROM PLANNERS WHERE ID='+KeyValue);
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachOwner,keyValue,'',successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clAttachOwner,keyValue,'',successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionOWNER_ADDClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+// unconditional detach - owner is single-valued per class (unlike lecturers/groups/rooms),
+// so there is no separate "selected owner" variant the way there is for the multi-valued lists
+procedure TFBrowseCLASSES.ActionOWNER_DELClick(Sender: TObject);
+Var tgrid   : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  dmodule.CommitTrans;
+
+  if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteOwner,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  end;
+  For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+        if successFlag = false then break;
+	      Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+        quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clDeleteOwner,'' {keyValue},'',successFlag,false); quickInsertMode := false;
+  End;
+  Fmain.DeepRefreshImmediate('ActionOWNER_DELClick');
+  BRefreshClick(nil);
+end;
+
+procedure TFBrowseCLASSES.ActionSUB_CHANGEClick(Sender: TObject);
+Var KeyValue, KeyValueDsp : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If SUBJECTSShowModalAsSelect(KeyValue,'') = mrOK Then Begin
+    KeyValueDsp := dmodule.SingleValue('select name from subjects where id='+keyValue);
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeSub,keyValue,keyValueDsp,successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeSub,keyValue,keyValueDsp,successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionSUB_CHANGEClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionFOR_CHANGEClick(Sender: TObject);
+Var KeyValue, KeyValueDsp : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If FORMSShowModalAsSelect(KeyValue,'') = mrOK Then Begin
+    KeyValueDsp := dmodule.SingleValue('select name||''(''||abbreviation||'')'' from forms where id='+keyValue);
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeFor,keyValue,keyValueDsp,successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeFor,keyValue,keyValueDsp,successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionFOR_CHANGEClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionDESC1_CHANGEClick(Sender: TObject);
+Var KeyValue : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If FIN_LOOKUP_VALUESShowModalAsMultiselectExt(FProgramSettings.getClassDescPlural(1),KeyValue) = mrOK Then Begin
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeDesc1,keyValue,'',successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeDesc1,keyValue,'',successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionDESC1_CHANGEClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionDESC2_CHANGEClick(Sender: TObject);
+Var KeyValue : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  KeyValue := '';
+  If FIN_LOOKUP_VALUESShowModalAsMultiselectExt(FProgramSettings.getClassDescPlural(2),KeyValue) = mrOK Then Begin
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeDesc2,keyValue,'',successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeDesc2,keyValue,'',successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionDESC2_CHANGEClick');
+    BRefreshClick(nil);
+  end;
+end;
+
+procedure TFBrowseCLASSES.ActionCOLOR_CHANGEClick(Sender: TObject);
+Var KeyValue : ShortString;
+    tgrid : integer;
+    successFlag : boolean;
+begin
+  successFlag := true;
+  If ColorDialog1.Execute Then Begin
+    KeyValue := intToStr(ColorDialog1.Color);
+    dmodule.CommitTrans;
+
+		 if (Grid.SelectedRows.Count = 0) and (successFlag = true) then begin
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeCColor,keyValue,'',successFlag,false); quickInsertMode := false;
+     end;
+		 For tgrid := 0 To Grid.SelectedRows.Count - 1 Do Begin
+      if successFlag = false then break;
+		  Query.Bookmark := Grid.SelectedRows.Items[tgrid];
+      quickInsertMode := true; Fmain.modifyClass(Query.FieldByName('ID').AsString,0,0,0,0,clChangeCColor,keyValue,'',successFlag,false); quickInsertMode := false;
+		 End;
+
+    Fmain.DeepRefreshImmediate('ActionCOLOR_CHANGEClick');
+    BRefreshClick(nil);
+  end;
 end;
 
 procedure TFBrowseCLASSES.BitBtn1Click(Sender: TObject);

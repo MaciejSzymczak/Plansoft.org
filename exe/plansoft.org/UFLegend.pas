@@ -30,8 +30,6 @@ type
     DSCounter: TDataSource;
     groupByForm: TCheckBox;
     SelectedSubOnly: TCheckBox;
-    SpeedButton1: TSpeedButton;
-    SpeedButton2: TSpeedButton;
     QueryL: TADOQuery;
     QueryG: TADOQuery;
     QueryR: TADOQuery;
@@ -134,8 +132,6 @@ type
     procedure FLegendTabsChange(Sender: TObject);
     procedure groupByFormClick(Sender: TObject);
     procedure SelectedSubOnlyClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure QueryCOUNTERAfterOpen(DataSet: TDataSet);
     procedure QueryCOUNTERBeforeOpen(DataSet: TDataSet);
@@ -381,19 +377,6 @@ begin
   gridCounter.Font.Size := gridsFontSize;
 end;
 
-
-procedure TFLegend.SpeedButton1Click(Sender: TObject);
-begin
-  gridsFontSize := gridsFontSize + 1;
-  refreshGridSize;
-end;
-
-procedure TFLegend.SpeedButton2Click(Sender: TObject);
-begin
-  if gridsFontSize > 1 then
-    gridsFontSize := gridsFontSize - 1;
-  refreshGridSize;
-end;
 
 procedure TFLegend.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -766,6 +749,7 @@ begin
       iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 6) and (fmain.BViewByWeek.down), 'and cla.sub_id = '+nvl(fmain.ConSubject.Text,'-1')+' '                                     ,'') + CR +
       iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
@@ -804,6 +788,8 @@ begin
    if GroupBoxLock.Visible then
      RefreshLockButtons;
   end;
+
+  BottomPanel.Parent.Invalidate; //2026-08: BRefreshClick toggles Visible on ~20 controls inside BottomPanel depending on the active tab - this is called far more often than FormShow/FormActivate/FLegendTabsChange (which already had this fix), so it was the actual gap: refreshing while another window had painted over this area left stale pixels behind until something else forced a repaint
 end;
 
 procedure TFLegend.FilterLChange(Sender: TObject);
@@ -1026,7 +1012,8 @@ begin
 end;
 
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
-var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS_Name, dspS_Abbr: ShortString;
+var itemsL, itemsG, itemsR, itemsF, itemsS : TStringList;
+    t : Integer;
  function hasAccess (pId : String) : boolean;
  var sql : string;
      UserOrRoleID : string;
@@ -1051,73 +1038,64 @@ var idL, idG, idR, idF, idS,dspL, dspG, dspR, dspF, dspS_Name, dspS_Abbr: ShortS
    +';pla_id5='+UserOrRoleID
    );
   result := dmodule.QWork.Fields[0].AsString='1';
-  if not result then info ('Brak uprawnieñ');
+  if not result then info ('Brak uprawnien');
  end;
 
 begin
-  idL := '';
-  idG := '';
-  idR := '';
-  idF := '';
-  idS := '';
-  dspL := '';
-  dspG := '';
-  dspR := '';
-  dspF := '';
-  dspS_Name := '';
-  dspS_Abbr := '';
-  if (groupByL.Checked) and  (QueryCounter.FieldByName('LEC_ID').AsString<>'') then begin
-     idL :=  QueryCounter.FieldByName('LEC_ID').AsString;
-     dspL := QueryCounter.FieldByName('Wyk³adowca').AsString;
-  end;
-  if (groupByG.Checked) and (chGnewLine.checked) and  (QueryCounter.FieldByName('GRO_ID').AsString<>'') then begin
-     idG := QueryCounter.FieldByName('GRO_ID').AsString;
-     dspG := QueryCounter.FieldByName('Grupa').AsString;
-  end;
-  if (groupByG.Checked) and (not chGnewLine.checked) and  (QueryCounter.FieldByName('CALC_GRO_IDS').AsString<>'') then begin
-     idG :=  ExtractWord(1, QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']);
-     dspG := ExtractWord(1, QueryCounter.FieldByName('Grupa').AsString, [';']);;
-  end;
-  if (groupByR.Checked) and  (QueryCounter.FieldByName('ROM_ID').AsString<>'') then begin
-     idR := QueryCounter.FieldByName('ROM_ID').AsString;
-     dspR := QueryCounter.FieldByName('Zasób').AsString;
-  end;
-  if (groupByS_Name.Checked) and  (QueryCounter.FieldByName('SUB_ID').AsString<>'') then begin
-     idS := QueryCounter.FieldByName('SUB_ID').AsString;
-     dspS_Name := QueryCounter.FieldByName('Przedmiot').AsString;
-  end;
-  if (groupByS_Abbr.Checked) and  (QueryCounter.FieldByName('SUB_ID2').AsString<>'') then begin
-     idS := QueryCounter.FieldByName('SUB_ID2').AsString;
-     dspS_Abbr := QueryCounter.FieldByName('Przedmiot_Skrot').AsString;
-  end;
-  if (groupByForm.Checked) and  (QueryCounter.FieldByName('FOR_ID').AsString<>'') then begin;
-     idF := QueryCounter.FieldByName('FOR_ID').AsString;
-     dspF :=  QueryCounter.FieldByName('Forma').AsString;
-  end;
-  FLegendNavigation.open(
-    idL, idG, idR, idF, idS, dspL, dspG, dspR, dspF, dspS_Name +' '+ dspS_Abbr
-  );
+  itemsL := TStringList.Create;
+  itemsG := TStringList.Create;
+  itemsR := TStringList.Create;
+  itemsF := TStringList.Create;
+  itemsS := TStringList.Create;
+  try
+    if (groupByL.Checked) and (QueryCounter.FieldByName('LEC_ID').AsString<>'') then
+      itemsL.Add(QueryCounter.FieldByName('LEC_ID').AsString + '|' + QueryCounter.FieldByName('Wyk³adowca').AsString);
 
+    if (groupByG.Checked) and (chGnewLine.checked) and (QueryCounter.FieldByName('GRO_ID').AsString<>'') then
+      itemsG.Add(QueryCounter.FieldByName('GRO_ID').AsString + '|' + QueryCounter.FieldByName('Grupa').AsString);
 
+    // one row per group instead of only the first - a grouped row can legitimately involve several groups
+    if (groupByG.Checked) and (not chGnewLine.checked) and (QueryCounter.FieldByName('CALC_GRO_IDS').AsString<>'') then
+      for t := 1 to WordCount(QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']) do
+        itemsG.Add(
+          ExtractWord(t, QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']) + '|' +
+          ExtractWord(t, QueryCounter.FieldByName('Grupa').AsString, [';'])
+        );
 
+    if (groupByR.Checked) and (QueryCounter.FieldByName('ROM_ID').AsString<>'') then
+      itemsR.Add(QueryCounter.FieldByName('ROM_ID').AsString + '|' + QueryCounter.FieldByName('Zasób').AsString);
 
-  if FLegendNavigation.selectedOption='dspL' then begin if not hasAccess(idL) then exit; fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := idL; end;//uutilities.getChildsAndParents(idL, '', true, false, true); end;
-  if FLegendNavigation.selectedOption='dspG' then begin if not hasAccess(idG) then exit; fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := idG; end;//uutilities.getChildsAndParents(idG, '', true, false, true);   end;
-  if FLegendNavigation.selectedOption='dspR' then begin if not hasAccess(idR) then exit; fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := idR; end;//uutilities.getChildsAndParents(idR, '', true, false, true);   end;
-  if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(idS) then exit; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := idS; end;//uutilities.getChildsAndParents(idS, '', true, false, true);  end;
-  if FLegendNavigation.selectedOption='dspF' then begin if not hasAccess(idF) then exit; fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := idF; end;//uutilities.getChildsAndParents(idF, '', true, false, true);  end;
+    if (groupByS_Name.Checked) and (QueryCounter.FieldByName('SUB_ID').AsString<>'') then
+      itemsS.Add(QueryCounter.FieldByName('SUB_ID').AsString + '|' + QueryCounter.FieldByName('Przedmiot').AsString);
 
-  if FLegendNavigation.selectedOption='EditL' then begin if not hasAccess(idL) then exit; LECTURERSShowModalAsSingleRecord(aedit,idL); end;
-  if FLegendNavigation.selectedOption='EditG' then begin if not hasAccess(idG) then exit; GROUPSShowModalAsSingleRecord(aedit,idG); end;
-  if FLegendNavigation.selectedOption='EditR' then begin if not hasAccess(idR) then exit; ROOMSShowModalAsSingleRecord(aedit,idR); end;
-  if FLegendNavigation.selectedOption='EditS' then begin if not hasAccess(idS) then exit; SUBJECTSShowModalAsSingleRecord(aedit,idS); end;
-  if FLegendNavigation.selectedOption='EditF' then begin if not hasAccess(idF) then exit; FORMSShowModalAsSingleRecord(aedit,idF); end;
+    if (groupByS_Abbr.Checked) and (QueryCounter.FieldByName('SUB_ID2').AsString<>'') then
+      itemsS.Add(QueryCounter.FieldByName('SUB_ID2').AsString + '|' + QueryCounter.FieldByName('Przedmiot_Skrot').AsString);
 
-  if FLegendNavigation.selectedOption='StatL' then begin if not hasAccess(idL) then exit; Fmain.OpenFGrouping('L',idL); end;
-  if FLegendNavigation.selectedOption='StatG' then begin if not hasAccess(idG) then exit; Fmain.OpenFGrouping('G',idG); end;
-  if FLegendNavigation.selectedOption='StatR' then begin if not hasAccess(idR) then exit; Fmain.OpenFGrouping('R',idR); end;
-  if FLegendNavigation.selectedOption='StatS' then begin if not hasAccess(idS) then exit; Fmain.OpenFGrouping('S',idS); end;
-  if FLegendNavigation.selectedOption='StatF' then begin if not hasAccess(idF) then exit; Fmain.OpenFGrouping('F',idF); end;
+    if (groupByForm.Checked) and (QueryCounter.FieldByName('FOR_ID').AsString<>'') then
+      itemsF.Add(QueryCounter.FieldByName('FOR_ID').AsString + '|' + QueryCounter.FieldByName('Forma').AsString);
+
+    FLegendNavigation.open(itemsL, itemsG, itemsR, itemsF, itemsS);
+
+    if FLegendNavigation.selectedOption='dspL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspG' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspR' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 6; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspF' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := FLegendNavigation.selectedId; end;
+
+    if FLegendNavigation.selectedOption='EditL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; LECTURERSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='EditG' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; GROUPSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='EditR' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; ROOMSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='EditS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; SUBJECTSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='EditF' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; FORMSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
+
+    if FLegendNavigation.selectedOption='StatL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; Fmain.OpenFGrouping('L',FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='StatG' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; Fmain.OpenFGrouping('G',FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='StatR' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; Fmain.OpenFGrouping('R',FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='StatS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; Fmain.OpenFGrouping('S',FLegendNavigation.selectedId); end;
+    if FLegendNavigation.selectedOption='StatF' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; Fmain.OpenFGrouping('F',FLegendNavigation.selectedId); end;
+  finally
+    itemsL.Free; itemsG.Free; itemsR.Free; itemsF.Free; itemsS.Free;
+  end;
 end;
 
 procedure TFLegend.GridLCellClick(Column: TColumn);
