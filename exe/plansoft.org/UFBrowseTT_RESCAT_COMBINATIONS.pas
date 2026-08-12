@@ -191,7 +191,7 @@ procedure TFBrowseTT_RESCAT_COMBINATIONS.DelParentClick(Sender: TObject);
 var id : shortString;
 begin
  id := qdetails.FieldByName('id').AsString;
- if id = '' then begin info('Brak danych do usuniêcia'); exit; end;
+ if id = '' then begin SError('Brak danych do usuniêcia'); exit; end;
  if question ('Czy na pewno chcesz wy³¹czyæ regu³e dla wskazanego planisty ?') = id_yes
  then begin
   dmodule.SQL('delete from tt_pla where id = '  + id );

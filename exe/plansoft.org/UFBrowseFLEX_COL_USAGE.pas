@@ -89,7 +89,7 @@ Function  TFBrowseFLEX_COL_USAGE.CanDeleteRecord    : Boolean;
 begin
  if not Query.Active then exit;
  if Query.FieldByName('SYSTEM_FLAG').AsString = '+' Then Begin
-  Info('Nie mo¿na usuwaæ pól systemowych. Ten atrybut jest niebêdny do funkcjonowania wielu funkcji programu i nie mo¿e zostaæ usuniêty.');
+  SError('Nie mo¿na usuwaæ pól systemowych. Ten atrybut jest niebêdny do funkcjonowania wielu funkcji programu i nie mo¿e zostaæ usuniêty.');
   Result := False;
  End
  Else Result := True;
@@ -98,18 +98,18 @@ end;
 
 Procedure TFBrowseFLEX_COL_USAGE.AddClick;
 begin
- info ('Za pomoc¹ tego formularza nie mo¿na dodawaæ atrybutów. Dodaj atrybut na formularzu, którego on dotyczy, np. na formularzu zasoby');
+ SError('Za pomoc¹ tego formularza nie mo¿na dodawaæ atrybutów. Dodaj atrybut na formularzu, którego on dotyczy, np. na formularzu zasoby');
 end;
 
 Procedure TFBrowseFLEX_COL_USAGE.CopyClick;
 begin
- info ('Ta funkcja na tym formularzu jest nieaktywna');
+ SError('Ta funkcja na tym formularzu jest nieaktywna');
 end;
 
 
 Procedure TFBrowseFLEX_COL_USAGE.DeleteAllClick;
 begin
- info ('Ta funkcja na tym formularzu jest nieaktywna');
+ SError('Ta funkcja na tym formularzu jest nieaktywna');
 end;
 
 Procedure TFBrowseFLEX_COL_USAGE.BeforeEdit;

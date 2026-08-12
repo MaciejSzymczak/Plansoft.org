@@ -57,7 +57,7 @@ begin
   except
    on e:exception do begin
        copyToClipboard( sqlstmt );
-       info('Ups.. Wygl¹da na to, ¿e modu³ generowania mapy Google nie zosta³ zainstalowany, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. '+cr+cr+e.message);
+       SError('Ups.. Wygl¹da na to, ¿e modu³ generowania mapy Google nie zosta³ zainstalowany, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. '+cr+cr+e.message);
        exit;
    end;
   end;

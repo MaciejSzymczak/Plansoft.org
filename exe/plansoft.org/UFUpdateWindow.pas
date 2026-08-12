@@ -401,7 +401,7 @@ begin
    for t := 0 to length-1 do begin
      if XML.DocumentElement.ChildNodes[t].NodeName = 'version' then begin
         if XML.DocumentElement.ChildNodes[t].Text <> '1.0' then begin
-            info('Zmieni³a siê wersja programu instalacyjnego. Pobierz aktualne oprogramowanie ze strony www.plansoft.org.');
+            SError('Zmieni³a siê wersja programu instalacyjnego. Pobierz aktualne oprogramowanie ze strony www.plansoft.org.');
             exit;
         end;
      end;
@@ -441,7 +441,7 @@ begin
     closeFile(f);
     deletefile(temporaryFilePath);
   except
-    info ('Nie mo¿na dokonaæ aktualizacji programu z powodu braku uprawnieñ do zapisu na dysku w lokalizacji'+cr+cr+extractFilePath(Application.ExeName)+cr+cr+'Uruchom program ponownie z poziomu administratora systemu');
+    SError('Nie mo¿na dokonaæ aktualizacji programu z powodu braku uprawnieñ do zapisu na dysku w lokalizacji'+cr+cr+extractFilePath(Application.ExeName)+cr+cr+'Uruchom program ponownie z poziomu administratora systemu');
     Application.Terminate;
   end;
 

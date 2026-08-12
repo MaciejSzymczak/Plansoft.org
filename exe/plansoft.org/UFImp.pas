@@ -50,13 +50,13 @@ procedure TFImp.BitBtn1Click(Sender: TObject);
 begin
   inherited;
   If isBlank(EFilename.Text) Then Begin
-    Info('Wybierz plik do zaimportowania');
+    SError('Wybierz plik do zaimportowania');
     Exit;
   End;
   ExecuteFileAndWait(ECommand1.Text);
   ExecuteFileAndWait(ECommand2.Text);
   ExecuteFileAndWait(ECommand3.Text);
-  Info('Czynnoœæ zakoñczy³a siê. Zosta³ ponownie utworzony u¿ytkownik '+BPLANNER.Text+' z has³em PLANNER');
+  SError('Czynnoœæ zakoñczy³a siê. Zosta³ ponownie utworzony u¿ytkownik '+BPLANNER.Text+' z has³em PLANNER');
 end;
 
 procedure TFImp.FormCreate(Sender: TObject);

@@ -340,7 +340,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Wyk³adowca podrzêdny oraz wy³adowca nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       SError(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Wyk³adowca podrzêdny oraz wy³adowca nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;
@@ -368,7 +368,7 @@ begin
     fmain.propagateDependencyChanges(currentParent, 'L');
    end;
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-   if resultValue <> '' then info (resultValue) else refreshDetails;
+   if resultValue <> '' then SError(resultValue) else refreshDetails;
   end;
 end;
 
@@ -506,7 +506,7 @@ end;
 
 function TFBrowseLECTURERS.canEditPermission: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := true;
 end;
 
 function TFBrowseLECTURERS.IsRecordReadOnly: Boolean;
@@ -516,12 +516,12 @@ end;
 
 function TFBrowseLECTURERS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 function TFBrowseLECTURERS.canDelete: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 
@@ -546,12 +546,12 @@ end;
 
 procedure TFBrowseLECTURERS.SpeedButton3Click(Sender: TObject);
 begin
-  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+  SError('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 procedure TFBrowseLECTURERS.SpeedButton2Click(Sender: TObject);
 begin
-  info('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
+  SError('Wpisz przedmioty w formacie "#Matematyka #Fizyka".'+cr+'Nastêpnie wyszukuj wyk³adowców przez wpisanie #nazwa przedmiotu w dowolnym miejscu w Aplikacji');
 end;
 
 procedure TFBrowseLECTURERS.BMassEditClick(Sender: TObject);

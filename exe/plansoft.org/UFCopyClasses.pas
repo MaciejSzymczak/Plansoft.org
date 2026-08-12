@@ -226,7 +226,7 @@ begin
  gCanCloseQuery := false;
 
  //if (CopyClasses.Checked) and (replaceWithId<>'') then begin
- //  info('Odnacz pole wyboru "Zajêcia" - nie mo¿na kopiowaæ zajêæ, gdy zmieniamy grupê');
+ //  SError('Odnacz pole wyboru "Zajêcia" - nie mo¿na kopiowaæ zajêæ, gdy zmieniamy grupê');
  //  exit;
  //end;
 
@@ -237,7 +237,7 @@ begin
 
  if (whichSheets.ItemIndex <> 3) and (keyValue = '') then
  begin
-  info('Wybierz arkusz do skopiowania');
+  SError('Wybierz arkusz do skopiowania');
   exit;
  end;
 
@@ -289,7 +289,7 @@ begin
 			  begin
 				cnt := dmodule.SingleValue('select planner_utils.get_output_param_num1, planner_utils.get_output_param_num2 from dual');
         TotalErrors := TotalErrors + dmodule.QWork.Fields[1].AsInteger;
-				//info ('Zrobione. '+cr+'Skopiowano rekordów: ' + cnt+ cr + ' Nie skopiowano rekordów: '+ dmodule.QWork.Fields[1].AsString );
+				//SError('Zrobione. '+cr+'Skopiowano rekordów: ' + cnt+ cr + ' Nie skopiowano rekordów: '+ dmodule.QWork.Fields[1].AsString );
 				gCanCloseQuery := true;
 			  end
 			  else
@@ -310,8 +310,8 @@ begin
  FProgress.Hide;
  if DModule.ADOConnection.Connected then dmodule.CommitTrans;
 
- if TotalErrors = 0 then info('Zrobione');
- if TotalErrors > 0 then info('Zrobione'+cr+cr+'Zignorowano b³êdów:'+IntToStr(TotalErrors));
+ if TotalErrors = 0 then SError('Zrobione');
+ if TotalErrors > 0 then SError('Zrobione'+cr+cr+'Zignorowano b³êdów:'+IntToStr(TotalErrors));
 
 end;
 

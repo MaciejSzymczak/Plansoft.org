@@ -141,7 +141,7 @@ begin
   End;
 
   dmodule.ADOConnection.CommitTrans;
-  Info('Kopiowanie zakoñczy³o siê sukcesem')
+  SError('Kopiowanie zakoñczy³o siê sukcesem')
 end;
 
 procedure TFCopyTimeTable.BitBtn1Click(Sender: TObject);

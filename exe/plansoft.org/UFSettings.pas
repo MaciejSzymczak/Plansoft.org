@@ -326,7 +326,7 @@ var
 implementation
 
 uses UFMain, UUtilityParent, UFWWWGenerator, UFWWWGeneratorSUB, UFProgramSettings, DM,
-  UFSalectDaysOfWeek;
+  UFSalectDaysOfWeek, UProgress;
 
 {$R *.DFM}
 
@@ -392,16 +392,21 @@ begin
   pdfFileName :=  uutilityParent.ApplicationDocumentsPath + 'temp.pdf';
   if fileexists( tmpFileName ) then
    if not deletefile( tmpFileName ) then begin
-     info ('Nie mo¿na utworzyæ dokumentu, poniewa¿ dokument jest aktualnie u¿ywany przez inny program. Zamknij inne programy i spróbuj ponownie');
+     SError('Nie mo¿na utworzyæ dokumentu, poniewa¿ dokument jest aktualnie u¿ywany przez inny program. Zamknij inne programy i spróbuj ponownie');
      exit;
    end;
+
+
+  FProgress.Show;
+  FProgress.ProgressBar.Position := 50;
+  FProgress.Refresh;
 
   case FMain.TabViewType.TabIndex of
    0: begin presId:=ExtractWord(1,FMain.conlecturer.Text,[';']); presType:='LEC'; end;
    1: begin presId:=ExtractWord(1,FMain.congroup.Text,[';']);    presType:='GRO'; end;
    2: begin presId:=ExtractWord(1,FMain.conResCat0.Text,[';']); presType:='ROM'; end;
    3: begin presId:=ExtractWord(1,FMain.conResCat1.Text,[';']); presType:='ROM'; end;
-   6: begin presId:=ExtractWord(1,FMain.consubject.Text,[';']); presType:='SUB'; end;
+   5: begin presId:=ExtractWord(1,FMain.consubject.Text,[';']); presType:='SUB'; end;
   end;
 
   //If PageControl.ActivePage = TabSheetL Then
@@ -412,7 +417,7 @@ begin
           , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex );
       if LPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
-    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameLgen.Text );
+    //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameLgen.Text );
 
   //If PageControl.ActivePage = TabSheetG Then
     If FMain.TabViewType.TabIndex = 1 Then Begin
@@ -422,7 +427,7 @@ begin
           , ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex);
       if GPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
-    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameGgen.Text);
+    //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameGgen.Text);
 
   //If PageControl.ActivePage = TabSheetR Then
     If (FMain.TabViewType.TabIndex = 2) or (FMain.TabViewType.TabIndex = 3) Then Begin
@@ -432,9 +437,9 @@ begin
           , rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex);
       if RPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
-    //Else Info('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
+    //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
 
-    If FMain.TabViewType.TabIndex = 6 Then Begin
+    If FMain.TabViewType.TabIndex = 5 Then Begin
       ColoringIndex := getCode(SViewType);
       UFWWWGeneratorSUB.CalendarToHTMLSubject(FMain.conPeriod.Text, presId, getCode(SD1), getCode(SD2), getCode(SD3), getCode(SD4), getCode(SD5), SHEADER.Lines, SFOOTER.Lines, SRShowLegend.Checked,
             iif(SlegendECTS.checked,1,0)*4 + iif(SlegendAbbr.checked,1,0)*2 + iif(SlegendSummary.checked,1,0)*1 + iif(SlegendSummaryGroup.checked,1,0)*8
@@ -442,12 +447,14 @@ begin
       if SPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
 
+   FProgress.Hide;
+
    if fileExists(tmpFileName) then begin
        If isBlank(Prog)
            Then UUTilityParent.ExecuteFile( tmpFileName ,'','',SW_SHOWMAXIMIZED)
            Else begin
              if tmpFileName=pdfFileName then begin
-                 info ('Dokumentu w formacie pdf nie mo¿na edytowaæ, zostanie uruchomiony podgl¹d dokumentu');
+                 SError('Dokumentu w formacie pdf nie mo¿na edytowaæ, zostanie uruchomiony podgl¹d dokumentu');
                  UUTilityParent.ExecuteFile( tmpFileName ,'','',SW_SHOWMAXIMIZED);
              end
              else
@@ -1068,7 +1075,7 @@ end;
 procedure TFSettings.BitBtn2Click(Sender: TObject);
 begin
   SaveInRegistry;
-  info('Zmiany zosta³y zapisane');
+  SError('Zmiany zosta³y zapisane');
 end;
 
 procedure TFSettings.BCloseSettingsClick(Sender: TObject);
@@ -1120,7 +1127,7 @@ end;
 
 procedure TFSettings.lhelpClick(Sender: TObject);
 begin
-  info(
+  SError(
     'Przy definiowaniu nag³ówka i stopki strony mo¿na u¿ywaæ znaczników HTML.'+cr+
   'Mo¿na tak¿e u¿ywaæ symboli: %PERIOD, %LECTURER, %GROUP, %ROOM'
  );

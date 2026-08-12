@@ -215,7 +215,7 @@ end;
 
 function TFBrowseFORMS.canEditPermission: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := true;
 end;
 
 function TFBrowseFORMS.IsRecordReadOnly: Boolean;
@@ -225,12 +225,12 @@ end;
 
 function TFBrowseFORMS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 function TFBrowseFORMS.canDelete: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 Procedure TFBrowseFORMS.AfterPost;

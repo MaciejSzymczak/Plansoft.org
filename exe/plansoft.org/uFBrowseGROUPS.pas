@@ -459,7 +459,7 @@ begin
      FProgress.ProgressBar.Position :=  round(t *  FProgress.ProgressBar.Max / maxT);
      FProgress.Refresh;
      if (resultValue<>'') then begin
-       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Grupa podrzêdna oraz grupa nadrzêdna maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       SError(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Grupa podrzêdna oraz grupa nadrzêdna maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        FProgress.Hide;
        Exit;
      End;
@@ -495,7 +495,7 @@ begin
    FProgress.Hide;
 
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-   if resultValue <> '' then info (resultValue) else refreshDetails;
+   if resultValue <> '' then SError(resultValue) else refreshDetails;
 
   end;
 end;
@@ -721,7 +721,7 @@ end;
 
 function TFBrowseGROUPS.canEditPermission: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := true;
 end;
 
 function TFBrowseGROUPS.IsRecordReadOnly: Boolean;
@@ -731,12 +731,12 @@ end;
 
 function TFBrowseGROUPS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 function TFBrowseGROUPS.canDelete: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 Procedure TFBrowseGROUPS.AfterPost;
@@ -794,7 +794,7 @@ end;
 procedure TFBrowseGROUPS.SpeedButton2Click(Sender: TObject);
 begin
   inherited;
-  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj grupy przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+  SError('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj grupy przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 
 end;
 

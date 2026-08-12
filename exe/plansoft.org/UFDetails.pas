@@ -439,7 +439,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      if ExistsValue(L1.Text, [';'], KeyValue)
-      then Info('Nie mo¿na wybraæ ponownie tego samego : ' + fprogramsettings.profileObjectNameL.Text)
+      then SError('Nie mo¿na wybraæ ponownie tego samego : ' + fprogramsettings.profileObjectNameL.Text)
       else L1.Text := Merge(L1.Text, KeyValue, ';');
    end;
   end;
@@ -456,7 +456,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(G1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego: ' + fprogramsettings.profileObjectNameG.Text)
+      Then SError('Nie mo¿na wybraæ ponownie tego samego: ' + fprogramsettings.profileObjectNameG.Text)
       Else G1.Text := Merge(G1.Text, KeyValue, ';');
    end;
   End;
@@ -474,7 +474,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ResCat0_1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else ResCat0_1.Text := Merge(ResCat0_1.Text, KeyValue, ';');
    end;
   End;
@@ -492,7 +492,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ResCat1_1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else ResCat1_1.Text := Merge(ResCat1_1.Text, KeyValue, ';');
    end;
   End;
@@ -518,7 +518,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      if ExistsValue(L1.Text, [';'], KeyValue)
-      then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text )
+      then SError('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameL.Text )
       else L1.Text := Merge(L1.Text, KeyValue, ';');
    end;
   end;
@@ -537,7 +537,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(G1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
+      Then SError('Nie mo¿na wybraæ ponownie tego samego :' + fprogramsettings.profileObjectNameG.Text)
       Else G1.Text := Merge(G1.Text, KeyValue, ';');
    end;
   End;
@@ -557,7 +557,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      if ExistsValue(ResCat0_1.Text, [';'], KeyValue)
-      then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       else ResCat0_1.Text := Merge(ResCat0_1.Text, KeyValue, ';');
    end;
   End;
@@ -577,7 +577,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      if ExistsValue(ResCat1_1.Text, [';'], KeyValue)
-      then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       else ResCat1_1.Text := Merge(ResCat1_1.Text, KeyValue, ';');
    end;
   End;
@@ -833,7 +833,7 @@ begin
     Owner     := Owner_.Text;
 
     {
-    info(format(
+    SError(format(
         'Lecturer=[%s], [%s]'+cr+
         'Group=[%s], [%s]'+cr+
         'Room=[%s], [%s]'+cr+
@@ -1032,7 +1032,7 @@ end;
 procedure TFDetails.BPasteClick(Sender: TObject);
 begin
   inherited;
- If Not CanPaste Then Info('Brak danych do wklejenia')
+ If Not CanPaste Then SError('Brak danych do wklejenia')
  Else Begin
   if canEditL then L1.Text             := Clipboard_L1;
   if canEditG then G1.Text             := Clipboard_G1;
@@ -1148,7 +1148,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(L2.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego : '+fprogramsettings.profileObjectNameL.Text)
+      Then SError('Nie mo¿na wybraæ ponownie tego samego : '+fprogramsettings.profileObjectNameL.Text)
       Else L2.Text := Merge(L2.Text, KeyValue, ';');
    end;
   End;
@@ -1165,7 +1165,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(G2.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego : '+fprogramsettings.profileObjectNameG.Text)
+      Then SError('Nie mo¿na wybraæ ponownie tego samego : '+fprogramsettings.profileObjectNameG.Text)
       Else G2.Text := Merge(G2.Text, KeyValue, ';');
    end;
   End;
@@ -1183,7 +1183,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(rescat0_2.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else rescat0_2.Text := Merge(rescat0_2.Text, KeyValue, ';');
    end;
   End;
@@ -1426,7 +1426,7 @@ begin
   //setResLimitation( strToInt(dmodule.pResCatId1) );
   If ROOMSShowModalAsSelect(dmodule.pResCatId1,'',KeyValue,'0=0','') = mrOK Then  Begin
    If ExistsValue(rescat1_2.Text, [';'], KeyValue)
-    Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+    Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
     Else rescat1_2.Text := Merge(rescat1_2.Text, KeyValue, ';');
   End;
 end;
@@ -1456,7 +1456,7 @@ procedure TFDetails.setResLimitation(p_rescat_id: integer);
   end;
 begin
   if wordCount(getResIds,[','])>=16 then
-    info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu' , showOnceaday)
+    SError('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu' , showOnceaday)
   else
     dmodule.sql('begin tt_planner.set_res_limitation122 (:p_pla_id, :p_res_ids, :p_rescat_id ); end;'
                ,'p_pla_id='+fmain.getUserOrRoleId+';p_res_ids='+getResIds+';p_rescat_id='+intToStr(p_rescat_id)

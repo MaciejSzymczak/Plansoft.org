@@ -355,7 +355,7 @@ procedure CalendarToHTMLSubject(
       if pdfl then parameters := '-l ' + parameters;
       if pdfo then parameters := '-O Landscape ' + parameters;
       if pdfs then parameters := '-s A3 ' + parameters;
-      if not fileexists(exeName) then info('Ups.. Utworzenie pdf nie powiedzie si' + #281 + ', poniewa' + #380 + ' nie odnaleziono pliku: '+exeName+#13#10);
+      if not fileexists(exeName) then SError('Ups.. Utworzenie pdf nie powiedzie si' + #281 + ', poniewa' + #380 + ' nie odnaleziono pliku: '+exeName+#13#10);
       fmain.wlog(exeName+' '+parameters);
       executeFileAndWait(exeName+' '+parameters);
     end;
@@ -845,7 +845,7 @@ procedure CalendarToHTMLSubject(
 //-------------------------------------------------------------------------------------------
 begin
  if isBlank(pPeriodId) or isBlank(presId) then begin
-   Info('Brak wybranego okresu lub przedmiotu.');
+   SError('Brak wybranego okresu lub przedmiotu.');
    exit;
  end;
 

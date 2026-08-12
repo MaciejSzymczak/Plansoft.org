@@ -652,7 +652,7 @@ Begin
  Repeat
   Len := Len + 1;
 
-  //info(inttostr(len) + ' ' +  intToStr( Date ) + ' ' + intToStr( startDate ) + ' ' + intToStr( endDate ) + ' ' + intToStr( startDate - endDate ) + ' ' + intToStr(Date - EndDate));
+  //SError(inttostr(len) + ' ' +  intToStr( Date ) + ' ' + intToStr( startDate ) + ' ' + intToStr( endDate ) + ' ' + intToStr( startDate - endDate ) + ' ' + intToStr(Date - EndDate));
 
   if Len > high(ColRowDate) then begin
     SError('1.Wyst¹pi³o zdarzenie "4 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len) + ' high(data)=' + intToStr(high(ColRowDate)) );
@@ -1129,7 +1129,7 @@ Var L : Integer;
 Begin
  Result := True;
  If Not CanDelete Then Begin
-  Info('Nie mo¿esz usun¹æ rekordów, poniewa¿ nie jesteœ ich w³aœcicielem');
+  SError('Nie mo¿esz usun¹æ rekordów, poniewa¿ nie jesteœ ich w³aœcicielem');
   Result := False;
   Exit;
  End;
@@ -1183,7 +1183,7 @@ Begin
    If Not CheckConflicts.deleteConflictClasses Then Begin Result := False; Exit; End;
 
   if NewClassToCreate.Hour = -1 Then
-    Info('Wyst¹pi³ problem IntToStr(NewClass.Hour) = -1. Zg³oœ problem serwisowi');
+    SError('Wyst¹pi³ problem IntToStr(NewClass.Hour) = -1. Zg³oœ problem serwisowi');
 
  With DModule Do Begin
   calc_lec_ids := '';
@@ -1587,16 +1587,16 @@ begin
                 ,'user='+dm.UserName
                 );
      dmodule.CommitTrans;
-     Info(lClasses + ' zosta³y usuniête');
+     SError(lClasses + ' zosta³y usuniête');
    End;
-  End Else Info('Nie ma ' +fprogramSettings.profileObjectNameClassgen.text+ ' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text );
+  End Else SError('Nie ma ' +fprogramSettings.profileObjectNameClassgen.text+ ' u¿ytkownika bez okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text );
 
   If I2 <> '0' Then Begin
    If Question('Znaleziono ' +lClasses+ ' innych u¿ytkowników bez  okreœlonego ' + fprogramSettings.profileObjectNamePeriodgen.Text+': '+I2+'. ' +lClasses+ ' te mog¹ usun¹æ tylko u¿ytkownicy, którzy je utworzyli. Czy chcesz zobaczyæ listê u¿ytkowników, którzy maj¹ nie powi¹zane ' +lClasses+ ' ?')=ID_YES Then Begin
      DModule.SingleValue('SELECT DISTINCT OWNER FROM CLASSES WHERE NOT EXISTS (SELECT 1 FROM PERIODS WHERE DAY BETWEEN DATE_FROM AND DATE_TO) AND OWNER<>'''+dm.UserName+'''');
-     Info('U¿ytkownicy, którzy maj¹ nie powi¹zane ' +lClasses+ ': '+GetResultByComma(DModule.QWork));
+     SError('U¿ytkownicy, którzy maj¹ nie powi¹zane ' +lClasses+ ': '+GetResultByComma(DModule.QWork));
    End;
-  End Else Info('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
+  End Else SError('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
 end;
 
 procedure TConvertManyObjects.init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
@@ -1638,7 +1638,7 @@ Begin
  //_row := 2; // row 0 -> name of day
               // row 1 -> day
  if High(ObjIds) > MaxAllLecturers then
-      info('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê z administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
+      SError('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê z administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
  SetLength(ObjectIds, High(ObjIds) + 3);
  For t:= 0 To High(ObjIds)  do begin
   ObjectIds[t+1].id   := ObjIds[t];
@@ -1807,7 +1807,7 @@ Begin
      //user can delete class providing it is an edit (edit = delete + insert )
  else
      if not UutilityParent.CanDelete then begin
-       Info('Nie mo¿esz usuwaæ zajêæ');
+       SError('Nie mo¿esz usuwaæ zajêæ');
        Result := False;
        Exit;
      end;
@@ -1815,19 +1815,12 @@ Begin
  If _Owner<>'' Then
   If (not isOwner(_Owner)) Then Begin
    if not ExistsValue(suppressedDeleteClassOwners, [';'], _Owner) then begin
-     Info('Nie mo¿esz zmieniaæ zajêæ u¿ytkownika '+_Owner);
+     SError('Nie mo¿esz zmieniaæ zajêæ u¿ytkownika '+_Owner);
      suppressedDeleteClassOwners := Merge(suppressedDeleteClassOwners, _Owner, ';');
    end;
    Result := False;
    Exit;
   End;
-
-  If (confineCalendarId<>'') then
-    If fmain.confineCalendar.getRatio(Class_.day, Class_.hour)<>calConfineOk then begin
-       Info('Nie mo¿esz usun¹æ zajêcia poza obszarem planowania, który zosta³ ci przypisany');
-       Result := False;
-       Exit;
-    End;
 
   dmodule.sql('begin api.delete_class (:id ); end;'
              ,'id='+intToStr(Class_.ID)
@@ -2041,8 +2034,8 @@ begin
    End;
 
    //for t := 0 to dmodule.QWork.Parameters.Count -1 do begin
-   // info( dmodule.QWork.Parameters[t].Name   );
-   // info( dmodule.QWork.Parameters[t].value );
+   // SError( dmodule.QWork.Parameters[t].Name   );
+   // SError( dmodule.QWork.Parameters[t].value );
    //end;
    //copytoclipboard(' *** '+  trace);
 
@@ -2070,7 +2063,7 @@ begin
 
   if  (myClass.calc_lec_ids = '') and (myClass.calc_gro_ids = '') and  (myClass.calc_rom_ids = '') then
   begin
-     //info('Nie mo¿na zapisaæ zajêcia bez wyk³adowcy, grupy i zasobu');
+     //SError('Nie mo¿na zapisaæ zajêcia bez wyk³adowcy, grupy i zasobu');
      result := true;
      exit;
   end;
@@ -2078,7 +2071,7 @@ begin
   if not skipCanInsertCheck then begin
     if not canInsertClass ( myClass , currentClassId, resultMessage, true, knownCapacityOverflow, capacityOverflowKnown ) then
     begin
-      info (resultMessage);
+      SError(resultMessage);
       Result := False;
       exit;
     end;
@@ -2136,16 +2129,16 @@ begin
       Dmodule.RollbackTrans;
 
       if Pos(sKeyViolation, E.Message)<>0 then
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na konflikt '+cr+cr+
+        SError('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na konflikt '+cr+cr+
               'Szczegó³y: ' + cr+ e.message)
       else if Pos('ORA-20050', E.Message)<>0 then
-        info('Inny u¿ytkownik w³aœnie modyfikuje dane, spróbuj za chwilê.')
+        SError('Inny u¿ytkownik w³aœnie modyfikuje dane, spróbuj za chwilê.')
       else if Pos('ORA-20000', E.Message)<>0 then
         //show user message only
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr
+        SError('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +cr+cr+cr
               + Copy(e.message, Pos('ORA-20000', E.Message)+10, Pos(chr(10), E.Message)-10 ) )
       else
-        info('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na nieoczekiwany b³¹d w bazie danych'+cr+cr+cr+
+        SError('Nie mo¿na zapisaæ '+fprogramsettings.profileObjectNameClassgen.text +' ze wzglêdu na nieoczekiwany b³¹d w bazie danych'+cr+cr+cr+
               'Komunikat, który zwróci³a baza danych jest nastêpuj¹cy: ' + cr+ e.message);
 
     end;
@@ -2237,7 +2230,7 @@ begin
  if convertMode= ConvSingleObject then begin
    result := convertSingleObject.DateToColRow(_Date, -1,  Col, Row);
  end else begin
-   info('W tym widoku funkcja nie jest obs³ugiwana');
+   SError('W tym widoku funkcja nie jest obs³ugiwana');
    result := false;
  end;
 

@@ -52,7 +52,6 @@ inherited FMain: TFMain
         'Zas'#243'b'
         'Zas'#243'b2'
         'Kalendarz dni wolnych'
-        'Kalendarz szczeg'#243'lny'
         'Przedmiot')
       TabIndex = 0
       OnClick = TabViewTypeClick
@@ -4871,13 +4870,6 @@ inherited FMain: TFMain
         Height = 117
         TabOrder = 35
         Visible = False
-        object LCal: TLabel
-          Left = 24
-          Top = 16
-          Width = 49
-          Height = 14
-          Caption = 'Kalendarz'
-        end
         object L4: TLabel
           Left = 24
           Top = 40
@@ -4891,25 +4883,6 @@ inherited FMain: TFMain
           Width = 82
           Height = 14
           Caption = 'Wy'#347'wietl symbol'
-        end
-        object CALID: TEdit
-          Left = 72
-          Top = 8
-          Width = 121
-          Height = 22
-          TabOrder = 1
-          Text = '-1'
-          Visible = False
-          OnChange = CALIDChange
-        end
-        object CALID_VALUE: TEdit
-          Left = 80
-          Top = 8
-          Width = 206
-          Height = 22
-          ReadOnly = True
-          TabOrder = 0
-          OnClick = CALID_VALUEClick
         end
         object ReservationType: TEdit
           Left = 120
@@ -6386,10 +6359,7 @@ inherited FMain: TFMain
         Caption = 'Siatka godzinowa'
         OnClick = Siatkagodzinowa1Click
       end
-      object Kalendarze1: TMenuItem
-        Caption = 'Kalendarze szczeg'#243'lne'
-        OnClick = Kalendarze1Click
-      end
+
       object N3: TMenuItem
         Caption = '-'
       end

@@ -314,7 +314,7 @@ procedure TFBrowseFORM_FORMULAS.BitBtn7Click(Sender: TObject);
 var alert : string;
 begin
   alert := checkFormula;
-  if isBlank(alert) then info ('Formu³a nie zawiera b³êdów')
+  if isBlank(alert) then SError('Formu³a nie zawiera b³êdów')
                        else Serror( alert );
 end;
 

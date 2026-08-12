@@ -266,7 +266,7 @@ begin
     if (resIds <> '') and (getRescatIts = '') then
     begin
       if wordCount( resIds,[','])>=16 then
-        info('Ze wzglêdu na du¿¹ liczbê wybranych zasobów (>=16), operacja sprawdzenia, czy istniej¹ podobne kombinacje zajê³a by zbyt wiele czasu i zostanie pominiêta. Kombinacja zostanie dodana')
+        SError('Ze wzglêdu na du¿¹ liczbê wybranych zasobów (>=16), operacja sprawdzenia, czy istniej¹ podobne kombinacje zajê³a by zbyt wiele czasu i zostanie pominiêta. Kombinacja zostanie dodana')
       else
       begin
         q := nil;
@@ -430,7 +430,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ConLec.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego wyk³adowcy')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego wyk³adowcy')
       Else begin
        ConLec.Text := Merge(KeyValue, ConLec.Text, ';');
       end;
@@ -448,7 +448,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conGro.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tej samej grupy')
+      Then SError('Nie mo¿na wybraæ ponownie tej samej grupy')
       Else begin
         conGro.Text := Merge(KeyValue, conGro.Text, ';');
       end;
@@ -466,7 +466,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conResCat0.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         conResCat0.Text := Merge(KeyValue, conResCat0.Text, ';');
       end;
@@ -484,7 +484,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conResCat1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         conResCat1.Text := Merge(KeyValue, conResCat1.Text, ';');
       end;
@@ -503,7 +503,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conSub.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego przedmiotu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego przedmiotu')
       Else begin
         conSub.Text := Merge(KeyValue, conSub.Text, ';');
       end;
@@ -522,7 +522,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conFor.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tej samej formy')
+      Then SError('Nie mo¿na wybraæ ponownie tej samej formy')
       Else begin
         conFor.Text := Merge(KeyValue, conFor.Text, ';');
       end;
@@ -541,7 +541,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conPer.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego okresu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego okresu')
       Else begin
         conPer.Text := Merge(KeyValue, conPer.Text, ';');
       end;
@@ -560,7 +560,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conPla.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego planisty')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego planisty')
       Else begin
         conPla.Text := Merge(KeyValue, conPla.Text, ';');
       end;
@@ -963,7 +963,7 @@ begin
             );
 
  //Query.FieldByName('avail_curr').AsString := dmodule.SingleValue('select avail_curr from tt_combinations where id = ' + p_tt_comb_id );
- info ('Wartoœæ "Do zaplanowania" zosta³a przeliczona');
+ SError('Wartoœæ "Do zaplanowania" zosta³a przeliczona');
 end;
 
 procedure TFBrowseTT_COMBINATIONS.AVAIL_ORIGEnter(Sender: TObject);

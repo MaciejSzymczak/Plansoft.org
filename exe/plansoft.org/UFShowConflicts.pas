@@ -55,26 +55,23 @@ with SGConflicts do
 end;
 
 Procedure TFShowConflicts.SetSectionsVisible(ShowConflicts, ShowHints : Boolean);
-Const cConflictsSectionHeight = 31 + 222; //PanelIs + Panel5 design heights (see .dfm)
-      cHintsSectionHeight     = 140;      //PanelHints design height (see .dfm)
-Var baseHeight : integer;
 begin
-  //2026-07: derive the "both sections hidden" baseline from the CURRENT ClientHeight and CURRENT
-  //visibility instead of blindly adding/subtracting relative to the previous call. The old code
-  //could drift (window shrinking/growing over repeated calls) if this form's visible state ever
-  //got out of step with what it last set - this version is idempotent: calling it repeatedly with
-  //the same or different values always converges to the same, correct height.
-  baseHeight := ClientHeight;
-  if PanelIs.Visible    then baseHeight := baseHeight - cConflictsSectionHeight;
-  if PanelHints.Visible then baseHeight := baseHeight - cHintsSectionHeight;
-
   PanelIs.Visible    := ShowConflicts;
   Panel5.Visible     := ShowConflicts;
   PanelHints.Visible := ShowHints;
 
-  ClientHeight := baseHeight
-    + (ord(ShowConflicts) * cConflictsSectionHeight)
-    + (ord(ShowHints) * cHintsSectionHeight);
+  //2026-08: compute an ABSOLUTE target height from each panel's own design Height, instead of
+  //deriving a "baseline" by subtracting from the form's CURRENT ClientHeight. TFormConfig.FormCreate
+  //(ancestor class, see UFormConfig.pas LoadFormConfiguration) restores Form.Height from a saved
+  //.cfg file on every app start - if that saved value predates this dynamic-resize feature (or is
+  //otherwise stale), the previous relative/subtractive formula treated that stale height as ground
+  //truth and could never recover from it, and FormClose would then re-save the wrong size, locking
+  //the bug in permanently ("window doesn't grow at all"). Panel1/PanelNew/Panel3's own Height are
+  //never touched by config restore (only Form.Height/Width/Left/Top are), so summing them directly
+  //is immune to this.
+  ClientHeight := Panel1.Height + PanelNew.Height + Panel3.Height
+    + (ord(ShowConflicts) * (PanelIs.Height + Panel5.Height))
+    + (ord(ShowHints) * PanelHints.Height);
 end;
 
 end.

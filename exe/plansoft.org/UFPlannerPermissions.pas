@@ -299,7 +299,7 @@ begin
 
   With DModule Do Begin
    OPENSQL('select * from planners where type  <> ''EXTERNAL'' and '+iif(editSharing,'0=0','(Id='+UserID+' or (TYPE=''ROLE'' AND ID IN (SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+')))')+getUserTypeSearch+' and upper(name) like upper(''%'+getpSearch+'%'') ORDER BY TYPE DESC, NAME');
-   //info (  inttostr(QWork.RecordCount+1) );
+   //SError(  inttostr(QWork.RecordCount+1) );
    LGrid.ColCount   := QWork.RecordCount+1;
    PERGrid.ColCount := QWork.RecordCount+1;
    GGrid.ColCount   := QWork.RecordCount+1;

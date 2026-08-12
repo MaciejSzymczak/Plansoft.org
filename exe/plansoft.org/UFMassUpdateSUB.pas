@@ -52,14 +52,14 @@ end;
 procedure TFMassUpdateSUB.mrYesClick(Sender: TObject);
 begin
   doUpdate('+');
-  info('Zrobione. Emaile bêd¹ wysy³ane.');
+  SError('Zrobione. Emaile bêd¹ wysy³ane.');
   successFlag := true;
 end;
 
 procedure TFMassUpdateSUB.mrNoClick(Sender: TObject);
 begin
   doUpdate('-');
-  info('Zrobione. Emaile NIE bêd¹ wysy³ane.');
+  SError('Zrobione. Emaile NIE bêd¹ wysy³ane.');
   successFlag := true;
 end;
 

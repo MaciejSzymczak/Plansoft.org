@@ -91,7 +91,7 @@ Begin
  End;
 
  If Visible Then Begin
-  Info(Komunikaty.Strings[23]);
+  SError(Komunikaty.Strings[23]);
   Result := mrCancel;
   Exit;
  End;

@@ -142,7 +142,7 @@ Function  TFBrowsePERIODS.CanEditPermission : Boolean;
 begin
  result := true;
  //If (not UUtilities.isOwnerSupervisor(Query.FieldByName('CREATED_BY').AsString)) and (Query.FieldByName('CREATED_BY').AsString<>currentUserName) Then Begin
- // Info('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
+ // SError('Rekord mo¿e modyfikowaæ tylko u¿ytkownik, który utworzy³ rekord:'+Query.FieldByName('CREATED_BY').AsString);
  // result := false;
  //End;
 end;
@@ -154,7 +154,7 @@ end;
 
 Function  TFBrowsePERIODS.CanDelete    : Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 Function  TFBrowsePERIODS.CanDeleteRecord    : Boolean;
@@ -251,7 +251,7 @@ begin
   if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego okresu?') = id_yes then begin
     Dmodule.QWork.ParamCheck := false;
     DModule.SQL(searchAndReplace(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text), ':plaid',FMain.getUserOrRoleID));
-    info('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
+    SError('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
   end;
 end;
 
@@ -326,7 +326,7 @@ begin
   inherited;
  if isAdmin = true and ChLokedFlag.Checked then begin
    ChLokedFlag.Checked := false;
-   info('Ta funkcja jest dostêpna tylko dla administratora systemu');
+   SError('Ta funkcja jest dostêpna tylko dla administratora systemu');
  end;
 end;
 

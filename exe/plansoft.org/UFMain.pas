@@ -42,7 +42,6 @@ const
   C_FLOATING    = 3;
 
   calReserved = -9999;
-  calConfineOk= -9999;
 
 Type TClassBy = procedure     (DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 
@@ -157,24 +156,6 @@ type TClassByResCaches = class
                      private
                       Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
                    End;
-     TotherCalendar = Class
-                     Count    : Integer;
-                     FirstDay : Integer;
-                     maxHours : integer;
-                     resId    : String;
-                     // Data[0] - 1 dzieñ okresu, Data[1]- drugi itd.
-                     Data : Array  Of
-                             Array Of Integer;
-
-                     private
-                      Procedure LoadPeriod(PER_ID : String; presId : String);
-                     public
-                      Function getRatio(TS: TTimeStamp; Zajecia : Integer) : Integer;
-                      Procedure setRatio(TS: TTimeStamp; Zajecia: Integer; ratio: integer);
-                      Procedure Init(aFirstDay, aCount, aMaxHours : Integer);
-                      Procedure Invert(TS: TTimeStamp; Zajecia: Integer);
-                   End;
-
 Type
      tBusyClassesCache = Class
                      Count    : Integer;
@@ -543,11 +524,7 @@ type
     Lista1: TMenuItem;
     DrawSuppressionS: TCheckBox;
     DrawSuppressionF: TCheckBox;
-    Kalendarze1: TMenuItem;
     CalViewPanel: TPanel;
-    LCal: TLabel;
-    CALID_VALUE: TEdit;
-    CALID: TEdit;
     L4: TLabel;
     tt_notes: TMemo;
     BShowCellLayout: TSpeedButton;
@@ -920,9 +897,6 @@ type
     procedure Preferowaneterminy1Click(Sender: TObject);
     procedure Lista1Click(Sender: TObject);
     procedure DrawSuppressionSClick(Sender: TObject);
-    procedure Kalendarze1Click(Sender: TObject);
-    procedure CALID_VALUEClick(Sender: TObject);
-    procedure CALIDChange(Sender: TObject);
     procedure TabViewTypeChange(Sender: TObject; NewTab: Integer;
       var AllowChange: Boolean);
     procedure LeftPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -1051,8 +1025,6 @@ type
     ClassByResCat1Caches  : tClassByResCaches;
     ClassBySubjectCaches  : TClassBySubjectCache;
     ReservationsCache     : tReservationsCache;
-    otherCalendar         : tOtherCalendar;
-    confineCalendar       : tOtherCalendar;
     BusyClassesCache      : tBusyClassesCache;
     //
     trackHistoryInstalled : boolean;
@@ -1087,7 +1059,6 @@ type
 
     procedure insertClasses;
     procedure invertReservations;
-    procedure invertOtherCalendar;
     procedure SetRatio ( pratio : integer);
     procedure set_tmp_selected_dates;
     procedure RunMassImport(whatObject : Integer);
@@ -1248,14 +1219,14 @@ Var t : Integer;
 
 Var L1, L2 : Integer;
 begin
-  If (PER_ID = 0) Or (PER_ID = -1) Then Info('(PER_ID = 0) Or (PER_ID = -1)');
+  If (PER_ID = 0) Or (PER_ID = -1) Then SError('(PER_ID = 0) Or (PER_ID = -1)');
 
   With DModule Do Begin
    Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+IntToStr(PER_ID)));
    DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
    DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
    Count    :=  QWork.Fields[2].AsInteger+1;
-   //info (  IntToStr(PER_ID) +'#'+ QWork.Fields[2].AsString ) ;
+   //SError(  IntToStr(PER_ID) +'#'+ QWork.Fields[2].AsString ) ;
    firstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
    periodClause := format('DAY BETWEEN %s AND %s', [DateFrom, DateTo]);
 
@@ -1622,7 +1593,7 @@ Begin
      Class_ := Classes[t1][Zajecia].Class_;
      Exit;
  End;
- Info('Sytuacja niemo¿liwa! Zajecia='+IntToStr(Zajecia)+' TS.Date='+DateTimeToStr(TimeStampToDateTime(TS)));
+ SError('Sytuacja niemo¿liwa! Zajecia='+IntToStr(Zajecia)+' TS.Date='+DateTimeToStr(TimeStampToDateTime(TS)));
 End;
 
 {****************************************************************************}
@@ -1969,10 +1940,6 @@ procedure TFMain.FormCreate(Sender: TObject);
    ClassByResCat1Caches  := TClassByResCaches.create;
    ClassBySubjectCaches  := TClassBySubjectCache.create;
    ReservationsCache     := tReservationsCache.Create;
-   otherCalendar         := totherCalendar.Create;
-   confineCalendar       := totherCalendar.Create;
-   otherCalendar.count :=0;
-   confineCalendar.Count :=0;
    BusyClassesCache      := tBusyClassesCache.create;
 
    ClassByLecturerCaches.init;
@@ -2059,8 +2026,8 @@ procedure TFMain.RefreshGrid;
  Begin
   GridPanel.Visible := V;
   filterPanel.Visible := BViewByCrossTable.Down;
-  Legend.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
-  Shape7a.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  Legend.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
+  Shape7a.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   bAddClass.Visible := V;
   bAddClass.Enabled := canInsert;
   bmoveLeft.Enabled := canInsert and canDelete;
@@ -2082,16 +2049,16 @@ procedure TFMain.RefreshGrid;
   bcutarea.Visible := V;
   bpastearea.Visible := V;
   bclearselection.Visible := V;
-  GoToDate.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  GoToDate.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   //zoomIn.Visible := V;
   //zoomOut.Visible := V;
   bwww.Visible := V;
-  BViewByWeek.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
+  BViewByWeek.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
-  CONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
-  LCONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
-  GoToDate.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=6);
-  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
+  CONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
+  LCONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
+  GoToDate.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=5));
   bmoveDown.Visible := v;
   bmoveUp.Visible := v;
   bmoveLeft.Visible := v;
@@ -2147,6 +2114,10 @@ begin
      If getCode(FcellLayout.D6) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 6;
      If getCode(FcellLayout.D7) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 7;
      If getCode(FcellLayout.D8) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 8;
+     // Przedmiot (tab 5) stacks up to 5 classes per cell (see DrawSubjectMulti) - the D1..D8
+     // line-count above is calibrated for ONE class's info-lines (Lecturer/Group/Room views)
+     // and is normally far too short for this tab, silently hiding all content in the cell.
+     If TabViewType.TabIndex = 5 Then Grid.DefaultRowHeight := fontHeightInPixels * 5;
      FcellLayout.ForcedCellHeight.Position := Grid.DefaultRowHeight;
    end;
 
@@ -2186,7 +2157,7 @@ begin
  If (TabViewType.TabIndex = 1) And (isBlank(ConGroup.Text))    Then Begin SetButtons(False); Exit; End;
  If (TabViewType.TabIndex = 2) And (isBlank(conResCat0.Text))  Then Begin SetButtons(False); Exit; End;
  If (TabViewType.TabIndex = 3) And (isBlank(CONResCat1.Text))  Then Begin SetButtons(False); Exit; End;
- If (TabViewType.TabIndex = 6) And (isBlank(ConSubject.Text))   Then Begin SetButtons(False); Exit; End;
+ If (TabViewType.TabIndex = 5) And (isBlank(ConSubject.Text))   Then Begin SetButtons(False); Exit; End;
  SetButtons(True);
 
  refreshGridAndLegend;
@@ -2215,7 +2186,6 @@ Begin
       2:With DModule do begin rId := ExtractWord(1, conResCat0.Text,  [';']);  UpsertRecentlyUsed(rId,'R');  end;
       3:With DModule do begin rId := ExtractWord(1, conResCat1.Text,  [';']);  UpsertRecentlyUsed(rId,'R');  end;
       4:begin self.Caption := 'Edycja kalendarza dni wolnych'+', Plansoft.org'; end;
-      5:begin self.Caption := 'Edycja kalendarza szczególnego'+', Plansoft.org'; end;
     end;
   end;
   end;
@@ -2225,9 +2195,8 @@ Begin
     1:With DModule do begin rName := ExtractWord(1, ConGroup_value.Text,  [';']);  self.Caption := rname;  end;
     2:With DModule do begin rName := ExtractWord(1, conResCat0_value.Text,  [';']);  self.Caption := rname; end;
     3:With DModule do begin rName := ExtractWord(1, conResCat1_value.Text,  [';']);  self.Caption := rname; end;
-    6:With DModule do begin rName := ExtractWord(1, CONSUBJECT_value.Text,  [';']);  self.Caption := rname; end;
+    5:With DModule do begin rName := ExtractWord(1, CONSUBJECT_value.Text,  [';']);  self.Caption := rname; end;
     4:begin self.Caption := 'Edycja kalendarza dni wolnych'; end;
-    5:begin self.Caption := 'Edycja kalendarza szczególnego'; end;
   end;
 
   refreshPanels;
@@ -2249,7 +2218,7 @@ Begin
   TabViewType.Tabs[1] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']) , fprogramsettings.profileObjectNameGs.text);
   TabViewType.Tabs[2] := iif( BViewByWeek.down,  dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';'])                      , dmodule.pResCatName0 );
   TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
-  TabViewType.Tabs[6] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';'])    , fprogramsettings.profileObjectNameC1s.text);
+  TabViewType.Tabs[5] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';'])    , fprogramsettings.profileObjectNameC1s.text);
 
   convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
   Grid.ColCount := colCnt;
@@ -2320,7 +2289,6 @@ begin
   If CanShow Then Begin
    if isBlank(conPeriod.Text) then exit;
    SetVisibles;
-   If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    DeepRefreshImmediate('setPeriod');
   End;
 end;
@@ -2357,7 +2325,6 @@ begin
    If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
    PeriodHolidaysReadOnly := isReadOnlyAccess('PERIODS', conPeriod.Text);
 
-   If (Not isBlank(conPeriod.Text) and (confineCalendarId<>'')) Then confineCalendar.LoadPeriod(conPeriod.Text,confineCalendarId);
    UpsertRecentlyUsed(ExtractWord(1, conPeriod.text,  [';']),'P');  //TEdit(Sender).Text
    DeepRefreshDelayed;
   End;
@@ -2879,19 +2846,6 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 	 Begin
     resType := ReservationsCache.IsReserved(TS, Zajecia);
 	  If resType<>'' Then DrawStriped(Rect, resType);
-    If (confineCalendarId<>'') then
-      If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then DrawCross(grid, Rect);
-	 End;
-
-	 Procedure drawOtherCalendar;
-   Var ratio : integer;
-	 Begin
-    ratio :=OtherCalendar.getRatio(TS, Zajecia);
-	  If ratio=calReserved
-      Then DrawStriped(Rect,'')
-	    else
-        if ratio<>0
-        Then DrawTriangle(Rect, ratio);
 	 End;
 
 	 // Przedmiot (subject) view: a cell can hold several parallel classes, so this bypasses
@@ -3088,8 +3042,7 @@ begin
        2: Begin ClassByRoomCaches.GetClass    (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,conResCat0.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        3: Begin ClassByResCat1Caches.GetClass (TS, Zajecia, iif(AObjectId = -1, ExtractWord(1,CONResCat1.Text ,[';']), intToStr(AObjectId)), Status, Class_); drawReservationsCalendar; End;
        4: drawReservationsCalendar;
-       5: drawOtherCalendar;
-       6: DrawSubjectMulti;
+       5: DrawSubjectMulti;
       End;
 
       If (TabViewType.TabIndex = 0) or (TabViewType.TabIndex = 1) or (TabViewType.TabIndex = 2) or (TabViewType.TabIndex = 3)
@@ -3272,7 +3225,7 @@ Procedure TFMain.insertClasses;
      //The code below is working, but has been disabled.
      //if you consider to uncomment it: take into consideration this function requires the combination having exact PER_ID (if there is diff PER_ID with the same dates, an alert "missing combination" will be shown
      if wordCount(resourceList,[','])>=16 then
-       info('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu', showOnceaday)
+       SError('Ze wzglêdu na liczbê wybranych zasobów (>=16), sprawdzenie dostêpnych kombinacji zasobów nie zostanie przeprowadzone, gdy¿ zajê³oby to zbyt wiele czasu', showOnceaday)
      else
      begin
        dmodule.sql('begin tt_planner.verify (:p_pla_id, :p_res_ids, :p_auto_fix ); end;'
@@ -3412,11 +3365,6 @@ Var xp, yp           : Integer;
       canInsertClass := (resType='') or (Copy(resType,1,1)='+');
       //else canInsertClass := true;
 
-      if (confineCalendarId <> '') and (canInsertClass) then begin
-         canInsertClass := (confineCalendar.getRatio(TS, Zajecia)=calConfineOk);
-         if not canInsertClass then info('Nie mo¿esz planowaæ zajêæ w zaznaczonym terminie');
-      end;
-
       addedFlag := false;
       if (canInsertClass) then begin
         addedFlag := XAddClass();
@@ -3438,20 +3386,6 @@ begin
 
     //fix perf: check ONCE per batch whether any negative res_hints exist at all, so XAddClass can skip the per-cell query entirely in the common case
     anyHintsExist := DModule.SingleValue('select case when exists (select 1 from res_hints where ratio<0) then 1 else 0 end val from dual') = '1';
-
-    {
-    calendarSelected := fdetails.CALID.Text<>'-1';
-    if calendarSelected then
-    if fdetails.CALID.Text <> fmain.CALID.Text then begin
-      ignoreEvents := true;
-      fmain.CALID.Text :=  fdetails.CALID.Text;
-      ignoreEvents := false;
-      DModule.RefreshLookupEdit(Self, 'CALID','NAME','ROOMS','');
-      If Not isBlank(conPeriod.Text) Then otherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
-      //now the OtherCalendar.IsReserved(TS, Zajecia) is available
-    end;
-    }
-
 
     With Grid Do
     Begin
@@ -3492,7 +3426,7 @@ begin
       FProgress.Hide;
       Refresh;
 
-      if classesCount<classesToAdd then info('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount));
+      if classesCount<classesToAdd then SError('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount));
 
     End;
  End;
@@ -3501,8 +3435,7 @@ end;
 procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
- If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
- If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
+ If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  With FDetails Do Begin
 
@@ -3735,8 +3668,7 @@ begin
        2: RoomPanel;
        3: ResPanel;
        4: ClearPanel;
-       5: ClearPanel;
-       6: ClearPanel; // Przedmiot: a cell can hold several classes, no single one to summarize here
+       5: ClearPanel; // Przedmiot: a cell can hold several classes, no single one to summarize here
       End;
       if not drawDone then
           If TabViewType.TabIndex<4 Then
@@ -3811,10 +3743,9 @@ procedure TFMain.TabViewTypeClick(Sender: TObject);
 var triggredObject : string[10];
 begin
  if not userLogged then exit;
- if (CALID.text='-1') and (TabViewType.TabIndex=5) then CALID_VALUEClick(nil);
  // Przedmiot has no cross-table concept (single-subject selection only) - force week/single mode
  // the same way a real click on BViewByWeek would, but only when actually leaving cross-table mode.
- if (TabViewType.TabIndex=6) and (not BViewByWeek.Down) then begin
+ if (TabViewType.TabIndex=5) and (not BViewByWeek.Down) then begin
    BViewByWeek.Down := true;
    BViewByWeekClick(nil);
  end;
@@ -3822,7 +3753,7 @@ begin
  if TabViewType.TabIndex = 0 then triggredObject := 'L';
  if TabViewType.TabIndex = 1 then triggredObject := 'G';
  if TabViewType.TabIndex = 2 then triggredObject := 'R';
- if TabViewType.TabIndex = 6 then triggredObject := 'S';
+ if TabViewType.TabIndex = 5 then triggredObject := 'S';
 
  BuildCalendar(triggredObject);
  refreshPanels; // BuildCalendar suppresses its own Podsumowanie godzin requery - a tab switch is exactly the kind of change that must still force one
@@ -3865,8 +3796,7 @@ Var xp, yp  : Integer;
 
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
- If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
- If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
+ If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  If TabViewType.TabIndex = -1 Then Begin
   SError( Format('Jeœli chcesz usun¹æ %s, wybierz kalendarz %s, %s lub zasobu', [fprogramsettings.profileObjectNameClass.text, fprogramsettings.profileObjectNameLgen.text, fprogramsettings.profileObjectNameGgen.text]) );
@@ -4061,7 +3991,7 @@ begin
      //dGeneralDebug := 'Status='+inttostr(Data[t][y].Status) + 'day='+ dateToYYYYMMDD_HHMMSSMI(QWork.FieldByName('DAY').AsDateTime) +'hour='+ QWork.FieldByName('HOUR').AsString + ' ' + qwork.SQL.Text; //@@@@
      Classes[t][y].Status := SuccStatus(Classes[t][y].Status);
      //if (Data[t][y].Status=classError) then begin
-     // info('@@@@ ERROR4 ' + dGeneralDebug);
+     // SError('@@@@ ERROR4 ' + dGeneralDebug);
      // fmain.Memo1.Lines.Text := dGeneralDebug;
      // copyToClipboard('@@@@ ERROR4 ' + dGeneralDebug);
      // end;
@@ -4533,6 +4463,7 @@ end;
 Function TFMain.Logon : Boolean;
 Var aUserName, aPassword, aDBName : ShortString;
     loginParamsDelivered : boolean;
+    userCancelled : boolean;
     gProvider : string;
     customConnectionString : string;
 
@@ -4559,7 +4490,7 @@ Var aUserName, aPassword, aDBName : ShortString;
          arguments := ApplicationDir + '\' + extractFileName( arguments );
 
         if not fileExists( arguments ) then begin
-          info('Nie mo¿na wykonaæ przetwarzania w tle, poniewa¿ plik ini nie zosta³ odnaleziony: ' + extractFileName( arguments ));
+          SError('Nie mo¿na wykonaæ przetwarzania w tle, poniewa¿ plik ini nie zosta³ odnaleziony: ' + extractFileName( arguments ));
           exit;
         end;
 
@@ -4622,7 +4553,7 @@ Var aUserName, aPassword, aDBName : ShortString;
              on E:exception do Begin
              dmodule.dbsetSystemParam('Extention_installed:'+extentionName,extentionDate+'FAILED');
              copyToClipboard( extentionSql );
-             info ('Wyst¹pi³ b³¹d podczas instalacji rozszerzenia: '+extentionName+'. Mo¿esz kontynuowaæ prace, ale zaleca siê zg³oszenie tego problemu administratorowi systemu'+#13#10#13#10#13#10+E.message);
+             SError('Wyst¹pi³ b³¹d podczas instalacji rozszerzenia: '+extentionName+'. Mo¿esz kontynuowaæ prace, ale zaleca siê zg³oszenie tego problemu administratorowi systemu'+#13#10#13#10#13#10+E.message);
              result := false;
              end;
           end;
@@ -4652,7 +4583,7 @@ Var aUserName, aPassword, aDBName : ShortString;
       repeat
           if extentionDate > LastAutoUpdateDate then begin
               if ansiUpperCase(userName)<>'PLANNER' then begin
-                   info ('Musisz wykonaæ aktualizacjê programu. Aby uruchomiæ aktualizacjê programu musisz zalogowaæ siê na konto u¿ytkownika PLANNER');
+                   SError('Musisz wykonaæ aktualizacjê programu. Aby uruchomiæ aktualizacjê programu musisz zalogowaæ siê na konto u¿ytkownika PLANNER');
                   exit;
               end;
               if not ExecuteUpdate then exit;
@@ -4720,38 +4651,41 @@ begin
 	   End;
   end
   else begin
-	  if not loginParamsDelivered then
-		If Login(aDBName, aUserName, aPassword) = mrOK Then begin
-		  loginParamsDelivered := true;
-		  setSystemParam('LoginDataBaseName', aDBName);
-		  setSystemParam('LoginUserName', aUserName);
-		end;
+	  userCancelled := false;
+	  repeat
+		if not loginParamsDelivered then
+		  If Login(aDBName, aUserName, aPassword) = mrOK Then begin
+			loginParamsDelivered := true;
+			setSystemParam('LoginDataBaseName', aDBName);
+			setSystemParam('LoginUserName', aUserName);
+		  end else
+			userCancelled := true;
 
+		if loginParamsDelivered then
+		Begin
+		 if upperCase(aDBName) = 'DOK'          then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
+		 if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
+		 if upperCase(aDBName) = 'PLANSOFT'     then aDBName := 'plansoft:1521/xe';
+		 if upperCase(aDBName) = 'XE'            then aDBName := '127.0.0.1:1521/xe';
 
-	  if loginParamsDelivered then
-	  Begin
-	   if upperCase(aDBName) = 'DOK'          then aDBName := 'devdokplaner.wat.edu.pl:1521/xepdb1';
-	   if upperCase(aDBName) = 'PLANSOFTORG'  then aDBName := 'plansoftOrg:1521/xe';
-	   if upperCase(aDBName) = 'PLANSOFT'     then aDBName := 'plansoft:1521/xe';
-	   if upperCase(aDBName) = 'XE'            then aDBName := '127.0.0.1:1521/xe';
+		 DM.UserName  := aUserName;
+		 DM.Password  := aPassword;
+		 DM.DBname    := aDBName;
+		 DModule.ADOConnection.ConnectionString := 'Provider='+gProvider+';Password='+aPassword+';Persist Security Info=True;User ID='+aUserName+';Data Source='+aDBName;
+												  //Provider=OraOLEDB.Oracle.1;Password=4154;Persist Security Info=True;User ID=planner;Data Source=planner.wat.edu.pl:1522/planner
 
-	   DM.UserName  := aUserName;
-	   DM.Password  := aPassword;
-	   DM.DBname    := aDBName;
-	   DModule.ADOConnection.ConnectionString := 'Provider='+gProvider+';Password='+aPassword+';Persist Security Info=True;User ID='+aUserName+';Data Source='+aDBName;
-												//Provider=OraOLEDB.Oracle.1;Password=4154;Persist Security Info=True;User ID=planner;Data Source=planner.wat.edu.pl:1522/planner
-
-	   Try
-		 //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaCommitRetaining];
-		 //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaAbortRetaining];
-		 dmodule.ADOConnection.CommandTimeout := 60000;
-		 dmodule.ADOConnection.Open;
-		 dmodule.ADOConnection.BeginTrans;
-	   Except
-		  on E:EDatabaseError do SError('Problem z logowaniem:'+CR+E.Message);
-		  on E:exception      do SError('Problem z logowaniem:'+CR+E.Message);
-	   End;
-	  End;
+		 Try
+		   //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaCommitRetaining];
+		   //dmodule.ADOConnection.Attributes :=  dmodule.ADOConnection.Attributes + [xaAbortRetaining];
+		   dmodule.ADOConnection.CommandTimeout := 60000;
+		   dmodule.ADOConnection.Open;
+		   dmodule.ADOConnection.BeginTrans;
+		 Except
+			on E:EDatabaseError do begin SError('Problem z logowaniem:'+CR+E.Message); loginParamsDelivered := false; aPassword := ''; end;
+			on E:exception      do begin SError('Problem z logowaniem:'+CR+E.Message); loginParamsDelivered := false; aPassword := ''; end;
+		 End;
+		End;
+	  until DModule.ADOConnection.Connected or userCancelled;
   end;
 
 
@@ -4785,7 +4719,7 @@ begin
   fprogramSettings.loadConfiguration;
 
   If  0=StrToInt(DModule.SingleValue2('select count(1) from SYS.DBA_ROLE_PRIVS WHERE GRANTEE=USER AND GRANTED_ROLE=''PLA_PERMISSION''')) Then Begin
-    Info('Nie masz uprawnieñ do korzystania z aplikacji - brak nadanych uprawnieñ');
+    SError('Nie masz uprawnieñ do korzystania z aplikacji - brak nadanych uprawnieñ');
     Result := False;
     Exit;
   End;
@@ -4796,11 +4730,11 @@ begin
   //if dmodule.SingleValue('select count(*) from grids') = '0' then uutilities.importPreviousGridSettings;
 
   Try
-    dm.UserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, CAL_ID, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
+    dm.UserName  := DModule.SingleValue('SELECT NAME, ID, IS_ADMIN, EDIT_ORG_UNITS, EDIT_FLEX, LOG_CHANGES, IS_INTEGRATED, EDIT_RESERVATIONS, edit_sharing, Can_Edit_L, Can_Edit_G, '
         +'Can_Edit_R, Can_Edit_S, Can_Edit_F, Can_Delete, Can_Insert, Can_Edit_O, Can_Edit_D, first_Resource_Flag, EDIT_OBJ_PERMISSIONS, CAN_RUN_INTEGRATION FROM PLANNERS WHERE NAME=USER');
     UserID           := DModule.QWork.Fields[1].AsString;
     if UserID='' then begin
-      info('Brak uprawnieñ do korzystania z Aplikacji. '+cr+cr+'Skontaktuj siê z administratorem systemu w celu dodania planisty za pomoc¹ menu Dane | Planiœci.');
+      SError('Brak uprawnieñ do korzystania z Aplikacji. '+cr+cr+'Skontaktuj siê z administratorem systemu w celu dodania planisty za pomoc¹ menu Dane | Planiœci.');
       dmodule.CloseDBConnection(false);
       Result := False;
       exit;
@@ -4810,22 +4744,21 @@ begin
     EditFlex         := DModule.QWork.Fields[4].AsString = '+';
     LogChanges       := DModule.QWork.Fields[5].AsString = '+';
     isIntegrated     := DModule.QWork.Fields[6].AsString = '+';
-    confineCalendarId:= DModule.QWork.Fields[7].AsString;
-    editReservations := DModule.QWork.Fields[8].AsString = '+';
-    editSharing      := DModule.QWork.Fields[9].AsString = '+';
-    CanEditL      := DModule.QWork.Fields[10].AsString = '+';
-    CanEditG      := DModule.QWork.Fields[11].AsString = '+';
-    CanEditR      := DModule.QWork.Fields[12].AsString = '+';
-    CanEditS      := DModule.QWork.Fields[13].AsString = '+';
-    CanEditF      := DModule.QWork.Fields[14].AsString = '+';
-    CanDelete     := DModule.QWork.Fields[15].AsString = '+';
-    CanInsert     := DModule.QWork.Fields[16].AsString = '+';
-    CanEditO      := DModule.QWork.Fields[17].AsString = '+';
-    CanEditD      := DModule.QWork.Fields[18].AsString = '+';
+    editReservations := DModule.QWork.Fields[7].AsString = '+';
+    editSharing      := DModule.QWork.Fields[8].AsString = '+';
+    CanEditL      := DModule.QWork.Fields[9].AsString = '+';
+    CanEditG      := DModule.QWork.Fields[10].AsString = '+';
+    CanEditR      := DModule.QWork.Fields[11].AsString = '+';
+    CanEditS      := DModule.QWork.Fields[12].AsString = '+';
+    CanEditF      := DModule.QWork.Fields[13].AsString = '+';
+    CanDelete     := DModule.QWork.Fields[14].AsString = '+';
+    CanInsert     := DModule.QWork.Fields[15].AsString = '+';
+    CanEditO      := DModule.QWork.Fields[16].AsString = '+';
+    CanEditD      := DModule.QWork.Fields[17].AsString = '+';
     CanEditAll  := CanEditL and CanEditG and CanEditR and CanEditS and CanEditF and CanEditO and CanEditD;
-    gFirstResourceFlag := DModule.QWork.Fields[19].AsString = '+';
-    EditObjPermisions := DModule.QWork.Fields[20].AsString = '+';
-    CanRunIntegration := DModule.QWork.Fields[21].AsString = '+';
+    gFirstResourceFlag := DModule.QWork.Fields[18].AsString = '+';
+    EditObjPermisions := DModule.QWork.Fields[19].AsString = '+';
+    CanRunIntegration := DModule.QWork.Fields[20].AsString = '+';
 
     activePulpit := StrToInt( DModule.dbGetSystemParam(upperCase(username)+'.ACTIVEPULPIT', '1') );
 
@@ -4872,19 +4805,6 @@ begin
   dmodule.loadMap('select id, decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name from planners where (id in (select rol_id from ROL_PLA where pla_id = '+UserID+')) or ('+iif(editSharing,'0=0',' name='''+dm.UserName+'''')+') order by decode(type,''USER'','''',''ROLE'',''Autoryzacja:'',''Zewn.'') || name', MapPlanners, false);
   dmodule.loadMap('select name, parent from planners', MapPlannerSupervisors, true);
 
-  if not isBlank(confineCalendarId) then begin
-    Kalendarze1.Enabled := false;
-    TabViewType.Tabs[5]:='';
-    flegend.notes_before.ReadOnly := true;
-    flegend.notes_after.ReadOnly := true;
-    flegend.internal_notes.ReadOnly := true;
-  end else begin
-    TabViewType.Tabs[5]:='Kalendarz szczególny';
-    Kalendarze1.Enabled := true;
-    flegend.notes_before.ReadOnly := false;
-    flegend.notes_after.ReadOnly := false;
-    flegend.internal_notes.ReadOnly := false;
-  end;
 
   If FcellLayout.D1.ItemIndex = -1 Then FcellLayout.D1.ItemIndex := getItemIndex(FcellLayout.D1, 'NONE');
   If FcellLayout.D2.ItemIndex = -1 Then FcellLayout.D2.ItemIndex := getItemIndex(FcellLayout.D2, 'NONE');
@@ -4907,10 +4827,10 @@ begin
   fmain.wlog('killSessions: Start');
   try
   if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
-     if not silentMode then info('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
+     if not silentMode then SError('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
   except
     on E:exception  do
-      info('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
+      SError('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
   End;
   fmain.wlog('killSessions: Done');
 
@@ -5204,7 +5124,7 @@ end;
 Function TFMain.GetClassByRowCol(Col, Row: Integer; Var Class_ : TClass_ ) : Integer;
 Var  Status : Integer;
 Begin
- Status := ClassNotFound; // default for tabs with no single-class lookup here (e.g. 6=Przedmiot, read-only, several classes per cell)
+ Status := ClassNotFound; // default for tabs with no single-class lookup here (e.g. 5=Przedmiot, read-only, several classes per cell)
  If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,Col,Row) = ConvClass Then Begin
       Case TabViewType.TabIndex Of
        0: ClassByLecturerCaches.LGetClass(TS, Zajecia, iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)), Status, Class_);
@@ -5222,8 +5142,7 @@ begin
  ftoolwindow.Hide;
  fcellLayout.Hide;
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
- If TabViewType.TabIndex = 5 Then Begin InvertOtherCalendar; Exit; End;
- If TabViewType.TabIndex = 6 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
+ If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then Begin
    if Class_.owner ='AUTO' then begin
@@ -5292,7 +5211,7 @@ begin
      );
      InsertClasses;
    end;
- End Else Begin Info('W siatce zaznacz komórkê do edycji'); End;
+ End Else Begin SError('W siatce zaznacz komórkê do edycji'); End;
  refreshPanels;
 end;
 
@@ -5300,8 +5219,7 @@ procedure TFMain.GridDblClick(Sender: TObject);
 Var Class_ : TClass_;
 begin
   If TabViewType.TabIndex = 4 Then begin InvertReservations; exit; end;
-  If TabViewType.TabIndex = 5 Then begin InvertOtherCalendar; exit; end;
-  If TabViewType.TabIndex = 6 Then begin ShowSubjectCellNavigation; exit; end;
+  If TabViewType.TabIndex = 5 Then begin ShowSubjectCellNavigation; exit; end;
   If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound
       Then bEditClassClick(nil)
       Else if canInsert then Fmain.AddClassToGrid(gFirstResourceFlag);
@@ -5409,7 +5327,7 @@ begin
     1: PageControl.ActivePage := TabSheetG;
     2: PageControl.ActivePage := TabSheetR;
     3: PageControl.ActivePage := TabSheetR;
-    6: PageControl.ActivePage := TabSheetS;
+    5: PageControl.ActivePage := TabSheetS;
    End;
    ShowModal;
    DeepRefreshImmediate('DeepRefreshButtonClick');
@@ -5525,123 +5443,16 @@ begin
 end;
 
 
-{ totherCalendar }
-
-procedure totherCalendar.Init;
-Var t, t2 : Integer;
-Begin
-  MaxHours := aMaxHours;
-  SetLength(Data, aCount);       // inicjuje dlugosc tabeli dynamicznej ...
-  for t := 0 to aCount -1 do     // ... i to samo dla kazdej tabeli zagniezdzonej
-    setLength(Data[t], MaxHours+1);
-
-  FirstDay := aFirstDay;
-  Count    := aCount;
-
- For t := 0 To Count-1 Do
-  For t2 := 1 To MaxHours Do
-    Data[t][t2] := 0;
-End;
-
-
-procedure totherCalendar.LoadPeriod(PER_ID: String; presId: string);
-Var t : Integer;
-    DateFrom, DateTo : String;
-    X, Y : Integer;
-    firstDay : integer;
-    ratio : integer;
-
-Var L1, L2 : Integer;
-begin
-  resId := presId;
-  With DModule Do Begin
-   Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+PER_ID));
-   DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
-   DateTo   := 'TO_DATE('''+QWork.Fields[1].AsString+''',''YYYY/MM/DD'')';
-   Count    :=  QWork.Fields[2].AsInteger+1;
-
-   firstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
-
-   Init(firstDay, Count, QWork.FieldByName('HOURS_PER_DAY').AsInteger);
-
-   FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
-
-   For L1 := 0 To Count -1 Do Begin
-     For L2 := 1 To MaxHours Do Begin
-       Data[L1][L2] := 0;
-      End;
-   End;
-
-  OPENSQL(
-   'SELECT DAY, HOUR, RATIO, case when ratio>0 then ''PLUS'' else ''MINUS'' end SIGN '+
-     'FROM res_hints '+
-    'WHERE DAY BETWEEN '+DateFrom+' AND '+DateTo+' and res_id='+resId);
-
-  While Not QWork.EOF Do Begin
-   X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
-   Y := QWork.FieldByName('HOUR').AsInteger;
-
-   t := X-FirstDay;
-
-   if t > Count    then SError('Wyst¹pi³o zdarzenie t > Count. Zg³oœ problem serwisowi technicznemu');
-
-   if y > MaxHours then begin
-     //Warning('Zarezerwowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi');
-     //komunikat jest prawdziwy, ale nie trzeba go wyswietlac, to ze rezerwacje nie pojawiaja sie nie ma zadnych konsekwencji
-   end else begin
-     ratio := QWork.FieldByName('RATIO').AsInteger;
-     //workaround for the bug
-     if (QWork.FieldByName('SIGN').AsString='MINUS') and (ratio>0) then ratio := -ratio;
-     Data[t][y] := ratio;
-   end;
-
-   QWork.Next;
-  End;
-  End;
-end;
-
-Function totherCalendar.getRatio(TS: TTimeStamp; Zajecia : Integer) : Integer;
-Var t1 : Integer;
-begin
- t1 := TS.Date - FirstDay;
- if (t1<0) or (t1 >= count) then begin
-   result := 0;
-   Exit;
- end;
- Result := Data[t1][Zajecia];
-end;
-
-procedure totherCalendar.setRatio(TS: TTimeStamp; Zajecia: Integer; ratio: integer);
-Var t1 : Integer;
-begin
- t1 := TS.Date - FirstDay;
- If Data[t1][Zajecia]<>0 then
-     DModule.SQL('DELETE FROM res_hints WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia)+' and res_id='+resId);
-
- Data[t1][Zajecia] := ratio;
- If ratio<>0 then begin
-   DModule.SQL('INSERT INTO res_hints (ID, DAY, HOUR, RATIO, RES_ID) VALUES (hint_seq.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+','+inttostr(ratio)+','+resId+')');
- end;
-end;
-
-procedure totherCalendar.Invert(TS: TTimeStamp; Zajecia: Integer);
-Var t1 : Integer;
-begin
- t1 := TS.Date - FirstDay;
- If Data[t1][Zajecia]<>0 Then begin Data[t1][Zajecia] := 0;           DModule.SQL('DELETE FROM res_hints WHERE DAY= '+TSDateToOracle(TS)+' AND HOUR='+IntToStr(Zajecia)+' and res_id='+resId); end
-                         Else begin Data[t1][Zajecia] := calReserved; DModule.SQL('INSERT INTO res_hints (ID, DAY, HOUR, RATIO, RES_ID) VALUES (hint_seq.NextVal,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+','+intToStr(calReserved)+','+resId+')') end;
-end;
-
 procedure TFMain.InvertReservations;
 Var xp, yp : Integer;
     operationDisabled : boolean;
 begin
   if not editReservations then begin
-    info ('Nie masz uprawnieñ do modyfikacji dni wolnych');
+    SError('Nie masz uprawnieñ do modyfikacji dni wolnych');
     exit;
   end;
   if PeriodHolidaysReadOnly then begin
-    info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie');
+    SError('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie');
     exit;
   end;
   dmodule.CommitTrans;
@@ -5651,33 +5462,8 @@ begin
     For yp:=Selection.Top To Selection.Bottom Do
        If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
           operationDisabled := false;
-          If (confineCalendarId<>'') then
-              If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then begin
-                  //info ('Nie mo¿na tutaj planowaæ zajêæ');
-                  operationDisabled := true;
-              End;
          if not operationDisabled then ReservationsCache.Invert(TS, Zajecia);
        End;
-   dmodule.CommitTrans;
-   Refresh;
-  End;
-end;
-
-procedure TFMain.InvertOtherCalendar;
-Var xp, yp : Integer;
-begin
-  if CALID.text='-1' then begin
-    info('Najpierw wybierz kalendarz, na którym chcesz wprowadzaæ zmiany');
-    CALID_VALUEClick(nil);
-    exit;
-  end;
-
-  dmodule.CommitTrans;
-  With Grid Do
-  Begin
-   For xp:=Selection.Left To Selection.Right Do
-    For yp:=Selection.Top To Selection.Bottom Do
-       If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then otherCalendar.Invert(TS, Zajecia);
    dmodule.CommitTrans;
    Refresh;
   End;
@@ -5699,21 +5485,13 @@ begin
        1: AObjectId := iif(AObjectId = -1, strtoint(ExtractWord(1,ConGroup.Text   ,[';'])), AObjectId);
        2: AObjectId := iif(AObjectId = -1, strtoint(ExtractWord(1,conResCat0.Text ,[';'])), AObjectId);
        3: AObjectId := iif(AObjectId = -1, strtoint(ExtractWord(1,CONResCat1.Text ,[';'])), AObjectId);
-       5: AObjectId := StrToInt(CALID.text);
       end;
 
       Ignore := false;
-      If (confineCalendarId<>'') then
-        If confineCalendar.getRatio(TS, Zajecia)<>calConfineOk then begin
-          info('Czynnoœæ zosta³a wy³¹czona, skontaktuj siê z Planist¹ lub Administratorem systemu');
-          ignore:=true;
-        End;
 
       if not ignore then
         if AObjectId <> -1 then
-            if TabViewType.TabIndex = 5
-              then otherCalendar.setRatio(TS, Zajecia, pratio)
-              else BusyClassesCache.SetRatio(TS, Zajecia, pratio, AObjectId);
+            BusyClassesCache.SetRatio(TS, Zajecia, pratio, AObjectId);
     end;
 
     dmodule.CommitTrans;
@@ -5726,7 +5504,7 @@ end;
 procedure TFMain.Uprawnieniadoobiektw1Click(Sender: TObject);
 begin
   if EditObjPermisions=false then begin
-    info('Nie posiadasz uprawnieñ do uruchomienia funkcji Uprawnienia');
+    SError('Nie posiadasz uprawnieñ do uruchomienia funkcji Uprawnienia');
     exit;
   end;
   UFPlannerPermissions.ShowModal;
@@ -5756,8 +5534,8 @@ begin
     app_version_info  := '5.0';
     db_version_info := dmodule.dbGetSystemParam('PLANOWANIE.VERSION_INFO');
     if db_version_info <> app_version_info then begin
-      //info('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Program pobierze teraz i zainstaluje aktualizacjê.'+cr+'Pobieranie aktualizacji mo¿e potrwaæ od kilku sekund do kilkunastu minut, czas ten zale¿y od jakoœci po³¹czenia z Internetem');
-      info('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Uruchom program Aktualizacja w celu pobrania nowej wersji');
+      //SError('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Program pobierze teraz i zainstaluje aktualizacjê.'+cr+'Pobieranie aktualizacji mo¿e potrwaæ od kilku sekund do kilkunastu minut, czas ten zale¿y od jakoœci po³¹czenia z Internetem');
+      SError('Na tym komputerze jest zainstalowane nieaktualne oprogramowanie.'+CR+'Wersja oprogramowania na tym komputerze to '+app_version_info+'.'+CR+'Wersja oprogramowania na serwerze to ' + db_version_info + cr + cr + 'Uruchom program Aktualizacja w celu pobrania nowej wersji');
     end;
    except
     on E:exception do begin
@@ -5767,7 +5545,7 @@ begin
     end;
    end;
 
-  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
+  BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=5));
 
    Self.Menu := MM;
 
@@ -5786,9 +5564,10 @@ begin
    //BEXP.Enabled := False;
  End
  Else Begin
-   LockFormComponents(Self,[MainPanel, LeftPanel, BLogin, TopPanel]); Self.Menu := nil;
-   //BIMP.Enabled := True;
-   //BEXP.Enabled := True;
+   // 2026-08: login failed or was cancelled after the retry loop in Logon already gave the user
+   // every chance to fix their credentials - a locked, unusable FMain behind the login dialog is a dead end,
+   // so close the application instead.
+   Application.Terminate;
  End;
  fmain.wlog('BLoginClick: Stop');
 end;
@@ -5797,13 +5576,13 @@ procedure TFMain.Odwiepolanadmiarowe1Click(Sender: TObject);
 begin
   inherited;
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   Exit;
  End;
 
  DModule.SQL('BEGIN PLANNER_UTILS.UPDATE_LGRS; END;');
  deepRefreshDelayed;
- Info('Pola zosta³y odœwie¿one');
+ SError('Pola zosta³y odœwie¿one');
 end;
 
 procedure TFMain.Zamknij1Click(Sender: TObject);
@@ -5823,7 +5602,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ConLecturer.Text, [';'], KeyValue)
-     Then Info('Nie wybieraj ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
+     Then SError('Nie wybieraj ponownie tego samego elementu:' + fprogramsettings.profileObjectNameL.Text)
      Else begin
        TabViewType.TabIndex := 0;
        //ConLecturer.Text := getChildsAndParents(KeyValue, ConLecturer.Text, true);
@@ -5848,7 +5627,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(ConGroup.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameG.Text)
+      Then SError('Nie mo¿na wybraæ ponownie tego samego elementu:' + fprogramsettings.profileObjectNameG.Text)
       Else begin
         TabViewType.TabIndex := 1;
         //ConGroup.Text := getChildsAndParents(KeyValue, ConGroup.Text, true);
@@ -5872,7 +5651,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue(conResCat0.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         TabViewType.TabIndex := 2;
         //conResCat0.Text := getChildsAndParents(KeyValue, conResCat0.Text, true);
@@ -5897,7 +5676,7 @@ begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If existsValue(conResCat1.Text, [';'], KeyValue)
-      Then Info('Nie mo¿na wybraæ ponownie tego samego zasobu')
+      Then SError('Nie mo¿na wybraæ ponownie tego samego zasobu')
       Else begin
         TabViewType.TabIndex := 3;
         //conResCat1.Text := getChildsAndParents(KeyValue, conResCat1.Text, true);
@@ -6156,7 +5935,7 @@ end;
 procedure TFMain.Zapiszdanedopliku1Click(Sender: TObject);
 begin
    If uppercase(dm.UserName) <> 'PLANNER' Then Begin
-    Info('Ten modu³ mo¿e byæ uruchamiany tylko przez u¿ytkownika administracyjnego PLANNER');
+    SError('Ten modu³ mo¿e byæ uruchamiany tylko przez u¿ytkownika administracyjnego PLANNER');
     Exit;
    End;
 
@@ -6241,7 +6020,7 @@ procedure TFMain.conRoleChange(Sender: TObject);
 begin
   If CanShow Then Begin
    if isBlank(conRole.Text) then begin conRole_value.Text := ''; exit; end;
-   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=6));
+   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=5));
    DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','PLANNERS','');
    setUserOrRoleId;
   End;
@@ -6275,7 +6054,7 @@ end;
 procedure TFMain.Ustawieniakonfiguracyjne1Click(Sender: TObject);
 begin
   If not isAdmin Then Begin
-   Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+   SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
    Exit;
   End;
 
@@ -6286,11 +6065,6 @@ end;
 
 procedure TFMain.mmconsolidationClick(Sender: TObject);
 begin
-  if not isBlank(confineCalendarId) then begin
-    info('Scalanie danych zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
-    exit;
-  end;
-
   GridPanel.Visible := false;
   CONSOLIDATIONShowModalAsBrowser(-1);
   deepRefreshDelayed;
@@ -6364,7 +6138,7 @@ function TFMain.modifyClass;
 		 if allowFlag then begin
 		 if wordCount(desc,[','])=1 then begin
 		   result := newVal;
-		 end else info('Przedmiotu lub formy w przypadku zajêæ równoleg³ych nie mo¿na w ten sposób zmieniaæ');
+		 end else SError('Przedmiotu lub formy w przypadku zajêæ równoleg³ych nie mo¿na w ten sposób zmieniaæ');
 		 end;
 	   end;
 
@@ -6373,7 +6147,7 @@ function TFMain.modifyClass;
 	   begin
 		 result := false;
 		 if not deleteClass ( oldClass, oldClass.id ) then exit;
-		 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+		 if not canInsertClass ( newClass, newClass.id, dummy ) then begin SError(dummy); exit; end;
 		 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 		 result := true;
 	   end;
@@ -6493,20 +6267,12 @@ function TFMain.modifyClass;
 		  If (cellStatus = convOutOfRange) or (newZajecia < 0) //bug in convertGrid.ColRowToDate
 		  Then
 		  begin
-		   info ('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
+		   SError('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
 		   exit;
 		  end;
     end;
 
 	  newClass      := oldClass;
-
-    if classId = 'N/A' then begin
-	  If (confineCalendarId<>'') then
-		  If confineCalendar.getRatio(newTS, newZajecia)<>calConfineOk then begin
-			  info ('Nie mo¿na tutaj planowaæ zajêæ');
-			  exit;
-		  End;
-    end;
 
 	  //calendarSelected := fdetails.CALID.Text<>'-1';
 	  //if calendarSelected then
@@ -6514,7 +6280,7 @@ function TFMain.modifyClass;
       resType := ReservationsCache.IsReserved(newTS, newZajecia);
       canInsert := (resType='') or (Copy(resType,1,1)='+');
       If canInsert=false Then begin
-        info ('W tym terminie nie mo¿na planowaæ zajêæ');
+        SError('W tym terminie nie mo¿na planowaæ zajêæ');
         exit;
       End;
     end;
@@ -6529,7 +6295,7 @@ function TFMain.modifyClass;
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
          if not checkMoveCopyConflicts(newClass, oldClass.id) then exit;
-				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin SError(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 			   end;
@@ -6540,7 +6306,7 @@ function TFMain.modifyClass;
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
          if not checkMoveCopyConflicts(newClass, -1) then exit;
-				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin info(dummy); exit; end;
+				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin SError(dummy); exit; end;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, -1, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
 			   end;
 	   //following operations are in mode: single class level
@@ -6836,7 +6602,7 @@ function TFMain.modifyClass;
 	  //sprawdzenie, czy mozna zaplanowac zajecie  - niepotrzebne, bo ewentualny komunikat o bledzie zwroci procedura insertClass
 	  //if not canInsertClass ( newClass ) then
 	  //begin
-	  //  info ('Nie mo¿na przesun¹æ rekordu za wzglêdu na konflikt z innymi zaplanowanymi rekordami');
+	  //  SError('Nie mo¿na przesun¹æ rekordu za wzglêdu na konflikt z innymi zaplanowanymi rekordami');
 	  //  exit;
 	  //end;
 
@@ -6929,25 +6695,25 @@ begin
 
   {
   case operation of
-    clDeleteLec    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteGro    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteRes    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteSub    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteDesc1    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteDesc2    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteDesc3    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clDeleteDesc4    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clAttachLec    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clAttachGro    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clAttachRes    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeSub    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeFor    : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeOwner  : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeCColor : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeDesc1 : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeDesc2 : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeDesc3 : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
-    clChangeDesc4 : info('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteLec    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteGro    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteRes    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteSub    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteDesc1    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteDesc2    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteDesc3    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clDeleteDesc4    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clAttachLec    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clAttachGro    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clAttachRes    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeSub    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeFor    : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeOwner  : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeCColor : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeDesc1 : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeDesc2 : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeDesc3 : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
+    clChangeDesc4 : SError('Zrobione. '+cr+'Zmian: ' + inttostr(cellsSucceed) + cr +cr + 'Komórki bez zmian: ' + inttostr(cellsNotSucceed) );
   end;
   }
 end;
@@ -6995,7 +6761,7 @@ begin
    if (WindowLabel <>'') then fchangepassword.Caption := WindowLabel;
    if fchangepassword.showmodal = mrOK then begin
     dmodule.SQL('alter user '+DM.UserName+' identified by "'+fchangepassword.ENewPassword.Text+'"');
-    info ('Has³o u¿ytkownika '+DM.UserName+' zosta³o zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
+    SError('Has³o u¿ytkownika '+DM.UserName+' zosta³o zmienione. Stare has³o utraci³o wa¿noœæ, zapamiêtaj nowe has³o');
    end;
    fchangepassword.Free;
    fchangepassword := nil;
@@ -7004,7 +6770,7 @@ end;
 
 procedure TFMain.Zmiehas1Click(Sender: TObject);
 begin
-   if isSSOLogin then begin info('Aby zmieniæ has³o, naciœnij kombinacjê klawiszy Alt+Ctrl+Delete i wybierz polecenie Zmieñ has³o.'); exit; end;
+   if isSSOLogin then begin SError('Aby zmieniæ has³o, naciœnij kombinacjê klawiszy Alt+Ctrl+Delete i wybierz polecenie Zmieñ has³o.'); exit; end;
    changePassword('');
 end;
 
@@ -7055,7 +6821,7 @@ try
     trace := '3';
   end;
 except
-  info ('B³¹d wewnêtrzny: Shape ' + trace);
+  SError('B³¹d wewnêtrzny: Shape ' + trace);
 end;
 end;
 
@@ -7242,7 +7008,7 @@ try
 except
  on e:exception do begin
   disableFurtherActivities := true;
-  info ('B³¹d wewnêtrzny: Ballon hint ' + trace + e.message);
+  SError('B³¹d wewnêtrzny: Ballon hint ' + trace + e.message);
  end;
 end;
 end;
@@ -7381,7 +7147,7 @@ begin
   With Grid.Selection Do begin
    if (Left <> Right) or (top <> bottom) then
    begin
-     info ('Wska¿ pojedyncz¹ komórkê');
+     SError('Wska¿ pojedyncz¹ komórkê');
      exit;
    end;
    col := left;
@@ -7390,13 +7156,13 @@ begin
 
   If convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row) <> ConvClass Then
   begin
-   info ( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
+   SError( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
    exit;
   end;
 
   If GetClassByRowCol(Grid.Col, Grid.Row, myClass) <> ClassFound Then
   begin
-   info ( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
+   SError( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
    exit;
   end;
 
@@ -7422,11 +7188,6 @@ end;
 
 procedure TFMain.Kopiowaniegrupowe1Click(Sender: TObject);
 begin
-  if not isBlank(confineCalendarId) then begin
-    info('Kopiowanie rozk³adów zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
-    exit;
-  end;
-
   if FCopyClasses = nil then Application.CreateForm(TFCopyClasses, FCopyClasses);
   if FCopyClasses.showModal = mrOK then deepRefreshDelayed;
 end;
@@ -7475,7 +7236,7 @@ begin
       end;
     sqlText := sqlText +  '  select count(1) into planner_utils.classes_selected_count from tmp_selected_dates where sessionid = userenv(''SESSIONID'');' + cr;
     sqlText := sqlText +  'end;';
-    //info ( sqlText );
+    //SError( sqlText );
     dmodule.SQL( sqlText );
     currSelectedArea := getSelectedAreaDesc;
 end;
@@ -8010,12 +7771,7 @@ end;
 procedure TFMain.RunMassImport(whatObject : Integer);
 begin
   if isIntegrated then begin
-    info('Poniewa¿ uruchomiono funkcje Zasilanie danymi innego systemu, ta funkcja nie jest dostêpna');
-    exit;
-  end;
-
-  if not isBlank(confineCalendarId) then begin
-    info('Importowanie danych w arkusza Excel zosta³o zablokowane. Skontaktuj siê z Planist¹ lub Administratorem systemu');
+    SError('Poniewa¿ uruchomiono funkcje Zasilanie danymi innego systemu, ta funkcja nie jest dostêpna');
     exit;
   end;
 
@@ -8084,7 +7840,7 @@ end;
 procedure TFMain.BPasteClick(Sender: TObject);
 begin
   With FDetails Do Begin
-   If Not CanPaste Then Info('Brak danych do wklejenia')
+   If Not CanPaste Then SError('Brak danych do wklejenia')
    Else Begin
     //Do not use getChildsAndParents here
     ConLecturer.Text := Clipboard_L1;
@@ -8172,7 +7928,7 @@ begin
     roleId := QWork.Fields[0].AsString;
     if not isBlank(roleId) then begin
      roleId := DModule.SingleValue('SELECT ROL_ID FROM ROL_PLA WHERE PLA_ID = '+UserID+' AND ROL_ID = ' +roleId);
-     if isBlank(roleID) then info('Brak uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego okresu.')
+     if isBlank(roleID) then SError('Brak uprawnieñ do korzystania z domyœlnej autoryzacji, przydzielonej do wybranego okresu.')
                         else conRole.Text := roleID;
     end;
    end;
@@ -8599,7 +8355,6 @@ Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilt
     nodeR: TTreenode;
     nodeS: TTreenode;
     nodeP: TTreenode;
-    nodeC: TTreenode;
     nodeTT: TTreenode;
     sqlString : string;
     nodeInfo : TNodeInfo;
@@ -8633,11 +8388,6 @@ Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilt
       if nodeP=nil then
           nodeP:= aTreeview.Items.AddChild(nil, fprogramsettings.profileObjectNamePeriods.Text);
     end;
-    procedure addNodeC;
-    begin
-      if nodeC=nil then
-          nodeC:= aTreeview.Items.AddChild(nil, 'Kalendarze szczególne');
-    end;
     procedure addNodeTT;
     begin
       if nodeTT=nil then
@@ -8650,7 +8400,6 @@ Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilt
         if nodeType='R' then begin addNodeR; result := nodeR; exit; end;
         if nodeType='S' then begin addNodeS; result := nodeS; exit; end;
         if nodeType='P' then begin addNodeP; result := nodeP; exit; end;
-        if nodeType='C' then begin addNodeC; result := nodeC; exit; end;
         if nodeType='TT' then begin addNodeTT; result := nodeTT; end;
     end;
     function getNodeImage(nodeType : string) : integer;
@@ -8660,7 +8409,6 @@ Procedure TFMain.addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilt
         if nodeType='R' then begin result := 18; exit; end;
         if nodeType='S' then begin result := 17; exit; end;
         if nodeType='P' then begin result := 20; exit; end;
-        if nodeType='C' then begin result := 23; exit; end;
         if nodeType='TT' then begin result := 24; end;
     end;
 Begin
@@ -8672,7 +8420,6 @@ Begin
     nodeR := nil;
     nodeS := nil;
     nodeP := nil;
-    nodeC := nil;
     nodeTT := nil;
     nodeSEP:= nil;
 
@@ -8692,16 +8439,10 @@ Begin
     sqlString := stringreplace(sqlString, '%C_PERMISSIONS_R', getWhereClause('ROOMS','m'), []);
     sqlString := stringreplace(sqlString, '%C_PERMISSIONS_S', getWhereClause('SUBJECTS','m'), []);
 
-    if isBlank(confineCalendarId) then begin
-      sqlString := stringreplace(sqlString, '%A_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
-      sqlString := stringreplace(sqlString, '%B_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
-      sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', getWhereClause('ROOMS','m'), []);
-    end else begin
-      //disable calendar in search panel
-      sqlString := stringreplace(sqlString, '%A_PERMISSIONS_C', '0=1', []);
-      sqlString := stringreplace(sqlString, '%B_PERMISSIONS_C', '0=1', []);
-      sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', '0=1', []);
-    end;
+    //"Kalendarze szczególne" removed - always disable this arm of the search query
+    sqlString := stringreplace(sqlString, '%A_PERMISSIONS_C', '0=1', []);
+    sqlString := stringreplace(sqlString, '%B_PERMISSIONS_C', '0=1', []);
+    sqlString := stringreplace(sqlString, '%C_PERMISSIONS_C', '0=1', []);
 
     sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), []);
     dmodule.openSQL(fastQuery, sqlString ,
@@ -8950,21 +8691,6 @@ begin
                   conResCat0.Text := resourceId; //getChildsAndParents(resourceId, '', true, false, true);
                 end;
              2: OpenFGrouping('R',resourceId);
-            end;
-        end;
-        //
-        if tv.Selected.ImageIndex=23 then begin
-            tv.Visible := false;
-            tv.Refresh;
-            resourceId := tnodeInfo(tv.Selected.data).id;
-            tv.Visible := true;
-            FActionTree.showList('C');
-            case FActionTree.selectedOption of
-             0: ROOMSShowModalAsSingleRecord(aedit,resourceId);
-             1: begin
-                  TabViewType.TabIndex := 5;
-                  CALID.Text := resourceId;
-             end;
             end;
         end;
         //
@@ -9303,25 +9029,6 @@ begin
   RefreshGrid;
 end;
 
-procedure TFMain.Kalendarze1Click(Sender: TObject);
-begin
-  ROOMSShowModalAsBrowser( '-9','' );
-end;
-
-procedure TFMain.CALID_VALUEClick(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := CALID.Text;
-  If AutoCreate.ROOMSShowModalAsSelect('-9','',KeyValue,'0=0','') = mrOK Then CALID.Text := KeyValue;
-end;
-
-procedure TFMain.CALIDChange(Sender: TObject);
-begin
-  if ignoreEvents then exit;
-  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-  deepRefreshDelayed;
-end;
-
 procedure TFMain.updateLeftPanel;
 var parentPanel : Twincontrol;
   procedure setParent (parentPanel : Twincontrol);
@@ -9347,8 +9054,8 @@ var parentPanel : Twincontrol;
   end;
 begin
 
- // tab 6 (Przedmiot) is a resource view like 0-3, not a special calendar like 4/5
- if tabViewType.TabIndex in [4,5] then begin
+ // tab 5 (Przedmiot) is a resource view like 0-3, not a special calendar like 4
+ if tabViewType.TabIndex = 4 then begin
    parentPanel := CalViewPanel;
    CalViewPanel.Visible := true;
    CalViewPanel.Align := alClient;
@@ -9368,8 +9075,6 @@ begin
  L4.Visible := tabViewType.TabIndex = 4;
  ReservationType.Visible := tabViewType.TabIndex = 4;
  LabelReservationType.Visible := tabViewType.TabIndex = 4;
- LCal.Visible := tabViewType.TabIndex = 5 ;
- CALID_VALUE.Visible := tabViewType.TabIndex = 5;
 
  LprofileObjectNamePeriod.Parent := parentPanel;
  CONPERIOD_VALUE.Parent          := parentPanel;
@@ -9385,9 +9090,8 @@ end;
 procedure TFMain.TabViewTypeChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
-  Legend.Visible := (NewTab <4) or (NewTab=6);
+  Legend.Visible := (NewTab <4) or (NewTab=5);
   AllowChange := true;
-  if (not isBlank(confineCalendarId)) and (NewTab=5) then AllowChange:=false;
 end;
 
 procedure TFMain.LeftPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -9418,7 +9122,6 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
     nodeS: TTreenode;
     nodeF: TTreenode;
     nodeP: TTreenode;
-    nodeC: TTreenode;
     nodeB: TTreenode;
     sqlString : string;
     nodeInfo : TNodeInfo;
@@ -9455,11 +9158,6 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
       if nodeP=nil then
           nodeP:= TreeRecentlyused.Items.AddChild(nil, fprogramsettings.profileObjectNamePeriods.Text);
     end;
-    procedure addNodeC;
-    begin
-      if nodeC=nil then
-          nodeC:= TreeRecentlyused.Items.AddChild(nil, 'Kalendarze szczególne');
-    end;
     procedure addNodeB;
     begin
       if nodeB=nil then
@@ -9473,7 +9171,6 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
         if nodeType='S' then begin addNodeS; result := nodeS; exit; end;
         if nodeType='F' then begin addNodeF; result := nodeF; exit; end;
         if nodeType='P' then begin addNodeP; result := nodeP; exit; end;
-        if nodeType='C' then begin addNodeC; result := nodeC; exit; end;
         if nodeType='B' then begin addNodeB; result := nodeB; exit; end;
     end;
     function getNodeImage(nodeType : string) : integer;
@@ -9484,7 +9181,6 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
         if nodeType='S' then begin result := 17; exit; end;
         if nodeType='F' then begin result := 25; exit; end;
         if nodeType='P' then begin result := 20; exit; end;
-        if nodeType='C' then begin result := 23; exit; end;
         if nodeType='TT' then begin result := 24;  end;
         if nodeType='B' then begin result := 26;  end;
     end;
@@ -9519,7 +9215,6 @@ Begin
     nodeS := nil;
     nodeF := nil;
     nodeP := nil;
-    nodeC := nil;
     nodeB := nil;
 
     if TreeMode.ItemIndex = 1 then begin
@@ -9557,7 +9252,7 @@ Begin
         sqlString := stringreplace(sqlString, '%LIMIT', getSystemParam('FastQueryMaxRecords','1000'), [rfReplaceAll]);
         sqlString := stringreplace(sqlString, '%PERIOD_CLAUSE',  getWhereClausefromPeriod('ID='+conPeriod.text,'')   , [rfReplaceAll]);
         dmodule.openSQL(fastQuery, sqlString );
-        //copytoclipboard(  sqlString); info ('debug');
+        //copytoclipboard(  sqlString); SError('debug');
     end;
 
     with fastQuery do begin
@@ -9585,10 +9280,10 @@ Begin
   endDate := now;
   durationInSeconds:= (endDate - startDate )*60*60*24;
   //Str(durationInSeconds:1:2,durationDsp);
-  //info ( durationDsp );
+  //SError( durationDsp );
 
   if durationInSeconds>2 then begin
-      info ('Ostatnie odœwie¿enie danych "'+panelName+'" trwa³o d³u¿ej ni¿ 2 sekundy.'+cr+' W celu zwiêkszenia komfortu pracy odœwie¿anie panelu bêdzie wykonywane nie czêsciej ni¿ co dwie minuty', showMonthly);
+      SError('Ostatnie odœwie¿enie danych "'+panelName+'" trwa³o d³u¿ej ni¿ 2 sekundy.'+cr+' W celu zwiêkszenia komfortu pracy odœwie¿anie panelu bêdzie wykonywane nie czêsciej ni¿ co dwie minuty', showMonthly);
       SetSystemParam('Tree:DelayedRefFlag:'+panelName,'Y');
       SetSystemParam('Tree:LastRefreshTime:'+panelName,DateTimeToStr(endDate));
       SetSystemParam('Tree:LastRefreshPanel',panelName);
@@ -9702,7 +9397,7 @@ end;
 procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);
 begin
   SetSystemParam('MESSAGE.SkipCapacityOverflow','-');
-  Info('Ostrze¿enia o przekroczonej zajêtoœci sal zosta³y przywrócone');
+  SError('Ostrze¿enia o przekroczonej zajêtoœci sal zosta³y przywrócone');
 end;
 
 procedure TFMain.recreateDependenciesClick(Sender: TObject);
@@ -9730,8 +9425,8 @@ end;
 
 procedure TFMain.USOSIntegracja1Click(Sender: TObject);
 begin
-  if isUSOSInstalled=false then begin info('Po³¹czenie z systemem USOS nie zosta³o jeszcze skonfigurowane'); exit; end;
-  if not CanRunIntegration then begin info('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
+  if isUSOSInstalled=false then begin SError('Po³¹czenie z systemem USOS nie zosta³o jeszcze skonfigurowane'); exit; end;
+  if not CanRunIntegration then begin SError('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
   FUSOS.ShowModal;
 end;
 
@@ -9945,8 +9640,8 @@ end;
 
 procedure TFMain.IntegrationClick(Sender: TObject);
 begin
-  if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then begin info('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane'); exit; end;
-  if not CanRunIntegration then begin info('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
+  if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then begin SError('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane'); exit; end;
+  if not CanRunIntegration then begin SError('Nie posiadasz uprawnieñ do uruchomienia integracji'); exit; end;
   FIntegration.ShowModal;
 end;
 
@@ -10014,7 +9709,7 @@ end;
 procedure TFMain.deepRefreshImmediate( reason : String);
 begin
  refreshFilter.Enabled := false;
- //info('DeepRefreshImmediate: '+ reason);
+ //SError('DeepRefreshImmediate: '+ reason);
   ValidLClick(nil);
   ValidGClick(nil);
   ValidRClick(nil);
@@ -10025,7 +9720,6 @@ begin
   If (Not isBlank(conPeriod.Text)) Then ClassByResCat1Caches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
   If (Not isBlank(conPeriod.Text)) Then ClassBySubjectCaches.reset(StringToInt(conPeriod.Text),  bool_reloadFromDatbase);
   If                                    Not isBlank(conPeriod.Text)  Then ReservationsCache.ReservationsCacheLoadPeriod(conPeriod.Text);
-  If                                    Not isBlank(conPeriod.Text)  Then OtherCalendar.LoadPeriod(conPeriod.Text,CALID.Text);
   BusyClassesCache.ClearCache;
   gridDefinition.internalCreate(gridCustomLabels);
   BuildCalendar('X');
@@ -10145,7 +9839,7 @@ end;
 
 procedure TFMain.estujAPI1Click(Sender: TObject);
 begin
-  info( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
+  SError( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
 end;
 
 procedure TFMain.GoToDateClick(Sender: TObject);
@@ -10162,7 +9856,7 @@ begin
        grid.Col := aCol;
        grid.Row := aRow;
     end else begin
-      info('Nie ma takiej daty w bie¿¹cym rozk³adzie');
+      SError('Nie ma takiej daty w bie¿¹cym rozk³adzie');
     end;
   end;
 end;
@@ -10281,7 +9975,7 @@ begin
   inherited;
   KeyValue := conPeriod.Text;
   If PERIODSShowModalAsSelect(KeyValue) = mrOK Then Begin
-    if PeriodHolidaysReadOnly then begin info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
+    if PeriodHolidaysReadOnly then begin SError('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
 
     with dmodule.QWork do begin
       SQL.Clear;
@@ -10299,7 +9993,7 @@ end;
 procedure TFMain.Przedskopiowanieskasujistniajcedniwolne1Click(
   Sender: TObject);
 begin
- if PeriodHolidaysReadOnly then begin info ('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
+ if PeriodHolidaysReadOnly then begin SError('Nie masz uprawnieñ do modyfikacji dni wolnych w tym okresie'); exit; end;
  DModule.SQL('BEGIN delete from holiday_days where per_id='+conPeriod.Text+'; commit; END;');
  HolidaysQueueCnt := 5;
  HolidaysQueueTimer.Enabled := true;

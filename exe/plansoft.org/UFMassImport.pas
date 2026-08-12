@@ -107,7 +107,7 @@ var LCID : Integer;
 
 begin
   if importType.ItemIndex = -1 then begin
-    info ('Zaznacz jakie dane chcesz pobraæ');
+    SError('Zaznacz jakie dane chcesz pobraæ');
     PC.ActivePageIndex := 0;
     exit;
   end;
@@ -384,7 +384,7 @@ begin
 
     //if (uniqueCheckErrorFlag) then begin
     //  uniqueCheckErrorMessage := 'Dane nie zosta³y zapisane, poniewa¿ ka¿dy rekord musi posiadaæ jednoznaczny skrót. Popraw proszê plik excel i spróbuj ponownie.'+cr+'Wartoœci wystêpuj¹ce w pliku wielokrotnie:'+cr+cr+uniqueCheckErrorMessage+cr+cr+'Aby u³atwiæ znalezienie rekordów do poprawienia, skopiowano ten komunikat do schowka.';
-    //  Info( uniqueCheckErrorMessage );
+    //  SError( uniqueCheckErrorMessage );
     //  copyToClipboard( uniqueCheckErrorMessage );
     //  dmodule.RollbackTrans;
     //  Abort;
@@ -394,16 +394,16 @@ begin
 
     if chbTest.Checked then begin
       dmodule.RollbackTrans;
-      info('Rekordy s¹ prawid³owe, dane nie zosta³y zapisane w bazie danych (uruchomienie testowe).'+cr+cr+' Liczba rekordów:' + intToStr(lineNum-2) );
+      SError('Rekordy s¹ prawid³owe, dane nie zosta³y zapisane w bazie danych (uruchomienie testowe).'+cr+cr+' Liczba rekordów:' + intToStr(lineNum-2) );
     end
     else
     begin
       case importType.ItemIndex of
-        0: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        1: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        2: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        3: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        4: info('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        0: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        1: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        2: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        3: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
+        4: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
         5: TT_Interface_Import(  iif(DeletePlan.Checked,'Y','N') );
       end;
       importType.ItemIndex := -1;

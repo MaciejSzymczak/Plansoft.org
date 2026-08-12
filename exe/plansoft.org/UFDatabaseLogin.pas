@@ -411,7 +411,7 @@ begin
   inherited;
   DatabaseName.Text := '127.0.0.1:1521/XEPDB1';
   //DatabaseName.Text := '127.0.0.1:1521/XEPDB1';
-  //info('Najnowsza baza danych Oracle: wpisz XEPDB1.'+cr+'Starsze wersje bazy danych Oracle: wpisz XE')
+  //SError('Najnowsza baza danych Oracle: wpisz XEPDB1.'+cr+'Starsze wersje bazy danych Oracle: wpisz XE')
 end;
 
 procedure TFDatabaseLogin.FormCloseQuery(Sender: TObject;
@@ -420,7 +420,7 @@ begin
   canClose := true;
   if self.ModalResult = mrOK then
     if (DatabaseName.text = '') or (UserName.Text = '') or (Password.Text = '') then begin
-      info ('WprowadŸ nazwê bazy danych (np. dok), nazwê u¿ytkownika oraz has³o');
+      SError('WprowadŸ nazwê bazy danych (np. dok), nazwê u¿ytkownika oraz has³o');
       canClose := false;
     end;
 end;

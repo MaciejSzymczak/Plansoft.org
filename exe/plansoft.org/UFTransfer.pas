@@ -85,9 +85,9 @@ end;
 
 procedure TFTransfer.BCreateClick(Sender: TObject);
 begin
-  if isBlank(ufrom.Text) then begin info('WprowadŸ wartoœæ w polu "Od planisty lub autoryzacji"'); exit; end;
-  if isBlank(uto.Text) then begin info('WprowadŸ wartoœæ w polu "Do planisty lub autoryzacji"'); exit; end;
-  if ufrom.Text=uto.Text then begin info('WprowadŸ dwie ró¿ne nazwy planistów'); exit; end;
+  if isBlank(ufrom.Text) then begin SError('WprowadŸ wartoœæ w polu "Od planisty lub autoryzacji"'); exit; end;
+  if isBlank(uto.Text) then begin SError('WprowadŸ wartoœæ w polu "Do planisty lub autoryzacji"'); exit; end;
+  if ufrom.Text=uto.Text then begin SError('WprowadŸ dwie ró¿ne nazwy planistów'); exit; end;
   if question('Czy na pewno wykonaæ transfer?')=id_yes then begin
       try
         with dmodule.QWork do begin
@@ -110,12 +110,12 @@ begin
       except
         on E:exception do Begin
           Dmodule.RollbackTrans;
-          info('Ups.. Coœ posz³o nie tak, powiedz o tym administatorowi.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658'+cr+cr+
+          SError('Ups.. Coœ posz³o nie tak, powiedz o tym administatorowi.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658'+cr+cr+
                   'Komunikat, który zwróci³a baza danych jest nastêpuj¹cy: ' + cr+ e.message);
         end;
       end;
   end;
-  info('Zrobione. Uruchom ponownie Aplikacjê, ¿eby zobaczyæ zmiany');
+  SError('Zrobione. Uruchom ponownie Aplikacjê, ¿eby zobaczyæ zmiany');
   Close;
 end;
 

@@ -43,8 +43,8 @@ procedure TFChangePassword.BChangePasswordClick(Sender: TObject);
 begin
   inherited;
   gCanClose := true;
-  if (ENewPassword.Text = '') or (EConfirmPassword.Text = '') then begin info('Aby kontynuowaæ wprowadŸ dwukrotnie nowe has³o'); gCanClose := false; exit; end;
-  if (ENewPassword.Text <> EConfirmPassword.Text) then begin info('Has³o wprowadzone za pierwszym razem ró¿ni siê od has³a wprowadzonego za drugim razem. Aby kontynuowaæ wprowadŸ drukrotnie to samo has³o'); gCanClose := false; exit; end;
+  if (ENewPassword.Text = '') or (EConfirmPassword.Text = '') then begin SError('Aby kontynuowaæ wprowadŸ dwukrotnie nowe has³o'); gCanClose := false; exit; end;
+  if (ENewPassword.Text <> EConfirmPassword.Text) then begin SError('Has³o wprowadzone za pierwszym razem ró¿ni siê od has³a wprowadzonego za drugim razem. Aby kontynuowaæ wprowadŸ drukrotnie to samo has³o'); gCanClose := false; exit; end;
 end;
 
 procedure TFChangePassword.BCancelClick(Sender: TObject);

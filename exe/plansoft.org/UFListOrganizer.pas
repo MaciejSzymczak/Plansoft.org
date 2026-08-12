@@ -241,7 +241,7 @@ if resType ='L' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';') , [';'], KeyValue)
-     Then Info('Ten zasób ju¿ zosta³ wybrany')
+     Then SError('Ten zasób ju¿ zosta³ wybrany')
      Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_LECDESC+KeyValue) );
@@ -260,7 +260,7 @@ if resType='G' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Ten zasób ju¿ zosta³ wybrany')
+      Then SError('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_GRODESC+KeyValue) );
@@ -279,7 +279,7 @@ if resType='R' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If ExistsValue( replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Ten zasób ju¿ zosta³ wybrany')
+      Then SError('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_ResCat0DESC+KeyValue) );
@@ -298,7 +298,7 @@ if resType='R2' then begin
    for t := 1 to wordCount(KeyValues, [',']) do begin
      KeyValue := extractWord(t,KeyValues, [',']);
      If existsValue(replace(lbIds.Items.CommaText,',',';'), [';'], KeyValue)
-      Then Info('Ten zasób ju¿ zosta³ wybrany')
+      Then SError('Ten zasób ju¿ zosta³ wybrany')
       Else begin
        lbIds.Items.Add(KeyValue);
        lbNames.Items.Add( DModule.SingleValue(sql_ResCat1DESC+KeyValue) );
@@ -362,7 +362,7 @@ var i : integer;
     lines : TStringList;
 begin
   if lbIds.Items.Count = 0 then begin
-    Info('Lista jest pusta - nie ma czego zapisywaæ');
+    SError('Lista jest pusta - nie ma czego zapisywaæ');
     Exit;
   end;
   if SaveDialog1.Execute then begin
@@ -418,7 +418,7 @@ begin
   end;
 
   if skippedCount > 0 then
-    Info('Pominiêto ' + IntToStr(skippedCount) + ' rekordów, do których nie masz dostêpu.');
+    SError('Pominiêto ' + IntToStr(skippedCount) + ' rekordów, do których nie masz dostêpu.');
 
   if lbNames.Items.Count > 0 then lbNames.ItemIndex := 0;
   RefreshRowButtons;

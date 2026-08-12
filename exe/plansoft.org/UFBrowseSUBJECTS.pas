@@ -287,7 +287,7 @@ end;
 
 function TFBrowseSUBJECTS.canEditPermission: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := true;
 end;
 
 function TFBrowseSUBJECTS.IsRecordReadOnly: Boolean;
@@ -297,12 +297,12 @@ end;
 
 function TFBrowseSUBJECTS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 function TFBrowseSUBJECTS.canDelete: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 
@@ -323,7 +323,7 @@ end;
 
 procedure TFBrowseSUBJECTS.SpeedButton3Click(Sender: TObject);
 begin
-  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj przemioty przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+  SError('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj przemioty przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 procedure TFBrowseSUBJECTS.TimerDetailsTimer(Sender: TObject);
@@ -400,7 +400,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Przedmiot podrzêdny oraz przedmiot nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       SError(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Przedmiot podrzêdny oraz przedmiot nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;
@@ -430,7 +430,7 @@ begin
    end;
 
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-   if resultValue <> '' then info (resultValue) else refreshDetails;
+   if resultValue <> '' then SError(resultValue) else refreshDetails;
 
   end;
 end;

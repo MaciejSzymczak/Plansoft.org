@@ -407,7 +407,7 @@ begin
       CONG.Text := '';
       CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
   End;
-  info('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
+  SError('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
 end;
 
 procedure TFGenericFilter.miseClick(Sender: TObject);

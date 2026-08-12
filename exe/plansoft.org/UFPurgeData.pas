@@ -137,7 +137,7 @@ begin
     execSQL;
   end;
   dummy := dmodule.SingleValue('select planner_utils.get_output_param_num1, planner_utils.get_output_param_num2, planner_utils.get_output_param_num3, planner_utils.get_output_param_num4, planner_utils.get_output_param_num5, planner_utils.get_output_param_num6 from dual');
-  info ('Czynnoœæ zosta³a wykonana, usuniêto nastêpuj¹c¹ liczbê danych: ' + cr
+  SError('Czynnoœæ zosta³a wykonana, usuniêto nastêpuj¹c¹ liczbê danych: ' + cr
       + '   Zajêcia:    ' + dmodule.QWork.Fields[0].AsString + cr
       + '   Wyk³adowcy: ' + dmodule.QWork.Fields[1].AsString + cr
       + '   Grupy:      ' + dmodule.QWork.Fields[2].AsString + cr
@@ -149,7 +149,7 @@ begin
    on E:exception do Begin
      FProgress.Hide;
      Dmodule.RollbackTrans;
-     info(E.Message);
+     SError(E.Message);
    end;
  end;
 
@@ -174,7 +174,7 @@ begin
 
  gCanCloseQuery := true;
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora. Bêdziesz móg³ sprawdziæ jakie dane zostan¹ usuniête, ale przycisk Usuñ bêdzie niedostêpny.');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora. Bêdziesz móg³ sprawdziæ jakie dane zostan¹ usuniête, ale przycisk Usuñ bêdzie niedostêpny.');
   BExecute2.Enabled := false;
  End;
 end;
@@ -243,7 +243,7 @@ begin
    on E:exception do Begin
      screen.Cursor := crDefault;
      Dmodule.RollbackTrans;
-     info(E.Message);
+     SError(E.Message);
    end;
  end;
 end;
@@ -305,7 +305,7 @@ begin
     writeLn(f, '    Przedmioty:' + S.caption);
     writeLn(f, '    Okresy    :' + P.caption);
     CloseFile(f);
-    info('Dane zosta³y pomyœlnie zapisane w pliku');
+    SError('Dane zosta³y pomyœlnie zapisane w pliku');
  end;
 
 end;

@@ -82,7 +82,7 @@ begin
       (UOM_ID.Text='') or
       (TAX_ID.Text='')
     then begin
-      info('Wszystkie pola oznaczone kolorem czerwonym musz¹ zostaæ wype³nione');
+      SError('Wszystkie pola oznaczone kolorem czerwonym musz¹ zostaæ wype³nione');
       canClose := false;
       exit;
     end;
@@ -90,7 +90,7 @@ begin
     try
       strToFloat (UNIT_PRICE.Text);
     except
-      info ('Wartoœæ w polu CENA JEDNOSTKOWA musi byæ liczb¹');
+      SError('Wartoœæ w polu CENA JEDNOSTKOWA musi byæ liczb¹');
       canClose := false;
       exit;
     end;

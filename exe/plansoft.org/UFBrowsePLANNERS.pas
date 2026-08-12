@@ -20,11 +20,6 @@ type
     ttEnabled: TCheckBox;
     DBCheckBox1: TDBCheckBox;
     BPlannerPermissions: TBitBtn;
-    LabelORGUNI_ID: TLabel;
-    CAL_ID: TDBEdit;
-    CAL_ID_VALUE: TEdit;
-    BClearS: TSpeedButton;
-    SpeedButton2: TSpeedButton;
     Label1: TLabel;
     PARENT: TDBEdit;
     SpeedButton4: TSpeedButton;
@@ -78,11 +73,7 @@ type
     procedure BUpdChild1Click(Sender: TObject);
     procedure BUpdChild2Click(Sender: TObject);
     procedure BPlannerPermissionsClick(Sender: TObject);
-    procedure CAL_IDChange(Sender: TObject);
-    procedure CAL_ID_VALUEClick(Sender: TObject);
-    procedure BClearSClick(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
     procedure ROL_ID_VALUEClick(Sender: TObject);
     procedure BClearROL_IDClick(Sender: TObject);
@@ -132,12 +123,12 @@ begin
   Result := IsAdmin;
 
   if Query.fieldByName('NAME').AsString = dm.UserName then begin
-    info('Nie mo¿na usun¹æ konta zalogowanego u¿ytkownika');
+    SError('Nie mo¿na usun¹æ konta zalogowanego u¿ytkownika');
     result := false;
   end;
 
   if (Query.fieldByName('name').AsString = 'PLANNER') then begin
-    info('Nie mo¿na usun¹æ konta u¿ytkownika o nazwie planner');
+    SError('Nie mo¿na usun¹æ konta u¿ytkownika o nazwie planner');
     result := false;
   end;
 
@@ -165,12 +156,11 @@ Begin
 
   if  (PLANNERTYPE.ItemIndex = 2) then begin
       //portal user
-      SetLength(WinControls, 5);
+      SetLength(WinControls, 4);
       WinControls[0] := Name;
       WinControls[1] := password_sha1;
       WinControls[2] := ROL_ID;
       WinControls[3] := PARENT;
-      WinControls[4] := CAL_ID;
   end
   else begin
       SetLength(WinControls, 1);
@@ -231,11 +221,11 @@ begin
          //----------------- ------ -----
          //os_authent_prefix string OPS$
 
-         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik z uwierzytelnianiem zewnêtrzynym zostanie utworzony');
+         SError('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik z uwierzytelnianiem zewnêtrzynym zostanie utworzony');
          //SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY');
          SQL2('CREATE USER "'+userName+'" IDENTIFIED  EXTERNALLY AS '''+domainUser+'''');
        end else begin
-         Info('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik zostanie utworzony');
+         SError('U¿ytkownik '+userName+' nie istnieje. U¿ytkownik zostanie utworzony');
          SQL2('CREATE USER "'+userName+'" IDENTIFIED BY "'+QWork.FieldByName('NAME').AsString+'"');
        end;
 
@@ -243,22 +233,22 @@ begin
        SQL2('GRANT RESOURCE TO "'+userName+'" with admin option');
        SQL2('GRANT PLA_PERMISSION TO "'+userName+'"');
        SQL2('ALTER USER "'+userName+'" DEFAULT ROLE ALL EXCEPT PLA_PERMISSION');
-       Info('Sukces');
+       SError('Sukces');
      End Else Begin
        SingleValue2('select * from SYS.DBA_ROLE_PRIVS WHERE GRANTEE='''+QWork.FieldByName('NAME').AsString+''' AND GRANTED_ROLE=''PLA_PERMISSION''');
        C:= QWork2.RecordCount;
        If C = 0 Then Begin
          // sprawdzenie czy ma role -> ew. dodanie
-         Info('U¿ytkownik '+QWork.FieldByName('NAME').AsString+' istnieje, ale nie ma przydzielonych uprawnieñ. Uprawnienia zostan¹ mu nadane');
+         SError('U¿ytkownik '+QWork.FieldByName('NAME').AsString+' istnieje, ale nie ma przydzielonych uprawnieñ. Uprawnienia zostan¹ mu nadane');
          SQL2('GRANT PLA_PERMISSION TO "'+QWork.FieldByName('NAME').AsString+'"');
          SQL2('ALTER USER "'+QWork.FieldByName('NAME').AsString+'" DEFAULT ROLE ALL EXCEPT PLA_PERMISSION');
-         Info('Sukces');
+         SError('Sukces');
        End Else Begin
          // sprawdzenie czy rola zabezpieczona has³em -> ew. dodanie
          If QWork2.FieldByName('DEFAULT_ROLE').AsString = 'YES' Then Begin
-           Info('U¿ytkownik '+QWork.FieldByName('NAME').AsString+' istnieje, ale ma uprawnienia nie chronione has³em. Uprawnienia zostan¹ zabezpieczone has³em');
+           SError('U¿ytkownik '+QWork.FieldByName('NAME').AsString+' istnieje, ale ma uprawnienia nie chronione has³em. Uprawnienia zostan¹ zabezpieczone has³em');
            SQL2('ALTER USER "'+QWork.FieldByName('NAME').AsString+'" DEFAULT ROLE ALL EXCEPT PLA_PERMISSION');
-           Info('Sukces');
+           SError('Sukces');
          End;
        End;
      End;
@@ -341,23 +331,6 @@ begin
   UFPlannerPermissions.ShowModal;
 end;
 
-procedure TFBrowsePLANNERS.CAL_IDChange(Sender: TObject);
-begin
-  DModule.RefreshLookupEdit(Self, TControl(Sender).Name,'NAME','ROOMS','');
-end;
-
-procedure TFBrowsePLANNERS.CAL_ID_VALUEClick(Sender: TObject);
-Var KeyValue : ShortString;
-begin
-  KeyValue := CAL_ID.Text;
-  If AutoCreate.ROOMSShowModalAsSelect('-9','',KeyValue,'0=0','') = mrOK Then CAL_ID.Text := KeyValue;
-end;
-
-procedure TFBrowsePLANNERS.BClearSClick(Sender: TObject);
-begin
-  CAL_ID.text := '';
-end;
-
 procedure TFBrowsePLANNERS.GetTableName;
 begin
   Self.TableName := 'PLANNERS';
@@ -365,25 +338,10 @@ end;
 
 procedure TFBrowsePLANNERS.SpeedButton4Click(Sender: TObject);
 begin
- info(
+ SError(
  'Wybierz planistê nadrzêdnego/planistów, którzy mog¹ zmieniaæ zajêcia planisty.'+cr+
  'Mo¿esz wskazaæ rolê, wybranie której spowoduje ¿e bêdzie mo¿na zmieniaæ zajêcia planisty.'
  );
-end;
-
-procedure TFBrowsePLANNERS.SpeedButton2Click(Sender: TObject);
-begin
- info(
-'Mo¿esz ograniczyæ mo¿liwoœæ planowania tego planisty tylko do wybranych terminów. W tym celu wybierz kalendarz dni dostêpnych w tym polu'+cr+
-'Wprowadzenie wartoœci w polu Planowanie ograniczone spowoduje, ¿e nastêpuj¹ce funkcje zostan¹ wy³¹czone:'+cr+
-'- U¿ytkownik bêdzie móg³ planowaæ zajêcia tylko w okreœlonym oknie czasowym;'+cr+
-'- Nie bêdzie móg³ edytowaæ kalendarzy szczególnych,'+cr+
-'- Nie bêdzie móg³ dodawaæ/edytowaæ ani kasowaæ wyk³adowców,grupy, zasobów, przedmiotów ani form zajêæ;'+cr+
-'  Nie bêdzie móg³ tak¿e importowaæ danych z programu Excel ani scalaæ rekordów;'+cr+
-'- Nie bêdzie móg³ wprowadzaæ notatek do planu zajêæ;'+cr+
-'- Nie bêdzie móg³ ustawiaæ preferencji poza okreœlonym oknem czasowym;'+cr+
-'- Nie bêdzie móg³ u¿ywaæ funkcji kopiowania rozk³adów zajêæ.'
-);
 end;
 
 procedure TFBrowsePLANNERS.ROL_IDChange(Sender: TObject);
@@ -406,7 +364,7 @@ end;
 
 procedure TFBrowsePLANNERS.hrolClick(Sender: TObject);
 begin
- info('Je¿eli wybierzesz wyk³adowcê w tym polu, wówczas ograniczysz planowanie dla tego u¿ytkownika tylko do wybranego wyk³adowcy');
+ SError('Je¿eli wybierzesz wyk³adowcê w tym polu, wówczas ograniczysz planowanie dla tego u¿ytkownika tylko do wybranego wyk³adowcy');
 end;
 
 procedure TFBrowsePLANNERS.LEC_IDChange(Sender: TObject);
@@ -428,13 +386,6 @@ begin
   PARENT.Visible :=  PLANNERTYPE.ItemIndex = 0;
   SelectOwner .Visible :=  PLANNERTYPE.ItemIndex = 0;
   SpeedButton4.Visible :=  PLANNERTYPE.ItemIndex = 0;
-  //terminy
-  LabelORGUNI_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
-  CAL_ID.Visible :=  PLANNERTYPE.ItemIndex = 0;
-  CAL_ID_VALUE.Visible :=  PLANNERTYPE.ItemIndex = 0;
-  BClearS.Visible :=  PLANNERTYPE.ItemIndex = 0;
-  SpeedButton2.Visible :=  PLANNERTYPE.ItemIndex = 0;
-
   SystemPrivs.Visible :=  PLANNERTYPE.ItemIndex = 0;
   LRec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
   LLec.Visible        :=  PLANNERTYPE.ItemIndex = 2;
@@ -457,7 +408,7 @@ begin
    Application.CreateForm(TFChangePassword, FChangePassword);
    if fchangepassword.showmodal = mrOK then begin
      password_sha1.Text := dmodule.SingleValue('select getSHA1('''+fchangepassword.ENewPassword.Text+''') from dual');
-     info ('Has³o zosta³o poprawnie zmienione');
+     SError('Has³o zosta³o poprawnie zmienione');
    end;
    fchangepassword.Free;
    fchangepassword := nil;
@@ -481,7 +432,7 @@ Var autGeneratedPassword : String ;
     userName : String;
 begin
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   Exit;
  end;
 

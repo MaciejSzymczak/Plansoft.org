@@ -375,6 +375,9 @@ end;
 
 
 begin
+  FProgress.Show;
+  FProgress.Refresh;
+
   if FormatDateTime('yyyy-mm-dd', source_date_from.Datetime) = '2000-01-01' then source_date_from.Date := now-365;
   if FormatDateTime('yyyy-mm-dd', source_date_to.Datetime) = '3000-01-01' then source_date_to.Date := now+365;
 
@@ -869,6 +872,7 @@ begin
         LF     .Caption := profileObjectNameC2.Text;
     end;
 
+  FProgress.Hide;
 
 end;
 
@@ -1008,7 +1012,7 @@ begin
       CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
   End;
   GFilterType.text := 'a';
-  info('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
+  SError('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
 end;
 
 
@@ -1166,7 +1170,7 @@ begin
     rewrite(f);
     closeFile(f);
     except
-     info('Ups, program Word lub Excel nie pozwala na modyfikacjê pliku, zamknij program Word/Excel.'+cr+'Problem rozwi¹¿e równie¿ zapisanie raportu pod inn¹ nazw¹ w programie Word/Excel ("Zapisz jako")');
+     SError('Ups, program Word lub Excel nie pozwala na modyfikacjê pliku, zamknij program Word/Excel.'+cr+'Problem rozwi¹¿e równie¿ zapisanie raportu pod inn¹ nazw¹ w programie Word/Excel ("Zapisz jako")');
      exit;
     end;
 
@@ -1190,12 +1194,12 @@ begin
     colCell6     := Columns.lines.Values[Cell6.Items[cell6.itemIndex]];
 
     if colRow = 'DUMMY_ROW' then begin
-      info('W wierszach nie mo¿na pokazywaæ wartoœci <Nie dotyczy>');
+      SError('W wierszach nie mo¿na pokazywaæ wartoœci <Nie dotyczy>');
       exit;
     end;
 
     if colColumn = 'DUMMY_ROW' then begin
-      info('W kolumnach nie mo¿na pokazywaæ wartoœci <Nie dotyczy>');
+      SError('W kolumnach nie mo¿na pokazywaæ wartoœci <Nie dotyczy>');
       exit;
     end;
 
@@ -1391,7 +1395,7 @@ begin
         if mainQuery.Eof then begin
           if question('Ups, nie znaleziono ¿adnych danych. Czy chcesz, aby umieœciæ w schowku informacje przydatne dla personelu wsparcia technicznego?')=id_yes then begin
             CopyToClipboard(mainQuery.sql.text);
-            info('Zrobione. Skontaktuj siê z administratorem, który pomo¿e w rozwi¹zaniu problemu, gdy przeka¿esz mu zawartoœæ schowka');
+            SError('Zrobione. Skontaktuj siê z administratorem, który pomo¿e w rozwi¹zaniu problemu, gdy przeka¿esz mu zawartoœæ schowka');
           end;
         end;
 
@@ -1677,7 +1681,7 @@ var iniFile : TIniFile;
     f : textFile;
 begin
   if (perId.Text='') then begin
-    Info('Najpierw wybierz okres naciskaj¹c przycisk Wybierz | Wybierz okres');
+    SError('Najpierw wybierz okres naciskaj¹c przycisk Wybierz | Wybierz okres');
     exit;
   end;
   saveDialog.fileName := 'matrix.ini';
@@ -1705,7 +1709,7 @@ begin
   'Uruchom plik runMe.bat'+cr+
   'Mo¿esz zaharmonogramowaæ automatyczne uruchomienie za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
 
-  info(s);
+  SError(s);
 end;
 
 procedure TFMatrix.PerCleanClick(Sender: TObject);

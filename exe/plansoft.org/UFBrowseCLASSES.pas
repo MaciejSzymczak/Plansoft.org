@@ -159,14 +159,14 @@ Function TFBrowseCLASSES.execute(aCurrOperation : Integer; aID : ShortString): T
   Procedure DeleteRecord(aID : String);
   Begin
       ID := aID;
-      Try BeforeDelete; Except Info(Komunikaty.Strings[26]); End;
+      Try BeforeDelete; Except SError(Komunikaty.Strings[26]); End;
       Try
           //DModule.SQL('DELETE FROM '+TableName+' WHERE '+KeyField+'='+ID);
           //based on uutilities.deleteClass
           dmodule.sql('begin api.delete_class (:id ); end;'
                      ,'id='+ID
           );
-       Try AfterDelete; Except Info(Komunikaty.Strings[27]); End;
+       Try AfterDelete; Except SError(Komunikaty.Strings[27]); End;
       Except
        on E:exception do Begin
          errorMessage(ADelete, Self, E.Message);
@@ -318,7 +318,7 @@ function TFBrowseCLASSES.CanDeleteRecord: Boolean;
 begin
  if not Query.Active then exit;
  if (not UUtilities.isOwner(Query.FieldByName('OWNER').AsString)) Then Begin
-  Info( format ( 'Nie mo¿esz usun¹æ tego %s, poniewa¿ w³aœcicielem %s jest ', [fprogramsettings.profileObjectNameClassgen.text, fprogramsettings.profileObjectNameClassgen.text] )+Query.FieldByName('OWNER').AsString);
+  SError( format ( 'Nie mo¿esz usun¹æ tego %s, poniewa¿ w³aœcicielem %s jest ', [fprogramsettings.profileObjectNameClassgen.text, fprogramsettings.profileObjectNameClassgen.text] )+Query.FieldByName('OWNER').AsString);
   Result := False;
  End
  Else Result := True;

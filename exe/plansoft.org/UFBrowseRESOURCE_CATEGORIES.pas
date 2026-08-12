@@ -75,7 +75,7 @@ Function  TFBrowseRESOURCE_CATEGORIES.CanEditPermission : Boolean;
 begin
  result := true;
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   result := false;
  End;
 end;
@@ -84,7 +84,7 @@ Function  TFBrowseRESOURCE_CATEGORIES.CanInsert    : Boolean;
 begin
  result := true;
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   result := false;
  End;
 end;
@@ -98,7 +98,7 @@ Function  TFBrowseRESOURCE_CATEGORIES.CanDeleteRecord    : Boolean;
 begin
  result := true;
  If strtoint(ID) < 0 then begin
-  Info('Nie mo¿na tej kategorii zasobów. Jest to systemowa kategoria zasobów, która nie mo¿e zostaæ skasowana');
+  SError('Nie mo¿na tej kategorii zasobów. Jest to systemowa kategoria zasobów, która nie mo¿e zostaæ skasowana');
   result := false;
   exit;
  end;

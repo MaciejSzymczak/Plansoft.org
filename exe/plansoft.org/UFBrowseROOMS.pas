@@ -372,7 +372,7 @@ begin
      checkSQL := Replace(checkSQL,':id2',query.FieldByName('ID').asString);
      resultValue := dmodule.SingleValue(checkSQL);
      if (resultValue<>'') then begin
-       info(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Zasób podrzêdny oraz zasób nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
+       SError(KeyValue+': Nie mo¿na utworzyæ relacji, poniewa¿ spowodowa³aby ona konflikty: Zasób podrzêdny oraz zasób nadrzêdny maj¹ ju¿ zajêcia w tym samym czasie, o np. '+resultValue);
        Exit;
      End;
    end;
@@ -400,7 +400,7 @@ begin
     fmain.propagateDependencyChanges(currentParent, 'R');
    end;
    resultValue := dmodule.SingleValue('select planner_utils.get_output_param_char1 from dual');
-   if resultValue <> '' then info (resultValue) else refreshDetails;
+   if resultValue <> '' then SError(resultValue) else refreshDetails;
   end;
 end;
 
@@ -528,9 +528,9 @@ end;
 procedure TFBrowseROOMS.google_locationHelpClick(Sender: TObject);
 begin
   inherited;
-  info ('U¿yj strony, której link w³aœnie zosta³ skopiowany do schowka, aby znaleŸæ po³o¿enie zasobu na mapie. Skopiuj link do przegl¹darki');
+  SError('U¿yj strony, której link w³aœnie zosta³ skopiowany do schowka, aby znaleŸæ po³o¿enie zasobu na mapie. Skopiuj link do przegl¹darki');
 
-  //info(
+  //SError(
   //  'W tym polu mo¿esz wpisaæ po³o¿enie zasobu na mapie.'+cr+
   //  ''+cr+
   //  'Informacja ta zostanie automatycznie przeniesiona do kalendarza Google.'+cr+
@@ -676,7 +676,7 @@ end;
 
 function TFBrowseROOMS.canEditPermission: Boolean;
 begin
- result := isBlank(confineCalendarId);
+ result := true;
 end;
 
 function TFBrowseROOMS.IsRecordReadOnly: Boolean;
@@ -686,12 +686,12 @@ end;
 
 function TFBrowseROOMS.canInsert: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 function TFBrowseROOMS.canDelete: Boolean;
 begin
- result := isBlank(confineCalendarId) and isIntegrated=false;
+ result := isIntegrated=false;
 end;
 
 Procedure TFBrowseROOMS.AfterPost;
@@ -710,12 +710,12 @@ end;
 
 procedure TFBrowseROOMS.SpeedButton2Click(Sender: TObject);
 begin
-  info('Wpisz wyposa¿enie w formacie "#Rzutnik, #Spetrometr".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<nazwa wyposazenia> w dowolnym miejscu w Aplikacji');
+  SError('Wpisz wyposa¿enie w formacie "#Rzutnik, #Spetrometr".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<nazwa wyposazenia> w dowolnym miejscu w Aplikacji');
 end;
 
 procedure TFBrowseROOMS.SpeedButton3Click(Sender: TObject);
 begin
-  info('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
+  SError('Wpisz dowolne s³owa kluczowe w formacie "#ABD, #XYZ".'+cr+'Nastêpnie wyszukuj sale przez wpisanie #<s³owo kluczowe> w dowolnym miejscu w Aplikacji');
 end;
 
 procedure TFBrowseROOMS.SpeedButton1Click(Sender: TObject);

@@ -327,7 +327,7 @@ var r,c,t : integer;
 begin
  for r := 0 to rowCount -1 do begin
    for c := 0 to high(table[r].cells) do begin
-     //info ( table[r].cells[c].body +':'+ inttostr(r) +':'+ inttostr(c) );
+     //SError( table[r].cells[c].body +':'+ inttostr(r) +':'+ inttostr(c) );
      if not table[r].cells[c].ignoreFlag and (( pos('>&nbsp<', table[r].cells[c].body) = 0 ) or spanEmptycellsFlag ) then begin
        // examine all cells below cell
        for t := r+1 to rowCount -1 do begin
@@ -553,7 +553,7 @@ var periodClauseXXX, periodClauseGRO_CLA, periodClauseLEC_CLA, periodClauseROM_C
 begin
   if not formPrepared then exit;
   If isBlank(currentPeriod.Text) Then Exit;
-  //info(((TControl(Sender).Name) as tedit).text);
+  //SError(((TControl(Sender).Name) as tedit).text);
 
    DModule.RefreshLookupEdit(Self, currentPeriod.Name ,'NAME','PERIODS','');
 
@@ -807,7 +807,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
       if pdfl then parameters := '-l ' + parameters;
       if pdfo then parameters := '-O Landscape ' + parameters;
       if pdfs then parameters := '-s A3 ' + parameters;
-      if not fileexists(exeName) then info('Ups.. Utworzenie pdf nie powiedzie siê, poniewa¿ nie odnaleziono pliku: '+exeName+cr);
+      if not fileexists(exeName) then SError('Ups.. Utworzenie pdf nie powiedzie siê, poniewa¿ nie odnaleziono pliku: '+exeName+cr);
       {if not fsettings.Debug.Checked then}
       //ShellApi.ShellExecute(Application.MainForm.Handle,'open',PChar(exeName), PChar(parameters),'',SW_HIDE);
       fmain.wlog(exeName+' '+parameters);
@@ -1684,7 +1684,7 @@ begin
  currentChartClasses := tcurrentChartClasses.create();
  ReservationsCache := tReservationsCache.Create;
  //If Not (fmain.TabViewType.TabIndex in [0,1,2,3]) Then Begin
- //  Info( format('Zaznacz kalendarz %s, %s lub zasobu', [fprogramSettings.profileObjectNameLgen.Text, fprogramSettings.profileObjectNameGgen.Text]) );
+ //  SError( format('Zaznacz kalendarz %s, %s lub zasobu', [fprogramSettings.profileObjectNameLgen.Text, fprogramSettings.profileObjectNameGgen.Text]) );
  // Exit;
  //End;
 
@@ -1737,7 +1737,7 @@ begin
 
  if (notes_before or notes_after) then begin
    //if not elementEnabled('"Nag³ówki rozk³adów zajêæ"','2015.12.04', true) then begin
-   //  info('Nie mo¿esz korzystaæ z funkcji "Nag³ówki rozk³adów zajêæ", skontaktuj siê z dostawc¹ oprogramowania',showOnceaday);
+   //  SError('Nie mo¿esz korzystaæ z funkcji "Nag³ówki rozk³adów zajêæ", skontaktuj siê z dostawc¹ oprogramowania',showOnceaday);
    //  notes_before := false;
    //  notes_after := false;
    //end;
@@ -2118,7 +2118,7 @@ var ColoringIndex    : shortString;
       if not fmain.silentMode then begin
           ShowFolder(Folder.Text);
           if defaultBrowserIsChrome then begin
-              info('Zrobione! Ju¿ mo¿esz przegl¹daæ rozk³ady. Aby jednak zobaczyæ spis treœci (plik index.xml) poproœ swojego informatyka, aby umieœci³ zawartoœæ tego folderu na serwerze Uczelni.');
+              SError('Zrobione! Ju¿ mo¿esz przegl¹daæ rozk³ady. Aby jednak zobaczyæ spis treœci (plik index.xml) poproœ swojego informatyka, aby umieœci³ zawartoœæ tego folderu na serwerze Uczelni.');
           end;
           uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
       end;
@@ -2196,7 +2196,7 @@ begin
   'Spowoduje to automatyczne odœwie¿enie danych, bez potrzeby uruchamiania programu.'+cr+
   'Mo¿esz te¿ zaharmonogramowaæ automatyczne tworzenie rozk³adów za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
 
-  info(s);
+  SError(s);
 end;
 
 procedure TFWWWGenerator.BCloseClick(Sender: TObject);
@@ -2427,7 +2427,7 @@ end;
 
 procedure TFWWWGenerator.SpeedButton1Click(Sender: TObject);
 begin
-  info('Je¿eli w witrynie chcesz umieœciæ dodatkow¹ informacjê nt. okresu (np. wersja robocza), umieœæ j¹ w tym polu');
+  SError('Je¿eli w witrynie chcesz umieœciæ dodatkow¹ informacjê nt. okresu (np. wersja robocza), umieœæ j¹ w tym polu');
 
 end;
 

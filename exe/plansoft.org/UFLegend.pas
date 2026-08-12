@@ -401,7 +401,7 @@ begin
   UFormConfig.AutoFitGridColumns(gridCounter, DataSet);
   for i := 0 to gridCounter.FieldCount-1 do begin
     fName := gridCounter.columns[i].FieldName;
-    //info(fName);
+    //SError(fName);
     if fName = 'SUB_ID' then gridCounter.Columns[i].Width := 0;
     if fName = 'SUB_ID2' then gridCounter.Columns[i].Width := 0;
     if fName = 'FOR_ID' then gridCounter.Columns[i].Width := 0;
@@ -749,7 +749,7 @@ begin
       iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
       iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 6) and (fmain.BViewByWeek.down), 'and cla.sub_id = '+nvl(fmain.ConSubject.Text,'-1')+' '                                     ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 5) and (fmain.BViewByWeek.down), 'and cla.sub_id = '+nvl(fmain.ConSubject.Text,'-1')+' '                                     ,'') + CR +
       iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +
@@ -996,7 +996,7 @@ end;
 
 procedure TFLegend.BEditorClick(Sender: TObject);
 begin
-  info(
+  SError(
   'Twórz profesjonalnie wygl¹daj¹ce nag³ówki i stopki za pomoc¹ prostego edytora tekstu, który zaraz zostanie uruchomiony.'+cr+
   'Edytor sk³ada siê z dwóch okien: lewego i prawego.'+cr+
   'W lewym oknie utwórz nag³ówek (stopkê).'+cr+
@@ -1038,7 +1038,7 @@ var itemsL, itemsG, itemsR, itemsF, itemsS : TStringList;
    +';pla_id5='+UserOrRoleID
    );
   result := dmodule.QWork.Fields[0].AsString='1';
-  if not result then info ('Brak uprawnien');
+  if not result then SError('Brak uprawnien');
  end;
 
 begin
@@ -1079,7 +1079,7 @@ begin
     if FLegendNavigation.selectedOption='dspL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspG' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspR' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := FLegendNavigation.selectedId; end;
-    if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 6; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := FLegendNavigation.selectedId; end;
+    if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 5; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspF' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := FLegendNavigation.selectedId; end;
 
     if FLegendNavigation.selectedOption='EditL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; LECTURERSShowModalAsSingleRecord(aedit,FLegendNavigation.selectedId); end;
@@ -1175,7 +1175,7 @@ End;
 procedure TFLegend.LockTimeTableClick(Sender: TObject);
 begin
     if locked_reason.text='' then begin
-      info('Podaj powód blokady');
+      SError('Podaj powód blokady');
       exit;
     end;
 
@@ -1208,7 +1208,7 @@ procedure TFLegend.SelectAnotherLockerClick(Sender: TObject);
 Var KeyValue : ShortString;
 begin
   if locked_reason.text='' then begin
-    info('Podaj powód blokady');
+    SError('Podaj powód blokady');
     exit;
   end;
 
@@ -1232,7 +1232,7 @@ begin
     if dm.dmodule.ADOConnection.Connected then
       If QueryTimetableNotes.State = dsBrowse Then QueryTimetableNotes.Edit;
     QueryTimetableNotes['locked_by'] := '';
-    info('Podaj powód blokady');
+    SError('Podaj powód blokady');
     exit;
   end;
 

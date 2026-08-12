@@ -110,8 +110,8 @@ const showAlways      = 1;
       showOnceaday    = 3;
       showMonthly     = 4;
 
-Procedure info(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
-Procedure sError(S : String);
+Procedure info(S : String);
+Procedure sError(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
 Function  question(S : String) : Integer; //returns ID_YES, ID_NO
 
 function  getSystemParam(Name : ShortString; const currentUser : boolean = true) : ShortString; overload;
@@ -193,7 +193,6 @@ Var
     gFirstResourceFlag : boolean;
     EditObjPermisions : boolean;
     CanRunIntegration : boolean;
-    confineCalendarId : ShortString;
     UserID    : ShortString;
     VersionOfApplication : ShortString;
     NazwaAplikacji : ShortString;
@@ -783,32 +782,12 @@ Begin
 
 End;
 
-Procedure info(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
+Procedure info(S : String);
 Var H : String;
 Begin
  S := S + Char(0);
  H := sINFORMACJA;
-
- Case showMode of
-  showAlways:
-   MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONINFORMATION + MB_TASKMODAL);
-  showOneTime:
-   If GetSystemParam('MESSAGE.' + infoID) <> 'SHOWN' Then Begin
-     MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONINFORMATION + MB_TASKMODAL);
-     SetSystemParam('MESSAGE.' + infoID,'SHOWN');
-   End;
-  showOnceaday:
-   If GetSystemParam('MESSAGE.' + infoID) <> DateToYYYYMMDD(Date) Then Begin
-     MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONINFORMATION + MB_TASKMODAL);
-     SetSystemParam('MESSAGE.' + infoID,DateToYYYYMMDD(Date));
-   End;
-  showMonthly:
-   If GetSystemParam('MESSAGE.' + infoID) <> DateToYYYYMM(Date) Then Begin
-     MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONINFORMATION + MB_TASKMODAL);
-     SetSystemParam('MESSAGE.' + infoID,DateToYYYYMM(Date));
-   End;
- end;
-
+ MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONINFORMATION + MB_TASKMODAL);
 End;
 
 Procedure Warning(S : String);
@@ -819,14 +798,32 @@ Begin
  MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONWARNING + MB_TASKMODAL);
 End;
 
-Procedure SError(S : String);
-//Var H : String;
+Procedure SError(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
+  procedure ShowIt;
+  begin
+    FMessagebox.Message.text := s;
+    FMessagebox.ShowModal;
+  end;
 Begin
-  FMessagebox.Message.text := s;
-  FMessagebox.ShowModal;
- //S := S + Char(0);
- //H := sBLAD;
- //MessageBox(0, @S[1], @H[1], MB_OK + MB_ICONERROR + MB_TASKMODAL);
+ Case showMode of
+  showAlways:
+   ShowIt;
+  showOneTime:
+   If GetSystemParam('MESSAGE.' + infoID) <> 'SHOWN' Then Begin
+     ShowIt;
+     SetSystemParam('MESSAGE.' + infoID,'SHOWN');
+   End;
+  showOnceaday:
+   If GetSystemParam('MESSAGE.' + infoID) <> DateToYYYYMMDD(Date) Then Begin
+     ShowIt;
+     SetSystemParam('MESSAGE.' + infoID,DateToYYYYMMDD(Date));
+   End;
+  showMonthly:
+   If GetSystemParam('MESSAGE.' + infoID) <> DateToYYYYMM(Date) Then Begin
+     ShowIt;
+     SetSystemParam('MESSAGE.' + infoID,DateToYYYYMM(Date));
+   End;
+ end;
 End;
 
 Function Question(S : String) : Integer;
@@ -1894,7 +1891,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2026-08-06';
+ VersionOfApplication := '2026-08-13';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

@@ -107,7 +107,7 @@ Const MaxAllLecturers     =  10000;
 Type
      TColors = Array[0..maxInClass] Of integer;
 
-// info ( intToStr(sizeOf(TClass_)) );
+// SError( intToStr(sizeOf(TClass_)) );
 Type TClass_    = Record
                   id              : integer;
                   day             : TTimeStamp;
@@ -332,7 +332,7 @@ begin
     //daysRemaining := installDate + daysLimit - todayMarker;
 
     if not ( currentYear + '.' + currentMonth + '.' + currentDay > toDate )  then begin
-      if not silentMode then info(elementName + ' to demonstracyjny element programu, który jest dostêpny do dnia '+toDate+'. Mo¿esz korzystaæ z tej funkcji do tego dnia ', showMonthly, elementName);
+      if not silentMode then SError(elementName + ' to demonstracyjny element programu, który jest dostêpny do dnia '+toDate+'. Mo¿esz korzystaæ z tej funkcji do tego dnia ', showMonthly, elementName);
     end else begin
       //if GetTerminalName = 'SOFT' then exit;
       if not silentMode then warning( 'Uruchomiono demonstracyjn¹ wersjê elementu: '+elementName+'. Nie mo¿esz ju¿ korzystaæ z tej funkcji. Skontaktuj siê z dostawc¹ oprogramowania');
@@ -414,7 +414,7 @@ begin
   //tempsql.Text := searchAndReplace(tempsql.Text, lowerCase( Queries[t].macros[m].name ), Queries[t].macros[m].value );
   //tempsql.Text := searchAndReplace(tempsql.Text, upperCase( Queries[t].macros[m].name ), Queries[t].macros[m].value );
  end;
-  //info(tempsql.CommaText + Queries[t].macros[m].name + Queries[t].macros[m].value );
+  //SError(tempsql.CommaText + Queries[t].macros[m].name + Queries[t].macros[m].value );
 
  dmodule.resetConnection ( queries[t].Q );
  queries[t].Q.SQL.text := tempsql.text;
@@ -543,7 +543,7 @@ Begin
    on E:exception do Begin
      Dmodule.QWork.ParamCheck := true;
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -577,10 +577,10 @@ Begin
    end;
 
    //!!!
-//info(BoolToStr(query.ParamCheck));
-//info(IntToStr(query.Parameters.Count));
+//SError(BoolToStr(query.ParamCheck));
+//SError(IntToStr(query.Parameters.Count));
  //for I := 0 to query.Parameters.Count - 1 do
-  //  info(query.Parameters[I].Name);
+  //  SError(query.Parameters[I].Name);
 
 
   ExecSQL;
@@ -589,7 +589,7 @@ Begin
  except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -629,7 +629,7 @@ Begin
  except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      //cases issues in FMassImport
      //CloseDBConnection (false);
      //dModule.ADOConnection.open;
@@ -674,7 +674,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -722,7 +722,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -770,7 +770,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -816,7 +816,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -858,7 +858,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -883,7 +883,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + e.Message);
+     SError(S + CR + e.Message);
      raise;
    end;
  End;
@@ -959,7 +959,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -1007,7 +1007,7 @@ try
 except
    on E:exception do Begin
      fmain.wlog('*** error' + e.Message );
-     info(S + CR + pparams + CR + e.Message);
+     SError(S + CR + pparams + CR + e.Message);
      raise;
    end;
  End;
@@ -1142,7 +1142,7 @@ begin
        Dmodule.RollbackTrans;
    except
      fmain.emergencyExit := true;
-     info('Ups, utracono po³¹czenie z baz¹ danych. Proszê ponownie uruchomiæ program');
+     SError('Ups, utracono po³¹czenie z baz¹ danych. Proszê ponownie uruchomiæ program');
    end;
    //Attributes :=  dmodule.ADOConnection.Attributes - [xaCommitRetaining];
    //Attributes :=  dmodule.ADOConnection.Attributes - [xaAbortRetaining];
@@ -1168,7 +1168,7 @@ begin
      logSQLStart('CommitTrans', 'CommitTrans');
      result := true;
    except
-     info('Brak po³¹czenia z baz¹ danych, zmiany mog³y nie zostaæ zapisane');
+     SError('Brak po³¹czenia z baz¹ danych, zmiany mog³y nie zostaæ zapisane');
      result := false;
    end;
   end;
@@ -1792,7 +1792,7 @@ Begin
    //DModule.SingleValue(
    //'SELECT count(*) c '+
    //'FROM CLASSES CLA ');
-   //info ( DModule.QWork.fieldByName('c').AsString);
+   //SError( DModule.QWork.fieldByName('c').AsString);
 
    d1 := copy(day1,10,10);
    d2 := copy(day2,10,10);

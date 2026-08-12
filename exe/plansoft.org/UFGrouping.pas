@@ -598,9 +598,9 @@ begin
    dm.logSQLStop;
    Except
     on E:exception do begin
-     if pos('ORA-00933', E.Message) <> 0 then info('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
-     if pos('ORA-00904', E.Message) <> 0 then info('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
-     if pos('ORA-01785', E.Message) <> 0 then info('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
+     if pos('ORA-00933', E.Message) <> 0 then SError('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
+     if pos('ORA-00904', E.Message) <> 0 then SError('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
+     if pos('ORA-01785', E.Message) <> 0 then SError('B³êdna wartoœæ w polu "porz¹dkowanie danych wg"') else
        SError('Wyst¹pi³ b³¹d podczas wykonywania zapytania:' + E.Message);
       exit;
     end;
@@ -623,7 +623,7 @@ begin
 
  for t := 1 to Grid.Columns.Count-1 do begin
   if grid.Columns[t].Width > 100 then grid.Columns[t].Width := 100;
-  //info ( grid.Columns[0].Field.DataType );
+  //SError( grid.Columns[0].Field.DataType );
  end;
 
  UpdStatus('');
@@ -870,7 +870,7 @@ begin
   end;
 
   if EmergencyMode.Checked then begin
-    info ('Nie mo¿na uruchamiaæ tego raportu w trybie diagnostycznym. Je¿eli chcesz uruchomiæ tryb diagnostyczny, to naciœnij przycisk Odœwie¿');
+    SError('Nie mo¿na uruchamiaæ tego raportu w trybie diagnostycznym. Je¿eli chcesz uruchomiæ tryb diagnostyczny, to naciœnij przycisk Odœwie¿');
     exit;
   end;
 
@@ -1005,7 +1005,7 @@ begin
        FFIN_LINESGenerator.insertLine (pdesc, pqty );
      query.Next;
    end;
-   info ('Linie zosta³y dodane do dokumentu');
+   SError('Linie zosta³y dodane do dokumentu');
   end;
   FFIN_LINESGenerator.Free;
   FFIN_LINESGenerator := nil;
@@ -1356,7 +1356,7 @@ begin
   'Spowoduje to automatyczne odœwie¿enie danych, bez potrzeby uruchamiania programu.'+cr+
   'Mo¿esz te¿ zaharmonogramowaæ automatyczne tworzenie za pomoc¹ funkcji Panel sterowania->Zaplanowane zadania';
 
-  info(s);
+  SError(s);
 end;
 
 
@@ -1536,7 +1536,7 @@ begin
       CONG.Text := '';
       CONG_VALUE.Text := GSettings.Strings.Values['Notes.Category:DEFAULT'];
       GSettings.Strings.Values['FilterType'] := 'a';
-      info('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
+      SError('Je¿eli w danym zajêciu uczestnicz¹ grupy ze studiów stacjonarnych oraz niestacjonarnych i zostanie ustawiony filtr ="Stacjonarne", to na zestawieniu pojawi¹ siê OBIE grupy', showOnceaday);
   End;
 end;
 
@@ -1625,7 +1625,7 @@ end;
 procedure TFGrouping.PodgldzapytaniaSQL1Click(Sender: TObject);
 begin
  CopyToClipboard(SQLPreview.Lines.Text);
- info('Zapytanie SQL zosta³o skopiowane do schowka. Przeka¿ je administratorowi w celu analizy');
+ SError('Zapytanie SQL zosta³o skopiowane do schowka. Przeka¿ je administratorowi w celu analizy');
 end;
 
 procedure TFGrouping.Zapiszustawienia1Click(Sender: TObject);
@@ -1675,7 +1675,7 @@ end;
 
 procedure TFGrouping.chlcountHelpClick(Sender: TObject);
 begin
-  Info('Dotyczy zajêæ prowadzonych przez wiêcej ni¿ jednego wyk³adowcê: Podziel liczbê zajêæ przez liczbê wyk³adowców, a otrzymasz liczbê zajêæ w przeliczeniu na ka¿dego wyk³adowcê.'+cr+
+  SError('Dotyczy zajêæ prowadzonych przez wiêcej ni¿ jednego wyk³adowcê: Podziel liczbê zajêæ przez liczbê wyk³adowców, a otrzymasz liczbê zajêæ w przeliczeniu na ka¿dego wyk³adowcê.'+cr+
   ' Program nie wykonuje dzielenia automatycznie z dwóch powodów:'+cr+
   ' 1) Ze wzglêdu na mo¿liwe zaokr¹glenia np. 1/3 '+cr+
    '2) Czasami po prostu nie chcemy, by dzieliæ liczbê zajêæ przez liczbê wyk³adowców');

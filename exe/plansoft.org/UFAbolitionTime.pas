@@ -59,7 +59,7 @@ begin
   dmodule.DbSetSystemParam( 'ABOLITION_TIME', code.Text );
   dmodule.pAbolitionTime := dmodule.dbEncGetSystemParam( 'ABOLITION_TIME' ) ;
   FormShow(nil);
-  info('Zarejestrowano czas trwania us³ugi serwisowej do dnia: ' + dmodule.pAbolitionTime);
+  SError('Zarejestrowano czas trwania us³ugi serwisowej do dnia: ' + dmodule.pAbolitionTime);
 end;
 
 procedure TFAbolitionTime.BCloseClick(Sender: TObject);

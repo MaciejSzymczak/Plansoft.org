@@ -5,6 +5,9 @@ commit;
 connect as sys:
 GRANT EXECUTE ON SYS.DBMS_LOCK TO PLANNER;
 
-connecy as planner:
+connect as planner:
+
+ALTER TABLE planners
+DROP COLUMN cal_id;
 
 *** install package planner_utils

@@ -218,7 +218,7 @@ begin
   ,'pinclude_lec='+pinclude_lec+';pinclude_sub='+pinclude_sub+';pinclude_gro='+pinclude_gro+';pinclude_rom='+pinclude_rom+';ppla_id='+ppla_id+';pentire_db='+pentire_db+';pstruct_code='+pstruct_code
   );
   except on e:exception do begin
-      info('Ups.. Wygl¹da na to, ¿e modu³ generowania diagramu organizacji nie zosta³ zainstalowany, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. '+cr+cr+e.message);
+      SError('Ups.. Wygl¹da na to, ¿e modu³ generowania diagramu organizacji nie zosta³ zainstalowany, skontaktuj siê administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. '+cr+cr+e.message);
       exit;
     end;
   end;

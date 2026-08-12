@@ -91,7 +91,7 @@ begin
           end;
 
      if DirList.Text='' then begin
-       info('Wybrany folder nie zawiera zdjêæ. Wybierz folder na dysku zawieraj¹cy pliki jpg oraz png');
+       SError('Wybrany folder nie zawiera zdjêæ. Wybierz folder na dysku zawieraj¹cy pliki jpg oraz png');
        exit;
      end;
 
@@ -119,7 +119,7 @@ begin
     DirList.Free;
     except
     on e:exception do begin
-        info('Ups, coœ posz³o nie tak. SprawdŸ, czy na pewno mo¿esz modyfikowaæ zawartoœæ katalogu, który wybrano');
+        SError('Ups, coœ posz³o nie tak. SprawdŸ, czy na pewno mo¿esz modyfikowaæ zawartoœæ katalogu, który wybrano');
         raise;
         end;
     end;

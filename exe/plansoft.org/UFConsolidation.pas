@@ -78,7 +78,7 @@ begin
   KeyValue := '';
   If GENERICShowModalAsSelect(KeyValue) = mrOK Then Begin
    If ExistsValue(RECORD1.Text, [';'], KeyValue)
-    Then Info('Nie mo¿na wybraæ ponownie tego samego rekordu')
+    Then SError('Nie mo¿na wybraæ ponownie tego samego rekordu')
     Else begin
      //ConLecturer.Text := Merge(KeyValue, RECORD1.Text, ';');
      RECORD1.Text := KeyValue;
@@ -92,7 +92,7 @@ begin
   KeyValue := '';
   If GENERICShowModalAsSelect(KeyValue) = mrOK Then Begin
    If ExistsValue(RECORD2.Text, [';'], KeyValue)
-    Then Info('Nie mo¿na wybraæ ponownie tego samego rekordu')
+    Then SError('Nie mo¿na wybraæ ponownie tego samego rekordu')
     Else begin
      //ConLecturer.Text := Merge(KeyValue, RECORD1.Text, ';');
      RECORD2.Text := KeyValue;
@@ -140,9 +140,9 @@ procedure TFConsolidation.BConsolidateClick(Sender: TObject);
 var dummy : shortString;
 const names : array[0..4] of shortString = ('LEC','GRO','RES','SUB','FOR');
 begin
- if isBlank ( RECORD1.Text ) then begin info ('Wybierz rekord do zachowania'); exit; end;
- if isBlank ( RECORD2.Text ) then begin info ('Wybierz rekord do usuniêcia'); exit; end;
- if RECORD2.Text = RECORD1.Text then begin info ('Wybierz dwa ró¿ne rekordy do scalenia'); exit; end;
+ if isBlank ( RECORD1.Text ) then begin SError('Wybierz rekord do zachowania'); exit; end;
+ if isBlank ( RECORD2.Text ) then begin SError('Wybierz rekord do usuniêcia'); exit; end;
+ if RECORD2.Text = RECORD1.Text then begin SError('Wybierz dwa ró¿ne rekordy do scalenia'); exit; end;
 
  try
   with dmodule.QWork do begin
@@ -159,7 +159,7 @@ begin
     if question('W wyniku scalania liczba rekordów zmniejszy siê. Ich liczba zmniejszy siê ze wzglêdu na to, ¿e zostan¹ usunietê rekordy, które w wyniku scalenia spowodowa³yby konflikty. Czy kontynuowaæ ?') = id_yes then
       begin
         dmodule.CommitTrans;
-        info ('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê rekordów:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
+        SError('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê rekordów:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
       end
     else
       Dmodule.RollbackTrans;
@@ -167,12 +167,12 @@ begin
   else
   begin
     dmodule.CommitTrans;
-    info ('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê zajêæ:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
+    SError('Zasób scalono. Zaktualizowano nastêpuj¹c¹ liczbê zajêæ:'+ intToStr( dmodule.QWork.Fields[4].AsInteger + dmodule.QWork.Fields[2].AsInteger) );
   end;
  except
    on E:exception do Begin
      Dmodule.RollbackTrans;
-     info(E.Message);
+     SError(E.Message);
    end;
  end;
 end;
@@ -230,7 +230,7 @@ begin
   inherited;
   if administratorMerging.Checked then
     If not isAdmin Then Begin
-      Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+      SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
       administratorMerging.Checked := false;
     End;
 end;

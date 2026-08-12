@@ -108,7 +108,7 @@ try
   end;
   FProgress.Hide;
   dmodule.CommitTrans;
-  Info('Wersja '+ver_name.Text+' utworzona!');
+  SError('Wersja '+ver_name.Text+' utworzona!');
   Close;
 except
   on E:exception do Begin
@@ -167,7 +167,7 @@ try
    showReport
   else begin
     dmodule.CommitTrans;
-    Info('Wersja zosta³a przywrócona');
+    SError('Wersja zosta³a przywrócona');
     FMain.deepRefreshDelayed;
     Close;
   end;
@@ -217,7 +217,7 @@ try
   FProgress.Hide;
   details.Visible := false;
   dmodule.CommitTrans;
-  Info('Wersja '+name.text+' zosta³a skasowana');
+  SError('Wersja '+name.text+' zosta³a skasowana');
 except
   on E:exception do Begin
      FProgress.Hide;

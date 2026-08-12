@@ -133,7 +133,7 @@ begin
 
   if usosPs then begin
     if  (Pos('USOS', AnsiUpperCase(fmain.CONROLE_VALUE.Text)) = 0) then begin
-      Info('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
+      SError('Przed uruchomieniem integracji wybierz autoryzacjê, której nazwa zawiera s³owo USOS');
       result := false;
       exit;
     End;
@@ -147,7 +147,7 @@ begin
       writeln(tmpFile, UTF8Encode (attendanceList.Fields[0].AsString));
       closeFile(tmpFile);
       ExecuteFile(uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html','','',SW_SHOWMAXIMIZED);
-      Info('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
+      SError('Autoryzacje USOS nie mog¹ wspó³dzieliæ przedmiotów z innymi autoryzacjami USOS');
 
       result := false;
       exit;
@@ -361,7 +361,7 @@ begin
       //SingleValue('select TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD'') from periods where rownum =1');
       if dmodule.QWork.RecordCount = 0 then begin
         FProgress.Hide;
-        info('Nie odnaleziono okresu o podanym kodzie cyklu:'+USOS_CYKL.Text);
+        SError('Nie odnaleziono okresu o podanym kodzie cyklu:'+USOS_CYKL.Text);
         exit;
       end;
       DateFrom := 'TO_DATE('''+QWork.Fields[0].AsString+''',''YYYY/MM/DD'')';
@@ -379,7 +379,7 @@ begin
     except
       FProgress.Hide;
       copyToClipboard(  QueryNotSent.SQL.Text);
-      info(QueryNotSent.SQL.Text);
+      SError(QueryNotSent.SQL.Text);
       raise;
     end;
   end;
@@ -437,7 +437,7 @@ begin
  if activeTab = 0 then CopyToClipboard( QueryLog.SQL.Text );
  if activeTab = 1 then CopyToClipboard( QueryNotSent.SQL.Text );
  if activeTab = 2 then CopyToClipboard( QuerySent.SQL.Text );
- Info('Skopiowano do schowka');
+ SError('Skopiowano do schowka');
 end;
 
 

@@ -50,10 +50,10 @@ begin
   inherited;
   ExecuteFileAndWait(ECommand.Text);
   If FileExists(EFolderName.Text+'\'+filename) Then begin
-      Info('Utworzono plik');
+      SError('Utworzono plik');
       ShowFolder(EFolderName.Text);
   end
-  Else Info('Pliku nie utworzono, coœ posz³o nie tak. ' + EFolderName.Text+'\'+filename);
+  Else SError('Pliku nie utworzono, coœ posz³o nie tak. ' + EFolderName.Text+'\'+filename);
 end;
 
 procedure TFExp.FormShow(Sender: TObject);

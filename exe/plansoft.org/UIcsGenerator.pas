@@ -227,7 +227,7 @@ end;
           if not fmain.silentMode then begin
               ShowFolder(Folder);
               if defaultBrowserIsChrome then begin
-                  info('Zrobione! Otwórz plik index.html za pomoc¹ Internet Explorer lub Firefox lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
+                  SError('Zrobione! Otwórz plik index.html za pomoc¹ Internet Explorer lub Firefox lub umieœæ go na serwerze www. Wiêcej na ten temat w podrêczniku u¿ytkownika');
               end;
               uUtilityParent.ExecuteFile(Folder+'\index.xml','','',SW_SHOWMAXIMIZED);
           end;
@@ -475,7 +475,7 @@ end;
                          end;
 
 												 if not gridDefinition.hourNumberToHourFromTo (fieldByName('hour').AsInteger, fieldByName('fill').AsInteger, hh1, mm1, hh2, mm2) then begin
-												   info ( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
+												   SError( format('Nie mo¿na okreœliæ godziny rozpoczêcia lub zakoñczenia dla zajêcia nr %s.'+cr+'Uzupe³nij kolumny Godz.od, Godz.do', [fieldByName('hour').AsString]));
 												   queryClasses.Free;
 												   autocreate.GRIDSShowModalAsBrowser;
 												   exit;
@@ -578,7 +578,7 @@ end;
       queryClasses := tadoquery.Create(self);
 
       if (getCode (FSettings.GD1)='NONE') or (getCode (FSettings.RD1)='NONE') or (getCode (FSettings.LD1)='NONE') then
-          info ('Przed uruchomieniem eksportu danych uruchom Ustawienia i zdefiniuj jakie dane powinny zostaæ wys³ane do iKalendarz')
+          SError('Przed uruchomieniem eksportu danych uruchom Ustawienia i zdefiniuj jakie dane powinny zostaæ wys³ane do iKalendarz')
       else begin
           with FSettings Do begin
             googleExport ( GroupsChecked    , GList , fprogramsettings.profileObjectNameG.Text  , 'GRO', getCode(GViewType), getCode (GD1),  [ getCode (GD2),getCode (GD3),getCode (GD4),getCode (GD5) ], [ getValue(GD2),getValue(GD3),getValue(GD4),getValue(GD5) ] );

@@ -103,7 +103,7 @@ Begin
      End;
  End;
  //if (invalidItems<>'') and (not fmain.silentMode) then
- //  Info('Nie rozpoznane nazwy: '+invalidItems+CR+CR+'Je¿eli nazwy s¹ prawid³owe, to poproœ administratora o nadanie dostêpu za pomoc¹ funkcji "Uprawnienia do obiektów".');
+ //  SError('Nie rozpoznane nazwy: '+invalidItems+CR+CR+'Je¿eli nazwy s¹ prawid³owe, to poproœ administratora o nadanie dostêpu za pomoc¹ funkcji "Uprawnienia do obiektów".');
 
  Values := TempValues;
 End;

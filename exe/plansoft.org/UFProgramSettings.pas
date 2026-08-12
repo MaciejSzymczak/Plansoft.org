@@ -386,7 +386,7 @@ begin
      profileObjectNameC2acc.Text     := 'zadanie';
      profileObjectNameC2gen.Text     := 'zadania';
      end;
-   3:begin uutilityparent.info('Teraz mo¿esz wprowadziæ samodzielnie nazwy, które bêd¹ wyœwietlane na formularzach'); end;
+   3:begin uutilityparent.SError('Teraz mo¿esz wprowadziæ samodzielnie nazwy, które bêd¹ wyœwietlane na formularzach'); end;
   end;
 
   {
@@ -397,7 +397,7 @@ end;
 procedure TFProgramSettings.Button1Click(Sender: TObject);
 begin
   SetSystemParam('FBrowseCLASSES','Restore');
-  uutilityparent.info ('Aby wszystkie zmiany zosta³y zastosowane, nale¿y uruchomiæ program ponownie.');
+  uutilityparent.SError('Aby wszystkie zmiany zosta³y zastosowane, nale¿y uruchomiæ program ponownie.');
   {
   if profileType.ItemIndex = 0 then begin
     dmodule.SQL('begin update resource_categories set name = :name where id = :id; commit; end;', 'name=Sala;id=1');
@@ -605,7 +605,7 @@ begin
 
   dmodule.dbSetSystemParam('DIFF_END_DATE', DIFF_END_DATE.text);
   Button2.Caption := 'ZatwierdŸ';
-  Uutilityparent.Info('Zapisano');
+  Uutilityparent.SError('Zapisano');
 end;
 
 procedure TFProgramSettings.OpenFolderClick(Sender: TObject);

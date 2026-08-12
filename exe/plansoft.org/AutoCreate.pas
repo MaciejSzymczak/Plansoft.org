@@ -850,7 +850,7 @@ Procedure ORG_UNITSShowModalAsBrowser;
 Begin
  ORG_UNITSCreate;
  If not editOrgUnits Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach "Edycja struktury organizacyjnej"');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach "Edycja struktury organizacyjnej"');
   Exit;
  End;
  FBrowseORG_UNITS.ShowModalAsBrowser('');
@@ -881,7 +881,7 @@ Procedure FORM_FORMULASShowModalAsBrowser;
 Begin
  FORM_FORMULASCreate;
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   Exit;
  End;
  FBrowseFORM_FORMULAS.ShowModalAsBrowser('');
@@ -1093,7 +1093,7 @@ end;
 Procedure GRIDSShowModalAsBrowser;
 Begin
  If not isAdmin Then Begin
-  Info('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
   Exit;
  End;
 
@@ -1105,7 +1105,7 @@ End;
 Function GRIDSShowModalAsSelect(var ID : ShortString) : TModalResult;
 Begin
  If not isAdmin Then Begin
-  Info('Ten modu³ mo¿e byæ uruchamiany tylko przez u¿ytkownika o uprawnieniach administratora');
+  SError('Ten modu³ mo¿e byæ uruchamiany tylko przez u¿ytkownika o uprawnieniach administratora');
   Exit;
  End;
 

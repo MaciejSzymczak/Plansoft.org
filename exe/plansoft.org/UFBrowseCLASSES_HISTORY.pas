@@ -137,14 +137,14 @@ Function TFBrowseCLASSES_HISTORY.execute(aCurrOperation : Integer; aID : ShortSt
   Procedure DeleteRecord(aID : String);
   Begin
       ID := aID;
-      Try BeforeDelete; Except Info(Komunikaty.Strings[26]); End;
+      Try BeforeDelete; Except SError(Komunikaty.Strings[26]); End;
       Try
           //DModule.SQL('DELETE FROM '+TableName+' WHERE '+KeyField+'='+ID);
           //based on uutilities.deleteClass
           dmodule.sql('begin api.delete_class (:id ); end;'
                      ,'id='+ID
           );
-       Try AfterDelete; Except Info(Komunikaty.Strings[27]); End;
+       Try AfterDelete; Except SError(Komunikaty.Strings[27]); End;
       Except
        on E:exception do Begin
          errorMessage(ADelete, Self, E.Message);
