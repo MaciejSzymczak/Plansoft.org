@@ -97,9 +97,15 @@ begin
 end;
 
 procedure thtmlTable.writeCell (s : string; const colSpan : integer = 1; const rowSpan : integer = 1 ; const ignoreFlag : boolean = false);
+var
+  p : integer;
 begin
-  if Pos(intToStr(colCount),verticalLines)<>0  then
-      s := StringReplace(s, '<TD ', '<TD style=''border-right:solid 2.0pt''', [rfIgnoreCase]);
+  if Pos(intToStr(colCount),verticalLines)<>0  then begin
+    p := Pos('style="', s);
+    if p<>0
+      then Insert('border-right:solid 2.0pt;', s, p+7)
+      else s := StringReplace(s, '<TD ', '<TD style=''border-right:solid 2.0pt''', [rfIgnoreCase]);
+  end;
 
   inc ( colCount );
   setLength(table[ rowCount-1 ].cells, colCount);

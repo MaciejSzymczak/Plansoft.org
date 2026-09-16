@@ -1047,6 +1047,8 @@ Var F : Textfile;
 begin
   FProgramSettings.generateJsFiles;
 
+  if not CanOverwriteFile( fileName ) then exit;
+
   AssignFile(F, fileName);
   ReWrite(f);
   Writeln(f, '<!DOCTYPE html>');
@@ -1137,6 +1139,7 @@ Var F : Textfile;
 
 begin
   inherited;
+  if not CanOverwriteFile( filename ) then exit;
   AssignFile(F, filename);
   ReWrite(f);
 
@@ -1185,6 +1188,7 @@ var F : Textfile;
     End;
 
 begin
+  if not CanOverwriteFile( fileName ) then exit;
   AssignFile(F, fileName );
   ReWrite(f);
 

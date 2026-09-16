@@ -733,6 +733,7 @@ begin
   TempFilterSettings.Values['BSort8.Down']                 := BoolToChar[BSort8.Down];
   TempFilterSettings.Values['BSave.Enabled']               := BoolToChar[BSave.Enabled]; //for standard combinations set to False to prevent window from changes settings
 
+  if not CanOverwriteFile( FileName ) then exit;
   AssignFile(TFile, FileName);
   ReWrite(TFile);
   WriteLn(TFile, Columns.CommaText);
@@ -801,6 +802,7 @@ Var TFile : TextFile;
 begin
   inherited;
  If SD2.Execute Then Begin
+  if not CanOverwriteFile( SD2.FileName ) then exit;
   AssignFile(TFile, SD2.FileName);
   ReWrite(TFile);
   For t := 0 To SG.RowCount -1 Do Begin

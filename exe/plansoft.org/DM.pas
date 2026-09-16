@@ -1584,7 +1584,7 @@ procedure TDModule.ExportToHtml(aGrid: TDBGrid);
           Writeln(f, '</tr>');
         end;
     begin
-          DeleteFile( FileName );
+          if not CanOverwriteFile( FileName ) then exit;
 
           AssignFile(F, FileName);
           ReWrite(F);

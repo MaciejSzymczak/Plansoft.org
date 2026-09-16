@@ -122,6 +122,10 @@ var
  s : string;
  t_font : shortint;
 begin
+ if not CanOverwriteFile( MFullPath ) then begin
+   SaveToFile := False;
+   exit;
+ end;
  try
    AssignFile(fi,MFullPath);
    Rewrite(fi);

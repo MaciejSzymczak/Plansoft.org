@@ -1165,14 +1165,7 @@ var
     end;
 
 begin
-    try
-    assignFile(f,outFileName);
-    rewrite(f);
-    closeFile(f);
-    except
-     SError('Ups, program Word lub Excel nie pozwala na modyfikacjê pliku, zamknij program Word/Excel.'+cr+'Problem rozwi¹¿e równie¿ zapisanie raportu pod inn¹ nazw¹ w programie Word/Excel ("Zapisz jako")');
-     exit;
-    end;
+    if not CanOverwriteFile( outFileName ) then exit;
 
 
     colColor     := Colors.lines.Values[Color.Items[Color.itemIndex]];

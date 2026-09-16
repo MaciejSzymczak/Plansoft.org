@@ -152,6 +152,7 @@ begin
  UpdStatus('Tworzenie dokumentu');
 
  If GetFileName(WordExport) Then Begin
+  If not CanOverwriteFile(FileName) Then Exit;
   Query.DisableControls;
 
   GetCaptionsToExport(TempCOLUMNS.Strings);
@@ -206,6 +207,7 @@ begin
  UpdStatus('Tworzenie dokumentu');
 
  If GetFileName(ExcelExport) Then Begin
+  If not CanOverwriteFile(FileName) Then Exit;
   Query.DisableControls;
 
   GetCaptionsToExport(TempCOLUMNS.Strings);
@@ -242,6 +244,7 @@ Var F : TextFile;
 begin
  ApplyChanges;
  If GetFileName(NotePadExport) Then Begin
+  If not CanOverwriteFile(FileName) Then Exit;
   Query.DisableControls;
   AssignFile(F, FileName);
   ReWrite(F);
@@ -431,6 +434,7 @@ begin
 
  ApplyChanges;
  If GetFileName(wwwExport) Then Begin
+  If not CanOverwriteFile(FileName) Then Exit;
   Query.DisableControls;
   AssignFile(F, FileName);
   ReWrite(F);

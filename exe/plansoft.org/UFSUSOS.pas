@@ -139,6 +139,10 @@ begin
     End;
 
     if Dmodule.SingleValue('select rep_usos_overlaps.errors from dual')<>'0' then begin
+      if not CanOverwriteFile( uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html' ) then begin
+        result := false;
+        exit;
+      end;
       AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'rep_usos_overlaps.html');
       rewrite(tmpFile);
       attendanceList.SQL.Clear;

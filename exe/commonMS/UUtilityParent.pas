@@ -113,6 +113,7 @@ const showAlways      = 1;
 Procedure info(S : String);
 Procedure sError(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
 Function  question(S : String) : Integer; //returns ID_YES, ID_NO
+Function  CanOverwriteFile(const FileName : String) : Boolean;
 
 function  getSystemParam(Name : ShortString; const currentUser : boolean = true) : ShortString; overload;
 function  getSystemParam(Name : ShortString; defaultValue : shortString) : ShortString; overload;
@@ -824,6 +825,16 @@ Begin
      SetSystemParam('MESSAGE.' + infoID,DateToYYYYMM(Date));
    End;
  end;
+End;
+
+Function CanOverwriteFile(const FileName : String) : Boolean;
+Begin
+ Result := True;
+ If FileExists(FileName) Then
+  If not DeleteFile(FileName) Then Begin
+    SError('Nie mo¿na utworzyæ dokumentu, poniewa¿ dokument jest aktualnie u¿ywany przez inny program. Zamknij inne programy i spróbuj ponownie');
+    Result := False;
+  End;
 End;
 
 Function Question(S : String) : Integer;
@@ -1891,7 +1902,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2026-08-13';
+ VersionOfApplication := '2026-09-16';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

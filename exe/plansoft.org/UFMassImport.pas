@@ -482,6 +482,8 @@ begin
    end;
   end;
 
+  if not CanOverwriteFile( uutilityParent.ApplicationDocumentsPath +'Plan_Import.html' ) then exit;
+
   AssignFile(tmpFile,  uutilityParent.ApplicationDocumentsPath +'Plan_Import.html');
   rewrite(tmpFile);
 

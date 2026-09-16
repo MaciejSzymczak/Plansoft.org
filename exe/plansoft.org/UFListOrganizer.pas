@@ -366,6 +366,7 @@ begin
     Exit;
   end;
   if SaveDialog1.Execute then begin
+    if not CanOverwriteFile( SaveDialog1.FileName ) then exit;
     lines := TStringList.Create;
     try
       for i := 0 to lbIds.Items.Count - 1 do
