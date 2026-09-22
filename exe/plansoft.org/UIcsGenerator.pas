@@ -165,6 +165,7 @@ end;
         procedure tableOfContens;
         var t : integer;
             f : textFile;
+            fh : textFile;
         begin
           AssignFile(F, folder+'\layout.xslt');
           Rewrite(F);
@@ -184,6 +185,29 @@ end;
           if DoNotGenerateTableOfCon then   AssignFile(F, Folder+'\eraseme.htm')
                                              else   AssignFile(F, Folder+'\index.xml');
           Rewrite(F);
+
+          if DoNotGenerateTableOfCon then   AssignFile(fh, Folder+'\eraseme2.htm')
+                                             else   AssignFile(fh, Folder+'\index.html');
+          Rewrite(fh);
+          WriteLn(fh, '<!DOCTYPE html>');
+          WriteLn(fh, '<html>');
+          WriteLn(fh, '<head>');
+          WriteLn(fh, '<meta http-equiv="Content-Type" content="text/html; charset=windows-1250">');
+          WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
+          WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
+          WriteLn(fh, '</head>');
+          WriteLn(fh, '<body style="font-variant: small-caps; text-align: center; background-color: #eeeeee;">');
+          WriteLn(fh, '<h1 style="font-variant: small-caps; text-align: center; color: white; background-color: black;">'+XMLescapeChars(periodName)+'</h1>');
+          WriteLn(fh, '<center>'+XMLescapeChars(AddText)+'</center><br/><br/>');
+          WriteLn(fh, '<center>');
+          WriteLn(fh, '<table border="1" width="80%" style="font-variant: small-caps; border: 0px dashed black">');
+          WriteLn(fh, '<tr style="background-color: silver">');
+          if GroupsChecked     then WriteLn(fh, '<td><center>Grupy</center></td>');
+          if lecturersChecked  then WriteLn(fh, '<td><center>Wyk&#322;adowcy</center></td>');
+          if ResourcesChecked  then WriteLn(fh, '<td><center>Zasoby</center></td>');
+          WriteLn(fh, '</tr>');
+          WriteLn(fh, '<tr>');
+
           WriteLn(f, '<?xml version="1.0" encoding="windows-1250"?>');
           WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
           WriteLn(f, '<xml>');
@@ -192,26 +216,35 @@ end;
           WriteLn(f, '<description text="'+XMLescapeChars(AddText)+'"></description>');
           WriteLn(f, '<data>');
              If GroupsChecked Then Begin
+               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
                for t := 0 to GList.Count - 1 do begin
                  if GList.Checked[t] then begin
                    WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
+                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics">'+XMLescapeChars(GList.Items[t])+'</a>');
                  end;
                end;
+               WriteLn(fh, '</ul></div></td>');
              end;
 
              If lecturersChecked Then Begin
+               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
                for t := 0 to LList.Count - 1 do begin
                  if LList.Checked[t] then begin
                    WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
+                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics">'+XMLescapeChars(LList.Items[t])+'</a>');
                  end;
                end;
+               WriteLn(fh, '</ul></div></td>');
              end;
               If ResourcesChecked Then Begin
+               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
                for t := 0 to RList.Count - 1 do begin
                  if RList.Checked[t] then begin
                    WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
+                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics">'+XMLescapeChars(RList.Items[t])+'</a>');
                  end;
                end;
+               WriteLn(fh, '</ul></div></td>');
               end;
           WriteLn(f, '</data>');
           WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
@@ -224,12 +257,24 @@ end;
 
           flush(f);
           CloseFile(F);
+
+          WriteLn(fh, '</tr>');
+          WriteLn(fh, '</table>');
+          WriteLn(fh, '</center>');
+          WriteLn(fh, '<br/><small>Aktualizacja: '+DateTimeToStr(Now())+'</small>');
+          WriteLn(fh, '<br/><br/><br/><small>Plik iKalendarza mog&#261; by&#263; otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar</small>');
+          WriteLn(fh, '<br/><a href="https://support.google.com/calendar/answer/37118?hl=pl" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jak zaimportowa&#263; rozk&#322;ad zaj&#281;&#263; do Google Kalendarza</a>');
+          WriteLn(fh, '<br/><a href="http://calendar.zoznam.sk/icalendar/ical-pl.php" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jeszcze wi&#281;cej na temat iKalendarzy</a>');
+          WriteLn(fh, '</body>');
+          WriteLn(fh, '</html>');
+          flush(fh);
+          CloseFile(fh);
           if not fmain.silentMode then begin
               ShowFolder(Folder);
               if defaultBrowserIsChrome then begin
                   SError('Zrobione! Otwórz plik index.html za pomocą Internet Explorer lub Firefox lub umieść go na serwerze www. Więcej na ten temat w podręczniku użytkownika');
               end;
-              uUtilityParent.ExecuteFile(Folder+'\index.xml','','',SW_SHOWMAXIMIZED);
+              uUtilityParent.ExecuteFile(Folder+'\index.html','','',SW_SHOWMAXIMIZED);
           end;
         end;
 

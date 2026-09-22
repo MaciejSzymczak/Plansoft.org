@@ -2011,6 +2011,7 @@ var ColoringIndex    : shortString;
     procedure generateWebPage;
       Var fileExt : string;
           f : textFile;
+          fh : textFile;
           t : integer;
     begin
       AssignFile(f, Folder.Text+'\layout.xslt');
@@ -2031,6 +2032,29 @@ var ColoringIndex    : shortString;
       if DoNotGenerateTableOfCon.Checked then   AssignFile(F, Folder.Text+'\eraseme.htm')
                                          else   AssignFile(F, Folder.Text+'\index.xml');
       Rewrite(F);
+
+      if DoNotGenerateTableOfCon.Checked then   AssignFile(fh, Folder.Text+'\eraseme2.htm')
+                                         else   AssignFile(fh, Folder.Text+'\index.html');
+      Rewrite(fh);
+      WriteLn(fh, '<!DOCTYPE html>');
+      WriteLn(fh, '<html>');
+      WriteLn(fh, '<head>');
+      WriteLn(fh, '<meta http-equiv="Content-Type" content="text/html; charset=windows-1250">');
+      WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
+      WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
+      WriteLn(fh, '</head>');
+      WriteLn(fh, '<body style="font-variant: small-caps; text-align: center; background-color: #eeeeee;">');
+      WriteLn(fh, '<h1 style="font-variant: small-caps; text-align: center; color: white; background-color: black;">'+XMLescapeChars(currentPeriod_VALUE.Text)+'</h1>');
+      WriteLn(fh, '<center>'+XMLescapeChars(AddText.Text)+'</center><br/><br/>');
+      WriteLn(fh, '<center>');
+      WriteLn(fh, '<table border="1" width="80%" style="font-variant: small-caps; border: 0px dashed black">');
+      WriteLn(fh, '<tr style="background-color: silver">');
+      if Groups.Checked    then WriteLn(fh, '<td><center>Grupy</center></td>');
+      if lecturers.Checked then WriteLn(fh, '<td><center>Wyk&#322;adowcy</center></td>');
+      if Resources.Checked then WriteLn(fh, '<td><center>Zasoby</center></td>');
+      WriteLn(fh, '</tr>');
+      WriteLn(fh, '<tr>');
+
       WriteLn(f, '<?xml version="1.0" encoding="windows-1250"?>');
       WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
       WriteLn(f, '<xml>');
@@ -2039,10 +2063,12 @@ var ColoringIndex    : shortString;
       WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
       WriteLn(f, '<data>');
          If Groups.Checked Then Begin
+           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.GPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
                WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
+               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'">'+XMLescapeChars(GList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.GViewType);
                With FSettings Do CalendarToHTML(
                currentPeriod.Text
@@ -2089,22 +2115,28 @@ var ColoringIndex    : shortString;
                , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex );
              end;
            end;
+           WriteLn(fh, '</ul></div></td>');
          end;
          If lecturers.Checked Then Begin
+           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.LPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
+               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'">'+XMLescapeChars(LList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.LViewType);
                With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex);
              end;
            end;
+           WriteLn(fh, '</ul></div></td>');
          end;
           If Resources.Checked Then Begin
+           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.RPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
                WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
+               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'">'+XMLescapeChars(RList.Items[t])+'</a>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
                  With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex );
@@ -2115,17 +2147,25 @@ var ColoringIndex    : shortString;
              end;
            end;
           end;
+          WriteLn(fh, '</ul></div></td>');
+          WriteLn(fh, '</tr>');
+          WriteLn(fh, '</table>');
+          WriteLn(fh, '</center>');
+          WriteLn(fh, '<br/><small>Aktualizacja: '+DateTimeToStr(Now())+'</small>');
       WriteLn(f, '</data>');
       WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
       WriteLn(f, '</xml>');
 
       CloseFile(F);
+
+      WriteLn(fh, '</body>');
+      WriteLn(fh, '</html>');
+      flush(fh);
+      CloseFile(fh);
       if not fmain.silentMode then begin
           ShowFolder(Folder.Text);
-          if defaultBrowserIsChrome then begin
-              SError('Zrobione! Już możesz przeglądać rozkłady. Aby jednak zobaczyć spis treści (plik index.xml) poproś swojego informatyka, aby umieścił zawartość tego folderu na serwerze Uczelni.');
-          end;
-          uUtilityParent.ExecuteFile(Folder.Text+'\index.xml','','',SW_SHOWMAXIMIZED);
+          SError('Zrobione! Poproś swojego informatyka, aby umieścił zawartość tego folderu na serwerze Uczelni.');
+          uUtilityParent.ExecuteFile(Folder.Text+'\index.html','','',SW_SHOWMAXIMIZED);
       end;
     End;
 
