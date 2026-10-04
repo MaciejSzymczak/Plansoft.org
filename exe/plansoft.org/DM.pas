@@ -1032,37 +1032,30 @@ end;
 
 //----------------------------------------------------------------
 Procedure TDModule.InsertIntoEventLog(OWNER, KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME  : String);
-  Function FormatString(S : String) : String;
-  Var S2 : String;
-      t  : Integer;
-  Begin
-   S2 := '';
-   For t := 1 To Length(S) Do
-    If S[t] = '''' Then
-      S2 := S2 + S[t]+S[t]
-    Else S2 := S2 + S[t];
-
-   Result := ''''+S2+'''';
-  End;
 Begin
- KIND        := FormatString(KIND);
- MODULE      := FormatString(MODULE);
- PARAM_1     := FormatString(PARAM_1);
- COMMENT_1   := FormatString(COMMENT_1);
- COMMENT_2   := FormatString(COMMENT_2);
- COMMENT_3   := FormatString(COMMENT_3);
- SQL_COMMAND := FormatString(SQL_COMMAND);
-
- IF USERNAME = '' Then USERNAME := 'USER'
-                  Else USERNAME := FormatString(USERNAME);
+ IF USERNAME = '' Then USERNAME := 'USER';
  Try
-  SQL('INSERT INTO '+OWNER+'.EVENTLOG (ID,KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME) VALUES ('+OWNER+'.ELO_SEQ.NEXTVAL,'+KIND+','+MODULE+','+PARAM_1+','+COMMENT_1+','+COMMENT_2+','+COMMENT_3+','+SQL_COMMAND+','+USERNAME+')');
+   Dmodule.QWork.SQL.Clear;
+   Dmodule.QWork.SQL.Add('INSERT INTO '+OWNER+'.EVENTLOG (ID,KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME) VALUES ('+OWNER+'.ELO_SEQ.NEXTVAL,:KIND,:MODULE,:PARAM_1,:COMMENT_1,:COMMENT_2,:COMMENT_3,:SQL_COMMAND,:USERNAME)');
+   Dmodule.QWork.Parameters.ParamByName('KIND').Value        := KIND;
+   Dmodule.QWork.Parameters.ParamByName('MODULE').Value      := MODULE;
+   Dmodule.QWork.Parameters.ParamByName('PARAM_1').Value     := PARAM_1;
+   Dmodule.QWork.Parameters.ParamByName('COMMENT_1').Value   := COMMENT_1;
+   Dmodule.QWork.Parameters.ParamByName('COMMENT_2').Value   := COMMENT_2;
+   Dmodule.QWork.Parameters.ParamByName('COMMENT_3').Value   := COMMENT_3;
+   Dmodule.QWork.Parameters.ParamByName('SQL_COMMAND').Value := SQL_COMMAND;
+   Dmodule.QWork.Parameters.ParamByName('USERNAME').Value    := USERNAME;
+   Dmodule.QWork.ExecSQL;
  Except
   Try
-    SQL('INSERT INTO '+OWNER+'.EVENTLOG (ID,KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME) VALUES ('+OWNER+'.ELO_SEQ.NEXTVAL,''INSERT_LOG_FAIL'','+MODULE+','+''''''+','+KIND+','+''''''+','+''''''+','+''''''+','+USERNAME+')');
+    Dmodule.QWork.SQL.Clear;
+    Dmodule.QWork.SQL.Add('INSERT INTO '+OWNER+'.EVENTLOG (ID,KIND, MODULE, PARAM_1, COMMENT_1, COMMENT_2, COMMENT_3, SQL_COMMAND, USERNAME) VALUES ('+OWNER+'.ELO_SEQ.NEXTVAL,''INSERT_LOG_FAIL'',:MODULE,'''',:ORIGKIND,'''','''','''',:USERNAME)');
+    Dmodule.QWork.Parameters.ParamByName('MODULE').Value   := MODULE;
+    Dmodule.QWork.Parameters.ParamByName('ORIGKIND').Value := KIND;
+    Dmodule.QWork.Parameters.ParamByName('USERNAME').Value := USERNAME;
+    Dmodule.QWork.ExecSQL;
   Except
      //silent
-     //SError('Nasta¹pi³ b³¹d podczas próby odnotowania b³êdu w Dzienniku zdarzeñ');
   End;
  End;
 End;

@@ -1,3 +1,5 @@
+ALTER SYSTEM SET cursor_sharing = FORCE SCOPE=BOTH;
+
 CHECK OCCUPATION (LIMIT 12GB!)
 =======================================================
 
@@ -52,6 +54,38 @@ BEGIN
   );
 END;
 /
+
+BEGIN
+  DBMS_WORKLOAD_REPOSITORY.MODIFY_BASELINE_WINDOW_SIZE(window_size => 5);
+END;
+/
+
+--confirmation
+SELECT baseline_id, baseline_name, baseline_type, moving_window_size
+FROM dba_hist_baseline
+WHERE baseline_type = 'MOVING_WINDOW';
+
+
+SELECT COUNT(*) FROM dba_hist_snapshot
+WHERE end_interval_time < SYSDATE - 9;
+
+-- sprawdź czy segment ma movement enabled
+SELECT table_name, row_movement 
+FROM dba_tables 
+WHERE table_name = 'WRH$_SQLTEXT';
+
+-- jeśli DISABLED, włącz:
+ALTER TABLE SYS.WRH$_SQLTEXT ENABLE ROW MOVEMENT;
+
+SELECT name, open_mode FROM v$pdbs;
+ALTER SESSION SET CONTAINER = XEPDB1;
+
+
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+ALTER TABLE SYS.WRH$_SQLTEXT SHRINK SPACE;
+
+SELECT * FROM TABLE(dbms_space.asa_recommendations()) 
+WHERE tablespace_name = 'SYSAUX';
 
 
 REBUILD

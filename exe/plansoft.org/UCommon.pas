@@ -6,6 +6,7 @@ Uses DM, UUtilityParent, SysUtils, StdCtrls, StrUtils, Classes;
 
 
 Procedure ValidValues(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; const separator : char = ';');
+Procedure ValidValuesEx(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; Var invalidItems : String; const separator : char = ';');
 function FChange(field : string; SQLString : String; const separator : char = ';') : string;
 procedure GetEnabledLGR(ConLecturer, ConGroup, ConRoom, ConSubject, ConForm, Owner : String;
                         SingleClassContext : Boolean;
@@ -76,11 +77,17 @@ end;
 
 //--------------------------------------------------------------------------------------
 Procedure ValidValues(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; const separator : char = ';');
+Var invalidItems : String;
+Begin
+ ValidValuesEx(TableName, Values, ValueColumn, IDs, invalidItems, separator);
+End;
+
+//invalidItems: names that could not be resolved (no such object or no *_PLA permission) - they are left out of Values/IDs
+Procedure ValidValuesEx(TableName : ShortString; Var Values: String; ValueColumn :String; Var IDs :String; Var invalidItems : String; const separator : char = ';');
 Var t : Integer;
     Token      : String;
     TempValues : String;
     ID         : ShortString;
-    invalidItems : String;
 Begin
  IDs := '';
  TempValues := '';

@@ -612,22 +612,34 @@ begin
   L_value1.text := FChange(L1.text, dm.sql_LECDESC );
 end;
 
-procedure TFDetails.ValidLClick(Sender: TObject);
-Var Values, IDs : String;
+//ValidValues drops names it cannot resolve (no such object or no *_PLA permission, e.g. a room pasted by
+//"Wklej wszystkie pola" from a class of another planner). Dropping them silently saved the class without that
+//resource, so when anything is unresolved the typed/pasted text is kept as is (IDs hold only the resolved ones)
+//and the unresolved names are returned - FormCloseQuery reports them and refuses to save.
+function validFieldValues(TableName : ShortString; ValueColumn : String; valueEdit, idEdit : TEdit) : String;
+Var Values, IDs, valuesBefore : String;
 begin
- Values := L_value1.Text;
- ValidValues('LECTURERS',Values,sql_LECNAME,IDs);
- L_value1.Text := Values;
- L1.Text := IDs;
+ valuesBefore := valueEdit.Text;
+ Values := valuesBefore;
+ ValidValuesEx(TableName,Values,ValueColumn,IDs,result);
+ idEdit.Text := IDs; //OnChange of idEdit rebuilds valueEdit from IDs, so valueEdit is set afterwards
+ if result = '' then valueEdit.Text := Values
+                else valueEdit.Text := valuesBefore;
+end;
+
+function invalidValuesMessage(invalidItems : String) : String;
+begin
+ result := 'Nie znaleziono lub brak uprawnieñ: '+invalidItems+CR+CR+'Je¿eli nazwy s¹ prawid³owe, to poproœ administratora o nadanie dostêpu za pomoc¹ funkcji "Uprawnienia do obiektów".';
+end;
+
+procedure TFDetails.ValidLClick(Sender: TObject);
+begin
+ validFieldValues('LECTURERS',sql_LECNAME,L_value1,L1);
 end;
 
 procedure TFDetails.ValidGClick(Sender: TObject);
-Var Values, IDs : String;
 begin
- Values := G_value1.Text;
- ValidValues('GROUPS',Values,sql_GRONAME,IDs);
- G_value1.Text := Values;
- G1.Text := IDs;
+ validFieldValues('GROUPS',sql_GRONAME,G_value1,G1);
 end;
 
 procedure TFDetails.ValidSClick(Sender: TObject);
@@ -673,21 +685,13 @@ begin
 end;
 
 procedure TFDetails.ValidRClick(Sender: TObject);
-Var Values, IDs : String;
 begin
- Values := rescat0_1_value.Text;
- ValidValues('ROOMS',Values,sql_ResCat0NAME,IDs);
- rescat0_1_value.Text := Values;
- rescat0_1.Text := IDs;
+ validFieldValues('ROOMS',sql_ResCat0NAME,rescat0_1_value,rescat0_1);
 end;
 
 procedure TFDetails.validResCat1_1Click(Sender: TObject);
-var Values, IDs : String;
 begin
- Values := resCat1_1_value.Text;
- ValidValues('ROOMS',Values,sql_ResCat1NAME,IDs);
- resCat1_1_value.Text := Values;
- resCat1_1.Text := IDs;
+ validFieldValues('ROOMS',sql_ResCat1NAME,resCat1_1_value,resCat1_1);
 end;
 
 procedure TFDetails.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -706,6 +710,7 @@ procedure TFDetails.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   end;
   var cd1, cd2, cd3, cd4, cl : integer;
       serror, ferror : string;
+      invalidItems : string;
       plsqlValidation, parsedplsqlValidation : string;
 
   procedure preparePlSQL();
@@ -750,9 +755,11 @@ begin
       Room      := rescat0_1_value.Text;
       Subject   := s_value1.Text;
       classForm := F_value1.Text;
-      ValidLClick(nil);
-      ValidGClick(nil);
-      ValidRClick(nil);
+      invalidItems := validFieldValues('LECTURERS',sql_LECNAME,L_value1,L1);
+      invalidItems := merge(invalidItems, validFieldValues('GROUPS',sql_GRONAME,G_value1,G1), ', ');
+      invalidItems := merge(invalidItems, validFieldValues('ROOMS',sql_ResCat0NAME,rescat0_1_value,rescat0_1), ', ');
+      invalidItems := merge(invalidItems, validFieldValues('ROOMS',sql_ResCat1NAME,resCat1_1_value,resCat1_1), ', ');
+      if invalidItems <> '' then addError(invalidValuesMessage(invalidItems));
       ValidSClick(nil);
       ValidFClick(nil);
       If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);

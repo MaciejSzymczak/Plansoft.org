@@ -6231,6 +6231,29 @@ function TFMain.modifyClass;
         end;
       end;
 
+    // Copy/move (Ctrl+C/Ctrl+X + Ctrl+V, drag, arrows) reuses the resources of an existing class, so the
+    // user could clone a class onto a lecturer/group/room he has no *_PLA permission for. Same rule as
+    // FDetails.FormCloseQuery (HasPermissionL/G/R): every resource of the class must be granted.
+    function hasResourcePermissions(pClass : TClass_) : Boolean;
+      var plaId : string;
+      function idsOrNone(ids : string) : string;
+      begin
+        if ids = '' then result := '-1' else result := replace(ids, ';', ',');
+      end;
+      begin
+        result := false;
+        plaId  := getUserOrRoleID;
+        dmodule.SingleValue(
+          'select (select count(1) from lec_pla where pla_id = '+plaId+' and lec_id in ('+idsOrNone(pClass.calc_lec_ids)+'))'+
+          '     , (select count(1) from gro_pla where pla_id = '+plaId+' and gro_id in ('+idsOrNone(pClass.calc_gro_ids)+'))'+
+          '     , (select count(1) from rom_pla where pla_id = '+plaId+' and rom_id in ('+idsOrNone(pClass.calc_rom_ids)+'))'+
+          '  from dual');
+        if dmodule.QWork.Fields[0].AsInteger <> WordCount(pClass.calc_lec_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text); exit; end;
+        if dmodule.QWork.Fields[1].AsInteger <> WordCount(pClass.calc_gro_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text); exit; end;
+        if dmodule.QWork.Fields[2].AsInteger <> WordCount(pClass.calc_rom_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla tego zasobu'); exit; end;
+        result := true;
+      end;
+
 	begin //internalModifyClass
 	  result := false;
 
@@ -6294,6 +6317,7 @@ function TFMain.modifyClass;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
+         if not hasResourcePermissions(newClass) then exit;
          if not checkMoveCopyConflicts(newClass, oldClass.id) then exit;
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin SError(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
@@ -6305,6 +6329,7 @@ function TFMain.modifyClass;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
+         if not hasResourcePermissions(newClass) then exit;
          if not checkMoveCopyConflicts(newClass, -1) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin SError(dummy); exit; end;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, -1, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
@@ -6682,7 +6707,7 @@ begin
     xp := xstart;
     repeat
      xp := xp + dx;
-     if not modifyClass ('N/A', xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then exit;
+     if not modifyClass ('N/A', xp , yp , deltaX, deltaY, operation, keyValue, keyValueDsp, successFlag,exitIfAnyExists ) then begin FProgress.Hide; exit; end;
      if successFlag then cellsSucceed    := cellsSucceed +1
                     else cellsNotSucceed := cellsNotSucceed +1;
      //FProgress.Refresh;
