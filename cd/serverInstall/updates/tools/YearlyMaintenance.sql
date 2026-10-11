@@ -1,4 +1,4 @@
-ALTER SYSTEM SET cursor_sharing = FORCE SCOPE=BOTH;
+
 
 CHECK OCCUPATION (LIMIT 12GB!)
 =======================================================

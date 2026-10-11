@@ -55,8 +55,8 @@ begin
 
     insert into HELPER_USOS_LEC (gr_nr, zaj_cyk_id, prac_id, lec_id, gro_id, sub_id, for_id)
     select unique
-          (select unique usos_gr_nr from tt_combinations where  gro_id = gro_cla.gro_id and sub_id = cla.sub_id and for_id = cla.for_id) gr_nr
-        , (select unique usos_zaj_cyk_id from tt_combinations where  gro_id = gro_cla.gro_id and sub_id = cla.sub_id and for_id = cla.for_id) zaj_cyk_id
+          (select unique usos_gr_nr from tt_combinations where  weight=122 and avail_type='L' and integration_id is not null and gro_id = gro_cla.gro_id and sub_id = cla.sub_id and for_id = cla.for_id) gr_nr
+        , (select unique usos_zaj_cyk_id from tt_combinations where  weight=122 and avail_type='L' and integration_id is not null and gro_id = gro_cla.gro_id and sub_id = cla.sub_id and for_id = cla.for_id) zaj_cyk_id
         , (select unique prac.id from dz_pracownicy@USOS prac where os_id = lec.integration_id) prac_id
         , lec_id
         , gro_cla.gro_id
@@ -82,7 +82,7 @@ begin
         --plan with no lec
         (gro_id, sub_id, for_id) in (
             select gro_id, sub_id, for_id from tt_combinations 
-            where lec_id is null
+            where weight=122 and avail_type='L' and integration_id is not null and  lec_id is null
         )
         )
         ;
@@ -121,4 +121,4 @@ begin
 end insertRecords;
 
 END usos_dz_prowadzacy_grup;
-/
+

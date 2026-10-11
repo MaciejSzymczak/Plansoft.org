@@ -3,6 +3,7 @@ INSERT INTO system_parameters (name,value) VALUES ('VERSION 2026.07.25', 'INSTAL
 commit;
 
 connect as sys:
+ALTER SYSTEM SET cursor_sharing = FORCE SCOPE=BOTH;
 GRANT EXECUTE ON SYS.DBMS_LOCK TO PLANNER;
 
 connect as planner:
