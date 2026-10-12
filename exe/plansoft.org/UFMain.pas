@@ -6235,10 +6235,22 @@ function TFMain.modifyClass;
     // user could clone a class onto a lecturer/group/room he has no *_PLA permission for. Same rule as
     // FDetails.FormCloseQuery (HasPermissionL/G/R): every resource of the class must be granted.
     function hasResourcePermissions(pClass : TClass_) : Boolean;
-      var plaId : string;
+      var plaId, errors : string;
+          okL, okG, okR : boolean;
       function idsOrNone(ids : string) : string;
       begin
         if ids = '' then result := '-1' else result := replace(ids, ';', ',');
+      end;
+      //called only when the permission check fails: names of the resources without *_PLA grant
+      function missingNames(pTable, pColumn, pIds : string) : string;
+      begin
+        result := '';
+        dmodule.openSQL('select name from resources r where r.id in ('+idsOrNone(pIds)+')'+
+                        ' and not exists (select 1 from '+pTable+' p where p.pla_id = '+plaId+' and p.'+pColumn+' = r.id) order by name');
+        while not dmodule.QWork.Eof do begin
+          result := merge(result, dmodule.QWork.Fields[0].AsString, ', ');
+          dmodule.QWork.Next;
+        end;
       end;
       begin
         result := false;
@@ -6248,9 +6260,15 @@ function TFMain.modifyClass;
           '     , (select count(1) from gro_pla where pla_id = '+plaId+' and gro_id in ('+idsOrNone(pClass.calc_gro_ids)+'))'+
           '     , (select count(1) from rom_pla where pla_id = '+plaId+' and rom_id in ('+idsOrNone(pClass.calc_rom_ids)+'))'+
           '  from dual');
-        if dmodule.QWork.Fields[0].AsInteger <> WordCount(pClass.calc_lec_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text); exit; end;
-        if dmodule.QWork.Fields[1].AsInteger <> WordCount(pClass.calc_gro_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text); exit; end;
-        if dmodule.QWork.Fields[2].AsInteger <> WordCount(pClass.calc_rom_ids,[';']) then begin SError('Nie masz uprawnieñ do planowania dla tego zasobu'); exit; end;
+        //read all counts first - missingNames reuses QWork; then report all failures at once
+        okL := dmodule.QWork.Fields[0].AsInteger = WordCount(pClass.calc_lec_ids,[';']);
+        okG := dmodule.QWork.Fields[1].AsInteger = WordCount(pClass.calc_gro_ids,[';']);
+        okR := dmodule.QWork.Fields[2].AsInteger = WordCount(pClass.calc_rom_ids,[';']);
+        errors := '';
+        if not okL then errors := merge(errors, 'Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text+': '+missingNames('lec_pla', 'lec_id', pClass.calc_lec_ids), cr);
+        if not okG then errors := merge(errors, 'Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text+': '+missingNames('gro_pla', 'gro_id', pClass.calc_gro_ids), cr);
+        if not okR then errors := merge(errors, 'Nie masz uprawnieñ do planowania dla tego zasobu: '+missingNames('rom_pla', 'rom_id', pClass.calc_rom_ids), cr);
+        if errors <> '' then begin SError(errors); exit; end;
         result := true;
       end;
 
