@@ -13,8 +13,8 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   -- 2026.07: +/- switches to skip the exclusive_parent childs/parents expansion entirely for a
   -- given resource type - significantly faster when '-' (no str_elems lookup, no extra inserts)
   childs_and_parents_GRO varchar2(1) := '+';
-  child_and_parents_LEC  varchar2(1) := '-';
-  child_and_parents_ROM  varchar2(1) := '-';
+  childs_and_parents_LEC  varchar2(1) := '-';
+  childs_and_parents_ROM  varchar2(1) := '-';
 
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
@@ -1178,7 +1178,7 @@ create or replace package body planner_utils is
         , lecdesc1, lecdesc2, lecdesc3, lecdesc4, pno_conflict_flag);    
 
       -- "and pno_conflict_flag is null" means "do not add child records when you create an alert record" 
-      if child_and_parents_LEC = '+' then
+      if childs_and_parents_LEC = '+' then
         if pno_conflict_flag is null then
           declare
             type t_ids is table of str_elems.child_id%type;
@@ -1237,7 +1237,7 @@ create or replace package body planner_utils is
 
     for t in 1 .. xxmsz_tools.wordcount(pcalc_rom_ids, ';') loop
       insert into rom_cla (id, rom_id, cla_id, is_child, day, hour,no_conflict_flag) values (romcla_seq.nextval,xxmsz_tools.extractword(t,pcalc_rom_ids,';'),cla_seq_nextval,'N', vday, phour,pno_conflict_flag);
-      if child_and_parents_ROM = '+' then
+      if childs_and_parents_ROM = '+' then
         if pno_conflict_flag is null then
           declare
             type t_ids is table of str_elems.child_id%type;
@@ -1391,7 +1391,7 @@ create or replace package body planner_utils is
     select date_from, date_to into vdate_from, vdate_to from periods where id = pper_id;
 
        --recreate exclusive parent=-
-       if (pres_type='R') and (child_and_parents_ROM = '+') then
+       if (pres_type='R') and (childs_and_parents_ROM = '+') then
            if  (pcleanUpMode='+') then
               for rec in (
                   select child_id
@@ -1433,7 +1433,7 @@ create or replace package body planner_utils is
               end loop;
           end if;
       end if;
-       if (pres_type='L') and (child_and_parents_LEC = '+') then
+       if (pres_type='L') and (childs_and_parents_LEC = '+') then
            if  (pcleanUpMode='+') then
              for rec in (
                   select child_id
@@ -1471,7 +1471,7 @@ create or replace package body planner_utils is
                 and STR_NAME_LOV='STREAM'
            );
 
-    if (pres_type='R') and (child_and_parents_ROM = '+') then
+    if (pres_type='R') and (childs_and_parents_ROM = '+') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -1761,7 +1761,7 @@ create or replace package body planner_utils is
     end if; --if (pres_type='G')
 
     -- very similar code for Lecturers
-    if (pres_type='L') and (child_and_parents_LEC = '+') then
+    if (pres_type='L') and (childs_and_parents_LEC = '+') then
 
          -- optional clean up
          -- clean up may be necesarry when the hierarchy of resources was modified
@@ -2650,14 +2650,15 @@ begin
     when no_data_found then null;
   end;
   begin
-    select VALUE into child_and_parents_LEC from system_parameters where name = 'CHILD_AND_PARENTS_LEC';
+    select VALUE into childs_and_parents_LEC from system_parameters where name = 'CHILDS_AND_PARENTS_LEC';
     exception
     when no_data_found then null;
   end;
   begin
-    select VALUE into child_and_parents_ROM from system_parameters where name = 'CHILD_AND_PARENTS_ROM';
+    select VALUE into childs_and_parents_ROM from system_parameters where name = 'CHILDS_AND_PARENTS_ROM';
     exception
     when no_data_found then null;
   end;
 end planner_utils;
 /
+
