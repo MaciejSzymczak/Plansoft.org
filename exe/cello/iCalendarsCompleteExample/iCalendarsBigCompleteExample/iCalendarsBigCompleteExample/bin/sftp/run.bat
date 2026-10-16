@@ -20,6 +20,7 @@ call :copyfiles WTC
 
 java -Dfile.encoding=utf-8 -jar e:\\iKalendarze\\bin\\cello.jar status "%datahome%"
 copy /Y "%datahome%\status.xml" "%sftpdata%"
+copy /Y "%datahome%\status.html" "%sftpdata%"
 
 cd %sftpdata%
 wscript.exe %sftpbin%\sftp.js

@@ -102,8 +102,11 @@ Begin
        if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like '''+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
        if  isBlank(ID) then ID := DModule.SingleValue('SELECT ID,'+ValueColumn+' FROM '+TableName+' WHERE ('+getWhereClause(tableName)+') and upper('+ValueColumn+') like ''%'+ansiUpperCase(Token)+'%'' order by '+ValueColumn);
          If Not isBlank(ID) Then Begin
-         IDs        := Merge(IDs,ID, separator);
-         TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
+         //skip duplicates (same object entered twice) - a duplicate would also fail the *_PLA count check
+         If Not ExistsValue(IDs, [separator], ID) Then Begin
+           IDs        := Merge(IDs,ID, separator);
+           TempValues := Merge(TempValues,dmodule.QWork.Fields[1].AsString, separator);
+         End;
          End Else Begin
            invalidItems:= merge(invalidItems, Token, ', ');
          End;

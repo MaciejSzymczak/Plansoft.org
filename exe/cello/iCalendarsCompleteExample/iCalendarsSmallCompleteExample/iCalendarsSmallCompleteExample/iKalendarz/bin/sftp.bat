@@ -11,6 +11,7 @@ call :copyfiles WME
 
 java -Dfile.encoding=utf-8 -jar C:\\PlansoftOrg\\iKalendarz\bin\\cello.jar status "%datahome%"
 copy /Y "%datahome%\status.xml" "%sftpdata%"
+copy /Y "%datahome%\status.html" "%sftpdata%"
 
 cd %sftpdata%
 wscript.exe %sftpbin%\sftp.js

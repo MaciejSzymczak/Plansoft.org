@@ -698,6 +698,36 @@ procedure TFDetails.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   Function HasPermissionL(L : String) : Boolean;  Begin Result := WordCount(L,[';']) = StrToInt(DModule.SingleValue('SELECT COUNT(1) FROM LEC_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+' AND LEC_ID IN ('+SearchAndReplace(L,';',',')+')')); End;
   Function HasPermissionG(G : String) : Boolean;  Begin Result := WordCount(G,[';']) = StrToInt(DModule.SingleValue('SELECT COUNT(1) FROM GRO_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+' AND GRO_ID IN ('+SearchAndReplace(G,';',',')+')')); End;
   Function HasPermissionR(R : String) : Boolean;  Begin Result := WordCount(R,[';']) = StrToInt(DModule.SingleValue('SELECT COUNT(1) FROM ROM_PLA WHERE PLA_ID = '+FMain.getUserOrRoleID+' AND ROM_ID IN ('+SearchAndReplace(R,';',',')+')')); End;
+  //called only after HasPermissionX failed: names of the objects without *_PLA grant,
+  //plus duplicated ids (a duplicate also fails the count check in HasPermissionX)
+  Function PermissionDetails(pTable, pColumn, pIds : String) : String;
+  var missing, dups, dupNames, id : String;
+      t, u : Integer;
+  Begin
+    missing := '';
+    DModule.openSQL('SELECT NAME FROM RESOURCES R WHERE R.ID IN ('+SearchAndReplace(pIds,';',',')+')'+
+                    ' AND NOT EXISTS (SELECT 1 FROM '+pTable+' P WHERE P.PLA_ID = '+FMain.getUserOrRoleID+' AND P.'+pColumn+' = R.ID) ORDER BY NAME');
+    While Not DModule.QWork.Eof Do Begin missing := Merge(missing, DModule.QWork.Fields[0].AsString, ', '); DModule.QWork.Next; End;
+
+    dups := '';
+    For t := 2 To WordCount(pIds,[';']) Do Begin
+      id := Trim(ExtractWord(t,pIds,[';']));
+      For u := 1 To t-1 Do
+        If Trim(ExtractWord(u,pIds,[';'])) = id Then Begin
+          If Not ExistsValue(dups,[','],id) Then dups := Merge(dups, id, ',');
+          Break;
+        End;
+    End;
+    dupNames := '';
+    If dups <> '' Then Begin
+      DModule.openSQL('SELECT NAME FROM RESOURCES WHERE ID IN ('+dups+') ORDER BY NAME');
+      While Not DModule.QWork.Eof Do Begin dupNames := Merge(dupNames, DModule.QWork.Fields[0].AsString, ', '); DModule.QWork.Next; End;
+    End;
+
+    Result := '';
+    If missing  <> '' Then Result := ': '+missing;
+    If dupNames <> '' Then Result := Result + ' (powtórzone na liœcie: '+dupNames+')';
+  End;
   var stringTokenizer : TStringTokenizer;
   function countTokens (s : string) : integer;
   begin
@@ -762,10 +792,10 @@ begin
       if invalidItems <> '' then addError(invalidValuesMessage(invalidItems));
       ValidSClick(nil);
       ValidFClick(nil);
-      If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
-      If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
-      If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(1)');
-      If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(2)');
+      If Not isBlank(L1.TEXT) Then If Not HasPermissionL(L1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text+PermissionDetails('LEC_PLA','LEC_ID',L1.TEXT));
+      If Not isBlank(G1.TEXT) Then If Not HasPermissionG(G1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text+PermissionDetails('GRO_PLA','GRO_ID',G1.TEXT));
+      If Not isBlank(rescat0_1.TEXT) Then If Not HasPermissionR(rescat0_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(1)'+PermissionDetails('ROM_PLA','ROM_ID',rescat0_1.TEXT));
+      If Not isBlank(resCat1_1.TEXT) Then If Not HasPermissionR(resCat1_1.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu(2)'+PermissionDetails('ROM_PLA','ROM_ID',resCat1_1.TEXT));
 
       RestrictEmpty([S_value1, F_value1 ]);
       If isBlank(FILL1.TEXT) Then addError(FILL1.Hint + ' musi zostaæ wybrane');
@@ -804,19 +834,19 @@ begin
       ValidF2Click(nil);
       If (rgReservationFor.ItemIndex = 0) Then Begin
         If isBlank(L_value2.TEXT) Then addError(L_value2.Hint + ' musi zostaæ wybrane');
-        If Not isBlank(L2.TEXT) Then If Not HasPermissionL(L2.TEXT) Then AddError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text);
+        If Not isBlank(L2.TEXT) Then If Not HasPermissionL(L2.TEXT) Then AddError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameLgen.Text+PermissionDetails('LEC_PLA','LEC_ID',L2.TEXT));
       End;
       If (rgReservationFor.ItemIndex = 1) Then Begin
         If isBlank(g_value2.TEXT) Then addError(g_value2.Hint + ' musi zostaæ wybrane');
-        If Not isBlank(G2.TEXT) Then If Not HasPermissionG(G2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text);
+        If Not isBlank(G2.TEXT) Then If Not HasPermissionG(G2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla '+fprogramsettings.profileObjectNameGgen.Text+PermissionDetails('GRO_PLA','GRO_ID',G2.TEXT));
       End;
       If (rgReservationFor.ItemIndex = 2) Then Begin
         If isBlank(rescat0_2_value.TEXT) Then addError(rescat0_2_value.Hint + ' musi zostaæ wybrane');
-        If Not isBlank(rescat0_2.TEXT) Then If Not HasPermissionR(rescat0_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If Not isBlank(rescat0_2.TEXT) Then If Not HasPermissionR(rescat0_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu'+PermissionDetails('ROM_PLA','ROM_ID',rescat0_2.TEXT));
       End;
       If (rgReservationFor.ItemIndex = 3) Then Begin
         If isBlank(rescat1_2_value.TEXT) Then addError(rescat1_2_value.Hint + ' musi zostaæ wybrane');
-        If Not isBlank(rescat1_2.TEXT) Then If Not HasPermissionR(rescat1_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu');
+        If Not isBlank(rescat1_2.TEXT) Then If Not HasPermissionR(rescat1_2.TEXT) Then addError('Nie masz uprawnieñ do planowania dla tego zasobu'+PermissionDetails('ROM_PLA','ROM_ID',rescat1_2.TEXT));
       End;
       RestrictEmpty([F_value2]);
 
