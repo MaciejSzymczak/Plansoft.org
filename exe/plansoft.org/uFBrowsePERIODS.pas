@@ -247,11 +247,29 @@ begin
 end;
 
 procedure TFBrowsePERIODS.BUpdChild3Click(Sender: TObject);
+  // ID tygodni (okresów podrzêdnych) bie¿¹cego okresu, z pominiêciem excludeIds
+  function weekIds(excludeIds : string) : string;
+  begin
+    result := '';
+    DModule.openSQL('select id from periods where parent_per_id = '+ID.Text+iif(excludeIds='', '', ' and id not in ('+excludeIds+')'));
+    while not DModule.QWork.Eof do begin
+      result := merge(result, DModule.QWork.Fields[0].AsString, ',');
+      DModule.QWork.Next;
+    end;
+  end;
+var existingIds, newIds : string;
 begin
   if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego okresu?') = id_yes then begin
+    existingIds := weekIds('');
     Dmodule.QWork.ParamCheck := false;
     DModule.SQL(searchAndReplace(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text), ':plaid',FMain.getUserOrRoleID));
-    SError('Zrobione. Aby zobaczyæ tygodnie, uruchom funkcje Uprawnienia i nadaj sobie uprawnienia');
+    SError('Zrobione');
+    // SQLCreateWeeks nadaje uprawnienia tylko osobie tworz¹cej - wspó³dzielenie nowych tygodni jak przy tworzeniu okresu
+    newIds := weekIds(existingIds);
+    if newIds <> '' then begin
+      FSharing.init('I','PER',newIds, QUERY.FieldByName('NAME').AsString+' - tygodnie');
+      dmodule.CommitTrans;
+    end;
   end;
 end;
 

@@ -1014,6 +1014,7 @@ type
     MapPlannerSupervisors : TMap;
     silentMode : boolean;
     AObjectId : integer;
+    weekGroupFromColumn : boolean; // AddClassToGrid -> insertClasses: grupa nowych zajêæ z kolumny siatki (convertGrid w trybie ConvWeekObjects)
     classForEdition : integer;
 
     disableFurtherActivities : boolean;
@@ -2098,6 +2099,13 @@ begin
      HeaderGrid.ColWidths[2] := 600;
    end;
 
+   if convertGrid.convertMode = ConvWeekObjects then
+     for i := 2 to Grid.ColCount - 1 do begin
+       Grid.ColWidths[i] := (Grid.ClientWidth - Grid.ColWidths[0] - Grid.ColWidths[1]) div (Grid.ColCount - 2);
+       if Grid.ColWidths[i] < 120 then Grid.ColWidths[i] := 120;
+       HeaderGrid.ColWidths[i] := Grid.ColWidths[i];
+     end;
+
 
    if FcellLayout.ForceCellHeight.Checked then begin
      Grid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position;
@@ -2220,6 +2228,11 @@ Begin
   TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
   TabViewType.Tabs[5] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';'])    , fprogramsettings.profileObjectNameC1s.text);
 
+  // okres tygodniowy w uk³adzie grupy: ka¿da wybrana grupa w osobnej kolumnie, w kolejnoœci z ConGroup
+  if FSettings.WeeklyView.Checked and BViewByWeek.Down and (TabViewType.TabIndex = 1) then
+    convertGrid.setWeekObjects(ConGroup.Text, ConGroup_value.Text)
+  else
+    convertGrid.setWeekObjects('', '');
   convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
   Grid.ColCount := colCnt;
   Grid.RowCount := rowCnt;
@@ -3105,6 +3118,7 @@ Procedure TFMain.insertClasses;
 
  var priorDataStamp : string;
      priorAnswer    : TModalResult;
+     weekGroupId, lastWeekGroupId : integer; // weekGroupFromColumn: grupa z kolumny bie¿¹cej komórki
      Answer    : TModalResult;
      anyHintsExist  : Boolean;
 
@@ -3131,6 +3145,16 @@ Procedure TFMain.insertClasses;
 
     With FDetails Do Begin
      GetValues(L, G, R, S, FormId, Fill, colour, created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4 );
+
+     // grupa z nag³ówka kolumny zamiast grup kolumn wybranych w oknie szczegó³ów
+     if weekGroupFromColumn and (weekGroupId <> -1) then begin
+       G := convertGrid.replaceWeekObjects(G, weekGroupId);
+       // grupy podrzêdne/nadrzêdne i zbiorcze sprawdzenie konfliktów s¹ liczone dla grupy - przelicz po zmianie kolumny
+       if weekGroupId <> lastWeekGroupId then begin
+         lastWeekGroupId     := weekGroupId;
+         calculateWithChilds := true;
+       end;
+     end;
 
      For t := 1 To WordCount(L,[';']) Do Begin
       value := ExtractWord(t, L, [';']);
@@ -3393,6 +3417,8 @@ begin
 
       calculateWithChilds := true;
       batchConfirmedNoConflicts := false;
+      weekGroupId     := -1;
+      lastWeekGroupId := -1;
 
       classesCount := 0;
       classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
@@ -3417,6 +3443,7 @@ begin
           currentCnt := currentCnt + 1;
           if classesCount < classesToAdd then
             If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
+              weekGroupId := AObjectId;
               FProgress.ProgressBar.Position :=  round(currentCnt *  FProgress.ProgressBar.Max / classesToAdd);
               FProgress.Refresh;
               XprocessPattern(Selection.Left,xp);
@@ -3433,9 +3460,13 @@ begin
 end;
 
 procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
+var weekGroups : string;
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
+
+ // okres tygodniowy z grupami w kolumnach: grupy zaznaczonych kolumn ('' w zwyk³ym uk³adzie)
+ weekGroups := convertGrid.weekObjectsInCols(Grid.Selection.Left, Grid.Selection.Right);
 
  With FDetails Do Begin
 
@@ -3448,7 +3479,7 @@ begin
    , Zajecia
    , -1
    , iif(canEditL,  iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text), '')
-   , iif(canEditG,  iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text), '')
+   , iif(canEditG,  iif(weekGroups <> '', weekGroups, iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)), '')
    , iif(canEditR,  iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';')), '')
    //resource types
    , merge(
@@ -3469,7 +3500,12 @@ begin
 
  End;
 
- InsertClasses;
+ weekGroupFromColumn := weekGroups <> '';
+ try
+   InsertClasses;
+ finally
+   weekGroupFromColumn := false;
+ end;
  refreshPanels;
 end;
 
@@ -10159,6 +10195,9 @@ begin
        headerGrid.Canvas.FillRect(Rect);
        if  (ACol>0) and (ACol >=grid.Selection.Left) and (ACol <= grid.Selection.Right ) then HighLight (headerGrid, Rect);
 
+       if convertGrid.convertMode = ConvWeekObjects then
+         headerGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top, convertGrid.weekObjectName(ACol))
+       else
        headerGrid.Canvas.TextOut(1+Rect.Left,1+Rect.Top
        , iif(FSettings.WeeklyView.Checked, '', GetDate(TS.Date))
        );

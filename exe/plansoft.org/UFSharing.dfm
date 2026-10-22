@@ -12,9 +12,9 @@ inherited FSharing: TFSharing
   end
   object CheckListBox: TCheckListBox
     Left = 0
-    Top = 41
+    Top = 49
     Width = 487
-    Height = 487
+    Height = 479
     OnClickCheck = CheckListBoxClickCheck
     Align = alClient
     ItemHeight = 14
@@ -144,12 +144,12 @@ inherited FSharing: TFSharing
     Left = 0
     Top = 0
     Width = 487
-    Height = 41
+    Height = 49
     Align = alTop
     TabOrder = 3
     object Warning: TLabel
       Left = 8
-      Top = 24
+      Top = 30
       Width = 400
       Height = 14
       Caption = 
@@ -173,6 +173,21 @@ inherited FSharing: TFSharing
       State = cbChecked
       TabOrder = 0
       OnClick = ChangeAllClick
+    end
+    object LFilter: TLabel
+      Left = 140
+      Top = 8
+      Width = 37
+      Height = 14
+      Caption = 'Szukaj:'
+    end
+    object EFilter: TEdit
+      Left = 182
+      Top = 4
+      Width = 200
+      Height = 22
+      TabOrder = 1
+      OnChange = EFilterChange
     end
   end
 end

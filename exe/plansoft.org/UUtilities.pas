@@ -53,11 +53,19 @@ Type TConvertManyObjects = class
 
 Const ConvSingleObject     = 1;
       ConvManyObjects      = 2;
+      ConvWeekObjects      = 3; // okres tygodniowy: wiersze jak w ConvSingleObject, kolumny od Modulo = obiekty (np. grupy)
 
 type TConvertGrid = class
        convertMode          : integer;
        convertSingleObject  : TConvertSingleObject;
        convertManyObjects   : TConvertManyObjects;
+       // ConvWeekObjects: obiekty kolejnych kolumn (od kolumny Modulo), w kolejnoœci z pola wyboru
+       weekObjIds           : array of integer;
+       weekObjNames         : array of string;
+       procedure setWeekObjects (ids, names : string);
+       function  weekObjectName (col : integer) : string;
+       function  weekObjectsInCols (colFrom, colTo : integer) : string;
+       function  replaceWeekObjects (ids : string; objId : integer) : string;
        procedure setupGrid (periodId : String; singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt : integer);
        Function  ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
        Function  DateToColRow(var objId : integer; _Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
@@ -1758,6 +1766,14 @@ begin
  case convertMode of
    ConvSingleObject :  begin result := convertSingleObject.ColRowToDate(_Date,_Hour,Col, Row); objId := -1; end;
    ConvManyObjects  :  result := convertManyObjects.ColRowToDate(objId, _Date,_Hour,Col, Row);
+   ConvWeekObjects  :  if (Col >= Modulo) and (Col - Modulo <= High(weekObjIds)) then begin
+                         // ka¿da kolumna obiektu pokazuje ten sam tydzieñ
+                         result := convertSingleObject.ColRowToDate(_Date,_Hour,Modulo, Row);
+                         objId  := weekObjIds[Col - Modulo];
+                       end else begin
+                         result := convertSingleObject.ColRowToDate(_Date,_Hour,Col, Row);
+                         objId  := -1;
+                       end;
    else result := -1;
  end;
 end;
@@ -2221,13 +2237,19 @@ Begin
     if singleChartMode
       then initSingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+')
       else initNOsingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+', ObjIDs, ObjNames );
+
+  // okres tygodniowy z obiektami w kolumnach (setWeekObjects) - tylko gdy siatka ma dok³adnie jedn¹ kolumnê tygodnia
+  if singleChartMode and (Length(weekObjIds) > 0) and (pcolCnt = Modulo + 1) then begin
+    convertMode := ConvWeekObjects;
+    pcolCnt     := Modulo + Length(weekObjIds);
+  end;
 End;
 
 function TConvertGrid.DateToColRow(var objId: integer; _Date,
   _Hour: Integer; var Col, Row: Integer): Boolean;
 begin
 
- if convertMode= ConvSingleObject then begin
+ if convertMode in [ConvSingleObject, ConvWeekObjects] then begin
    result := convertSingleObject.DateToColRow(_Date, -1,  Col, Row);
  end else begin
    SError('W tym widoku funkcja nie jest obs³ugiwana');
@@ -2239,6 +2261,54 @@ begin
 end;
 
 
+
+// ids, names: listy oddzielone ";" (np. ConGroup.Text, ConGroup_value.Text); puste = zwyk³y uk³ad siatki
+procedure TConvertGrid.setWeekObjects(ids, names: string);
+var t, n : integer;
+begin
+  n := WordCount(ids, [';']);
+  SetLength(weekObjIds, n);
+  SetLength(weekObjNames, n);
+  for t := 1 to n do begin
+    weekObjIds[t-1] := StrToInt(ExtractWord(t, ids, [';']));
+    if WordCount(names, [';']) = n then weekObjNames[t-1] := ExtractWord(t, names, [';'])
+                                   else weekObjNames[t-1] := ExtractWord(t, ids, [';']);
+  end;
+end;
+
+function TConvertGrid.weekObjectName(col: integer): string;
+begin
+  result := '';
+  if (convertMode = ConvWeekObjects) and (col >= Modulo) and (col - Modulo <= High(weekObjNames)) then
+    result := weekObjNames[col - Modulo];
+end;
+
+// ID obiektów kolumn colFrom..colTo (oddzielone ";"), '' poza trybem ConvWeekObjects
+function TConvertGrid.weekObjectsInCols(colFrom, colTo: integer): string;
+var t : integer;
+begin
+  result := '';
+  if convertMode <> ConvWeekObjects then exit;
+  for t := colFrom to colTo do
+    if (t >= Modulo) and (t - Modulo <= High(weekObjIds)) then
+      result := merge(result, IntToStr(weekObjIds[t - Modulo]), ';');
+end;
+
+// objId + te ID z listy ids, które nie s¹ obiektami kolumn (np. grupa dopisana rêcznie w oknie szczegó³ów)
+function TConvertGrid.replaceWeekObjects(ids: string; objId: integer): string;
+var t, k : integer;
+    value : string;
+    isColumnObject : boolean;
+begin
+  result := IntToStr(objId);
+  for t := 1 to WordCount(ids, [';']) do begin
+    value := ExtractWord(t, ids, [';']);
+    isColumnObject := false;
+    for k := 0 to High(weekObjIds) do
+      if IntToStr(weekObjIds[k]) = value then isColumnObject := true;
+    if not isColumnObject then result := merge(result, value, ';');
+  end;
+end;
 
 initialization
   quickInsertMode    := false;
