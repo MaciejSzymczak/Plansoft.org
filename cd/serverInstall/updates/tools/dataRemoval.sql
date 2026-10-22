@@ -45,6 +45,7 @@ delete from TT_COMBINATIONS;
 truncate table xxmsztools_eventlog;
 delete from classes;
 truncate table classes_history;
+truncate table res_pla_history;
 delete from subjects where id > 0;
 delete from groups where id > 0;
 delete from lecturers where id > 0;
@@ -89,6 +90,7 @@ begin
  deleteInChunks('delete from groups_history where effective_end_Date'||dateLimit, 1000);
  deleteInChunks('delete from lecturers_history where effective_end_Date'||dateLimit, 1000);
  deleteInChunks('delete from rooms_history where effective_end_Date'||dateLimit, 1000);
+ deleteInChunks('delete from res_pla_history where last_update_date'||dateLimit, 1000);
 end;
 /
 

@@ -2453,7 +2453,7 @@ inherited FProgramSettings: TFProgramSettings
         Left = 8
         Top = 409
         Width = 553
-        Height = 76
+        Height = 100
         Caption = 'Ustawienia globalne'
         TabOrder = 9
         object Label35: TLabel
@@ -2499,6 +2499,15 @@ inherited FProgramSettings: TFProgramSettings
           Height = 17
           Caption = 'Sale podrz'#281'dne'
           TabOrder = 3
+        end
+        object ResPlaHistory: TCheckBox
+          Left = 8
+          Top = 74
+          Width = 300
+          Height = 17
+          Caption = #346'ledzenie historii zmian uprawnie'#324
+          TabOrder = 4
+          OnClick = ResPlaHistoryClick
         end
       end
     end

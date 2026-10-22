@@ -177,6 +177,15 @@ inherited FPlannerPermissions: TFPlannerPermissions
       TabOrder = 2
       OnClick = btransferClick
     end
+    object bhistory: TBitBtn
+      Left = 592
+      Top = 8
+      Width = 165
+      Height = 25
+      Caption = 'Historia zmian uprawnie'#324
+      TabOrder = 3
+      OnClick = bhistoryClick
+    end
   end
   object mainPage: TPageControl
     Left = 0

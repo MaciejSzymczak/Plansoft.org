@@ -82,6 +82,7 @@ uses
   UFGoogleOrgChart in 'UFGoogleOrgChart.pas' {FGoogleOrgChart},
   UFSlideshowGenerator in 'UFSlideshowGenerator.pas' {FSlideshowGenerator},
   UFBrowseRES_HINTS in 'UFBrowseRES_HINTS.pas' {FBrowseRES_HINTS},
+  UFBrowseRES_PLA_HISTORY in 'UFBrowseRES_PLA_HISTORY.pas' {FBrowseRES_PLA_HISTORY},
   UFActionTree in 'UFActionTree.pas' {FActionTree},
   UFCellLayout in 'UFCellLayout.pas' {FCellLayout},
   UFSalectDaysOfWeek in 'UFSalectDaysOfWeek.pas' {FSelectDaysOfWeek},

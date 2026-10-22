@@ -16,6 +16,11 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   childs_and_parents_LEC  varchar2(1) := '-';
   childs_and_parents_ROM  varchar2(1) := '-';
 
+  -- 2026.10: +/- switch for triggers LEC_PLA_HIST_TRG, GRO_PLA_HIST_TRG, ROM_PLA_HIST_TRG, SUB_PLA_HIST_TRG, FOR_PLA_HIST_TRG, PER_PLA_HIST_TRG, ROL_PLA_HIST_TRG
+  -- '+' = log permission changes into RES_PLA_HISTORY, '-' = disabled (default)
+  -- overridden by system_parameters RES_PLA_HISTORY (read at package initialization)
+  res_pla_history varchar2(1) := '-';
+
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
   exc_lecgrorom_null   number := -20002; --Class without lecturer and group and resource
@@ -2656,6 +2661,11 @@ begin
   end;
   begin
     select VALUE into childs_and_parents_ROM from system_parameters where name = 'CHILDS_AND_PARENTS_ROM';
+    exception
+    when no_data_found then null;
+  end;
+  begin
+    select VALUE into res_pla_history from system_parameters where name = 'RES_PLA_HISTORY';
     exception
     when no_data_found then null;
   end;

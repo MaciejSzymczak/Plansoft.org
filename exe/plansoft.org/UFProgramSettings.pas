@@ -130,6 +130,7 @@ type
     ChildsAndParentsGro: TCheckBox;
     ChildAndParentsLec: TCheckBox;
     ChildAndParentsRom: TCheckBox;
+    ResPlaHistory: TCheckBox;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -146,6 +147,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure CheckClick(Sender: TObject);
+    procedure ResPlaHistoryClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -240,6 +242,7 @@ begin
   dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_GRO', iif(ChildsAndParentsGro.Checked,'+','-'));
   dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_LEC' , iif(ChildAndParentsLec.Checked ,'+','-'));
   dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_ROM' , iif(ChildAndParentsRom.Checked ,'+','-'));
+  dmodule.dbSetSystemParam('RES_PLA_HISTORY' , iif(ResPlaHistory.Checked ,'+','-'));
 
 end;
 
@@ -276,6 +279,10 @@ begin
   ChildsAndParentsGro.Checked := dmodule.dbgetSystemParam('CHILDS_AND_PARENTS_GRO','+') = '+';
   ChildAndParentsLec.Checked  := dmodule.dbgetSystemParam('CHILDS_AND_PARENTS_LEC' ,'-') = '+';
   ChildAndParentsRom.Checked  := dmodule.dbgetSystemParam('CHILDS_AND_PARENTS_ROM' ,'-') = '+';
+  // once enabled, cannot be disabled (trigger SYSTEM_PARAMETERS_RESPLA_TRG)
+  // Enabled is set before Checked, so that ResPlaHistoryClick does not ask on load
+  ResPlaHistory.Enabled       := dmodule.dbgetSystemParam('RES_PLA_HISTORY' ,'-') <> '+';
+  ResPlaHistory.Checked       := not ResPlaHistory.Enabled;
 
   Pages.ActivePage := SAdvanced;
   Pages.ActivePage.Invalidate; //2026-07: fixes controls left blank until mouse-hover after switching tabs (same fix as UFSettings.pas ZMIANA_20270712 / UFLegend.pas)
@@ -634,6 +641,14 @@ procedure TFProgramSettings.CheckClick(Sender: TObject);
 begin
   inherited;
 serror( Fmain.MapPlannerSupervisors.getValue( value.text ) );
+end;
+
+procedure TFProgramSettings.ResPlaHistoryClick(Sender: TObject);
+begin
+  inherited;
+  if ResPlaHistory.Enabled and ResPlaHistory.Checked then
+    if question('Po w³¹czeniu œledzenia historii zmian uprawnieñ nie bêdzie mo¿na go wy³¹czyæ. Czy kontynuowaæ?') <> idYes then
+      ResPlaHistory.Checked := false;
 end;
 
 end.

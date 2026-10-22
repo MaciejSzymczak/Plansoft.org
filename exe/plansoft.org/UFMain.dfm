@@ -4900,7 +4900,7 @@ inherited FMain: TFMain
           Caption = 'Zaj'#281'cia dozwolone'
           Checked = True
           State = cbChecked
-          TabOrder = 3
+          TabOrder = 0
           OnClick = CLASSES_ALLOWEDClick
         end
         object CopyDays: TBitBtn
@@ -4909,7 +4909,7 @@ inherited FMain: TFMain
           Width = 169
           Height = 25
           Caption = 'Czynno'#347'ci'
-          TabOrder = 4
+          TabOrder = 1
           OnClick = bdelpopupClick
         end
       end
@@ -6359,7 +6359,6 @@ inherited FMain: TFMain
         Caption = 'Siatka godzinowa'
         OnClick = Siatkagodzinowa1Click
       end
-
       object N3: TMenuItem
         Caption = '-'
       end

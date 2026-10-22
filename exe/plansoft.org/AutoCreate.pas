@@ -9,6 +9,10 @@ Procedure RES_HINTSShowModalAsBrowser;
 Function  RES_HINTSShowModalAsSelect(VAR ID : ShortString) : TModalResult;
 Procedure RES_HINTSFree;
 
+procedure RES_PLA_HISTORYCreate;
+Procedure RES_PLA_HISTORYShowModalAsBrowser;
+Procedure RES_PLA_HISTORYFree;
+
 procedure FIN_LOOKUP_VALUESCreate;
 Procedure FIN_LOOKUP_VALUESShowModalAsBrowser;
 Function  FIN_LOOKUP_VALUESShowModalAsSelect(pCON_LOOKUP_TYPE : ShortString; var ID : ShortString) : TModalResult;
@@ -153,7 +157,7 @@ implementation
 Uses UUtilityParent, UFBrowseLECTURERS, UFBrowseGROUPS, UFBrowseROOMS, UFBrowseSUBJECTS, UFBrowseFORMS, UFBrowsePERIODS, UFBrowseRESERVATIONS_KINDS,
      UFBrowseCLASSES, UFBrowseCLASSES_HISTORY, UFBrowsePLANNERS, UFBrowseRESOURCE_CATEGORIES, UFBrowseORG_UNITS, UFBrowseFORM_FORMULAS, UFConsolidation, UFDataDiagram, UFBrowseVALUE_SETS
      ,UFBrowseLOOKUPS, UFBrowseFLEX_COL_USAGE, UFBrowseTT_RESCAT_COMBINATIONS, UFBrowseTT_COMBINATIONS, UFBrowseFIN_PARTIES, UFBrowseFIN_BATCHES, UFBrowseFIN_DOCS, UFBrowseFIN_LINES, UFBrowseFIN_LOOKUP_VALUES, dm,
-     UFBrowseGRIDS, UFBrowseRES_HINTS, SysUtils, UFMain, QControls;
+     UFBrowseGRIDS, UFBrowseRES_HINTS, UFBrowseRES_PLA_HISTORY, SysUtils, UFMain, QControls;
 
 procedure RES_HINTSCreate;
 begin
@@ -179,6 +183,25 @@ Begin
  If Assigned(FBrowseRES_HINTS) Then If FBrowseRES_HINTS.Visible Then Exit;
  If Assigned(FBrowseRES_HINTS) Then FBrowseRES_HINTS.Free;
  FBrowseRES_HINTS := Nil;
+End;
+
+procedure RES_PLA_HISTORYCreate;
+begin
+If Not Assigned(FBrowseRES_PLA_HISTORY) Then FBrowseRES_PLA_HISTORY := TFBrowseRES_PLA_HISTORY.Create(Application);
+end;
+
+Procedure RES_PLA_HISTORYShowModalAsBrowser;
+Begin
+ RES_PLA_HISTORYCreate;
+ FBrowseRES_PLA_HISTORY.ShowModalAsBrowser('');
+ If GetSystemParam('SAVERESOURCES') = 'Yes' Then RES_PLA_HISTORYFree;
+End;
+
+Procedure RES_PLA_HISTORYFree;
+Begin
+ If Assigned(FBrowseRES_PLA_HISTORY) Then If FBrowseRES_PLA_HISTORY.Visible Then Exit;
+ If Assigned(FBrowseRES_PLA_HISTORY) Then FBrowseRES_PLA_HISTORY.Free;
+ FBrowseRES_PLA_HISTORY := Nil;
 End;
 
 

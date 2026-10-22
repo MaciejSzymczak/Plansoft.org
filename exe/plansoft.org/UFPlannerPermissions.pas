@@ -41,6 +41,7 @@ type
     Label7: TLabel;
     Brefresh2: TBitBtn;
     btransfer: TBitBtn;
+    bhistory: TBitBtn;
     tmp: TEdit;
     TabSheetPER: TTabSheet;
     PERGrid: TStringGrid;
@@ -70,6 +71,7 @@ type
     procedure RowSearchKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure btransferClick(Sender: TObject);
+    procedure bhistoryClick(Sender: TObject);
     procedure LGridMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure GGridMouseDown(Sender: TObject; Button: TMouseButton;
@@ -119,7 +121,7 @@ Procedure ShowModal;
 
 implementation
 
-uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer,
+uses DM, ufmain, UUtilityParent, UFProgramSettings, UFTransfer, AutoCreate,
   UFFloatingMessage, UFLookupWindow, UProgress;
 
 {$R *.DFM}
@@ -720,6 +722,7 @@ Procedure ShowModal;
 Begin
  If Not Assigned(FPlannerPermissions) Then FPlannerPermissions := TFPlannerPermissions.Create(Application);
  FPlannerPermissions.btransfer.enabled := editSharing;
+ FPlannerPermissions.bhistory.enabled := editSharing;
  FPlannerPermissions.ShowModal;
  If Assigned(FPlannerPermissions) Then FPlannerPermissions.Free;
  FPlannerPermissions := Nil;
@@ -816,6 +819,11 @@ end;
 procedure TFPlannerPermissions.btransferClick(Sender: TObject);
 begin
   UFTransfer.showmodal;
+end;
+
+procedure TFPlannerPermissions.bhistoryClick(Sender: TObject);
+begin
+  RES_PLA_HISTORYShowModalAsBrowser;
 end;
 
 procedure TFPlannerPermissions.LGridMouseDown(Sender: TObject;
