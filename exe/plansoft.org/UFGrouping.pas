@@ -28,6 +28,7 @@ type
     ChR: TCheckBox;
     ChS: TCheckBox;
     ChF: TCheckBox;
+    ChFnewColumn: TCheckBox;
     ChFILL: TCheckBox;
     PageControl: TPageControl;
     TabSheet1: TTabSheet;
@@ -350,6 +351,8 @@ begin
     end;
   End;
 
+  If ChF.Checked and (not ChFnewColumn.Checked) and (sortOrder='') Then Begin columnsSelect := Merge(columnsSelect, 'FRM.NAME "Forma"', ',');        columnsGroupBy := Merge(columnsGroupBy, 'FRM.NAME', ',');       End;
+
   //this is needed by report (report sets sortOrder)
   if sortOrder<>'' then begin
      If ChF.Checked    Then Begin columnsSelect := Merge(columnsSelect, 'FRM.NAME "%C2."', ',');        columnsGroupBy := Merge(columnsGroupBy, 'FRM.NAME', ',');       End;
@@ -411,7 +414,7 @@ begin
   end;
 
   if EmergencyMode.Checked then begin
-      if ChF.Checked then begin
+      if ChF.Checked and ChFnewColumn.Checked then begin
         dmodule.openSQL(
           'select id, name'+cr+
           'from forms'+cr+
@@ -432,7 +435,7 @@ begin
     if chgStudents.Checked    then SUMMARY4 := ', groups.NOP  "Liczba studentów"'+CR;
   end
   else begin
-      if ChF.Checked then begin
+      if ChF.Checked and ChFnewColumn.Checked then begin
         dmodule.openSQL(
           'select id, SUBSTRB(name,1,30) name'+cr+
           'from forms'+cr+
@@ -717,6 +720,7 @@ begin
   chlDesc4.Visible := chLnewLine.Checked and  (fprogramsettings.getClassDescSingular(4)<>'');
   chGnewLine.visible := chg.Checked or chgt.checked or chgStudents.Checked or chgorg.Checked or chgParent.Checked;
   chRnewLine.visible := chr.Checked or chrorg.checked;
+  ChFnewColumn.Visible := ChF.Checked;
   chlcount.Visible := chLnewLine.Checked;
   chlcountHelp.Visible := chLnewLine.Checked;
   chGcount.Visible := chGnewLine.Checked;
@@ -859,6 +863,7 @@ begin
   ChFILL.Checked      := false;
   ChS.Checked         := true; //!
   ChF.Checked         := true; //!
+  ChFnewColumn.Checked := true;
   CHUNI.Checked       := false;
   chgorg.Checked      := false;
   chgParent.Checked   := false;
@@ -1291,7 +1296,7 @@ begin
   uutilityparent.saveToIni(
             saveDialog.FileName , 'grouping',
             [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI, chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF, ChFnewColumn
             , sortOrderField, chbShowAll, EmergencyMode
             , PERSettings, LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
@@ -1326,7 +1331,7 @@ begin
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
             [ CONPERIOD, CONL, CONG, conResCat0, CONS, CONF_VALUE
-            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF
+            , ChDay, ChCreationDate, ChHOUR, ChFILL, ChDayOfWeek, ChCreatedBy, ChOwnerName, ChMonth, ChIntegration_Id, CHL, CHUNI,  chgorg, chgParent, chsorg, chrorg, chLnewLine, ChG, CHGT, chGnewLine, ChR, chgStudents, chRnewLine, ChS, ChF, ChFnewColumn
             , sortOrderField, chbShowAll, EmergencyMode
             , LSettings, GSettings, RSettings, SSettings, FSettings
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4

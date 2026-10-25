@@ -215,9 +215,23 @@ inherited FGrouping: TFGrouping
         TabOrder = 9
         OnClick = calculateCountClick
       end
-      object chsorg: TCheckBox
+      object ChFnewColumn: TCheckBox
         Left = 800
         Top = 48
+        Width = 160
+        Height = 17
+        Hint = 'Ka'#380'da forma zaj'#281#263' w oddzielnej kolumnie. Odznacz, aby forma by'#322'a jedn'#261' kolumn'#261' "Forma"'
+        Caption = 'Ka'#380'da w oddzielnej kolumnie'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 35
+        OnClick = calculateCountClick
+      end
+      object chsorg: TCheckBox
+        Left = 800
+        Top = 64
         Width = 153
         Height = 17
         Caption = 'Jednostki org.przedmiot'#243'w'
@@ -316,7 +330,7 @@ inherited FGrouping: TFGrouping
       end
       object ChCreatedBy: TCheckBox
         Left = 800
-        Top = 71
+        Top = 87
         Width = 153
         Height = 17
         Caption = 'Utworzy'#322
@@ -325,7 +339,7 @@ inherited FGrouping: TFGrouping
       end
       object ChOwnerName: TCheckBox
         Left = 800
-        Top = 87
+        Top = 103
         Width = 185
         Height = 17
         Caption = 'W'#322'a'#347'ciciel'
@@ -334,7 +348,7 @@ inherited FGrouping: TFGrouping
       end
       object ChCreationDate: TCheckBox
         Left = 800
-        Top = 103
+        Top = 119
         Width = 185
         Height = 17
         Caption = 'Data utworzenia'
