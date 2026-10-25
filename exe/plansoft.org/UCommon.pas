@@ -177,7 +177,7 @@ begin
   CONDG := '';
   CONDR := '';
 
-  FMain.set_tmp_selected_dates;
+  FMain.set_tmp_selected_dates(FMain.weekSyncActive); // synchronizacja tygodni: wolne we wszystkich tygodniach
 
   if (objectType = 'R') or (objectType = '') then begin
    if pctAvailable = '100' then

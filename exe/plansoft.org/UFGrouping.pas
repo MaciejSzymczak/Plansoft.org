@@ -130,6 +130,12 @@ type
     chDesc4: TCheckBox;
     ChSelectedDates: TCheckBox;
     egenericFilter: TEdit;
+    LCreatedFrom: TLabel;
+    CreatedFrom: TDateEdit;
+    LCreatedTo: TLabel;
+    CreatedTo: TDateEdit;
+    LCreatedBy: TLabel;
+    CreatedByFilter: TEdit;
     Label2: TLabel;
     PodgldzapytaniaSQL1: TMenuItem;
     Grid: TDBGrid;
@@ -261,6 +267,7 @@ uses DM, AutoCreate, UUtilities, ufLookupWindow, UCommon,ComObj, ufMain,
 procedure TFGrouping.BRefreshClick(Sender: TObject);
 Var columnsSelect, columnsGroupBy      : String;
     S, _CONL, _CONG, _CONR, _CONS, _CONF, _CONPERIOD, _weekVisibility, genericFilter  : string;
+    _CREATION : string;
     _CONL2, _CONG2, _CONR2 : string;
     _PERMISSIONSL, _PERMISSIONSG, _PERMISSIONSR, _PERMISSIONSS, _PERMISSIONSF : string;
     summary1, summary2, summary3, summary4, summary5 : string;
@@ -484,6 +491,14 @@ begin
   //If FSettings.Strings.Values['SQL.Category:DEFAULT']<> '' Then _CONF := 'FOR_ID IN (SELECT ID FROM FORMS WHERE '+FSettings.Strings.Values['SQL.Category:DEFAULT']+')';
   If CONF_VALUE.Text <> '' Then _CONF := 'FOR_ID IN (SELECT ID FROM FORMS WHERE '+format(sql_FOR_SEARCH, [ replacePolishChars( ansiuppercase(trim(CONF_VALUE.Text)) ) ])+')';
 
+  // data utworzenia zajêcia (od - do, oba dni w³¹cznie) i kto je utworzy³ (fragment nazwy, bez rozró¿niania wielkoœci liter)
+  _CREATION := '0=0';
+  If CreatedFrom.Date <> 0 Then _CREATION := _CREATION + ' AND CLASSES.CREATION_DATE >= '+DateToOracle(CreatedFrom.Date);
+  If CreatedTo.Date   <> 0 Then _CREATION := _CREATION + ' AND CLASSES.CREATION_DATE < ' +DateToOracle(CreatedTo.Date + 1);
+  If Trim(CreatedByFilter.Text) <> '' Then
+    _CREATION := _CREATION + ' AND UPPER(CLASSES.CREATED_BY) LIKE ''%'+
+                 StringReplace(AnsiUpperCase(Trim(CreatedByFilter.Text)), '''', '''''', [rfReplaceAll])+'%''';
+
   if chbShowAll.Checked then begin
     _permissionsl := '0=0';
     _permissionsg := '0=0';
@@ -553,6 +568,7 @@ begin
    ' and '+_CONR+CR+
    ' and '+_CONS+CR+
    ' and '+_CONF+CR+
+   ' and '+_CREATION+CR+
    ' and '+_CONPERIOD +_weekVisibility+CR+
    ' and '+_PERMISSIONSL+CR+
    ' and '+_PERMISSIONSG+CR+
@@ -1281,6 +1297,7 @@ begin
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
             , ChSelectedDates
+            , CreatedFrom, CreatedTo, CreatedByFilter
             , chlcount, chgcount, chrcount
             ]);
   result := true;
@@ -1302,6 +1319,9 @@ begin
   conResCat0_value.Text := '';
   CONS_VALUE.Text := '';
   CONF_VALUE.Text := '';
+  CreatedFrom.Clear;
+  CreatedTo.Clear;
+  CreatedByFilter.Text := '';
 
   uutilityparent.LoadFromIni(
             inifilename , 'grouping',
@@ -1312,6 +1332,7 @@ begin
             , ChDesc1, ChDesc2, ChDesc3, ChDesc4
             , ChlDesc1, ChlDesc2, ChlDesc3, ChlDesc4
             , ChSelectedDates
+            , CreatedFrom, CreatedTo, CreatedByFilter
             , chlcount, chgcount, chrcount
             ], true);
 
@@ -1648,20 +1669,23 @@ begin
 end;
 
 procedure TFGrouping.bMoreLessClick(Sender: TObject);
+// wysokoœæ topPanel: zwiniêty = pasek przycisków + wherePanel, rozwiniêty = tak¿e kolumny i porz¹dkowanie
+const collapsedHeight = 184;
+      expandedHeight  = 429;
 begin
- if topPanel.Height=160 then begin
+ if topPanel.Height=collapsedHeight then begin
   groupOrderBy.Visible := true;
   groupSelect.Visible := true;
   bOtherReports.Visible := true;
   bOptions.Visible := true;
-  topPanel.Height := 405;
+  topPanel.Height := expandedHeight;
   bMoreLess.Caption := 'Mniej';
  end else begin
   groupSelect.Visible := false;
   groupOrderBy.Visible := false;
   bOtherReports.Visible := false;
   bOptions.Visible := false;
-  topPanel.Height := 160;
+  topPanel.Height := collapsedHeight;
   bMoreLess.Caption := 'Wiêcej';
  end;
 end;

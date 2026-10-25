@@ -27,6 +27,7 @@ uses
   uFBrowseFORMS in 'uFBrowseFORMS.pas' {FBrowseFORMS},
   uFBrowsePERIODS in 'uFBrowsePERIODS.pas' {FBrowsePERIODS},
   UUtilities in 'UUtilities.pas',
+  UWeekSync in 'UWeekSync.pas',
   UFDetails in 'UFDetails.pas' {FDetails},
   UFBrowseRESERVATIONS_KINDS in 'UFBrowseRESERVATIONS_KINDS.pas' {FBrowseRESERVATIONS_KINDS},
   UFShowConflicts in 'UFShowConflicts.pas' {FShowConflicts},

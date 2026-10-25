@@ -19,6 +19,7 @@ type
     BitBtn2: TBitBtn;
     Warning: TLabel;
     LFilter: TLabel;
+    LLegend: TLabel;
     EFilter: TEdit;
     procedure ChangeAllClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
@@ -26,14 +27,17 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure CheckListBoxClickCheck(Sender: TObject);
     procedure EFilterChange(Sender: TObject);
+    procedure CheckListBoxDrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
   private
     presourceType, presourceId : string;
     currentUserOrroleID : integer;
-    // zaznaczenia wszystkich pozycji Fmain.MapPlanners - CheckListBox pokazuje tylko pozycje pasuj¹ce do filtra
-    checked    : array of boolean;
+    // dostêp wszystkich pozycji Fmain.MapPlanners: '' = brak, 'E' = edycja, 'R' = tylko odczyt (jak w oknie Uprawnienia,
+    // xxx_PLA.ACCESS_TYPE) - CheckListBox pokazuje tylko pozycje pasuj¹ce do filtra
+    access     : array of string;
     // visibleIdx[i] = indeks w Fmain.MapPlanners pozycji CheckListBox.Items[i]
     visibleIdx : array of integer;
-    procedure saveVisibleChecks;
+    procedure showAccess(i : integer);
     procedure applyFilter;
     procedure executeAll(resourceType, resourceIds : string);
   public
@@ -53,11 +57,12 @@ uses UFMain, DM;
 procedure TFSharing.ChangeAllClick(Sender: TObject);
 var t : integer;
 begin
- for t := 0 to FSharing.CheckListBox.Count - 1 do begin
-   if FSharing.CheckListBox.ItemEnabled[t] then
-       FSharing.CheckListBox.Checked[t] := ChangeAll.Checked;
- end;
- saveVisibleChecks;
+ for t := 0 to CheckListBox.Count - 1 do
+   if CheckListBox.ItemEnabled[t] then begin
+     if ChangeAll.Checked then access[visibleIdx[t]] := 'E'
+                          else access[visibleIdx[t]] := '';
+     showAccess(t);
+   end;
 end;
 
 procedure TFSharing.BitBtn1Click(Sender: TObject);
@@ -66,7 +71,7 @@ var t : integer;
 begin
    for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
      key := Fmain.MapPlanners.map[t].key;
-     checked[t] := (key=UUtilityParent.UserID) or (key=FMain.CONROLE.Text);
+     if (key=UUtilityParent.UserID) or (key=FMain.CONROLE.Text) then access[t] := 'E' else access[t] := '';
    end;
    applyFilter;
 end;
@@ -78,8 +83,8 @@ procedure TFSharing.executeSQL(resourceType, resourceId : string);
    sqlStatement := 'begin'+cr;
    sqlStatement := sqlStatement + 'delete from '+resourceType+'_PLA where '+resourceType+'_ID='+resourceId +';'+ cr;
    for t := 0 to Fmain.MapPlanners.cnt - 1 do
-     if checked[t] then
-         sqlStatement := sqlStatement + 'INSERT INTO '+resourceType+'_PLA (ID, PLA_ID, '+resourceType+'_ID) VALUES ('+resourceType+'PLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+resourceId+');'+cr;
+     if access[t] <> '' then
+         sqlStatement := sqlStatement + 'INSERT INTO '+resourceType+'_PLA (ID, PLA_ID, '+resourceType+'_ID, ACCESS_TYPE) VALUES ('+resourceType+'PLA_SEQ.NEXTVAL, '+Fmain.MapPlanners.map[t].key+','+resourceId+','''+access[t]+''');'+cr;
    sqlStatement := sqlStatement + 'commit;'+cr+'end;';
    DModule.SQL(sqlStatement);
  end;
@@ -92,11 +97,39 @@ procedure TFSharing.executeAll(resourceType, resourceIds : string);
      executeSQL(resourceType, trim(ExtractWord(t, resourceIds, [','])));
  end;
 
-procedure TFSharing.saveVisibleChecks;
-var t : integer;
+// stan pola wyboru pozycji i listy: brak = puste, E = zaznaczone, R = wyszarzone (opis: kolorowe E / R przy nazwie)
+procedure TFSharing.showAccess(i : integer);
 begin
-  for t := 0 to CheckListBox.Count - 1 do
-    checked[visibleIdx[t]] := CheckListBox.Checked[t];
+  if access[visibleIdx[i]] = 'E' then CheckListBox.State[i] := cbChecked
+  else if access[visibleIdx[i]] = 'R' then CheckListBox.State[i] := cbGrayed
+  else CheckListBox.State[i] := cbUnchecked;
+  CheckListBox.Invalidate;
+end;
+
+// E na zielono, R na niebiesko - tak jak w oknie Uprawnienia (TFPlannerPermissions)
+procedure TFSharing.CheckListBoxDrawItem(Control: TWinControl; Index: Integer;
+  Rect: TRect; State: TOwnerDrawState);
+var a : string;
+    box : TRect;
+    oldBrush, oldFont : TColor;
+begin
+  with CheckListBox.Canvas do begin
+    FillRect(Rect);
+    a := '';
+    if (Index >= 0) and (Index <= High(visibleIdx)) then a := access[visibleIdx[Index]];
+    box := Classes.Rect(Rect.Left + 2, Rect.Top + 1, Rect.Left + 18, Rect.Bottom - 1);
+    if a <> '' then begin
+      oldBrush := Brush.Color;
+      oldFont  := Font.Color;
+      if a = 'E' then Brush.Color := clGreen else Brush.Color := clBlue;
+      Font.Color := clWhite;
+      FillRect(box);
+      TextOut(box.Left + 4, box.Top, a);
+      Brush.Color := oldBrush;
+      Font.Color  := oldFont;
+    end;
+    TextOut(Rect.Left + 22, Rect.Top + 1, CheckListBox.Items[Index]);
+  end;
 end;
 
 // filtr po nazwie: pusty = wszystkie pozycje
@@ -112,9 +145,9 @@ begin
     for t := 0 to Fmain.MapPlanners.cnt - 1 do
       if (f = '') or AnsiContainsText(Fmain.MapPlanners.map[t].value, f) then begin
         i := CheckListBox.Items.Add(Fmain.MapPlanners.map[t].value);
-        CheckListBox.Checked[i] := checked[t];
         SetLength(visibleIdx, i + 1);
         visibleIdx[i] := t;
+        showAccess(i);
       end;
   finally
     CheckListBox.Items.EndUpdate;
@@ -148,18 +181,18 @@ begin
 
    if cruid = 'U' then begin
        tmp := Tmap.Create;
-       dmodule.loadMap('select pla_id,''FOUND'' from '+resourceType+'_PLA where '+resourceType+'_ID in ('+resourceId+')' ,tmp, false);
+       dmodule.loadMap('select pla_id, max(nvl(access_type,''E'')) from '+resourceType+'_PLA where '+resourceType+'_ID in ('+resourceId+') group by pla_id' ,tmp, false);
    end;
 
    currentUserOrroleID := -1;
-   SetLength(checked, Fmain.MapPlanners.cnt);
+   SetLength(access, Fmain.MapPlanners.cnt);
    for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
-     checked[t] := false;
-     if cruid = 'I' then checked[t] := true;
-     if cruid = 'U' then checked[t] := tmp.getValue(Fmain.MapPlanners.map[t].key)='FOUND';
+     access[t] := '';
+     if cruid = 'I' then access[t] := 'E';
+     if cruid = 'U' then access[t] := tmp.getValue(Fmain.MapPlanners.map[t].key, '');
      if Fmain.MapPlanners.map[t].key = fmain.getUserOrRoleID then begin
          currentUserOrroleID := t;
-         checked[t] := true;
+         if access[t] = '' then access[t] := 'E';
      end;
    end;
    if cruid = 'U' then
@@ -206,19 +239,30 @@ begin
 
    for t := 0 to Fmain.MapPlanners.cnt - 1 do begin
      key := Fmain.MapPlanners.map[t].key;
-     checked[t] := (key=UUtilityParent.UserID) or (StrUtils.AnsiContainsText(roles,'#'+key));
+     if (key=UUtilityParent.UserID) or (StrUtils.AnsiContainsText(roles,'#'+key)) then begin
+       if access[t] = '' then access[t] := 'E'; // zachowaj R
+     end else access[t] := '';
    end;
    applyFilter;
 end;
 
+// klikniêcie pola wyboru: brak -> E -> R -> brak (jak w oknie Uprawnienia). Pole wyboru zmienia siê samo
+// (cbUnchecked -> cbGrayed -> cbChecked) - pozycja, której stan nie zgadza siê z access, to ta klikniêta
 procedure TFSharing.CheckListBoxClickCheck(Sender: TObject);
 var t : integer;
+    a : string;
 begin
-  t := CheckListBox.ItemIndex;
-  if t < 0 then exit;
-  saveVisibleChecks;
-  if (visibleIdx[t] = currentUserOrroleID) then
-      Warning.Visible :=  not CheckListBox.Checked[t];
+  for t := 0 to CheckListBox.Count - 1 do begin
+    a := access[visibleIdx[t]];
+    if ((a = 'E') and (CheckListBox.State[t] <> cbChecked)) or
+       ((a = 'R') and (CheckListBox.State[t] <> cbGrayed)) or
+       ((a = '')  and (CheckListBox.State[t] <> cbUnchecked)) then begin
+      if a = '' then a := 'E' else if a = 'E' then a := 'R' else a := '';
+      access[visibleIdx[t]] := a;
+      showAccess(t);
+      if visibleIdx[t] = currentUserOrroleID then Warning.Visible := a = '';
+    end;
+  end;
 end;
 
 end.

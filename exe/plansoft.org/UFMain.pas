@@ -8,7 +8,7 @@ uses
   UCommon, DM, UFReadString, Menus, UFInfo, Tabs, Mask, DBCtrls, Grids,
   ToolEdit, db, UFDatabaseLogin,
   WSDLBind, XMLSchema, ImgList, UrlMon, adodb, UFKPI, ShellAPI,
-  DBGrids, UUtilityParent, DateUtils, XPMan, UFLegendNavigation;
+  DBGrids, UUtilityParent, DateUtils, XPMan, UFLegendNavigation, UWeekSync;
 
 var dGeneralDebug : string;
 
@@ -235,7 +235,6 @@ type
     bReports: TSpeedButton;
     BAddClass: TSpeedButton;
     DeepRefreshButton: TSpeedButton;
-    Cofnij1: TMenuItem;
     Zapisz1: TMenuItem;
     N1: TMenuItem;
     BDeleteClass: TSpeedButton;
@@ -270,12 +269,7 @@ type
     CONFORM: TEdit;
     CONFORM_VALUE: TEdit;
     RespectCompletions: TCheckBox;
-    BViewByWeek: TSpeedButton;
-    BViewByCrossTable: TSpeedButton;
     Widok1: TMenuItem;
-    Ukadtygodniowy1: TMenuItem;
-    Ukadtabelikrzyowej1: TMenuItem;
-    N5: TMenuItem;
     mmplanL: TMenuItem;
     mmplanG: TMenuItem;
     mmplanR: TMenuItem;
@@ -316,7 +310,6 @@ type
     Shape8a: TShape;
     Shape7a: TShape;
     xShape4a: TShape;
-    Shape2a: TShape;
     Shape1a: TShape;
     bcopyarea: TSpeedButton;
     bcutarea: TSpeedButton;
@@ -513,10 +506,7 @@ type
     MapaGooglezzasobami3: TMenuItem;
     fastQueryGenericString: TMemo;
     gridPanel: TPanel;
-    filterPanel: TPanel;
-    CrossFilter: TEdit;
     Grid: TDrawGrid;
-    CustomPeriod: TComboBox;
     refreshFilter: TTimer;
     Generatorslajdw1: TMenuItem;
     Preferowaneterminy1: TMenuItem;
@@ -561,12 +551,12 @@ type
     SearchMenu2: TEdit;
     SearchMenu3: TEdit;
     SpeedButton5: TSpeedButton;
+    BUndo: TSpeedButton;
     Integration: TMenuItem;
     Listaobecno2: TMenuItem;
     Zmianywrozkadziezaj1: TMenuItem;
     Zmianywrozkadziezaj2: TMenuItem;
     gridRefresh: TTimer;
-    BCrossTableMaxRows: TButton;
     RaportZdrowieSystemu1: TMenuItem;
     N25: TMenuItem;
     N26: TMenuItem;
@@ -574,17 +564,15 @@ type
     Zajto1: TMenuItem;
     Zajtoscwyk1: TMenuItem;
     N27: TMenuItem;
-    FindRGL: TPopupMenu;
-    N28: TMenuItem;
-    Uk1: TMenuItem;
-    Zajtosal1: TMenuItem;
-    Zajtogrup1: TMenuItem;
-    Zajtowykadowcw1: TMenuItem;
-    N29: TMenuItem;
-    estujAPI1: TMenuItem;
+    WeeksPopup: TPopupMenu;
     GoToDate: TSpeedButton;
     SQLCreateWeeks: TMemo;
     EditPeriod: TSpeedButton;
+    WeekDown: TSpeedButton;
+    PrevWeek: TSpeedButton;
+    NextWeek: TSpeedButton;
+    WeekUp: TSpeedButton;
+    WeekSync: TSpeedButton;
     PPreview: TPopupMenu;
     MenuItem4: TMenuItem;
     MenuItem11: TMenuItem;
@@ -662,8 +650,6 @@ type
       Shift: TShiftState);
     procedure conResCat0_valueKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure Ukadtygodniowy1Click(Sender: TObject);
-    procedure Ukadtabelikrzyowej1Click(Sender: TObject);
     procedure mmplanLClick(Sender: TObject);
     procedure mmplanGClick(Sender: TObject);
     procedure mmplanRClick(Sender: TObject);
@@ -708,8 +694,6 @@ type
     procedure BAddClassMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure TimerShapesEngineTimer(Sender: TObject);
-    procedure BViewByWeekMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure bconflictspopupMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure xzoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -890,8 +874,6 @@ type
     procedure EksportujdoGoogleKalendarz2Click(Sender: TObject);
     procedure WskanikiefektywnociwykresyGoogle1Click(Sender: TObject);
     procedure MapaGooglezzasobami3Click(Sender: TObject);
-    procedure CrossFilterChange(Sender: TObject);
-    procedure CustomPeriodChange(Sender: TObject);
     procedure refreshFilterTimer(Sender: TObject);
     procedure Generatorslajdw1Click(Sender: TObject);
     procedure Preferowaneterminy1Click(Sender: TObject);
@@ -920,23 +902,24 @@ type
     procedure Listaobecno1Click(Sender: TObject);
     procedure Pulpit1Click(Sender: TObject);
     procedure SpeedButton5Click(Sender: TObject);
+    procedure BUndoClick(Sender: TObject);
     procedure IntegrationClick(Sender: TObject);
     procedure Listaobecno2Click(Sender: TObject);
     procedure Zmianywrozkadziezaj1Click(Sender: TObject);
     procedure Zmianywrozkadziezaj2Click(Sender: TObject);
     procedure gridRefreshTimer(Sender: TObject);
-    procedure BCrossTableMaxRowsClick(Sender: TObject);
     procedure RaportZdrowieSystemu1Click(Sender: TObject);
     procedure Znajjdwolnsal1Click(Sender: TObject);
     procedure Zajto1Click(Sender: TObject);
     procedure Zajtoscwyk1Click(Sender: TObject);
-    procedure Uk1Click(Sender: TObject);
-    procedure Zajtosal1Click(Sender: TObject);
-    procedure Zajtogrup1Click(Sender: TObject);
-    procedure Zajtowykadowcw1Click(Sender: TObject);
-    procedure estujAPI1Click(Sender: TObject);
     procedure GoToDateClick(Sender: TObject);
     procedure EditPeriodClick(Sender: TObject);
+    procedure PrevWeekClick(Sender: TObject);
+    procedure NextWeekClick(Sender: TObject);
+    procedure WeekUpClick(Sender: TObject);
+    procedure WeekDownClick(Sender: TObject);
+    procedure WeeksPopupItemClick(Sender: TObject);
+    procedure WeekSyncClick(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure CLASSES_ALLOWEDClick(Sender: TObject);
@@ -953,6 +936,8 @@ type
     procedure LprofileObjectNameC1Click(Sender: TObject);
     procedure HeaderGridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
+    procedure HeaderGridMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure GridTopLeftChanged(Sender: TObject);
   private
     resizeMode: boolean;
@@ -1014,7 +999,7 @@ type
     MapPlannerSupervisors : TMap;
     silentMode : boolean;
     AObjectId : integer;
-    weekGroupFromColumn : boolean; // AddClassToGrid -> insertClasses: grupa nowych zajêæ z kolumny siatki (convertGrid w trybie ConvWeekObjects)
+    weekObjectFromColumn : boolean; // AddClassToGrid -> insertClasses: wyk³adowca/grupa/sala nowych zajêæ z kolumny siatki (convertGrid w trybie ConvWeekObjects)
     classForEdition : integer;
 
     disableFurtherActivities : boolean;
@@ -1027,10 +1012,12 @@ type
     ClassBySubjectCaches  : TClassBySubjectCache;
     ReservationsCache     : tReservationsCache;
     BusyClassesCache      : tBusyClassesCache;
+    syncWeeks             : TWeekSync; // synchronizacja tygodni: pozosta³e widoczne tygodnie okresu
+    periodValueWidth      : integer;   // szerokoœæ CONPERIOD_VALUE z formularza (w uk³adzie tygodnia pole jest wê¿sze)
     //
     trackHistoryInstalled : boolean;
     MouseOverLeftPanel : boolean;
-    AutoSaveCounterDown : integer;
+    FAutoSaveCounterDown : integer; // zob. property AutoSaveCounterDown
 
     PriorText : String;
     PriorCol : Integer;
@@ -1057,11 +1044,26 @@ type
     Procedure buildCalendar(triggeredObject : String);
     procedure buildMenu;
     function  getUserOrRoleID : string;
+    function  createWeeks(periodId : string) : string;
+    procedure switchSemesterWeek(aCol : integer; firstWeekIfNoDate : boolean);
+    function  weekParentPeriodId : string;
+    function  visibleWeekId(parentId, numCondition : string; descending : boolean) : string;
+    function  weekVisibilityPattern(periodId : string) : string;
+    procedure selectPeriod(periodId : string);
+    procedure applyPeriodRole;
+    procedure layoutPeriodButtons;
+    function  weekSyncActive : boolean;
+    function  weekSyncDays(day, hour : integer) : TDayList;
+    function  weekSyncSiblings(const aClass : TClass_) : TClassArray;
+    function  weekSyncBatchBegin : boolean;
+    procedure weekSyncBatchEnd(autoSaverWasEnabled : boolean);
+    procedure askWeekSyncOnceADay;
+    procedure goToNeighbourWeek(forward : boolean);
 
     procedure insertClasses;
     procedure invertReservations;
     procedure SetRatio ( pratio : integer);
-    procedure set_tmp_selected_dates;
+    procedure set_tmp_selected_dates(const withSyncWeeks : boolean = false);
     procedure RunMassImport(whatObject : Integer);
 
 
@@ -1125,6 +1127,9 @@ type
     procedure autoExpandSelection;
     procedure RefreshNavigatorImmediate;
     function callExternalURL( objType: String ) : boolean;
+    procedure SetAutoSaveCounterDown(Value : integer);
+    // licznik do automatycznego zapisu (AutoSaverTimer); > 0 = s¹ niezapisane zmiany - wtedy widoczny przycisk Cofnij
+    property AutoSaveCounterDown : integer read FAutoSaveCounterDown write SetAutoSaveCounterDown;
   end;
 
 var
@@ -1217,6 +1222,8 @@ Var t : Integer;
     havingRom2 : string;
 
     rid, excludedResources : String;
+    weekSyncOn : boolean; // synchronizacja tygodni: zajêtoœæ tak¿e w pozosta³ych widocznych tygodniach
+    busyClause : string;  // dni, w których szukamy zajêtoœci (periodClause albo wszystkie synchronizowane tygodnie)
 
 Var L1, L2 : Integer;
 begin
@@ -1234,6 +1241,11 @@ begin
    Init(firstDay, Count, QWork.FieldByName('HOURS_PER_DAY').AsInteger);
 
    FirstDay := DateTimeToTimeStamp(QWork.Fields[3].AsDateTime).Date;
+
+   // synchronizacja tygodni: zajêtoœæ z pozosta³ych tygodni pokazywana w tym samym dniu tygodnia bie¿¹cego tygodnia
+   weekSyncOn := FMain.weekSyncActive;
+   if weekSyncOn then busyClause := FMain.syncWeeks.allWeeksClause(FMain.conPeriod.Text, 'DAY')
+                 else busyClause := periodClause;
 
    For L1 := 0 To Count -1 Do Begin
      For L2 := 1 To MaxHours Do Begin
@@ -1340,31 +1352,31 @@ begin
 
   SQLstmt :=
    'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(1) cnt'+cr+
-   iif(LecCond='',',0 cntL'    ,',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+LecCond+')) cntL')+cr+
-   iif(GroCond='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+GroCond+')) cntG')+cr+
-   iif(RomCond='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+RomCond+'))  cntR')+cr+
-   iif(ResCat1Cond='',',0 cntR2',',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+')) cntR2')+cr+
+   iif(LecCond='',',0 cntL'    ,',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+LecCond+')) cntL')+cr+
+   iif(GroCond='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+GroCond+')) cntG')+cr+
+   iif(RomCond='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+RomCond+'))  cntR')+cr+
+   iif(ResCat1Cond='',',0 cntR2',',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+')) cntR2')+cr+
    'from   classes, subjects sub, forms form'+cr+
    'where sub_id=sub.id(+) and for_id=form.id(+) and classes.id in'+cr+
    '('+cr+
    'select -1 from dual'+cr+
-   iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+')'+cr)+
-      iif((LecCond<>'') and (FMain.ShowAllAnyL.ItemIndex >0),'and (day, hour) in (select day, hour from lec_cla where no_conflict_flag is null and '+periodClause+' and ('+LecCond+') group by day, hour having count(1)'+ havingLec  +')'+cr,'')+
-   iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and ('+GroCond+')'+cr)+
-      iif((GroCond<>'') and (FMain.ShowAllAnyG.ItemIndex>0),'and (day, hour) in (select day, hour from gro_cla where no_conflict_flag is null and '+periodClause+' and ('+GroCond+') group by day, hour having count(1)'+ havingGro  +')'+cr,'')+
-   iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+RomCond+')'+cr)+
-      iif((RomCond<>'') and (FMain.ShowAllAnyResCat0.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+RomCond+') group by day, hour having count(1)'+ havingRom  +')'+cr,'')+
-   iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+')'+cr)+
-      iif((ResCat1Cond<>'') and (FMain.ShowAllAnyResCat1.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+periodClause+' and ('+ResCat1Cond+') group by day, hour having count(1)'+ HavingRom2  +')'+cr,'')+
+   iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+LecCond+')'+cr)+
+      iif((LecCond<>'') and (FMain.ShowAllAnyL.ItemIndex >0),'and (day, hour) in (select day, hour from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+LecCond+') group by day, hour having count(1)'+ havingLec  +')'+cr,'')+
+   iif(GroCond='',''    ,'union select cla_id from gro_cla where no_conflict_flag is null and '+busyClause+' and ('+GroCond+')'+cr)+
+      iif((GroCond<>'') and (FMain.ShowAllAnyG.ItemIndex>0),'and (day, hour) in (select day, hour from gro_cla where no_conflict_flag is null and '+busyClause+' and ('+GroCond+') group by day, hour having count(1)'+ havingGro  +')'+cr,'')+
+   iif(RomCond='',''    ,'union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+RomCond+')'+cr)+
+      iif((RomCond<>'') and (FMain.ShowAllAnyResCat0.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+RomCond+') group by day, hour having count(1)'+ havingRom  +')'+cr,'')+
+   iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+')'+cr)+
+      iif((ResCat1Cond<>'') and (FMain.ShowAllAnyResCat1.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+') group by day, hour having count(1)'+ HavingRom2  +')'+cr,'')+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
    'and classes.id in'+cr+
    '('+cr+
-   'select id from classes where '+periodClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+dm.UserName+''')'+cr+
-   iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and '+periodClause+' and '+NotLec+cr)+
-   iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and '+periodClause+' and '+NotGro+cr)+
-   iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and '+periodClause+' and '+NotRom+cr)+
+   'select id from classes where '+busyClause+' and (sub_id<>'+NVL(FMain.ConSubject.Text,'-1')+' or for_id<>'+NVL(FMain.ConForm.Text,'-1')+' or owner<>'''+dm.UserName+''')'+cr+
+   iif(NotLec='','','union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and '+NotLec+cr)+
+   iif(NotGro='','','union select cla_id from gro_cla where no_conflict_flag is null and '+busyClause+' and '+NotGro+cr)+
+   iif(NotRom='','','union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and '+NotRom+cr)+
    ')'+cr+
    comment2+cr
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
@@ -1376,8 +1388,12 @@ begin
      X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
      Y := QWork.FieldByName('HOUR').AsInteger;
 
+     if weekSyncOn then X := FMain.syncWeeks.toCurrentWeek(FMain.conPeriod.Text, X);
      t := X-FirstDay;
 
+     if weekSyncOn and ((t < 0) or (t > high(global))) then
+       // dzieñ innego tygodnia, którego nie ma w bie¿¹cym (niepe³nym) tygodniu
+     else
      if  (t < 0) or (t >high(global)) then
          SError('Wyst¹pi³o zdarzenie "1 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista zajêæ '+
          't='+inttostr(t)+
@@ -1394,6 +1410,7 @@ begin
            iif(QWork.FieldByName('cntG').AsInteger>0,'G','')+
            iif(QWork.FieldByName('cntR').AsInteger>0,'S','')+
            iif(QWork.FieldByName('cntr2').AsInteger>0,'Z','')+'] '+
+           iif(weekSyncOn, FormatDateTime('yyyy-mm-dd', QWork.FieldByName('DAY').AsDateTime)+' ', '')+ // synchronizacja tygodni: w którym dniu
            QWork.FieldByName('sub_name').AsString+' '+
            ' ('+QWork.FieldByName('for_name').AsString+' '+
            ')    '+fprogramsettings.profileObjectNameLs.text+':'+QWork.FieldByName('calc_lecturers').AsString+' '+
@@ -1479,7 +1496,8 @@ Begin
  if Zajecia > Maxhours then exit;
 
  t := TS.Date - FirstDay;
- If t <= Count-1 Then begin
+ //synchronizacja tygodni zapisuje tak¿e dni spoza bie¿¹cego okresu
+ If (t >= 0) and (t <= Count-1) Then begin
     Classes[t][Zajecia].Valid := False;
     Exit;
  end;
@@ -1932,6 +1950,9 @@ begin
   UFInfo.ShowModal;
 end;
 
+// stan przycisku "Synchronizacja tygodni" zapamiêtany miêdzy uruchomieniami programu ('+' = wciœniêty)
+const weekSyncParam = 'WEEK_SYNC';
+
 procedure TFMain.FormCreate(Sender: TObject);
   procedure init;
   begin
@@ -1942,6 +1963,9 @@ procedure TFMain.FormCreate(Sender: TObject);
    ClassBySubjectCaches  := TClassBySubjectCache.create;
    ReservationsCache     := tReservationsCache.Create;
    BusyClassesCache      := tBusyClassesCache.create;
+   syncWeeks             := TWeekSync.Create;
+   WeekSync.Down         := GetSystemParam(weekSyncParam) = '+';
+   periodValueWidth      := CONPERIOD_VALUE.Width;
 
    ClassByLecturerCaches.init;
    ClassByGroupCaches.init;
@@ -2026,7 +2050,6 @@ procedure TFMain.RefreshGrid;
  Procedure SetButtons(V : Boolean);
  Begin
   GridPanel.Visible := V;
-  filterPanel.Visible := BViewByCrossTable.Down;
   Legend.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   Shape7a.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   bAddClass.Visible := V;
@@ -2054,8 +2077,6 @@ procedure TFMain.RefreshGrid;
   //zoomIn.Visible := V;
   //zoomOut.Visible := V;
   bwww.Visible := V;
-  BViewByWeek.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
-  BViewByCrossTable.Visible  := TabViewType.TabIndex <4;
   CONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   LCONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   GoToDate.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
@@ -2065,7 +2086,6 @@ procedure TFMain.RefreshGrid;
   bmoveLeft.Visible := v;
   bmoveRight.Visible := v;
   Shape1a.Visible := v;
-  Shape2a.Visible := v;
   //Shape4a.Visible := v;
   Shape7a.Visible := v;
   Shape8a.Visible := v;
@@ -2106,6 +2126,13 @@ begin
        HeaderGrid.ColWidths[i] := Grid.ColWidths[i];
      end;
 
+   // uk³ad tygodniowy: szerokoœæ ustawiona w oknie wygl¹du komórki (BShowCellLayout, "Chcê ustaliæ szerokoœæ") ma pierwszeñstwo
+   if FSettings.WeeklyView.Checked and FcellLayout.ForceCellWidth.Checked then
+     for i := 2 to Grid.ColCount - 1 do begin
+       Grid.ColWidths[i] := FcellLayout.ForcedCellWidth.Position;
+       HeaderGrid.ColWidths[i] := Grid.ColWidths[i];
+     end;
+
 
    if FcellLayout.ForceCellHeight.Checked then begin
      Grid.DefaultRowHeight := FcellLayout.ForcedCellHeight.Position;
@@ -2129,17 +2156,11 @@ begin
      FcellLayout.ForcedCellHeight.Position := Grid.DefaultRowHeight;
    end;
 
-  if BViewByCrossTable.Down then begin
-    grid.ColWidths[0] := 200;
-    grid.FixedRows    := min (Grid.RowCount -1 , 2);
-    grid.FixedCols    := 1;
-  end else begin
-    grid.ColWidths[0] := Grid.ColWidths[1];
-    grid.FixedRows    := 0;
-    //aviod error "Fixed column count must be less than column count"
-    if grid.ColCount >=2 then
-      grid.FixedCols    := 2;
-  end;
+  grid.ColWidths[0] := Grid.ColWidths[1];
+  grid.FixedRows    := 0;
+  //aviod error "Fixed column count must be less than column count"
+  if grid.ColCount >=2 then
+    grid.FixedCols    := 2;
 
  //autoExpandSelection:hide rows
  for i := 1 to grid.RowCount-1 do begin
@@ -2187,7 +2208,6 @@ Begin
   try
 
   if instr('L#G#R',triggeredObject)<>0 then begin
-  if not BViewByCrossTable.Down then begin
     Case TabViewType.TabIndex Of
       0:With DModule do begin rId := ExtractWord(1, ConLecturer.Text,  [';']); UpsertRecentlyUsed(rId,'L');   end;
       1:With DModule do begin rId := ExtractWord(1, ConGroup.Text,  [';']);    UpsertRecentlyUsed(rId,'G');   end;
@@ -2195,7 +2215,6 @@ Begin
       3:With DModule do begin rId := ExtractWord(1, conResCat1.Text,  [';']);  UpsertRecentlyUsed(rId,'R');  end;
       4:begin self.Caption := 'Edycja kalendarza dni wolnych'+', Plansoft.org'; end;
     end;
-  end;
   end;
 
   Case TabViewType.TabIndex Of
@@ -2222,18 +2241,33 @@ Begin
     LastValidatedPeriodId := conPeriod.TEXT;
   End;
 
-  TabViewType.Tabs[0] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameL.text+' '+ExtractWord(1, ConLecturer_value.Text,  [';'])  , fprogramsettings.profileObjectNameLs.text);
-  TabViewType.Tabs[1] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']) , fprogramsettings.profileObjectNameGs.text);
-  TabViewType.Tabs[2] := iif( BViewByWeek.down,  dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';'])                      , dmodule.pResCatName0 );
-  TabViewType.Tabs[3] := iif( BViewByWeek.down,  dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';'])                      , dmodule.pResCatName1);
-  TabViewType.Tabs[5] := iif( BViewByWeek.down,  fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';'])    , fprogramsettings.profileObjectNameC1s.text);
+  TabViewType.Tabs[0] := fprogramsettings.profileObjectNameL.text+' '+ExtractWord(1, ConLecturer_value.Text,  [';']);
+  TabViewType.Tabs[1] := fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']);
+  TabViewType.Tabs[2] := dmodule.pResCatName0+' '+ExtractWord(1, conResCat0_value.Text ,  [';']);
+  TabViewType.Tabs[3] := dmodule.pResCatName1+' '+ExtractWord(1, CONResCat1_value.Text ,  [';']);
+  TabViewType.Tabs[5] := fprogramsettings.profileObjectNameC1.text+' '+ExtractWord(1, CONSUBJECT_value.Text ,  [';']);
 
-  // okres tygodniowy w uk³adzie grupy: ka¿da wybrana grupa w osobnej kolumnie, w kolejnoœci z ConGroup
-  if FSettings.WeeklyView.Checked and BViewByWeek.Down and (TabViewType.TabIndex = 1) then
-    convertGrid.setWeekObjects(ConGroup.Text, ConGroup_value.Text)
-  else
-    convertGrid.setWeekObjects('', '');
-  convertGrid.setupGrid (conPeriod.text, BViewByWeek.Down, TabViewType.TabIndex, CrossFilter.text, colCnt, rowCnt);
+  // okres tygodniowy w uk³adzie wyk³adowcy / grupy / sali: ka¿dy wybrany obiekt w osobnej kolumnie, w kolejnoœci z pola wyboru
+  convertGrid.setWeekObjects('', '');
+  if FSettings.WeeklyView.Checked then
+    Case TabViewType.TabIndex Of
+      0: convertGrid.setWeekObjects(ConLecturer.Text, ConLecturer_value.Text);
+      1: convertGrid.setWeekObjects(ConGroup.Text,    ConGroup_value.Text);
+      2: convertGrid.setWeekObjects(conResCat0.Text,  conResCat0_value.Text);
+      3: convertGrid.setWeekObjects(conResCat1.Text,  conResCat1_value.Text);
+    end;
+  convertGrid.setupGrid (conPeriod.text, TabViewType.TabIndex, colCnt, rowCnt);
+  // obiekty w kolumnach: tytu³ zak³adki i okna z wszystkimi wybranymi obiektami (powy¿ej ustawiono tylko pierwszy)
+  if convertGrid.convertMode = ConvWeekObjects then begin
+    rName := convertGrid.weekObjectNames(', ');
+    self.Caption := rName;
+    Case TabViewType.TabIndex Of
+      0: TabViewType.Tabs[0] := fprogramsettings.profileObjectNameLs.text+' '+rName;
+      1: TabViewType.Tabs[1] := fprogramsettings.profileObjectNameGs.text+' '+rName;
+      2: TabViewType.Tabs[2] := dmodule.pResCatName0+' '+rName;
+      3: TabViewType.Tabs[3] := dmodule.pResCatName1+' '+rName;
+    end;
+  end;
   Grid.ColCount := colCnt;
   Grid.RowCount := rowCnt;
 
@@ -2333,6 +2367,9 @@ begin
    week_visibility := week_visibility + week_visibility;
 
    FSettings.WeeklyView.Checked := Dmodule.QWork.Fields[1].AsString {one_week_flag} ='yes';
+   SetVisibles; // EditPeriod / << >> zale¿¹ od WeeklyView
+   syncWeeks.invalidate;    // inny okres - inne tygodnie do synchronizacji
+   currSelectedArea := ''; // tmp_selected_dates dotycz¹ dat poprzedniego okresu
 
    //invalid period id, deleted period?
    If isBlank(CONPERIOD_VALUE.Text) then begin conPeriod.Text :=''; exit; end;
@@ -2360,7 +2397,13 @@ Begin
   FcellLayout.CellColor.Visible     := not isBlank(conPeriod.Text);
   FcellLayout.selectFill.Visible   := not isBlank(conPeriod.Text);
   FcellLayout.DESCRIPTIONS.Visible := not isBlank(conPeriod.Text);
-  EditPeriod.Visible                := not isBlank(conPeriod.Text);
+  EditPeriod.Visible                := not isBlank(conPeriod.Text) and not FSettings.WeeklyView.Checked;
+  WeekDown.Visible                  := not isBlank(conPeriod.Text);
+  PrevWeek.Visible                  := not isBlank(conPeriod.Text) and FSettings.WeeklyView.Checked;
+  NextWeek.Visible                  := PrevWeek.Visible;
+  WeekUp.Visible                    := PrevWeek.Visible;
+  WeekSync.Visible                  := PrevWeek.Visible;
+  layoutPeriodButtons;
   LeftPanel.Invalidate;
 End;
 
@@ -3066,12 +3109,6 @@ begin
        ClassError    : DrawError(Rect);
       End;
      End;
-    crossTableViewObjNames : Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top, convertGrid.convertManyObjects.currentObjName );
-    crossTableViewDayOfWeek:
-      if TS.Date<>-1 then begin
-        if Zajecia=1 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,GetDate(TS.Date));
-        if Zajecia=2 then Grid.Canvas.TextOut(1+Rect.Left,1+Rect.Top,ShortDayNames[DayOfWeek(TimeStampToDateTime(TS))]);
-      end;
    End;
 
    //show selection
@@ -3118,9 +3155,11 @@ Procedure TFMain.insertClasses;
 
  var priorDataStamp : string;
      priorAnswer    : TModalResult;
-     weekGroupId, lastWeekGroupId : integer; // weekGroupFromColumn: grupa z kolumny bie¿¹cej komórki
      Answer    : TModalResult;
      anyHintsExist  : Boolean;
+     weekSyncing    : Boolean; // synchronizacja tygodni w³¹czona dla tej operacji
+     syncAborted    : Boolean; // synchronizacja tygodni: b³¹d zapisu - ca³a operacja zostanie wycofana
+     syncReplacedIds: String;  // synchronizacja tygodni, edycja: odpowiedniki edytowanego zajêcia (zastêpowane)
 
  function XAddClass : boolean;
  var t : Integer;
@@ -3136,6 +3175,7 @@ Procedure TFMain.insertClasses;
      hintsFound                  : Boolean;
      capacityOverflowVal         : integer;
      hasConflictFlag             : Boolean;
+     syncDays                    : TDayList; // synchronizacja tygodni: ten sam termin w pozosta³ych tygodniach
  Begin
     For t := 1 To maxInClass Do Begin
       PLecturers[t] :=0;
@@ -3145,16 +3185,6 @@ Procedure TFMain.insertClasses;
 
     With FDetails Do Begin
      GetValues(L, G, R, S, FormId, Fill, colour, created_by, _Owner, pdesc1, pdesc2, pdesc3, pdesc4 );
-
-     // grupa z nag³ówka kolumny zamiast grup kolumn wybranych w oknie szczegó³ów
-     if weekGroupFromColumn and (weekGroupId <> -1) then begin
-       G := convertGrid.replaceWeekObjects(G, weekGroupId);
-       // grupy podrzêdne/nadrzêdne i zbiorcze sprawdzenie konfliktów s¹ liczone dla grupy - przelicz po zmianie kolumny
-       if weekGroupId <> lastWeekGroupId then begin
-         lastWeekGroupId     := weekGroupId;
-         calculateWithChilds := true;
-       end;
-     end;
 
      For t := 1 To WordCount(L,[';']) Do Begin
       value := ExtractWord(t, L, [';']);
@@ -3280,6 +3310,8 @@ Procedure TFMain.insertClasses;
      TS      := UFmain.dummyTS;
      Zajecia := UFmain.dummyHour;
 
+     syncDays := weekSyncDays(TS.Date, Zajecia);
+
      if batchConfirmedNoConflicts then begin
        hintsFound := checkConflicts.QuickPreCheck(
          TS
@@ -3308,6 +3340,8 @@ Procedure TFMain.insertClasses;
        , anyHintsExist
        , capacityOverflowVal
        , hasConflictFlag);
+       // QuickPreCheck sprawdza tylko bie¿¹cy termin - pozosta³e tygodnie sprawdzi ConflictsReport
+       if Length(syncDays) > 0 then hasConflictFlag := true;
      end;
 
      checkConflicts.ConflictsReport(
@@ -3331,7 +3365,12 @@ Procedure TFMain.insertClasses;
      , pdesc2
      , pdesc3
      , pdesc4
-     , not hasConflictFlag);
+     , not hasConflictFlag
+     , syncDays
+     , syncReplacedIds);
+
+     if anyHintsExist and (Length(syncDays) > 0) then
+       if checkConflicts.addSyncHints(Zajecia, PLecturers, PGroups, PRooms) then hintsFound := true;
     End;
 
     result := false;
@@ -3340,13 +3379,14 @@ Procedure TFMain.insertClasses;
 
       priorDataStamp := fShowConflicts.dataStamp;
       checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
-      checkConflicts.GetHintsDesc(fShowConflicts.SGHints, TS, Zajecia, fShowConflicts.dataStamp);
+      checkConflicts.GetHintsDesc(fShowConflicts.SGHints, fShowConflicts.dataStamp);
 
       fShowConflicts.SetSectionsVisible(Not checkConflicts.Empty, hintsFound);
       if checkConflicts.Empty then
         fShowConflicts.BDelete.Caption := 'Kontynuuj'
       else
         fShowConflicts.BDelete.Caption := format('Kontynuuj - usuñ istniej¹ce %s', [fprogramsettings.profileObjectNameClasses.Text]);
+      fShowConflicts.BDelete.Enabled := not checkConflicts.Truncated; // za du¿o konfliktów w innych tygodniach
 
       priorAnswer := answer;
 
@@ -3358,12 +3398,14 @@ Procedure TFMain.insertClasses;
 
       if answer <> mrCancel Then
       begin
-        checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true );
+        if not checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true ) then
+          if weekSyncing then syncAborted := true;
         result := true;
       end;
     end
     else begin
-      checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true );
+      if not checkConflicts.checkConflictsInsert ( ttCombIds, capacityOverflowVal, true ) then
+        if weekSyncing then syncAborted := true;
       result := true;
     End;
  End;
@@ -3375,10 +3417,12 @@ Var xp, yp           : Integer;
     addedFlag        : boolean;
     currentCnt       : integer;
     resType          : shortString;
+    autoSaverWasEnabled : boolean;
 
     procedure XprocessPattern (x0,xp : integer);
      var canInsertClass : boolean;
     begin
+      if syncAborted then exit; // synchronizacja tygodni: operacja zostanie wycofana - nie dodawaj kolejnych zajêæ
       // passing parameters via procedure worked sometimes badly !
       UFmain.dummyTS.time := TS.time;
       UFmain.dummyTS.date := TS.date;
@@ -3399,10 +3443,37 @@ Var xp, yp           : Integer;
       end;
     end;
 
+    // synchronizacja tygodni: wstêpne sprawdzenie konfliktów ca³ej operacji obejmuje tak¿e pozosta³e tygodnie
+    procedure addSyncDaysToBatch;
+     var syncDays : TDayList;
+         d        : integer;
+    begin
+      syncDays := weekSyncDays(TS.Date, Zajecia);
+      for d := 0 to High(syncDays) do
+        if pos(TSDateToOracle(dayToTimeStamp(syncDays[d])), batchConflictCheckDayList)=0 then
+          batchConflictCheckDayList := merge(batchConflictCheckDayList, TSDateToOracle(dayToTimeStamp(syncDays[d])), ',');
+    end;
+
+    function siblingIdsOf(classId : integer) : string;
+     var editedClass : TClass_;
+         siblings    : TClassArray;
+         status, i   : integer;
+    begin
+      result   := '';
+      siblings := nil;
+      DBGetClassByClassId(IntToStr(classId), status, editedClass);
+      if status <> ClassFound then exit;
+      siblings := weekSyncSiblings(editedClass);
+      for i := 0 to High(siblings) do result := merge(result, IntToStr(siblings[i].id), ';');
+    end;
+
 //-------------------------------- insertClasses ------------------------------------------------------
 begin
  priorDataStamp := '';
  fShowConflicts.dataStamp := '';
+ weekSyncing := weekSyncActive;
+ syncAborted := false;
+ FDetails.setWeekSyncInfo(weekSyncing);
  uutilities.suppressedDeleteClassOwners := ''; //fresh batch: show each owner's 'cannot change' message at most once
 
 
@@ -3414,14 +3485,21 @@ begin
     With Grid Do
     Begin
       dmodule.CommitTrans;
+      autoSaverWasEnabled := weekSyncBatchBegin;
+      try
+
+      // synchronizacja tygodni, edycja zajêcia: jego odpowiedniki w pozosta³ych tygodniach zast¹pi nowa wersja
+      syncReplacedIds := '';
+      if weekSyncing and (FDetails.currentClassId <> -1) then syncReplacedIds := siblingIdsOf(FDetails.currentClassId);
 
       calculateWithChilds := true;
       batchConfirmedNoConflicts := false;
-      weekGroupId     := -1;
-      lastWeekGroupId := -1;
 
       classesCount := 0;
       classesToAdd := (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);
+      // obiekty w kolumnach: jedno zajêcie na wiersz (termin) - z wszystkimi wyk³adowcami/grupami/salami
+      // zaznaczonych kolumn, tak jak zaproponowano w oknie szczegó³ów (AddClassToGrid)
+      if weekObjectFromColumn then classesToAdd := Selection.Bottom-Selection.Top+1;
 
       //2026-07: pre-pass over the selection to collect the (day,hour) universe of this batch,
       //used by the one-time whole-batch conflict pre-check (see calculateWithChilds block in XAddClass).
@@ -3434,16 +3512,29 @@ begin
              batchConflictCheckDayList := merge(batchConflictCheckDayList, TSDateToOracle(TS), ',');
            if pos(';'+IntToStr(Zajecia)+';', ';'+batchConflictCheckHourList+';')=0 then
              batchConflictCheckHourList := merge(batchConflictCheckHourList, IntToStr(Zajecia), ',');
+           addSyncDaysToBatch;
          end;
 
       FProgress.Show;
       currentCnt := 0;
+      if weekObjectFromColumn then begin
+        // obiekty w kolumnach: wszystkie kolumny pokazuj¹ ten sam termin - jedno zajêcie na wiersz
+        For yp:=Selection.Top To Selection.Bottom Do Begin
+          currentCnt := currentCnt + 1;
+          For xp:=Selection.Left To Selection.Right Do
+            If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
+              FProgress.ProgressBar.Position :=  round(currentCnt *  FProgress.ProgressBar.Max / classesToAdd);
+              FProgress.Refresh;
+              XprocessPattern(Selection.Left,xp);
+              break;
+            end;
+        End;
+      end else
       For xp:=Selection.Left To Selection.Right Do
        For yp:=Selection.Top To Selection.Bottom Do Begin
           currentCnt := currentCnt + 1;
           if classesCount < classesToAdd then
             If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then begin
-              weekGroupId := AObjectId;
               FProgress.ProgressBar.Position :=  round(currentCnt *  FProgress.ProgressBar.Max / classesToAdd);
               FProgress.Refresh;
               XprocessPattern(Selection.Left,xp);
@@ -3451,22 +3542,31 @@ begin
        End;
        
       FProgress.Hide;
-      Refresh;
+      finally
+        weekSyncBatchEnd(autoSaverWasEnabled);
+      end;
 
-      if classesCount<classesToAdd then SError('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount));
+      if syncAborted then begin
+        Cofnij1Click(nil); // wycofuje ca³¹ operacjê (transakcja zatwierdzona na jej pocz¹tku) i odœwie¿a siatkê
+        SError('Synchronizacja tygodni: wyst¹pi³ b³¹d - zmiany zosta³y wycofane we wszystkich tygodniach.');
+      end else begin
+        Refresh;
+        if classesCount<classesToAdd then SError('Nie mo¿na dodaæ wszystkich zajêæ:'+inttostr(classesToAdd)+'. Dodano zajêæ: '+inttostr(classesCount));
+      end;
 
     End;
  End;
 end;
 
 procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
-var weekGroups : string;
+var weekObjects : string;
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
+ askWeekSyncOnceADay;
 
- // okres tygodniowy z grupami w kolumnach: grupy zaznaczonych kolumn ('' w zwyk³ym uk³adzie)
- weekGroups := convertGrid.weekObjectsInCols(Grid.Selection.Left, Grid.Selection.Right);
+ // okres tygodniowy z obiektami w kolumnach: wyk³adowcy/grupy/sale zaznaczonych kolumn ('' w zwyk³ym uk³adzie)
+ weekObjects := convertGrid.weekObjectsInCols(Grid.Selection.Left, Grid.Selection.Right);
 
  With FDetails Do Begin
 
@@ -3478,13 +3578,15 @@ begin
      TS
    , Zajecia
    , -1
-   , iif(canEditL,  iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text), '')
-   , iif(canEditG,  iif(weekGroups <> '', weekGroups, iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)), '')
-   , iif(canEditR,  iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';')), '')
+   , iif(canEditL,  iif((weekObjects <> '') and (TabViewType.TabIndex = 0), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)), '')
+   , iif(canEditG,  iif((weekObjects <> '') and (TabViewType.TabIndex = 1), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)), '')
+   , iif(canEditR,  iif((weekObjects <> '') and (TabViewType.TabIndex = 2), merge ( weekObjects, conResCat1.Text, ';'),
+                    iif((weekObjects <> '') and (TabViewType.TabIndex = 3), merge ( conResCat0.Text, weekObjects, ';'),
+                    iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';')))), '')
    //resource types
    , merge(
-       repeatString(dmodule.pResCatId0, wordCount(conResCat0.Text,[';']) ,';' )
-      ,repeatString(dmodule.pResCatId1, wordCount(conResCat1.Text,[';']) ,';' )
+       repeatString(dmodule.pResCatId0, wordCount(iif((weekObjects <> '') and (TabViewType.TabIndex = 2), weekObjects, conResCat0.Text),[';']) ,';' )
+      ,repeatString(dmodule.pResCatId1, wordCount(iif((weekObjects <> '') and (TabViewType.TabIndex = 3), weekObjects, conResCat1.Text),[';']) ,';' )
       ,';'
      )
    , iif(canEditS, strToInt(iif(ConSubject.Text='','0',ConSubject.Text)),0)
@@ -3500,11 +3602,11 @@ begin
 
  End;
 
- weekGroupFromColumn := weekGroups <> '';
+ weekObjectFromColumn := weekObjects <> '';
  try
    InsertClasses;
  finally
-   weekGroupFromColumn := false;
+   weekObjectFromColumn := false;
  end;
  refreshPanels;
 end;
@@ -3779,12 +3881,6 @@ procedure TFMain.TabViewTypeClick(Sender: TObject);
 var triggredObject : string[10];
 begin
  if not userLogged then exit;
- // Przedmiot has no cross-table concept (single-subject selection only) - force week/single mode
- // the same way a real click on BViewByWeek would, but only when actually leaving cross-table mode.
- if (TabViewType.TabIndex=5) and (not BViewByWeek.Down) then begin
-   BViewByWeek.Down := true;
-   BViewByWeekClick(nil);
- end;
  UpdateLeftPanel;
  if TabViewType.TabIndex = 0 then triggredObject := 'L';
  if TabViewType.TabIndex = 1 then triggredObject := 'G';
@@ -3801,6 +3897,8 @@ Var xp, yp  : Integer;
     Status : Integer;
     pId : String;
     cntTotal, cntCurrent : integer;
+    weekSyncing, syncAborted : boolean; // synchronizacja tygodni (zob. insertClasses)
+    autoSaverWasEnabled : boolean;
 
 	function deleteChildsAndParents (objectType :integer) : boolean;
 			var childsAndParents : String;
@@ -3830,6 +3928,20 @@ Var xp, yp  : Integer;
 			End;
 	end;
 
+  // usuwa zajêcie, a przy synchronizacji tygodni tak¿e jego odpowiedniki w pozosta³ych widocznych tygodniach;
+  // b³¹d przy synchronizacji przerywa operacjê - zostanie wycofana w ca³oœci
+  procedure deleteWithSiblings(aClass : TClass_);
+  var siblings : TClassArray;
+      i  : integer;
+      ok : boolean;
+  begin
+    siblings := weekSyncSiblings(aClass);
+    ok := DeleteClass(aClass, -1);
+    for i := 0 to High(siblings) do
+      if ok then ok := DeleteClass(siblings[i], -1);
+    if (not ok) and weekSyncing then syncAborted := true;
+  end;
+
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
@@ -3842,12 +3954,16 @@ begin
  With Grid Do
  Begin
    dmodule.CommitTrans;
+   weekSyncing := weekSyncActive;
+   syncAborted := false;
+   autoSaverWasEnabled := weekSyncBatchBegin;
+   try
    FProgress.Show;
    cntTotal :=  (Selection.Bottom-Selection.Top+1)*(Selection.Right-Selection.Left+1);;
    cntCurrent := 0;
    For xp:=Selection.Left To Selection.Right Do
     For yp:=Selection.Top To Selection.Bottom Do Begin
-       If convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass Then Begin
+       If (not syncAborted) and (convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp)=ConvClass) Then Begin
         Case TabViewType.TabIndex Of
          0: begin pId := iif(AObjectId = -1, ConLecturer.Text, intToStr(AObjectId)); ClassByLecturerCaches.LGetClass(TS, Zajecia, pId, Status, Class_); end;
          1: begin pId := iif(AObjectId = -1, ConGroup.Text, intToStr(AObjectId));    ClassByGroupCaches.GetClass(TS, Zajecia, pId, Status, Class_);     end;
@@ -3858,9 +3974,9 @@ begin
          ClassNotFound : Begin End;
          ClassFound    : begin
            if Class_.owner ='AUTO'  then begin if not deleteChildsAndParents (TabViewType.TabIndex) then Dmodule.RollbackTrans; end
-                                    else DeleteClass(Class_,-1);
+                                    else deleteWithSiblings(Class_);
          end;
-         ClassError    : DeleteClass(Class_,-1);
+         ClassError    : deleteWithSiblings(Class_);
         End;
        End;
        cntCurrent := cntCurrent + 1;
@@ -3868,7 +3984,14 @@ begin
        Fprogress.Refresh;
     End;
    FProgress.Hide;
-   Refresh;
+   finally
+     weekSyncBatchEnd(autoSaverWasEnabled);
+   end;
+   if syncAborted then begin
+     Cofnij1Click(nil);
+     SError('Synchronizacja tygodni: wyst¹pi³ b³¹d - zmiany zosta³y wycofane we wszystkich tygodniach.');
+   end else
+     Refresh;
  End;
 
   refreshGridAndLegend;
@@ -4628,6 +4751,34 @@ Var aUserName, aPassword, aDBName : ShortString;
       until updateFound=false;
   end;
 
+  // TYMCZASOWE ROZWI¥ZANIE - DO SKASOWANIA PO 2027.12.31 (do tego czasu wszyscy pobior¹ aktualizacjê programu,
+  // a bazy dostan¹ kolumny skryptem cd/serverInstall/updates/2026.10.25.sql).
+  // Program korzysta z PERIODS.SUB_PERIOD_PARENT / SUB_PERIOD_NUM (tygodnie okresu - "Utwórz tygodnie"). Je¿eli w bazie
+  // ich jeszcze nie ma, tworzymy je przy logowaniu, ¿eby nowa wersja programu nie koñczy³a siê b³êdem.
+  // Bez komunikatów: u¿ytkownik bez uprawnieñ do zmiany tabeli PERIODS po prostu nic nie zmieni.
+  procedure ensureSubPeriodColumns;
+  begin
+    try
+      with DModule.QWork do begin
+        SQL.Text :=
+          'declare'+cr+
+          '  c number;'+cr+
+          'begin'+cr+
+          '  select count(*) into c from all_tab_columns'+cr+
+          '   where owner = ''PLANNER'' and table_name = ''PERIODS'' and column_name in (''SUB_PERIOD_PARENT'', ''SUB_PERIOD_NUM'');'+cr+
+          '  if c < 2 then'+cr+
+          '    begin execute immediate ''alter table planner.periods add (sub_period_parent number)''; exception when others then null; end;'+cr+
+          '    begin execute immediate ''alter table planner.periods add (sub_period_num number)''; exception when others then null; end;'+cr+
+          '    begin execute immediate ''alter table planner.periods add constraint periods_sub_period_parent_fk foreign key (sub_period_parent) references planner.periods (id) on delete set null enable novalidate''; exception when others then null; end;'+cr+
+          '    begin execute immediate ''create index planner.periods_sub_period_parent_i on planner.periods (sub_period_parent)''; exception when others then null; end;'+cr+
+          '  end if;'+cr+
+          'end;';
+        ExecSQL;
+      end;
+    except
+    end;
+  end;
+
 begin
   inherited;
   emergencyExit := false;
@@ -4760,6 +4911,7 @@ begin
     Exit;
   End;
 
+  ensureSubPeriodColumns; // TYMCZASOWE - do skasowania po 2027.12.31, zob. wy¿ej
   autoUpdate;
   setHistoryEnabled;
 
@@ -5181,6 +5333,7 @@ begin
  If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
 
  If GetClassByRowCol(Grid.Col, Grid.Row, Class_) = ClassFound Then Begin
+   askWeekSyncOnceADay;
    if Class_.owner ='AUTO' then begin
       FMain.set_tmp_selected_dates;
       classForEdition := -1;
@@ -5894,20 +6047,6 @@ begin
   if Key = 40 Then ActiveControl := CONResCat1_value;
 end;
 
-procedure TFMain.Ukadtygodniowy1Click(Sender: TObject);
-begin
-  inherited;
-  BViewByWeek.Down := true;
-  BViewByWeekClick(sender);
-end;
-
-procedure TFMain.Ukadtabelikrzyowej1Click(Sender: TObject);
-begin
-  inherited;
-  BViewByCrossTable.Down := true;
-  Uk1Click(sender);
-end;
-
 procedure TFMain.mmplanLClick(Sender: TObject);
 begin
   inherited;
@@ -5933,9 +6072,11 @@ end;
 
 procedure TFMain.BViewByWeekClick(Sender: TObject);
 begin
-  Preview.Enabled := true;
-  dmodule.dateRange:='';
-  setPeriod;
+  // przycisk WeekUp w uk³adzie tygodniowym: powrót do grafiku semestru (jak klikniêcie nag³ówka siatki)
+  if (Sender = WeekUp) and FSettings.WeeklyView.Checked and not isBlank(conPeriod.Text) then
+    switchSemesterWeek(-1, false)
+  else
+    setPeriod;
 end;
 
 procedure TFMain.Ustawieniaprogramu2Click(Sender: TObject);
@@ -6128,7 +6269,6 @@ end;
 procedure TFMain.AutoSaverTimer(Sender: TObject);
 begin
   If AutoSaveCounterDown >= 0 then  AutoSaveCounterDown := AutoSaveCounterDown -1;
-  if AutoSaveCounterDown <> -1 then StatusBar.Panels[0].Text:='Nie zapisane ' + inttostr(AutoSaveCounterDown);
   if AutoSaveCounterDown <> 0 then exit;
   If (DModule.ADOConnection.Connected) and (DModule.ADOConnection.InTransaction) Then Begin
     dmodule.CommitTrans;
@@ -6150,6 +6290,8 @@ function TFMain.modifyClass;
      t                  : integer;
      KeyValue           : string;
      canInsert          : boolean;
+     srcWeekObjectId, dstWeekObjectId : integer; // obiekty kolumn Ÿród³owej/docelowej (convertGrid w trybie ConvWeekObjects)
+     siblings           : TClassArray; // synchronizacja tygodni: odpowiedniki oldClass w pozosta³ych tygodniach (prepareSiblings)
 
 	   // unplugValue('1;2;3;4','4') --> '1;2;3'
 	   // unplugValue('1;2;3;4','3') --> '1;2;4'
@@ -6179,13 +6321,66 @@ function TFMain.modifyClass;
 	   end;
 
 
+    // synchronizacja tygodni: odpowiedniki oldClass w pozosta³ych widocznych tygodniach (tylko zmiany w siatce).
+    // checkTargets (przesuniêcie/kopia): tylko te, których nowy termin - przesuniêty o tyle samo co w bie¿¹cym
+    // tygodniu - mieœci siê w ich tygodniu i nie jest zablokowany dniem wolnym. Wynik: nowe terminy odpowiedników
+    function prepareSiblings(checkTargets : boolean) : TDayList;
+      var candidates : TClassArray;
+          validDays  : TDayList;
+          i, j, targetDay : integer;
+          valid : boolean;
+      begin
+        result     := nil;
+        siblings   := nil;
+        candidates := nil;
+        validDays  := nil;
+        if classId <> 'N/A' then exit;
+        candidates := weekSyncSiblings(oldClass);
+        if checkTargets and (Length(candidates) > 0) then validDays := weekSyncDays(newClass.day.Date, newClass.hour);
+        for i := 0 to High(candidates) do begin
+          targetDay := candidates[i].day.Date + newClass.day.Date - oldClass.day.Date;
+          valid := not checkTargets;
+          for j := 0 to High(validDays) do
+            if validDays[j] = targetDay then valid := true;
+          if valid then begin
+            SetLength(siblings, Length(siblings) + 1);
+            siblings[High(siblings)] := candidates[i];
+            addDay(result, targetDay);
+          end;
+        end;
+      end;
+
+    // synchronizacja tygodni: powtarza w odpowiednikach zmianê bie¿¹cego tygodnia (oldClass -> newClass), z terminem
+    // przesuniêtym o tyle samo dni. deleteSibling = false dla kopii; asMove: odpowiednik usuwany jak przy
+    // przesuniêciu (wymaga prawa usuwania zajêæ), inaczej jak przy edycji
+    function commitSiblings(deleteSibling, asMove : boolean) : boolean;
+      var i : integer;
+          target : TClass_;
+      begin
+        result := false;
+        for i := 0 to High(siblings) do begin
+          target     := newClass;
+          target.id  := siblings[i].id;
+          target.day := dayToTimeStamp(siblings[i].day.Date + newClass.day.Date - oldClass.day.Date);
+          if deleteSibling then begin
+            if asMove then begin if not deleteClass(siblings[i], -1) then exit; end
+                      else begin if not deleteClass(siblings[i], siblings[i].id) then exit; end;
+          end;
+          if not canInsertClass(target, target.id, dummy) then begin SError(dummy); exit; end;
+          if deleteSibling then begin if not planner_utils_insert_classes(target, pttCombIds, target.id, true) then exit; end
+                           else begin if not planner_utils_insert_classes(target, pttCombIds, -1, true) then exit; end;
+        end;
+        result := true;
+      end;
+
 	function CommitClassChange : boolean;
 	   begin
 		 result := false;
+		 prepareSiblings(false);
 		 if not deleteClass ( oldClass, oldClass.id ) then exit;
 		 if not canInsertClass ( newClass, newClass.id, dummy ) then begin SError(dummy); exit; end;
 		 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
-		 result := true;
+		 result := commitSiblings(true, false);
 	   end;
 
     // 2026-08: clMove/clCopy (mouse drag AND keyboard/toolbar cut-copy-paste all end up here via
@@ -6194,7 +6389,8 @@ function TFMain.modifyClass;
     // (QuickPreCheck+ConflictsReport+fShowConflicts) for a single class being moved/copied, so the
     // user gets the identical warning-and-continue prompt regardless of how the class got here.
     // Result=false means the user cancelled - the caller must abort the move/copy.
-    function checkMoveCopyConflicts(pClass : TClass_; pExcludeClassId : integer) : Boolean;
+    // syncDays: synchronizacja tygodni - nowe terminy odpowiedników (jedno okno konfliktów dla wszystkich tygodni)
+    function checkMoveCopyConflicts(pClass : TClass_; pExcludeClassId : integer; syncDays : TDayList) : Boolean;
       var PLecturers, PGroups, PRooms : TPointers;
           PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds : TPointers;
           LWithChildsAndParents, GWithChildsAndParents, RWithChildsAndParents : string;
@@ -6249,21 +6445,27 @@ function TFMain.modifyClass;
           PLecturersWithChilds, PGroupsWithChilds, PRoomsWithChilds,
           pClass.sub_id, pClass.for_id, 0, pClass.fill, pClass.class_colour,
           pClass.created_by, pClass.owner, pClass.desc1, pClass.desc2, pClass.desc3, pClass.desc4,
-          not hasConflictFlag);
+          (not hasConflictFlag) and (Length(syncDays) = 0), // QuickPreCheck sprawdza tylko bie¿¹cy termin
+          syncDays);
+        if Length(syncDays) > 0 then
+          if checkConflicts.addSyncHints(pClass.hour, PLecturers, PGroups, PRooms) then hintsFound := true;
 
         if (Not checkConflicts.Empty) or hintsFound then begin
           checkConflicts.GetDesc(fShowConflicts.SGNewClass, fShowConflicts.SGConflicts, fShowConflicts.infoDeleteForbiden, fShowConflicts.dataStamp);
-          checkConflicts.GetHintsDesc(fShowConflicts.SGHints, pClass.day, pClass.hour, fShowConflicts.dataStamp);
+          checkConflicts.GetHintsDesc(fShowConflicts.SGHints, fShowConflicts.dataStamp);
           fShowConflicts.SetSectionsVisible(Not checkConflicts.Empty, hintsFound);
           if checkConflicts.Empty then
             fShowConflicts.BDelete.Caption := 'Kontynuuj'
           else
             fShowConflicts.BDelete.Caption := format('Kontynuuj - usuñ istniej¹ce %s', [fprogramsettings.profileObjectNameClasses.Text]);
+          fShowConflicts.BDelete.Enabled := not checkConflicts.Truncated; // za du¿o konfliktów w innych tygodniach
 
           answer := fShowConflicts.ShowModal;
           result := (answer <> mrCancel);
+          // tylko usuñ koliduj¹ce zajêcia - przesuwane/kopiowane zajêcie (i jego odpowiedniki) wstawia wywo³uj¹cy;
+          // checkConflictsInsert wstawi³by je drugi raz, a kolejne canInsertClass zg³osi³oby konflikt z t¹ kopi¹
           if result and (not checkConflicts.Empty) then
-            checkConflicts.checkConflictsInsert(pttCombIds, capacityOverflowVal, true);
+            result := checkConflicts.deleteConflicts;
         end;
       end;
 
@@ -6308,8 +6510,28 @@ function TFMain.modifyClass;
         result := true;
       end;
 
+    // okres tygodniowy z obiektami w kolumnach: przeniesienie/kopia do kolumny innego wyk³adowcy/grupy/sali
+    // zastêpuje w liœcie ids obiekt kolumny Ÿród³owej obiektem kolumny docelowej (pozosta³e bez zmian)
+    function weekColumnObjects(ids : string) : string;
+      var gt : integer;
+          gvalue : string;
+      begin
+        result := ids;
+        if (convertGrid.convertMode <> ConvWeekObjects) or (srcWeekObjectId = -1) or (dstWeekObjectId = -1)
+           or (srcWeekObjectId = dstWeekObjectId) then exit;
+        if Pos(';'+IntToStr(srcWeekObjectId)+';', ';'+ids+';') = 0 then exit;
+        result := '';
+        For gt := 1 To WordCount(ids,[';']) Do Begin
+          gvalue := ExtractWord(gt, ids, [';']);
+          if gvalue = IntToStr(srcWeekObjectId) then gvalue := IntToStr(dstWeekObjectId);
+          if Pos(';'+gvalue+';', ';'+result+';') = 0 then result := merge(result, gvalue, ';');
+        End;
+      end;
+
 	begin //internalModifyClass
 	  result := false;
+	  srcWeekObjectId := -1;
+	  dstWeekObjectId := -1;
 
     //find class by col/row (used by FMain)
     if classId = 'N/A' then begin
@@ -6326,6 +6548,8 @@ function TFMain.modifyClass;
 	     result := true;
 	     exit;
 	    end;
+	    srcWeekObjectId := AObjectId;
+	    dstWeekObjectId := AObjectId;
     //find class by classId (used by FBrowseClasses)
     end else begin
        DBGetClassByClassId(classId, Status, oldClass);
@@ -6347,6 +6571,7 @@ function TFMain.modifyClass;
 		   SError('Nie mo¿na przesun¹æ tej komórki poza obszar planowania');
 		   exit;
 		  end;
+		  if classId = 'N/A' then dstWeekObjectId := AObjectId;
     end;
 
 	  newClass      := oldClass;
@@ -6368,25 +6593,39 @@ function TFMain.modifyClass;
 	   clMove: begin
 				 newClass.hour := newZajecia;
 				 newClass.day  := newTS;
+				 Case TabViewType.TabIndex Of
+				   0: newClass.calc_lec_ids := weekColumnObjects(newClass.calc_lec_ids);
+				   1: newClass.calc_gro_ids := weekColumnObjects(newClass.calc_gro_ids);
+				   2: newClass.calc_rom_ids := weekColumnObjects(newClass.calc_rom_ids);
+				   3: newClass.calc_rom_ids := weekColumnObjects(newClass.calc_rom_ids);
+				 end;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
          if not hasResourcePermissions(newClass) then exit;
-         if not checkMoveCopyConflicts(newClass, oldClass.id) then exit;
+         if not checkMoveCopyConflicts(newClass, oldClass.id, prepareSiblings(true)) then exit;
 				 if not canInsertClass ( newClass, newClass.id, dummy ) then begin SError(dummy); exit; end;
          if not deleteClass ( oldClass, -1 ) then exit;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, newClass.id, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
+         if not commitSiblings(true, true) then exit;
 			   end;
 	   clCopy: begin
 				 newClass.hour := newZajecia;
 				 newClass.day  := newTS;
+				 Case TabViewType.TabIndex Of
+				   0: newClass.calc_lec_ids := weekColumnObjects(newClass.calc_lec_ids);
+				   1: newClass.calc_gro_ids := weekColumnObjects(newClass.calc_gro_ids);
+				   2: newClass.calc_rom_ids := weekColumnObjects(newClass.calc_rom_ids);
+				   3: newClass.calc_rom_ids := weekColumnObjects(newClass.calc_rom_ids);
+				 end;
 				 if uutilities.isOwnerSupervisor(newClass.owner) then
 					 //leave original owner if current user is his supervisor (this will save edit permissions for original owner)
 					 else newClass.owner := upperCase(dm.UserName);
          if not hasResourcePermissions(newClass) then exit;
-         if not checkMoveCopyConflicts(newClass, -1) then exit;
+         if not checkMoveCopyConflicts(newClass, -1, prepareSiblings(true)) then exit;
 				 if not canInsertClass ( newClass,newClass.id, dummy ) then begin SError(dummy); exit; end;
 				 if not planner_utils_insert_classes ( newClass, pttCombIds, -1, true ) then exit; //true=skip redundant 2nd canInsertClass, already checked above
+         if not commitSiblings(false, false) then exit;
 			   end;
 	   //following operations are in mode: single class level
 	   clDeleteLec:
@@ -6718,6 +6957,7 @@ procedure TFMain.modifyClasses;
       cellsNotSucceed : integer;
       cellsTotal      : integer;
       successFlag     : boolean;
+      autoSaverWasEnabled : boolean;
 
 begin
   cellsSucceed := 0;
@@ -6753,6 +6993,8 @@ begin
 
   yp := ystart;
 
+  autoSaverWasEnabled := weekSyncBatchBegin;
+  try
   FProgress.Show;
   cellsTotal := abs(xend-xstart)*abs(yend-ystart);
 
@@ -6769,6 +7011,9 @@ begin
     until xp = xend;
   until yp = yend;
   FProgress.Hide;
+  finally
+    weekSyncBatchEnd(autoSaverWasEnabled);
+  end;
 
   moveSelection ( deltaX, deltaY);
 
@@ -6865,7 +7110,7 @@ procedure TFMain.setActiveShape( no : integer);
      t : integer;
 begin
  s[ 1] := Shape1a;
- s[ 2] := Shape2a;
+ s[ 2] := xShape4a; //dummy value- currently not used
  s[ 3] := xShape4a; //dummy value- currently not used
  s[ 4] := xShape4a; //dummy value- currently not used
  s[ 5] := xShape4a; //dummy value- currently not used
@@ -6902,12 +7147,6 @@ try
 except
   SError('B³¹d wewnêtrzny: Shape ' + trace);
 end;
-end;
-
-procedure TFMain.BViewByWeekMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
-begin
-  setActiveShape(2);
 end;
 
 procedure TFMain.bconflictspopupMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -7117,7 +7356,6 @@ begin
  if btn.Name = 'selectr'       then fmain.respopup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectResCat1' then fmain.ResCat1popup.Popup(Point.X,Point.Y);
  if btn.Name = 'selectFill'    then fmain.FillPopup.Popup(Point.X,Point.Y); 
- if btn.Name = 'BViewByCrossTable' then fmain.FindRGL.Popup(Point.X,Point.Y);
  if btn.Name = 'Preview'       then fmain.PPreview.Popup(Point.X,Point.Y);
  if btn.Name = 'CopyDays'       then PPCopyDays.Popup(Point.X,Point.Y);
 
@@ -7290,17 +7528,22 @@ begin
   setActiveShape(7);
 end;
 
-procedure TFMain.set_tmp_selected_dates;
+// withSyncWeeks: synchronizacja tygodni - tak¿e ten sam termin w pozosta³ych widocznych tygodniach
+procedure TFMain.set_tmp_selected_dates(const withSyncWeeks : boolean);
 Var xp, yp  : Integer;
     TS      : TTimeStamp;
     Zajecia : Integer;
     sqlText : string;
+    syncDays : TDayList;
+    d        : Integer;
     function getSelectedAreaDesc : string;
     begin
       with grid do
-        result := inttoStr(Selection.Left)+'-'+inttoStr(Selection.Right)+':'+inttoStr(Selection.Top)+'-'+inttoStr(Selection.Bottom);
+        result := inttoStr(Selection.Left)+'-'+inttoStr(Selection.Right)+':'+inttoStr(Selection.Top)+'-'+inttoStr(Selection.Bottom)
+                  + iif(withSyncWeeks, '+S', '');
     end;
 begin
+    syncDays := nil;
     if currSelectedArea = getSelectedAreaDesc then exit;
     sqlText :=
      'begin ' + cr +
@@ -7312,6 +7555,12 @@ begin
         sqlText := sqlText +  '  insert into tmp_selected_dates (day,hour) values (:DAY, :HOUR); '  + cr;
         sqlText := replace(sqlText,':DAY' , uutilityParent.DateTimeToOracle( TimeStampTodateTime(TS) )  );
         sqlText := replace(sqlText,':HOUR', intToStr(Zajecia)                                           );
+        if withSyncWeeks then begin
+          syncDays := weekSyncDays(TS.Date, Zajecia);
+          for d := 0 to High(syncDays) do
+            sqlText := sqlText + '  insert into tmp_selected_dates (day,hour) values ('+
+                       uutilityParent.DateTimeToOracle(TimeStampTodateTime(dayToTimeStamp(syncDays[d])))+', '+intToStr(Zajecia)+'); ' + cr;
+        end;
       end;
     sqlText := sqlText +  '  select count(1) into planner_utils.classes_selected_count from tmp_selected_dates where sessionid = userenv(''SESSIONID'');' + cr;
     sqlText := sqlText +  'end;';
@@ -7398,7 +7647,6 @@ end;
 function TFMain.getCurrentObjectId : integer;
  var res : integer;
 begin
-  if BViewByCrossTable.Down then begin result := -1; exit; end;
   res := -1;
   Case TabViewType.TabIndex Of
    0: res := strtoint(nvl(ExtractWord(1,ConLecturer.Text,[';']),'-1'));
@@ -7412,7 +7660,6 @@ end;
 function TFMain.getCurrentObjectType : string;
  var res : string;
 begin
-  if BViewByCrossTable.Down then begin result := '**none**'; exit; end;
   res := '**none**';
   Case TabViewType.TabIndex Of
    0: res := 'lecturers';
@@ -7990,7 +8237,6 @@ end;
 
 procedure TFMain.BitBtnPERClick(Sender: TObject);
 Var KeyValue : ShortString;
-    roleId : shortString;
 begin
   inherited;
   KeyValue := conPeriod.Text;
@@ -8000,7 +8246,13 @@ begin
    deepRefreshDelayed;
   End else
     if not isBlank (conPeriod.Text) then setPeriod; //nawet jesli nie zmieniono okresu, to mogly zostac zmienione parametry okresu ( np. liczba godzin ). dlatego odswiezam uklad
+  applyPeriodRole;
+end;
 
+// domyœlna autoryzacja wybranego okresu (PERIODS.ROL_ID)
+procedure TFMain.applyPeriodRole;
+Var roleId : shortString;
+begin
    if not isBlank (conPeriod.Text) then
    With DModule Do Begin
     Dmodule.SingleValue('SELECT ROL_ID FROM PERIODS WHERE ID='+conPeriod.Text);
@@ -8146,6 +8398,8 @@ end;
 
 procedure TFMain.Listazajchistoriazmian1Click(Sender: TObject);
 begin
+  // s¹ niezapisane zmiany (widoczny przycisk Cofnij): najpierw decyzja cofnij / zapisz, dopiero potem historia
+  if BUndo.Visible then BUndoClick(BUndo);
   AutoCreate.CLASSES_HistoryShowModalAsBrowser('','','', '','','','',false, true);
 end;
 
@@ -9036,54 +9290,6 @@ function TFMain.getWhereFastFilter(filter, tableName : string) : string;
 end;
 
 
-procedure TFMain.CrossFilterChange(Sender: TObject);
-begin
- deepRefreshDelayed;
-end;
-
-procedure TFMain.CustomPeriodChange(Sender: TObject);
-var d1, d2 : integer;
-begin
-  if CustomPeriod.ItemIndex=0 then dmodule.dateRange:='TODAY:-2:+0';
-  if CustomPeriod.ItemIndex=1 then dmodule.dateRange:='TODAY:-1:+0';
-  if CustomPeriod.ItemIndex=2 then dmodule.dateRange:='TODAY';
-  if CustomPeriod.ItemIndex=3 then dmodule.dateRange:='TODAY:+1:+0';
-  if CustomPeriod.ItemIndex=4 then dmodule.dateRange:='TODAY:+2:+0';
-  if CustomPeriod.ItemIndex=5 then dmodule.dateRange:='TODAY:-7:+6';
-  if CustomPeriod.ItemIndex=6 then dmodule.dateRange:='TODAY:+0:+6';
-  if CustomPeriod.ItemIndex=7 then dmodule.dateRange:='TODAY:+7:+6';
-  if CustomPeriod.ItemIndex=8 then dmodule.dateRange:='TODAY:-30:+30';
-  if CustomPeriod.ItemIndex=9 then dmodule.dateRange:='TODAY:+0:+30';
-  if CustomPeriod.ItemIndex=10 then dmodule.dateRange:='TODAY:+30:+30';
-  if CustomPeriod.ItemIndex=11 then dmodule.dateRange:='';
-  if CustomPeriod.ItemIndex=12 then begin
-    if FDatesSelector = nil then Application.CreateForm(TFDatesSelector, FDatesSelector);
-    if FDatesSelector.showModal = mrOK then begin
-        With FDatesSelector do begin
-          d1 := DateUtils.DaysBetween(today(), source_date_from.Datetime) + iif(today()<source_date_from.Datetime,0,1);
-          d2 := DateUtils.DaysBetween(source_date_from.Datetime, source_date_to.Datetime);
-          dmodule.dateRange:='TODAY:'+iif(today()<source_date_from.Datetime,'+','-')+IntToStr(abs(d1))+':+'+IntToStr(abs(d2));
-          deepRefreshDelayed;
-        end;
-    end else exit;
-  end;
-  deepRefreshDelayed;
-{
-0 Przedwczoraj
-1 Wczoraj
-2 Dzisiaj
-3 Jutro
-4 Pojutrze
-5 Poprzedni tydzieñ
-6 Bie¿¹cy tydzieñ
-7 Za tydzieñ
-8 Poprzedni miesi¹æ
-9 Bie¿¹cy miesi¹c
-10 Za miesi¹c
-11 Bie¿¹cy okres
-}
-end;
-
 procedure TFMain.Generatorslajdw1Click(Sender: TObject);
 begin
  Application.CreateForm(TFSlideshowGenerator, FSlideshowGenerator);
@@ -9717,6 +9923,44 @@ begin
   Pulpit1Click(nil);
 end;
 
+procedure TFMain.SetAutoSaveCounterDown(Value : integer);
+begin
+  FAutoSaveCounterDown := Value;
+  if Assigned(BUndo) then BUndo.Visible := Value > 0;
+end;
+
+// przycisk Cofnij (widoczny, dopóki zmiany nie s¹ zapisane): cofnij ostatni¹ zmianê albo zapisz
+procedure TFMain.BUndoClick(Sender: TObject);
+var dlg : TForm;
+    bUndoLast, bSave : TButton;
+    autoSaverWasEnabled : boolean;
+begin
+  // w trakcie decyzji automatyczny zapis nie mo¿e zatwierdziæ zmian (wtedy nie by³oby czego cofaæ)
+  autoSaverWasEnabled := AutoSaver.Enabled;
+  AutoSaver.Enabled := false;
+  dlg := CreateMessageDialog('Ostatnie zmiany nie zosta³y jeszcze zapisane.', mtConfirmation, [mbYes, mbNo]);
+  try
+    dlg.Caption := 'Cofnij';
+    bUndoLast := TButton(dlg.FindComponent('Yes'));
+    bSave     := TButton(dlg.FindComponent('No'));
+    bUndoLast.Caption := 'Cofnij ostatni¹ zmianê';
+    bSave.Caption     := 'Zapisz';
+    bUndoLast.Width   := 150;
+    bSave.Width       := 90;
+    if dlg.ClientWidth < bUndoLast.Width + bSave.Width + 40 then
+      dlg.ClientWidth := bUndoLast.Width + bSave.Width + 40;
+    bUndoLast.Left := (dlg.ClientWidth - bUndoLast.Width - bSave.Width - 8) div 2;
+    bSave.Left     := bUndoLast.Left + bUndoLast.Width + 8;
+    case dlg.ShowModal of
+      mrYes : Cofnij1Click(nil);
+      mrNo  : Zapisz1Click(nil);
+    end;
+  finally
+    dlg.Free;
+    AutoSaver.Enabled := autoSaverWasEnabled;
+  end;
+end;
+
 procedure TFMain.IntegrationClick(Sender: TObject);
 begin
   if dmodule.dbgetSystemParam('INT_IS_ACTIVE') ='' then begin SError('Po³¹czenie integracyjne nie zosta³o jeszcze skonfigurowane'); exit; end;
@@ -9833,16 +10077,6 @@ begin
   end;
 end;
 
-procedure TFMain.BCrossTableMaxRowsClick(Sender: TObject);
-Var rows : String;
-begin
-  rows := GetSystemParam('CrossTableMaxRows','20');
-  rows := InputBox('Liczba wierszy', 'Zbyt du¿a liczba wierszy spowoduje wolniejsze dzia³anie programu. Mo¿esz u¿yæ s³ów kluczowych w celu ograniczenia liczby rekordów.',rows);
-  SetSystemParam('CrossTableMaxRows',intToStr(strToint(rows)));
-  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
-  DeepRefreshImmediate('DeepRefreshButtonClick');
-end;
-
 procedure TFMain.RaportZdrowieSystemu1Click(Sender: TObject);
 var tmpFile : textfile;
     query : tadoquery;
@@ -9889,38 +10123,6 @@ begin
   FMatrix.ShowModal;
 end;
 
-procedure TFMain.Uk1Click(Sender: TObject);
-begin
-  BCrossTableMaxRows.Caption := 'Wiersze: ' + GetSystemParam('CrossTableMaxRows','20');
-  Preview.Enabled := false;
-  dmodule.dateRange:='TODAY:+0:+0';
-  CustomPeriod.ItemIndex:=2;
-  setPeriod;
-end;
-
-procedure TFMain.Zajtosal1Click(Sender: TObject);
-begin
-  BViewByWeek.Down := true;
-  Znajjdwolnsal1Click(nil);
-end;
-
-procedure TFMain.Zajtogrup1Click(Sender: TObject);
-begin
-  BViewByWeek.Down := true;
-  Zajto1Click(nil);
-end;
-
-procedure TFMain.Zajtowykadowcw1Click(Sender: TObject);
-begin
-  BViewByWeek.Down := true;
-  Zajtoscwyk1Click(nil);
-end;
-
-procedure TFMain.estujAPI1Click(Sender: TObject);
-begin
-  SError( httpPOST('https://soft.home.pl/tools/plantumlAPI.php','txt='+URLEncode('...'),'Content-Type: application/x-www-form-urlencoded',80) );
-end;
-
 procedure TFMain.GoToDateClick(Sender: TObject);
 var selectedDate : TTimeStamp;
     acol, arow : integer;
@@ -9938,6 +10140,22 @@ begin
       SError('Nie ma takiej daty w bie¿¹cym rozk³adzie');
     end;
   end;
+end;
+
+procedure TFMain.PrevWeekClick(Sender: TObject);
+begin
+  goToNeighbourWeek(false);
+end;
+
+procedure TFMain.NextWeekClick(Sender: TObject);
+begin
+  goToNeighbourWeek(true);
+end;
+
+// z tygodnia powrót do grafika semestralnego
+procedure TFMain.WeekUpClick(Sender: TObject);
+begin
+  BViewByWeekClick(WeekUp);
 end;
 
 procedure TFMain.EditPeriodClick(Sender: TObject);
@@ -9961,7 +10179,7 @@ end;
 
 procedure TFMain.MenuItem11Click(Sender: TObject);
 begin
-  fmatrix.Caption := 'Grafik tygodniowy';
+  fmatrix.Caption := 'Tabela przestawna';
   fmatrix.defaultSchema := 'WEEKLY';
   FMatrix.ShowModal;
 end;
@@ -10125,7 +10343,7 @@ end;
 procedure TFMain.refreshGridAndLegend;
 begin
   grid.Refresh;
-  HeaderGrid.Visible := not BViewByCrossTable.Down;
+  HeaderGrid.Visible := true;
   HeaderGrid.Refresh;
   refreshPanels;  //ZMIANA_20270712: was commented out -- legend (gridCounter) never refreshed after a class change; refreshPanels already has the correct Visible/ActivePage guard
 end;
@@ -10209,6 +10427,367 @@ begin
 end;
 
 
+
+// Tworzy tygodnie okresu periodId (PERIODS.SUB_PERIOD_PARENT = periodId, SUB_PERIOD_NUM = 1, 2, ...).
+// Istniej¹ce tygodnie s¹ kasowane i tworzone od nowa (okres móg³ zmieniæ d³ugoœæ).
+// Tygodnie dostaj¹ takie same uprawnienia widocznoœci (PER_PLA) jak okres. Wynik: ID tygodni (",").
+function TFMain.createWeeks(periodId : string) : string;
+begin
+  Dmodule.QWork.ParamCheck := false;
+  DModule.SQL(searchAndReplace(searchAndReplace(SQLCreateWeeks.Text, ':pid',periodId), ':plaid',getUserOrRoleID));
+  result := '';
+  DModule.openSQL('select id from periods where sub_period_parent = '+periodId);
+  while not DModule.QWork.Eof do begin
+    result := merge(result, DModule.QWork.Fields[0].AsString, ',');
+    DModule.QWork.Next;
+  end;
+  // SQLCreateWeeks nadaje uprawnienie tylko osobie tworz¹cej - zast¹p je uprawnieniami okresu
+  if result <> '' then
+    DModule.SQL(
+      'begin'+cr+
+      '  delete from per_pla where per_id in ('+result+');'+cr+
+      '  insert into per_pla (id, per_id, pla_id, access_type)'+cr+
+      '  select perpla_seq.nextval, w.id, p.pla_id, p.access_type'+cr+
+      '    from per_pla p, periods w'+cr+
+      '   where p.per_id = '+periodId+' and w.id in ('+result+');'+cr+
+      '  commit;'+cr+
+      'end;');
+end;
+
+// Klikniêcie w HeaderGrid: semestr -> tydzieñ klikniêtej daty (brakuj¹ce tygodnie s¹ tworzone automatycznie),
+// tydzieñ -> semestr (PERIODS.SUB_PERIOD_PARENT).
+procedure TFMain.HeaderGridMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var aCol, aRow : integer;
+begin
+  if Button <> mbLeft then exit;
+  HeaderGrid.MouseToCell(X, Y, aCol, aRow);
+  if aCol < 0 then exit;
+  switchSemesterWeek(aCol, false);
+end;
+
+// semestr -> tydzieñ daty z kolumny aCol (brakuj¹ce tygodnie s¹ tworzone automatycznie), tydzieñ -> semestr.
+// firstWeekIfNoDate: kolumna bez daty (np. dzieñ/godzina) -> pierwszy tydzieñ semestru, inaczej nic nie rób
+procedure TFMain.switchSemesterWeek(aCol : integer; firstWeekIfNoDate : boolean);
+var r : integer;
+    weekDate, periodId : string;
+
+  function findWeek : string;
+  begin
+    if weekDate <> '' then
+      result := dmodule.SingleValue('select min(id) from periods where sub_period_parent = '+conPeriod.Text+
+                                    ' and '+weekDate+' between date_from and date_to')
+    else
+      result := visibleWeekId(conPeriod.Text, '', false);
+  end;
+
+begin
+  if isBlank(conPeriod.Text) then exit;
+
+  if FSettings.WeeklyView.Checked then begin
+    periodId := weekParentPeriodId;
+    if periodId = '' then begin
+      SError('Nie znaleziono okresu, do którego nale¿y ten tydzieñ');
+      exit;
+    end;
+  end else begin
+    weekDate := '';
+    if aCol >= 2 then // kolumny dnia i godziny nie maj¹ daty
+      for r := 0 to Grid.RowCount-1 do
+        if convertGrid.ColRowToDate(AObjectId, TS, Zajecia, aCol, r) in [ConvHeader, ConvClass] then begin
+          weekDate := TSDateToOracle(TS);
+          break;
+        end;
+    if (weekDate = '') and not firstWeekIfNoDate then exit;
+
+    periodId := findWeek;
+    if periodId = '' then begin
+      createWeeks(conPeriod.Text);
+      periodId := findWeek;
+    end;
+    if periodId = '' then begin
+      SError('Nie mo¿na utworzyæ tygodnia dla wybranej daty');
+      exit;
+    end;
+  end;
+
+  conPeriod.Text := periodId;
+  conPeriodChange(conPeriod);
+  deepRefreshDelayed;
+end;
+
+// okres, do którego nale¿y bie¿¹cy tydzieñ (tydzieñ utworzony przez "Utwórz tygodnie")
+function TFMain.weekParentPeriodId : string;
+begin
+  result := dmodule.SingleValue('select sub_period_parent from periods where id = '+conPeriod.Text);
+end;
+
+// pierwszy (wg SUB_PERIOD_NUM, descending - ostatni) tydzieñ okresu parentId spe³niaj¹cy numCondition, który nie jest
+// ukryty w "Widocznoœæ tygodni" okresu (PERIODS.ATTRIBS_13: '-' = tydzieñ ukryty, wzorzec powtarzany - jak OmitWeeks
+// w UUtilities.pas; tydzieñ nr n = n-ty tydzieñ od poniedzia³ku tygodnia, w którym zaczyna siê okres)
+function TFMain.visibleWeekId(parentId, numCondition : string; descending : boolean) : string;
+var vis : string;
+    n : integer;
+begin
+  result := '';
+  vis := weekVisibilityPattern(parentId);
+  DModule.openSQL('select id, sub_period_num from periods where sub_period_parent = '+parentId+numCondition+
+                  ' order by sub_period_num'+iif(descending, ' desc', ''));
+  while not DModule.QWork.Eof do begin
+    n := DModule.QWork.Fields[1].AsInteger;
+    if isWeekVisible(vis, n) then begin
+      result := DModule.QWork.Fields[0].AsString;
+      exit;
+    end;
+    DModule.QWork.Next;
+  end;
+end;
+
+// "Widocznoœæ tygodni" okresu (PERIODS.ATTRIBS_13) rozwiniêta jak w conPeriodChange: tydzieñ nr n (SUB_PERIOD_NUM) jest
+// ukryty, gdy n <= length(result) i result[n] = '-'
+function TFMain.weekVisibilityPattern(periodId : string) : string;
+begin
+  result := expandWeekVisibility(dmodule.SingleValue('select attribs_13 from periods where id = '+periodId));
+end;
+
+// przycisk "PrzejdŸ do tygodnia" (okres inny ni¿ tydzieñ): lista tygodni okresu. Tygodnie s¹ tworzone od nowa
+// tylko wtedy, gdy nie odpowiadaj¹ okresowi (liczba, numeracja, zakres dat) - inaczej ka¿de klikniêcie
+// dok³ada³oby rekordy do PER_PLA i historii zmian
+procedure TFMain.WeekDownClick(Sender: TObject);
+var vis, periodId : string;
+    n : integer;
+    item : TMenuItem;
+    p : TPoint;
+begin
+  if isBlank(conPeriod.Text) then exit;
+  periodId := conPeriod.Text;
+  // uk³ad tygodnia: tygodnie semestru, do którego nale¿y bie¿¹cy tydzieñ - bez tworzenia ich od nowa
+  // (skasowa³oby to ogl¹dany tydzieñ)
+  if FSettings.WeeklyView.Checked then begin
+    periodId := weekParentPeriodId;
+    if periodId = '' then begin
+      SError('Nie znaleziono okresu, do którego nale¿y ten tydzieñ');
+      exit;
+    end;
+  end else
+  if dmodule.SingleValue(
+       'select case when count(w.id) = (trunc(p.date_to, ''IW'') - trunc(p.date_from, ''IW'')) / 7 + 1'+
+       '             and min(w.sub_period_num) = 1 and max(w.sub_period_num) = count(w.id)'+
+       '             and min(w.date_from) = p.date_from and max(w.date_to) = p.date_to then ''OK'' end'+
+       '  from periods p, periods w'+
+       ' where p.id = '+periodId+' and w.sub_period_parent(+) = p.id'+
+       ' group by p.date_from, p.date_to') <> 'OK' then
+    createWeeks(periodId);
+
+  vis := weekVisibilityPattern(periodId);
+  WeeksPopup.Items.Clear;
+  DModule.openSQL('select id, name, sub_period_num from periods where sub_period_parent = '+periodId+' order by sub_period_num');
+  while not DModule.QWork.Eof do begin
+    n := DModule.QWork.Fields[2].AsInteger;
+    item := TMenuItem.Create(WeeksPopup);
+    item.Caption := StringReplace(DModule.QWork.Fields[1].AsString, '&', '&&', [rfReplaceAll]);
+    if not isWeekVisible(vis, n) then item.Caption := '(NIEWIDOCZNY) ' + item.Caption;
+    item.Hint    := DModule.QWork.Fields[0].AsString; // ID tygodnia
+    item.Checked := item.Hint = conPeriod.Text;          // bie¿¹cy tydzieñ (uk³ad tygodnia)
+    item.OnClick := WeeksPopupItemClick;
+    WeeksPopup.Items.Add(item);
+    DModule.QWork.Next;
+  end;
+  if WeeksPopup.Items.Count = 0 then begin
+    SError('Nie mo¿na utworzyæ tygodni dla tego okresu');
+    exit;
+  end;
+  p.X := 0;
+  p.Y := WeekDown.Height;
+  p   := WeekDown.ClientToScreen(p);
+  WeeksPopup.Popup(p.X, p.Y);
+end;
+
+// wybór tygodnia z listy = wybór okresu w oknie CONPERIOD_VALUE
+procedure TFMain.WeeksPopupItemClick(Sender: TObject);
+begin
+  selectPeriod((Sender as TMenuItem).Hint);
+end;
+
+// jak wybór okresu w oknie CONPERIOD_VALUE (BitBtnPERClick)
+procedure TFMain.selectPeriod(periodId : string);
+begin
+  conPeriod.Text := periodId;
+  conPeriodChange(conPeriod);
+  deepRefreshDelayed;
+  applyPeriodRole;
+end;
+
+// przyciski << >> (okres = tydzieñ): poprzedni / nastêpny tydzieñ tego samego okresu (SUB_PERIOD_NUM),
+// z pominiêciem tygodni ukrytych w "Widocznoœæ tygodni" okresu (np. tylko tygodnie parzyste)
+procedure TFMain.goToNeighbourWeek(forward : boolean);
+var parentId, weekId : string;
+begin
+  if isBlank(conPeriod.Text) or not FSettings.WeeklyView.Checked then exit;
+  parentId := weekParentPeriodId;
+  if parentId = '' then begin
+    SError('Nie znaleziono okresu, do którego nale¿y ten tydzieñ');
+    exit;
+  end;
+  weekId := visibleWeekId(parentId,
+    ' and sub_period_num '+iif(forward, '>', '<')+' (select sub_period_num from periods where id = '+conPeriod.Text+')',
+    not forward);
+  if weekId = '' then begin
+    SError(iif(forward, 'To jest ostatni widoczny tydzieñ okresu', 'To jest pierwszy widoczny tydzieñ okresu'));
+    exit;
+  end;
+  conPeriod.Text := weekId;
+  conPeriodChange(conPeriod);
+  deepRefreshDelayed;
+end;
+
+// przyciski obok pola okresu (CONPERIOD_VALUE): semestr - EditPeriod i WeekDown; tydzieñ - << ^ v >> i synchronizacja
+// tygodni (pole okresu wê¿sze o jeden przycisk, ¿eby wszystkie zmieœci³y siê przed BitBtnPER)
+procedure TFMain.layoutPeriodButtons;
+var x : integer;
+
+  procedure place(button : TSpeedButton; width : integer);
+  begin
+    button.SetBounds(x, EditPeriod.Top, width, EditPeriod.Height);
+    x := x + width;
+  end;
+
+begin
+  if FSettings.WeeklyView.Checked then CONPERIOD_VALUE.Width := periodValueWidth - WeekSync.Width
+                                  else CONPERIOD_VALUE.Width := periodValueWidth;
+  x := CONPERIOD_VALUE.Left + CONPERIOD_VALUE.Width - 1;
+  if FSettings.WeeklyView.Checked then begin
+    place(PrevWeek, WeekSync.Width);
+    place(WeekUp,   WeekSync.Width);
+    place(WeekDown, WeekSync.Width);
+    place(NextWeek, WeekSync.Width);
+    place(WeekSync, WeekSync.Width);
+  end else begin
+    place(EditPeriod, EditPeriod.Width);
+    place(WeekDown,   EditPeriod.Width);
+  end;
+end;
+
+// ---------------------------------------------------------------------------------------------------------------
+// Synchronizacja tygodni (przycisk WeekSync w uk³adzie tygodnia, zob. UWeekSync): dodanie, edycja, usuniêcie,
+// operacje grupowe, przesuniêcie i kopia zajêæ w bie¿¹cym tygodniu s¹ powtarzane w pozosta³ych widocznych
+// tygodniach okresu - na zasadzie wszystko albo nic.
+// ---------------------------------------------------------------------------------------------------------------
+
+procedure TFMain.WeekSyncClick(Sender: TObject);
+begin
+  syncWeeks.invalidate;
+  if WeekSync.Down then begin
+    if not syncWeeks.hasOtherWeeks(conPeriod.Text) then begin
+      WeekSync.Down := false; // odmowa w³¹czenia - stan sprzed klikniêcia
+      SError('Ten tydzieñ nie ma innych widocznych tygodni, z którymi mo¿na synchronizowaæ zmiany.'+cr+
+             '(Tygodnie okresu tworzy przycisk "Utwórz tygodnie" w oknie Okresy.)');
+      exit;
+    end;
+    SError('Wszystkie Twoje zmiany bêd¹ synchronizowane z innymi widocznymi tygodniami.'+cr+
+           'Aby wy³¹czyæ synchronizowanie naciœnij ponownie przycisk "Synchronizacja tygodni".');
+  end;
+  SetSystemParam(weekSyncParam, iif(WeekSync.Down, '+', '-'));
+  currSelectedArea := '';      // wolne zasoby (tmp_selected_dates) - z innymi tygodniami albo bez nich
+  BusyClassesCache.ClearCache; // czerwone kropki - zajêtoœæ tak¿e w innych tygodniach albo tylko w bie¿¹cym
+  RefreshGrid;
+end;
+
+function TFMain.weekSyncActive : boolean;
+begin
+  result := WeekSync.Down and FSettings.WeeklyView.Checked and not isBlank(conPeriod.Text);
+end;
+
+// ten sam termin w pozosta³ych widocznych tygodniach, w których wolno planowaæ (bez synchronizacji: pusta lista)
+function TFMain.weekSyncDays(day, hour : integer) : TDayList;
+begin
+  result := nil;
+  if weekSyncActive then result := syncWeeks.otherWeekDays(conPeriod.Text, day, hour, true);
+end;
+
+// odpowiedniki zajêcia w pozosta³ych widocznych tygodniach: ten sam dzieñ tygodnia i godzina, przedmiot, forma,
+// w³aœciciel oraz ci sami wyk³adowcy, grupy i zasoby (bez synchronizacji: pusta lista)
+function TFMain.weekSyncSiblings(const aClass : TClass_) : TClassArray;
+var days : TDayList;
+    dayList, ids : string;
+    t, status : integer;
+    sibling : TClass_;
+
+  // te same ID niezale¿nie od kolejnoœci
+  function sameIds(ids1, ids2 : string) : boolean;
+  var list1, list2 : TStringList;
+      i : integer;
+  begin
+    list1 := TStringList.Create;
+    list2 := TStringList.Create;
+    try
+      list1.Sorted := true;
+      list2.Sorted := true;
+      for i := 1 to WordCount(ids1, [';']) do list1.Add(ExtractWord(i, ids1, [';']));
+      for i := 1 to WordCount(ids2, [';']) do list2.Add(ExtractWord(i, ids2, [';']));
+      result := list1.Text = list2.Text;
+    finally
+      list1.Free;
+      list2.Free;
+    end;
+  end;
+
+begin
+  result := nil;
+  days   := nil;
+  if not weekSyncActive then exit;
+  days := syncWeeks.otherWeekDays(conPeriod.Text, aClass.day.Date, aClass.hour, false);
+  dayList := '';
+  for t := 0 to High(days) do dayList := merge(dayList, TSDateToOracle(dayToTimeStamp(days[t])), ',');
+  if dayList = '' then exit;
+
+  ids := '';
+  DModule.openSQL('select id from classes where day in ('+dayList+') and hour = '+IntToStr(aClass.hour)+
+                  ' and nvl(sub_id, 0) = '+IntToStr(aClass.sub_id)+' and for_id = '+IntToStr(aClass.for_id)+
+                  ' and owner = '''+StringReplace(aClass.owner, '''', '''''', [rfReplaceAll])+'''');
+  while not DModule.QWork.Eof do begin
+    ids := merge(ids, DModule.QWork.Fields[0].AsString, ';');
+    DModule.QWork.Next;
+  end;
+  // DBGetClassByClassId korzysta z QWork - dopiero po odczytaniu wszystkich ID
+  for t := 1 to WordCount(ids, [';']) do begin
+    DBGetClassByClassId(ExtractWord(t, ids, [';']), status, sibling);
+    if (status = ClassFound)
+       and sameIds(sibling.calc_lec_ids, aClass.calc_lec_ids)
+       and sameIds(sibling.calc_gro_ids, aClass.calc_gro_ids)
+       and sameIds(sibling.calc_rom_ids, aClass.calc_rom_ids) then begin
+      SetLength(result, Length(result) + 1);
+      result[High(result)] := sibling;
+    end;
+  end;
+end;
+
+// wszystko albo nic: w trakcie operacji synchronizowanej (tak¿e gdy otwarte jest okno konfliktów) automatyczny
+// zapis nie mo¿e zatwierdziæ jej czêœci. Wynik: poprzedni stan AutoSaver.Enabled dla weekSyncBatchEnd
+function TFMain.weekSyncBatchBegin : boolean;
+begin
+  result := AutoSaver.Enabled;
+  if weekSyncActive then AutoSaver.Enabled := false;
+end;
+
+procedure TFMain.weekSyncBatchEnd(autoSaverWasEnabled : boolean);
+begin
+  AutoSaver.Enabled := autoSaverWasEnabled;
+end;
+
+// uk³ad tygodnia bez synchronizacji: przy dodawaniu/edycji zajêæ raz dziennie pytanie o jej w³¹czenie
+procedure TFMain.askWeekSyncOnceADay;
+const paramName = 'MESSAGE.WEEK_SYNC_QUESTION';
+begin
+  if (not WeekSync.Visible) or WeekSync.Down then exit;
+  if GetSystemParam(paramName) = DateToYYYYMMDD(SysUtils.Date) then exit;
+  if not syncWeeks.hasOtherWeeks(conPeriod.Text) then exit;
+  SetSystemParam(paramName, DateToYYYYMMDD(SysUtils.Date));
+  if question('Czy chcesz aby zmiany by³y synchronizowane z innymi tygodniami?') = id_yes then begin
+    WeekSync.Down := true;
+    WeekSyncClick(WeekSync);
+  end;
+end;
 
 procedure TFMain.HighLight(var grid : TDrawGrid; Rect: TRect);
 begin

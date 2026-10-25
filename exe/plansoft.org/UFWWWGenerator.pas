@@ -143,12 +143,22 @@ type
            notes_after : boolean;
            pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
            weeklyView : boolean;
-           const LegendColorBy : Integer = 0  //ZMIANA_20270716: 0=Przedmiot (default, backward compatible), 1=Grupa
+           const LegendColorBy : Integer = 0;  //ZMIANA_20270716: 0=Przedmiot (default, backward compatible), 1=Grupa
+           // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
+           const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
+           const Link4 : Boolean = false; const Link5 : Boolean = false
     );
   end;
 
 var
   FWWWGenerator: TFWWWGenerator;
+
+// kolumna "Link" w Plik | Drukuj
+function  isLinkableCode(code : shortString) : boolean;
+function  linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string) : string;
+procedure resetLinkFileNames;
+// nazwa pliku rozk³adu bez rozszerzenia - jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam)
+function  timetableFileName(resType, resIds : string) : string;
 
 implementation
 
@@ -737,6 +747,104 @@ begin
   settingsLoaded := false;
 end;
 
+//--------------------------------------------------------------------------------------
+// Kolumna "Link" (Plik | Drukuj): nazwy wyk³adowców / grup / zasobów w komórce jako linki do ich rozk³adów.
+// Nazwy plików jak w publikacji (BCreateClick): StringToValidFileName(nazwa z listy) + .htm albo .pdf
+var linkKeys        : TStringList = nil; // posortowane klucze 'L123', 'G45', 'R6'; Objects = indeks w linkNames
+    linkNames       : TStringList = nil;
+    linkKindsLoaded : string = '';
+
+procedure resetLinkFileNames;
+begin
+  FreeAndNil(linkKeys);
+  FreeAndNil(linkNames);
+  linkKindsLoaded := '';
+end;
+
+// zawartoœæ, która ma swój rozk³ad: wyk³adowca, grupa, zasoby (wszystkie albo kategoria)
+function isLinkableCode(code : shortString) : boolean;
+var dummy : integer;
+begin
+  result := (code = 'L') or (code = 'L+') or (code = 'G') or (code = 'ALL_RES') or TryStrToInt(code, dummy);
+end;
+
+function linkFileName(kind : char; id : string) : string;
+var idx : integer;
+    sql : string;
+begin
+  result := '';
+  if linkKeys = nil then begin
+    linkKeys  := TStringList.Create;
+    linkNames := TStringList.Create;
+  end;
+  // nazwy wczytywane raz dla rodzaju - tymi samymi wyra¿eniami co listy publikacji (currentPeriodChange)
+  if Pos(kind, linkKindsLoaded) = 0 then begin
+    linkKindsLoaded := linkKindsLoaded + kind;
+    case kind of
+      'L': sql := 'SELECT ID, '+sql_LECNAME+' FROM LECTURERS';
+      'G': sql := 'SELECT ID, nvl(NAME,abbreviation) FROM GROUPS';
+      else sql := 'SELECT ID, '+sql_ResCat0NAME+' FROM ROOMS';
+    end;
+    linkKeys.Sorted := false;
+    DModule.OpenSQL(sql);
+    while not DModule.QWork.Eof do begin
+      linkKeys.AddObject(kind+DModule.QWork.Fields[0].AsString, TObject(linkNames.Add(StringToValidFileName(DModule.QWork.Fields[1].AsString))));
+      DModule.QWork.Next;
+    end;
+    linkKeys.Sorted := true;
+  end;
+  if linkKeys.Find(kind+id, idx) then result := linkNames[integer(linkKeys.Objects[idx])];
+end;
+
+// resType: LEC/GRO/ROM/SUB, resIds: jeden lub kilka ID oddzielonych ";" (uk³ad tygodniowy z obiektami w kolumnach)
+function timetableFileName(resType, resIds : string) : string;
+var t : integer;
+    id, fname : string;
+begin
+  result := '';
+  for t := 1 to WordCount(resIds, [';']) do begin
+    id := Trim(ExtractWord(t, resIds, [';']));
+    if resType = 'LEC' then fname := linkFileName('L', id) else
+    if resType = 'GRO' then fname := linkFileName('G', id) else
+    if resType = 'ROM' then fname := linkFileName('R', id) else
+    if resType = 'SUB' then fname := StringToValidFileName(DModule.SingleValue('SELECT NAME FROM SUBJECTS WHERE ID='+id))
+                       else fname := '';
+    result := merge(result, fname, '_');
+  end;
+end;
+
+// token: nazwy oddzielone ";" w kolejnoœci identyfikatorów (planner_utils.update_lgr) - ka¿da staje siê linkiem
+function linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string) : string;
+var kind : char;
+    ids, ext, part, lead, fname : string;
+    t : integer;
+begin
+  result := token;
+  if isBlank(token) or not isLinkableCode(code) then exit;
+  if (code = 'L') or (code = 'L+') then begin
+    kind := 'L'; ids := lecIds; ext := iif(FSettings.LPdfPrintOut.Checked, '.pdf', '.htm');
+  end else if code = 'G' then begin
+    kind := 'G'; ids := groIds; ext := iif(FSettings.GPdfPrintOut.Checked, '.pdf', '.htm');
+  end else begin
+    kind := 'R';
+    if code = 'ALL_RES' then ids := romIds
+                        else ids := ucommon.getResourcesByType(code, rescatIds, romIds);
+    ext := iif(FSettings.RPdfPrintOut.Checked, '.pdf', '.htm');
+  end;
+
+  result := '';
+  for t := 1 to WordCount(token, [';']) do begin
+    part  := ExtractWord(t, token, [';']);
+    fname := linkFileName(kind, Trim(ExtractWord(t, ids, [';'])));
+    if (fname <> '') and (Trim(part) <> '') then begin
+      lead := Copy(part, 1, Length(part) - Length(TrimLeft(part)));
+      part := lead + '<a href="'+XMLescapeChars(fname)+ext+'" style="color:inherit">'+Trim(part)+'</a>';
+    end;
+    if t > 1 then result := result + ';';
+    result := result + part;
+  end;
+end;
+
 procedure TFWWWGenerator.ComboSortOrderChange(Sender: TObject);
 begin
   inherited;
@@ -783,7 +891,10 @@ Procedure TFWWWGenerator.CalendarToHTML(
            notes_after : boolean;
            pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
            weeklyView : boolean;
-           const LegendColorBy : Integer = 0
+           const LegendColorBy : Integer = 0;
+           // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
+           const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
+           const Link4 : Boolean = false; const Link5 : Boolean = false
     );
 
     Var F : TextFile;
@@ -857,6 +968,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
          descCodes  : Array[1..5] Of ShortString;
          Sizes      : Array[1..5] Of ShortString;
          Bolds      : Array[1..5] Of Boolean;
+         Links      : Array[1..5] Of Boolean;
          Colour : Integer;
          S, Token : String;
      Begin
@@ -898,6 +1010,12 @@ Procedure TFWWWGenerator.CalendarToHTML(
        Bolds[4]      := B4;
        Bolds[5]      := B5;
 
+       Links[1]      := Link1;
+       Links[2]      := Link2;
+       Links[3]      := Link3;
+       Links[4]      := Link4;
+       Links[5]      := Link5;
+
        S := '';
        If Class_.FILL <> 100 Then S := '<FONT style="font-size:'+Sizes[1]+'px;">'+intToStr(Class_.FILL)+'%'+'</FONT>';
        For t := 1 To 5 Do Begin
@@ -918,6 +1036,9 @@ Procedure TFWWWGenerator.CalendarToHTML(
          if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc4'),'1000')))             else
          if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
          else token := TextOutResource ( descCodes[t] );
+
+         // Link: ka¿da nazwa wyk³adowcy / grupy / zasobu prowadzi do jego rozk³adu
+         If Links[t] Then Token := UFWWWGenerator.linkResourceNames(descCodes[t], Token, Class_.CALC_LEC_IDS, Class_.CALC_GRO_IDS, Class_.CALC_ROM_IDS, Class_.CALC_RESCAT_IDS);
 
          If Not isBlank(Token) Then Begin
            Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
@@ -1554,6 +1675,49 @@ Var xp, yp          : Integer;
     dummy          : integer;
     colCnt, rowCnt : integer;
     addECTSflag    : boolean;
+    // okres tygodniowy z obiektami w kolumnach: presId = kilka ID oddzielonych ";" (zob. FSettings.HTML)
+    weekObjectsMode : boolean;
+    objectCharts    : array of tcurrentChartClasses; // zajêcia kolejnych kolumn, indeksy jak convertGrid.weekObjIds
+    objNames        : string;
+    objName         : string;
+    firstResId      : string;
+    savedWeekMode   : integer;
+    savedWeekIds, savedWeekNames : string;
+    o               : integer;
+
+    //--------------------------------------------------------
+    // zajêcia komórki: w trybie obiektów w kolumnach z zestawu kolumny objId (convertGrid.ColRowToDate)
+    function cellClasses (objId : integer) : TclassList;
+    var k : integer;
+    begin
+      if weekObjectsMode then
+        for k := 0 to High(objectCharts) do
+          if convertGrid.weekObjIds[k] = objId then begin
+            result := objectCharts[k].get(TS, Zajecia);
+            exit;
+          end;
+      result := currentChartClasses.get(TS, Zajecia);
+    end;
+
+    //--------------------------------------------------------
+    // wiersz nag³ówka z nazwami obiektów kolumn (odpowiednik addMonthsRow)
+    procedure addObjectsRow (addECTSflag: boolean);
+    var xp : integer;
+    begin
+      htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
+      htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthDay'),'0') );
+      htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthHour'),'0') );
+      For xp := 2 To colCnt-1 Do
+        htmlTable.newHeaderCell('ALIGN="CENTER"', convertGrid.weekObjectName(xp), '0');
+      if ShowLegend then begin
+        htmlTable.newCell('','','0');
+        htmlTable.newCellWidth('','','0',NVL(GetSystemParam('CellWidthInLegend'),'100'));
+        if (addECTSflag) then begin
+          htmlTable.newCell('','Spos.<br/>zal.','0');
+          htmlTable.newCell('','ECTS','0');
+        end;
+      end;
+    end;
 
     //--------------------------------------------------------
     procedure addMonthsRow (addECTSflag: boolean);
@@ -1693,12 +1857,42 @@ begin
  // Exit;
  //End;
 
- currentChartClasses.init(IcsSQLHolder.Lines.Text, pPeriodId, presId, presType, FWWWGenerator);
+ firstResId      := ExtractWord(1, presId, [';']);
+ weekObjectsMode := weeklyView and (WordCount(presId, [';']) > 1);
+ // convertGrid jest wspólny z siatk¹ na ekranie - zapamiêtaj jej uk³ad, przywracany na koñcu
+ savedWeekMode  := convertGrid.convertMode;
+ savedWeekIds   := convertGrid.weekObjectIdList;
+ savedWeekNames := convertGrid.weekObjectNameList;
+ objNames := '';
+ if weekObjectsMode then
+   for o := 1 to WordCount(presId, [';']) do begin
+     objName := '';
+     if (presType='LEC') then objName := DModule.SingleValue(sql_LECDESC+ExtractWord(o, presId, [';']));
+     if (presType='GRO') then objName := DModule.SingleValue(sql_GRODESC+ExtractWord(o, presId, [';']));
+     if (presType='ROM') then objName := DModule.SingleValue(sql_ResCat0DESC+ExtractWord(o, presId, [';']));
+     if objName = '' then objName := ExtractWord(o, presId, [';']);
+     if o > 1 then objNames := objNames + ';';
+     objNames := objNames + objName;
+   end;
+ // jawnie: obiekty w kolumnach tylko na ¿¹danie (np. Publikacja przekazuje pojedyncze ID)
+ if weekObjectsMode then convertGrid.setWeekObjects(presId, objNames)
+                    else convertGrid.setWeekObjects('', '');
+
+ currentChartClasses.init(IcsSQLHolder.Lines.Text, pPeriodId, firstResId, presType, FWWWGenerator);
  ReservationsCache.ReservationsCacheLoadPeriod(pPeriodId);
 
- if (presType='LEC') then convertGrid.setupGrid (pPeriodId, true, 0, '', colCnt, rowCnt);
- if (presType='GRO') then convertGrid.setupGrid (pPeriodId, true, 1, '', colCnt, rowCnt);
- if (presType='ROM') then convertGrid.setupGrid (pPeriodId, true, 2, '', colCnt, rowCnt);
+ if (presType='LEC') then convertGrid.setupGrid (pPeriodId, 0, colCnt, rowCnt);
+ if (presType='GRO') then convertGrid.setupGrid (pPeriodId, 1, colCnt, rowCnt);
+ if (presType='ROM') then convertGrid.setupGrid (pPeriodId, 2, colCnt, rowCnt);
+
+ weekObjectsMode := weekObjectsMode and (convertGrid.convertMode = ConvWeekObjects);
+ if weekObjectsMode then begin
+   SetLength(objectCharts, Length(convertGrid.weekObjIds));
+   for o := 0 to High(objectCharts) do begin
+     objectCharts[o] := tcurrentChartClasses.create();
+     objectCharts[o].init(IcsSQLHolder.Lines.Text, pPeriodId, IntToStr(convertGrid.weekObjIds[o]), presType, FWWWGenerator);
+   end;
+ end;
 
  If ShowLegend Then LgndCnt := RefreshLegend;
 
@@ -1731,9 +1925,14 @@ begin
  WriteLn(f, '<BODY>');
 
  tmpPERName := DModule.SingleValue(sql_PERDESC+pPeriodId);
- if pResType='LEC' then tmpLECName := DModule.SingleValue(sql_LECDESC+presId);
- if pResType='GRO' then tmpGROName := DModule.SingleValue(sql_GRODESC+presId);
- if pResType='ROM' then tmpROMName := DModule.SingleValue(sql_ResCat0DESC+presId);
+ if pResType='LEC' then tmpLECName := DModule.SingleValue(sql_LECDESC+firstResId);
+ if pResType='GRO' then tmpGROName := DModule.SingleValue(sql_GRODESC+firstResId);
+ if pResType='ROM' then tmpROMName := DModule.SingleValue(sql_ResCat0DESC+firstResId);
+ if weekObjectsMode then begin
+   if pResType='LEC' then tmpLECName := SearchAndReplace(objNames, ';', ', ');
+   if pResType='GRO' then tmpGROName := SearchAndReplace(objNames, ';', ', ');
+   if pResType='ROM' then tmpROMName := SearchAndReplace(objNames, ';', ', ');
+ end;
  setStatus('Tworzenie kalendarza:'+tmpLECName+tmpGROName+tmpROMName);
 
  notesBeforeText := '';
@@ -1749,7 +1948,7 @@ begin
     dmodule.openSQL(
          'select id, per_id, res_id, notes_before, notes_after, internal_notes from timetable_notes where per_id=:per_id and res_id=:res_id' ,
          'per_id='+ pPeriodId+
-         ';res_id='+ pResId
+         ';res_id='+ firstResId
          );
     notesBeforeText := replacePlaceHolders( dmodule.QWork.fieldByName('notes_before').AsString);
     notesAfterText :=  replacePlaceHolders( dmodule.QWork.fieldByName('notes_after').AsString)
@@ -1769,6 +1968,7 @@ begin
 
  if weeklyView=false then
    if not pRepeatMonthNames then addMonthsRow(addECTSflag);
+ if weekObjectsMode then addObjectsRow(addECTSflag);
  if pVerticalLines then calculateVerticalLines;
 
  legendRow := 0;
@@ -1785,7 +1985,7 @@ begin
          //tmp=2(Monday) => pHideDows[2] = '-' => not selected to merge
          if pHideDows[tmp]='-' then showLine := true
          else begin
-           classList := currentChartClasses.get(TS, Zajecia);
+           classList := cellClasses(dummy);
            if (classList.cnt>0) then showLine := true;
          end;
       end;
@@ -1844,7 +2044,7 @@ begin
                      End;
     ConvClass:
      Begin
-      classList := currentChartClasses.get(TS, Zajecia);
+      classList := cellClasses(dummy);
       if (classList.cnt=0) then
        begin
          If ReservationsCache.IsReserved(TS, Zajecia)<>'' Then htmlTable.newCell('background="reservation.gif"','','0') Else htmlTable.newCell('','','0');
@@ -1962,7 +2162,13 @@ begin
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
  currentChartClasses.free;
+ for o := 0 to High(objectCharts) do objectCharts[o].free;
  ReservationsCache.Free;
+ // przywróæ uk³ad siatki na ekranie, jeœli by³y to obiekty w kolumnach
+ if savedWeekMode = ConvWeekObjects then begin
+   convertGrid.setWeekObjects(savedWeekIds, savedWeekNames);
+   convertGrid.setupGrid(fmain.conPeriod.Text, fmain.TabViewType.TabIndex, colCnt, rowCnt);
+ end;
 
  copyGifs (fileName);
 
@@ -2112,7 +2318,8 @@ var ColoringIndex    : shortString;
                , gpdfg.checked
                , gpdfl.checked
                , gpdfo.checked
-               , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex );
+               , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex
+               , GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked );
              end;
            end;
            WriteLn(fh, '</ul></div></td>');
@@ -2125,7 +2332,7 @@ var ColoringIndex    : shortString;
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'">'+XMLescapeChars(LList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.LViewType);
-               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex);
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked);
              end;
            end;
            WriteLn(fh, '</ul></div></td>');
@@ -2139,7 +2346,7 @@ var ColoringIndex    : shortString;
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'">'+XMLescapeChars(RList.Items[t])+'</a>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
-                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex );
+                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex, RLink1.Checked, RLink2.Checked, RLink3.Checked, RLink4.Checked, RLink5.Checked );
                except
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
@@ -2170,6 +2377,7 @@ var ColoringIndex    : shortString;
     End;
 
 begin
+  resetLinkFileNames; // kolumna Link: aktualne nazwy plików
   if not settingsLoaded then
       with fsettings do begin
           Show;
@@ -2358,6 +2566,24 @@ begin
     RB3.Visible     := genType.ItemIndex =0;
     RB4.Visible     := genType.ItemIndex =0;
     RB5.Visible     := genType.ItemIndex =0;
+    LLink1.Visible  := genType.ItemIndex =0;
+    LLink2.Visible  := genType.ItemIndex =0;
+    LLink3.Visible  := genType.ItemIndex =0;
+    LLink4.Visible  := genType.ItemIndex =0;
+    LLink5.Visible  := genType.ItemIndex =0;
+    GLink1.Visible  := genType.ItemIndex =0;
+    GLink2.Visible  := genType.ItemIndex =0;
+    GLink3.Visible  := genType.ItemIndex =0;
+    GLink4.Visible  := genType.ItemIndex =0;
+    GLink5.Visible  := genType.ItemIndex =0;
+    RLink1.Visible  := genType.ItemIndex =0;
+    RLink2.Visible  := genType.ItemIndex =0;
+    RLink3.Visible  := genType.ItemIndex =0;
+    RLink4.Visible  := genType.ItemIndex =0;
+    RLink5.Visible  := genType.ItemIndex =0;
+    LLinkLabel.Visible := genType.ItemIndex =0;
+    GLinkLabel.Visible := genType.ItemIndex =0;
+    RLinkLabel.Visible := genType.ItemIndex =0;
 
     //LViewTypeGroup.Visible     := genType.ItemIndex =0;
     //GViewTypeGroup.Visible     := genType.ItemIndex =0;

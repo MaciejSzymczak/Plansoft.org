@@ -242,6 +242,30 @@ type
     SB3: TCheckBox;
     SB2: TCheckBox;
     SB1: TCheckBox;
+    LLinkLabel: TLabel;
+    GLinkLabel: TLabel;
+    RLinkLabel: TLabel;
+    SLinkLabel: TLabel;
+    LLink1: TCheckBox;
+    LLink2: TCheckBox;
+    LLink3: TCheckBox;
+    LLink4: TCheckBox;
+    LLink5: TCheckBox;
+    GLink1: TCheckBox;
+    GLink2: TCheckBox;
+    GLink3: TCheckBox;
+    GLink4: TCheckBox;
+    GLink5: TCheckBox;
+    RLink1: TCheckBox;
+    RLink2: TCheckBox;
+    RLink3: TCheckBox;
+    RLink4: TCheckBox;
+    RLink5: TCheckBox;
+    SLink1: TCheckBox;
+    SLink2: TCheckBox;
+    SLink3: TCheckBox;
+    SLink4: TCheckBox;
+    SLink5: TCheckBox;
     Label15: TLabel;
     Label16: TLabel;
     Label17: TLabel;
@@ -305,6 +329,7 @@ type
     procedure GViewTypeChange(Sender: TObject);
     procedure RViewTypeChange(Sender: TObject);
     procedure SViewTypeChange(Sender: TObject);
+    procedure DescComboChange(Sender: TObject);
   public
     Path : String;
     LHideDows : string;
@@ -316,6 +341,7 @@ type
     Procedure Load(fileName : ShortString);
 
     Procedure SaveInRegistry;
+    procedure updateLinkCheckboxes;
 
     procedure HTML(Prog : String);
   end;
@@ -325,7 +351,7 @@ var
 
 implementation
 
-uses UFMain, UUtilityParent, UFWWWGenerator, UFWWWGeneratorSUB, UFProgramSettings, DM,
+uses UFMain, UUtilityParent, UFWWWGenerator, UFWWWGeneratorSUB, UFProgramSettings, DM, UUtilities,
   UFSalectDaysOfWeek, UProgress;
 
 {$R *.DFM}
@@ -351,6 +377,61 @@ begin
   GViewType.OnChange := GViewTypeChange;
   RViewType.OnChange := RViewTypeChange;
   SViewType.OnChange := SViewTypeChange;
+  // kolumna Link: aktywna tylko dla zawartoœci, która ma swój rozk³ad
+  LD1.OnChange := DescComboChange;
+  LD2.OnChange := DescComboChange;
+  LD3.OnChange := DescComboChange;
+  LD4.OnChange := DescComboChange;
+  LD5.OnChange := DescComboChange;
+  GD1.OnChange := DescComboChange;
+  GD2.OnChange := DescComboChange;
+  GD3.OnChange := DescComboChange;
+  GD4.OnChange := DescComboChange;
+  GD5.OnChange := DescComboChange;
+  RD1.OnChange := DescComboChange;
+  RD2.OnChange := DescComboChange;
+  RD3.OnChange := DescComboChange;
+  RD4.OnChange := DescComboChange;
+  RD5.OnChange := DescComboChange;
+  SD1.OnChange := DescComboChange;
+  SD2.OnChange := DescComboChange;
+  SD3.OnChange := DescComboChange;
+  SD4.OnChange := DescComboChange;
+  SD5.OnChange := DescComboChange;
+end;
+
+procedure TFSettings.DescComboChange(Sender: TObject);
+begin
+  updateLinkCheckboxes;
+end;
+
+// kolumna Link: aktywna tylko dla wyk³adowcy, grupy i zasobów (forma, opis itp. nie maj¹ rozk³adu)
+procedure TFSettings.updateLinkCheckboxes;
+  procedure upd(combo : TComboBox; link : TCheckBox);
+  begin
+    link.Enabled := (combo.ItemIndex <> -1) and isLinkableCode(getCode(combo));
+  end;
+begin
+  upd(LD1, LLink1);
+  upd(LD2, LLink2);
+  upd(LD3, LLink3);
+  upd(LD4, LLink4);
+  upd(LD5, LLink5);
+  upd(GD1, GLink1);
+  upd(GD2, GLink2);
+  upd(GD3, GLink3);
+  upd(GD4, GLink4);
+  upd(GD5, GLink5);
+  upd(RD1, RLink1);
+  upd(RD2, RLink2);
+  upd(RD3, RLink3);
+  upd(RD4, RLink4);
+  upd(RD5, RLink5);
+  upd(SD1, SLink1);
+  upd(SD2, SLink2);
+  upd(SD3, SLink3);
+  upd(SD4, SLink4);
+  upd(SD5, SLink5);
 end;
 
 procedure TFSettings.SyncLegendColorBy(ViewCombo, ColorByCombo: TComboBox);
@@ -388,12 +469,7 @@ var ColoringIndex : shortString;
 begin
   FWWWGenerator := TFWWWGenerator.Create(Application);
 
-  tmpFileName :=  uutilityParent.ApplicationDocumentsPath + 'temp.htm';
-  pdfFileName :=  uutilityParent.ApplicationDocumentsPath + 'temp.pdf';
-  if not CanOverwriteFile( tmpFileName ) then exit;
-  if not CanOverwriteFile( pdfFileName ) then exit;
-
-
+  resetLinkFileNames; // kolumna Link: aktualne nazwy plików
   FProgress.Show;
   FProgress.ProgressBar.Position := 50;
   FProgress.Refresh;
@@ -405,13 +481,31 @@ begin
    3: begin presId:=ExtractWord(1,FMain.conResCat1.Text,[';']); presType:='ROM'; end;
    5: begin presId:=ExtractWord(1,FMain.consubject.Text,[';']); presType:='SUB'; end;
   end;
+  // okres tygodniowy z obiektami w kolumnach: grafik jak na ekranie - wszystkie wybrane obiekty
+  if convertGrid.convertMode = ConvWeekObjects then
+    case FMain.TabViewType.TabIndex of
+      0: presId := FMain.conlecturer.Text;
+      1: presId := FMain.congroup.Text;
+      2: presId := FMain.conResCat0.Text;
+      3: presId := FMain.conResCat1.Text;
+    end;
+
+  // nazwa pliku jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam.htm)
+  tmpFileName := Copy(timetableFileName(presType, presId), 1, 120); // shortString: miejsce na œcie¿kê i rozszerzenie
+  if isBlank(tmpFileName) then tmpFileName := 'temp';
+  pdfFileName := uutilityParent.ApplicationDocumentsPath + tmpFileName + '.pdf';
+  tmpFileName := uutilityParent.ApplicationDocumentsPath + tmpFileName + '.htm';
+  if (not CanOverwriteFile( tmpFileName )) or (not CanOverwriteFile( pdfFileName )) then begin
+    FProgress.Hide;
+    exit;
+  end;
 
   //If PageControl.ActivePage = TabSheetL Then
     If FMain.TabViewType.TabIndex = 0 Then Begin
       ColoringIndex := getCode(LViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'LEC',getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked,
             iif(llegendECTS.checked,1,0)*4 + iif(llegendAbbr.checked,1,0)*2 + iif(llegendSummary.checked,1,0)*1 + iif(llegendSummaryGroup.checked,1,0)*8
-          , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex );
+          , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked, tmpFileName , LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, LcomboSpan.itemIndex, lspanEmptyCells.checked, ltransposition.checked, lVerticalLines.checked, Lnotes_before.checked, Lnotes_after.checked, LPdfprintOut.checked, lpdfg.checked,lpdfl.checked,lpdfo.checked,lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked );
       if LPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
     //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameLgen.Text );
@@ -421,7 +515,7 @@ begin
       ColoringIndex := getCode(GViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'GRO',getCode(GD1), getCode(GD2), getCode(GD3), getCode(GD4), getCode(GD5), GHEADER.Lines, GFOOTER.Lines, gGShowLegend.Checked,
             iif(glegendECTS.checked,1,0)*4 + iif(glegendAbbr.checked,1,0)*2 + iif(glegendSummary.checked,1,0)*1 + iif(glegendSummaryGroup.checked,1,0)*8,gAddCreationDate.itemindex
-          , ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex);
+          , ColoringIndex, GW.Text, GH.Text, GCELLSIZE.Text, GS1.Text, GS2.Text, GS3.Text, GS4.Text, GS5.Text, GB1.Checked, GB2.Checked, GB3.Checked, GB4.Checked, GB5.Checked, tmpFileName , GRepeatMonthNames.Checked, GHideEmptyRows.Checked, GHideDows, GcomboSpan.itemIndex, gspanEmptyCells.checked , gtransposition.checked, gVerticalLines.checked, gnotes_before.checked, gnotes_after.checked, GPdfprintOut.checked, gpdfg.checked, gpdfl.checked, gpdfo.checked, gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex, GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked);
       if GPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
     //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz '+fprogramSettings.profileObjectNameGgen.Text);
@@ -431,7 +525,7 @@ begin
       ColoringIndex := getCode(RViewType);
       fwwwGenerator.CalendarToHTML(FMain.conPeriod.Text, presId,'ROM',getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked,
             iif(rlegendECTS.checked,1,0)*4 + iif(rlegendAbbr.checked,1,0)*2 + iif(rlegendSummary.checked,1,0)*1 + iif(rlegendSummaryGroup.checked,1,0)*8
-          , rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex);
+          , rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked, tmpFileName , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, RcomboSpan.itemIndex, rspanEmptyCells.checked, rtransposition.checked, rVerticalLines.checked, rnotes_before.checked, rnotes_after.checked, RPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex, RLink1.Checked, RLink2.Checked, RLink3.Checked, RLink4.Checked, RLink5.Checked);
       if RPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
     //Else SError('Aby wykonaæ dokument wybierz na formularzu g³ównym kalendarz zasobu');
@@ -440,7 +534,7 @@ begin
       ColoringIndex := getCode(SViewType);
       UFWWWGeneratorSUB.CalendarToHTMLSubject(FMain.conPeriod.Text, presId, getCode(SD1), getCode(SD2), getCode(SD3), getCode(SD4), getCode(SD5), SHEADER.Lines, SFOOTER.Lines, SRShowLegend.Checked,
             iif(SlegendECTS.checked,1,0)*4 + iif(SlegendAbbr.checked,1,0)*2 + iif(SlegendSummary.checked,1,0)*1 + iif(SlegendSummaryGroup.checked,1,0)*8
-          , SAddCreationDate.itemindex, ColoringIndex, SW.Text, SH.Text, SCELLSIZE.Text, SS1.Text, SS2.Text, SS3.Text, SS4.Text, SS5.Text, SB1.Checked, SB2.Checked, SB3.Checked, SB4.Checked, SB5.Checked, tmpFileName, SRepeatMonthNames.Checked, SHideEmptyRows.Checked, SHideDows, ScomboSpan.itemIndex, SspanEmptyCells.checked, STransposition.checked, SVerticalLines.checked, Snotes_before.checked, Snotes_after.checked, SPdfprintOut.checked, Spdfg.checked, Spdfl.checked, Spdfo.checked, Spdfs.checked, weeklyView.Checked, SlegendColorBy.ItemIndex );
+          , SAddCreationDate.itemindex, ColoringIndex, SW.Text, SH.Text, SCELLSIZE.Text, SS1.Text, SS2.Text, SS3.Text, SS4.Text, SS5.Text, SB1.Checked, SB2.Checked, SB3.Checked, SB4.Checked, SB5.Checked, tmpFileName, SRepeatMonthNames.Checked, SHideEmptyRows.Checked, SHideDows, ScomboSpan.itemIndex, SspanEmptyCells.checked, STransposition.checked, SVerticalLines.checked, Snotes_before.checked, Snotes_after.checked, SPdfprintOut.checked, Spdfg.checked, Spdfl.checked, Spdfo.checked, Spdfs.checked, weeklyView.Checked, SlegendColorBy.ItemIndex, SLink1.Checked, SLink2.Checked, SLink3.Checked, SLink4.Checked, SLink5.Checked );
       if SPdfprintOut.checked then tmpFileName := pdfFileName;
     End;
 
@@ -492,6 +586,11 @@ begin
    writeBool('L','LB3', LB3.Checked);
    writeBool('L','LB4', LB4.Checked);
    writeBool('L','LB5', LB5.Checked);
+   writeBool('L','LLink1', LLink1.Checked);
+   writeBool('L','LLink2', LLink2.Checked);
+   writeBool('L','LLink3', LLink3.Checked);
+   writeBool('L','LLink4', LLink4.Checked);
+   writeBool('L','LLink5', LLink5.Checked);
    writeBool('L','Lnotes_before', Lnotes_before.Checked);
    writeBool('L','Lnotes_after', Lnotes_after.Checked);
    writeBool('L','LPdfprintOut', LPdfprintOut.Checked);
@@ -540,6 +639,11 @@ begin
    writeBool('G','GB3', GB3.Checked);
    writeBool('G','GB4', GB4.Checked);
    writeBool('G','GB5', GB5.Checked);
+   writeBool('G','GLink1', GLink1.Checked);
+   writeBool('G','GLink2', GLink2.Checked);
+   writeBool('G','GLink3', GLink3.Checked);
+   writeBool('G','GLink4', GLink4.Checked);
+   writeBool('G','GLink5', GLink5.Checked);
    writeBool('G','Gnotes_before', Gnotes_before.Checked);
    writeBool('G','Gnotes_after', Gnotes_after.Checked);
    writeBool('G','GPdfprintOut', GPdfprintOut.Checked);
@@ -587,6 +691,11 @@ begin
    writeBool('R','RB3', RB3.Checked);
    writeBool('R','RB4', RB4.Checked);
    writeBool('R','RB5', RB5.Checked);
+   writeBool('R','RLink1', RLink1.Checked);
+   writeBool('R','RLink2', RLink2.Checked);
+   writeBool('R','RLink3', RLink3.Checked);
+   writeBool('R','RLink4', RLink4.Checked);
+   writeBool('R','RLink5', RLink5.Checked);
    writeBool('R','Rnotes_before', Gnotes_before.Checked);
    writeBool('R','Rnotes_after', Gnotes_after.Checked);
    writeBool('R','RPdfprintOut', RPdfprintOut.Checked);
@@ -631,6 +740,11 @@ begin
    writeBool('S','SB3', SB3.Checked);
    writeBool('S','SB4', SB4.Checked);
    writeBool('S','SB5', SB5.Checked);
+   writeBool('S','SLink1', SLink1.Checked);
+   writeBool('S','SLink2', SLink2.Checked);
+   writeBool('S','SLink3', SLink3.Checked);
+   writeBool('S','SLink4', SLink4.Checked);
+   writeBool('S','SLink5', SLink5.Checked);
    writeBool('S','Snotes_before', Snotes_before.Checked);
    writeBool('S','Snotes_after', Snotes_after.Checked);
    writeBool('S','SPdfprintOut', SPdfprintOut.Checked);
@@ -778,6 +892,11 @@ begin
    LB3.Checked := readBool('L','LB3', LB3.Checked);
    LB4.Checked := readBool('L','LB4', LB4.Checked);
    LB5.Checked := readBool('L','LB5', LB5.Checked);
+   LLink1.Checked := readBool('L','LLink1', false);
+   LLink2.Checked := readBool('L','LLink2', false);
+   LLink3.Checked := readBool('L','LLink3', false);
+   LLink4.Checked := readBool('L','LLink4', false);
+   LLink5.Checked := readBool('L','LLink5', false);
    Lnotes_before.Checked := readBool('L','Lnotes_before', true);
    Lnotes_after.Checked  := readBool('L','Lnotes_after', true);
    LPdfprintOut.Checked  := readBool('L','LPdfprintOut', true);
@@ -837,6 +956,11 @@ begin
    GB3.Checked := readBool('G','GB3', GB3.Checked);
    GB4.Checked := readBool('G','GB4', GB4.Checked);
    GB5.Checked := readBool('G','GB5', GB5.Checked);
+   GLink1.Checked := readBool('G','GLink1', false);
+   GLink2.Checked := readBool('G','GLink2', false);
+   GLink3.Checked := readBool('G','GLink3', false);
+   GLink4.Checked := readBool('G','GLink4', false);
+   GLink5.Checked := readBool('G','GLink5', false);
    Gnotes_before.Checked := readBool('G','Gnotes_before', true);
    Gnotes_after.Checked  := readBool('G','Gnotes_after', true);
    GPdfprintOut.Checked  := readBool('G','GPdfprintOut', true);
@@ -896,6 +1020,11 @@ begin
    RB3.Checked := readBool('R','RB3', RB3.Checked);
    RB4.Checked := readBool('R','RB4', RB4.Checked);
    RB5.Checked := readBool('R','RB5', RB5.Checked);
+   RLink1.Checked := readBool('R','RLink1', false);
+   RLink2.Checked := readBool('R','RLink2', false);
+   RLink3.Checked := readBool('R','RLink3', false);
+   RLink4.Checked := readBool('R','RLink4', false);
+   RLink5.Checked := readBool('R','RLink5', false);
    Rnotes_before.Checked := readBool('R','Rnotes_before', true);
    Rnotes_after.Checked  := readBool('R','Rnotes_after', true);
    RPdfprintOut.Checked  := readBool('R','RPdfprintOut', true);
@@ -956,6 +1085,11 @@ begin
    SB3.Checked := readBool('S','SB3', SB3.Checked);
    SB4.Checked := readBool('S','SB4', SB4.Checked);
    SB5.Checked := readBool('S','SB5', SB5.Checked);
+   SLink1.Checked := readBool('S','SLink1', false);
+   SLink2.Checked := readBool('S','SLink2', false);
+   SLink3.Checked := readBool('S','SLink3', false);
+   SLink4.Checked := readBool('S','SLink4', false);
+   SLink5.Checked := readBool('S','SLink5', false);
    Snotes_before.Checked := readBool('S','Snotes_before', true);
    Snotes_after.Checked  := readBool('S','Snotes_after', true);
    SPdfprintOut.Checked  := readBool('S','SPdfprintOut', true);
@@ -963,6 +1097,7 @@ begin
    Spdfl.Checked  := readBool('S','Spdfl', false);
    Spdfo.Checked  := readBool('S','Spdfo', false);
    Spdfs.Checked  := readBool('S','Spdfs', false);  End;
+  updateLinkCheckboxes;
 
 end;
 

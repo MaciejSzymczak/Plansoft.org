@@ -12,19 +12,20 @@ inherited FSharing: TFSharing
   end
   object CheckListBox: TCheckListBox
     Left = 0
-    Top = 49
+    Top = 66
     Width = 487
-    Height = 479
+    Height = 462
     OnClickCheck = CheckListBoxClickCheck
     Align = alClient
-    ItemHeight = 14
+    AllowGrayed = True
+    ItemHeight = 16
     Items.Strings = (
       'a'
       'a'
       'b')
+    Style = lbOwnerDrawFixed
     TabOrder = 1
-    OnClick = CheckListBoxClickCheck
-    OnDblClick = CheckListBoxClickCheck
+    OnDrawItem = CheckListBoxDrawItem
   end
   object Panel1: TPanel
     Left = 0
@@ -144,9 +145,16 @@ inherited FSharing: TFSharing
     Left = 0
     Top = 0
     Width = 487
-    Height = 49
+    Height = 66
     Align = alTop
     TabOrder = 3
+    object LLegend: TLabel
+      Left = 8
+      Top = 48
+      Width = 470
+      Height = 14
+      Caption = 'Klikni'#281'cie zmienia dost'#281'p: brak -> E (edycja) -> R (tylko odczyt), tak jak w oknie Uprawnienia'
+    end
     object Warning: TLabel
       Left = 8
       Top = 30

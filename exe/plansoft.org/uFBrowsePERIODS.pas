@@ -75,12 +75,15 @@ type
     procedure SpeedButton5Click(Sender: TObject);
   private
     ParentPerIdChanged : Boolean;
+    procedure HideSubPeriodFields(DataSet: TDataSet);
   public
+    constructor Create(AOwner: TComponent); override;
     Procedure GetTableName;  override;
     Function  CheckRecord : Boolean;       override;
     Procedure DefaultValues;               override;
     Procedure CustomConditions;      override;
     Procedure AfterPost;             override;
+    Procedure BeforeEdit;            override;
     Function  CanEditPermission : Boolean; override;
     Function  IsRecordReadOnly : Boolean;   override;
     Function  CanDelete    : Boolean;      override;
@@ -123,9 +126,25 @@ Begin
   End;
 End;
 
+constructor TFBrowsePERIODS.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Query.AfterOpen := HideSubPeriodFields;
+end;
+
+// SUB_PERIOD_PARENT / SUB_PERIOD_NUM (tygodnie okresu, "Utwórz tygodnie") - pola techniczne, niewidoczne dla u¿ytkownika
+procedure TFBrowsePERIODS.HideSubPeriodFields(DataSet: TDataSet);
+begin
+  if DataSet.FindField('SUB_PERIOD_PARENT') <> nil then DataSet.FindField('SUB_PERIOD_PARENT').Visible := false;
+  if DataSet.FindField('SUB_PERIOD_NUM')    <> nil then DataSet.FindField('SUB_PERIOD_NUM').Visible    := false;
+end;
+
 Procedure TFBrowsePERIODS.DefaultValues;
 Begin
  Query['ID'] := DModule.SingleValue('select main_seq.nextval from dual');
+ // kopia tygodnia nie jest tygodniem okresu (CopyRecord kopiuje wszystkie pola)
+ if Query.FindField('SUB_PERIOD_PARENT') <> nil then Query.FieldByName('SUB_PERIOD_PARENT').Clear;
+ if Query.FindField('SUB_PERIOD_NUM')    <> nil then Query.FieldByName('SUB_PERIOD_NUM').Clear;
  //Query['HOURS_PER_DAY'] := '8';
  Query['SHOW_MON']    := '+';
  Query['SHOW_TUE']    := '+';
@@ -247,30 +266,20 @@ begin
 end;
 
 procedure TFBrowsePERIODS.BUpdChild3Click(Sender: TObject);
-  // ID tygodni (okresów podrzêdnych) bie¿¹cego okresu, z pominiêciem excludeIds
-  function weekIds(excludeIds : string) : string;
-  begin
-    result := '';
-    DModule.openSQL('select id from periods where parent_per_id = '+ID.Text+iif(excludeIds='', '', ' and id not in ('+excludeIds+')'));
-    while not DModule.QWork.Eof do begin
-      result := merge(result, DModule.QWork.Fields[0].AsString, ',');
-      DModule.QWork.Next;
-    end;
-  end;
-var existingIds, newIds : string;
 begin
-  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego okresu?') = id_yes then begin
-    existingIds := weekIds('');
-    Dmodule.QWork.ParamCheck := false;
-    DModule.SQL(searchAndReplace(searchAndReplace(FMain.SQLCreateWeeks.Text, ':pid',ID.Text), ':plaid',FMain.getUserOrRoleID));
+  if question('Czy utworzyæ tygodniowe okresy dla bie¿¹cego okresu?'+cr+cr+
+              'Je¿eli tygodnie tego okresu ju¿ istniej¹, zostan¹ usuniête i utworzone od nowa.') = id_yes then begin
+    // tygodnie dostaj¹ takie same uprawnienia widocznoœci (PER_PLA) jak okres
+    FMain.createWeeks(ID.Text);
     SError('Zrobione');
-    // SQLCreateWeeks nadaje uprawnienia tylko osobie tworz¹cej - wspó³dzielenie nowych tygodni jak przy tworzeniu okresu
-    newIds := weekIds(existingIds);
-    if newIds <> '' then begin
-      FSharing.init('I','PER',newIds, QUERY.FieldByName('NAME').AsString+' - tygodnie');
-      dmodule.CommitTrans;
-    end;
   end;
+end;
+
+// tydzieñ utworzony przez "Utwórz tygodnie" (SUB_PERIOD_PARENT) - widocznoœæ tygodni ustawia siê dla okresu
+Procedure TFBrowsePERIODS.BeforeEdit;
+begin
+  inherited;
+  WEEK_VISIBILITY_BTN.Visible := (Query.FindField('SUB_PERIOD_PARENT') = nil) or Query.FieldByName('SUB_PERIOD_PARENT').IsNull;
 end;
 
 procedure TFBrowsePERIODS.AfterPost;

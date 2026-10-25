@@ -623,6 +623,14 @@ begin
     if (fmain.TabViewType.TabIndex = 1) then presId := ExtractWord(1,Nvl(fmain.ConGroup.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 2) then presId := ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 3) then presId := ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';']);
+    // okres tygodniowy z obiektami w kolumnach: podsumowanie dla wszystkich wyk³adowców/grup/sal widocznych w siatce
+    if convertGrid.convertMode = ConvWeekObjects then
+      Case fmain.TabViewType.TabIndex Of
+        0: presId := fmain.ConLecturer.Text;
+        1: presId := fmain.ConGroup.Text;
+        2: presId := fmain.conResCat0.Text;
+        3: presId := fmain.ConResCat1.Text;
+      end;
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, true),';',',')+')';   //2024.07.25
 
 
@@ -745,11 +753,11 @@ begin
       ' AND FR.ID = CLA.FOR_ID' + CR +
       ' AND GRIDS.NO = CLA.HOUR' + CR +
       iif( groupByG.Checked and chGnewLine.Checked, ' AND GRO_CLA.IS_CHILD = ''N''' + CR,'')+
-      iif( (fmain.TabViewType.TabIndex = 0) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from lec_cla where lec_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 1) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 2) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 3) and (fmain.BViewByWeek.down), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
-      iif( (fmain.TabViewType.TabIndex = 5) and (fmain.BViewByWeek.down), 'and cla.sub_id = '+nvl(fmain.ConSubject.Text,'-1')+' '                                     ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 0), 'and cla.id in (select cla_id from lec_cla where lec_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 1), 'and cla.id in (select cla_id from gro_cla where gro_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 2), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 3), 'and cla.id in (select cla_id from rom_cla where rom_id in '+ChildsAndParents+')'    ,'') + CR +
+      iif( (fmain.TabViewType.TabIndex = 5), 'and cla.sub_id = '+nvl(fmain.ConSubject.Text,'-1')+' '                                     ,'') + CR +
       iif ( SelectedSubOnly.Checked, iif( not isBlank(fmain.ConSubject.Text),'   AND sub_id = '+fmain.ConSubject.Text+' ','')
                      , 'and 0=0') + CR +
     groupbyClause+ CR +

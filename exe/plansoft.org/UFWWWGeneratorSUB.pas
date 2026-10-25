@@ -38,12 +38,15 @@ procedure CalendarToHTMLSubject(
        notes_after : boolean;
        pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
        weeklyView : boolean;
-       const LegendColorBy : Integer = 0
+       const LegendColorBy : Integer = 0;
+           // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
+           const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
+           const Link4 : Boolean = false; const Link5 : Boolean = false
 );
 
 implementation
 
-uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db;
+uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db, UFWWWGenerator;
 
 var MaxLegendPositions : integer = 1000;
 
@@ -319,7 +322,10 @@ procedure CalendarToHTMLSubject(
        notes_after : boolean;
        pdfPrintOut, pdfg, pdfl, pdfo, pdfs : boolean;
        weeklyView : boolean;
-       const LegendColorBy : Integer = 0
+       const LegendColorBy : Integer = 0;
+           // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
+           const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
+           const Link4 : Boolean = false; const Link5 : Boolean = false
     );
 
     Var F : TextFile;
@@ -402,6 +408,7 @@ procedure CalendarToHTMLSubject(
          descCodes  : Array[1..5] Of ShortString;
          Sizes      : Array[1..5] Of ShortString;
          Bolds      : Array[1..5] Of Boolean;
+         Links      : Array[1..5] Of Boolean;
          Colour : Integer;
          S, Token : String;
      Begin
@@ -440,6 +447,12 @@ procedure CalendarToHTMLSubject(
        Bolds[4]      := B4;
        Bolds[5]      := B5;
 
+       Links[1]      := Link1;
+       Links[2]      := Link2;
+       Links[3]      := Link3;
+       Links[4]      := Link4;
+       Links[5]      := Link5;
+
        S := '';
        If Class_.FILL <> 100 Then S := '<FONT style="font-size:'+Sizes[1]+'px;">'+intToStr(Class_.FILL)+'%'+'</FONT>';
        For t := 1 To 5 Do Begin
@@ -460,6 +473,9 @@ procedure CalendarToHTMLSubject(
          if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc4'),'1000')))             else
          if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
          else token := TextOutResource ( descCodes[t] );
+
+         // Link: ka¿da nazwa wyk³adowcy / grupy / zasobu prowadzi do jego rozk³adu
+         If Links[t] Then Token := UFWWWGenerator.linkResourceNames(descCodes[t], Token, Class_.CALC_LEC_IDS, Class_.CALC_GRO_IDS, Class_.CALC_ROM_IDS, Class_.CALC_RESCAT_IDS);
 
          If Not isBlank(Token) Then Begin
            Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
@@ -858,7 +874,7 @@ begin
  subjectName := DModule.SingleValue(sql_SUBDESC+presId);
  addECTSflag := (LegendMode and 4 = 4);
 
- convertGrid.setupGrid (pPeriodId, true, 6, '', colCnt, rowCnt);
+ convertGrid.setupGrid (pPeriodId, 6, colCnt, rowCnt);
 
  If ShowLegend Then LgndCnt := RefreshLegend;
 

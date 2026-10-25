@@ -4,16 +4,13 @@ unit UUtilities;
 
 interface
 
-Uses SysUtils, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning, UFMain, UFormConfig;
+Uses SysUtils, DM, UUtilityParent, grids, Windows, rxStrUtils, stdctrls, UFWarning, UFMain, UFormConfig, UWeekSync;
 
 Const convOutOfRange   = 0;
       ConvHeader       = 1;
       ConvClass        = 2;
       ConvDayOfWeek    = 3;
       ConvNumeryZajec  = 4;
-
-      crossTableViewObjNames    = 5;
-      crossTableViewDayOfWeek   = 6;
 
 Type TConvertSingleObject = object
       Len                : Integer;
@@ -30,48 +27,26 @@ Type TConvertSingleObject = object
       Function  ColRowToDate(var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
      End;
 
-Type TConvertManyObjects = class
-      Len              : Integer;
-      Date,Day,_Col    : Integer;
-      TimeStamp        : TTimeStamp;
-      DateTime         : TDateTime;
-      MaxIloscGodzin   : Integer;
-      currentObjName   : string;
-      ObjectIds : Array Of Record
-                               id : Integer;
-                               name  : string[100];
-                              End;
-      ColDate : Array Of Record
-                       Col
-                      ,Date : Integer;
-                      End;
-      public
-      Procedure init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
-      //Function  dateObjToColRow(_Date, _Hour, _objId : Integer; var Col, Row : Integer) : Boolean;
-      Function  colRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
-     End;
-
 Const ConvSingleObject     = 1;
-      ConvManyObjects      = 2;
       ConvWeekObjects      = 3; // okres tygodniowy: wiersze jak w ConvSingleObject, kolumny od Modulo = obiekty (np. grupy)
 
 type TConvertGrid = class
        convertMode          : integer;
        convertSingleObject  : TConvertSingleObject;
-       convertManyObjects   : TConvertManyObjects;
        // ConvWeekObjects: obiekty kolejnych kolumn (od kolumny Modulo), w kolejnoœci z pola wyboru
        weekObjIds           : array of integer;
        weekObjNames         : array of string;
        procedure setWeekObjects (ids, names : string);
        function  weekObjectName (col : integer) : string;
        function  weekObjectsInCols (colFrom, colTo : integer) : string;
-       function  replaceWeekObjects (ids : string; objId : integer) : string;
-       procedure setupGrid (periodId : String; singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt : integer);
+       function  weekObjectNames (separator : string) : string;
+       function  weekObjectIdList : string;   // dla zapamiêtania/przywrócenia setWeekObjects - niezale¿nie od trybu
+       function  weekObjectNameList : string;
+       procedure setupGrid (periodId : String; resType : integer; var pcolCnt, prowCnt : integer);
        Function  ColRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
        Function  DateToColRow(var objId : integer; _Date, _Hour : Integer; var Col, Row : Integer) : Boolean;
 
        private
-         Procedure initNOsingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
          Procedure initSingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
      end;
 
@@ -107,13 +82,26 @@ Type TSingleClass = Record
 Type TSingleHint = Record
                       ResName : string[255];
                       Ratio   : integer;
+                      Day     : TTimeStamp;
+                      Hour    : integer;
                     End;
+
+// synchronizacja tygodni: przy tylu konfliktach zmiana i tak nie ma sensu - sprawdzanie kolejnych tygodni jest
+// przerywane, ¿eby nie obci¹¿aæ bazy
+Const MaxSyncConflicts = 10;
 
 Type TCheckConflicts = Class
            NewClassWithChilds : TSingleClass;
            NewClassToCreate : TSingleClass;
-           ConflictsClasses : Array[1..40] Of TSingleClass;
+           ConflictsClasses : Array Of TSingleClass; // pozycje 1..Count
            Count            : Integer;
+           // synchronizacja tygodni: ten sam termin w pozosta³ych widocznych tygodniach (oprócz NewClassToCreate.Day)
+           SyncDays         : TDayList;
+           // synchronizacja tygodni: wiêcej ni¿ MaxSyncConflicts konfliktów - sprawdzanie przerwane, zmiany nie mo¿na wykonaæ
+           Truncated        : Boolean;
+           // synchronizacja tygodni, edycja: odpowiedniki edytowanego zajêcia (ID oddzielone ';') - zastêpowane now¹
+           // wersj¹, wiêc nie s¹ konfliktami, ale s¹ usuwane razem z konfliktami
+           ReplacedIds      : String;
            Completion       : Boolean;
            CanDelete        : Boolean;
            currentClassId   : Integer;
@@ -132,6 +120,9 @@ Type TCheckConflicts = Class
                Sub_id, For_id : Integer; Created_by, _Owner, desc1, desc2, desc3, desc4 : String);
              procedure add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id , For_id : Integer; Created_by, _Owner, conflictReason : String);
              function  deleteConflictClasses : Boolean;
+             function  isClassDay(aDay : Integer) : Boolean;
+             function  classDay(i : Integer) : TTimeStamp;
+             function  deleteClassId(const aClass : TClass_) : Integer;
            public
              function  conflictsReport(
                Day : TTimeStamp;
@@ -144,10 +135,14 @@ Type TCheckConflicts = Class
                GroupsWithChilds: TPointers;
                RoomsWithChilds: TPointers;
                Sub_id , For_id , Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String;
-               const skipConflictQuery : boolean = false ) : Boolean;
+               const skipConflictQuery : boolean = false;
+               const aSyncDays : TDayList = nil;
+               const aReplacedIds : String = '' ) : Boolean;
              procedure getDesc(SGNewClass, SGConflicts : TStringGrid; L : TLabel; var dataStamp : String);
              function  empty : Boolean;
              function  checkConflictsInsert ( ttCombIds        : string; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ) : Boolean;
+             function  deleteConflicts : Boolean;
+             function  addSyncHints(Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
              function  hintsReport(Day : TTimeStamp; Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
              function  quickPreCheck(
                Day : TTimeStamp; Hour : Integer;
@@ -161,7 +156,7 @@ Type TCheckConflicts = Class
                const dayList : string;
                const hourList : string;
                LecturersWithChilds, GroupsWithChilds, RoomsWithChilds : TPointers ) : Boolean;
-             procedure getHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
+             procedure getHintsDesc(SGHints : TStringGrid; var dataStamp : String);
          End;
 
 Var
@@ -923,6 +918,33 @@ Begin
  CanDelete := True;
  Completion := False;
  Count := 0;
+ SetLength(ConflictsClasses, 1); // pozycja 0 nieu¿ywana
+ SyncDays := nil;
+ Truncated := False;
+ ReplacedIds := '';
+End;
+
+// DeleteClass: zajêcie zastêpowane (odpowiednik edytowanego) usuwane jak przy edycji, pozosta³e jak dot¹d
+Function TCheckConflicts.deleteClassId(const aClass : TClass_) : Integer;
+Begin
+ If ExistsValue(ReplacedIds, [';'], IntToStr(aClass.id)) Then Result := aClass.id
+                                                         Else Result := currentClassId;
+End;
+
+// dzieñ nowego zajêcia: bie¿¹cy termin albo (synchronizacja tygodni) termin w innym tygodniu
+Function TCheckConflicts.isClassDay(aDay : Integer) : Boolean;
+Var d : Integer;
+Begin
+ Result := NewClassWithChilds.Day.Date = aDay;
+ For d := 0 To High(SyncDays) Do
+   If SyncDays[d] = aDay Then Result := True;
+End;
+
+// i = 0: bie¿¹cy termin, i = 1..Length(SyncDays): ten sam termin w pozosta³ych tygodniach
+Function TCheckConflicts.classDay(i : Integer) : TTimeStamp;
+Begin
+ If i = 0 Then Result := NewClassWithChilds.Day
+          Else Result := dayToTimeStamp(SyncDays[i-1]);
 End;
 
 Procedure TCheckConflicts.Add(Day : TTimeStamp; Hour : Integer; Lecturers : TPointers; Groups: TPointers; Rooms: TPointers; Sub_id, For_id : Integer; Created_by, _Owner,conflictReason : String );
@@ -972,7 +994,7 @@ Begin
    If (not UUtilities.isOwner(_Owner)) Then CanDelete := False;
 
  // nie dopisuj do listy doplanowania (unless planner is not to be able to erase it)
- If (NewClassWithChilds.Day.Date = Day.Date) And (NewClassWithChilds.Hour = Hour)
+ If isClassDay(Day.Date) And (NewClassWithChilds.Hour = Hour)
      And P1IncludesP2(NewClassToCreate.Lecturers, Lecturers)
      And P1IncludesP2(NewClassToCreate.Groups, Groups)
      And P1IncludesP2(NewClassToCreate.Rooms, Rooms)
@@ -1003,6 +1025,7 @@ Begin
   end;
 
  Count := Count + 1;
+ SetLength(ConflictsClasses, Count + 1);
  ConflictsClasses[Count].Day      := Day;
  ConflictsClasses[Count].Hour     := Hour;
  ConflictsClasses[Count].Lecturers:= Lecturers;
@@ -1032,15 +1055,18 @@ Function TCheckConflicts.ConflictsReport(
   GroupsWithChilds: TPointers;
   RoomsWithChilds: TPointers;
   Sub_id, For_id, Res, aNewClassFill, aColour : integer; aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4 : String;
-  const skipConflictQuery : boolean = false) : Boolean;
+  const skipConflictQuery : boolean = false;
+  const aSyncDays : TDayList = nil;
+  const aReplacedIds : String = '') : Boolean;
 Var L      : Integer;
     Status : String;
     Class_ : TClass_;
     listOfval : string;
+    d      : Integer;
 
 Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
 
- Procedure AddSingleClass (conflictReason: String);
+ Procedure AddSingleClass (conflictDay : TTimeStamp; conflictReason: String);
  Var  L     : Integer;
       Len   : Integer;
   Begin
@@ -1067,7 +1093,7 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
    For L := 1 To Groups.Count    Do PGroups[L]    := Groups.CommonAttrs[L-1].ID;
    For L := 1 To Rooms.Count     Do PRooms[L]     := Rooms.CommonAttrs[L-1].ID;}
 
-   Add(Day, Hour,
+   Add(conflictDay, Hour,
        PLecturers,
        PGroups,
        PRooms,
@@ -1078,6 +1104,8 @@ Var PLecturers : TPointers; PGroups: TPointers; PRooms: TPointers;
 Begin
   internalCreate(Day,Hour, aNewClassFill, aColour,Lecturers,Groups,Rooms,LecturersWithChilds,GroupsWithChilds,RoomsWithChilds,Sub_id,For_id,aCreated_by, aOwner, adesc1, adesc2, adesc3, adesc4);
   currentClassId := acurrentClassId;
+  SyncDays := Copy(aSyncDays);
+  ReplacedIds := aReplacedIds;
 
   listOfval := '';
   For L := 1 To maxInClass Do
@@ -1098,10 +1126,18 @@ Begin
 
   if (not skipConflictQuery) and (listOfval <> '') then begin
      listOfval := '('+listOfval+')';
-     dm.DBGetClassByLGR(TSDateToOracle(Day), TSDateToOracle(Day), Hour, listOfval, Status, Class_);
+     // bie¿¹cy termin i (synchronizacja tygodni) ten sam termin w pozosta³ych tygodniach - jeden wspólny raport
+     For d := 0 To Length(SyncDays) Do Begin
+     If Truncated Then Break;
+     dm.DBGetClassByLGR(TSDateToOracle(classDay(d)), TSDateToOracle(classDay(d)), Hour, listOfval, Status, Class_);
      if Status =  'ClassNotFound' then Begin End
      else begin
        While Not Dmodule.QWork2.EOF Do Begin
+        If ExistsValue(ReplacedIds, [';'], Dmodule.QWork2.FieldByName('CLA_ID').AsString) Then Begin
+          Dmodule.QWork2.Next;
+          Continue;
+        End;
+        If (Length(SyncDays) > 0) And (Count >= MaxSyncConflicts) Then Begin Truncated := True; Break; End;
 
         DModule.SingleValue(
         'SELECT CLA.*,'+
@@ -1117,9 +1153,10 @@ Begin
         ,'id='+DModule.QWork2.FieldByName('CLA_ID').AsString);
 
         Class_ := dm.QWorkToClass (Dmodule.QWork);
-        AddSingleClass( Dmodule.QWork2.FieldByName('CONFLICTTYPE').AsString );
+        AddSingleClass( classDay(d), Dmodule.QWork2.FieldByName('CONFLICTTYPE').AsString );
          Dmodule.QWork2.Next;
        End;
+     End;
      End;
 
 
@@ -1134,6 +1171,8 @@ Function TCheckConflicts.DeleteConflictClasses : Boolean;
 Var L : Integer;
     Status : Integer;
     Class_ : TClass_;
+    d : Integer;
+    Day : TTimeStamp;
 Begin
  Result := True;
  If Not CanDelete Then Begin
@@ -1143,14 +1182,18 @@ Begin
  End;
  Result := True;
 
+ // bie¿¹cy termin i (synchronizacja tygodni) ten sam termin w pozosta³ych tygodniach
+ For d := 0 To Length(SyncDays) Do Begin
+ Day := classDay(d);
+
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Groups[L] <> 0 Then
     Begin
-      dm.DBGetClassByGroup(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
+      dm.DBGetClassByGroup(TSDateToOracle(Day), TSDateToOracle(Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Groups[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
       End;
     End;
 
@@ -1158,24 +1201,33 @@ Begin
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Lecturers[L] <> 0 Then
     Begin
-      dm.DBGetClassByLecturer(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
+      dm.DBGetClassByLecturer(TSDateToOracle(Day), TSDateToOracle(Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Lecturers[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
       End;
     End;
 
  For L := 1 To maxInClass Do
     If NewClassWithChilds.Rooms[L] <> 0 Then
     Begin
-      dm.DBGetClassByRoom(TSDateToOracle(NewClassWithChilds.Day), TSDateToOracle(NewClassWithChilds.Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
+      dm.DBGetClassByRoom(TSDateToOracle(Day), TSDateToOracle(Day), NewClassWithChilds.Hour, IntToStr(NewClassWithChilds.Rooms[L]),Status,Class_);
       Case Status Of
        ClassNotFound : Begin End;
-       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
-       ClassError    : If Result Then Result := Result And DeleteClass(Class_, currentClassId);
+       ClassFound    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
+       ClassError    : If Result Then Result := Result And DeleteClass(Class_, deleteClassId(Class_));
       End;
     End;
+ End;
+End;
+
+// usuwa zajêcia koliduj¹ce z nowym zajêciem (we wszystkich jego terminach) bez wstawiania nowego zajêcia -
+// dla wywo³uj¹cych, które wstawiaj¹ zajêcie samodzielnie (przesuniêcie/kopia w FMain.modifyClass)
+Function TCheckConflicts.deleteConflicts : Boolean;
+Begin
+ Result := True;
+ If (Not Empty) Or Completion Or (ReplacedIds <> '') Then Result := DeleteConflictClasses;
 End;
 
 Function TCheckConflicts.checkConflictsInsert ( ttCombIds : string; const knownCapacityOverflow : integer = 0; const capacityOverflowKnown : boolean = false ): Boolean;
@@ -1187,7 +1239,7 @@ Function TCheckConflicts.checkConflictsInsert ( ttCombIds : string; const knownC
      myClass : TClass_;
 Begin
  Result := True;
- If (Not CheckConflicts.empty) Or (CheckConflicts.Completion) Then
+ If (Not CheckConflicts.empty) Or (CheckConflicts.Completion) Or (ReplacedIds <> '') Then
    If Not CheckConflicts.deleteConflictClasses Then Begin Result := False; Exit; End;
 
   if NewClassToCreate.Hour = -1 Then
@@ -1220,6 +1272,14 @@ Begin
   myClass.desc4         := newClassToCreate.desc4;
 
   result := planner_utils_insert_classes (myClass, ttCombIds, currentClassId, false, knownCapacityOverflow, capacityOverflowKnown);
+
+  // synchronizacja tygodni: ten sam termin w pozosta³ych tygodniach (kontrola canInsertClass da³a ju¿ wynik
+  // dla bie¿¹cego terminu - pomiñ j¹, ¿eby nie powtarzaæ tych samych ostrze¿eñ)
+  For t := 0 To High(SyncDays) Do Begin
+    If Not Result Then Exit;
+    myClass.day := dayToTimeStamp(SyncDays[t]);
+    result := planner_utils_insert_classes (myClass, ttCombIds, currentClassId, true, knownCapacityOverflow, capacityOverflowKnown);
+  End;
  End;
 End;
 
@@ -1277,6 +1337,8 @@ Begin
  L.Visible := Not CanDelete;
 
  SGNewClass.Cells[0,1] := GetDate(NewClassToCreate.Day.Date);
+ If Length(SyncDays) > 0 Then
+   SGNewClass.Cells[0,1] := SGNewClass.Cells[0,1] + ' (+' + IntToStr(Length(SyncDays)) + ' tyg.)';
  SGNewClass.Cells[1,1] := BlokLabel(NewClassToCreate.Hour);
  SGNewClass.Cells[2,1] := GetLecturers(NewClassToCreate.Lecturers);
  SGNewClass.Cells[3,1] := GetGroups(NewClassToCreate.Groups);
@@ -1296,7 +1358,7 @@ Begin
              +',O:'+NewClassToCreate._Owner;
 
  With SGConflicts Do Begin
- RowCount := Count + 1; //+1 for header
+ RowCount := Count + 1 + Ord(Truncated); //+1 for header
    For t := 1 To Count Do Begin
     MarkL := ''; MarkG := ''; MarkR := '';
     if pos('W', ConflictsClasses[t].conflictReason)<>0 then MarkL := '>> ';
@@ -1322,6 +1384,12 @@ Begin
              +',S:'+IntToStr(ConflictsClasses[t].Sub_id)
              +',F:'+IntToStr(ConflictsClasses[t].For_id)
              +',O:'+ConflictsClasses[t]._Owner;
+   End;
+   If Truncated Then Begin
+     For t := 0 To ColCount - 1 Do Cells[t, Count + 1] := '';
+     Cells[0, Count + 1] := '...';
+     Cells[2, Count + 1] := 'Przerwano sprawdzanie po '+IntToStr(MaxSyncConflicts)+' konfliktach - przy synchronizacji tygodni tej zmiany nie mo¿na wykonaæ';
+     dataStamp := dataStamp + 'Truncated';
    End;
  End;
  UFormConfig.AutoFitStringGridColumns(SGNewClass);
@@ -1355,6 +1423,48 @@ Begin
       SetLength(Hints, Length(Hints)+1);
       Hints[High(Hints)].ResName := DModule.QWork.FieldByName('res_name').AsString;
       Hints[High(Hints)].Ratio   := DModule.QWork.FieldByName('ratio').AsInteger;
+      Hints[High(Hints)].Day     := Day;
+      Hints[High(Hints)].Hour    := Hour;
+      DModule.QWork.Next;
+    End;
+  End;
+
+  Result := Length(Hints) > 0;
+End;
+
+// synchronizacja tygodni: dopisuje podpowiedzi (RES_HINTS, ratio < 0) dla tego samego terminu w pozosta³ych
+// tygodniach (SyncDays z ostatniego ConflictsReport), tak aby okno konfliktów pokaza³o je razem z bie¿¹cym terminem
+Function TCheckConflicts.addSyncHints(Hour : Integer; Lecturers, Groups, Rooms : TPointers) : Boolean;
+Var t       : Integer;
+    ids     : String;
+    dayList : String;
+Begin
+  ids := '';
+  For t := 1 To maxInClass Do Begin
+    If Lecturers[t] <> 0 Then ids := merge(ids, IntToStr(Lecturers[t]), ',');
+    If Groups[t]    <> 0 Then ids := merge(ids, IntToStr(Groups[t]),    ',');
+    If Rooms[t]     <> 0 Then ids := merge(ids, IntToStr(Rooms[t]),     ',');
+  End;
+  dayList := '';
+  For t := 0 To High(SyncDays) Do
+    dayList := merge(dayList, TSDateToOracle(dayToTimeStamp(SyncDays[t])), ',');
+
+  If (ids <> '') And (dayList <> '') Then Begin
+    DModule.openSQL(
+      'select resources.name res_name, res_hints.ratio, res_hints.day '+
+      'from res_hints, resources '+
+      'where res_hints.res_id = resources.id '+
+      '  and res_hints.day in ('+dayList+') '+
+      '  and res_hints.hour = '+IntToStr(Hour)+' '+
+      '  and res_hints.res_id in ('+ids+') '+
+      '  and res_hints.ratio < 0 '+
+      'order by res_hints.day, res_hints.ratio');
+    While Not DModule.QWork.EOF Do Begin
+      SetLength(Hints, Length(Hints)+1);
+      Hints[High(Hints)].ResName := DModule.QWork.FieldByName('res_name').AsString;
+      Hints[High(Hints)].Ratio   := DModule.QWork.FieldByName('ratio').AsInteger;
+      Hints[High(Hints)].Day     := dayToTimeStamp(DateTimeToTimeStamp(DModule.QWork.FieldByName('day').AsDateTime).Date);
+      Hints[High(Hints)].Hour    := Hour;
       DModule.QWork.Next;
     End;
   End;
@@ -1442,6 +1552,8 @@ Begin
         SetLength(Hints, Length(Hints)+1);
         Hints[High(Hints)].ResName := QWork.FieldByName('col1').AsString;
         Hints[High(Hints)].Ratio   := StrToInt(Trim(QWork.FieldByName('col2').AsString));
+        Hints[High(Hints)].Day     := Day;
+        Hints[High(Hints)].Hour    := Hour;
       end;
       QWork.Next;
     End;
@@ -1488,14 +1600,14 @@ Begin
   Result := StrToInt(Trim(DModule.QWork.FieldByName('cnt').AsString)) > 0;
 End;
 
-Procedure TCheckConflicts.GetHintsDesc(SGHints : TStringGrid; Day : TTimeStamp; Hour : Integer; var dataStamp : String);
+Procedure TCheckConflicts.GetHintsDesc(SGHints : TStringGrid; var dataStamp : String);
 Var t : Integer;
 Begin
   With SGHints Do Begin
     RowCount := Length(Hints) + 1; //+1 for header
     For t := 0 To High(Hints) Do Begin
-      Cells[0, t+1] := GetDate(Day.Date);
-      Cells[1, t+1] := BlokLabel(Hour);
+      Cells[0, t+1] := GetDate(Hints[t].Day.Date);
+      Cells[1, t+1] := BlokLabel(Hints[t].Hour);
       Cells[2, t+1] := Hints[t].ResName;
       Cells[3, t+1] := 'NIE ' + IntToStr(Abs(Hints[t].Ratio)); //SQL already filters ratio<0, so always negative/discouraged here
 
@@ -1607,154 +1719,6 @@ begin
   End Else SError('Baza danych jest prawid³owa - wszystkie ' +lClasses+ ' maj¹ okreœlony ' + fprogramSettings.profileObjectNamePeriod.text);
 end;
 
-procedure TConvertManyObjects.init(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
-
-  Procedure OmitDays(Var Date : Integer);
-   Var Changed : Boolean;
-       fuse    : Integer;
-  Begin
-    //If DayOfWeek(Date) = 1 Then Date := Date + 1;
-    fuse := 0;
-
-    Repeat
-     inc(fuse);
-     Changed := False;
-     TimeStamp.Date := Date;
-     TimeStamp.Time := 0;
-     DateTime := TimeStampToDateTime(TimeStamp);
-     day := DayOfWeek(DateTime);
-
-     If day = 2 Then If Not SHOW_MON Then Begin Date := Date + 1; Changed := True; End;
-     If day = 3 Then If Not SHOW_TUE Then Begin Date := Date + 1; Changed := True; End;
-     If day = 4 Then If Not SHOW_WED Then Begin Date := Date + 1; Changed := True; End;
-     If day = 5 Then If Not SHOW_THU Then Begin Date := Date + 1; Changed := True; End;
-     If day = 6 Then If Not SHOW_FRI Then Begin Date := Date + 1; Changed := True; End;
-     If day = 7 Then If Not SHOW_SAT Then Begin Date := Date + 1; Changed := True; End;
-     If day = 1 Then If Not SHOW_SUN Then Begin Date := Date + 1; Changed := True; End;
-     If fuse = 8 Then Begin SError(fprogramSettings.profileObjectNamePeriod.text+' musi zawieraæ przynajmniej jeden dzieñ'); dmodule.CloseDBConnection(true); halt; End;
-    Until Changed = False;
-  End;
-
-  var t : integer;
-
-Begin
- SetLength(ColDate, EndDate - StartDate + 3);       // inicjuje dlugosc tabeli dynamicznej
-
- MaxIloscGodzin := aMaxIloscGodzin;
- Len := 1;
-
- //_row := 2; // row 0 -> name of day
-              // row 1 -> day
- if High(ObjIds) > MaxAllLecturers then
-      SError('Ups.. Wygl¹da na to, ¿e przekroczono maksymaln¹ liczbê obiektów, skontaktuj siê z administratorem systemu.'+cr+'Je¿eli posiadasz aktywn¹ umowê serwisow¹ firma Software Factory pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658. ');
- SetLength(ObjectIds, High(ObjIds) + 3);
- For t:= 0 To High(ObjIds)  do begin
-  ObjectIds[t+1].id   := ObjIds[t];
-  ObjectIds[t+1].name := ObjNames[t];
- end;
-  _Col := 1; // col 0 -> object name
-  Date := StartDate;
-  if dmodule.dateRange='' then  OmitDays(Date);
-  if Date<= EndDate then
-  repeat
-    ColDate[Len].Col  := 1 + ( (_Col- 1) * aMaxIloscGodzin );
-   // Data[Len].Row  := _Row;
-    ColDate[Len].Date := Date;
-    Date := Date + 1;
-    OmitDays(Date);
-
-    Len := Len + 1;
-
-    if Len > high ( ColDate ) then begin
-      SError('2.Wyst¹pi³o zdarzenie "5 Liczba dni poza zakresem". Zg³oœ problem serwisowi. Len =' + intToStr(len)+' hdata='+ intToStr( high(ColDate) ));
-      dmodule.CloseDBConnection(true);
-      halt;
-    end;
-
-    inc ( _col );
-  until Date > EndDate;
-  //inc ( _row );
-  LiczbaKolumn  := 1 + (_col-1) * aMaxIloscGodzin ;
-  LiczbaWierszy := High(ObjIds) + 3;
-End;
-
-{function  TConvertDateObjColRow.dateObjToColRow(_Date, _Hour, _objId : Integer; var Col, Row : Integer) : Boolean;
-Var i : Integer;
-Begin
- i := 1;
- While (i<=Len) And (Data[i].Date<>_Date) and (Data[i].objId<>_objId ) Do
-  Begin
-   i := i + 1;
-  End;
-
- If i>Len Then DateObjToColRow := false
- Else
-  If (Data[i].Date = _Date) and (Data[i].objId = _objId) Then
-   Begin
-    Col := Data[i].Col + _Hour - 1;
-    Row := Data[i].Row;
-    result := True;
-   End;
-End;
-}
-function  TConvertManyObjects.colRowToDate(var objId : integer; var _Date : TTimeStamp; var _Hour : Integer;Col, Row : Integer) : Integer;
-Var i : Integer;
-    _D : Integer;
-Begin
-
- result := -1;
- _Hour := ((Col-1) mod MaxIloscGodzin) + 1;
-
- if ((col = 0) and ((row = 0) or (row = 1))) or
-    ((col = -1) and (row = -1)) then begin
-  result := convOutOfRange;
-  exit;
- end;
-
- if row = 0 then begin
-  result := crossTableViewDayOfWeek;
-  row := 2;
- end;
-
- if col = 0 then begin
-  result := crossTableViewObjNames;
-  objId := ObjectIds[Row-1].id;
-  currentObjName :=  ObjectIds[Row-1].name;
-  exit;
- end;
-
- if row = 1 then begin
-  result := ConvNumeryZajec;
-  exit;
- end;
-
- Col   := ((Col-1) Div MaxIloscGodzin)*MaxIloscGodzin+1;
- i := 1;
- While (i<=Len) And  (Not(ColDate[i].Col=Col)) Do i := i + 1;
- If i>Len Then Begin
-   result := convOutOfRange;
-   exit;
- End
- Else
-  If ColDate[i].Col=Col Then
-   Begin
-     if result = -1 then result := ConvClass;
-    _D := ColDate[i].Date;
-    _Date.Date := _D;
-    _Date.Time := 0;
-    objId := ObjectIds[Row-1].id;
-    currentObjName :=  ObjectIds[Row-1].name;
-   End;
-End;
-
-Procedure TConvertGrid.initNOsingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean; ObjIds : Array of integer; ObjNames : Array of string);
-begin
-  convertManyObjects  := TconvertManyObjects.Create;
-  //ConvertSingleObject := TConvertSingleObject.create;
-  convertMode         := ConvManyObjects;
-  convertManyObjects.init(StartDate, EndDate, LiczbaKolumn, LiczbaWierszy, aMaxIloscGodzin, SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN, ObjIds, ObjNames);
-end;
-
 Procedure TConvertGrid.initSingleChartMode(StartDate, EndDate : Integer; Var LiczbaKolumn, LiczbaWierszy : Integer; aMaxIloscGodzin : Integer; SHOW_MON, SHOW_TUE, SHOW_WED, SHOW_THU, SHOW_FRI, SHOW_SAT, SHOW_SUN : Boolean);
 begin
   convertMode := ConvSingleObject;
@@ -1765,7 +1729,6 @@ Function  TConvertGrid.ColRowToDate(var objId : integer; var _Date : TTimeStamp;
 begin
  case convertMode of
    ConvSingleObject :  begin result := convertSingleObject.ColRowToDate(_Date,_Hour,Col, Row); objId := -1; end;
-   ConvManyObjects  :  result := convertManyObjects.ColRowToDate(objId, _Date,_Hour,Col, Row);
    ConvWeekObjects  :  if (Col >= Modulo) and (Col - Modulo <= High(weekObjIds)) then begin
                          // ka¿da kolumna obiektu pokazuje ten sam tydzieñ
                          result := convertSingleObject.ColRowToDate(_Date,_Hour,Modulo, Row);
@@ -2170,11 +2133,8 @@ begin
     end;
 end;
 
-procedure TConvertGrid.setupGrid(periodId: String;  singleChartMode: boolean; resType : integer; searchText: String; var pcolCnt, prowCnt: integer);
+procedure TConvertGrid.setupGrid(periodId: String; resType : integer; var pcolCnt, prowCnt: integer);
 var DateFrom, DateTo            : TDateTime;
-    ObjIDs                      : Array of integer;
-    ObjNames                    : Array of string;
-    Len                         : integer;
 Begin
   With DModule Do Begin
         Dmodule.SingleValue(CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY''),TO_CHAR(DATE_FROM,''MM''),TO_CHAR(DATE_FROM,''DD''),TO_CHAR(DATE_TO,''YYYY''),TO_CHAR(DATE_TO,''MM''),TO_CHAR(DATE_TO,''DD''), PERIODS.* FROM PERIODS WHERE ID='+periodId));
@@ -2183,63 +2143,11 @@ Begin
   End;
   HOURS_PER_DAY := DModule.QWork.FieldByName('HOURS_PER_DAY').AsInteger;
 
-  if (singleChartMode = FALSE) then begin
-   Case resType Of
-     0:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_LECNAME+' NAME' + CR +
-             'FROM LECTURERS ' + CR +
-             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT LEC_ID FROM LEC_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
-             'AND '+fmain.getWhereFastFilter(searchText,'LECTURERS')+CR+
-             'ORDER BY ABBREVIATION');
-     1:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_GRONAME+' NAME' + CR +
-             'FROM GROUPS ' + CR +
-             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT GRO_ID FROM GRO_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
-             'AND '+fmain.getWhereFastFilter(searchText,'GROUPS')+CR+
-             'ORDER BY ABBREVIATION ');
-     2:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_ResCat0NAME+' NAME' + CR +
-             'FROM ROOMS ' + CR +
-             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
-             'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
-             'ORDER BY NAME ');
-     3:With DModule do
-           OPENSQL2(
-             'SELECT   ID, '+sql_ResCat1NAME+' NAME' + CR +
-             'FROM ROOMS ' + CR +
-             'WHERE ROWNUM <= '+GetSystemParam('CrossTableMaxRows','20')+' AND ID IN (SELECT ROM_ID FROM ROM_PLA WHERE PLA_ID = '+fmain.getUserOrRoleID+') ' + CR +
-               'AND RESCAT_ID='+nvl( dmodule.pResCatId1 ,'-1') + CR +
-             'AND '+fmain.getWhereFastFilter(searchText,'ROOMS')+CR+
-             'ORDER BY NAME ');
-   end;
-   if resType in [0,1,2,3] then begin
-         With DModule do begin
-           Len := 0;
-           SetLength(ObjIDs, Len);
-           SetLength(ObjNames, Len);
-           While not QWork2.Eof do begin
-             inc ( len );
-             setLength(ObjIDs  , Len);
-             setLength(ObjNames, Len);
-             ObjIDs  [len - 1] := QWork2.FieldByName('ID').AsInteger;
-             ObjNames[len - 1] := QWork2.FieldByName('NAME').AsString;
-             QWork2.Next;
-           end;
-         end;
-   end;
-  end;
-
-
   With DModule.QWork Do
-    if singleChartMode
-      then initSingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+')
-      else initNOsingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+', ObjIDs, ObjNames );
+    initSingleChartMode(DateTimeToTimeStamp(DateFrom).Date, DateTimeToTimeStamp(DateTo).Date, pcolCnt, prowCnt, FieldByName('HOURS_PER_DAY').AsInteger,FieldByName('SHOW_MON').AsString='+',FieldByName('SHOW_TUE').AsString='+',FieldByName('SHOW_WED').AsString='+',FieldByName('SHOW_THU').AsString='+',FieldByName('SHOW_FRI').AsString='+',FieldByName('SHOW_SAT').AsString='+',FieldByName('SHOW_SUN').AsString='+');
 
   // okres tygodniowy z obiektami w kolumnach (setWeekObjects) - tylko gdy siatka ma dok³adnie jedn¹ kolumnê tygodnia
-  if singleChartMode and (Length(weekObjIds) > 0) and (pcolCnt = Modulo + 1) then begin
+  if (Length(weekObjIds) > 0) and (pcolCnt = Modulo + 1) then begin
     convertMode := ConvWeekObjects;
     pcolCnt     := Modulo + Length(weekObjIds);
   end;
@@ -2294,20 +2202,30 @@ begin
       result := merge(result, IntToStr(weekObjIds[t - Modulo]), ';');
 end;
 
-// objId + te ID z listy ids, które nie s¹ obiektami kolumn (np. grupa dopisana rêcznie w oknie szczegó³ów)
-function TConvertGrid.replaceWeekObjects(ids: string; objId: integer): string;
-var t, k : integer;
-    value : string;
-    isColumnObject : boolean;
+// nazwy obiektów kolumn w kolejnoœci kolumn, '' poza trybem ConvWeekObjects
+function TConvertGrid.weekObjectNames(separator: string): string;
+var t : integer;
 begin
-  result := IntToStr(objId);
-  for t := 1 to WordCount(ids, [';']) do begin
-    value := ExtractWord(t, ids, [';']);
-    isColumnObject := false;
-    for k := 0 to High(weekObjIds) do
-      if IntToStr(weekObjIds[k]) = value then isColumnObject := true;
-    if not isColumnObject then result := merge(result, value, ';');
-  end;
+  result := '';
+  if convertMode <> ConvWeekObjects then exit;
+  for t := 0 to High(weekObjNames) do
+    result := merge(result, weekObjNames[t], separator);
+end;
+
+function TConvertGrid.weekObjectIdList: string;
+var t : integer;
+begin
+  result := '';
+  for t := 0 to High(weekObjIds) do
+    result := merge(result, IntToStr(weekObjIds[t]), ';');
+end;
+
+function TConvertGrid.weekObjectNameList: string;
+var t : integer;
+begin
+  result := '';
+  for t := 0 to High(weekObjNames) do
+    result := merge(result, weekObjNames[t], ';');
 end;
 
 initialization

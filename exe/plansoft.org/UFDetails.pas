@@ -234,6 +234,7 @@ type
     procedure rescat1_1_valueChange(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
   private
+    WeekSyncInfo : TLabel; // synchronizacja tygodni: napis w nag³ówku okna (tworzony przy pierwszym u¿yciu)
     procedure selectLEC;
     procedure selectGRO;
     procedure selectRES;
@@ -277,6 +278,7 @@ type
     procedure setValues(aTS : TTimeStamp; aZajecia,classId: Integer; L, G, R, Rtypes : string; S, F, Fill, colour : Integer; Kind : string; ReservationFor : Integer; Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : String);
     //Je¿eli Zajecia<>-1 (warunek Zajecia=-1 oznacza wiele terminow) to w na formularzu wyœwietla siê data i godzina zajêæ i dzia³aj¹ przyciski do wybierania wolnych wyk³adówców, grup, zasobow
     procedure DisplayWarning(L, G, R : String);
+    procedure setWeekSyncInfo(active : boolean);
     procedure getValues( Var L, G, R : string; var S, F, Fill, colour : integer; var Created_by, Owner, pdesc1, pdesc2, pdesc3, pdesc4 : string);
   end;
 
@@ -289,6 +291,21 @@ implementation
 
 Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities,
   UFFloatingMessage;
+
+// synchronizacja tygodni (FMain.WeekSync): zmiany z tego okna trafi¹ tak¿e do pozosta³ych widocznych tygodni
+procedure TFDetails.setWeekSyncInfo(active : boolean);
+begin
+  if (WeekSyncInfo = nil) and active then begin
+    WeekSyncInfo := TLabel.Create(Self);
+    WeekSyncInfo.Parent     := Panel1;
+    WeekSyncInfo.Left       := 360;
+    WeekSyncInfo.Top        := 5;
+    WeekSyncInfo.Font.Color := clRed;
+    WeekSyncInfo.Font.Style := [fsBold];
+    WeekSyncInfo.Caption    := 'ZMIANY S¥ SYNCHRONIZOWANE Z INNYMI TYGODNIAMI';
+  end;
+  if WeekSyncInfo <> nil then WeekSyncInfo.Visible := active;
+end;
 
 procedure TFDetails.DisplayWarning(L, G, R : String);
 begin

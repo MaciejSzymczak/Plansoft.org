@@ -4,18 +4,18 @@ inherited FSettings: TFSettings
   BorderStyle = bsDialog
   Caption = 'Drukuj'
   ClientHeight = 582
-  ClientWidth = 884
+  ClientWidth = 934
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
     Top = 563
-    Width = 884
+    Width = 934
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
     Top = 522
-    Width = 884
+    Width = 934
     Height = 41
     Align = alBottom
     TabOrder = 1
@@ -186,7 +186,7 @@ inherited FSettings: TFSettings
   object PageControl: TPageControl
     Left = 0
     Top = 41
-    Width = 884
+    Width = 934
     Height = 481
     ActivePage = TabSheetS
     Align = alClient
@@ -202,7 +202,7 @@ inherited FSettings: TFSettings
         Caption = 'Scalanie kom'#243'rek'
       end
       object lhelp: TSpeedButton
-        Left = 397
+        Left = 447
         Top = 273
         Width = 23
         Height = 22
@@ -274,7 +274,7 @@ inherited FSettings: TFSettings
       object LDescGroup: TGroupBox
         Left = 1
         Top = 40
-        Width = 256
+        Width = 306
         Height = 152
         Caption = 'Opisy'
         TabOrder = 0
@@ -284,13 +284,13 @@ inherited FSettings: TFSettings
           Width = 244
           Height = 14
           Caption = 
-            'Zawarto'#347#263'                                            Wielk.  Pog' +
+            'Zawarto'#347#263'                                                    Wielk.  Pog' +
             'r.'
         end
         object LD1: TComboBox
           Left = 8
           Top = 30
-          Width = 185
+          Width = 213
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -302,7 +302,7 @@ inherited FSettings: TFSettings
         object LD2: TComboBox
           Left = 8
           Top = 54
-          Width = 185
+          Width = 213
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -314,7 +314,7 @@ inherited FSettings: TFSettings
         object LD3: TComboBox
           Left = 8
           Top = 78
-          Width = 185
+          Width = 213
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -326,7 +326,7 @@ inherited FSettings: TFSettings
         object LD4: TComboBox
           Left = 8
           Top = 102
-          Width = 185
+          Width = 213
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -338,7 +338,7 @@ inherited FSettings: TFSettings
         object LD5: TComboBox
           Left = 8
           Top = 126
-          Width = 185
+          Width = 213
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -348,7 +348,7 @@ inherited FSettings: TFSettings
           TabOrder = 4
         end
         object LS1: TEdit
-          Left = 195
+          Left = 223
           Top = 30
           Width = 38
           Height = 22
@@ -356,7 +356,7 @@ inherited FSettings: TFSettings
           Text = '10'
         end
         object LS2: TEdit
-          Left = 195
+          Left = 223
           Top = 54
           Width = 38
           Height = 22
@@ -364,7 +364,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object LS3: TEdit
-          Left = 195
+          Left = 223
           Top = 78
           Width = 38
           Height = 22
@@ -372,7 +372,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object LS4: TEdit
-          Left = 195
+          Left = 223
           Top = 102
           Width = 38
           Height = 22
@@ -380,7 +380,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object LS5: TEdit
-          Left = 195
+          Left = 223
           Top = 126
           Width = 38
           Height = 22
@@ -388,7 +388,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object LB1: TCheckBox
-          Left = 236
+          Left = 264
           Top = 32
           Width = 17
           Height = 17
@@ -397,32 +397,89 @@ inherited FSettings: TFSettings
           TabOrder = 10
         end
         object LB2: TCheckBox
-          Left = 236
+          Left = 264
           Top = 56
           Width = 17
           Height = 17
           TabOrder = 11
         end
         object LB3: TCheckBox
-          Left = 236
+          Left = 264
           Top = 80
           Width = 17
           Height = 17
           TabOrder = 12
         end
         object LB4: TCheckBox
-          Left = 236
+          Left = 264
           Top = 104
           Width = 17
           Height = 17
           TabOrder = 13
         end
         object LB5: TCheckBox
-          Left = 236
+          Left = 264
           Top = 128
           Width = 17
           Height = 17
           TabOrder = 14
+        end
+        object LLinkLabel: TLabel
+          Left = 284
+          Top = 16
+          Width = 20
+          Height = 14
+          Caption = 'Link'
+        end
+        object LLink1: TCheckBox
+          Left = 286
+          Top = 32
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 15
+        end
+        object LLink2: TCheckBox
+          Left = 286
+          Top = 56
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 16
+        end
+        object LLink3: TCheckBox
+          Left = 286
+          Top = 80
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 17
+        end
+        object LLink4: TCheckBox
+          Left = 286
+          Top = 104
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 18
+        end
+        object LLink5: TCheckBox
+          Left = 286
+          Top = 128
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
         end
       end
       object LCellSizes: TGroupBox
@@ -489,7 +546,7 @@ inherited FSettings: TFSettings
         OnClick = LLShowLegendClick
       end
       object lheadergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 0
         Width = 609
         Height = 121
@@ -509,7 +566,7 @@ inherited FSettings: TFSettings
         end
       end
       object lfootergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 136
         Width = 609
         Height = 137
@@ -603,7 +660,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object LVerticalLines: TCheckBox
-        Left = 432
+        Left = 482
         Top = 296
         Width = 201
         Height = 17
@@ -613,7 +670,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object LAddCreationDate: TComboBox
-        Left = 431
+        Left = 481
         Top = 319
         Width = 208
         Height = 22
@@ -630,7 +687,7 @@ inherited FSettings: TFSettings
           'Nie wstawiaj daty aktualizacji')
       end
       object Lnotes_before: TCheckBox
-        Left = 264
+        Left = 314
         Top = 120
         Width = 433
         Height = 17
@@ -638,7 +695,7 @@ inherited FSettings: TFSettings
         TabOrder = 13
       end
       object Lnotes_after: TCheckBox
-        Left = 264
+        Left = 314
         Top = 272
         Width = 129
         Height = 17
@@ -646,7 +703,7 @@ inherited FSettings: TFSettings
         TabOrder = 14
       end
       object LPdfPrintOut: TCheckBox
-        Left = 645
+        Left = 695
         Top = 272
         Width = 97
         Height = 17
@@ -655,7 +712,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object lpdfg: TCheckBox
-        Left = 645
+        Left = 695
         Top = 288
         Width = 162
         Height = 17
@@ -664,7 +721,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object lpdfl: TCheckBox
-        Left = 645
+        Left = 695
         Top = 304
         Width = 97
         Height = 17
@@ -673,7 +730,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object lpdfo: TCheckBox
-        Left = 645
+        Left = 695
         Top = 320
         Width = 155
         Height = 17
@@ -682,7 +739,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object lpdfs: TCheckBox
-        Left = 645
+        Left = 695
         Top = 336
         Width = 97
         Height = 17
@@ -691,7 +748,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object llegendMode: TGroupBox
-        Left = 264
+        Left = 314
         Top = 296
         Width = 161
         Height = 136
@@ -766,7 +823,7 @@ inherited FSettings: TFSettings
         Caption = 'Scalanie kom'#243'rek'
       end
       object ghelp: TSpeedButton
-        Left = 400
+        Left = 450
         Top = 273
         Width = 23
         Height = 22
@@ -838,7 +895,7 @@ inherited FSettings: TFSettings
       object GDescGroup: TGroupBox
         Left = 1
         Top = 40
-        Width = 256
+        Width = 306
         Height = 151
         Caption = 'Opisy'
         TabOrder = 0
@@ -848,13 +905,13 @@ inherited FSettings: TFSettings
           Width = 241
           Height = 14
           Caption = 
-            'Zawarto'#347#263'                                           Wielk.  Pogr' +
+            'Zawarto'#347#263'                                                   Wielk.  Pogr' +
             '.'
         end
         object GD1: TComboBox
           Left = 6
           Top = 30
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -866,7 +923,7 @@ inherited FSettings: TFSettings
         object GD2: TComboBox
           Left = 6
           Top = 54
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -878,7 +935,7 @@ inherited FSettings: TFSettings
         object GD3: TComboBox
           Left = 6
           Top = 78
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -890,7 +947,7 @@ inherited FSettings: TFSettings
         object GD4: TComboBox
           Left = 6
           Top = 102
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -902,7 +959,7 @@ inherited FSettings: TFSettings
         object GD5: TComboBox
           Left = 6
           Top = 126
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -912,7 +969,7 @@ inherited FSettings: TFSettings
           TabOrder = 4
         end
         object GS1: TEdit
-          Left = 193
+          Left = 221
           Top = 30
           Width = 38
           Height = 22
@@ -920,7 +977,7 @@ inherited FSettings: TFSettings
           Text = '10'
         end
         object GS2: TEdit
-          Left = 193
+          Left = 221
           Top = 54
           Width = 38
           Height = 22
@@ -928,7 +985,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object GS3: TEdit
-          Left = 193
+          Left = 221
           Top = 78
           Width = 38
           Height = 22
@@ -936,7 +993,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object GS4: TEdit
-          Left = 193
+          Left = 221
           Top = 102
           Width = 38
           Height = 22
@@ -944,7 +1001,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object GS5: TEdit
-          Left = 193
+          Left = 221
           Top = 123
           Width = 38
           Height = 22
@@ -952,41 +1009,98 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object GB5: TCheckBox
-          Left = 234
+          Left = 262
           Top = 128
           Width = 17
           Height = 17
           TabOrder = 10
         end
         object GB4: TCheckBox
-          Left = 234
+          Left = 262
           Top = 104
           Width = 17
           Height = 17
           TabOrder = 11
         end
         object GB3: TCheckBox
-          Left = 234
+          Left = 262
           Top = 80
           Width = 17
           Height = 17
           TabOrder = 12
         end
         object GB2: TCheckBox
-          Left = 234
+          Left = 262
           Top = 56
           Width = 17
           Height = 17
           TabOrder = 13
         end
         object GB1: TCheckBox
-          Left = 234
+          Left = 262
           Top = 32
           Width = 17
           Height = 17
           Checked = True
           State = cbChecked
           TabOrder = 14
+        end
+        object GLinkLabel: TLabel
+          Left = 282
+          Top = 16
+          Width = 20
+          Height = 14
+          Caption = 'Link'
+        end
+        object GLink1: TCheckBox
+          Left = 284
+          Top = 32
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 15
+        end
+        object GLink2: TCheckBox
+          Left = 284
+          Top = 56
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 16
+        end
+        object GLink3: TCheckBox
+          Left = 284
+          Top = 80
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 17
+        end
+        object GLink4: TCheckBox
+          Left = 284
+          Top = 104
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 18
+        end
+        object GLink5: TCheckBox
+          Left = 284
+          Top = 128
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
         end
       end
       object GCellSizes: TGroupBox
@@ -1055,7 +1169,7 @@ inherited FSettings: TFSettings
         OnClick = gGShowLegendClick
       end
       object gheadergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 0
         Width = 609
         Height = 121
@@ -1073,7 +1187,7 @@ inherited FSettings: TFSettings
         end
       end
       object gfootergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 136
         Width = 609
         Height = 137
@@ -1165,7 +1279,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object GVerticalLines: TCheckBox
-        Left = 432
+        Left = 482
         Top = 296
         Width = 201
         Height = 17
@@ -1175,7 +1289,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object GAddCreationDate: TComboBox
-        Left = 431
+        Left = 481
         Top = 319
         Width = 186
         Height = 22
@@ -1192,7 +1306,7 @@ inherited FSettings: TFSettings
           'Nie wstawiaj daty aktualizacji')
       end
       object Gnotes_before: TCheckBox
-        Left = 264
+        Left = 314
         Top = 120
         Width = 433
         Height = 17
@@ -1200,7 +1314,7 @@ inherited FSettings: TFSettings
         TabOrder = 13
       end
       object Gnotes_after: TCheckBox
-        Left = 264
+        Left = 314
         Top = 272
         Width = 129
         Height = 17
@@ -1208,7 +1322,7 @@ inherited FSettings: TFSettings
         TabOrder = 14
       end
       object GPdfPrintOut: TCheckBox
-        Left = 624
+        Left = 674
         Top = 272
         Width = 97
         Height = 17
@@ -1217,7 +1331,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object gpdfg: TCheckBox
-        Left = 624
+        Left = 674
         Top = 288
         Width = 129
         Height = 17
@@ -1226,7 +1340,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object gpdfl: TCheckBox
-        Left = 624
+        Left = 674
         Top = 304
         Width = 97
         Height = 17
@@ -1235,7 +1349,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object gpdfo: TCheckBox
-        Left = 624
+        Left = 674
         Top = 320
         Width = 129
         Height = 17
@@ -1244,7 +1358,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object gpdfs: TCheckBox
-        Left = 624
+        Left = 674
         Top = 336
         Width = 97
         Height = 17
@@ -1253,7 +1367,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object glegendMode: TGroupBox
-        Left = 264
+        Left = 314
         Top = 296
         Width = 161
         Height = 136
@@ -1328,7 +1442,7 @@ inherited FSettings: TFSettings
         Caption = 'Scalanie kom'#243'rek'
       end
       object rhelp: TSpeedButton
-        Left = 400
+        Left = 450
         Top = 273
         Width = 23
         Height = 22
@@ -1400,7 +1514,7 @@ inherited FSettings: TFSettings
       object RDescGroup: TGroupBox
         Left = 1
         Top = 40
-        Width = 256
+        Width = 306
         Height = 152
         Caption = 'Opisy'
         TabOrder = 0
@@ -1410,13 +1524,13 @@ inherited FSettings: TFSettings
           Width = 241
           Height = 14
           Caption = 
-            'Zawarto'#347#263'                                           Wielk.  Pogr' +
+            'Zawarto'#347#263'                                                   Wielk.  Pogr' +
             '.'
         end
         object RD1: TComboBox
           Left = 6
           Top = 30
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -1428,7 +1542,7 @@ inherited FSettings: TFSettings
         object RD2: TComboBox
           Left = 6
           Top = 54
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -1440,7 +1554,7 @@ inherited FSettings: TFSettings
         object RD3: TComboBox
           Left = 6
           Top = 78
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -1452,7 +1566,7 @@ inherited FSettings: TFSettings
         object RD4: TComboBox
           Left = 6
           Top = 102
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -1466,7 +1580,7 @@ inherited FSettings: TFSettings
         object RD5: TComboBox
           Left = 6
           Top = 126
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -1476,7 +1590,7 @@ inherited FSettings: TFSettings
           TabOrder = 4
         end
         object RS1: TEdit
-          Left = 193
+          Left = 221
           Top = 30
           Width = 38
           Height = 22
@@ -1484,7 +1598,7 @@ inherited FSettings: TFSettings
           Text = '10'
         end
         object RS2: TEdit
-          Left = 193
+          Left = 221
           Top = 54
           Width = 38
           Height = 22
@@ -1492,7 +1606,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object RS3: TEdit
-          Left = 193
+          Left = 221
           Top = 78
           Width = 38
           Height = 22
@@ -1500,7 +1614,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object RS4: TEdit
-          Left = 193
+          Left = 221
           Top = 102
           Width = 38
           Height = 22
@@ -1508,7 +1622,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object RS5: TEdit
-          Left = 193
+          Left = 221
           Top = 123
           Width = 38
           Height = 22
@@ -1516,41 +1630,98 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object RB5: TCheckBox
-          Left = 234
+          Left = 262
           Top = 128
           Width = 17
           Height = 17
           TabOrder = 10
         end
         object RB4: TCheckBox
-          Left = 234
+          Left = 262
           Top = 104
           Width = 17
           Height = 17
           TabOrder = 11
         end
         object RB3: TCheckBox
-          Left = 234
+          Left = 262
           Top = 80
           Width = 17
           Height = 17
           TabOrder = 12
         end
         object RB2: TCheckBox
-          Left = 234
+          Left = 262
           Top = 56
           Width = 17
           Height = 17
           TabOrder = 13
         end
         object RB1: TCheckBox
-          Left = 234
+          Left = 262
           Top = 32
           Width = 17
           Height = 17
           Checked = True
           State = cbChecked
           TabOrder = 14
+        end
+        object RLinkLabel: TLabel
+          Left = 282
+          Top = 16
+          Width = 20
+          Height = 14
+          Caption = 'Link'
+        end
+        object RLink1: TCheckBox
+          Left = 284
+          Top = 32
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 15
+        end
+        object RLink2: TCheckBox
+          Left = 284
+          Top = 56
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 16
+        end
+        object RLink3: TCheckBox
+          Left = 284
+          Top = 80
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 17
+        end
+        object RLink4: TCheckBox
+          Left = 284
+          Top = 104
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 18
+        end
+        object RLink5: TCheckBox
+          Left = 284
+          Top = 128
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
         end
       end
       object RCellSizes: TGroupBox
@@ -1617,7 +1788,7 @@ inherited FSettings: TFSettings
         OnClick = rRShowLegendClick
       end
       object rheadergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 0
         Width = 609
         Height = 121
@@ -1635,7 +1806,7 @@ inherited FSettings: TFSettings
         end
       end
       object rfootergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 136
         Width = 609
         Height = 137
@@ -1727,7 +1898,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object RVerticalLines: TCheckBox
-        Left = 432
+        Left = 482
         Top = 296
         Width = 201
         Height = 17
@@ -1737,7 +1908,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object RAddCreationDate: TComboBox
-        Left = 431
+        Left = 481
         Top = 319
         Width = 186
         Height = 22
@@ -1754,7 +1925,7 @@ inherited FSettings: TFSettings
           'Nie wstawiaj daty aktualizacji')
       end
       object Rnotes_before: TCheckBox
-        Left = 264
+        Left = 314
         Top = 120
         Width = 433
         Height = 17
@@ -1762,7 +1933,7 @@ inherited FSettings: TFSettings
         TabOrder = 13
       end
       object Rnotes_after: TCheckBox
-        Left = 264
+        Left = 314
         Top = 272
         Width = 129
         Height = 17
@@ -1770,7 +1941,7 @@ inherited FSettings: TFSettings
         TabOrder = 14
       end
       object RPdfPrintOut: TCheckBox
-        Left = 624
+        Left = 674
         Top = 272
         Width = 97
         Height = 17
@@ -1779,7 +1950,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object rpdfg: TCheckBox
-        Left = 624
+        Left = 674
         Top = 288
         Width = 129
         Height = 17
@@ -1788,7 +1959,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object rpdfl: TCheckBox
-        Left = 624
+        Left = 674
         Top = 304
         Width = 97
         Height = 17
@@ -1797,7 +1968,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object rpdfo: TCheckBox
-        Left = 624
+        Left = 674
         Top = 320
         Width = 129
         Height = 17
@@ -1806,7 +1977,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object rpdfs: TCheckBox
-        Left = 624
+        Left = 674
         Top = 336
         Width = 97
         Height = 17
@@ -1815,7 +1986,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object rlegendMode: TGroupBox
-        Left = 264
+        Left = 314
         Top = 296
         Width = 161
         Height = 136
@@ -1899,7 +2070,7 @@ inherited FSettings: TFSettings
         Caption = 'Scalanie kom'#243'rek'
       end
       object Shelp: TSpeedButton
-        Left = 400
+        Left = 450
         Top = 273
         Width = 23
         Height = 22
@@ -1980,7 +2151,7 @@ inherited FSettings: TFSettings
         end
       end
       object Sheadergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 0
         Width = 609
         Height = 121
@@ -1998,7 +2169,7 @@ inherited FSettings: TFSettings
         end
       end
       object Snotes_before: TCheckBox
-        Left = 264
+        Left = 314
         Top = 120
         Width = 433
         Height = 17
@@ -2006,7 +2177,7 @@ inherited FSettings: TFSettings
         TabOrder = 2
       end
       object Sfootergroup: TGroupBox
-        Left = 264
+        Left = 314
         Top = 136
         Width = 609
         Height = 137
@@ -2026,7 +2197,7 @@ inherited FSettings: TFSettings
       object SDescGroup: TGroupBox
         Left = 1
         Top = 40
-        Width = 256
+        Width = 306
         Height = 152
         Caption = 'Opisy'
         TabOrder = 4
@@ -2036,13 +2207,13 @@ inherited FSettings: TFSettings
           Width = 241
           Height = 14
           Caption = 
-            'Zawarto'#347#263'                                           Wielk.  Pogr' +
+            'Zawarto'#347#263'                                                   Wielk.  Pogr' +
             '.'
         end
         object SD1: TComboBox
           Left = 6
           Top = 30
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -2054,7 +2225,7 @@ inherited FSettings: TFSettings
         object SD2: TComboBox
           Left = 6
           Top = 54
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -2066,7 +2237,7 @@ inherited FSettings: TFSettings
         object SD3: TComboBox
           Left = 6
           Top = 78
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -2078,7 +2249,7 @@ inherited FSettings: TFSettings
         object SD4: TComboBox
           Left = 6
           Top = 102
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -2092,7 +2263,7 @@ inherited FSettings: TFSettings
         object SD5: TComboBox
           Left = 6
           Top = 126
-          Width = 187
+          Width = 215
           Height = 22
           Hint = 'WYPE'#321'NIENIE BLOKU'
           Style = csOwnerDrawFixed
@@ -2102,7 +2273,7 @@ inherited FSettings: TFSettings
           TabOrder = 4
         end
         object SS1: TEdit
-          Left = 193
+          Left = 221
           Top = 30
           Width = 38
           Height = 22
@@ -2110,7 +2281,7 @@ inherited FSettings: TFSettings
           Text = '10'
         end
         object SS2: TEdit
-          Left = 193
+          Left = 221
           Top = 54
           Width = 38
           Height = 22
@@ -2118,7 +2289,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object SS3: TEdit
-          Left = 193
+          Left = 221
           Top = 78
           Width = 38
           Height = 22
@@ -2126,7 +2297,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object SS4: TEdit
-          Left = 193
+          Left = 221
           Top = 102
           Width = 38
           Height = 22
@@ -2134,7 +2305,7 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object SS5: TEdit
-          Left = 193
+          Left = 221
           Top = 123
           Width = 38
           Height = 22
@@ -2142,41 +2313,98 @@ inherited FSettings: TFSettings
           Text = '8'
         end
         object SB5: TCheckBox
-          Left = 234
+          Left = 262
           Top = 128
           Width = 17
           Height = 17
           TabOrder = 10
         end
         object SB4: TCheckBox
-          Left = 234
+          Left = 262
           Top = 104
           Width = 17
           Height = 17
           TabOrder = 11
         end
         object SB3: TCheckBox
-          Left = 234
+          Left = 262
           Top = 80
           Width = 17
           Height = 17
           TabOrder = 12
         end
         object SB2: TCheckBox
-          Left = 234
+          Left = 262
           Top = 56
           Width = 17
           Height = 17
           TabOrder = 13
         end
         object SB1: TCheckBox
-          Left = 234
+          Left = 262
           Top = 32
           Width = 17
           Height = 17
           Checked = True
           State = cbChecked
           TabOrder = 14
+        end
+        object SLinkLabel: TLabel
+          Left = 282
+          Top = 16
+          Width = 20
+          Height = 14
+          Caption = 'Link'
+        end
+        object SLink1: TCheckBox
+          Left = 284
+          Top = 32
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 15
+        end
+        object SLink2: TCheckBox
+          Left = 284
+          Top = 56
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 16
+        end
+        object SLink3: TCheckBox
+          Left = 284
+          Top = 80
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 17
+        end
+        object SLink4: TCheckBox
+          Left = 284
+          Top = 104
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 18
+        end
+        object SLink5: TCheckBox
+          Left = 284
+          Top = 128
+          Width = 17
+          Height = 17
+          Hint = 'Nazwa jest linkiem do rozk'#322'adu (wyk'#322'adowcy, grupy, zasobu)'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
         end
       end
       object SCellSizes: TGroupBox
@@ -2288,7 +2516,7 @@ inherited FSettings: TFSettings
           'Scalaj w pionie, potem w poziomie')
       end
       object SlegendMode: TGroupBox
-        Left = 264
+        Left = 314
         Top = 296
         Width = 161
         Height = 136
@@ -2352,7 +2580,7 @@ inherited FSettings: TFSettings
         end
       end
       object Snotes_after: TCheckBox
-        Left = 264
+        Left = 314
         Top = 272
         Width = 129
         Height = 17
@@ -2369,7 +2597,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object SVerticalLines: TCheckBox
-        Left = 432
+        Left = 482
         Top = 296
         Width = 201
         Height = 17
@@ -2379,7 +2607,7 @@ inherited FSettings: TFSettings
         OnClick = LHideEmptyRowsClick
       end
       object SAddCreationDate: TComboBox
-        Left = 431
+        Left = 481
         Top = 319
         Width = 186
         Height = 22
@@ -2396,7 +2624,7 @@ inherited FSettings: TFSettings
           'Nie wstawiaj daty aktualizacji')
       end
       object SPdfPrintOut: TCheckBox
-        Left = 624
+        Left = 674
         Top = 272
         Width = 97
         Height = 17
@@ -2405,7 +2633,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object Spdfg: TCheckBox
-        Left = 624
+        Left = 674
         Top = 288
         Width = 129
         Height = 17
@@ -2414,7 +2642,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object Spdfl: TCheckBox
-        Left = 624
+        Left = 674
         Top = 304
         Width = 97
         Height = 17
@@ -2423,7 +2651,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object Spdfo: TCheckBox
-        Left = 624
+        Left = 674
         Top = 320
         Width = 129
         Height = 17
@@ -2432,7 +2660,7 @@ inherited FSettings: TFSettings
         OnClick = LPdfPrintOutClick
       end
       object Spdfs: TCheckBox
-        Left = 624
+        Left = 674
         Top = 336
         Width = 97
         Height = 17
@@ -2680,7 +2908,7 @@ inherited FSettings: TFSettings
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 884
+    Width = 934
     Height = 41
     Align = alTop
     TabOrder = 3
