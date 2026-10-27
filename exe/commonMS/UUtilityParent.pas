@@ -911,23 +911,23 @@ begin
 end;
 
 procedure webBrowser( purl : string);
-var
-  zUrl, zParams : array[0..255] of Char;
 begin
-  ShellExecute(Application.MainForm.Handle,nil, StrPCopy(zUrl, purl) , StrPCopy(zParams, '') ,nil,sw_maximize);
+  // PChar zamiast bufora o stalej dlugosci - StrPCopy nie sprawdza rozmiaru (dlugi URL nadpisywal stos)
+  ShellExecute(Application.MainForm.Handle,nil, PChar(purl) , nil ,nil,sw_maximize);
 end;
 
 function ExecuteFile(const FileName, Params, DefaultDir: string;
   ShowCmd: Integer): THandle;
 var
   lParams : string;
-  zFileName, zParams, zDir: array[0..79] of Char;
 begin
   lParams := Params;
   if ( instr(lParams,' ')<>0 ) and ( instr(lParams,'"')=0 ) then  lParams := '"'+ lParams + '"';
+  // PChar zamiast buforow array[0..79] of Char: StrPCopy nie sprawdza rozmiaru, a sciezka dluzsza niz 79 znakow
+  // (np. podglad grafika tygodniowego z kilkoma obiektami: Pan_A_Pan_B_Pan_C.htm) nadpisywala stos -> zawieszenie i zamkniecie programu
   Result := ShellExecute({Application.MainForm.Handle}0, nil,
-    StrPCopy(zFileName, FileName), StrPCopy(zParams, lParams),
-    StrPCopy(zDir, DefaultDir), ShowCmd);
+    PChar(FileName), PChar(lParams),
+    PChar(DefaultDir), ShowCmd);
 end;
 
 function WordCount(const S: string; WordDelims: TCharSet): Integer;
@@ -1902,7 +1902,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2026-10-25';
+ VersionOfApplication := '2026-10-27';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

@@ -1149,7 +1149,7 @@ implementation
 
 {$R *.DFM}
 
-Uses AutoCreate, UFDetails,
+Uses AutoCreate, UFDetails, UFWarning,
   UFShowConflicts, UFLegend, UFGrouping, UFSettings, UFPlannerPermissions,
   UFWWWGenerator, UFExp, UFImp, UFLookupWindow,
   UFProgramSettings, UFChangePassword, UFToolWindow,
@@ -10684,7 +10684,8 @@ begin
              '(Tygodnie okresu tworzy przycisk "Utwórz tygodnie" w oknie Okresy.)');
       exit;
     end;
-    SError('Wszystkie Twoje zmiany bêd¹ synchronizowane z innymi widocznymi tygodniami.'+cr+
+    FWarning.showMessage('WeekSyncOn',
+           'Wszystkie Twoje zmiany bêd¹ synchronizowane z innymi widocznymi tygodniami.'+cr+
            'Aby wy³¹czyæ synchronizowanie naciœnij ponownie przycisk "Synchronizacja tygodni".');
   end;
   SetSystemParam(weekSyncParam, iif(WeekSync.Down, '+', '-'));

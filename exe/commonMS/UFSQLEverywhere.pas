@@ -482,12 +482,11 @@ end;
 
 function ExecuteFile(const FileName, Params, DefaultDir: string;
   ShowCmd: Integer): THandle;
-var
-  zFileName, zParams, zDir: array[0..79] of Char;
 begin
+  // PChar zamiast buforow array[0..79] of Char: StrPCopy nie sprawdza rozmiaru, sciezka dluzsza niz 79 znakow nadpisywala stos
   Result := ShellExecute(Application.MainForm.Handle, nil,
-    StrPCopy(zFileName, FileName), StrPCopy(zParams, Params),
-    StrPCopy(zDir, DefaultDir), ShowCmd);
+    PChar(FileName), PChar(Params),
+    PChar(DefaultDir), ShowCmd);
 end;
 
 procedure TFSQLEverywhere.PClick(Sender: TObject);

@@ -5005,18 +5005,33 @@ inherited FMain: TFMain
           '    FROM periods'
           '    WHERE ID = pId;'
           '    OriginalName :=  v_record.Name;'
-          '    -- ponowne "Utworz tygodnie": stare tygodnie sa kasowane i tworzone od nowa (okres mogl zmienic dlugosc)'
-          '    delete from holiday_days where per_id in (select id from periods where sub_period_parent = pId);'
+          
+            '    -- ponowne "Utworz tygodnie": stare tygodnie sa kasowane i t' +
+            'worzone od nowa (okres mogl zmienic dlugosc)'
+          
+            '    delete from holiday_days where per_id in (select id from per' +
+            'iods where sub_period_parent = pId);'
           '    delete from periods where sub_period_parent = pId;'
           '   for week in ('
           '        --weeks generator'
-          '        select date_from, date_to,  TO_CHAR(date_from, '#39'IYYY'#39')||'#39'-'#39'|| LPAD(TO_CHAR(date_from, '#39'IW'#39'), 2, '#39'0'#39') ||'#39': '#39'|| to_char(date_from,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39')||'#39'-'#39'||to_char(date_to,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39') Name from'
+          
+            '        select date_from, date_to,  TO_CHAR(date_from, '#39'IYYY'#39')||' +
+            #39'-'#39'|| LPAD(TO_CHAR(date_from, '#39'IW'#39'), 2, '#39'0'#39') ||'#39': '#39'|| to_char(da' +
+            'te_from,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39')||'#39'-'#39'||to_char(date' +
+            '_to,'#39'dd-mon'#39', '#39'NLS_DATE_LANGUAGE=POLISH'#39') Name from'
           '        ('
-          '        select greatest(first_day_of_week, v_record.date_from) date_from, LEAST (first_day_of_week + 6, v_record.date_to) date_to from'
+          
+            '        select greatest(first_day_of_week, v_record.date_from) d' +
+            'ate_from, LEAST (first_day_of_week + 6, v_record.date_to) date_t' +
+            'o from'
           '        ('
-          '        SELECT TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1) * 7 AS first_day_of_week'
+          
+            '        SELECT TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1) * 7' +
+            ' AS first_day_of_week'
           '        FROM dual'
-          '        CONNECT BY TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1) * 7 <= v_record.date_to'
+          
+            '        CONNECT BY TRUNC(v_record.date_from, '#39'IW'#39') + (LEVEL - 1)' +
+            ' * 7 <= v_record.date_to'
           '        ORDER BY first_day_of_week'
           '        )'
           '        )'
@@ -5028,23 +5043,37 @@ inherited FMain: TFMain
           '      v_record.date_from := week.date_from;'
           '      v_record.date_to   := week.date_to;'
           '      v_record.integration_id := null;'
-          '      v_record.attribs_13 := null; -- widocznosc tygodni dotyczy okresu, nie tygodnia'
+          
+            '      v_record.attribs_13 := null; -- widocznosc tygodni dotyczy' +
+            ' okresu, nie tygodnia'
           '      v_record.parent_per_id := pId;'
           '      v_record.sub_period_parent := pId;'
           '      v_record.sub_period_num := weekNum;'
           '      declare'
           '        c number;'
           '      begin'
-          '        -- nazwa okresu jest unikalna (np. tydzien utworzony przed wprowadzeniem SUB_PERIOD_PARENT) - pomin'
-          '        select count(1) into c from periods where name = v_record.Name and rownum = 1;'
+          
+            '        -- nazwa okresu jest unikalna (np. tydzien utworzony prz' +
+            'ed wprowadzeniem SUB_PERIOD_PARENT) - pomin'
+          
+            '        select count(1) into c from periods where name = v_recor' +
+            'd.Name and rownum = 1;'
           '        if c = 0 then'
           '          INSERT INTO periods VALUES v_record;'
-          '          INSERT INTO per_pla (id, per_id, pla_id) VALUES (perpla_seq.nextval, v_record.id, plaId);'
+          
+            '          INSERT INTO per_pla (id, per_id, pla_id) VALUES (perpl' +
+            'a_seq.nextval, v_record.id, plaId);'
           '          -- dni wolne okresu przypadajace w tym tygodniu'
-          '          INSERT INTO holiday_days (id, day, hour, type, classes_allowed, per_id)'
-          '          SELECT RES_SEQ.NEXTVAL, hd.day, hd.hour, hd.type, hd.classes_allowed, v_record.id'
+          
+            '          INSERT INTO holiday_days (id, day, hour, type, classes' +
+            '_allowed, per_id)'
+          
+            '          SELECT RES_SEQ.NEXTVAL, hd.day, hd.hour, hd.type, hd.c' +
+            'lasses_allowed, v_record.id'
           '            FROM holiday_days hd'
-          '           WHERE hd.per_id = pId and hd.day between week.date_from and week.date_to;'
+          
+            '           WHERE hd.per_id = pId and hd.day between week.date_fr' +
+            'om and week.date_to;'
           '        end if;'
           '      end;'
           '   end loop;'

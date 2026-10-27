@@ -798,8 +798,10 @@ end;
 
 // resType: LEC/GRO/ROM/SUB, resIds: jeden lub kilka ID oddzielonych ";" (uk³ad tygodniowy z obiektami w kolumnach)
 function timetableFileName(resType, resIds : string) : string;
+const maxFileNameLength = 80; // kilka obiektów (grafik tygodniowy) - nazwy sklejane, wiêc ograniczamy d³ugoœæ
 var t : integer;
     id, fname : string;
+    h : Int64;
 begin
   result := '';
   for t := 1 to WordCount(resIds, [';']) do begin
@@ -810,6 +812,13 @@ begin
     if resType = 'SUB' then fname := StringToValidFileName(DModule.SingleValue('SELECT NAME FROM SUBJECTS WHERE ID='+id))
                        else fname := '';
     result := merge(result, fname, '_');
+  end;
+  // za d³uga nazwa: pocz¹tek nazwy + skrót FNV-1a (32 bity) z pe³nej nazwy - ró¿ne zestawy obiektów daj¹ ró¿ne pliki
+  if Length(result) > maxFileNameLength then begin
+    h := 2166136261;
+    for t := 1 to Length(result) do
+      h := ((h xor Ord(result[t])) * 16777619) mod 4294967296; // Int64: bez przepe³nienia przy $Q+
+    result := Copy(result, 1, maxFileNameLength - 9) + '_' + IntToHex(h, 8);
   end;
 end;
 
