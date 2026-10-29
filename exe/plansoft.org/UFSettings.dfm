@@ -614,6 +614,19 @@ inherited FSettings: TFSettings
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
       end
+      object LWeekPlans: TCheckBox
+        Left = 0
+        Top = 360
+        Width = 190
+        Height = 17
+        Hint = 'Nad datami grafiku przyciski do plan'#243'w tygodniowych (plany s'#261' tworzone razem z grafikiem)'
+        Caption = 'Przejd'#378' do planu tygodnia'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 99
+      end
       object LHideEmptyRows: TCheckBox
         Left = 0
         Top = 336
@@ -1233,6 +1246,19 @@ inherited FSettings: TFSettings
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
       end
+      object GWeekPlans: TCheckBox
+        Left = 0
+        Top = 360
+        Width = 190
+        Height = 17
+        Hint = 'Nad datami grafiku przyciski do plan'#243'w tygodniowych (plany s'#261' tworzone razem z grafikiem)'
+        Caption = 'Przejd'#378' do planu tygodnia'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 99
+      end
       object GHideEmptyRows: TCheckBox
         Left = 0
         Top = 336
@@ -1851,6 +1877,19 @@ inherited FSettings: TFSettings
         Height = 17
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
+      end
+      object RWeekPlans: TCheckBox
+        Left = 0
+        Top = 360
+        Width = 190
+        Height = 17
+        Hint = 'Nad datami grafiku przyciski do plan'#243'w tygodniowych (plany s'#261' tworzone razem z grafikiem)'
+        Caption = 'Przejd'#378' do planu tygodnia'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 99
       end
       object RHideEmptyRows: TCheckBox
         Left = 0
@@ -2478,6 +2517,19 @@ inherited FSettings: TFSettings
         Height = 17
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 7
+      end
+      object SWeekPlans: TCheckBox
+        Left = 0
+        Top = 360
+        Width = 190
+        Height = 17
+        Hint = 'Nad datami grafiku przyciski do plan'#243'w tygodniowych (plany s'#261' tworzone razem z grafikiem)'
+        Caption = 'Przejd'#378' do planu tygodnia'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 99
       end
       object SHideEmptyRows: TCheckBox
         Left = 0

@@ -102,6 +102,7 @@ uses
   UProgress in 'UProgress.pas' {FProgress},
   UFSelectDate in 'UFSelectDate.pas' {FSelectDate},
   UIcsGenerator in 'UIcsGenerator.pas',
+  UFWeeklySchoolPlan in 'UFWeeklySchoolPlan.pas',
   UFFloatingMessage in 'UFFloatingMessage.pas' {FFloatingMessage},
   UFDataEnrichment in 'UFDataEnrichment.pas' {FDataEnrichment},
   UFBrowseCLASSES_HISTORY in 'UFBrowseCLASSES_HISTORY.pas' {FBrowseCLASSES_HISTORY},

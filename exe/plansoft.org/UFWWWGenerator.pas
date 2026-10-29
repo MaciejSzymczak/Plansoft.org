@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UFormConfig, StdCtrls, Buttons, ExtCtrls, CheckLst, StrHlder, ComCtrls, ufmain, uutilities, UCommon, db,
+  UFormConfig, StdCtrls, Buttons, ExtCtrls, CheckLst, StrHlder, ComCtrls, ufmain, uutilities, UCommon, db, DM,
   ADODB, inifiles, Menus, ShellApi;
 
 type
@@ -83,6 +83,9 @@ type
     MDefault: TMemo;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
+    LPageName: TLabel;
+    PageName: TEdit;
+    PageNameHelp: TSpeedButton;
     procedure BitBtnPERClick(Sender: TObject);
     procedure currentPeriodChange(Sender: TObject);
     procedure GroupsClick(Sender: TObject);
@@ -111,11 +114,13 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SpeedButton2Click(Sender: TObject);
     procedure currentPeriod_VALUEClick(Sender: TObject);
+    procedure PageNameHelpClick(Sender: TObject);
   private
     formPrepared : boolean;
     settingsLoaded : boolean;
   public
     defaultFolder : string;
+    function getPageTitle : string;
     procedure setStatus(i : shortString);
     procedure copyGifs (fileName: String);
     Procedure calendarToHTML(
@@ -146,23 +151,46 @@ type
            const LegendColorBy : Integer = 0;  //ZMIANA_20270716: 0=Przedmiot (default, backward compatible), 1=Grupa
            // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
            const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
-           const Link4 : Boolean = false; const Link5 : Boolean = false
+           const Link4 : Boolean = false; const Link5 : Boolean = false;
+           // "PrzejdŸ do planu tygodnia": nad datami przyciski do planów tygodniowych (UFWeeklySchoolPlan),
+           // tworzonych razem z grafikiem; domyœlnie wy³¹czone (stare wywo³ania)
+           const WeekPlans : Boolean = false
     );
   end;
 
 var
   FWWWGenerator: TFWWWGenerator;
 
+// zajêcia okresu dla zasobu - razem z zajêciami obiektów nadrzêdnych i podrzêdnych, z uwzglêdnieniem wykluczeñ
+// (getChildsAndParents); wspólne dla wydruku semestralnego i planu tygodniowego (UFWeeklySchoolPlan)
+type TclassList =
+            Record
+              cnt     : integer;
+              classes : array of TClass_;
+            End;
+type tcurrentChartClasses = Class
+  data : Array Of  //day
+          Array Of //hour
+            TclassList;
+  firstDay : Integer;
+  procedure init(psql, pPerId, pResId, presAlias : string; form : tform);
+  function get(ts : TTimeStamp; hour: Integer) : TclassList;
+End;
+
 // kolumna "Link" w Plik | Drukuj
 function  isLinkableCode(code : shortString) : boolean;
-function  linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string) : string;
+// weekSuffix <> '': linki do planów tygodniowych (UFWeeklySchoolPlan.weeklyPlanSuffix) zamiast rozk³adów semestralnych
+function  linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string; const weekSuffix : string = '') : string;
+// treœæ komórki zajêæ wg ustawieñ Plik | Drukuj (Zawartoœæ, Wielkoœæ, Pogrubienie, Link) - po 5 pozycji
+function  classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
+                        const bolds, links : array of boolean; const weekSuffix : string = '') : string;
 procedure resetLinkFileNames;
 // nazwa pliku rozk³adu bez rozszerzenia - jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam)
 function  timetableFileName(resType, resIds : string) : string;
 
 implementation
 
-uses DM, AutoCreate, UUtilityParent, FileCtrl, UFSettings, uFModuleFilter, uFBrowseGROUPS,
+uses AutoCreate, UUtilityParent, FileCtrl, UFWeeklySchoolPlan, UFSettings, uFModuleFilter, uFBrowseGROUPS,
   UFProgramSettings, UFBrowseROOMS, UFBrowseLECTURERS, UIcsGenerator;
 
 
@@ -410,19 +438,6 @@ begin
  result := s;
 end;
 
-type TclassList =
-            Record
-              cnt     : integer;
-              classes : array of TClass_;
-            End;
-type tcurrentChartClasses = Class
-  data : Array Of  //day
-          Array Of //hour
-            TclassList;
-  firstDay : Integer;
-  procedure init(psql, pPerId, pResId, presAlias : string; form : tform);
-  function get(ts : TTimeStamp; hour: Integer) : TclassList;
-End;
 
 
 { tcurrentChartClasses }
@@ -716,8 +731,9 @@ begin
   if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini') then
   xslt.Lines.LoadFromFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini');
 
-  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini') then
-  xslt.Lines.LoadFromFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini');
+  // .css.ini by³ zapisywany z memo xslt, dlatego css ma nowy plik
+  if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.menucss.ini') then
+  css.Lines.LoadFromFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.menucss.ini');
 
   //if FileExists(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini') then
   //   UutilityParent.LoadFromIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
@@ -823,9 +839,9 @@ begin
 end;
 
 // token: nazwy oddzielone ";" w kolejnoœci identyfikatorów (planner_utils.update_lgr) - ka¿da staje siê linkiem
-function linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string) : string;
+function linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string; const weekSuffix : string = '') : string;
 var kind : char;
-    ids, ext, part, lead, fname : string;
+    ids, ext, part, lead, fname, id : string;
     t : integer;
 begin
   result := token;
@@ -844,7 +860,19 @@ begin
   result := '';
   for t := 1 to WordCount(token, [';']) do begin
     part  := ExtractWord(t, token, [';']);
-    fname := linkFileName(kind, Trim(ExtractWord(t, ids, [';'])));
+    id    := Trim(ExtractWord(t, ids, [';']));
+    if weekSuffix = '' then fname := linkFileName(kind, id)
+    else begin
+      // plan tygodniowy: nazwa jak w UFWeeklySchoolPlan.weeklyPlanFileName
+      fname := '';
+      if id <> '' then
+        case kind of
+          'L': fname := timetableFileName('LEC', id) + weekSuffix;
+          'G': fname := timetableFileName('GRO', id) + weekSuffix;
+          else fname := timetableFileName('ROM', id) + weekSuffix;
+        end;
+      ext := '.htm';
+    end;
     if (fname <> '') and (Trim(part) <> '') then begin
       lead := Copy(part, 1, Length(part) - Length(TrimLeft(part)));
       part := lead + '<a href="'+XMLescapeChars(fname)+ext+'" style="color:inherit">'+Trim(part)+'</a>';
@@ -852,6 +880,43 @@ begin
     if t > 1 then result := result + ';';
     result := result + part;
   end;
+end;
+
+function classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
+                       const bolds, links : array of boolean; const weekSuffix : string = '') : string;
+var t : integer;
+    token : string;
+begin
+  result := '';
+  If Class_.FILL <> 100 Then result := '<FONT style="font-size:'+sizes[0]+'px;">'+intToStr(Class_.FILL)+'%'+'</FONT>';
+  For t := 0 To High(descCodes) Do Begin
+    Token := '';
+    if  descCodes[t]= 'L'          then Token := Copy(Class_.CALC_LECTURERS,   1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_LECTURERS'),'1000')))    else
+    if  descCodes[t]= 'L+'         then Token := fmain.LecToNames (Class_.calc_lec_ids)    else
+    if  descCodes[t]= 'G'          then Token := Copy(Class_.CALC_GROUPS,      1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_GROUPS'),'1000')))       else
+    if  descCodes[t]= 'S'          then Token := Copy(Class_.SUB_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000')))  else
+    if  descCodes[t]= 'F'          then Token := Copy(Class_.FOR_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000')))  else
+    if  descCodes[t]= 'SF'         then Token := Copy(Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')', 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000'))) else
+    if  descCodes[t]= 'SF+'        then Token := Class_.SUB_name+'('+Class_.FOR_abbreviation+')' else
+    if  descCodes[t]= 'OWNER'      then Token := Copy(Class_.Owner,            1, StrToInt(NVL(GetSystemParam('MaxLengthOwner'),'1000')))             else
+    if  descCodes[t]= 'CREATED_BY' then Token := Copy(Class_.Created_by,       1, StrToInt(NVL(GetSystemParam('MaxLengthCreated_by'),'1000')))        else
+    if  descCodes[t]= 'NONE'       then {}                                                                                                            else
+    if  descCodes[t]= 'DESC1'      then Token := Copy(Class_.desc1,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc1'),'1000')))             else
+    if  descCodes[t]= 'DESC2'      then Token := Copy(Class_.desc2,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc2'),'1000')))             else
+    if  descCodes[t]= 'DESC3'      then Token := Copy(Class_.desc3,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc3'),'1000')))             else
+    if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc4'),'1000')))             else
+    if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
+    else token := Copy(ucommon.getResourcesByType(descCodes[t], Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS ), 1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')));
+
+    // Link: ka¿da nazwa wyk³adowcy / grupy / zasobu prowadzi do jego rozk³adu
+    If links[t] Then Token := linkResourceNames(descCodes[t], Token, Class_.CALC_LEC_IDS, Class_.CALC_GRO_IDS, Class_.CALC_ROM_IDS, Class_.CALC_RESCAT_IDS, weekSuffix);
+
+    If Not isBlank(Token) Then Begin
+      Token := '<FONT style="font-size:'+sizes[t]+'px;">'+Token+'</FONT>';
+      If bolds[t] Then Token := '<B>'+Token+'</B>';
+    End;
+    result := Merge(result, Token, '<BR/>');
+  End;
 end;
 
 procedure TFWWWGenerator.ComboSortOrderChange(Sender: TObject);
@@ -903,7 +968,10 @@ Procedure TFWWWGenerator.CalendarToHTML(
            const LegendColorBy : Integer = 0;
            // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
            const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
-           const Link4 : Boolean = false; const Link5 : Boolean = false
+           const Link4 : Boolean = false; const Link5 : Boolean = false;
+           // "PrzejdŸ do planu tygodnia": nad datami przyciski do planów tygodniowych (UFWeeklySchoolPlan),
+           // tworzonych razem z grafikiem; domyœlnie wy³¹czone (stare wywo³ania)
+           const WeekPlans : Boolean = false
     );
 
     Var F : TextFile;
@@ -948,13 +1016,6 @@ Procedure TFWWWGenerator.CalendarToHTML(
       ColoringIndex : shortString;
       CellWIDTH : shortString) : string;
 
-      function TextoutResource ( code : shortString) : string;
-      begin
-       if code = 'ALL_RES' then result := Class_.CALC_ROOMS
-                           else result := ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
-       result := Copy(result,     1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
-      end;
-
       procedure writeLn(s : string);
       begin
        result := result + s;
@@ -974,12 +1035,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
     //--------------------------------------------------------
      Procedure Common (Counter : Integer; CommonAttr : TColors);
      Var t : Integer;
-         descCodes  : Array[1..5] Of ShortString;
-         Sizes      : Array[1..5] Of ShortString;
-         Bolds      : Array[1..5] Of Boolean;
-         Links      : Array[1..5] Of Boolean;
          Colour : Integer;
-         S, Token : String;
+         S : String;
      Begin
        // for reservation show always form regardless of view settings
        If Class_.FOR_KIND = 'R' Then Begin
@@ -1000,61 +1057,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
        End
        Else Colour := clRed {ikona alert};
 
-       //Grid.Canvas.Font.Size := -7;
-       descCodes[1] := D1;
-       descCodes[2] := D2;
-       descCodes[3] := D3;
-       descCodes[4] := D4;
-       descCodes[5] := D5;
-
-       Sizes[1]      := S1;
-       Sizes[2]      := S2;
-       Sizes[3]      := S3;
-       Sizes[4]      := S4;
-       Sizes[5]      := S5;
-
-       Bolds[1]      := B1;
-       Bolds[2]      := B2;
-       Bolds[3]      := B3;
-       Bolds[4]      := B4;
-       Bolds[5]      := B5;
-
-       Links[1]      := Link1;
-       Links[2]      := Link2;
-       Links[3]      := Link3;
-       Links[4]      := Link4;
-       Links[5]      := Link5;
-
-       S := '';
-       If Class_.FILL <> 100 Then S := '<FONT style="font-size:'+Sizes[1]+'px;">'+intToStr(Class_.FILL)+'%'+'</FONT>';
-       For t := 1 To 5 Do Begin
-         Token := '';
-         if  descCodes[t]= 'L'          then Token := Copy(Class_.CALC_LECTURERS,   1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_LECTURERS'),'1000')))    else
-         if  descCodes[t]= 'L+'         then Token := fmain.LecToNames (Class_.calc_lec_ids)    else
-         if  descCodes[t]= 'G'          then Token := Copy(Class_.CALC_GROUPS,      1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_GROUPS'),'1000')))       else
-         if  descCodes[t]= 'S'          then Token := Copy(Class_.SUB_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000')))  else
-         if  descCodes[t]= 'F'          then Token := Copy(Class_.FOR_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000')))  else
-         if  descCodes[t]= 'SF'         then Token := Copy(Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')', 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000'))) else
-         if  descCodes[t]= 'SF+'        then Token := Class_.SUB_name+'('+Class_.FOR_abbreviation+')' else
-         if  descCodes[t]= 'OWNER'      then Token := Copy(Class_.Owner,            1, StrToInt(NVL(GetSystemParam('MaxLengthOwner'),'1000')))             else
-         if  descCodes[t]= 'CREATED_BY' then Token := Copy(Class_.Created_by,       1, StrToInt(NVL(GetSystemParam('MaxLengthCreated_by'),'1000')))        else
-         if  descCodes[t]= 'NONE'       then {}                                                                                                            else
-         if  descCodes[t]= 'DESC1'      then Token := Copy(Class_.desc1,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc1'),'1000')))             else
-         if  descCodes[t]= 'DESC2'      then Token := Copy(Class_.desc2,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc2'),'1000')))             else
-         if  descCodes[t]= 'DESC3'      then Token := Copy(Class_.desc3,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc3'),'1000')))             else
-         if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc4'),'1000')))             else
-         if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
-         else token := TextOutResource ( descCodes[t] );
-
-         // Link: ka¿da nazwa wyk³adowcy / grupy / zasobu prowadzi do jego rozk³adu
-         If Links[t] Then Token := UFWWWGenerator.linkResourceNames(descCodes[t], Token, Class_.CALC_LEC_IDS, Class_.CALC_GRO_IDS, Class_.CALC_ROM_IDS, Class_.CALC_RESCAT_IDS);
-
-         If Not isBlank(Token) Then Begin
-           Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
-           If Bolds[t] Then Token := '<B>'+Token+'</B>';
-         End;
-         S := Merge(S, Token, '<BR/>');
-       End;
+       S := classCellText(Class_, [D1, D2, D3, D4, D5], [S1, S2, S3, S4, S5], [B1, B2, B3, B4, B5], [Link1, Link2, Link3, Link4, Link5]);
 
        If Class_.FILL <> 100 Then AddCell('BORDERCOLORDARK=red BORDERCOLORLIGHT=RED',S,DelphiColourToHTML(Colour))
                              Else AddCell('',S,DelphiColourToHTML(Colour));
@@ -1692,6 +1695,7 @@ Var xp, yp          : Integer;
     firstResId      : string;
     savedWeekMode   : integer;
     savedWeekIds, savedWeekNames : string;
+    weekPlanButtons : TWeekPlanButtons;
     o               : integer;
 
     //--------------------------------------------------------
@@ -1724,6 +1728,26 @@ Var xp, yp          : Integer;
         if (addECTSflag) then begin
           htmlTable.newCell('','Spos.<br/>zal.','0');
           htmlTable.newCell('','ECTS','0');
+        end;
+      end;
+    end;
+
+    //--------------------------------------------------------
+    // wiersz z przyciskami "PrzejdŸ do planu tygodnia" nad datami - kolumna siatki = tydzieñ
+    procedure addWeekPlansRow (addECTSflag: boolean);
+    var xw : integer;
+    begin
+      htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
+      htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthDay'),'0') );
+      htmlTable.newCellWidth('','<FONT style="font-size:9px;">tydz.</FONT>','"silver"',  NVL(GetSystemParam('CellWidthHour'),'0') );
+      For xw := 2 To colCnt-1 Do
+        htmlTable.newHeaderCell('ALIGN="CENTER"', weekPlanButtons.columnButton(xw), '0');
+      if ShowLegend then begin
+        htmlTable.newCell('','','0');
+        htmlTable.newCellWidth('','','0',NVL(GetSystemParam('CellWidthInLegend'),'100'));
+        if (addECTSflag) then begin
+          htmlTable.newCell('','','0');
+          htmlTable.newCell('','','0');
         end;
       end;
     end;
@@ -1905,6 +1929,11 @@ begin
 
  If ShowLegend Then LgndCnt := RefreshLegend;
 
+ // PrzejdŸ do planu tygodnia: plany tygodni tworzone razem z grafikiem semestralnym
+ weekPlanButtons := nil;
+ if WeekPlans and not weeklyView and not weekObjectsMode then
+   weekPlanButtons := TWeekPlanButtons.Create(pPeriodId, presType, firstResId, FileName, self);
+
  AssignFile(F, FileName);
  Rewrite(F);
  Writeln(f, '<!DOCTYPE html>');
@@ -1928,6 +1957,7 @@ begin
  //see https://limebrains.com/blog/2021-03-02T13:00-heigh-100-inside-table-td/
  WriteLn(f, '  height: 1px;');
  WriteLn(f, '}');
+ if weekPlanButtons <> nil then WriteLn(f, weekPlanButtonCss);
  WriteLn(f, '</style>');
 
  WriteLn(f, '</HEAD>');
@@ -1977,6 +2007,7 @@ begin
 
  if weeklyView=false then
    if not pRepeatMonthNames then addMonthsRow(addECTSflag);
+ if weekPlanButtons <> nil then addWeekPlansRow(addECTSflag);
  if weekObjectsMode then addObjectsRow(addECTSflag);
  if pVerticalLines then calculateVerticalLines;
 
@@ -2170,6 +2201,7 @@ begin
 
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
+ weekPlanButtons.Free;
  currentChartClasses.free;
  for o := 0 to High(objectCharts) do objectCharts[o].free;
  ReservationsCache.Free;
@@ -2228,7 +2260,9 @@ var ColoringIndex    : shortString;
           f : textFile;
           fh : textFile;
           t : integer;
+          pageTitle : string;
     begin
+      pageTitle := getPageTitle;
       AssignFile(f, Folder.Text+'\layout.xslt');
       Rewrite(f);
       WriteLn(f,
@@ -2258,15 +2292,15 @@ var ColoringIndex    : shortString;
       WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
       WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
       WriteLn(fh, '</head>');
-      WriteLn(fh, '<body style="font-variant: small-caps; text-align: center; background-color: #eeeeee;">');
-      WriteLn(fh, '<h1 style="font-variant: small-caps; text-align: center; color: white; background-color: black;">'+XMLescapeChars(currentPeriod_VALUE.Text)+'</h1>');
-      WriteLn(fh, '<center>'+XMLescapeChars(AddText.Text)+'</center><br/><br/>');
-      WriteLn(fh, '<center>');
-      WriteLn(fh, '<table border="1" width="80%" style="font-variant: small-caps; border: 0px dashed black">');
-      WriteLn(fh, '<tr style="background-color: silver">');
-      if Groups.Checked    then WriteLn(fh, '<td><center>Grupy</center></td>');
-      if lecturers.Checked then WriteLn(fh, '<td><center>Wyk&#322;adowcy</center></td>');
-      if Resources.Checked then WriteLn(fh, '<td><center>Zasoby</center></td>');
+      WriteLn(fh, '<body>');
+      // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css
+      WriteLn(fh, '<h1 class="pageName">'+XMLescapeChars(pageTitle)+'</h1>');
+      WriteLn(fh, '<div class="description">'+XMLescapeChars(AddText.Text)+'</div>');
+      WriteLn(fh, '<table border="1" class="contents">');
+      WriteLn(fh, '<tr class="contentsHeader">');
+      if Groups.Checked    then WriteLn(fh, '<td>Grupy</td>');
+      if lecturers.Checked then WriteLn(fh, '<td>Wyk&#322;adowcy</td>');
+      if Resources.Checked then WriteLn(fh, '<td>Zasoby</td>');
       WriteLn(fh, '</tr>');
       WriteLn(fh, '<tr>');
 
@@ -2274,11 +2308,11 @@ var ColoringIndex    : shortString;
       WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
       WriteLn(f, '<xml>');
       WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-      WriteLn(f, '<period name="'+XMLescapeChars(currentPeriod_VALUE.Text)+'"></period>');
+      WriteLn(f, '<period name="'+XMLescapeChars(pageTitle)+'"></period>'); // nazwa strony, w layout.xslt nag³ówek h1
       WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
       WriteLn(f, '<data>');
          If Groups.Checked Then Begin
-           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.GPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
@@ -2328,26 +2362,26 @@ var ColoringIndex    : shortString;
                , gpdfl.checked
                , gpdfo.checked
                , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex
-               , GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked );
+               , GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked, GWeekPlans.Checked );
              end;
            end;
            WriteLn(fh, '</ul></div></td>');
          end;
          If lecturers.Checked Then Begin
-           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.LPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
                WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'">'+XMLescapeChars(LList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.LViewType);
-               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked);
+               With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked, LWeekPlans.Checked);
              end;
            end;
            WriteLn(fh, '</ul></div></td>');
          end;
           If Resources.Checked Then Begin
-           WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.RPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
@@ -2355,7 +2389,7 @@ var ColoringIndex    : shortString;
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'">'+XMLescapeChars(RList.Items[t])+'</a>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
-                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex, RLink1.Checked, RLink2.Checked, RLink3.Checked, RLink4.Checked, RLink5.Checked );
+                 With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex, RLink1.Checked, RLink2.Checked, RLink3.Checked, RLink4.Checked, RLink5.Checked, RWeekPlans.Checked );
                except
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
@@ -2366,8 +2400,7 @@ var ColoringIndex    : shortString;
           WriteLn(fh, '</ul></div></td>');
           WriteLn(fh, '</tr>');
           WriteLn(fh, '</table>');
-          WriteLn(fh, '</center>');
-          WriteLn(fh, '<br/><small>Aktualizacja: '+DateTimeToStr(Now())+'</small>');
+          WriteLn(fh, '<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>');
       WriteLn(f, '</data>');
       WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
       WriteLn(f, '</xml>');
@@ -2399,7 +2432,7 @@ begin
    0:generateWebPage;
    1:begin
        fmain.wlog('generateIcsCalendars: Start');
-       UIcsGenerator.generateIcsCalendars (self, currentPeriod.text, currentPeriod_VALUE.Text, Folder.Text, xslt.Lines.Text, css.Lines.Text, IcsSQLHolder.Lines.Text, AddText.Text, Groups.Checked, lecturers.Checked, Resources.Checked, DoNotGenerateTableOfCon.Checked, GList, LList, RList);
+       UIcsGenerator.generateIcsCalendars (self, currentPeriod.text, getPageTitle, Folder.Text, xslt.Lines.Text, css.Lines.Text, IcsSQLHolder.Lines.Text, AddText.Text, Groups.Checked, lecturers.Checked, Resources.Checked, DoNotGenerateTableOfCon.Checked, GList, LList, RList);
        fmain.wlog('generateIcsCalendars: Stop');
      end;
   end;
@@ -2434,6 +2467,7 @@ begin
     WriteString ('wwwgenerator','PeriodName',currentPeriod_VALUE.Text);
     WriteInteger('wwwgenerator','GenType',genType.ItemIndex);
     WriteString ('wwwgenerator','DefaultFolder',Folder.Text);
+    WriteString ('wwwgenerator','PageName',PageName.Text);
     WriteString ('wwwgenerator','AddText',AddText.Text);
     WriteBool   ('wwwgenerator','DoNotGenerateTableOfCon',DoNotGenerateTableOfCon.Checked);
     WriteString ('wwwgenerator','RoleName',fmain.CONROLE_VALUE.text);
@@ -2593,6 +2627,9 @@ begin
     LLinkLabel.Visible := genType.ItemIndex =0;
     GLinkLabel.Visible := genType.ItemIndex =0;
     RLinkLabel.Visible := genType.ItemIndex =0;
+    LWeekPlans.Visible := genType.ItemIndex =0;
+    GWeekPlans.Visible := genType.ItemIndex =0;
+    RWeekPlans.Visible := genType.ItemIndex =0;
 
     //LViewTypeGroup.Visible     := genType.ItemIndex =0;
     //GViewTypeGroup.Visible     := genType.ItemIndex =0;
@@ -2659,6 +2696,9 @@ begin
 
     ghelp.Visible              := true;
     rhelp.Visible              := true;
+    LWeekPlans.Visible         := true;
+    GWeekPlans.Visible         := true;
+    RWeekPlans.Visible         := true;
   end;
   settingsLoaded := true;
 end;
@@ -2711,6 +2751,18 @@ begin
 
 end;
 
+procedure TFWWWGenerator.PageNameHelpClick(Sender: TObject);
+begin
+  SError('Mo¿esz zostawiæ to pole puste, wówczas nazwa okresu bêdzie nazw¹ strony');
+end;
+
+// nazwa strony w index.html; puste pole = nazwa okresu
+function TFWWWGenerator.getPageTitle : string;
+begin
+  if trim(PageName.Text) <> '' then result := trim(PageName.Text)
+                               else result := currentPeriod_VALUE.Text;
+end;
+
 procedure TFWWWGenerator.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
@@ -2718,7 +2770,7 @@ begin
   //ini file does not support chars longer than 2024 chars
   //UutilityParent.SaveToIni (UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.ini','main',[xslt, css]);
   xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.xslt.ini');
-  xslt.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.css.ini');
+  css.Lines.SaveToFile(UUtilityParent.StringsPATH + extractFileName(Application.ExeName) + '.FWWWGenerator.menucss.ini');
 
 end;
 

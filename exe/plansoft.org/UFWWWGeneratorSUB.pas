@@ -41,12 +41,15 @@ procedure CalendarToHTMLSubject(
        const LegendColorBy : Integer = 0;
            // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
            const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
-           const Link4 : Boolean = false; const Link5 : Boolean = false
+           const Link4 : Boolean = false; const Link5 : Boolean = false;
+           // "PrzejdŸ do planu tygodnia": nad datami przyciski do planów tygodniowych (UFWeeklySchoolPlan),
+           // tworzonych razem z grafikiem; domyœlnie wy³¹czone (stare wywo³ania)
+           const WeekPlans : Boolean = false
 );
 
 implementation
 
-uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db, UFWWWGenerator;
+uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db, UFWWWGenerator, UFWeeklySchoolPlan;
 
 var MaxLegendPositions : integer = 1000;
 
@@ -325,7 +328,10 @@ procedure CalendarToHTMLSubject(
        const LegendColorBy : Integer = 0;
            // kolumna "Link" (Plik | Drukuj): nazwy jako linki do rozk³adów; domyœlnie bez linków (stare wywo³ania, stare pliki ustawieñ)
            const Link1 : Boolean = false; const Link2 : Boolean = false; const Link3 : Boolean = false;
-           const Link4 : Boolean = false; const Link5 : Boolean = false
+           const Link4 : Boolean = false; const Link5 : Boolean = false;
+           // "PrzejdŸ do planu tygodnia": nad datami przyciski do planów tygodniowych (UFWeeklySchoolPlan),
+           // tworzonych razem z grafikiem; domyœlnie wy³¹czone (stare wywo³ania)
+           const WeekPlans : Boolean = false
     );
 
     Var F : TextFile;
@@ -349,6 +355,7 @@ procedure CalendarToHTMLSubject(
         addECTSflag : boolean;
         legendRow : integer;
         fuse : integer;
+        weekPlanButtons : TWeekPlanButtons;
 
     Var Lgnd : Array Of Record Name, ShortCut : String; Colour : Integer; End;
         LgndCnt : integer;
@@ -591,6 +598,26 @@ procedure CalendarToHTMLSubject(
     begin
       if weeklyView then result := LongDayNames[i]
                     else result := ShortDayNames[i];
+    end;
+
+    //--------------------------------------------------------
+    // wiersz z przyciskami "PrzejdŸ do planu tygodnia" nad datami - kolumna siatki = tydzieñ
+    procedure addWeekPlansRow (addECTSflag: boolean);
+    var xw : integer;
+    begin
+      htmlTable.AddRow('ALIGN="center" VALIGN="middle"');
+      htmlTable.newCellWidth('','','"silver"',  NVL(GetSystemParam('CellWidthDay'),'0') );
+      htmlTable.newCellWidth('','<FONT style="font-size:9px;">tydz.</FONT>','"silver"',  NVL(GetSystemParam('CellWidthHour'),'0') );
+      For xw := 2 To colCnt-1 Do
+        htmlTable.newHeaderCell('ALIGN="CENTER"', weekPlanButtons.columnButton(xw), '0');
+      if ShowLegend then begin
+        htmlTable.newCell('','','0');
+        htmlTable.newCellWidth('','','0',NVL(GetSystemParam('CellWidthInLegend'),'100'));
+        if (addECTSflag) then begin
+          htmlTable.newCell('','','0');
+          htmlTable.newCell('','','0');
+        end;
+      end;
     end;
 
     procedure addMonthsRow (addECTSflag : Boolean);
@@ -878,6 +905,11 @@ begin
 
  If ShowLegend Then LgndCnt := RefreshLegend;
 
+ // PrzejdŸ do planu tygodnia: plany tygodni tworzone razem z grafikiem semestralnym
+ weekPlanButtons := nil;
+ if WeekPlans and not weeklyView then
+   weekPlanButtons := TWeekPlanButtons.Create(pPeriodId, 'SUB', presId, FileName);
+
  AssignFile(F, FileName);
  Rewrite(F);
  Writeln(f, '<!DOCTYPE html>');
@@ -899,6 +931,7 @@ begin
  WriteLn(f, '  margin:0 auto;');
  WriteLn(f, '  height: 1px;');
  WriteLn(f, '}');
+ if weekPlanButtons <> nil then WriteLn(f, weekPlanButtonCss);
  WriteLn(f, '</style>');
 
  WriteLn(f, '</HEAD>');
@@ -933,6 +966,7 @@ begin
 
  if weeklyView=false then
    if not pRepeatMonthNames then addMonthsRow(addECTSflag);
+ if weekPlanButtons <> nil then addWeekPlansRow(addECTSflag);
  if pVerticalLines then calculateVerticalLines;
 
  legendRow := 0;
@@ -1101,6 +1135,7 @@ begin
  ConvertAnsiFileToUtf8(fileName);
 
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
+ weekPlanButtons.Free;
 end;
 
 end.

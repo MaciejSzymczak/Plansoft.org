@@ -590,9 +590,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '          </title>'
           '        </xsl:for-each>'
           '       </HEAD>'
-          
-            '       <body style="font-variant: small-caps; text-align: center' +
-            ';  background-color: #eeeeee; ">'
+          '       <body>'
           '             <xsl:apply-templates/>'
           '       </body>'
           '      </html>'
@@ -600,35 +598,29 @@ inherited FWWWGenerator: TFWWWGenerator
           ''
           ''
           '  <xsl:template match="period">'
-          
-            '  <h1 style="font-variant: small-caps; text-align: center; color' +
-            ': white; background-color: black; "> <xsl:value-of select="@name' +
-            '"/></h1> '
+          '  <h1 class="pageName"><xsl:value-of select="@name"/></h1>'
           '   </xsl:template>'
           ''
           '  <xsl:template match="description">'
-          '    <center><xsl:value-of select="@text"/></center><BR/><BR/>'
+          '    <div class="description"><xsl:value-of select="@text"/></div>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="data">'
-          '   <center>  '
-          
-            '    <TABLE BORDER="1" WIDTH="80%" style="font-variant: small-cap' +
-            's; border: 0px dashed black">'
-          '    <TR style="background-color: silver">'
+          '    <TABLE BORDER="1" class="contents">'
+          '    <TR class="contentsHeader">'
           '        <xsl:if test="//data/gro">'
-          '        <TD><center>Grupy</center></TD>'
+          '        <TD>Grupy</TD>'
           '        </xsl:if>'
           '        <xsl:if test="//data/lec">'
-          '        <TD><center>Wyk'#322'adowcy</center></TD>'
+          '        <TD>Wyk'#322'adowcy</TD>'
           '        </xsl:if>'
           '        <xsl:if test="//data/res">'
-          '        <TD><center>Zasoby</center></TD>'
+          '        <TD>Zasoby</TD>'
           '        </xsl:if>'
           '    </TR>'
           '    <TR>'
           '    <xsl:if test="//data/gro">'
-          '    <TD VALIGN="TOP" style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "gro">'
@@ -644,7 +636,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </TD>'
           '    </xsl:if>'
           '    <xsl:if test="//data/lec">'
-          '    <TD VALIGN="TOP"  style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "lec">'
@@ -660,7 +652,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </TD>'
           '    </xsl:if>'
           '    <xsl:if test="//data/res">'
-          '    <TD VALIGN="TOP"  style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "res">'
@@ -677,15 +669,14 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </xsl:if>'
           '    </TR>'
           '    </TABLE>'
-          '    </center>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="who">'
-          '    <BR/><small><xsl:value-of select="@lastupdatetext"/></small>'
+          '    <div class="lastUpdate"><xsl:value-of select="@lastupdatetext"/></div>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="extraText">'
-          '    <BR/><BR/><BR/><small><xsl:value-of select="@text"/></small>'
+          '    <div class="extraText"><xsl:value-of select="@text"/></div>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="href1">'
@@ -763,9 +754,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '          </title>'
           '        </xsl:for-each>'
           '       </HEAD>'
-          
-            '       <body style="font-variant: small-caps; text-align: center' +
-            ';  background-color: #eeeeee; ">'
+          '       <body>'
           '             <xsl:apply-templates/>'
           '       </body>'
           '      </html>'
@@ -773,35 +762,29 @@ inherited FWWWGenerator: TFWWWGenerator
           ''
           ''
           '  <xsl:template match="period">'
-          
-            '  <h1 style="font-variant: small-caps; text-align: center; color' +
-            ': white; background-color: black; "> <xsl:value-of select="@name' +
-            '"/></h1> '
+          '  <h1 class="pageName"><xsl:value-of select="@name"/></h1>'
           '   </xsl:template>'
           ''
           '  <xsl:template match="description">'
-          '    <center><xsl:value-of select="@text"/></center><BR/><BR/>'
+          '    <div class="description"><xsl:value-of select="@text"/></div>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="data">'
-          '   <center>  '
-          
-            '    <TABLE BORDER="1" WIDTH="80%" style="font-variant: small-cap' +
-            's; border: 0px dashed black">'
-          '    <TR style="background-color: silver">'
+          '    <TABLE BORDER="1" class="contents">'
+          '    <TR class="contentsHeader">'
           '        <xsl:if test="//data/gro">'
-          '        <TD><center>Grupy</center></TD>'
+          '        <TD>Grupy</TD>'
           '        </xsl:if>'
           '        <xsl:if test="//data/lec">'
-          '        <TD><center>Wyk'#322'adowcy</center></TD>'
+          '        <TD>Wyk'#322'adowcy</TD>'
           '        </xsl:if>'
           '        <xsl:if test="//data/res">'
-          '        <TD><center>Zasoby</center></TD>'
+          '        <TD>Zasoby</TD>'
           '        </xsl:if>'
           '    </TR>'
           '    <TR>'
           '    <xsl:if test="//data/gro">'
-          '    <TD VALIGN="TOP" style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "gro">'
@@ -817,7 +800,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </TD>'
           '    </xsl:if>'
           '    <xsl:if test="//data/lec">'
-          '    <TD VALIGN="TOP"  style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "lec">'
@@ -833,7 +816,7 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </TD>'
           '    </xsl:if>'
           '    <xsl:if test="//data/res">'
-          '    <TD VALIGN="TOP"  style="border: 1px dashed silver">'
+          '    <TD class="contentsColumn">'
           '     <div id="container">'
           '       <ul class="menu">'
           '         <xsl:for-each select = "res">'
@@ -850,11 +833,10 @@ inherited FWWWGenerator: TFWWWGenerator
           '    </xsl:if>'
           '    </TR>'
           '    </TABLE>'
-          '    </center>'
           '  </xsl:template>'
           ''
           '  <xsl:template match="who">'
-          '    <BR/><small><xsl:value-of select="@lastupdatetext"/></small>'
+          '    <div class="lastUpdate"><xsl:value-of select="@lastupdatetext"/></div>'
           '  </xsl:template>'
           ''
           '</xsl:stylesheet>'
@@ -875,6 +857,58 @@ inherited FWWWGenerator: TFWWWGenerator
         Height = 494
         Align = alClient
         Lines.Strings = (
+          '/* Wygl'#261'd strony index.html (spis tre'#347'ci). Zmiany zapisuj'#261' si'#281' w programie i trafiaj'#261' do pliku menu.css. */'
+          'body {'
+          #9'font-variant: small-caps;'
+          #9'text-align: center;'
+          #9'background-color: #eeeeee;'
+          '}'
+          ''
+          '/* Nazwa strony */'
+          'h1.pageName {'
+          #9'text-align: center;'
+          #9'color: white;'
+          #9'background-color: black;'
+          '}'
+          ''
+          '/* Dodatkowy opis */'
+          '.description {'
+          #9'text-align: center;'
+          #9'margin-bottom: 2em;'
+          '}'
+          ''
+          '/* Tabela ze spisem tre'#347'ci */'
+          'table.contents {'
+          #9'width: 80%;'
+          #9'margin-left: auto;'
+          #9'margin-right: auto;'
+          #9'border: 0px dashed black;'
+          '}'
+          ''
+          '/* Wiersz z nag'#322#243'wkami kolumn: Grupy, Wyk'#322'adowcy, Zasoby */'
+          'tr.contentsHeader {'
+          #9'text-align: center;'
+          #9'background-color: silver;'
+          '}'
+          ''
+          '/* Kolumna z list'#261' rozk'#322'ad'#243'w */'
+          'td.contentsColumn {'
+          #9'vertical-align: top;'
+          #9'border: 1px dashed silver;'
+          '}'
+          ''
+          '/* Data aktualizacji */'
+          '.lastUpdate {'
+          #9'margin-top: 1em;'
+          #9'font-size: smaller;'
+          '}'
+          ''
+          '/* Dodatkowe informacje (iKalendarz) */'
+          '.extraText {'
+          #9'margin-top: 3em;'
+          #9'font-size: smaller;'
+          '}'
+          ''
           '#container ul.menu {'
           #9'margin: 5;'
           '}'
@@ -906,7 +940,7 @@ inherited FWWWGenerator: TFWWWGenerator
     Left = 0
     Top = 0
     Width = 1488
-    Height = 185
+    Height = 211
     Align = alTop
     TabOrder = 3
     object LprofileObjectNamePeriod: TLabel
@@ -1019,7 +1053,7 @@ inherited FWWWGenerator: TFWWWGenerator
       Left = 1
       Top = 64
       Width = 1486
-      Height = 120
+      Height = 146
       ActivePage = tsGoogle
       Align = alBottom
       HotTrack = True
@@ -1036,15 +1070,24 @@ inherited FWWWGenerator: TFWWWGenerator
         end
         object Label7: TLabel
           Left = 59
-          Top = 31
+          Top = 57
           Width = 78
           Height = 14
           Alignment = taRightJustify
           Caption = 'Dodatkowy opis'
         end
+        object LPageName: TLabel
+          Left = 73
+          Top = 31
+          Width = 64
+          Height = 14
+          Alignment = taRightJustify
+          Caption = 'Nazwa strony'
+          FocusControl = PageName
+        end
         object SpeedButton1: TSpeedButton
           Left = 633
-          Top = 25
+          Top = 51
           Width = 24
           Height = 24
           Flat = True
@@ -1112,6 +1155,70 @@ inherited FWWWGenerator: TFWWWGenerator
           Flat = True
           OnClick = SpeedButton2Click
         end
+        object PageNameHelp: TSpeedButton
+          Left = 633
+          Top = 25
+          Width = 24
+          Height = 24
+          Hint = 'Mo'#380'esz zostawi'#263' to pole puste, w'#243'wczas nazwa okresu b'#281'dzie nazw'#261' strony'
+          Flat = True
+          ParentShowHint = False
+          ShowHint = True
+          Glyph.Data = {
+            76060000424D7606000000000000360000002800000014000000140000000100
+            2000000000004006000000000000000000000000000000000000FFFEFE00FEFE
+            FF00FFFEFD00FDFCF900FFFFFF00FDFEFB00EEDBC300E6BB8500DAA56A00D499
+            6000D7955D00D19C6500D8A97900E3C1A400E5E2DB00F2F8FA00FEFDFC00FFFF
+            FE00FEFEFE00FEFEFE00F8FDFE00FFFEF600F6FAFC00F6FFFF00F0DFC400DE9F
+            5600E2883300ED8F3600F59B3E00FAA04300FC9F4600F7A04100F2983C00E188
+            4000CE884F00D9B39000DAE6E600F6F9FB00FBFFF900F9FDFE00F8FEFC00F6FB
+            F900FFFFFC00E7C68D00D8872A00F79D3500FFAA5300FFAA5900FFAD5700FFAE
+            5500FFAF5500FFB05A00FFB25F00FFB36100FCAA5800E0864500C5926A00D4DA
+            CD00FCF2F800FEFEFF00FCFCF700F6FFFF00E1BE8900E58A1E00FEAC4C00FDAD
+            5600FDA94E00FEAA4F00F7AA5800ECAA5C00F0AB5B00F7AE5E00FCAF6000FEB1
+            6200FBB56600FDB96E00F09A3F00CD876200D6D5D700F3FBF400FDFFFF00E7D3
+            AA00D7882500FFAE5500FAAC5700FCAB5300FEAE5500FBAA5200ECBB7E00F6ED
+            D100F5EDDD00EFCE9200F3AF5F00FFB36700FDB66400F7B56900FCBF7300EA95
+            4C00BE936E00E4E5E200F8F5E600E4943000F8A94900FAAD5900FEAD5500FCAE
+            5700FAB05D00FAAC5400E6C39200FDFFFF00FBFFFF00F2D6AB00F5AC6400FCB7
+            6C00FBB96900FFB56F00F5B57600F9C37500E0884700E1B29C00E0C49800EF92
+            2800FDB26200FAAC5D00FEAF5D00FCB05F00FCB36000FDB15E00F3BB7800F7DD
+            AE00F4DDB900F7C48B00FEB06A00FBBA6E00F9BB7200FEB97500FABB7500FBC0
+            7C00F4AD6600CE8A5F00DEA65800F8A34900FEB16100FDB06100FEB26300FDB3
+            6300FDB46400FDB36A00FBB46800F3B06300EEAE6A00F2B46F00FFB97200FCBB
+            7100FABB7900FEBB7B00FBBD7B00FBBF7C00FFC28000D1895200EA9E2F00FEB0
+            5E00FDB16400FEB36200FEB46700FDB56800FEB86900FAB36600F2CD9D00F9F1
+            DF00F9F0E200F3D6AA00F5B37700FBBE7D00FBBD7E00FDBE7F00FDC07F00FDC0
+            7F00FEC98900E4975100EC9C3000FEB66100FBB66300FEB36800FEB56900FDB7
+            6C00FEBA7000F9B76C00F0C5A000F8FFFF00F6FFFF00F9F4E700E6BE9200FBBC
+            7D00FFC28100FBC08300FBC18300FCC28400FECB8F00EAA15800E99C3700FFB8
+            6600FBB56C00FEB66E00FEB96D00FEBA7200FDBB7500FCBD7700F6B67800F2DB
+            B600FCFFFA00FBFEFF00FBF4E300F2C69700FAC08300FBC38600FBC48800FCC5
+            8800FECE9300E9A15B00E59C3B00FEB86800FCB57600FDBA7000FDBB7200FCBC
+            7600FBBD7900FCBD7B00FFC27600F5BB7B00F2DABE00FAFDFC00FCFFFF00FAF2
+            E100F2C49000FEC58900FDC58D00FCC58C00FED19700E29A5900E8A74D00F7B1
+            5F00FEBB7A00FDBE7000FCBE7800FBBF7A00FCC07E00FABB7B00F3C07C00FFC1
+            8200F5BA8000F8E9D700F6FEFE00F6FFFC00F2D6AD00FCC48A00FEC99200FDC8
+            9100FFCF9800D2905200EAC38300EDA14300FBC28500FCBB7C00FDC17B00FCC2
+            7700F1C79800F6DFBF00EDC99B00F3C38B00F3C58E00FAECDA00FAFDFE00F9FE
+            FE00F3D8BA00FBC29600F8CD9300FDCDA100F8BF8300CF935C00F3F1DF00DF9A
+            3200FFC17100F6C08900FBC08500FEC07C00EECA9C00FBFFFF00FCFCF700F7F2
+            E500F6F5ED00FAFEFE00F9FFFF00FCFCF200F4D0A700FBCC9500FCC7A000FFDB
+            A200DC954F00E9C5A300F9FFFF00EDCE9400E2973400FCCC8C00FBC28A00FEC0
+            8400F4C89400F3EDE200F9F9F700FCFFFE00F9FFFF00FAFBF900FAF5E800F0D8
+            B800F8CA9A00FECE9600FEDCAE00E5AE6B00DC9B6B00FEFDF600FCFCFC00FDFF
+            FD00DEB97200EA9D3400FFCD8F00FCCB9200FBC39100F5C49300F7CD9E00F9D4
+            AC00F9D6B000F7D2AF00F7CC9E00FACB9500FFCEA500FFDCB300EBB36900D292
+            5B00F7F2EB00FFFCFF00FFFDFD00FCFCFE00FFFFFB00E4BE7D00D9983B00F8C1
+            7000FCD29D00FDD1A100FECD9D00FBCB9E00F9CC9F00FED09F00FCD6AB00FCDA
+            B100FCD09B00DDA25700D39D6400FBF2E900F8FFFF00FEFCFC00FEFEFE00FEFE
+            FD00FDFDFE00FFFFFF00ECDEB300D4A64E00E29E4900EFB46700F8C67D00FACC
+            8D00F5CB9600F6C88D00F2BD7500E4A65800D5994D00E0C29200FBFFF200F3FE
+            FF00F6FDFB00FEFEFB00FEFFFE00FEFEFE00FEFEFD00F8FDFA00FCFFFF00FCFB
+            FE00EEDDB100E4BD7800DEAE6500DCA85600E4AB5000DAA96200E2B47500EACF
+            A200F8F5EB00FFFFFF00FAFCFE00FAFCFD00FFFEFC00FEFEFB00}
+          OnClick = PageNameHelpClick
+        end
         object Folder: TEdit
           Tag = 67108864
           Left = 144
@@ -1120,7 +1227,7 @@ inherited FWWWGenerator: TFWWWGenerator
           Height = 22
           TabOrder = 0
         end
-        object AddText: TEdit
+        object PageName: TEdit
           Tag = 67108864
           Left = 144
           Top = 26
@@ -1128,13 +1235,21 @@ inherited FWWWGenerator: TFWWWGenerator
           Height = 22
           TabOrder = 1
         end
+        object AddText: TEdit
+          Tag = 67108864
+          Left = 144
+          Top = 52
+          Width = 489
+          Height = 22
+          TabOrder = 2
+        end
         object DoNotGenerateTableOfCon: TCheckBox
           Left = 144
-          Top = 48
+          Top = 74
           Width = 249
           Height = 17
           Caption = 'Nie nadpisuj istniej'#261'cego spisu tre'#347'ci'
-          TabOrder = 2
+          TabOrder = 3
         end
       end
       object tsGoogle: TTabSheet

@@ -8999,14 +8999,24 @@ inherited FMain: TFMain
     Top = 416
   end
   object PPreview: TPopupMenu
+    OnPopup = PPreviewPopup
     Left = 848
     Top = 304
     object MenuItem4: TMenuItem
-      Caption = 'Uruchom'
+      Caption = 'Semestralny rozk'#322'ad zaj'#281#263
+      OnClick = MenuItem4Click
+    end
+    object WeeklySchoolPlan1: TMenuItem
+      Caption = 'Tygodniowy rozk'#322'ad zaj'#281#263' (Plan lekcji)'
+      OnClick = WeeklySchoolPlan1Click
+    end
+    object WeeklyTimetable1: TMenuItem
+      Caption = 'Tygodniowy rozk'#322'ad zaj'#281#263
+      Visible = False
       OnClick = MenuItem4Click
     end
     object MenuItem11: TMenuItem
-      Caption = 'Tabela przestawna'
+      Caption = 'Zaawansowane: w'#322'asny uk'#322'ad'
       OnClick = MenuItem11Click
     end
   end

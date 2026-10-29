@@ -5,7 +5,7 @@ interface
 uses
   Forms, CheckLst;
 
-  procedure generateIcsCalendars (self : tform; periodId, periodName, folder, xslt, css, icsSQL, addText : string; GroupsChecked, lecturersChecked, resourcesChecked, DoNotGenerateTableOfCon : boolean; GList, LList, RList: TCheckListBox);
+  procedure generateIcsCalendars (self : tform; periodId, periodName {nazwa strony}, folder, xslt, css, icsSQL, addText : string; GroupsChecked, lecturersChecked, resourcesChecked, DoNotGenerateTableOfCon : boolean; GList, LList, RList: TCheckListBox);
 
 implementation
 
@@ -196,15 +196,15 @@ end;
           WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
           WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
           WriteLn(fh, '</head>');
-          WriteLn(fh, '<body style="font-variant: small-caps; text-align: center; background-color: #eeeeee;">');
-          WriteLn(fh, '<h1 style="font-variant: small-caps; text-align: center; color: white; background-color: black;">'+XMLescapeChars(periodName)+'</h1>');
-          WriteLn(fh, '<center>'+XMLescapeChars(AddText)+'</center><br/><br/>');
-          WriteLn(fh, '<center>');
-          WriteLn(fh, '<table border="1" width="80%" style="font-variant: small-caps; border: 0px dashed black">');
-          WriteLn(fh, '<tr style="background-color: silver">');
-          if GroupsChecked     then WriteLn(fh, '<td><center>Grupy</center></td>');
-          if lecturersChecked  then WriteLn(fh, '<td><center>Wyk&#322;adowcy</center></td>');
-          if ResourcesChecked  then WriteLn(fh, '<td><center>Zasoby</center></td>');
+          WriteLn(fh, '<body>');
+          // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css
+          WriteLn(fh, '<h1 class="pageName">'+XMLescapeChars(periodName)+'</h1>');
+          WriteLn(fh, '<div class="description">'+XMLescapeChars(AddText)+'</div>');
+          WriteLn(fh, '<table border="1" class="contents">');
+          WriteLn(fh, '<tr class="contentsHeader">');
+          if GroupsChecked     then WriteLn(fh, '<td>Grupy</td>');
+          if lecturersChecked  then WriteLn(fh, '<td>Wyk&#322;adowcy</td>');
+          if ResourcesChecked  then WriteLn(fh, '<td>Zasoby</td>');
           WriteLn(fh, '</tr>');
           WriteLn(fh, '<tr>');
 
@@ -216,7 +216,7 @@ end;
           WriteLn(f, '<description text="'+XMLescapeChars(AddText)+'"></description>');
           WriteLn(f, '<data>');
              If GroupsChecked Then Begin
-               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
                for t := 0 to GList.Count - 1 do begin
                  if GList.Checked[t] then begin
                    WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
@@ -227,7 +227,7 @@ end;
              end;
 
              If lecturersChecked Then Begin
-               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
                for t := 0 to LList.Count - 1 do begin
                  if LList.Checked[t] then begin
                    WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
@@ -237,7 +237,7 @@ end;
                WriteLn(fh, '</ul></div></td>');
              end;
               If ResourcesChecked Then Begin
-               WriteLn(fh, '<td valign="top" style="border: 1px dashed silver"><div id="container"><ul class="menu">');
+               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
                for t := 0 to RList.Count - 1 do begin
                  if RList.Checked[t] then begin
                    WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
@@ -260,9 +260,8 @@ end;
 
           WriteLn(fh, '</tr>');
           WriteLn(fh, '</table>');
-          WriteLn(fh, '</center>');
-          WriteLn(fh, '<br/><small>Aktualizacja: '+DateTimeToStr(Now())+'</small>');
-          WriteLn(fh, '<br/><br/><br/><small>Plik iKalendarza mog&#261; by&#263; otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar</small>');
+          WriteLn(fh, '<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>');
+          WriteLn(fh, '<div class="extraText">Plik iKalendarza mog&#261; by&#263; otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar</div>');
           WriteLn(fh, '<br/><a href="https://support.google.com/calendar/answer/37118?hl=pl" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jak zaimportowa&#263; rozk&#322;ad zaj&#281;&#263; do Google Kalendarza</a>');
           WriteLn(fh, '<br/><a href="http://calendar.zoznam.sk/icalendar/ical-pl.php" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jeszcze wi&#281;cej na temat iKalendarzy</a>');
           WriteLn(fh, '</body>');

@@ -129,7 +129,8 @@ truncate table ROM_CLA_HISTORY;
 truncate table FORMS_HISTORY;
 
 begin
-delete from xxmsztools_eventlog where created < sysdate - 90;
+delete from xxmsztools_eventlog where created < sysdate - 90 and module_name <> 'PLANOWANIE.SESSION';
+delete from xxmsztools_eventlog where created < sysdate - 365 and module_name = 'PLANOWANIE.SESSION'; -- logowania / wylogowania planowanie.exe
 delete from classes_history where effective_start_date < sysdate - 90;
 delete from res_pla_history where last_update_date < sysdate - 365;
 commit;

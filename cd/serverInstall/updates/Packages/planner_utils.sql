@@ -21,6 +21,13 @@ create or replace package planner_utils AUTHID CURRENT_USER is
   -- overridden by system_parameters RES_PLA_HISTORY (read at package initialization)
   res_pla_history varchar2(1) := '-';
 
+  -- 2026.10: minimum version of planowanie.exe (YYYYMMDD). The program puts its version into the session
+  -- right after logon: dbms_application_info.set_action('ver=YYYY-MM-DD') (VersionOfApplication).
+  -- Checked at package initialization, only for sessions with module planowanie.exe (jobs, integrations
+  -- and other programs are not affected). Only a version given in ACTION and older than min_app_version
+  -- raises exc_API_ver_error - versions released before this change do not set ACTION and are NOT blocked.
+  min_app_version constant varchar2(8) := '20260101';
+
   exc_API_ver_error    number := -20000; --API version error
   exc_wrong_owner_name number := -20001; --Wrong owner name
   exc_lecgrorom_null   number := -20002; --Class without lecturer and group and resource
@@ -2669,6 +2676,15 @@ begin
     exception
     when no_data_found then null;
   end;
+  -- version of planowanie.exe, see min_app_version. 'ver=2026-10-28' -> '20261028'
+  -- no version in the session (programs released before this change, e.g. 2026-09-09) -> NOT blocked
+  if lower(sys_context('USERENV','MODULE')) = 'planowanie.exe'
+     and sys_context('USERENV','ACTION') like 'ver=%'
+     and substr(regexp_replace(sys_context('USERENV','ACTION'), '[^0-9]', ''), 1, 8) < min_app_version then
+    raise_application_error(exc_API_ver_error,
+      'Ta wersja programu Plansoft.org jest nieaktualna. Zainstaluj najnowszą wersję programu '||
+      '(wymagana wersja: '||substr(min_app_version,1,4)||'-'||substr(min_app_version,5,2)||'-'||substr(min_app_version,7,2)||' lub nowsza).');
+  end if;
 end planner_utils;
 /
 

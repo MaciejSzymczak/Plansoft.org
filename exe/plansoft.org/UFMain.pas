@@ -576,6 +576,8 @@ type
     PPreview: TPopupMenu;
     MenuItem4: TMenuItem;
     MenuItem11: TMenuItem;
+    WeeklySchoolPlan1: TMenuItem;
+    WeeklyTimetable1: TMenuItem;
     CLASSES_ALLOWED: TCheckBox;
     Wzbogacaniedanych1: TMenuItem;
     CopyDays: TBitBtn;
@@ -922,6 +924,8 @@ type
     procedure WeekSyncClick(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
+    procedure WeeklySchoolPlan1Click(Sender: TObject);
+    procedure PPreviewPopup(Sender: TObject);
     procedure CLASSES_ALLOWEDClick(Sender: TObject);
     procedure Wzbogacaniedanych1Click(Sender: TObject);
     procedure Przedskopiowanieskasujistniajcedniwolne1Click(
@@ -1124,6 +1128,8 @@ type
     procedure deepRefreshImmediate( reason : String);
     procedure changePassword(WindowLabel : String );
     procedure wlog(messageText : string);
+    procedure setSessionAppVersion;
+    procedure logSession(operation : string);
     procedure autoExpandSelection;
     procedure RefreshNavigatorImmediate;
     function callExternalURL( objType: String ) : boolean;
@@ -1151,7 +1157,7 @@ implementation
 
 Uses AutoCreate, UFDetails, UFWarning,
   UFShowConflicts, UFLegend, UFGrouping, UFSettings, UFPlannerPermissions,
-  UFWWWGenerator, UFExp, UFImp, UFLookupWindow,
+  UFWWWGenerator, UFWeeklySchoolPlan, UFExp, UFImp, UFLookupWindow,
   UFProgramSettings, UFChangePassword, UFToolWindow,
   UFCopyClasses, UFPurgeData, UFprogressBar, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
@@ -4552,6 +4558,7 @@ var  iniFile : tinifile;
      pperiodName, pRoleName     : string[255];
      pgentype                   : integer;
      pdefaultFolder             : string ;
+     pPageName                  : string ;
      pAddText                   : string ;
      pDoNotGenerateTableOfCon   : boolean;
      pGoogleUser                : string ;
@@ -4569,6 +4576,7 @@ begin
    pPeriodName              := ReadString ('wwwgenerator','PeriodName','');     //'2013.PS-ISE--2';
    pGenType                 := ReadInteger('wwwgenerator','GenType',0);         //0; //0=www 1=google cal
    pDefaultFolder           := ReadString ('wwwgenerator','DefaultFolder','');
+   pPageName                := ReadString ('wwwgenerator','PageName','');        //empty = period name
    pAddText                 := ReadString ('wwwgenerator','AddText','');
    pDoNotGenerateTableOfCon := ReadBool   ('wwwgenerator','DoNotGenerateTableOfCon',false);
    pGoogleUser              := ReadString ('wwwgenerator','GoogleUser','');
@@ -4599,6 +4607,7 @@ begin
      currentPeriod.Text               := periodid;
      genType.ItemIndex                := pgenType;
      defaultFolder                    := pdefaultFolder;
+     PageName.Text                    := pPageName;
      addText.Text                     := pAddText;
      DoNotGenerateTableOfCon.Checked  := pDoNotGenerateTableOfCon;
      Groups.Checked                   := pGroups;
@@ -4788,6 +4797,7 @@ begin
   CanShow           := False;
   GridPanel.Visible := False;
 
+  logSession('LOGOFF'); // ponowne logowanie: wylogowanie poprzedniego u¿ytkownika (gdy by³ po³¹czony)
   DModule.CloseDBConnection(true);
 
   Result    := False;
@@ -4878,6 +4888,9 @@ begin
 
   Result :=  DModule.ADOConnection.Connected;
   If Not Result Then Exit;
+
+  // przed pierwszym wywo³aniem planner_utils - pakiet przy inicjalizacji sprawdza wersjê programu (min_app_version)
+  setSessionAppVersion;
 
   //set the role
   DModule.SQL(DModule.AdditionalPerrmisions.Strings[0]);
@@ -5021,6 +5034,8 @@ begin
       SError('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
   End;
   fmain.wlog('killSessions: Done');
+
+  logSession('LOGON');
 
   commandLineProcessing;
 
@@ -6211,6 +6226,56 @@ end;
 procedure  TFMain.conRole_valueDblClick(Sender: TObject);
 begin
   BitBtnROLEClick(nil);
+end;
+
+// wersja programu w sesji bazy danych: v$session.ACTION = 'ver=YYYY-MM-DD' (VersionOfApplication)
+// planner_utils przy inicjalizacji odrzuca sesje planowanie.exe ze starsz¹ wersj¹ ni¿ planner_utils.min_app_version
+// (MODULE i CLIENT_INFO s¹ zajête: MODULE wykorzystuje planner_utils.killSessions, CLIENT_INFO jest przez nie nadpisywane)
+procedure TFMain.setSessionAppVersion;
+begin
+  try
+    with DModule.QWork do begin
+      ParamCheck := true;
+      SQL.Clear;
+      SQL.Add('begin dbms_application_info.set_action(:ver); end;');
+      Parameters.ParamByName('ver').Value := 'ver=' + String(VersionOfApplication);
+      ExecSQL;
+    end;
+  except
+    on E:exception do wlog('setSessionAppVersion: ' + E.Message);
+  end;
+end;
+
+// dziennik logowañ: xxmsztools_eventlog, MODULE_NAME = 'PLANOWANIE.SESSION', MESSAGE_TYPE = LOGON / LOGOFF
+// MESSAGE (max 200 znaków): ver=...;user=...;pla=...;os=...;host=...;module=...
+// insertIntoEventLog dzia³a w autonomicznej transakcji (commit niezale¿ny od transakcji programu).
+// B³¹d zapisu nie przerywa logowania ani zamykania programu.
+// odczyt: select created, message_type, message from xxmsztools_eventlog where module_name = 'PLANOWANIE.SESSION' order by id desc
+procedure TFMain.logSession(operation : string);
+begin
+  if not DModule.ADOConnection.Connected then exit;
+  try
+    with DModule.QWork do begin
+      ParamCheck := true;
+      SQL.Clear;
+      SQL.Add(
+        'begin '+cr+
+        '  xxmsz_tools.insertIntoEventLog('+cr+
+        // po nazwie parametru spacja: parser parametrów ADO (Delphi 7) nie traktuje '|' jako koñca nazwy ("Parameter ver not found")
+        '      substr(''ver='' || :ver || '';user='' || user || '';pla='' || :pla '+cr+
+        '          ||'';os=''||substr(sys_context(''USERENV'',''OS_USER''),1,40)'+cr+
+        '          ||'';host=''||substr(sys_context(''USERENV'',''HOST''),1,50)'+cr+
+        '          ||'';module=''||substr(sys_context(''USERENV'',''MODULE''),1,30), 1, 200)'+cr+
+        '    , :op, ''PLANOWANIE.SESSION'');'+cr+
+        'end;');
+      Parameters.ParamByName('ver').Value := String(VersionOfApplication);
+      Parameters.ParamByName('pla').Value := UserID;
+      Parameters.ParamByName('op').Value  := operation;
+      ExecSQL;
+    end;
+  except
+    on E:exception do wlog('logSession ' + operation + ': ' + E.Message);
+  end;
 end;
 
 function TFMain.getUserOrRoleID : string;
@@ -7883,6 +7948,7 @@ try
    if flegend.Visible then FLegend.saveFormSettings;
  FLegend.SaveTimeTableNotes;
 
+ logSession('LOGOFF');
  DModule.CloseDBConnection(true);
  FcellLayout.Close;
  Stop;
@@ -10179,9 +10245,24 @@ end;
 
 procedure TFMain.MenuItem11Click(Sender: TObject);
 begin
-  fmatrix.Caption := 'Tabela przestawna';
+  fmatrix.Caption := 'Zaawansowane: w³asny uk³ad';
   fmatrix.defaultSchema := 'WEEKLY';
   FMatrix.ShowModal;
+end;
+
+// Podgl¹d | Tygodniowy rozk³ad zajêæ (Plan lekcji)
+procedure TFMain.WeeklySchoolPlan1Click(Sender: TObject);
+begin
+  UFWeeklySchoolPlan.showWeeklySchoolPlan;
+end;
+
+// Podgl¹d w uk³adzie tygodniowym: zamiast "Semestralny rozk³ad zajêæ" i planu lekcji
+// jest "Tygodniowy rozk³ad zajêæ" (to samo polecenie co MenuItem4)
+procedure TFMain.PPreviewPopup(Sender: TObject);
+begin
+  MenuItem4.Visible         := not FSettings.WeeklyView.Checked;
+  WeeklySchoolPlan1.Visible := not FSettings.WeeklyView.Checked;
+  WeeklyTimetable1.Visible  := FSettings.WeeklyView.Checked;
 end;
 
 procedure TFMain.autoExpandSelection;
