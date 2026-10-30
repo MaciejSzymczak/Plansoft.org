@@ -287,8 +287,6 @@ type
     Zalogujponownie1: TMenuItem;
     N11: TMenuItem;
     Odwie1: TMenuItem;
-    powiksz1: TMenuItem;
-    pomniejsz1: TMenuItem;
     N13: TMenuItem;
     LCONROLE_VALUE: TLabel;
     conRole: TEdit;
@@ -346,6 +344,7 @@ type
     ppChangeO: TMenuItem;
     ppminusS: TMenuItem;
     Kopiowaniegrupowe1: TMenuItem;
+    NCopyTimetable: TMenuItem;
     mmpurge: TMenuItem;
     Atrybuty1: TMenuItem;
     N16: TMenuItem;
@@ -361,7 +360,6 @@ type
     Zdecydowanieplanuj1: TMenuItem;
     Nieplanuj1: TMenuItem;
     Lepiejplanuj1: TMenuItem;
-    N17: TMenuItem;
     FavOff: TMenuItem;
     FavSelected: TMenuItem;
     FavAll: TMenuItem;
@@ -400,6 +398,7 @@ type
     Kombinacjezasobw1: TMenuItem;
     Dozwolonekombinacjetypwzasobw1: TMenuItem;
     massImport: TMenuItem;
+    exportTimetable: TMenuItem;
     Rejestracaus1: TMenuItem;
     XPManifest1: TXPManifest;
     BCopy: TSpeedButton;
@@ -684,6 +683,7 @@ type
     procedure mmconsolidationClick(Sender: TObject);
     procedure MMDiagramClick(Sender: TObject);
     procedure DostepneMiejsce1Click(Sender: TObject);
+    procedure mmEventLogClick(Sender: TObject);
     procedure OczekujaceZadania1Click(Sender: TObject);
     procedure AutoSaverTimer(Sender: TObject);
     procedure bmoveUpClick(Sender: TObject);
@@ -791,6 +791,8 @@ type
     procedure Dozwolonekombinacjetypwzasobw1Click(Sender: TObject);
     procedure ColoringChange(Sender: TObject);
     procedure massImportClick(Sender: TObject);
+    procedure exportTimetableClick(Sender: TObject);
+    procedure mmCopyTimetableClick(Sender: TObject);
     procedure Rejestracaus1Click(Sender: TObject);
     procedure BCopyClick(Sender: TObject);
     procedure BPasteClick(Sender: TObject);
@@ -1160,11 +1162,11 @@ Uses AutoCreate, UFDetails, UFWarning,
   UFWWWGenerator, UFWeeklySchoolPlan, UFExp, UFImp, UFLookupWindow,
   UFProgramSettings, UFChangePassword, UFToolWindow,
   UFCopyClasses, UFPurgeData, UFprogressBar, UFTTCheckResults,
-  UFTTCombinations, UFMassImport, UFAbolitionTime, inifiles, UFMatrix,
+  UFTTCombinations, UFMassImport, UFExportTimetable, UFCopyMethod, UFAbolitionTime, inifiles, UFMatrix,
   UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
-  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks;
+  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks, UFBrowseEVENTLOG;
 
 var dummy : string;
 const LastValidatedPeriodId : string = '###invalid###'; // typed constant = writable global, cache for the PERIODS existence check in BuildCalendar
@@ -4367,6 +4369,7 @@ begin
    mmpurge.Visible      := lVisible;
    //FormFormulas.Visible := lVisible;
    massImport.Visible   := lVisible;
+   exportTimetable.Visible := lVisible;
    MMDiagram.Visible    := lVisible;
    N14.Visible          := lVisible;
 
@@ -6324,6 +6327,21 @@ begin
   FDBSpace.Free;
 end;
 
+// tabela XXMSZTOOLS_EVENTLOG nale¿y do PLANNER i nie ma nadanych uprawnieñ dla innych u¿ytkowników
+procedure TFMain.mmEventLogClick(Sender: TObject);
+begin
+  if UpperCase(dm.UserName) <> 'PLANNER' then begin
+    SError('Dziennik zdarzeñ systemowych jest dostêpny tylko dla u¿ytkownika PLANNER.');
+    exit;
+  end;
+  FBrowseEVENTLOG := TFBrowseEVENTLOG.Create(Application);
+  try
+    FBrowseEVENTLOG.ShowModalAsBrowser('');
+  finally
+    FreeAndNil(FBrowseEVENTLOG);
+  end;
+end;
+
 procedure TFMain.OczekujaceZadania1Click(Sender: TObject);
 begin
   FWaitingTasks := TFWaitingTasks.Create(Application);
@@ -8183,6 +8201,30 @@ end;
 procedure TFMain.massImportClick(Sender: TObject);
 begin
  RunMassImport(-1);
+end;
+
+// plik w formacie importu "U³o¿ony rozk³ad zajêæ"
+procedure TFMain.exportTimetableClick(Sender: TObject);
+begin
+ dmodule.CommitTrans;
+ FExportTimetable := TFExportTimetable.Create(Application);
+ try
+   FExportTimetable.currentPeriod.Text := conPeriod.Text;
+   FExportTimetable.ShowModal;
+ finally
+   FreeAndNil(FExportTimetable);
+ end;
+end;
+
+// Edycja | Kopiuj rozk³ad zajêæ: wybór metody (Excel albo formularz kopiowania rozk³adu)
+procedure TFMain.mmCopyTimetableClick(Sender: TObject);
+begin
+ FCopyMethod := TFCopyMethod.Create(Application);
+ try
+   FCopyMethod.ShowModal;
+ finally
+   FreeAndNil(FCopyMethod);
+ end;
 end;
 
 procedure TFMain.Rejestracaus1Click(Sender: TObject);
@@ -10562,6 +10604,37 @@ var r : integer;
       result := visibleWeekId(conPeriod.Text, '', false);
   end;
 
+  // obiekty w kolumnach (wyk³adowcy / grupy / sale): obiekt klikniêtej kolumny na pocz¹tek listy wyboru,
+  // pozosta³e w dotychczasowej kolejnoœci - rozk³ad semestralny pokazuje wtedy jego zajêcia.
+  // Bez odœwie¿ania (CanShow) - odœwie¿a zmiana okresu poni¿ej.
+  procedure moveClickedObjectFirst(ids, names : TEdit);
+  var clicked, id, newIds, newNames : string;
+      t, n : integer;
+      oldCanShow : boolean;
+  begin
+    clicked := convertGrid.weekObjectsInCols(aCol, aCol);
+    if clicked = '' then exit;
+    n := WordCount(ids.Text, [';']);
+    if (n < 2) or (WordCount(names.Text, [';']) <> n) then exit;
+    newIds   := clicked;
+    newNames := convertGrid.weekObjectName(aCol);
+    for t := 1 to n do begin
+      id := ExtractWord(t, ids.Text, [';']);
+      if id <> clicked then begin
+        newIds   := merge(newIds,   id, ';');
+        newNames := merge(newNames, ExtractWord(t, names.Text, [';']), ';');
+      end;
+    end;
+    oldCanShow := CanShow;
+    CanShow := false;
+    try
+      ids.Text   := newIds;
+      names.Text := newNames;
+    finally
+      CanShow := oldCanShow;
+    end;
+  end;
+
 begin
   if isBlank(conPeriod.Text) then exit;
 
@@ -10571,6 +10644,13 @@ begin
       SError('Nie znaleziono okresu, do którego nale¿y ten tydzieñ');
       exit;
     end;
+    if convertGrid.convertMode = ConvWeekObjects then
+      Case TabViewType.TabIndex Of
+        0: moveClickedObjectFirst(ConLecturer, CONLECTURER_value);
+        1: moveClickedObjectFirst(ConGroup,    CONGROUP_value);
+        2: moveClickedObjectFirst(conResCat0,  conResCat0_value);
+        3: moveClickedObjectFirst(conResCat1,  conResCat1_value);
+      end;
   end else begin
     weekDate := '';
     if aCol >= 2 then // kolumny dnia i godziny nie maj¹ daty
@@ -10667,7 +10747,7 @@ begin
     n := DModule.QWork.Fields[2].AsInteger;
     item := TMenuItem.Create(WeeksPopup);
     item.Caption := StringReplace(DModule.QWork.Fields[1].AsString, '&', '&&', [rfReplaceAll]);
-    if not isWeekVisible(vis, n) then item.Caption := '(NIEWIDOCZNY) ' + item.Caption;
+    if not isWeekVisible(vis, n) then item.Caption := item.Caption + '   (niewidoczny)';
     item.Hint    := DModule.QWork.Fields[0].AsString; // ID tygodnia
     item.Checked := item.Hint = conPeriod.Text;          // bie¿¹cy tydzieñ (uk³ad tygodnia)
     item.OnClick := WeeksPopupItemClick;

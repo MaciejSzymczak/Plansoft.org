@@ -2245,7 +2245,7 @@ begin
       end;
   end;
 
-  tabsheet2.TabVisible  := genType.ItemIndex =0;
+  tabsheet2.TabVisible  := false; // Zaawansowane - uk³ad (layout.xslt dla index.xml) - index.xml wycofany
   tabsheet3.TabVisible  := genType.ItemIndex =0;
 end;
 

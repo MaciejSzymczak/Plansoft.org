@@ -2,19 +2,21 @@ inherited FMassImport: TFMassImport
   Left = 599
   Top = 264
   Width = 489
-  Height = 368
+  Height = 400
   Caption = 'Pobieranie danych z programu Excel'
+  KeyPreview = True
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
-    Top = 317
+    Top = 349
     Width = 481
   end
   object PC: TPageControl
     Left = 0
     Top = 0
     Width = 481
-    Height = 317
+    Height = 349
     ActivePage = TabSheet2
     Align = alClient
     TabOrder = 1
@@ -24,7 +26,7 @@ inherited FMassImport: TFMassImport
         Left = 112
         Top = 19
         Width = 252
-        Height = 150
+        Height = 170
         Caption = 'Jakie dane importujemy?'
         Items.Strings = (
           'Wyk'#322'adowcy'
@@ -32,7 +34,8 @@ inherited FMassImport: TFMassImport
           'Sale'
           'Przedmioty'
           'Formy / rezerwacje'
-          'Plan studi'#243'w')
+          'Plan studi'#243'w'
+          'U'#322'o'#380'ony rozk'#322'ad zaj'#281#263)
         TabOrder = 0
         OnClick = importTypeClick
       end
@@ -99,6 +102,48 @@ inherited FMassImport: TFMassImport
         Checked = True
         State = cbChecked
         TabOrder = 3
+      end
+      object DeleteAllData: TCheckBox
+        Left = 8
+        Top = 240
+        Width = 217
+        Height = 17
+        Caption = 'Skasuj ca'#322#261' zawarto'#347#263' bazy danych'
+        TabOrder = 4
+        Visible = False
+        OnClick = DeleteAllDataClick
+      end
+      object BDeleteAllData: TBitBtn
+        Left = 232
+        Top = 235
+        Width = 233
+        Height = 25
+        Caption = 'Skasuj ca'#322#261' zawarto'#347#263' bazy danych'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 5
+        Visible = False
+        OnClick = BDeleteAllDataClick
+      end
+      object LDangerZone: TLabel
+        Left = 8
+        Top = 262
+        Width = 457
+        Height = 48
+        AutoSize = False
+        Caption = 'STREFA NIEBEZPIECZNA! ZOSTANIE SKASOWANA CA'#321'A ZAWARTO'#346#262' BAZY DANYCH. NIE URUCHAMIAJ TEJ FUNKCJI W '#346'RODOWISKU PRODUKCYJNYM.'
+        Font.Charset = EASTEUROPE_CHARSET
+        Font.Color = clRed
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Visible = False
+        WordWrap = True
       end
     end
   end

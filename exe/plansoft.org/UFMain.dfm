@@ -6236,6 +6236,13 @@ inherited FMain: TFMain
         ShortCut = 16467
         OnClick = Zapisz1Click
       end
+      object NCopyTimetable: TMenuItem
+        Caption = '-'
+      end
+      object Kopiowaniegrupowe1: TMenuItem
+        Caption = 'Kopiuj rozk'#322'ad zaj'#281#263'...'
+        OnClick = mmCopyTimetableClick
+      end
     end
     object Widok1: TMenuItem
       Caption = 'Widok'
@@ -6263,15 +6270,6 @@ inherited FMain: TFMain
         OnClick = Przywrckomunikaty1Click
       end
       object N11: TMenuItem
-        Caption = '-'
-      end
-      object powiksz1: TMenuItem
-        Caption = 'Powi'#281'ksz'
-      end
-      object pomniejsz1: TMenuItem
-        Caption = 'Pomniejsz'
-      end
-      object N17: TMenuItem
         Caption = '-'
       end
       object FavOff: TMenuItem
@@ -6325,13 +6323,13 @@ inherited FMain: TFMain
           Caption = 'Pobierz dane z programu Excel'
           OnClick = massImportClick
         end
+        object exportTimetable: TMenuItem
+          Caption = 'Zapisz rozk'#322'ad zaj'#281#263' w Excel'
+          OnClick = exportTimetableClick
+        end
         object Wzbogacaniedanych1: TMenuItem
           Caption = 'Wzbogacanie danych'
           OnClick = Wzbogacaniedanych1Click
-        end
-        object Kopiowaniegrupowe1: TMenuItem
-          Caption = 'Kopiuj rozk'#322'ad'
-          OnClick = Kopiowaniegrupowe1Click
         end
         object mmconsolidation: TMenuItem
           Caption = 'Scalaj'
@@ -6635,6 +6633,10 @@ inherited FMain: TFMain
       object DostepneMiejsce1: TMenuItem
         Caption = 'Dost'#281'pne miejsce'
         OnClick = DostepneMiejsce1Click
+      end
+      object mmEventLog: TMenuItem
+        Caption = 'Dziennik zdarze'#324' systemowych'
+        OnClick = mmEventLogClick
       end
       object OczekujaceZadania1: TMenuItem
         Caption = 'Oczekuj'#261'ce zadania'

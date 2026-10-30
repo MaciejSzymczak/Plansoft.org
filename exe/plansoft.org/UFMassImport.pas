@@ -23,14 +23,22 @@ type
     BitBtn1: TBitBtn;
     DeletePlan: TCheckBox;
     report: TADOQuery;
+    DeleteAllData: TCheckBox;
+    LDangerZone: TLabel;
+    BDeleteAllData: TBitBtn;
     procedure RunImport(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure BTemplateClick(Sender: TObject);
     procedure importTypeClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
+    procedure DeleteAllDataClick(Sender: TObject);
+    procedure BDeleteAllDataClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     myQuery: TADOQuery;
+    procedure ImportTimetable;
+    procedure showImportPage;
   public
     procedure TT_Interface_Import(deleteExistingPlan : string);
   end;
@@ -40,7 +48,10 @@ var
 
 implementation
 
-uses DM, UFMain, StrUtils, UFMessageBox, UProgress;
+uses DM, UFMain, StrUtils, UFMessageBox, UProgress, ComObj;
+
+// po imporcie s³owniki i listy w otwartych oknach mog¹ byæ nieaktualne
+const restartHint = 'Zaleca siê teraz ponowne uruchomienie aplikacji.';
 
 {$R *.dfm}
 
@@ -109,6 +120,11 @@ begin
   if importType.ItemIndex = -1 then begin
     SError('Zaznacz jakie dane chcesz pobraæ');
     PC.ActivePageIndex := 0;
+    exit;
+  end;
+
+  if importType.ItemIndex = 6 then begin
+    ImportTimetable;
     exit;
   end;
 
@@ -399,12 +415,11 @@ begin
     else
     begin
       case importType.ItemIndex of
-        0: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        1: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        2: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        3: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        4: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2) );
-        5: TT_Interface_Import(  iif(DeletePlan.Checked,'Y','N') );
+        0..4: SError('Rekordy zosta³y pomyœlnie zapisane.'+cr+cr+' Liczba zapisanych rekordów:' + intToStr(lineNum-2)+cr+cr+restartHint );
+        5: begin
+             TT_Interface_Import(  iif(DeletePlan.Checked,'Y','N') );
+             Info('Import zakoñczony. Wynik importu jest w raporcie.'+cr+cr+restartHint);
+           end;
       end;
       importType.ItemIndex := -1;
       PC.ActivePageIndex := 0;
@@ -440,8 +455,9 @@ begin
    3: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/przedmioty.xlsx');
    4: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/formy_zajec.xlsx');
    5: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/Plan_Studiow.xlsx');
+   6: webBrowser('http://www.plansoft.org/wp-content/uploads/xlsx/UlozonyRozkladZajec.xlsx');
   end;
-  PC.ActivePageIndex := 2;
+  showImportPage;
 end;
 
 procedure TFMassImport.importTypeClick(Sender: TObject);
@@ -452,10 +468,202 @@ end;
 
 procedure TFMassImport.BitBtn1Click(Sender: TObject);
 begin
+  showImportPage;
+end;
+
+procedure TFMassImport.showImportPage;
+begin
   DeletePlan.Visible := importType.ItemIndex=5;
+  // kasowanie ca³ej bazy (pole + przycisk): tylko przy u³o¿onym rozk³adzie zajêæ i tylko PLANNER; zawsze domyœlnie niezaznaczone
+  DeleteAllData.Visible := importType.ItemIndex=6;
+  DeleteAllData.Enabled := UpperCase(dm.UserName) = 'PLANNER';
+  DeleteAllData.Checked := false;
+  DeleteAllDataClick(nil);
   PC.ActivePageIndex := 2;
 end;
 
+procedure TFMassImport.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then begin
+    Key := 0;
+    ModalResult := mrCancel;
+  end;
+end;
+
+procedure TFMassImport.DeleteAllDataClick(Sender: TObject);
+begin
+  LDangerZone.Visible    := DeleteAllData.Visible and DeleteAllData.Checked;
+  BDeleteAllData.Visible := LDangerZone.Visible;
+end;
+
+// STREFA NIEBEZPIECZNA: kasowanie ca³ej zawartoœci bazy danych - niezale¿nie od importu pliku
+// (zatwierdzane od razu - truncate, nie da siê cofn¹æ)
+procedure TFMassImport.BDeleteAllDataClick(Sender: TObject);
+var query : TADOQuery;
+begin
+  if not (DeleteAllData.Visible and DeleteAllData.Enabled and DeleteAllData.Checked) then exit;
+  if Question('STREFA NIEBEZPIECZNA!' + cr + cr +
+              'Zostanie skasowana ca³a zawartoœæ bazy danych: zajêcia, wyk³adowcy, grupy, sale, przedmioty, formy zajêæ i historia zmian.' + cr +
+              'Tej operacji nie mo¿na cofn¹æ.' + cr + cr +
+              'Czy na pewno skasowaæ ca³¹ zawartoœæ bazy danych?') <> ID_YES then exit;
+  dmodule.CommitTrans;
+  Screen.Cursor := crHourGlass;
+  query := TADOQuery.Create(self);
+  try
+    query.Connection     := DModule.ADOConnection;
+    query.CommandTimeout := 3600;
+    query.ParamCheck     := false;
+    query.SQL.Text       := 'begin cla_interface_pkg.deleteAllData; end;';
+    query.ExecSQL;
+  finally
+    query.Free;
+    Screen.Cursor := crDefault;
+  end;
+  DeleteAllData.Checked := false;
+  DeleteAllDataClick(nil);
+  FMain.deepRefreshDelayed;
+  Info('Ca³a zawartoœæ bazy danych zosta³a skasowana.');
+end;
+
+
+// U³o¿ony rozk³ad zajêæ: wiersze arkusza -> CLA_INTERFACE, zajêcia tworzy cla_interface_pkg.import
+// (ka¿dy wiersz osobno - wiersze z b³êdami s¹ pomijane i pokazywane w raporcie Rozklad_Import.html)
+procedure TFMassImport.ImportTimetable;
+// kolumny K..N (Opis 3, Opis 4, Wype³nienie, Kolor) s¹ opcjonalne - plik z kolumnami A..J (wczeœniejszy szablon) te¿ jest przyjmowany
+const expectedHeader = 'Data, Godzina, Wyk³adowca, Grupa, Sala, Przedmiot, Forma, Info dla studentów, Info dla planistów, W³aœciciel';
+      optionalHeader = ', Opis 3, Opis 4, Wype³nienie, Kolor';
+      colNames : array[1..14] of string = ('day_txt', 'hour_txt', 'lec_txt', 'gro_txt', 'rom_txt', 'sub_txt', 'for_txt', 'desc2', 'desc1', 'owner_txt',
+                                           'desc3', 'desc4', 'fill_txt', 'colour_txt');
+      colSizes : array[1..14] of integer = (100, 100, 4000, 4000, 4000, 1000, 1000, 1000, 1000, 255, 1000, 1000, 100, 100);
+var LCID, lastRow, r, c, rowCnt : integer;
+    ws, data : OleVariant;
+    header, headerOpt, reportFile : string;
+    vals : array[1..14] of string;
+    rowHasData, testRun, connected : boolean;
+    ins, query : TADOQuery;
+
+  function cellText(row, col : integer) : string;
+  var v : OleVariant;
+  begin
+    v := data[row, col];
+    if VarIsEmpty(v) or VarIsNull(v) then result := ''
+    else if VarType(v) = varError then result := '#B£¥D'
+    // data w Excelu = liczba dni (Value2), jak TDateTime
+    else if (col = 1) and ((VarType(v) = varDouble) or (VarType(v) = varDate)) then result := FormatDateTime('yyyy-mm-dd', v)
+    else result := Trim(VarToStr(v));
+  end;
+
+begin
+  testRun := chbTest.Checked;
+  if not openDialog.Execute then exit;
+  reportFile := uutilityParent.ApplicationDocumentsPath + 'Rozklad_Import.html';
+  if not CanOverwriteFile(reportFile) then exit;
+
+  connected := false;
+  ins       := nil;
+  query     := nil;
+  FProgress.Show;
+  try
+    LCID := GetUserDefaultLCID;
+    ExcelApplication.Connect;
+    connected := true;
+    ExcelApplication.Workbooks.Open(opendialog.FileName,
+                       EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+                       EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+                       LCID );
+    // ca³y arkusz jednym odczytem (odczyt komórka po komórce jest bardzo wolny przy tysi¹cach wierszy)
+    ws      := ExcelApplication.ActiveSheet;
+    lastRow := ws.UsedRange.Row + ws.UsedRange.Rows.Count - 1;
+    if lastRow < 2 then begin
+      SError('Plik nie zawiera danych. Pierwszy wiersz to nag³ówek, dane zaczynaj¹ siê od drugiego wiersza.');
+      exit;
+    end;
+    data := ws.Range['A1', 'N' + IntToStr(lastRow)].Value2;
+
+    header := '';
+    for c := 1 to 10 do header := header + iif(c > 1, ', ', '') + cellText(1, c);
+    headerOpt := '';
+    for c := 11 to 14 do headerOpt := headerOpt + ', ' + cellText(1, c);
+    if (AnsiLowerCase(header) <> AnsiLowerCase(expectedHeader))
+       or ((headerOpt <> ', , , , ') and (AnsiLowerCase(headerOpt) <> AnsiLowerCase(optionalHeader))) then begin
+      SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powinien zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedHeader + optionalHeader+cr + 'JEST:'+ header + headerOpt);
+      exit;
+    end;
+
+    dmodule.CommitTrans; // = BeginTrans
+    try
+      dmodule.SQL('delete from cla_interface where created_by = user');
+
+      ins := TADOQuery.Create(self);
+      ins.Connection := DModule.ADOConnection;
+      ins.SQL.Text := 'insert into cla_interface (line_no, day_txt, hour_txt, lec_txt, gro_txt, rom_txt, sub_txt, for_txt, desc2, desc1, owner_txt, desc3, desc4, fill_txt, colour_txt)'+
+                      ' values (:line_no, :day_txt, :hour_txt, :lec_txt, :gro_txt, :rom_txt, :sub_txt, :for_txt, :desc2, :desc1, :owner_txt, :desc3, :desc4, :fill_txt, :colour_txt)';
+      rowCnt := 0;
+      for r := 2 to lastRow do begin
+        rowHasData := false;
+        for c := 1 to 14 do begin
+          vals[c] := Copy(cellText(r, c), 1, colSizes[c]);
+          if vals[c] <> '' then rowHasData := true;
+        end;
+        if not rowHasData then continue;
+        ins.Parameters.ParamByName('line_no').Value := r;
+        for c := 1 to 14 do ins.Parameters.ParamByName(colNames[c]).Value := vals[c];
+        ins.ExecSQL;
+        inc(rowCnt);
+        if r mod 200 = 0 then begin
+          FProgress.ProgressBar.Position := 60 * r div lastRow;
+          FProgress.Refresh;
+        end;
+      end;
+      if rowCnt = 0 then begin
+        dmodule.RollbackTrans;
+        SError('Plik nie zawiera danych');
+        exit;
+      end;
+
+      FProgress.ProgressBar.Position := 65;
+      FProgress.Refresh;
+      query := TADOQuery.Create(self);
+      query.Connection     := DModule.ADOConnection;
+      query.CommandTimeout := 3600;
+      query.ParamCheck     := false;
+      query.SQL.Text       := 'begin cla_interface_pkg.import; end;';
+      query.ExecSQL;
+
+      FProgress.ProgressBar.Position := 95;
+      FProgress.Refresh;
+      report.SQL.Clear;
+      report.SQL.Add('select cla_interface_pkg.getReport(''' + iif(testRun, 'Y', 'N') + ''') from dual');
+      report.Open;
+      with TStringList.Create do try
+        Text := UTF8Encode(report.Fields[0].AsString);
+        SaveToFile(reportFile);
+      finally
+        Free;
+      end;
+      report.Close;
+
+      if testRun then dmodule.RollbackTrans
+      else begin
+        dmodule.CommitTrans;
+        importType.ItemIndex := -1;
+        PC.ActivePageIndex := 0;
+      end;
+    except
+      dmodule.RollbackTrans;
+      raise;
+    end;
+  finally
+    ins.Free;
+    query.Free;
+    FProgress.Hide;
+    if connected then ExcelApplication.Disconnect;
+  end;
+
+  if not testRun then fmain.deepRefreshImmediate('ImportTimetable');
+  ExecuteFile(reportFile, '', '', SW_SHOWMAXIMIZED);
+  if not testRun then Info('Import zakoñczony. Wynik importu jest w raporcie.'+cr+cr+restartHint);
+end;
 
 procedure TFMassImport.TT_Interface_Import (deleteExistingPlan : string);
 var tmpFile : textfile;

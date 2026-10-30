@@ -565,6 +565,7 @@ inherited FWWWGenerator: TFWWWGenerator
     object TabSheet2: TTabSheet
       Caption = 'Zaawansowane - uk'#322'ad'
       ImageIndex = 1
+      TabVisible = False
       object xslt: TMemo
         Left = 0
         Top = 41

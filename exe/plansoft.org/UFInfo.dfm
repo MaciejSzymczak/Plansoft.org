@@ -330,6 +330,7 @@ inherited FInfo: TFInfo
     Left = 432
     Top = 313
     Width = 71
+    Cancel = True
     OnClick = BOKClick
   end
   inherited Memo1: TMemo

@@ -1,7 +1,7 @@
 unit UFWeeklySchoolPlan;
 
 // Podgl¹d | Tygodniowy rozk³ad zajêæ (Plan lekcji): plan jednego tygodnia dla wyk³adowcy, grupy albo sali.
-// Kolumny = widoczne dni tygodnia okresu (PERIODS.SHOW_MON..SHOW_SUN), wiersze = siatka godzin,
+// Kolumny = widoczne dni tygodnia okresu wybranego w CONPERIOD_VALUE (PERIODS.SHOW_MON..SHOW_SUN), wiersze = siatka godzin,
 // kolejne godziny z tymi samymi zajêciami s¹ zawsze scalane (tylko w pionie - dni nigdy nie s¹ scalane).
 // Zawartoœæ i kolory komórek - jak w wydruku semestralnym (Plik | Drukuj), bez legendy.
 
@@ -23,8 +23,12 @@ function  weeklyPlanFileName(resType, resId : string; dateFrom, dateTo : TDateTi
 // tworzy plan tygodnia weekId (okres z PERIODS.SUB_PERIOD_PARENT) w pliku fileName (.htm).
 // resType: LEC / GRO / ROM / SUB; resCat1: zasób z drugiej kategorii (zak³adka obok sal)
 // genForm: TFWWWGenerator do ponownego u¿ycia (zapytanie o zajêcia); nil - tworzony na czas wywo³ania
+// daysPeriodId: okres, którego dni tygodnia (SHOW_MON..SHOW_SUN) s¹ kolumnami planu; '' - okres wybrany w CONPERIOD_VALUE
+// prevFile, nextFile, upFile: przyciski << >> (poprzedni / nastêpny tydzieñ) i strza³ka w górê (grafik semestralny),
+//   nazwy plików w tym samym folderze; '' - przycisk nieaktywny
 function  createWeeklySchoolPlan(weekId, resType, resId : string; resCat1 : boolean; fileName : string;
-                                 const genForm : TForm = nil) : boolean;
+                                 const genForm : TForm = nil; const daysPeriodId : string = '';
+                                 const prevFile : string = ''; const nextFile : string = ''; const upFile : string = '') : boolean;
 
 type
   // "PrzejdŸ do planu tygodnia" w grafiku semestralnym (Plik | Drukuj): kolumna siatki semestru (convertGrid) = tydzieñ.
@@ -32,7 +36,7 @@ type
   // Okres bez tygodni: tygodnie s¹ tworzone (jak "Utwórz tygodnie").
   TWeekPlanButtons = class
   private
-    resType, resId, folder : string;
+    resType, resId, folder, periodId, semesterLink : string;
     genForm : TForm;
     weeks   : array of record
                 id        : string;
@@ -40,9 +44,13 @@ type
                 dateFrom,
                 dateTo    : TDateTime;
                 button    : string;   // '' = plan jeszcze nie utworzony
+                inGrid    : boolean;  // tydzieñ ma kolumny w grafiku = jego plan zostanie utworzony
               end;
+    weeksMarked : boolean;
+    procedure markWeeks;
+    function  planFile(w : integer) : string;
   public
-    constructor Create(periodId, aResType, aResId, semesterFileName : string; const aGenForm : TForm = nil);
+    constructor Create(aPeriodId, aResType, aResId, semesterFileName : string; const aGenForm : TForm = nil);
     function    columnButton(col : integer) : string;
   end;
 
@@ -88,7 +96,8 @@ end;
 
 //------------------------------------------------------------------------------------------------
 // mini formularz: tygodnie okresu parentId; zwraca ID wybranego tygodnia albo ''
-function selectWeek(parentId, currentWeekId : string) : string;
+// selectedDate: data komórki zaznaczonej w siatce (0 - brak)
+function selectWeek(parentId, currentWeekId : string; selectedDate : TDateTime) : string;
 var f       : TForm;
     lbl     : TLabel;
     lb      : TListBox;
@@ -96,7 +105,7 @@ var f       : TForm;
     handler : TWeekListHandler;
     ids     : TStringList;
     vis, id, caption : string;
-    n, idxCurrent, idxToday, idxVisible : integer;
+    n, idxSelected, idxCurrent, idxToday, idxVisible : integer;
     dFrom, dTo : TDateTime;
 begin
   result  := '';
@@ -141,6 +150,7 @@ begin
     bCancel.ModalResult := mrCancel;
     bCancel.SetBounds(338, 380, 88, 27);
 
+    idxSelected := -1;
     idxCurrent := -1;
     idxToday   := -1;
     idxVisible := -1;
@@ -155,6 +165,7 @@ begin
       caption := Format('Tydzieñ %d:   %s – %s', [n, FormatDateTime('dd.mm', dFrom), FormatDateTime('dd.mm.yyyy', dTo)]);
       if not isWeekVisible(vis, n) then caption := caption + '   (niewidoczny)'
       else if idxVisible = -1 then idxVisible := ids.Count;
+      if (selectedDate >= dFrom) and (selectedDate <= dTo) then idxSelected := ids.Count;
       if id = currentWeekId then idxCurrent := ids.Count;
       if (Date >= dFrom) and (Date <= dTo) then idxToday := ids.Count;
       ids.Add(id);
@@ -163,7 +174,8 @@ begin
     end;
     if lb.Items.Count = 0 then exit;
 
-    // bie¿¹cy tydzieñ (uk³ad tygodnia), tydzieñ z dzisiejsz¹ dat¹, pierwszy widoczny
+    // tydzieñ daty zaznaczonej w siatce, bie¿¹cy tydzieñ (uk³ad tygodnia), tydzieñ z dzisiejsz¹ dat¹, pierwszy widoczny
+    if idxSelected >= 0 then lb.ItemIndex := idxSelected else
     if idxCurrent >= 0 then lb.ItemIndex := idxCurrent else
     if idxToday   >= 0 then lb.ItemIndex := idxToday   else
     if idxVisible >= 0 then lb.ItemIndex := idxVisible else lb.ItemIndex := 0;
@@ -251,6 +263,12 @@ const planCss =
   '.meta { text-align: right; font-size: 12px; color: #64748b; line-height: 1.6; white-space: nowrap; }'+#13#10+
   '.badge { display: inline-block; background: #1e3a5f; color: #fff; border-radius: 999px;'+
           ' padding: 3px 12px; font-weight: 700; font-size: 12px; letter-spacing: .04em; }'+#13#10+
+  '.nav { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 8px; }'+#13#10+
+  '.navBtn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 30px;'+
+           ' border-radius: 8px; background: #1e3a5f; color: #fff; text-decoration: none; font-size: 17px;'+
+           ' font-weight: 700; box-shadow: 0 1px 3px rgba(15, 23, 42, .25); }'+#13#10+
+  'a.navBtn:hover { background: #c2410c; }'+#13#10+
+  '.navBtn.off { background: #e2e8f0; color: #94a3b8; box-shadow: none; cursor: default; }'+#13#10+
   'table.plan { width: 100%; height: 1px; table-layout: fixed; border-collapse: separate; border-spacing: 6px; }'+#13#10+
   'col.hours { width: 96px; }'+#13#10+
   'thead th { background: #1e3a5f; color: #fff; border-radius: 10px; padding: 9px 6px; font-weight: 600; }'+#13#10+
@@ -279,6 +297,7 @@ const planCss =
   '.foot a { color: inherit; }'+#13#10+
   '@media print {'+#13#10+
   '  body { background: #fff; }'+#13#10+
+  '  .nav { display: none; }'+#13#10+
   '  .sheet { margin: 0; max-width: none; padding: 0; border-radius: 0; box-shadow: none; }'+#13#10+
   '  tbody tr { height: 42px; }'+#13#10+
   '  table.plan { page-break-inside: avoid; }'+#13#10+
@@ -286,7 +305,8 @@ const planCss =
 
 //------------------------------------------------------------------------------------------------
 function createWeeklySchoolPlan(weekId, resType, resId : string; resCat1 : boolean; fileName : string;
-                                const genForm : TForm = nil) : boolean;
+                                const genForm : TForm = nil; const daysPeriodId : string = '';
+                                const prevFile : string = ''; const nextFile : string = ''; const upFile : string = '') : boolean;
 type TPlanCell = record
        key   : string;   // '' = pusta komórka; kolejne godziny o tym samym kluczu s¹ scalane
        attrs : string;   // atrybuty <td> (bez rowspan)
@@ -300,7 +320,7 @@ var prefix : string;
 
     weekFrom, weekTo, monday, d : TDateTime;
     weekNum, hoursPerDay : integer;
-    parentId, periodName, resLabel, resName, suffix, showDays : string;
+    parentId, periodName, resLabel, resName, suffix, showDays, daysId : string;
 
     dayCount : integer;
     dayDate  : array of TDateTime;
@@ -334,6 +354,12 @@ var prefix : string;
     if result = nil then raise Exception.Create('Brak ustawienia wydruku: ' + prefix + name);
   end;
 
+  function navButton(href, symbol, hint, offHint : string) : string;
+  begin
+    if href <> '' then result := '<a class="navBtn" href="'+XMLescapeChars(href)+'" title="'+hint+'">'+symbol+'</a>'
+                  else result := '<span class="navBtn off" title="'+offHint+'">'+symbol+'</span>';
+  end;
+
 begin
   result := false;
 
@@ -352,16 +378,21 @@ begin
 
   // tydzieñ
   DModule.SingleValue('select to_char(date_from,''yyyy-mm-dd''), to_char(date_to,''yyyy-mm-dd''), hours_per_day,'+
-                      '       nvl(sub_period_num,0), sub_period_parent,'+
-                      '       show_mon||show_tue||show_wed||show_thu||show_fri||show_sat||show_sun'+
+                      '       nvl(sub_period_num,0), sub_period_parent'+
                       '  from periods where id = '+weekId);
   weekFrom    := oracleDate(DModule.QWork.Fields[0].AsString);
   weekTo      := oracleDate(DModule.QWork.Fields[1].AsString);
   hoursPerDay := DModule.QWork.Fields[2].AsInteger;
   weekNum     := DModule.QWork.Fields[3].AsInteger;
   parentId    := DModule.QWork.Fields[4].AsString;
-  showDays    := DModule.QWork.Fields[5].AsString;
   periodName  := DModule.SingleValue(sql_PERDESC + iif(parentId <> '', parentId, weekId));
+
+  // dni tygodnia z okresu wybranego w programie, nie z tygodnia (tygodnie maj¹ zwykle wszystkie dni)
+  daysId := daysPeriodId;
+  if daysId = '' then daysId := fmain.conPeriod.Text;
+  if daysId = '' then daysId := weekId;
+  showDays := DModule.SingleValue('select show_mon||show_tue||show_wed||show_thu||show_fri||show_sat||show_sun'+
+                                  '  from periods where id = '+daysId);
 
   // kolumny: widoczne dni tygodnia (poniedzia³ek..niedziela), DayOfWeek: 1 = niedziela
   monday := weekFrom - ((DayOfWeek(weekFrom) + 5) mod 7);
@@ -494,7 +525,11 @@ begin
     add('    <div class="title">Plan zajêæ w dniach '+FormatDateTime('dd.mm.yyyy', weekFrom)+' – '+FormatDateTime('dd.mm.yyyy', weekTo)+'</div>');
     add('    <div class="who">'+resLabel+': <b>'+XMLescapeChars(resName)+'</b></div>');
     add('  </div>');
-    s := '  <div class="meta">';
+    s := '  <div class="meta"><div class="nav">'+
+         navButton(prevFile, '&laquo;', 'Poprzedni tydzieñ', 'Poprzedni tydzieñ - brak planu (utwórz rozk³ad semestralny z polem „PrzejdŸ do planu tygodnia”)')+
+         navButton(upFile,   '&uarr;',  'Rozk³ad semestralny', 'Rozk³ad semestralny - brak pliku (utwórz rozk³ad semestralny z polem „PrzejdŸ do planu tygodnia”)')+
+         navButton(nextFile, '&raquo;', 'Nastêpny tydzieñ', 'Nastêpny tydzieñ - brak planu (utwórz rozk³ad semestralny z polem „PrzejdŸ do planu tygodnia”)')+
+         '</div>';
     if weekNum > 0 then s := s + '<span class="badge">Tydzieñ '+IntToStr(weekNum)+'</span><br/>';
     add(s + XMLescapeChars(periodName) + '</div>');
     add('</div>');
@@ -554,15 +589,18 @@ begin
 end;
 
 //------------------------------------------------------------------------------------------------
-constructor TWeekPlanButtons.Create(periodId, aResType, aResId, semesterFileName : string; const aGenForm : TForm = nil);
+constructor TWeekPlanButtons.Create(aPeriodId, aResType, aResId, semesterFileName : string; const aGenForm : TForm = nil);
 var n : integer;
 begin
   inherited Create;
+  periodId := aPeriodId;
   resType := aResType;
   resId   := aResId;
   genForm := aGenForm;
   // folder grafiku: œcie¿ka bywa sklejana z "/" (publikacja)
   folder  := Copy(semesterFileName, 1, LastDelimiter('\/:', semesterFileName));
+  semesterLink := Copy(semesterFileName, Length(folder) + 1, Length(semesterFileName));
+  weeksMarked  := false;
 
   if DModule.SingleValue('select count(1) from periods where sub_period_parent = '+periodId) = '0' then
     fmain.createWeeks(periodId);
@@ -577,18 +615,41 @@ begin
     weeks[n].dateFrom := oracleDate(DModule.QWork.Fields[2].AsString);
     weeks[n].dateTo   := oracleDate(DModule.QWork.Fields[3].AsString);
     weeks[n].button   := '';
+    weeks[n].inGrid   := false;
     inc(n);
     DModule.QWork.Next;
   end;
 end;
 
-function TWeekPlanButtons.columnButton(col : integer) : string;
+// tygodnie z kolumnami w grafiku (convertGrid) - tylko dla nich powstaj¹ plany, wiêc tylko do nich prowadz¹ << >>
+procedure TWeekPlanButtons.markWeeks;
 var i, w : integer;
     ts : TTimeStamp;
     d : TDateTime;
-    fileName : string;
+begin
+  weeksMarked := true;
+  ts.Time := 0;
+  for i := 1 to convertGrid.convertSingleObject.Len do begin
+    ts.Date := convertGrid.convertSingleObject.ColRowDate[i].Date;
+    d := TimeStampToDateTime(ts);
+    for w := 0 to High(weeks) do
+      if (d >= weeks[w].dateFrom) and (d <= weeks[w].dateTo) then weeks[w].inGrid := true;
+  end;
+end;
+
+function TWeekPlanButtons.planFile(w : integer) : string;
+begin
+  result := weeklyPlanFileName(resType, resId, weeks[w].dateFrom, weeks[w].dateTo) + '.htm';
+end;
+
+function TWeekPlanButtons.columnButton(col : integer) : string;
+var i, w, p : integer;
+    ts : TTimeStamp;
+    d : TDateTime;
+    fileName, prevFile, nextFile : string;
 begin
   result := '&nbsp';
+  if not weeksMarked then markWeeks;
   // pierwszy dzieñ kolumny (ColRowDate: Col liczone od 0, w siatce od kolumny 2)
   d := 0;
   for i := 1 to convertGrid.convertSingleObject.Len do
@@ -603,9 +664,17 @@ begin
   for w := 0 to High(weeks) do
     if (d >= weeks[w].dateFrom) and (d <= weeks[w].dateTo) then begin
       if weeks[w].button = '' then begin
-        fileName := weeklyPlanFileName(resType, resId, weeks[w].dateFrom, weeks[w].dateTo) + '.htm';
+        fileName := planFile(w);
+        // << >>: najbli¿szy wczeœniejszy / póŸniejszy tydzieñ, który te¿ ma plan
+        prevFile := '';
+        for p := w - 1 downto 0 do
+          if weeks[p].inGrid then begin prevFile := planFile(p); break; end;
+        nextFile := '';
+        for p := w + 1 to High(weeks) do
+          if weeks[p].inGrid then begin nextFile := planFile(p); break; end;
         try
-          if createWeeklySchoolPlan(weeks[w].id, resType, resId, false, folder + fileName, genForm) then
+          if createWeeklySchoolPlan(weeks[w].id, resType, resId, false, folder + fileName, genForm, periodId,
+                                    prevFile, nextFile, semesterLink) then
             weeks[w].button :=
               '<a class="weekPlanBtn" href="'+XMLescapeChars(fileName)+'" title="Plan zajêæ w dniach '+
               FormatDateTime('dd.mm', weeks[w].dateFrom)+' – '+FormatDateTime('dd.mm.yyyy', weeks[w].dateTo)+'">'+
@@ -625,10 +694,34 @@ begin
 end;
 
 //------------------------------------------------------------------------------------------------
+// data komórki zaznaczonej w siatce zajêæ; 0 - zaznaczenie poza komórkami zajêæ
+function selectedGridDate : TDateTime;
+var objId, hour : integer;
+    ts : TTimeStamp;
+begin
+  result := 0;
+  if convertGrid.ColRowToDate(objId, ts, hour, fmain.Grid.Selection.Left, fmain.Grid.Selection.Top) = ConvClass then
+    result := TimeStampToDateTime(ts);
+end;
+
 procedure showWeeklySchoolPlan;
-var resType, resId, parentId, weekId, currentWeekId, fileName : string;
+var resType, resId, parentId, weekId, currentWeekId, fileName, folder, upFile : string;
     resCat1 : boolean;
     weekFrom, weekTo : TDateTime;
+
+  // plik s¹siedniego tygodnia (delta -1 / +1), o ile ju¿ istnieje (np. z rozk³adu semestralnego z planami tygodni)
+  function neighbourFile(delta : integer) : string;
+  begin
+    result := '';
+    if parentId = '' then exit;
+    DModule.SingleValue('select to_char(date_from,''yyyy-mm-dd''), to_char(date_to,''yyyy-mm-dd'') from periods'+
+                        ' where sub_period_parent = '+parentId+
+                        '   and sub_period_num = (select sub_period_num from periods where id = '+weekId+') + '+IntToStr(delta));
+    if DModule.QWork.Fields[0].AsString = '' then exit;
+    result := weeklyPlanFileName(resType, resId, oracleDate(DModule.QWork.Fields[0].AsString), oracleDate(DModule.QWork.Fields[1].AsString)) + '.htm';
+    if not FileExists(folder + result) then result := '';
+  end;
+
 begin
   if isBlank(fmain.conPeriod.Text) then exit;
 
@@ -678,7 +771,7 @@ begin
       SError('Nie mo¿na utworzyæ tygodni dla tego okresu');
       exit;
     end;
-    weekId := selectWeek(parentId, currentWeekId);
+    weekId := selectWeek(parentId, currentWeekId, selectedGridDate);
   end;
   if weekId = '' then exit;
 
@@ -686,12 +779,17 @@ begin
   DModule.SingleValue('select to_char(date_from,''yyyy-mm-dd''), to_char(date_to,''yyyy-mm-dd'') from periods where id = '+weekId);
   weekFrom := oracleDate(DModule.QWork.Fields[0].AsString);
   weekTo   := oracleDate(DModule.QWork.Fields[1].AsString);
-  fileName := uutilityParent.ApplicationDocumentsPath + weeklyPlanFileName(resType, resId, weekFrom, weekTo) + '.htm';
+  folder   := uutilityParent.ApplicationDocumentsPath;
+  fileName := folder + weeklyPlanFileName(resType, resId, weekFrom, weekTo) + '.htm';
   if not CanOverwriteFile(fileName) then exit;
+  // grafik semestralny: nazwa jak w Podgl¹d | Semestralny rozk³ad zajêæ (TFSettings.HTML)
+  upFile := Copy(timetableFileName(resType, resId), 1, 120) + '.htm';
+  if not FileExists(folder + upFile) then upFile := '';
 
   Screen.Cursor := crHourGlass;
   try
-    if not createWeeklySchoolPlan(weekId, resType, resId, resCat1, fileName) then exit;
+    if not createWeeklySchoolPlan(weekId, resType, resId, resCat1, fileName, nil, '',
+                                  neighbourFile(-1), neighbourFile(+1), upFile) then exit;
   finally
     Screen.Cursor := crDefault;
   end;

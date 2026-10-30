@@ -52,6 +52,7 @@ type
     PARENT_PER_ID_VALUE: TEdit;
     BClearPARENT_PER_ID: TBitBtn;
     SpeedButton5: TSpeedButton;
+    ShowWeeks: TCheckBox;
     procedure BUsunClick(Sender: TObject);
     procedure BUsunAllClick(Sender: TObject);
     procedure ROL_IDChange(Sender: TObject);
@@ -73,6 +74,7 @@ type
     procedure PARENT_PER_ID_VALUEClick(Sender: TObject);
     procedure BClearPARENT_PER_IDClick(Sender: TObject);
     procedure SpeedButton5Click(Sender: TObject);
+    procedure ShowWeeksClick(Sender: TObject);
   private
     ParentPerIdChanged : Boolean;
     procedure HideSubPeriodFields(DataSet: TDataSet);
@@ -253,10 +255,16 @@ begin
 
 end;
 
+// tygodnie (SUB_PERIOD_PARENT wype³nione) widoczne tylko po zaznaczeniu "Poka¿ tygodnie"
 procedure TFBrowsePERIODS.CustomConditions;
 begin
   inherited;
- DM.macros.setMacro( Query, 'CONPERMISSIONS', getWhereClause(tableName));
+ DM.macros.setMacro( Query, 'CONPERMISSIONS', '(' + getWhereClause(tableName) + ')' + iif(ShowWeeks.Checked, '', ' AND PERIODS.SUB_PERIOD_PARENT IS NULL'));
+end;
+
+procedure TFBrowsePERIODS.ShowWeeksClick(Sender: TObject);
+begin
+  BRefreshClick(nil);
 end;
 
 procedure TFBrowsePERIODS.BUpdChild2Click(Sender: TObject);

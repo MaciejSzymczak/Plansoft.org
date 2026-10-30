@@ -17,6 +17,24 @@ inherited FBrowsePERIODS: TFBrowsePERIODS
     inherited Browse: TTabSheet
       inherited TopPanel: TPanel
         Width = 953
+        object ShowWeeks: TCheckBox
+          Left = 826
+          Top = 32
+          Width = 120
+          Height = 17
+          Hint = 'Poka'#380' tak'#380'e tygodnie utworzone funkcj'#261' "Utw'#243'rz tygodnie"'
+          Caption = 'Poka'#380' tygodnie'
+          Font.Charset = EASTEUROPE_CHARSET
+          Font.Color = clGrayText
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 20
+          OnClick = ShowWeeksClick
+        end
       end
       inherited Grid: TRxDBGrid
         Width = 953
