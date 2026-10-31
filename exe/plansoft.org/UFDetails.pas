@@ -213,9 +213,10 @@ type
     procedure bdesc2Click(Sender: TObject);
     procedure bdesc3Click(Sender: TObject);
     procedure bdesc4Click(Sender: TObject);
-    procedure S_value1Click(Sender: TObject);
-    procedure F_value1Click(Sender: TObject);
-    procedure F_value2Click(Sender: TObject);
+    procedure lookupEditChange(Sender: TObject);
+    procedure lookupEditExit(Sender: TObject);
+    procedure lookupEditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure lookupEditKeyPress(Sender: TObject; var Key: Char);
     procedure CWeeksChange(Sender: TObject);
     procedure G_value1DblClick(Sender: TObject);
     procedure L_value1DblClick(Sender: TObject);
@@ -246,6 +247,30 @@ type
     procedure setResLimitation   ( p_rescat_id : integer );
     procedure subjectChange(eventName : string);
     procedure formChange(eventName : string);
+  private
+    // pola Przedmiot / Forma zajêæ / Forma rezerwacji: lista podpowiedzi podczas wpisywania (0 = S_value1, 1 = F_value1, 2 = F_value2)
+    lookupList       : TListBox;
+    lookupActive     : integer;                    // pole, do którego nale¿y lista
+    lookupFilter     : string;
+    lookupTyped      : array[0..2] of boolean;     // u¿ytkownik zmieni³ tekst pola (tekst nie odpowiada wartoœci)
+    lookupSetting    : boolean;                    // tekst pola ustawiany z kodu - bez podpowiedzi
+    lookupKeyHandled : boolean;
+    oldLookupWndProc : array[0..2] of TWndMethod;
+    function  lookupIndex(Sender: TObject) : integer;
+    function  lookupEdit(i : integer) : TEdit;
+    function  lookupIdEdit(i : integer) : TEdit;
+    procedure lookupWndProc(i : integer; var Message: TMessage);
+    procedure lookupWndProc0(var Message: TMessage);
+    procedure lookupWndProc1(var Message: TMessage);
+    procedure lookupWndProc2(var Message: TMessage);
+    procedure lookupListFill(i : integer);
+    procedure lookupListHide;
+    procedure lookupListChoose;
+    procedure lookupFinish(i : integer);
+    procedure lookupRestore(i : integer);
+    procedure lookupSetValue(i : integer; id, name : string);
+    procedure lookupListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+    procedure lookupListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   public
     CanPaste : Boolean;
     Clipboard_L1 : String;
@@ -290,7 +315,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities,
-  UFFloatingMessage;
+  UFFloatingMessage, ADODB;
 
 // synchronizacja tygodni (FMain.WeekSync): zmiany z tego okna trafi¹ tak¿e do pozosta³ych widocznych tygodni
 procedure TFDetails.setWeekSyncInfo(active : boolean);
@@ -937,6 +962,10 @@ end;
 procedure TFDetails.FormShow(Sender: TObject);
 begin
   inherited;
+  lookupListHide;
+  lookupTyped[0] := false;
+  lookupTyped[1] := false;
+  lookupTyped[2] := false;
 
   L_value1.Enabled := canEditL;
   L_value2.Enabled := canEditL;
@@ -1038,6 +1067,9 @@ begin
   inherited;
   CanPaste := False;
   oldCalName := '';
+  oldLookupWndProc[0] := S_value1.WindowProc;  S_value1.WindowProc := lookupWndProc0;
+  oldLookupWndProc[1] := F_value1.WindowProc;  F_value1.WindowProc := lookupWndProc1;
+  oldLookupWndProc[2] := F_value2.WindowProc;  F_value2.WindowProc := lookupWndProc2;
 end;
 
 procedure TFDetails.BCopyClick(Sender: TObject);
@@ -1688,21 +1720,305 @@ begin
   end;  
 end;
 
-procedure TFDetails.S_value1Click(Sender: TObject);
+// ---------------------------------------------------------------------------------------------------------------
+// Pola Przedmiot, Forma zajêæ i Forma rezerwacji: podczas wpisywania pod polem pojawia siê lista pasuj¹cych wartoœci
+// (wpisany fragment na ¿ó³to). Strza³ki - wybór pozycji, Enter albo klikniêcie - wybór wartoœci, Esc - poprzednia wartoœæ.
+// Lista zawiera wartoœci, do których planista ma uprawnienia (jak okno wyboru, bez zawê¿ania do kombinacji zasobów).
+// Wyjœcie z pola bez wyboru przywraca poprzedni¹ wartoœæ; pole skasowane do pustego zostaje wyczyszczone.
+// Lupa (SelectS1, SelectF1, selectF2) otwiera okno wyboru.
+const lookupListRows = 12;
+
+function TFDetails.lookupIndex(Sender: TObject) : integer;
 begin
-  SelectS1Click(nil);
+  if Sender = F_value1 then result := 1
+  else if Sender = F_value2 then result := 2
+  else result := 0;
 end;
 
-procedure TFDetails.F_value1Click(Sender: TObject);
+function TFDetails.lookupEdit(i : integer) : TEdit;
 begin
-  SelectF1Click(nil);
+  case i of
+    1 : result := F_value1;
+    2 : result := F_value2;
+    else result := S_value1;
+  end;
 end;
 
-procedure TFDetails.F_value2Click(Sender: TObject);
+function TFDetails.lookupIdEdit(i : integer) : TEdit;
 begin
-  selectF2Click(nil);
-
+  case i of
+    1 : result := F1;
+    2 : result := F2;
+    else result := S1;
+  end;
 end;
+
+// Enter / Esc przy otwartej liœcie obs³uguje pole (inaczej zadzia³a³by przycisk domyœlny / Anuluj formularza)
+procedure TFDetails.lookupWndProc(i : integer; var Message: TMessage);
+begin
+  if (Message.Msg = CM_WANTSPECIALKEY) and (TWMKey(Message).CharCode in [VK_RETURN, VK_ESCAPE]) then begin
+    if (lookupList <> nil) and lookupList.Visible and (lookupActive = i) then begin
+      Message.Result := 1;
+      exit;
+    end;
+    // Enter bez listy (np. brak pasuj¹cych wartoœci): zatwierdzenie formularza z poprzedni¹ albo pust¹ wartoœci¹
+    if (TWMKey(Message).CharCode = VK_RETURN) and lookupTyped[i] then lookupFinish(i);
+  end;
+  oldLookupWndProc[i](Message);
+end;
+
+procedure TFDetails.lookupWndProc0(var Message: TMessage);
+begin
+  lookupWndProc(0, Message);
+end;
+
+procedure TFDetails.lookupWndProc1(var Message: TMessage);
+begin
+  lookupWndProc(1, Message);
+end;
+
+procedure TFDetails.lookupWndProc2(var Message: TMessage);
+begin
+  lookupWndProc(2, Message);
+end;
+
+procedure TFDetails.lookupListFill(i : integer);
+var q   : TADOQuery;
+    txt, sql : string;
+    e   : TEdit;
+    p   : TPoint;
+    h   : integer;
+begin
+  e   := lookupEdit(i);
+  txt := Trim(e.Text);
+  if txt = '' then begin
+    lookupListHide;
+    exit;
+  end;
+  if lookupList = nil then begin
+    lookupList := TListBox.Create(self);
+    lookupList.Visible    := false;
+    lookupList.Parent     := self;
+    lookupList.TabStop    := false;
+    lookupList.Font.Assign(e.Font);
+    lookupList.Style      := lbOwnerDrawFixed;
+    lookupList.ItemHeight := 18;
+    lookupList.OnDrawItem := lookupListDrawItem;
+    lookupList.OnMouseUp  := lookupListMouseUp;
+  end;
+
+  // warunki jak w oknach wyboru (FBrowseSUBJECTS, FBrowseFORMS z rodzajem C / R)
+  txt := replacePolishChars(AnsiUpperCase(EscapeApostrophes(txt)));
+  if i = 0 then
+    sql := 'SELECT SUBJECTS.ID, SUBJECTS.NAME FROM SUBJECTS WHERE ' + getWhereClause('SUBJECTS') +
+           ' AND xxmsz_tools.erasePolishChars(upper(SUBJECTS.NAME)) LIKE ''%' + txt + '%'' ORDER BY SUBJECTS.NAME'
+  else
+    sql := 'SELECT FORMS.ID, FORMS.NAME FROM FORMS WHERE ' + getWhereClause('FORMS') +
+           iif(i = 2, ' AND FORMS.KIND = ''R''', ' AND NVL(FORMS.KIND, ''C'') <> ''R''') +
+           ' AND xxmsz_tools.erasePolishChars(upper(FORMS.NAME)) LIKE ''%' + txt + '%'' ORDER BY FORMS.NAME';
+
+  q := TADOQuery.Create(nil);
+  try
+    q.Connection := DModule.ADOConnection;
+    q.ParamCheck := false;
+    q.SQL.Text   := 'SELECT * FROM (' + sql + ') WHERE ROWNUM <= 200';
+    q.Open;
+    lookupList.Items.BeginUpdate;
+    try
+      lookupList.Items.Clear;
+      while not q.Eof do begin
+        lookupList.Items.AddObject(q.Fields[1].AsString, TObject(q.Fields[0].AsInteger));
+        q.Next;
+      end;
+    finally
+      lookupList.Items.EndUpdate;
+    end;
+  finally
+    q.Free;
+  end;
+
+  if lookupList.Items.Count = 0 then begin
+    lookupListHide;
+    exit;
+  end;
+  lookupActive := i;
+  lookupFilter := Trim(e.Text);
+  p := ScreenToClient(e.Parent.ClientToScreen(Point(e.Left, e.Top)));
+  if lookupList.Items.Count < lookupListRows then h := lookupList.Items.Count else h := lookupListRows;
+  h := lookupList.ItemHeight * h + 4;
+  if p.Y + e.Height + h <= ClientHeight then
+    lookupList.SetBounds(p.X, p.Y + e.Height, e.Width, h)
+  else
+    lookupList.SetBounds(p.X, p.Y - h, e.Width, h);
+  lookupList.ItemIndex := 0;
+  lookupList.Visible   := true;
+  lookupList.BringToFront;
+end;
+
+procedure TFDetails.lookupListHide;
+begin
+  if lookupList <> nil then lookupList.Visible := false;
+end;
+
+// id + tekst pola, potem jak po wyborze w oknie wyboru (kopiowanie nazwy do opisów)
+procedure TFDetails.lookupSetValue(i : integer; id, name : string);
+begin
+  lookupSetting := true;
+  try
+    lookupIdEdit(i).Text := id;
+    lookupEdit(i).Text   := name;
+  finally
+    lookupSetting := false;
+  end;
+  lookupTyped[i] := false;
+  if i = 0 then subjectChange('change') else formChange('change');
+end;
+
+procedure TFDetails.lookupListChoose;
+var i : integer;
+begin
+  if (lookupList = nil) or (lookupList.ItemIndex < 0) then exit;
+  i := lookupActive;
+  lookupListHide;
+  lookupSetValue(i, IntToStr(Integer(lookupList.Items.Objects[lookupList.ItemIndex])), lookupList.Items[lookupList.ItemIndex]);
+  lookupEdit(i).SelectAll;
+end;
+
+// koniec edycji bez wyboru z listy: pole puste - wartoœæ wyczyszczona, inaczej poprzednia wartoœæ
+procedure TFDetails.lookupFinish(i : integer);
+begin
+  lookupListHide;
+  if Trim(lookupEdit(i).Text) = '' then lookupSetValue(i, '', '')
+                                   else lookupRestore(i);
+end;
+
+// tekst pola = nazwa bie¿¹cej wartoœci (id)
+procedure TFDetails.lookupRestore(i : integer);
+var id : string;
+begin
+  lookupListHide;
+  id := lookupIdEdit(i).Text;
+  lookupSetting := true;
+  try
+    if isBlank(id) then lookupEdit(i).Text := ''
+    else if i = 0 then lookupEdit(i).Text := FChange(id, dm.sql_SUBDESC)
+    else lookupEdit(i).Text := FChange(id, dm.sql_FORDESC);
+  finally
+    lookupSetting := false;
+  end;
+  lookupTyped[i] := false;
+end;
+
+// wpisany fragment na ¿ó³to (porównanie bez wielkoœci liter i polskich znaków - jak w zapytaniu)
+procedure TFDetails.lookupListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+var c : TCanvas;
+    s, part : string;
+    p, x, y : integer;
+    brushColor, fontColor : TColor;
+begin
+  c := lookupList.Canvas;
+  s := lookupList.Items[Index];
+  c.FillRect(Rect);
+  x := Rect.Left + 2;
+  y := Rect.Top + 1;
+  p := Pos(replacePolishChars(AnsiUpperCase(lookupFilter)), replacePolishChars(AnsiUpperCase(s)));
+  if p = 0 then begin
+    c.TextOut(x, y, s);
+    exit;
+  end;
+  part := Copy(s, 1, p - 1);
+  c.TextOut(x, y, part);
+  x := x + c.TextWidth(part);
+  part := Copy(s, p, Length(lookupFilter));
+  brushColor := c.Brush.Color;
+  fontColor  := c.Font.Color;
+  c.Brush.Color := clYellow;
+  c.Font.Color  := clBlack;
+  c.TextOut(x, y, part);
+  x := x + c.TextWidth(part);
+  c.Brush.Color := brushColor;
+  c.Font.Color  := fontColor;
+  c.TextOut(x, y, Copy(s, p + Length(lookupFilter), MaxInt));
+end;
+
+procedure TFDetails.lookupListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var i : integer;
+begin
+  if Button <> mbLeft then exit;
+  i := lookupActive;
+  lookupListChoose;
+  if lookupEdit(i).CanFocus then lookupEdit(i).SetFocus;
+end;
+
+procedure TFDetails.lookupEditChange(Sender: TObject);
+var i : integer;
+begin
+  if lookupSetting or not (Sender as TEdit).Focused then exit;
+  i := lookupIndex(Sender);
+  lookupTyped[i] := true;
+  lookupListFill(i);
+end;
+
+procedure TFDetails.lookupEditExit(Sender: TObject);
+var i : integer;
+begin
+  i := lookupIndex(Sender);
+  // klikniêcie w listê - wybór obs³uguje lookupListMouseUp
+  if (lookupList <> nil) and lookupList.Visible and (lookupActive = i)
+     and PtInRect(lookupList.BoundsRect, ScreenToClient(Mouse.CursorPos)) then exit;
+  lookupListHide;
+  if lookupTyped[i] then lookupFinish(i);
+end;
+
+procedure TFDetails.lookupEditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var i : integer;
+    listVisible : boolean;
+begin
+  i := lookupIndex(Sender);
+  lookupKeyHandled := false;
+  listVisible := (lookupList <> nil) and lookupList.Visible and (lookupActive = i);
+  case Key of
+    VK_DOWN   : begin
+                  if not listVisible then lookupListFill(i)
+                  else if lookupList.ItemIndex < lookupList.Items.Count - 1 then lookupList.ItemIndex := lookupList.ItemIndex + 1;
+                  Key := 0;
+                end;
+    VK_UP     : if listVisible then begin
+                  if lookupList.ItemIndex > 0 then lookupList.ItemIndex := lookupList.ItemIndex - 1;
+                  Key := 0;
+                end;
+    VK_NEXT   : if listVisible then begin
+                  if lookupList.ItemIndex + lookupListRows < lookupList.Items.Count then lookupList.ItemIndex := lookupList.ItemIndex + lookupListRows
+                                                                                    else lookupList.ItemIndex := lookupList.Items.Count - 1;
+                  Key := 0;
+                end;
+    VK_PRIOR  : if listVisible then begin
+                  if lookupList.ItemIndex - lookupListRows > 0 then lookupList.ItemIndex := lookupList.ItemIndex - lookupListRows
+                                                               else lookupList.ItemIndex := 0;
+                  Key := 0;
+                end;
+    VK_RETURN : if listVisible then begin
+                  lookupListChoose;
+                  lookupKeyHandled := true;
+                  Key := 0;
+                end;
+    VK_ESCAPE : if listVisible then begin
+                  // Esc - poprzednia wartoœæ (tak¿e gdy pole skasowano)
+                  lookupRestore(i);
+                  lookupEdit(i).SelectAll;
+                  lookupKeyHandled := true;
+                  Key := 0;
+                end;
+  end;
+end;
+
+// bez sygna³u dŸwiêkowego po Enter / Esc obs³u¿onym przez listê
+procedure TFDetails.lookupEditKeyPress(Sender: TObject; var Key: Char);
+begin
+  if lookupKeyHandled and (Key in [#13, #27]) then Key := #0;
+  lookupKeyHandled := false;
+end;
+
 
 procedure TFDetails.CWeeksChange(Sender: TObject);
   var stringTokenizer : TStringTokenizer;

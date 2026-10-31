@@ -664,19 +664,21 @@ inherited FDetails: TFDetails
         Width = 873
         Height = 22
         Hint = 'REZERWACJA'
-        ReadOnly = True
         TabOrder = 13
-        OnClick = F_value2Click
+        OnChange = lookupEditChange
+        OnExit = lookupEditExit
+        OnKeyDown = lookupEditKeyDown
+        OnKeyPress = lookupEditKeyPress
       end
       object selectF2: TBitBtn
         Left = 955
         Top = 87
         Width = 25
         Height = 24
+        Hint = 'Wybierz rodzaj rezerwacji z listy'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 14
-        Visible = False
         OnClick = selectF2Click
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -1425,9 +1427,11 @@ inherited FDetails: TFDetails
         Width = 1025
         Height = 22
         Hint = 'FORMA'
-        ReadOnly = True
         TabOrder = 16
-        OnClick = F_value1Click
+        OnChange = lookupEditChange
+        OnExit = lookupEditExit
+        OnKeyDown = lookupEditKeyDown
+        OnKeyPress = lookupEditKeyPress
       end
       object L1: TEdit
         Left = 72
@@ -1593,10 +1597,10 @@ inherited FDetails: TFDetails
         Top = 87
         Width = 25
         Height = 24
+        Hint = 'Wybierz przedmiot z listy'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 14
-        Visible = False
         OnClick = SelectS1Click
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -1639,10 +1643,10 @@ inherited FDetails: TFDetails
         Top = 110
         Width = 25
         Height = 24
+        Hint = 'Wybierz form'#281' zaj'#281#263' z listy'
         ParentShowHint = False
         ShowHint = True
         TabOrder = 17
-        Visible = False
         OnClick = SelectF1Click
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -1686,9 +1690,11 @@ inherited FDetails: TFDetails
         Width = 1025
         Height = 22
         Hint = 'PRZEDMIOT'
-        ReadOnly = True
         TabOrder = 13
-        OnClick = S_value1Click
+        OnChange = lookupEditChange
+        OnExit = lookupEditExit
+        OnKeyDown = lookupEditKeyDown
+        OnKeyPress = lookupEditKeyPress
       end
       object rescat0_1_value: TEdit
         Left = 80

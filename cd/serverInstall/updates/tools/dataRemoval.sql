@@ -9,53 +9,6 @@ commit;
 --update system_parameters set value='' where name = 'USOS_CYKL';
 
 
-
-REMOVE ALL (TEST DATA)
-======================================================
-connect planner;
-
-truncate table lec_cla;
-truncate table gro_cla;
-truncate table rom_cla;
-truncate table lec_cla_history;
-truncate table gro_cla_history;
-truncate table rom_cla_history;
-truncate table RECENTLY_USED;
-truncate table RESERVATIONS;
-truncate table RES_HINTS;
-truncate table ROOMS_HISTORY;
-truncate table FORMS_HISTORY;
-truncate table GROUPS_HISTORY;
-truncate table LECTURERS_HISTORY;
-truncate table SUBJECTS_HISTORY;
-truncate table TT_LOG;
-truncate table SUBJECTS_HISTORY;
-truncate table CLASSES_HISTORY;
-truncate table DIFF_CATCHER_HELPER;
-truncate table INT_CLASSES;
-truncate table INT_CLASSES_DIFF;
-truncate table INT_CLASS_MEMBERS;
-truncate table INT_CLASS_MEMBERS_DIFF;
-truncate table TIMETABLE_NOTES;
-truncate table TMP_SELECTED_DATES;
-truncate table TT_RESOURCE_LISTS;
-truncate table TT_INCLUSIONS;
-truncate table TT_CLA;
-delete from TT_COMBINATIONS;
-truncate table xxmsztools_eventlog;
-delete from classes;
-truncate table classes_history;
-truncate table res_pla_history;
-delete from subjects where id > 0;
-delete from groups where id > 0;
-delete from lecturers where id > 0;
-delete from rooms where id > 0;
-delete from form_formulas where id > 0;
-delete from forms where id > 0;
-delete from periods where name like '%(%' and name like '%)%';
-commit;
-
-
 REMOVE ALL UP TO DATE
 =======================================================
 

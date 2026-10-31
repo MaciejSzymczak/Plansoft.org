@@ -175,6 +175,8 @@ Type
                              Array Of
                                Record
                                 ratio        : integer;
+                                // wpisy preferowanych terminów: id #1 wartoœæ #1 nazwa zasobu, wpisy oddzielone #2
+                                hints        : string;
                                End;
                      public
                       Procedure _LoadPeriod(PER_ID : Integer);
@@ -182,6 +184,7 @@ Type
                       Procedure ClearCache;
                       procedure IsBusy(TS : TTimeStamp; Zajecia: Integer; var out_isbusy : boolean; var out_busycnt : integer; var out_ratio : integer; var out_claIds : string; var out_bgroups : string);
                       procedure SetRatio(TS: TTimeStamp; Zajecia: Integer; pratio : integer; pres_id : integer);
+                      procedure GetHints(TS : TTimeStamp; Zajecia : Integer; objId : integer; var out_ratio : integer; var out_text : string);
                       //Procedure ResetByCLA_ID(CLA_ID : Integer);
                       //Procedure ResetByDay(TS : TTimeStamp; Zajecia: Integer);
                    End;
@@ -301,6 +304,9 @@ type
     bmoveDown: TSpeedButton;
     bmoveright: TSpeedButton;
     bmoveLeft: TSpeedButton;
+    Shape10a: TShape;
+    bSeeAvailable: TSpeedButton;
+    bfavpopup: TSpeedButton;
     Zestawywarto1: TMenuItem;
     Listywarto1: TMenuItem;
     N18: TMenuItem;
@@ -689,6 +695,7 @@ type
     procedure bmoveUpClick(Sender: TObject);
     procedure bmoveDownClick(Sender: TObject);
     procedure bmoveLeftClick(Sender: TObject);
+    procedure bSeeAvailableClick(Sender: TObject);
     procedure bmoverightClick(Sender: TObject);
     procedure Zestawywarto1Click(Sender: TObject);
     procedure Listywarto1Click(Sender: TObject);
@@ -1260,6 +1267,7 @@ begin
        global[L1][L2].isBusy := False;
        global[L1][L2].busyCnt:= 0;
        ratio[L1][L2].ratio   := 0;
+       ratio[L1][L2].hints   := '';
        global[L1][L2].claIds := '';
        global[L1][L2].bgroups := '';
       End;
@@ -1439,13 +1447,15 @@ begin
              ,','
             );
     if ids <> '' then begin
+      // ka¿dy wpis osobno (zasób i jego nazwa) - w uk³adzie tygodniowym kolumna pokazuje tylko wpisy swojego zasobu
       openSQL (
-       'select day, hour, min(ratio) ratio '+ //get worst ratio
+       // ratio + 0: kolumnê NUMBER(4) sterownik OraOLEDB odczytuje bez znaku (-999 -> 999), wyra¿enie - poprawnie
+       'select day, hour, ratio + 0 ratio, res_id, (select name from resources where resources.id = res_hints.res_id) res_name '+
          'from res_hints '+
          'where '+periodClause + ' '+
            'and res_id in ('+ids+') '+
            iif( (fmain.FavSelected.Checked )and (fmain.getCurrentObjectId <>-1), ' and res_id='+ intToStr(fmain.getCurrentObjectId) + ' ','')+
-       'group by day, hour ');
+       'order by day, hour, ratio ');
       While Not QWork.EOF Do Begin
        X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
        Y := QWork.FieldByName('HOUR').AsInteger;
@@ -1453,7 +1463,10 @@ begin
        if  (t < 0) or (t >high(ratio)) then SError('Wyst¹pi³o zdarzenie "2 Liczba dni poza zakresem". Zg³oœ problem serwisowi, lub usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ') else
        if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordów nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
        else begin
-         ratio[t][y].ratio := QWork.FieldByName('ratio').AsInteger;
+         // najgorsza wartoœæ (jak dot¹d min(ratio)) - wpisy s¹ uporz¹dkowane rosn¹co
+         if ratio[t][y].hints = '' then ratio[t][y].ratio := QWork.FieldByName('ratio').AsInteger;
+         ratio[t][y].hints := merge(ratio[t][y].hints, QWork.FieldByName('res_id').AsString + #1 +
+                              QWork.FieldByName('ratio').AsString + #1 + QWork.FieldByName('res_name').AsString, #2);
        end;
        QWork.Next;
       End;
@@ -1473,7 +1486,48 @@ begin
  if pratio <> 0 then
    DModule.SQL('insert into res_hints (id, day, hour, ratio, res_id, res_type) values (hint_seq.nextval,'+TSDateToOracle(TS)+','+IntToStr(Zajecia)+','+inttostr(pratio)+','+inttostr(pres_id)+', ''X'')');
 
+ // termin poza bie¿¹cym okresem (synchronizacja tygodni - pozosta³e tygodnie): tylko zapis w bazie
+ if (t1 < 0) or (t1 > High(ratio)) or (Zajecia < 1) or (Zajecia > High(ratio[t1])) then exit;
  ratio[t1][Zajecia].ratio := pratio; //this is not correct value, it does not include other objects. cache rehresh is required
+ ratio[t1][Zajecia].hints := ''; // nazwa zasobu i wpisy pozosta³ych zasobów - po odœwie¿eniu cache
+ if pratio <> 0 then
+   ratio[t1][Zajecia].hints := IntToStr(pres_id) + #1 + IntToStr(pratio);
+end;
+
+// wpisy oddzielone #2 bez znaku na koñcu (WordCount z UUtilityParent liczy znak na koñcu jako dodatkowy, pusty wpis)
+// preferowane terminy w komórce: objId = -1 - wszystkie wybrane zasoby; objId = zasób kolumny (uk³ad tygodniowy) -
+// wpisy tego zasobu oraz zasobów, które nie s¹ w kolumnach (np. wyk³adowcy z pola wyboru w planie grup).
+// out_ratio - najgorsza wartoœæ (0 = brak), out_text - lista "nazwa - termin preferowany / niepreferowany (wartoœæ)"
+procedure TBusyClassesCache.GetHints(TS : TTimeStamp; Zajecia : Integer; objId : integer; var out_ratio : integer; var out_text : string);
+var t1, n, r : integer;
+    entries, entry, id, colIds : string;
+    first : boolean;
+begin
+  out_ratio := 0;
+  out_text  := '';
+  If Not Valid then
+    _LoadPeriod( StrToInt(NVL(FMain.conPeriod.text,'-1')));
+  t1 := TS.Date - FirstDay;
+  if (t1 < 0) or (t1 > High(ratio)) or (Zajecia < 1) or (Zajecia > High(ratio[t1])) then exit;
+  entries := ratio[t1][Zajecia].hints;
+  if entries = '' then begin
+    out_ratio := ratio[t1][Zajecia].ratio;
+    exit;
+  end;
+  colIds := '';
+  if objId <> -1 then colIds := ';' + convertGrid.weekObjectIdList + ';';
+  first := true;
+  for n := 1 to WordCount(entries, [#2]) do begin
+    entry := ExtractWord(n, entries, [#2]);
+    id    := ExtractWord(1, entry, [#1]);
+    if id = '' then continue;
+    if (objId <> -1) and (id <> IntToStr(objId)) and (Pos(';' + id + ';', colIds) > 0) then continue;
+    r := StrToIntDef(ExtractWord(2, entry, [#1]), 0);
+    if first or (r < out_ratio) then out_ratio := r;
+    first := false;
+    out_text := merge(out_text, NVL(ExtractWord(3, entry, [#1]), 'id ' + id) + ' - ' +
+                      iif(r < 0, 'termin niepreferowany', 'termin preferowany') + ' (' + IntToStr(r) + ')', cr);
+  end;
 end;
 
 Procedure tBusyClassesCache.ClearCache;
@@ -2093,6 +2147,10 @@ procedure TFMain.RefreshGrid;
   bmoveUp.Visible := v;
   bmoveLeft.Visible := v;
   bmoveRight.Visible := v;
+  // "Gdzie mogê przenieœæ zajêcie?" i preferowane terminy - jak w menu podrêcznym (FToolWindow)
+  Shape10a.Visible := v;
+  bSeeAvailable.Visible := v;
+  bfavpopup.Visible := v;
   Shape1a.Visible := v;
   //Shape4a.Visible := v;
   Shape7a.Visible := v;
@@ -2888,6 +2946,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 		  out_claIds : string;
       out_bgroups : string;
 		  out_ratio   : integer;
+		  out_hints   : string;
 	 Begin
      out_ratio := 0;
 	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
@@ -2897,7 +2956,10 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
             DrawBusy(Rect, out_busyCnt, GetColor(Copy(out_claids, 1, 3)), out_bgroups );
          end;
      end;
-	   if (out_ratio <> 0) and ( (FavSelected.Checked) or (FavAll.Checked) ) then DrawTriangle(Rect, out_ratio);
+	   if (FavSelected.Checked) or (FavAll.Checked) then begin
+	     BusyClassesCache.GetHints(TS, Zajecia, AObjectId, out_ratio, out_hints);
+	     if out_ratio <> 0 then DrawTriangle(Rect, out_ratio);
+	   end;
 	 End;
 
 	 function iif( c : boolean; w1 : string; w2 : string) : string;
@@ -3677,6 +3739,15 @@ end;
 Procedure TFMain.FillPanel(Col, Row: Integer);
 var drawDone : boolean;
 
+    // preferowane terminy komórki (trójk¹t) - do dymka
+    function hintsText : string;
+    var r : integer;
+    begin
+      result := '';
+      if not (FavSelected.Checked or FavAll.Checked) then exit;
+      BusyClassesCache.GetHints(TS, Zajecia, AObjectId, r, result);
+    end;
+
     Procedure DrawP(Class_ : TClass_);
      var point : tpoint;
          rect  : trect;
@@ -3714,11 +3785,12 @@ var drawDone : boolean;
        iif((FProgramSettings.getClassDescPlural(1) <> '') and (Class_.desc1 <> ''), FProgramSettings.getClassDescPlural(1) + ': ' + Class_.desc1 + cr, '') +
        iif((FProgramSettings.getClassDescPlural(2) <> '') and (Class_.desc2 <> ''), FProgramSettings.getClassDescPlural(2) + ': ' + Class_.desc2 + cr, '') +
        iif((FProgramSettings.getClassDescPlural(3) <> '') and (Class_.desc3 <> ''), FProgramSettings.getClassDescPlural(3) + ': ' + Class_.desc3 + cr, '') +
-       iif((FProgramSettings.getClassDescPlural(4) <> '') and (Class_.desc4 <> ''), FProgramSettings.getClassDescPlural(4) + ': ' + Class_.desc4 + cr, '')
+       iif((FProgramSettings.getClassDescPlural(4) <> '') and (Class_.desc4 <> ''), FProgramSettings.getClassDescPlural(4) + ': ' + Class_.desc4 + cr, '') +
+       iif(hintsText <> '', cr + '--------------' + cr + 'Preferowane terminy:' + cr + hintsText, '')
        , 1 );
     End;
 
-    Procedure drawFreeText(s : string);
+    Procedure drawFreeText(title, s : string);
      var point : tpoint;
          rect  : trect;
     Begin
@@ -3729,7 +3801,7 @@ var drawDone : boolean;
        point := fmain.ClientToScreen(point);
 
        uutilityparent.ShowBaloonHint(Point, self.Handle,
-        'Kolizje',s
+        title,s
        , 1 );
     End;
 
@@ -3794,11 +3866,14 @@ var drawDone : boolean;
 		  out_claIds : string;
 		  out_bgroups : string;
 		  out_ratio   : integer;
+		  hints       : string;
  begin
-	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then begin
+     out_isbusy := false;
+     hints      := hintsText;
+	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then
 	      BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
-        if out_isbusy Then DrawFreeText(out_claids);
-     end;
+     if out_isbusy then DrawFreeText('Kolizje', out_claids + iif(hints <> '', cr + cr + 'Preferowane terminy:' + cr + hints, ''))
+     else if hints <> '' then DrawFreeText('Preferowane terminy', hints);
  end;
 
 begin
@@ -5677,16 +5752,17 @@ begin
 end;
 
 procedure TFMain.SetRatio ( pratio : integer ) ;
-Var xp, yp : Integer;
+Var xp, yp, d : Integer;
     ignore : boolean;
+    days : TDayList;
 begin
   dmodule.CommitTrans;
   With Grid Do
   Begin
    For xp:=Selection.Left To Selection.Right Do
     For yp:=Selection.Top To Selection.Bottom Do begin
-      convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp);
-      AObjectId := -1;
+      // uk³ad tygodniowy: AObjectId = zasób klikniêtej kolumny; uk³ad semestralny: -1 -> pierwszy zasób z pola wyboru
+      if convertGrid.ColRowToDate(AObjectId, TS,Zajecia,xp,yp) <> ConvClass then continue;
       Case TabViewType.TabIndex Of
        0: AObjectId := iif(AObjectId = -1, strtoint(ExtractWord(1,ConLecturer.Text,[';'])), AObjectId);
        1: AObjectId := iif(AObjectId = -1, strtoint(ExtractWord(1,ConGroup.Text   ,[';'])), AObjectId);
@@ -5697,8 +5773,13 @@ begin
       Ignore := false;
 
       if not ignore then
-        if AObjectId <> -1 then
+        if AObjectId <> -1 then begin
             BusyClassesCache.SetRatio(TS, Zajecia, pratio, AObjectId);
+            // synchronizacja tygodni: ten sam termin w pozosta³ych widocznych tygodniach (bez zablokowanych)
+            days := weekSyncDays(TS.Date, Zajecia);
+            for d := 0 to High(days) do
+              BusyClassesCache.SetRatio(dayToTimeStamp(days[d]), Zajecia, pratio, AObjectId);
+        end;
     end;
 
     dmodule.CommitTrans;
@@ -7412,6 +7493,11 @@ except
   SError('B³¹d wewnêtrzny: Ballon hint ' + trace + e.message);
  end;
 end;
+end;
+
+procedure TFMain.bSeeAvailableClick(Sender: TObject);
+begin
+  ShowAvailableTerms;
 end;
 
 procedure TFMain.ppDeleteClick(Sender: TObject);

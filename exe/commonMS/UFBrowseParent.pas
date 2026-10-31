@@ -326,8 +326,12 @@ type
    PRE_UPPERCASE   : String[20];
    POST_UPPERCASE  : String[20];
    GridRelayoutRequired : boolean;
+   GridColumnMovedTick  : Cardinal; // chwila przeci¹gniêcia kolumny (GetTickCount) - klikniêcie nag³ówka zaraz potem nie otwiera okna konfiguracji
 
    procedure UpdateStaticLayout;
+   procedure GridLayoutFromGrid;
+   procedure GridLayoutMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+   procedure GridLayoutColumnMoved(Sender: TObject; FromIndex, ToIndex: Longint);
    Procedure FindWindow(S : String);
    Procedure RefreshHotKeys;
    Function  getColumnCaption(FieldName : ShortString) : ShortString;
@@ -2047,6 +2051,68 @@ begin
  RefreshHotKeys;
 
  FirstControl := GetFirstControl;
+
+ // szerokoœæ kolumn - przeci¹ganie krawêdzi nag³ówka, kolejnoœæ - przeci¹ganie nag³ówka (zapis w GridLayout)
+ GridColumnMovedTick := 0;
+ Grid.Options        := Grid.Options + [dgColumnResize];
+ Grid.OnMouseUp      := GridLayoutMouseUp;
+ Grid.OnColumnMoved  := GridLayoutColumnMoved;
+end;
+
+//------------------------------------------------------------------
+// szerokoœci i kolejnoœæ kolumn siatki -> GridLayout (wiersze bie¿¹cego kontekstu, jak w ApplyGridLayout:
+// CATEGORY:DEFAULT i CATEGORY:<flexContextName>); wiersze innych kontekstów bez zmian.
+// GridLayout zapisuje siê przy zamkniêciu formularza (SaveFormConfiguration).
+procedure TFBrowseParent.GridLayoutFromGrid;
+var lines, cols : array of integer;
+    l, c, n, i, j, tmp : integer;
+    category, fieldName : string;
+    sorted : TStringList;
+begin
+  n := 0;
+  SetLength(lines, GridLayout.Strings.Count);
+  SetLength(cols,  GridLayout.Strings.Count);
+  for l := 0 to GridLayout.Strings.Count - 1 do begin
+    category := ExtractWord(4, GridLayout.Strings[l], ['|']);
+    if (category <> 'CATEGORY:DEFAULT') and (category <> 'CATEGORY:' + flexContextName) then continue;
+    fieldName := AnsiUpperCase(ExtractWord(1, GridLayout.Strings[l], ['|']));
+    for c := 0 to Grid.Columns.Count - 1 do
+      if AnsiUpperCase(Grid.Columns[c].FieldName) = fieldName then begin
+        GridLayout.Strings[l] := ExtractWord(1, GridLayout.Strings[l], ['|']) + '|' +
+                                 ExtractWord(2, GridLayout.Strings[l], ['|']) + '|' +
+                                 IntToStr(Grid.Columns[c].Width) + '|' + category;
+        lines[n] := l;
+        cols[n]  := c;
+        inc(n);
+        break;
+      end;
+  end;
+
+  // kolejnoœæ wierszy = kolejnoœæ kolumn w siatce (wiersze zostaj¹ na swoich miejscach w GridLayout)
+  sorted := TStringList.Create;
+  try
+    for i := 0 to n - 1 do sorted.Add(GridLayout.Strings[lines[i]]);
+    for i := 0 to n - 2 do
+      for j := i + 1 to n - 1 do
+        if cols[j] < cols[i] then begin
+          tmp := cols[i]; cols[i] := cols[j]; cols[j] := tmp;
+          sorted.Exchange(i, j);
+        end;
+    for i := 0 to n - 1 do GridLayout.Strings[lines[i]] := sorted[i];
+  finally
+    sorted.Free;
+  end;
+end;
+
+procedure TFBrowseParent.GridLayoutMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbLeft then GridLayoutFromGrid;
+end;
+
+procedure TFBrowseParent.GridLayoutColumnMoved(Sender: TObject; FromIndex, ToIndex: Longint);
+begin
+  GridColumnMovedTick := GetTickCount;
+  GridLayoutFromGrid;
 end;
 
 //------------------------------------------------------------------
@@ -3046,6 +3112,11 @@ end;
 procedure TFBrowseParent.gridTitleClick(Column: TColumn);
 begin
   inherited;
+  // przeci¹gniêcie nag³ówka (zmiana kolejnoœci kolumn) te¿ koñczy siê klikniêciem - wtedy bez okna konfiguracji
+  if (GridColumnMovedTick <> 0) and (GetTickCount - GridColumnMovedTick < 500) then begin
+    GridColumnMovedTick := 0;
+    exit;
+  end;
   BConfigureClick(grid);
 end;
 
