@@ -2263,24 +2263,11 @@ var ColoringIndex    : shortString;
           pageTitle : string;
     begin
       pageTitle := getPageTitle;
-      AssignFile(f, Folder.Text+'\layout.xslt');
-      Rewrite(f);
-      WriteLn(f,
-         replace(
-           replace(xslt.Lines.Text
-             ,'%R1.', fprogramsettings.profileObjectNameLs.Text)
-           ,'%R2.', fprogramsettings.profileObjectNameGs.Text)
-      );
-      CloseFile(f);
-
+      // spis treœci: tylko index.html (index.xml i layout.xslt nie s¹ ju¿ tworzone)
       assignFile(f, Folder.Text+'\menu.css');
       Rewrite(f);
       WriteLn(f, css.Lines.Text);
       CloseFile(f);
-
-      if DoNotGenerateTableOfCon.Checked then   AssignFile(F, Folder.Text+'\eraseme.htm')
-                                         else   AssignFile(F, Folder.Text+'\index.xml');
-      Rewrite(F);
 
       if DoNotGenerateTableOfCon.Checked then   AssignFile(fh, Folder.Text+'\eraseme2.htm')
                                          else   AssignFile(fh, Folder.Text+'\index.html');
@@ -2304,19 +2291,11 @@ var ColoringIndex    : shortString;
       WriteLn(fh, '</tr>');
       WriteLn(fh, '<tr>');
 
-      WriteLn(f, '<?xml version="1.0" encoding="windows-1250"?>');
-      WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
-      WriteLn(f, '<xml>');
-      WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
-      WriteLn(f, '<period name="'+XMLescapeChars(pageTitle)+'"></period>'); // nazwa strony, w layout.xslt nag³ówek h1
-      WriteLn(f, '<description text="'+XMLescapeChars(AddText.Text)+'"></description>');
-      WriteLn(f, '<data>');
          If Groups.Checked Then Begin
            WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
            fileExt := iif(FSettings.GPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
-               WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'">'+XMLescapeChars(GList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.GViewType);
                With FSettings Do CalendarToHTML(
@@ -2372,7 +2351,6 @@ var ColoringIndex    : shortString;
            fileExt := iif(FSettings.LPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
-               WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'">'+XMLescapeChars(LList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.LViewType);
                With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked, LWeekPlans.Checked);
@@ -2385,7 +2363,6 @@ var ColoringIndex    : shortString;
            fileExt := iif(FSettings.RPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
-               WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
                WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'">'+XMLescapeChars(RList.Items[t])+'</a>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
@@ -2396,17 +2373,11 @@ var ColoringIndex    : shortString;
                end;
              end;
            end;
+           WriteLn(fh, '</ul></div></td>'); // zamkniêcie kolumny Zasoby - tylko gdy kolumna jest w tabeli
           end;
-          WriteLn(fh, '</ul></div></td>');
           WriteLn(fh, '</tr>');
           WriteLn(fh, '</table>');
           WriteLn(fh, '<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>');
-      WriteLn(f, '</data>');
-      WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
-      WriteLn(f, '</xml>');
-
-      CloseFile(F);
-
       WriteLn(fh, '</body>');
       WriteLn(fh, '</html>');
       flush(fh);
@@ -2774,9 +2745,21 @@ begin
 
 end;
 
+// "..." - otwiera katalog witryny; katalogu, którego jeszcze nie ma, najpierw tworzy
 procedure TFWWWGenerator.SpeedButton2Click(Sender: TObject);
+var dir : string;
 begin
-  ShowFolder(Folder.Text);
+  dir := Trim(Folder.Text);
+  if dir = '' then begin
+    SError('Wpisz katalog w polu "Utwórz witrynê w katalogu".');
+    exit;
+  end;
+  if not DirectoryExists(dir) then
+    if not ForceDirectories(dir) then begin
+      SError('Nie mo¿na utworzyæ katalogu "' + dir + '".' + cr + 'SprawdŸ, czy œcie¿ka jest poprawna i czy masz uprawnienia do zapisu.');
+      exit;
+    end;
+  ShowFolder(dir);
 end;
 
 
