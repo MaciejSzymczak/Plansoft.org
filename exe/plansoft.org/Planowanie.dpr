@@ -68,6 +68,8 @@ uses
   UFMassImport in 'UFMassImport.pas' {FMassImport},
   UFExportTimetable in 'UFExportTimetable.pas' {FExportTimetable},
   UFCopyMethod in 'UFCopyMethod.pas' {FCopyMethod},
+  UFMoveClasses in 'UFMoveClasses.pas' {FMoveClasses},
+  UFilteredCheckList in 'UFilteredCheckList.pas',
   UFAbolitionTime in 'UFAbolitionTime.pas' {FAbolitionTime},
   UFBrowseFIN_PARTIES in 'UFBrowseFIN_PARTIES.pas' {FBrowseFIN_PARTIES},
   UFBrowseFIN_BATCHES in 'UFBrowseFIN_BATCHES.pas' {FBrowseFIN_BATCHES},

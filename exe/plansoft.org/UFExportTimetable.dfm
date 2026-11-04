@@ -4,6 +4,7 @@ inherited FExportTimetable: TFExportTimetable
   Width = 980
   Height = 600
   Caption = 'Zapisz rozk'#322'ad zaj'#281#263' w Excel'
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel
@@ -111,7 +112,7 @@ inherited FExportTimetable: TFExportTimetable
       Left = 0
       Top = 0
       Width = 320
-      Height = 49
+      Height = 78
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -128,21 +129,38 @@ inherited FExportTimetable: TFExportTimetable
       end
       object lselector: TCheckBox
         Left = 8
-        Top = 27
+        Top = 56
         Width = 300
         Height = 17
         Caption = 'Zaznacz wszystko'
         Checked = True
         State = cbChecked
         TabOrder = 1
-        OnClick = selectorClick
+      end
+      object lfind: TLabel
+        Left = 8
+        Top = 32
+        Width = 72
+        Height = 14
+        Caption = 'Dowolna fraza'
+      end
+      object lSearch: TEdit
+        Left = 88
+        Top = 28
+        Width = 224
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        Hint = 'Fragment nazwy, skr'#243'tu, opisu lub atrybutu - jak w oknie przegl'#261'dania. Kilka fraz oddziel przecinkiem'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
       end
     end
     object LList: TCheckListBox
       Left = 0
-      Top = 49
+      Top = 78
       Width = 320
-      Height = 375
+      Height = 346
       Align = alClient
       ItemHeight = 14
       TabOrder = 1
@@ -165,7 +183,7 @@ inherited FExportTimetable: TFExportTimetable
       Left = 0
       Top = 0
       Width = 320
-      Height = 49
+      Height = 78
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -182,21 +200,38 @@ inherited FExportTimetable: TFExportTimetable
       end
       object rselector: TCheckBox
         Left = 8
-        Top = 27
+        Top = 56
         Width = 300
         Height = 17
         Caption = 'Zaznacz wszystko'
         Checked = True
         State = cbChecked
         TabOrder = 1
-        OnClick = selectorClick
+      end
+      object rfind: TLabel
+        Left = 8
+        Top = 32
+        Width = 72
+        Height = 14
+        Caption = 'Dowolna fraza'
+      end
+      object rSearch: TEdit
+        Left = 88
+        Top = 28
+        Width = 224
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        Hint = 'Fragment nazwy, skr'#243'tu, opisu lub atrybutu - jak w oknie przegl'#261'dania. Kilka fraz oddziel przecinkiem'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
       end
     end
     object RList: TCheckListBox
       Left = 0
-      Top = 49
+      Top = 78
       Width = 320
-      Height = 375
+      Height = 346
       Align = alClient
       ItemHeight = 14
       TabOrder = 1
@@ -220,7 +255,7 @@ inherited FExportTimetable: TFExportTimetable
       Left = 0
       Top = 0
       Width = 326
-      Height = 49
+      Height = 78
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -237,21 +272,38 @@ inherited FExportTimetable: TFExportTimetable
       end
       object gselector: TCheckBox
         Left = 8
-        Top = 27
+        Top = 56
         Width = 300
         Height = 17
         Caption = 'Zaznacz wszystko'
         Checked = True
         State = cbChecked
         TabOrder = 1
-        OnClick = selectorClick
+      end
+      object gfind: TLabel
+        Left = 8
+        Top = 32
+        Width = 72
+        Height = 14
+        Caption = 'Dowolna fraza'
+      end
+      object gSearch: TEdit
+        Left = 88
+        Top = 28
+        Width = 230
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        Hint = 'Fragment nazwy, skr'#243'tu, opisu lub atrybutu - jak w oknie przegl'#261'dania. Kilka fraz oddziel przecinkiem'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
       end
     end
     object GList: TCheckListBox
       Left = 0
-      Top = 49
+      Top = 78
       Width = 326
-      Height = 375
+      Height = 346
       Align = alClient
       ItemHeight = 14
       TabOrder = 1

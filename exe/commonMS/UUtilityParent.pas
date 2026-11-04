@@ -114,6 +114,8 @@ Procedure info(S : String);
 Procedure sError(S : String; const showMode : integer = showAlways; const infoID : string = 'DISPL_KOM002');
 Function  question(S : String) : Integer; //returns ID_YES, ID_NO
 Function  CanOverwriteFile(const FileName : String) : Boolean;
+// plik tekstowy zapisany w stronie kodowej systemu (windows-1250) -> UTF-8 (pliki HTML / XML z charset=utf-8)
+Procedure ConvertAnsiFileToUtf8(const aFileName : string);
 
 function  getSystemParam(Name : ShortString; const currentUser : boolean = true) : ShortString; overload;
 function  getSystemParam(Name : ShortString; defaultValue : shortString) : ShortString; overload;
@@ -826,6 +828,19 @@ Begin
    End;
  end;
 End;
+
+Procedure ConvertAnsiFileToUtf8(const aFileName : string);
+var sl : TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(aFileName);
+    sl.Text := UTF8Encode(sl.Text);
+    sl.SaveToFile(aFileName);
+  finally
+    sl.Free;
+  end;
+end;
 
 Function CanOverwriteFile(const FileName : String) : Boolean;
 Begin
@@ -1902,7 +1917,7 @@ initialization
  ApplicationDir := extractFileDir(application.exename);
  //FileCtrl.ForceDirectories(GetD+ '\'+GetTerminalName);
 
- VersionOfApplication := '2026-10-31';
+ VersionOfApplication := '2026-11-04';
  NazwaAplikacji := Application.Title+' ('+VersionOfApplication+')';
 
  try

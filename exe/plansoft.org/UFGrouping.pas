@@ -1075,7 +1075,7 @@ begin
   Writeln(f, '<!DOCTYPE html>');
   Writeln(f, '<HTML>');
   Writeln(f, '<HEAD>');
-  Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
+  Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">');
   Writeln(f, '<TITLE>'+Self.Caption+'</TITLE>');
 
   Writeln(f, '<style type="text/css" media="screen">');
@@ -1122,6 +1122,7 @@ begin
 
   Writeln(f, '</BODY></HTML>');
   Closefile(f);
+  ConvertAnsiFileToUtf8(fileName);
   if not fmain.silentMode then ExecuteFile( fileName,'','',SW_SHOWMAXIMIZED);
 end;
 

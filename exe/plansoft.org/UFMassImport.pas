@@ -38,9 +38,13 @@ type
   private
     myQuery: TADOQuery;
     procedure ImportTimetable;
+    function  LoadTimetableFile(const reportFile : string) : boolean;
+    procedure ExecLong(const sqlText : string);
+    procedure SaveReport(const sqlText, fileName : string);
     procedure showImportPage;
   public
     procedure TT_Interface_Import(deleteExistingPlan : string);
+    procedure DeleteTimetable;
   end;
 
 var
@@ -48,7 +52,7 @@ var
 
 implementation
 
-uses DM, UFMain, StrUtils, UFMessageBox, UProgress, ComObj;
+uses DM, UFMain, StrUtils, UFMessageBox, UProgress, ComObj, UUtilities;
 
 // po imporcie s³owniki i listy w otwartych oknach mog¹ byæ nieaktualne
 const restartHint = 'Zaleca siê teraz ponowne uruchomienie aplikacji.';
@@ -526,9 +530,10 @@ begin
 end;
 
 
-// U³o¿ony rozk³ad zajêæ: wiersze arkusza -> CLA_INTERFACE, zajêcia tworzy cla_interface_pkg.import
-// (ka¿dy wiersz osobno - wiersze z b³êdami s¹ pomijane i pokazywane w raporcie Rozklad_Import.html)
-procedure TFMassImport.ImportTimetable;
+// wiersze pliku w formacie "U³o¿ony rozk³ad zajêæ" (tak¿e Zapisz rozk³ad zajêæ w Excel) -> CLA_INTERFACE (created_by = user)
+// false: przerwano (nie wybrano pliku, z³y nag³ówek, brak danych). true: wiersze wstawione w transakcji rozpoczêtej tutaj
+// (dmodule.CommitTrans) - zatwierdza j¹ albo wycofuje wywo³uj¹cy; przy wyj¹tku transakcja jest wycofywana
+function TFMassImport.LoadTimetableFile(const reportFile : string) : boolean;
 // kolumny K..N (Opis 3, Opis 4, Wype³nienie, Kolor) s¹ opcjonalne - plik z kolumnami A..J (wczeœniejszy szablon) te¿ jest przyjmowany
 const expectedHeader = 'Data, Godzina, Wyk³adowca, Grupa, Sala, Przedmiot, Forma, Info dla studentów, Info dla planistów, W³aœciciel';
       optionalHeader = ', Opis 3, Opis 4, Wype³nienie, Kolor';
@@ -537,10 +542,10 @@ const expectedHeader = 'Data, Godzina, Wyk³adowca, Grupa, Sala, Przedmiot, Forma
       colSizes : array[1..14] of integer = (100, 100, 4000, 4000, 4000, 1000, 1000, 1000, 1000, 255, 1000, 1000, 100, 100);
 var LCID, lastRow, r, c, rowCnt : integer;
     ws, data : OleVariant;
-    header, headerOpt, reportFile : string;
+    header, headerOpt : string;
     vals : array[1..14] of string;
-    rowHasData, testRun, connected : boolean;
-    ins, query : TADOQuery;
+    rowHasData, connected, inTrans : boolean;
+    ins : TADOQuery;
 
   function cellText(row, col : integer) : string;
   var v : OleVariant;
@@ -554,44 +559,44 @@ var LCID, lastRow, r, c, rowCnt : integer;
   end;
 
 begin
-  testRun := chbTest.Checked;
+  result := false;
   if not openDialog.Execute then exit;
-  reportFile := uutilityParent.ApplicationDocumentsPath + 'Rozklad_Import.html';
   if not CanOverwriteFile(reportFile) then exit;
 
   connected := false;
+  inTrans   := false;
   ins       := nil;
-  query     := nil;
   FProgress.Show;
   try
-    LCID := GetUserDefaultLCID;
-    ExcelApplication.Connect;
-    connected := true;
-    ExcelApplication.Workbooks.Open(opendialog.FileName,
-                       EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
-                       EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
-                       LCID );
-    // ca³y arkusz jednym odczytem (odczyt komórka po komórce jest bardzo wolny przy tysi¹cach wierszy)
-    ws      := ExcelApplication.ActiveSheet;
-    lastRow := ws.UsedRange.Row + ws.UsedRange.Rows.Count - 1;
-    if lastRow < 2 then begin
-      SError('Plik nie zawiera danych. Pierwszy wiersz to nag³ówek, dane zaczynaj¹ siê od drugiego wiersza.');
-      exit;
-    end;
-    data := ws.Range['A1', 'N' + IntToStr(lastRow)].Value2;
-
-    header := '';
-    for c := 1 to 10 do header := header + iif(c > 1, ', ', '') + cellText(1, c);
-    headerOpt := '';
-    for c := 11 to 14 do headerOpt := headerOpt + ', ' + cellText(1, c);
-    if (AnsiLowerCase(header) <> AnsiLowerCase(expectedHeader))
-       or ((headerOpt <> ', , , , ') and (AnsiLowerCase(headerOpt) <> AnsiLowerCase(optionalHeader))) then begin
-      SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powinien zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedHeader + optionalHeader+cr + 'JEST:'+ header + headerOpt);
-      exit;
-    end;
-
-    dmodule.CommitTrans; // = BeginTrans
     try
+      LCID := GetUserDefaultLCID;
+      ExcelApplication.Connect;
+      connected := true;
+      ExcelApplication.Workbooks.Open(opendialog.FileName,
+                         EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+                         EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+                         LCID );
+      // ca³y arkusz jednym odczytem (odczyt komórka po komórce jest bardzo wolny przy tysi¹cach wierszy)
+      ws      := ExcelApplication.ActiveSheet;
+      lastRow := ws.UsedRange.Row + ws.UsedRange.Rows.Count - 1;
+      if lastRow < 2 then begin
+        SError('Plik nie zawiera danych. Pierwszy wiersz to nag³ówek, dane zaczynaj¹ siê od drugiego wiersza.');
+        exit;
+      end;
+      data := ws.Range['A1', 'N' + IntToStr(lastRow)].Value2;
+
+      header := '';
+      for c := 1 to 10 do header := header + iif(c > 1, ', ', '') + cellText(1, c);
+      headerOpt := '';
+      for c := 11 to 14 do headerOpt := headerOpt + ', ' + cellText(1, c);
+      if (AnsiLowerCase(header) <> AnsiLowerCase(expectedHeader))
+         or ((headerOpt <> ', , , , ') and (AnsiLowerCase(headerOpt) <> AnsiLowerCase(optionalHeader))) then begin
+        SError('Ups, czy na pewno u¿yto odpowiedni szablon pliku? Pierwszy wiersz powinien zawieraæ nag³ówek. '+cr + 'POWINNO BYÆ:'+ expectedHeader + optionalHeader+cr + 'JEST:'+ header + headerOpt);
+        exit;
+      end;
+
+      dmodule.CommitTrans; // = BeginTrans
+      inTrans := true;
       dmodule.SQL('delete from cla_interface where created_by = user');
 
       ins := TADOQuery.Create(self);
@@ -620,28 +625,65 @@ begin
         SError('Plik nie zawiera danych');
         exit;
       end;
+      result := true;
+    except
+      if inTrans then dmodule.RollbackTrans;
+      raise;
+    end;
+  finally
+    ins.Free;
+    if connected then ExcelApplication.Disconnect;
+  end;
+end;
 
+// wywo³anie pakietu, które przy tysi¹cach wierszy mo¿e trwaæ d³ugo
+procedure TFMassImport.ExecLong(const sqlText : string);
+var query : TADOQuery;
+begin
+  query := TADOQuery.Create(self);
+  try
+    query.Connection     := DModule.ADOConnection;
+    query.CommandTimeout := 3600;
+    query.ParamCheck     := false;
+    query.SQL.Text       := sqlText;
+    query.ExecSQL;
+  finally
+    query.Free;
+  end;
+end;
+
+// raport HTML z pakietu cla_interface_pkg
+procedure TFMassImport.SaveReport(const sqlText, fileName : string);
+begin
+  report.SQL.Text := sqlText;
+  report.Open;
+  with TStringList.Create do try
+    Text := UTF8Encode(report.Fields[0].AsString);
+    SaveToFile(fileName);
+  finally
+    Free;
+  end;
+  report.Close;
+end;
+
+// U³o¿ony rozk³ad zajêæ: wiersze arkusza -> CLA_INTERFACE, zajêcia tworzy cla_interface_pkg.import
+// (ka¿dy wiersz osobno - wiersze z b³êdami s¹ pomijane i pokazywane w raporcie Rozklad_Import.html)
+procedure TFMassImport.ImportTimetable;
+var reportFile : string;
+    testRun : boolean;
+begin
+  testRun := chbTest.Checked;
+  reportFile := uutilityParent.ApplicationDocumentsPath + 'Rozklad_Import.html';
+  try
+    if not LoadTimetableFile(reportFile) then exit;
+    try
       FProgress.ProgressBar.Position := 65;
       FProgress.Refresh;
-      query := TADOQuery.Create(self);
-      query.Connection     := DModule.ADOConnection;
-      query.CommandTimeout := 3600;
-      query.ParamCheck     := false;
-      query.SQL.Text       := 'begin cla_interface_pkg.import; end;';
-      query.ExecSQL;
+      ExecLong('begin cla_interface_pkg.import; end;');
 
       FProgress.ProgressBar.Position := 95;
       FProgress.Refresh;
-      report.SQL.Clear;
-      report.SQL.Add('select cla_interface_pkg.getReport(''' + iif(testRun, 'Y', 'N') + ''') from dual');
-      report.Open;
-      with TStringList.Create do try
-        Text := UTF8Encode(report.Fields[0].AsString);
-        SaveToFile(reportFile);
-      finally
-        Free;
-      end;
-      report.Close;
+      SaveReport('select cla_interface_pkg.getReport(''' + iif(testRun, 'Y', 'N') + ''') from dual', reportFile);
 
       if testRun then dmodule.RollbackTrans
       else begin
@@ -654,15 +696,118 @@ begin
       raise;
     end;
   finally
-    ins.Free;
-    query.Free;
     FProgress.Hide;
-    if connected then ExcelApplication.Disconnect;
   end;
 
   if not testRun then fmain.deepRefreshImmediate('ImportTimetable');
   ExecuteFile(reportFile, '', '', SW_SHOWMAXIMIZED);
   if not testRun then Info('Import zakoñczony. Wynik importu jest w raporcie.'+cr+cr+restartHint);
+end;
+
+// Kopiowanie rozk³adu zajêæ | 3. Usuñ rozk³ad zajêæ wed³ug pliku: usuwa zajêcia zapisane w pliku w formacie "U³o¿ony rozk³ad zajêæ"
+// (np. przed chwil¹ pobranym do nowego miejsca - przeniesienie zajêæ). Wiersz pliku = zajêcia o tym samym terminie, przedmiocie,
+// formie oraz komplecie wyk³adowców, grup i sal (cla_interface_pkg.matchForDelete).
+// Uprawnienia jak przy rêcznym usuwaniu (UUtilities.DeleteClass): prawo usuwania zajêæ, w³aœciciel zajêæ (tak¿e prze³o¿ony -
+// "Mój zespó³"), uprawnienie do przedmiotu (planner_utils.delete_class). Zmiany s¹ zapisywane dopiero po potwierdzeniu.
+procedure TFMassImport.DeleteTimetable;
+var reportFile, owner, msg, oldTitle : string;
+    query, upd : TADOQuery;
+    cnt, total, deleted, rows : integer;
+    committed : boolean;
+begin
+  if isIntegrated then begin
+    SError('Poniewa¿ uruchomiono funkcje Zasilanie danymi innego systemu, ta funkcja nie jest dostêpna');
+    exit;
+  end;
+  if not UutilityParent.CanDelete then begin
+    SError('Nie mo¿esz usuwaæ zajêæ');
+    exit;
+  end;
+
+  reportFile := uutilityParent.ApplicationDocumentsPath + 'Rozklad_Usuwanie.html';
+  committed := false;
+  deleted   := 0;
+  query     := nil;
+  upd       := nil;
+  oldTitle  := OpenDialog.Title;
+  OpenDialog.Title := 'Usuñ rozk³ad zajêæ wed³ug pliku';
+  try
+    if not LoadTimetableFile(reportFile) then exit;
+    try
+      FProgress.ProgressBar.Position := 65;
+      FProgress.Refresh;
+      ExecLong('begin cla_interface_pkg.matchForDelete; end;');
+
+      total := StrToIntDef(DModule.SingleValue('select count(*) from cla_interface where created_by = user and status = ''FND'''), 0);
+      query := TADOQuery.Create(self);
+      query.Connection := DModule.ADOConnection;
+      query.SQL.Text := 'select ci.line_no, ci.cla_id, c.owner from cla_interface ci, classes c'+
+                        ' where ci.created_by = user and ci.status = ''FND'' and c.id = ci.cla_id order by ci.line_no';
+      query.Open;
+      upd := TADOQuery.Create(self);
+      upd.Connection := DModule.ADOConnection;
+      upd.SQL.Text := 'update cla_interface set status = :status, message = :message where created_by = user and line_no = :line_no';
+      cnt := 0;
+      while not query.Eof do begin
+        owner := query.Fields[2].AsString;
+        msg   := '';
+        if owner = 'AUTO' then
+          msg := 'Zajêcia utworzone automatycznie (podgrupy / nadgrupy) - usuñ zajêcia, z których powsta³y'
+        else if (owner <> '') and (not isOwner(owner)) then
+          msg := 'Nie mo¿esz zmieniaæ zajêæ u¿ytkownika ' + owner
+        else begin
+          dmodule.sql('begin api.delete_class (:id ); end;', 'id=' + query.Fields[1].AsString);
+          // brak uprawnienia do przedmiotu: planner_utils.delete_class pomija zajêcia bez komunikatu
+          if DModule.SingleValue('select count(*) from classes where id = ' + query.Fields[1].AsString) <> '0' then
+            msg := 'Brak uprawnieñ do przedmiotu';
+        end;
+        upd.Parameters.ParamByName('status').Value  := iif(msg = '', 'DEL', 'ERR');
+        upd.Parameters.ParamByName('message').Value := msg;
+        upd.Parameters.ParamByName('line_no').Value := query.Fields[0].AsInteger;
+        upd.ExecSQL;
+        if msg = '' then inc(deleted);
+        inc(cnt);
+        if (cnt mod 50 = 0) and (total > 0) then begin
+          FProgress.ProgressBar.Position := 65 + 30 * cnt div total;
+          FProgress.Refresh;
+        end;
+        query.Next;
+      end;
+      query.Close;
+      rows := StrToIntDef(DModule.SingleValue('select count(*) from cla_interface where created_by = user'), 0);
+
+      FProgress.ProgressBar.Position := 95;
+      FProgress.Refresh;
+      SaveReport('select cla_interface_pkg.getDeleteReport from dual', reportFile);
+      FProgress.Hide;
+      ExecuteFile(reportFile, '', '', SW_SHOWMAXIMIZED);
+
+      if deleted = 0 then dmodule.RollbackTrans
+      else if Question('Usuniêto zajêæ: ' + IntToStr(deleted) + ' (wierszy w pliku: ' + IntToStr(rows) + '). Szczegó³y s¹ w raporcie.' + cr + cr +
+                       'Czy zapisaæ zmiany? Jeœli wybierzesz "Nie", ¿adne zajêcia nie zostan¹ usuniête.') = ID_YES then begin
+        dmodule.CommitTrans;
+        committed := true;
+      end
+      else dmodule.RollbackTrans;
+    except
+      dmodule.RollbackTrans;
+      raise;
+    end;
+  finally
+    OpenDialog.Title := oldTitle;
+    query.Free;
+    upd.Free;
+    FProgress.Hide;
+  end;
+
+  if committed then begin
+    fmain.deepRefreshImmediate('DeleteTimetable');
+    Info('Zajêcia zosta³y usuniête (' + IntToStr(deleted) + ').');
+  end
+  else if deleted = 0 then
+    Info('Nie usuniêto ¿adnych zajêæ. Szczegó³y s¹ w raporcie.')
+  else
+    Info('Zmiany zosta³y wycofane - ¿adne zajêcia nie zosta³y usuniête.');
 end;
 
 procedure TFMassImport.TT_Interface_Import (deleteExistingPlan : string);

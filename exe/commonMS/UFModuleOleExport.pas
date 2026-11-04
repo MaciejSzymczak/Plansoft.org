@@ -442,7 +442,7 @@ begin
 
   Writeln(f, '<HTML>');
   Writeln(f, '<HEAD>');
-  Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1250">');
+  Writeln(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">');
   Writeln(f, '<TITLE>Plansoft.org - eksport danych</TITLE>');
   Writeln(f, '<style type="text/css" media="screen">');
   Writeln(f, '@import "filtergrid.css";');
@@ -513,6 +513,7 @@ begin
   Query.EnableControls;
   Writeln(f, '</BODY></HTML>');
   CloseFile(F);
+  ConvertAnsiFileToUtf8(FileName);
   AfterCreate(wwwExport);
  End;
 end;

@@ -46,7 +46,7 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
       '<html lang="en">'
       '<head>'
       '  <title>Plansoft.org</title>'
-      '  <meta charset="windows-1250">'
+      '  <meta charset="utf-8">'
       
         '  <meta name="viewport" content="width=device-width, initial-sca' +
         'le=1">'
@@ -48044,7 +48044,7 @@ inherited FSlideshowGenerator: TFSlideshowGenerator
       '<html lang="en">'
       '<head>'
       '  <title>Plansoft.org</title>'
-      '  <meta charset="windows-1250">'
+      '  <meta charset="utf-8">'
       
         '  <meta name="viewport" content="width=device-width, initial-sca' +
         'le=1">'

@@ -4,14 +4,14 @@ unit UFExportTimetable;
 // Plik w formacie importu "U³o¿ony rozk³ad zajêæ" (UFMassImport.ImportTimetable): jeden wiersz = jedna godzina zajêæ.
 // Zapisywane s¹ zajêcia, których u¿ytkownik jest w³aœcicielem (tak¿e jako prze³o¿ony - "Mój zespó³"), i w których jest
 // co najmniej jeden zaznaczony wyk³adowca, grupa albo zasób. Listy zawieraj¹ tylko obiekty, do których u¿ytkownik
-// (albo wybrana autoryzacja) ma uprawnienia.
+// (albo wybrana autoryzacja) ma uprawnienia; pole "Dowolna fraza" filtruje listê jak w oknach Wyk³adowcy, Grupy, Sale.
 // "Ca³a baza danych" (tylko administrator): bez sprawdzania uprawnieñ i w³aœcicieli.
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs,
-  UFormConfig, StdCtrls, Buttons, ExtCtrls, CheckLst, ComObj;
+  UFormConfig, StdCtrls, Buttons, ExtCtrls, CheckLst, ComObj, UFilteredCheckList;
 
 type
   TFExportTimetable = class(TFormConfig)
@@ -28,18 +28,24 @@ type
     plefttop: TPanel;
     Lecturers: TCheckBox;
     lselector: TCheckBox;
+    lfind: TLabel;
+    lSearch: TEdit;
     LList: TCheckListBox;
     Splitter1: TSplitter;
     pright: TPanel;
     prighttop: TPanel;
     Resources: TCheckBox;
     rselector: TCheckBox;
+    rfind: TLabel;
+    rSearch: TEdit;
     RList: TCheckListBox;
     Splitter2: TSplitter;
     pmiddle: TPanel;
     pmiddletop: TPanel;
     Groups: TCheckBox;
     gselector: TCheckBox;
+    gfind: TLabel;
+    gSearch: TEdit;
     GList: TCheckListBox;
     SaveDialog: TSaveDialog;
     procedure FormCreate(Sender: TObject);
@@ -48,10 +54,11 @@ type
     procedure currentPeriodChange(Sender: TObject);
     procedure WholeDatabaseClick(Sender: TObject);
     procedure LecturersClick(Sender: TObject);
-    procedure selectorClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure BExportClick(Sender: TObject);
   private
     formPrepared : boolean;
+    lItems, gItems, rItems : TFilteredCheckList;
   end;
 
 var
@@ -67,6 +74,20 @@ procedure TFExportTimetable.FormCreate(Sender: TObject);
 begin
   inherited;
   formPrepared := false;
+  lItems := TFilteredCheckList.Create(LList, lSearch, lselector, sql_LEC_SEARCH,
+              'SELECT LECTURERS.ID FROM LECTURERS, ORG_UNITS WHERE LECTURERS.ORGUNI_ID = ORG_UNITS.ID(+)', 'LEC.ID');
+  gItems := TFilteredCheckList.Create(GList, gSearch, gselector, sql_GRO_SEARCH,
+              'SELECT GROUPS.ID FROM GROUPS, ORG_UNITS WHERE GROUPS.ORGUNI_ID = ORG_UNITS.ID(+)', 'GROUPS.ID');
+  rItems := TFilteredCheckList.Create(RList, rSearch, rselector, sql_ROM_SEARCH,
+              'SELECT ROOMS.ID FROM ROOMS, ORG_UNITS WHERE ROOMS.ORGUNI_ID = ORG_UNITS.ID(+)', 'ROM.ID');
+end;
+
+procedure TFExportTimetable.FormDestroy(Sender: TObject);
+begin
+  lItems.Free;
+  gItems.Free;
+  rItems.Free;
+  inherited;
 end;
 
 procedure TFExportTimetable.FormShow(Sender: TObject);
@@ -98,24 +119,6 @@ end;
 procedure TFExportTimetable.currentPeriodChange(Sender: TObject);
 var periodClause : string;
 
-  // lista przerysowywana raz, po wczytaniu wszystkich pozycji (bez mrugania)
-  procedure fill(L : TCheckListBox; sql : string);
-  var i : integer;
-  begin
-    L.Items.BeginUpdate;
-    try
-      L.Items.Clear;
-      DModule.OpenSQL(sql);
-      while not DModule.QWork.Eof do begin
-        L.Items.AddObject(DModule.QWork.Fields[0].AsString, pointer(DModule.QWork.Fields[1].AsInteger));
-        DModule.QWork.Next;
-      end;
-      for i := 0 to L.Count - 1 do L.Checked[i] := true;
-    finally
-      L.Items.EndUpdate;
-    end;
-  end;
-
   function permission(alias, idColumn : string) : string;
   begin
     if WholeDatabase.Checked then result := ''
@@ -130,21 +133,15 @@ begin
   periodClause := UCommon.getWhereClausefromPeriod('ID = ' + currentPeriod.Text, 'XXX.');
   Screen.Cursor := crHourGlass;
   try
-    fill(LList, 'SELECT DISTINCT '+sql_LECNAME+' LEC_NAME, LEC.ID FROM LEC_CLA XXX, LECTURERS LEC'+
-                ' WHERE LEC.ID > 0 AND XXX.LEC_ID = LEC.ID AND '+periodClause+permission('LEC', 'LEC.ID')+
-                ' ORDER BY LEC_NAME');
-    fill(GList, 'SELECT DISTINCT '+sql_GRONAME+' GRO_NAME, GROUPS.ID FROM GRO_CLA XXX, GROUPS'+
-                ' WHERE GROUPS.ID > 0 AND XXX.GRO_ID = GROUPS.ID AND '+periodClause+permission('GRO', 'GROUPS.ID')+
-                ' ORDER BY GRO_NAME');
-    fill(RList, 'SELECT DISTINCT '+sql_ResCat0NAME+' ROM_NAME, ROM.ID FROM ROM_CLA XXX, ROOMS ROM'+
-                ' WHERE ROM.ID > 0 AND XXX.ROM_ID = ROM.ID AND '+periodClause+permission('ROM', 'ROM.ID')+
-                ' ORDER BY ROM_NAME');
+    lItems.Load('SELECT DISTINCT '+sql_LECNAME+' LEC_NAME, LEC.ID FROM LEC_CLA XXX, LECTURERS LEC'+
+                ' WHERE LEC.ID > 0 AND XXX.LEC_ID = LEC.ID AND '+periodClause+permission('LEC', 'LEC.ID'), ' ORDER BY LEC_NAME', true);
+    gItems.Load('SELECT DISTINCT '+sql_GRONAME+' GRO_NAME, GROUPS.ID FROM GRO_CLA XXX, GROUPS'+
+                ' WHERE GROUPS.ID > 0 AND XXX.GRO_ID = GROUPS.ID AND '+periodClause+permission('GRO', 'GROUPS.ID'), ' ORDER BY GRO_NAME', true);
+    rItems.Load('SELECT DISTINCT '+sql_ResCat0NAME+' ROM_NAME, ROM.ID FROM ROM_CLA XXX, ROOMS ROM'+
+                ' WHERE ROM.ID > 0 AND XXX.ROM_ID = ROM.ID AND '+periodClause+permission('ROM', 'ROM.ID'), ' ORDER BY ROM_NAME', true);
   finally
     Screen.Cursor := crDefault;
   end;
-  lselector.Checked := true;
-  gselector.Checked := true;
-  rselector.Checked := true;
 end;
 
 procedure TFExportTimetable.WholeDatabaseClick(Sender: TObject);
@@ -159,23 +156,9 @@ end;
 
 procedure TFExportTimetable.LecturersClick(Sender: TObject);
 begin
-  LList.Enabled := Lecturers.Checked;  lselector.Enabled := Lecturers.Checked;
-  GList.Enabled := Groups.Checked;     gselector.Enabled := Groups.Checked;
-  RList.Enabled := Resources.Checked;  rselector.Enabled := Resources.Checked;
-end;
-
-procedure TFExportTimetable.selectorClick(Sender: TObject);
-var L : TCheckListBox;
-    t : integer;
-begin
-  if Sender = lselector then L := LList else
-  if Sender = gselector then L := GList else L := RList;
-  L.Items.BeginUpdate;
-  try
-    for t := 0 to L.Count - 1 do L.Checked[t] := (Sender as TCheckBox).Checked;
-  finally
-    L.Items.EndUpdate;
-  end;
+  lItems.SetEnabled(Lecturers.Checked);
+  gItems.SetEnabled(Groups.Checked);
+  rItems.SetEnabled(Resources.Checked);
 end;
 
 procedure TFExportTimetable.BExportClick(Sender: TObject);
@@ -204,14 +187,12 @@ var selL, selG, selR   : TStringList;
     FProgress.Refresh;
   end;
 
-  function selected(enabled : boolean; L : TCheckListBox) : TStringList;
-  var i : integer;
+  // zaznaczone obiekty, tak¿e ukryte przez filtr "Dowolna fraza"
+  function selected(enabled : boolean; items : TFilteredCheckList) : TStringList;
   begin
     result := TStringList.Create;
     result.Sorted := true;
-    if enabled then
-      for i := 0 to L.Count - 1 do
-        if L.Checked[i] then result.Add(IntToStr(integer(L.Items.Objects[i])));
+    if enabled then result.Assign(items.Selected);
   end;
 
   // czy któryœ z identyfikatorów "1;2;3" jest zaznaczony
@@ -277,9 +258,9 @@ begin
   SaveDialog.FileName := StringToValidFileName(currentPeriod_VALUE.Text);
   if not SaveDialog.Execute then exit;
 
-  selL     := selected(Lecturers.Checked, LList);
-  selG     := selected(Groups.Checked,    GList);
-  selR     := selected(Resources.Checked, RList);
+  selL     := selected(Lecturers.Checked, lItems);
+  selG     := selected(Groups.Checked,    gItems);
+  selR     := selected(Resources.Checked, rItems);
   keys     := TStringList.Create;
   names    := TStringList.Create;
   problems := TStringList.Create;

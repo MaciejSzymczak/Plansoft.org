@@ -52,6 +52,10 @@ type
   public
     constructor Create(aPeriodId, aResType, aResId, semesterFileName : string; const aGenForm : TForm = nil);
     function    columnButton(col : integer) : string;
+    // utworzone plany tygodni: "rrrr-mm-dd_rrrr-mm-dd" (pierwszy i ostatni dzieñ tygodnia) oddzielone ";"
+    function    createdWeeks : string;
+    // pocz¹tek nazwy pliku planu tygodnia - bez dat tygodnia i rozszerzenia (weeklyPlanFileName)
+    function    fileBase : string;
   end;
 
 // style przycisku w grafiku semestralnym (do <style>)
@@ -283,18 +287,44 @@ const planCss =
   'th.hour .time { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; color: #64748b; white-space: nowrap; }'+#13#10+
   'td { height: 100%; padding: 0; border-radius: 10px; text-align: center; vertical-align: middle; }'+#13#10+
   'td.empty { background: #f8fafc; border: 1px dashed #dbe2ea; }'+#13#10+
-  'td.lesson, .lessons > div { padding: 7px 6px; line-height: 1.25; overflow-wrap: anywhere;'+
+  '.lesson, .lessons > div { padding: 7px 6px; line-height: 1.25; overflow-wrap: anywhere;'+
                               ' box-shadow: inset 4px 0 0 rgba(0, 0, 0, .16), 0 1px 3px rgba(15, 23, 42, .14); }'+#13#10+
   '.lessons { display: flex; gap: 4px; height: 100%; }'+#13#10+
   '.lessons > div { flex: 1; min-width: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; }'+#13#10+
-  'td.lesson a, .lessons a { text-decoration: none; }'+#13#10+
-  'td.lesson a:hover, .lessons a:hover { text-decoration: underline; }'+#13#10+
-  'td.holiday { color: #b91c1c; font-weight: 600; font-size: 13px; letter-spacing: .03em;'+
+  '.lesson a, .lessons a { text-decoration: none; }'+#13#10+
+  '.lesson a:hover, .lessons a:hover { text-decoration: underline; }'+#13#10+
+  '.holiday { color: #b91c1c; font-weight: 600; font-size: 13px; letter-spacing: .03em;'+
               ' background: repeating-linear-gradient(135deg, #fef2f2 0 10px, #fde4e4 10px 20px); }'+#13#10+
   'td.outside { background: repeating-linear-gradient(135deg, #f8fafc 0 10px, #eef2f6 10px 20px); }'+#13#10+
   '.note { text-align: center; color: #64748b; font-size: 14px; padding: 10px 0 4px; }'+#13#10+
   '.foot { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: #94a3b8; }'+#13#10+
   '.foot a { color: inherit; }'+#13#10+
+  // telefon: zamiast tabeli (dni w kolumnach) ka¿dy dzieñ w osobnym bloku, godziny jedna pod drug¹
+  '.days { display: none; }'+#13#10+
+  '.day { margin-bottom: 14px; }'+#13#10+
+  '.day h2 { margin: 0 0 6px; background: #1e3a5f; color: #fff; border-radius: 10px; padding: 9px 12px;'+
+           ' font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; }'+#13#10+
+  '.day h2.today { background: #c2410c; }'+#13#10+
+  '.day h2 .date { font-size: 13px; font-weight: 400; opacity: .8; }'+#13#10+
+  '.item { display: flex; gap: 6px; margin-top: 6px; }'+#13#10+
+  '.item > .when { flex: 0 0 74px; background: #f1f5f9; border-radius: 10px; padding: 7px 4px; text-align: center;'+
+                 ' font-size: 12px; font-weight: 700; color: #1e3a5f; display: flex; align-items: center; justify-content: center; }'+#13#10+
+  '.item > .lesson, .item > .multi, .item > .holiday { flex: 1; min-width: 0; border-radius: 10px; padding: 8px 10px; }'+#13#10+
+  '.item > .multi { padding: 0; }'+#13#10+
+  '.item .lessons { flex-direction: column; }'+#13#10+
+  '.day .none { color: #94a3b8; font-size: 13px; padding: 8px 12px; background: #f8fafc; border: 1px dashed #dbe2ea; border-radius: 10px; }'+#13#10+
+  '@media screen and (max-width: 760px) {'+#13#10+
+  '  .sheet { margin: 0; border-radius: 0; padding: 16px 14px 14px; box-shadow: none; }'+#13#10+
+  '  .head { flex-direction: column; align-items: stretch; gap: 10px; }'+#13#10+
+  '  .title { font-size: 18px; }'+#13#10+
+  '  .who { font-size: 16px; }'+#13#10+
+  '  .meta { text-align: left; white-space: normal; }'+#13#10+
+  '  .nav { justify-content: flex-start; }'+#13#10+
+  '  table.plan { display: none; }'+#13#10+
+  '  .days { display: block; }'+#13#10+
+  '  .day font { font-size: 13px !important; }'+#13#10+
+  '  .foot { flex-direction: column; gap: 4px; }'+#13#10+
+  '}'+#13#10+
   '@media print {'+#13#10+
   '  body { background: #fff; }'+#13#10+
   '  .nav { display: none; }'+#13#10+
@@ -570,6 +600,34 @@ begin
     add('</table>');
     if not hasClasses then add('<div class="note">W tym tygodniu nie ma zaplanowanych zajêæ.</div>');
 
+    // telefon: ka¿dy dzieñ osobno (widoczne tylko na ma³ym ekranie - planCss), te same komórki co w tabeli;
+    // kolejne godziny z tymi samymi zajêciami - jeden blok z godzin¹ rozpoczêcia i zakoñczenia
+    add('<div class="days">');
+    for i := 0 to dayCount-1 do begin
+      if (dayDate[i] < weekFrom) or (dayDate[i] > weekTo) then continue;
+      add('<section class="day"><h2'+iif(Trunc(dayDate[i]) = Date, ' class="today"', '')+'>'+capitalize(LongDayNames[DayOfWeek(dayDate[i])])+
+          ' <span class="date">'+FormatDateTime('dd.mm', dayDate[i])+'</span></h2>');
+      txt := '';
+      r := 0;
+      while r <= High(rows) do begin
+        h := rows[r];
+        k := 1;
+        if cells[i][h].key <> '' then begin
+          while (r + k <= High(rows)) and (rows[r+k] = rows[r+k-1] + 1)
+                and (cells[i][rows[r+k]].key = cells[i][h].key) do inc(k);
+          tm := Trim(gridDefinition.hour_from[h]);
+          if Trim(gridDefinition.hour_to[rows[r+k-1]]) <> '' then tm := tm + '–' + Trim(gridDefinition.hour_to[rows[r+k-1]]);
+          if tm = '' then tm := Trim(gridDefinition.getLabel(h));
+          txt := txt + '<div class="item"><div class="when">'+XMLescapeChars(tm)+'</div><div '+cells[i][h].attrs+'>'+cells[i][h].body+'</div></div>'+#13#10;
+        end;
+        r := r + k;
+      end;
+      if txt = '' then txt := '<div class="none">Brak zajêæ</div>';
+      add(txt);
+      add('</section>');
+    end;
+    add('</div>');
+
     add('<div class="foot"><span>Data aktualizacji: '+DateTimeToStr(Now())+'</span>'+
         '<span>Dokument utworzony w programie <a href="http://www.plansoft.org">Plansoft.org</a></span></div>');
     add('</div>');
@@ -691,6 +749,23 @@ begin
       result := weeks[w].button;
       exit;
     end;
+end;
+
+function TWeekPlanButtons.createdWeeks : string;
+var w : integer;
+begin
+  result := '';
+  for w := 0 to High(weeks) do
+    if Pos('weekPlanBtn', weeks[w].button) > 0 then
+      result := result + iif(result = '', '', ';') + FormatDateTime('yyyy-mm-dd', weeks[w].dateFrom) + '_' + FormatDateTime('yyyy-mm-dd', weeks[w].dateTo);
+end;
+
+function TWeekPlanButtons.fileBase : string;
+var suffix : string;
+begin
+  suffix := weeklyPlanSuffix(0, 0);
+  result := weeklyPlanFileName(resType, resId, 0, 0);
+  result := Copy(result, 1, Length(result) - Length(suffix));
 end;
 
 //------------------------------------------------------------------------------------------------

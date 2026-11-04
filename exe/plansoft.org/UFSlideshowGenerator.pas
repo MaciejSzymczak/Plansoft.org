@@ -111,7 +111,7 @@ begin
        divGroup +
        MFooter.lines.Text;
 
-     writeln(tmpFile, outputString);
+     writeln(tmpFile, UTF8Encode(outputString)); // charset=utf-8 w nag³ówku strony
      closeFile(tmpFile);
      ExecuteFile(Path +'index.html','','',SW_SHOWMAXIMIZED);
 

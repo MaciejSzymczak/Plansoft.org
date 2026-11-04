@@ -120,6 +120,8 @@ type
     settingsLoaded : boolean;
   public
     defaultFolder : string;
+    // plany tygodni utworzone przez ostatnie calendarToHTML (TWeekPlanButtons.fileBase / createdWeeks); '' - brak
+    lastWeekPlanBase, lastWeekPlanWeeks : string;
     function getPageTitle : string;
     procedure setStatus(i : shortString);
     procedure copyGifs (fileName: String);
@@ -925,19 +927,29 @@ begin
   currentPeriodChange(self);
 end;
 
-// Converts a text file written using the system''s ANSI codepage (windows-1250 on a Polish-locale machine)
-// into UTF-8 in place, using the same UTF8Encode idiom already used in UIcsGenerator.pas
-procedure ConvertAnsiFileToUtf8(const aFileName : string);
-var sl : TStringList;
+// index.html na telefonie (ekran jak w @media indexPageHead): klikniêcie linku z data-week-plan otwiera plan tygodnia
+// z dzisiejsz¹ dat¹ - przed semestrem / miêdzy tygodniami najbli¿szy nastêpny, po semestrze ostatni.
+// Na serwerze www sprawdza, czy plan istnieje (HEAD) - jeœli nie, otwiera grafik semestralny. weeks: ["od","do"],...
+function weekPlanScript(const weeks : string) : string;
 begin
-  sl := TStringList.Create;
-  try
-    sl.LoadFromFile(aFileName);
-    sl.Text := UTF8Encode(sl.Text);
-    sl.SaveToFile(aFileName);
-  finally
-    sl.Free;
-  end;
+  result :=
+    '<script>'+#13#10+
+    '(function () {'+#13#10+
+    '  var weeks = ['+weeks+'];'+#13#10+
+    '  function pad(n) { return (n < 10 ? "0" : "") + n; }'+#13#10+
+    '  function today() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }'+#13#10+
+    '  function weekFor(day) { for (var i = 0; i < weeks.length; i++) if (day <= weeks[i][1]) return weeks[i]; return weeks[weeks.length - 1]; }'+#13#10+
+    '  document.addEventListener("click", function (e) {'+#13#10+
+    '    var a = e.target.closest ? e.target.closest("a[data-week-plan]") : null;'+#13#10+
+    '    if (!a || !weeks.length || !window.matchMedia || !window.matchMedia("(max-width: 760px)").matches) return;'+#13#10+
+    '    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;'+#13#10+
+    '    var w = weekFor(today()), url = a.getAttribute("data-week-plan") + "_" + w[0] + "_" + w[1] + ".htm";'+#13#10+
+    '    e.preventDefault();'+#13#10+
+    '    if (location.protocol.indexOf("http") !== 0 || !window.fetch) { location.href = url; return; }'+#13#10+
+    '    fetch(url, { method: "HEAD" }).then(function (r) { location.href = r.ok ? url : a.href; }, function () { location.href = a.href; });'+#13#10+
+    '  });'+#13#10+
+    '})();'+#13#10+
+    '</script>';
 end;
 
 Procedure TFWWWGenerator.CalendarToHTML(
@@ -2201,6 +2213,11 @@ begin
 
  if pdfPrintOut then htmlToPdf(fileName, pdfg,pdfl,pdfo,pdfs);
  //UUTilityParent.ExecuteFile('winword.exe','c:\test.htm','',SW_SHOWMAXIMIZED);
+ // spis treœci witryny: na telefonie link prowadzi do planu bie¿¹cego tygodnia
+ if weekPlanButtons <> nil then begin
+   lastWeekPlanBase  := weekPlanButtons.fileBase;
+   lastWeekPlanWeeks := weekPlanButtons.createdWeeks;
+ end;
  weekPlanButtons.Free;
  currentChartClasses.free;
  for o := 0 to High(objectCharts) do objectCharts[o].free;
@@ -2261,42 +2278,64 @@ var ColoringIndex    : shortString;
           fh : textFile;
           t : integer;
           pageTitle : string;
+          allWeeks : TStringList; // tygodnie z planami tygodni (skrypt weekPlanScript)
+          weeksJs : string;
+
+      // link spisu treœci; data-week-plan: pocz¹tek nazwy planów tygodni obiektu (telefon - plan bie¿¹cego tygodnia)
+      procedure link(const item : string);
+      var i : integer;
+          attr : string;
+      begin
+        attr := '';
+        if lastWeekPlanWeeks <> '' then begin
+          attr := ' data-week-plan="'+XMLescapeChars(lastWeekPlanBase)+'"';
+          for i := 1 to WordCount(lastWeekPlanWeeks, [';']) do allWeeks.Add(ExtractWord(i, lastWeekPlanWeeks, [';']));
+        end;
+        WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(item))+fileExt+'"'+attr+'>'+XMLescapeChars(item)+'</a>'));
+        lastWeekPlanBase  := '';
+        lastWeekPlanWeeks := '';
+      end;
+
     begin
       pageTitle := getPageTitle;
-      // spis treœci: tylko index.html (index.xml i layout.xslt nie s¹ ju¿ tworzone)
+      lastWeekPlanBase  := '';
+      lastWeekPlanWeeks := '';
+      allWeeks := TStringList.Create;
+      allWeeks.Sorted := true;
+      allWeeks.Duplicates := dupIgnore;
+      try
+      // spis treœci: tylko index.html (index.xml i layout.xslt nie s¹ ju¿ tworzone); index.html i menu.css w UTF-8
       assignFile(f, Folder.Text+'\menu.css');
       Rewrite(f);
-      WriteLn(f, css.Lines.Text);
+      WriteLn(f, UTF8Encode(css.Lines.Text)); // UTF-8 jak index.html
       CloseFile(f);
 
       if DoNotGenerateTableOfCon.Checked then   AssignFile(fh, Folder.Text+'\eraseme2.htm')
                                          else   AssignFile(fh, Folder.Text+'\index.html');
       Rewrite(fh);
-      WriteLn(fh, '<!DOCTYPE html>');
-      WriteLn(fh, '<html>');
-      WriteLn(fh, '<head>');
-      WriteLn(fh, '<meta http-equiv="Content-Type" content="text/html; charset=windows-1250">');
-      WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
-      WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
-      WriteLn(fh, '</head>');
-      WriteLn(fh, '<body>');
+      WriteLn(fh, UTF8Encode('<!DOCTYPE html>'));
+      WriteLn(fh, UTF8Encode('<html>'));
+      WriteLn(fh, UTF8Encode('<head>'));
+      WriteLn(fh, UTF8Encode(indexPageHead));
+      WriteLn(fh, UTF8Encode('<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>'));
+      WriteLn(fh, UTF8Encode('</head>'));
+      WriteLn(fh, UTF8Encode('<body>'));
       // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css
-      WriteLn(fh, '<h1 class="pageName">'+XMLescapeChars(pageTitle)+'</h1>');
-      WriteLn(fh, '<div class="description">'+XMLescapeChars(AddText.Text)+'</div>');
-      WriteLn(fh, '<table border="1" class="contents">');
-      WriteLn(fh, '<tr class="contentsHeader">');
-      if Groups.Checked    then WriteLn(fh, '<td>Grupy</td>');
-      if lecturers.Checked then WriteLn(fh, '<td>Wyk&#322;adowcy</td>');
-      if Resources.Checked then WriteLn(fh, '<td>Zasoby</td>');
-      WriteLn(fh, '</tr>');
-      WriteLn(fh, '<tr>');
+      WriteLn(fh, UTF8Encode('<h1 class="pageName">'+XMLescapeChars(pageTitle)+'</h1>'));
+      WriteLn(fh, UTF8Encode('<div class="description">'+XMLescapeChars(AddText.Text)+'</div>'));
+      WriteLn(fh, UTF8Encode('<table border="1" class="contents">'));
+      WriteLn(fh, UTF8Encode('<tr class="contentsHeader">'));
+      if Groups.Checked    then WriteLn(fh, UTF8Encode('<td>Grupy</td>'));
+      if lecturers.Checked then WriteLn(fh, UTF8Encode('<td>Wyk&#322;adowcy</td>'));
+      if Resources.Checked then WriteLn(fh, UTF8Encode('<td>Zasoby</td>'));
+      WriteLn(fh, UTF8Encode('</tr>'));
+      WriteLn(fh, UTF8Encode('<tr>'));
 
          If Groups.Checked Then Begin
-           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+           WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
            fileExt := iif(FSettings.GPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to GList.Count - 1 do begin
              if GList.Checked[t] then begin
-               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+fileExt+'">'+XMLescapeChars(GList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.GViewType);
                With FSettings Do CalendarToHTML(
                currentPeriod.Text
@@ -2342,28 +2381,28 @@ var ColoringIndex    : shortString;
                , gpdfo.checked
                , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex
                , GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked, GWeekPlans.Checked );
+               link(GList.Items[t]);
              end;
            end;
-           WriteLn(fh, '</ul></div></td>');
+           WriteLn(fh, UTF8Encode('</ul></div></td>'));
          end;
          If lecturers.Checked Then Begin
-           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+           WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
            fileExt := iif(FSettings.LPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to LList.Count - 1 do begin
              if LList.Checked[t] then begin
-               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+fileExt+'">'+XMLescapeChars(LList.Items[t])+'</a>');
                ColoringIndex := getCode(FSettings.LViewType);
                With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked, LWeekPlans.Checked);
+               link(LList.Items[t]);
              end;
            end;
-           WriteLn(fh, '</ul></div></td>');
+           WriteLn(fh, UTF8Encode('</ul></div></td>'));
          end;
           If Resources.Checked Then Begin
-           WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+           WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
            fileExt := iif(FSettings.RPdfPrintOut.Checked,'.pdf','.htm');
            for t := 0 to RList.Count - 1 do begin
              if RList.Checked[t] then begin
-               WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+fileExt+'">'+XMLescapeChars(RList.Items[t])+'</a>');
                try
                  ColoringIndex := getCode(FSettings.RViewType);
                  With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(RList.Items.Objects[t])), 'ROM', getCode(RD1), getCode(RD2), getCode(RD3), getCode(RD4), getCode(RD5), RHEADER.Lines, RFOOTER.Lines, rRShowLegend.Checked, iif(rlegendAbbr.checked,1,0)*2+iif(rlegendSummary.checked,1,0)*1, rAddCreationDate.itemindex, ColoringIndex, RW.Text, RH.Text, RCELLSIZE.Text, RS1.Text, RS2.Text, RS3.Text, RS4.Text, RS5.Text, RB1.Checked, RB2.Checked, RB3.Checked, RB4.Checked, RB5.Checked,Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm' , RRepeatMonthNames.Checked, RHideEmptyRows.Checked, RHideDows, rcomboSpan.itemIndex, rspanEmptyCells.checked,  rtransposition.Checked, rVerticalLines.checked, rnotes_before.Checked, rnotes_after.Checked, rPdfprintOut.checked, rpdfg.checked, rpdfl.checked, rpdfo.checked, rpdfs.checked, weeklyView.Checked, rlegendColorBy.ItemIndex, RLink1.Checked, RLink2.Checked, RLink3.Checked, RLink4.Checked, RLink5.Checked, RWeekPlans.Checked );
@@ -2371,17 +2410,27 @@ var ColoringIndex    : shortString;
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                end;
+               link(RList.Items[t]);
              end;
            end;
-           WriteLn(fh, '</ul></div></td>'); // zamkniêcie kolumny Zasoby - tylko gdy kolumna jest w tabeli
+           WriteLn(fh, UTF8Encode('</ul></div></td>')); // zamkniêcie kolumny Zasoby - tylko gdy kolumna jest w tabeli
           end;
-          WriteLn(fh, '</tr>');
-          WriteLn(fh, '</table>');
-          WriteLn(fh, '<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>');
-      WriteLn(fh, '</body>');
-      WriteLn(fh, '</html>');
+          WriteLn(fh, UTF8Encode('</tr>'));
+          WriteLn(fh, UTF8Encode('</table>'));
+          WriteLn(fh, UTF8Encode('<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>'));
+      if allWeeks.Count > 0 then begin
+        weeksJs := '';
+        for t := 0 to allWeeks.Count - 1 do
+          weeksJs := weeksJs + iif(t > 0, ',', '') + '["'+Copy(allWeeks[t], 1, 10)+'","'+Copy(allWeeks[t], 12, 10)+'"]';
+        WriteLn(fh, UTF8Encode(weekPlanScript(weeksJs)));
+      end;
+      WriteLn(fh, UTF8Encode('</body>'));
+      WriteLn(fh, UTF8Encode('</html>'));
       flush(fh);
       CloseFile(fh);
+      finally
+        allWeeks.Free;
+      end;
       if not fmain.silentMode then begin
           ShowFolder(Folder.Text);
           SError('Zrobione! Poproœ swojego informatyka, aby umieœci³ zawartoœæ tego folderu na serwerze Uczelni.');

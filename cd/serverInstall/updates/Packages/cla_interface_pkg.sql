@@ -9,11 +9,23 @@ create or replace package cla_interface_pkg is
    |*         Wiersz identyczny z istniejącymi zajęciami (ponowny import) jest pomijany (status DUP), a nie zgłaszany jako konflikt.
    |* exportName: nazwa obiektu do pliku (Dane | Zapisz rozkład zajęć w Excel), którą import rozpozna jako ten sam obiekt.
    |* Kolumny opcjonalne: Opis 3, Opis 4, Wypełnienie (10, 20, ... 100; puste = 100), Kolor (liczba jak CLASSES.COLOUR; puste = brak).
-   |* @author Maciej Szymczak @version 2026.10.29
+   |* matchForDelete / getDeleteReport: Usuń rozkład (plik w tym samym formacie) - wiersz pliku -> istniejące zajęcia (cla_id);
+   |*         kasuje program (uprawnienia jak przy ręcznym usuwaniu), potem ustawia status DEL / ERR.
+   |* moveClasses / getMoveReport: Przesuń rozkład - program wstawia do CLA_INTERFACE zajęcia do przesunięcia (cla_id),
+   |*         zajęcia innych właścicieli od razu ze statusem ERR.
+   |* @author Maciej Szymczak @version 2026.11.04
    \-----------------------------------------------------------------------------------------------------------------------------*/
 
     procedure import;
     function  getReport (pTestRun varchar2 default 'N') return clob;
+    -- Usuń rozkład: wiersze CLA_INTERFACE -> zajęcia o tym samym terminie, przedmiocie, formie i komplecie wykładowców, grup i sal
+    -- status FND (cla_id = zajęcia do usunięcia) albo ERR; niczego nie kasuje i nie tworzy brakujących obiektów
+    procedure matchForDelete;
+    function  getDeleteReport return clob;
+    -- Przesuń rozkład: zajęcia z CLA_INTERFACE (cla_id, status pusty) o pdays dni. Wykładowcy, grupy, sale i przedmiot zajęć
+    -- muszą być dostępni dla planisty pplaId (LEC_PLA, GRO_PLA, ROM_PLA, SUB_PLA). Status OK albo ERR. Nie zatwierdza transakcji.
+    procedure moveClasses (pdays number, pplaId number);
+    function  getMoveReport (pdays number) return clob;
     -- porównywanie nazw: wielkie litery, pojedyncze spacje (używana w SQL)
     function  norm (s varchar2) return varchar2;
     -- losowy pastelowy kolor nowego obiektu (używana w SQL)
@@ -342,6 +354,21 @@ create or replace package body cla_interface_pkg is
     end;
 
     -----------------------------------------------------------------------------------------------------------------------------
+    -- numer godziny z siatki godzin
+    function parseHour(txt varchar2) return number is
+      t   varchar2(100) := trim(txt);
+      cnt number;
+    begin
+      if t is null then fail('Brak godziny'); end if;
+      if not regexp_like(t, '^\d+$') then
+        fail('Nieprawidłowa godzina "' || txt || '". Podaj numer godziny z siatki godzin, np. 1, 2, 3');
+      end if;
+      select count(1) into cnt from grids where no = to_number(t) and hour_from is not null;
+      if cnt = 0 then fail('Godziny nr ' || t || ' nie ma w siatce godzin (Słowniki | Siatka godzin)'); end if;
+      return to_number(t);
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
     -- Wypełnienie: 10, 20, ... 100 (jak w oknie Szczegóły zajęć); puste = 100
     function parseFill(txt varchar2) return number is
       t varchar2(100) := trim(txt);
@@ -444,7 +471,7 @@ create or replace package body cla_interface_pkg is
     -----------------------------------------------------------------------------------------------------------------------------
     -- identyczne zajęcia: ten sam termin, przedmiot, forma i ten sam komplet wykładowców, grup i sal.
     -- Takie zajęcia zajmują pierwszy zasób wiersza w tym terminie - jedyny kandydat jest wyszukiwany po indeksie.
-    function identicalExists(pday date, phour number, psub number, pfor number, lecIds varchar2, groIds varchar2, romIds varchar2) return boolean is
+    function identicalId(pday date, phour number, psub number, pfor number, lecIds varchar2, groIds varchar2, romIds varchar2) return number is
       claId number;
       firstId number;
     begin
@@ -458,7 +485,7 @@ create or replace package body cla_interface_pkg is
         firstId := to_number(regexp_substr(romIds, '[^;]+'));
         select max(cla_id) into claId from rom_cla where rom_id = firstId and day = pday and hour = phour and no_conflict_flag is null;
       end if;
-      if claId is null then return false; end if;
+      if claId is null then return null; end if;
 
       -- komplety z LEC_CLA / GRO_CLA / ROM_CLA (calc_*_ids w CLASSES są obcinane do 255 znaków)
       for c in (select sub_id, for_id
@@ -466,12 +493,19 @@ create or replace package body cla_interface_pkg is
                      , (select listagg(gro_id, ';') within group (order by gro_id) from gro_cla where cla_id = claId and is_child = 'N') gro
                      , (select listagg(rom_id, ';') within group (order by rom_id) from rom_cla where cla_id = claId and is_child = 'N') rom
                   from classes where id = claId) loop
-        return nvl(c.sub_id, -1) = nvl(psub, -1) and nvl(c.for_id, -1) = pfor
+        if nvl(c.sub_id, -1) = nvl(psub, -1) and nvl(c.for_id, -1) = pfor
            and nvl(c.lec, '-') = nvl(sortedIds(lecIds), '-')
            and nvl(c.gro, '-') = nvl(sortedIds(groIds), '-')
-           and nvl(c.rom, '-') = nvl(sortedIds(romIds), '-');
+           and nvl(c.rom, '-') = nvl(sortedIds(romIds), '-') then
+          return claId;
+        end if;
       end loop;
-      return false;
+      return null;
+    end;
+
+    function identicalExists(pday date, phour number, psub number, pfor number, lecIds varchar2, groIds varchar2, romIds varchar2) return boolean is
+    begin
+      return identicalId(pday, phour, psub, pfor, lecIds, groIds, romIds) is not null;
     end;
 
     -----------------------------------------------------------------------------------------------------------------------------
@@ -559,13 +593,7 @@ create or replace package body cla_interface_pkg is
         begin
           vday := parseDate(rec.day_txt);
 
-          if trim(rec.hour_txt) is null then fail('Brak godziny'); end if;
-          if not regexp_like(trim(rec.hour_txt), '^\d+$') then
-            fail('Nieprawidłowa godzina "' || rec.hour_txt || '". Podaj numer godziny z siatki godzin, np. 1, 2, 3');
-          end if;
-          vhour := to_number(trim(rec.hour_txt));
-          select count(1) into cnt from grids where no = vhour and hour_from is not null;
-          if cnt = 0 then fail('Godziny nr ' || vhour || ' nie ma w siatce godzin (Słowniki | Siatka godzin)'); end if;
+          vhour := parseHour(rec.hour_txt);
 
           if trim(rec.for_txt) is null then fail('Brak formy zajęć'); end if;
           vfill   := parseFill(rec.fill_txt);
@@ -650,27 +678,14 @@ create or replace package body cla_interface_pkg is
     end;
 
     -----------------------------------------------------------------------------------------------------------------------------
-    function getReport (pTestRun varchar2 default 'N') return clob is
-      res  clob;
-      rok  number;
-      rerr number;
-      rdup number;
-      k    varchar2(400);
-      procedure w(s varchar2) is
-      begin
-        dbms_lob.writeappend(res, length(s), s);
-      end;
+    -- początek raportu HTML (import, usuwanie, przesuwanie)
+    function htmlHead(ptitle varchar2, pheader varchar2) return varchar2 is
     begin
-      dbms_lob.createtemporary(res, true, dbms_lob.session);
-      select count(case when status = 'OK' then 1 end), count(case when status = 'ERR' then 1 end), count(case when status = 'DUP' then 1 end)
-        into rok, rerr, rdup
-        from cla_interface where created_by = user;
-
-      w('<!DOCTYPE html>
+      return '<!DOCTYPE html>
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<title>Import rozkładu zajęć: wyniki</title>
+<title>' || h(ptitle) || '</title>
 <style>
   body { font-family: "Segoe UI", Arial, sans-serif; color: #1f2937; margin: 24px; }
   h1 { font-size: 22px; margin: 0 0 4px; }
@@ -690,9 +705,29 @@ create or replace package body cla_interface_pkg is
 </style>
 </head>
 <body>
-<h1>Ułożony rozkład zajęć: import z pliku Excel</h1>
+<h1>' || h(pheader) || '</h1>
 <div class="sub">' || to_char(sysdate, 'YYYY-MM-DD HH24:MI') || ', ' || h(user) || '</div>
-');
+';
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    function getReport (pTestRun varchar2 default 'N') return clob is
+      res  clob;
+      rok  number;
+      rerr number;
+      rdup number;
+      k    varchar2(400);
+      procedure w(s varchar2) is
+      begin
+        dbms_lob.writeappend(res, length(s), s);
+      end;
+    begin
+      dbms_lob.createtemporary(res, true, dbms_lob.session);
+      select count(case when status = 'OK' then 1 end), count(case when status = 'ERR' then 1 end), count(case when status = 'DUP' then 1 end)
+        into rok, rerr, rdup
+        from cla_interface where created_by = user;
+
+      w(htmlHead('Import rozkładu zajęć: wyniki', 'Ułożony rozkład zajęć: import z pliku Excel'));
       if pTestRun = 'Y' then
         w('<div class="test"><b>Uruchomienie testowe</b> - dane nie zostały zapisane w bazie danych. Raport pokazuje, co zostałoby zaimportowane.</div>');
       end if;
@@ -732,6 +767,231 @@ create or replace package body cla_interface_pkg is
       w('</body></html>');
       return res;
     end getReport;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- nazwa z pliku -> istniejący obiekt (bez tworzenia brakujących); kind: L / G / R / S / F
+    function existingId(kind varchar2, txt varchar2) return number is
+      cnt number;
+      id_ number;
+    begin
+      id_ := findId(kind, txt, cnt);
+      if cnt = 1 then return id_; end if;
+      fail(case kind when 'L' then 'Wykładowca' when 'G' then 'Grupa' when 'R' then 'Sala' when 'S' then 'Przedmiot' else 'Forma' end
+           || ' "' || trim(txt) || '": ' || case when cnt = 0 then 'nie ma w bazie danych' else 'nazwa pasuje do kilku obiektów' end);
+    end;
+
+    -- lista "a, b, c" -> identyfikatory istniejących obiektów "1;2;3"; kind: L / G / R
+    function existingIds(kind varchar2, txt varchar2) return varchar2 is
+      res  varchar2(4000);
+      elem varchar2(400);
+      id_  number;
+    begin
+      for i in 1 .. regexp_count(nvl(txt, ' '), '[^,]+') loop
+        elem := trim(regexp_substr(txt, '[^,]+', 1, i));
+        if elem is not null then
+          id_ := existingId(kind, elem);
+          if instr(';' || res || ';', ';' || id_ || ';') = 0 then
+            res := xxmsz_tools.merge(res, to_char(id_), ';');
+          end if;
+        end if;
+      end loop;
+      return res;
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    procedure matchForDelete is
+      vday     date;
+      vhour    number;
+      vsub     number;
+      vfor     number;
+      lecIds   varchar2(4000);
+      groIds   varchar2(4000);
+      romIds   varchar2(4000);
+      claId    number;
+      prevLine number;
+    begin
+      update cla_interface set status = null, message = null, cla_id = null, day = null, hour = null where created_by = user;
+
+      for rec in (select rowid rid, t.* from cla_interface t where created_by = user order by line_no) loop
+        begin
+          vday  := parseDate(rec.day_txt);
+          vhour := parseHour(rec.hour_txt);
+          if trim(rec.for_txt) is null then fail('Brak formy zajęć'); end if;
+          vsub   := case when trim(rec.sub_txt) is not null then existingId('S', rec.sub_txt) end;
+          vfor   := existingId('F', rec.for_txt);
+          lecIds := existingIds('L', rec.lec_txt);
+          groIds := existingIds('G', rec.gro_txt);
+          romIds := existingIds('R', rec.rom_txt);
+          if lecIds is null and groIds is null and romIds is null then
+            fail('Podaj co najmniej jednego wykładowcę, grupę albo salę');
+          end if;
+
+          claId := identicalId(vday, vhour, vsub, vfor, lecIds, groIds, romIds);
+          if claId is null then
+            fail('Nie znaleziono takich zajęć w rozkładzie (termin, przedmiot, forma oraz komplet wykładowców, grup i sal muszą się zgadzać)');
+          end if;
+          select min(line_no) into prevLine from cla_interface where created_by = user and status = 'FND' and cla_id = claId;
+          if prevLine is not null then fail('Te same zajęcia są już w wierszu ' || prevLine); end if;
+
+          update cla_interface set status = 'FND', cla_id = claId, day = vday, hour = vhour where rowid = rec.rid;
+        exception
+          when others then
+            declare
+              m varchar2(4000) := friendlyError(sqlcode, sqlerrm);
+            begin
+              update cla_interface set status = 'ERR', message = m, day = vday where rowid = rec.rid;
+            end;
+        end;
+        vday := null;
+      end loop;
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    function getDeleteReport return clob is
+      res  clob;
+      rdel number;
+      rerr number;
+      procedure w(s varchar2) is
+      begin
+        dbms_lob.writeappend(res, length(s), s);
+      end;
+    begin
+      dbms_lob.createtemporary(res, true, dbms_lob.session);
+      select count(case when status = 'DEL' then 1 end), count(case when status <> 'DEL' or status is null then 1 end)
+        into rdel, rerr
+        from cla_interface where created_by = user;
+
+      w(htmlHead('Usuwanie rozkładu zajęć: wyniki', 'Usuwanie rozkładu zajęć według pliku Excel'));
+      w('<div class="cards"><div class="card ok"><b>' || rdel || '</b>usuniętych zajęć</div>'||
+        '<div class="card err"><b>' || rerr || '</b>wierszy, których nie usunięto</div></div>');
+
+      if rerr > 0 then
+        w('<h2>Wiersze, których nie usunięto</h2><table><tr><th>Wiersz</th><th>Powód</th><th>Data</th><th>Godzina</th><th>Wykładowca</th><th>Grupa</th><th>Sala</th><th>Przedmiot</th><th>Forma</th><th>Właściciel</th></tr>');
+        for rec in (select * from cla_interface where created_by = user and (status <> 'DEL' or status is null) order by line_no) loop
+          w('<tr><td>' || rec.line_no || '</td><td class="msg">' || h(rec.message) ||
+            '</td><td>' || h(nvl(to_char(rec.day, 'YYYY-MM-DD'), rec.day_txt)) || '</td><td>' || h(rec.hour_txt) ||
+            '</td><td>' || h(rec.lec_txt) || '</td><td>' || h(rec.gro_txt) || '</td><td>' || h(rec.rom_txt) ||
+            '</td><td>' || h(rec.sub_txt) || '</td><td>' || h(rec.for_txt) || '</td><td>' || h(rec.owner_txt) || '</td></tr>' || chr(10));
+        end loop;
+        w('</table>');
+      else
+        w('<h2>Usunięto wszystkie zajęcia z pliku.</h2>');
+      end if;
+      w('</body></html>');
+      return res;
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    procedure moveClasses (pdays number, pplaId number) is
+      msg    varchar2(4000);
+      lecIds varchar2(4000);
+      groIds varchar2(4000);
+      romIds varchar2(4000);
+
+      procedure deny(dsp varchar2) is
+      begin
+        msg := substr(xxmsz_tools.merge(msg, dsp, ', '), 1, 3000);
+      end;
+    begin
+      -- opis zajęć do raportu: day = dotychczasowa data, day_txt = nowa data
+      update cla_interface ci
+         set (day, hour, day_txt, hour_txt, lec_txt, gro_txt, rom_txt, sub_txt, for_txt, owner_txt) =
+             (select c.day, c.hour, to_char(c.day + pdays, 'YYYY-MM-DD'), to_char(c.hour)
+                   , substr(c.calc_lecturers, 1, 4000), substr(c.calc_groups, 1, 4000), substr(c.calc_rooms, 1, 4000)
+                   , s.name, f.name, c.owner
+                from classes c, subjects s, forms f
+               where c.id = ci.cla_id and s.id(+) = c.sub_id and f.id(+) = c.for_id)
+       where created_by = user;
+      update cla_interface set status = 'ERR', message = 'Nie znaleziono zajęć - zostały usunięte'
+       where created_by = user and status is null and day is null;
+
+      -- przy przesunięciu w przód najpierw najpóźniejsze zajęcia (i odwrotnie): zajęcia przesuwane na termin
+      -- innych przesuwanych zajęć trafiają w miejsce już zwolnione
+      for rec in (select rowid rid, t.* from cla_interface t
+                   where created_by = user and status is null and day is not null
+                   order by case when pdays > 0 then date '2000-01-01' - day else day - date '2000-01-01' end, hour, line_no) loop
+        savepoint cla_move;
+        begin
+          msg := null;
+          for x in (select trim(l.title || ' ' || l.first_name || ' ' || l.last_name) n from lec_cla lc, lecturers l
+                     where lc.cla_id = rec.cla_id and lc.is_child = 'N' and l.id = lc.lec_id
+                       and not exists (select 1 from lec_pla p where p.pla_id = pplaId and p.lec_id = lc.lec_id)) loop
+            deny('wykładowca ' || x.n);
+          end loop;
+          for x in (select nvl(g.abbreviation, g.name) n from gro_cla gc, groups g
+                     where gc.cla_id = rec.cla_id and gc.is_child = 'N' and g.id = gc.gro_id
+                       and not exists (select 1 from gro_pla p where p.pla_id = pplaId and p.gro_id = gc.gro_id)) loop
+            deny('grupa ' || x.n);
+          end loop;
+          for x in (select r.name n from rom_cla rc, rooms r
+                     where rc.cla_id = rec.cla_id and rc.is_child = 'N' and r.id = rc.rom_id
+                       and not exists (select 1 from rom_pla p where p.pla_id = pplaId and p.rom_id = rc.rom_id)) loop
+            deny('sala ' || x.n);
+          end loop;
+          for x in (select s.name n from classes c, subjects s
+                     where c.id = rec.cla_id and c.sub_id > 0 and s.id = c.sub_id
+                       and not exists (select 1 from sub_pla p where p.pla_id = pplaId and p.sub_id = c.sub_id)) loop
+            deny('przedmiot ' || x.n);
+          end loop;
+          if msg is not null then fail('Brak uprawnień: ' || msg); end if;
+
+          select listagg(lec_id, ';') within group (order by lec_id) into lecIds from lec_cla where cla_id = rec.cla_id and is_child = 'N' and no_conflict_flag is null;
+          select listagg(gro_id, ';') within group (order by gro_id) into groIds from gro_cla where cla_id = rec.cla_id and is_child = 'N' and no_conflict_flag is null;
+          select listagg(rom_id, ';') within group (order by rom_id) into romIds from rom_cla where cla_id = rec.cla_id and is_child = 'N' and no_conflict_flag is null;
+          checkConflicts(rec.day + pdays, rec.hour, lecIds, groIds, romIds);
+
+          update classes set day = day + pdays, last_updated_by = user where id = rec.cla_id;
+          update lec_cla set day = day + pdays where cla_id = rec.cla_id;
+          update gro_cla set day = day + pdays where cla_id = rec.cla_id;
+          update rom_cla set day = day + pdays where cla_id = rec.cla_id;
+          update cla_interface set status = 'OK' where rowid = rec.rid;
+        exception
+          when others then
+            declare
+              m varchar2(4000) := friendlyError(sqlcode, sqlerrm);
+            begin
+              rollback to savepoint cla_move;
+              update cla_interface set status = 'ERR', message = m where rowid = rec.rid;
+            end;
+        end;
+      end loop;
+      xxmsz_tools.insertIntoEventLog('CLA_INTERFACE: moveClasses ' || pdays, 'I', 'CLA_INTERFACE');
+    end;
+
+    -----------------------------------------------------------------------------------------------------------------------------
+    function getMoveReport (pdays number) return clob is
+      res  clob;
+      rok  number;
+      rerr number;
+      procedure w(s varchar2) is
+      begin
+        dbms_lob.writeappend(res, length(s), s);
+      end;
+    begin
+      dbms_lob.createtemporary(res, true, dbms_lob.session);
+      select count(case when status = 'OK' then 1 end), count(case when status <> 'OK' or status is null then 1 end)
+        into rok, rerr
+        from cla_interface where created_by = user;
+
+      w(htmlHead('Przesuwanie rozkładu zajęć: wyniki', 'Przesuwanie rozkładu zajęć o ' || pdays || ' dni'));
+      w('<div class="cards"><div class="card ok"><b>' || rok || '</b>przesuniętych zajęć</div>'||
+        '<div class="card err"><b>' || rerr || '</b>zajęć, których nie przesunięto</div></div>');
+
+      if rerr > 0 then
+        w('<h2>Zajęcia, których nie przesunięto</h2><table><tr><th>Powód</th><th>Data</th><th>Nowa data</th><th>Godzina</th><th>Wykładowcy</th><th>Grupy</th><th>Sale</th><th>Przedmiot</th><th>Forma</th><th>Właściciel</th></tr>');
+        for rec in (select * from cla_interface where created_by = user and (status <> 'OK' or status is null) order by day, hour, line_no) loop
+          w('<tr><td class="msg">' || h(rec.message) ||
+            '</td><td>' || to_char(rec.day, 'YYYY-MM-DD') || '</td><td>' || h(rec.day_txt) || '</td><td>' || h(rec.hour_txt) ||
+            '</td><td>' || h(rec.lec_txt) || '</td><td>' || h(rec.gro_txt) || '</td><td>' || h(rec.rom_txt) ||
+            '</td><td>' || h(rec.sub_txt) || '</td><td>' || h(rec.for_txt) || '</td><td>' || h(rec.owner_txt) || '</td></tr>' || chr(10));
+        end loop;
+        w('</table>');
+      else
+        w('<h2>Przesunięto wszystkie wybrane zajęcia.</h2>');
+      end if;
+      w('</body></html>');
+      return res;
+    end;
 
 end;
 /

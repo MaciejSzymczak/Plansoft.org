@@ -284,23 +284,6 @@ end;
 
 //--------------------------------------------------------------------------------------
 
-// Converts a text file written using the system's ANSI codepage (windows-1250 on a Polish-locale
-// machine) into UTF-8 in place - the HTML declares charset=utf-8, so the bytes on disk must
-// actually be UTF-8 or Polish letters render as replacement characters. Matches the identical
-// helper already used by TFWWWGenerator.CalendarToHTML in UFWWWGenerator.pas.
-procedure ConvertAnsiFileToUtf8(const aFileName : string);
-var sl : TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    sl.LoadFromFile(aFileName);
-    sl.Text := UTF8Encode(sl.Text);
-    sl.SaveToFile(aFileName);
-  finally
-    sl.Free;
-  end;
-end;
-
 procedure CalendarToHTMLSubject(
        pPeriodId: String;
        presId : string;

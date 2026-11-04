@@ -5,6 +5,8 @@ interface
 uses
   Forms, CheckLst;
 
+  // index.html (spis treœci witryny): nag³ówek strony w UTF-8 i uk³ad na telefon
+  function indexPageHead : string;
   procedure generateIcsCalendars (self : tform; periodId, periodName {nazwa strony}, folder, xslt, css, icsSQL, addText : string; GroupsChecked, lecturersChecked, resourcesChecked, DoNotGenerateTableOfCon : boolean; GList, LList, RList: TCheckListBox);
 
 implementation
@@ -12,6 +14,31 @@ implementation
 Uses Windows, Messages,  UFProgramSettings, UUtilityParent,
   SysUtils, Classes, Graphics, Controls,  Dialogs, ADODB, DM, UFSettings
   ,UFormConfig, StdCtrls, Buttons, ExtCtrls, StrHlder, ComCtrls, ufmain, uutilities, UCommon, AutoCreate;
+
+
+// telefon: kolumny tabeli jedna pod drug¹, ka¿da pod swoim nag³ówkiem (wiersze tabeli "rozpuszczone" - display: contents,
+// kolejnoœæ: nag³ówek 1, kolumna 1, nag³ówek 2 ...). W index.html, a nie w menu.css - menu.css u¿ytkownik zmienia w programie.
+function indexPageHead : string;
+begin
+  result :=
+    '<meta charset="utf-8">'+#13#10+
+    '<meta name="viewport" content="width=device-width, initial-scale=1">'+#13#10+
+    '<link rel="stylesheet" href="menu.css" type="text/css" />'+#13#10+
+    '<style>'+#13#10+
+    '@media screen and (max-width: 760px) {'+#13#10+
+    '  table.contents { width: 100%; border: 0; }'+#13#10+
+    '  table.contents > tbody { display: flex; flex-direction: column; }'+#13#10+
+    '  table.contents tr { display: contents; }'+#13#10+
+    '  tr.contentsHeader td { background-color: inherit; padding: 6px; font-weight: bold; }'+#13#10+
+    '  td.contentsColumn { margin-bottom: 1.2em; }'+#13#10+
+    '  tr.contentsHeader td:nth-child(1) { order: 1; } td.contentsColumn:nth-child(1) { order: 2; }'+#13#10+
+    '  tr.contentsHeader td:nth-child(2) { order: 3; } td.contentsColumn:nth-child(2) { order: 4; }'+#13#10+
+    '  tr.contentsHeader td:nth-child(3) { order: 5; } td.contentsColumn:nth-child(3) { order: 6; }'+#13#10+
+    '  #container ul.menu { padding: 0; margin: 4px 0; }'+#13#10+
+    '  #container ul.menu a { padding-top: 8px; padding-bottom: 8px; }'+#13#10+
+    '}'+#13#10+
+    '</style>';
+end;
 
 
 type cclassbuffer =
@@ -169,17 +196,20 @@ end;
         begin
           AssignFile(F, folder+'\layout.xslt');
           Rewrite(F);
-          WriteLn(f,
+          // UTF-8 (zapisany wczeœniej szablon mo¿e mieæ jeszcze encoding="windows-1250")
+          WriteLn(f, UTF8Encode(
              replace(
-               replace(xslt
-                 ,'%R1.', fprogramsettings.profileObjectNameLs.Text)
-               ,'%R2.', fprogramsettings.profileObjectNameGs.Text)
-          );
+               replace(
+                 replace(xslt
+                   ,'%R1.', fprogramsettings.profileObjectNameLs.Text)
+                 ,'%R2.', fprogramsettings.profileObjectNameGs.Text)
+               ,'encoding="windows-1250"', 'encoding="utf-8"')
+          ));
           CloseFile(F);
 
           assignFile(F, Folder+'\menu.css');
           Rewrite(F);
-          WriteLn(f, css);
+          WriteLn(f, UTF8Encode(css)); // UTF-8 jak index.html
           CloseFile(F);
 
           if DoNotGenerateTableOfCon then   AssignFile(F, Folder+'\eraseme.htm')
@@ -189,26 +219,25 @@ end;
           if DoNotGenerateTableOfCon then   AssignFile(fh, Folder+'\eraseme2.htm')
                                              else   AssignFile(fh, Folder+'\index.html');
           Rewrite(fh);
-          WriteLn(fh, '<!DOCTYPE html>');
-          WriteLn(fh, '<html>');
-          WriteLn(fh, '<head>');
-          WriteLn(fh, '<meta http-equiv="Content-Type" content="text/html; charset=windows-1250">');
-          WriteLn(fh, '<link rel="stylesheet" href="menu.css" type="text/css" />');
-          WriteLn(fh, '<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>');
-          WriteLn(fh, '</head>');
-          WriteLn(fh, '<body>');
+          WriteLn(fh, UTF8Encode('<!DOCTYPE html>'));
+          WriteLn(fh, UTF8Encode('<html>'));
+          WriteLn(fh, UTF8Encode('<head>'));
+          WriteLn(fh, UTF8Encode(indexPageHead));
+          WriteLn(fh, UTF8Encode('<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>'));
+          WriteLn(fh, UTF8Encode('</head>'));
+          WriteLn(fh, UTF8Encode('<body>'));
           // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css
-          WriteLn(fh, '<h1 class="pageName">'+XMLescapeChars(periodName)+'</h1>');
-          WriteLn(fh, '<div class="description">'+XMLescapeChars(AddText)+'</div>');
-          WriteLn(fh, '<table border="1" class="contents">');
-          WriteLn(fh, '<tr class="contentsHeader">');
-          if GroupsChecked     then WriteLn(fh, '<td>Grupy</td>');
-          if lecturersChecked  then WriteLn(fh, '<td>Wyk&#322;adowcy</td>');
-          if ResourcesChecked  then WriteLn(fh, '<td>Zasoby</td>');
-          WriteLn(fh, '</tr>');
-          WriteLn(fh, '<tr>');
+          WriteLn(fh, UTF8Encode('<h1 class="pageName">'+XMLescapeChars(periodName)+'</h1>'));
+          WriteLn(fh, UTF8Encode('<div class="description">'+XMLescapeChars(AddText)+'</div>'));
+          WriteLn(fh, UTF8Encode('<table border="1" class="contents">'));
+          WriteLn(fh, UTF8Encode('<tr class="contentsHeader">'));
+          if GroupsChecked     then WriteLn(fh, UTF8Encode('<td>Grupy</td>'));
+          if lecturersChecked  then WriteLn(fh, UTF8Encode('<td>Wyk&#322;adowcy</td>'));
+          if ResourcesChecked  then WriteLn(fh, UTF8Encode('<td>Zasoby</td>'));
+          WriteLn(fh, UTF8Encode('</tr>'));
+          WriteLn(fh, UTF8Encode('<tr>'));
 
-          WriteLn(f, '<?xml version="1.0" encoding="windows-1250"?>');
+          WriteLn(f, '<?xml version="1.0" encoding="utf-8"?>');
           WriteLn(f, '<?xml-stylesheet type="text/xsl" href="layout.xslt"?>');
           WriteLn(f, '<xml>');
           WriteLn(f, '<title name="Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'"></title>');
@@ -216,35 +245,35 @@ end;
           WriteLn(f, '<description text="'+XMLescapeChars(AddText)+'"></description>');
           WriteLn(f, '<data>');
              If GroupsChecked Then Begin
-               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+               WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
                for t := 0 to GList.Count - 1 do begin
                  if GList.Checked[t] then begin
                    WriteLn(F, '  <gro href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(GList.Items[t])+'"/>');
-                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics">'+XMLescapeChars(GList.Items[t])+'</a>');
+                   WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(GList.Items[t]))+'.ics">'+XMLescapeChars(GList.Items[t])+'</a>'));
                  end;
                end;
-               WriteLn(fh, '</ul></div></td>');
+               WriteLn(fh, UTF8Encode('</ul></div></td>'));
              end;
 
              If lecturersChecked Then Begin
-               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+               WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
                for t := 0 to LList.Count - 1 do begin
                  if LList.Checked[t] then begin
                    WriteLn(F, '  <lec href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(LList.Items[t])+'"/>');
-                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics">'+XMLescapeChars(LList.Items[t])+'</a>');
+                   WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(LList.Items[t]))+'.ics">'+XMLescapeChars(LList.Items[t])+'</a>'));
                  end;
                end;
-               WriteLn(fh, '</ul></div></td>');
+               WriteLn(fh, UTF8Encode('</ul></div></td>'));
              end;
               If ResourcesChecked Then Begin
-               WriteLn(fh, '<td class="contentsColumn"><div id="container"><ul class="menu">');
+               WriteLn(fh, UTF8Encode('<td class="contentsColumn"><div id="container"><ul class="menu">'));
                for t := 0 to RList.Count - 1 do begin
                  if RList.Checked[t] then begin
                    WriteLn(F, '  <res href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics'+'" text="'+XMLescapeChars(RList.Items[t])+'"/>');
-                   WriteLn(fh, '<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics">'+XMLescapeChars(RList.Items[t])+'</a>');
+                   WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(RList.Items[t]))+'.ics">'+XMLescapeChars(RList.Items[t])+'</a>'));
                  end;
                end;
-               WriteLn(fh, '</ul></div></td>');
+               WriteLn(fh, UTF8Encode('</ul></div></td>'));
               end;
           WriteLn(f, '</data>');
           WriteLn(f, '<who lastupdatetext="Aktualizacja: '+DateTimeToStr(Now())+'"></who>');
@@ -257,15 +286,16 @@ end;
 
           flush(f);
           CloseFile(F);
+          ConvertAnsiFileToUtf8(Folder + iif(DoNotGenerateTableOfCon, '\eraseme.htm', '\index.xml'));
 
-          WriteLn(fh, '</tr>');
-          WriteLn(fh, '</table>');
-          WriteLn(fh, '<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>');
-          WriteLn(fh, '<div class="extraText">Plik iKalendarza mog&#261; by&#263; otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar</div>');
-          WriteLn(fh, '<br/><a href="https://support.google.com/calendar/answer/37118?hl=pl" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jak zaimportowa&#263; rozk&#322;ad zaj&#281;&#263; do Google Kalendarza</a>');
-          WriteLn(fh, '<br/><a href="http://calendar.zoznam.sk/icalendar/ical-pl.php" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jeszcze wi&#281;cej na temat iKalendarzy</a>');
-          WriteLn(fh, '</body>');
-          WriteLn(fh, '</html>');
+          WriteLn(fh, UTF8Encode('</tr>'));
+          WriteLn(fh, UTF8Encode('</table>'));
+          WriteLn(fh, UTF8Encode('<div class="lastUpdate">Aktualizacja: '+DateTimeToStr(Now())+'</div>'));
+          WriteLn(fh, UTF8Encode('<div class="extraText">Plik iKalendarza mog&#261; by&#263; otwierane w Microsoft Outlook, Google Kalendarz, Apple iCal oraz Mozilla Calendar</div>'));
+          WriteLn(fh, UTF8Encode('<br/><a href="https://support.google.com/calendar/answer/37118?hl=pl" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jak zaimportowa&#263; rozk&#322;ad zaj&#281;&#263; do Google Kalendarza</a>'));
+          WriteLn(fh, UTF8Encode('<br/><a href="http://calendar.zoznam.sk/icalendar/ical-pl.php" target="_blank">Kliknij w ten link aby dowiedzie&#263; si&#281; jeszcze wi&#281;cej na temat iKalendarzy</a>'));
+          WriteLn(fh, UTF8Encode('</body>'));
+          WriteLn(fh, UTF8Encode('</html>'));
           flush(fh);
           CloseFile(fh);
           if not fmain.silentMode then begin
