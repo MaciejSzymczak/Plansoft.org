@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plansoft.org</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+
+<!-- logowanie -->
+<section id="viewLogin" class="view center" hidden>
+  <form id="loginForm" class="card login" autocomplete="on" novalidate>
+    <h1 class="brand"><span class="logo">P</span> Plansoft.org</h1>
+    <label>Użytkownik
+      <input id="loginUser" name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Hasło
+      <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <p id="loginError" class="error" role="alert" hidden></p>
+    <button type="submit" class="primary" id="loginButton">Zaloguj</button>
+  </form>
+</section>
+
+<!-- wybór okresu -->
+<section id="viewPeriods" class="view center" hidden>
+  <div class="card periods">
+    <div class="card-head">
+      <h2>Wybierz okres</h2>
+      <span class="spacer"></span>
+      <span class="who"></span>
+      <button type="button" class="link logout">Wyloguj</button>
+    </div>
+    <div class="row">
+      <input id="periodSearch" type="search" placeholder="Dowolna fraza (kilka fraz oddziel przecinkiem)" autocomplete="off">
+      <select class="roleSelect" hidden title="Rola"></select>
+    </div>
+    <div class="period-list" id="periodList" role="listbox" tabindex="0"></div>
+    <div class="card-foot">
+      <button type="button" id="periodCancel" class="secondary" hidden>Anuluj</button>
+    </div>
+  </div>
+</section>
+
+<!-- główne okno -->
+<section id="viewMain" class="view main" hidden>
+  <header class="topbar">
+    <span class="brand small"><span class="logo">P</span> Plansoft.org</span>
+    <button type="button" id="periodButton" class="period-button" title="Zmień okres">
+      <span class="caption">Okres</span> <b id="periodName"></b> <span id="periodDates" class="muted"></span>
+    </button>
+    <div class="popover-anchor">
+      <button type="button" id="dataMenuButton" class="secondary small" aria-expanded="false" aria-haspopup="menu">Dane ▾</button>
+      <div id="dataMenu" class="menu" role="menu" hidden>
+        <button type="button" role="menuitem" data-browse="PER">Okresy</button>
+        <button type="button" role="menuitem" data-browse="L">Wykładowcy</button>
+        <button type="button" role="menuitem" data-browse="G">Grupy</button>
+        <button type="button" role="menuitem" data-browse="S">Zasoby</button>
+        <button type="button" role="menuitem" data-browse="SUB">Przedmioty</button>
+        <button type="button" role="menuitem" data-browse="FOR">Formy</button>
+      </div>
+    </div>
+    <span class="spacer"></span>
+    <select class="roleSelect" hidden title="Rola"></select>
+    <span class="who"></span>
+    <button type="button" class="link logout">Wyloguj</button>
+  </header>
+
+  <div class="selectors">
+    <div class="sel-col"><div class="chips" data-type="L" data-label="Wykładowca"></div></div>
+    <div class="sel-col"><div class="chips" data-type="G" data-label="Grupa"></div></div>
+    <div class="sel-col"><div class="chips" data-type="S" data-label="Sala"></div></div>
+    <div class="sel-col defaults" title="Domyślny przedmiot i forma - podpowiadane przy dodawaniu zajęć">
+      <div class="chips small" data-type="SUB" data-label="Przedmiot (domyślny)"></div>
+      <div class="chips small" data-type="FOR" data-label="Forma (domyślna)"></div>
+    </div>
+  </div>
+  <div class="free-options" id="freeOptions" hidden></div>
+
+  <div class="grid-bar">
+    <div class="grid-title" id="gridTitle"></div>
+    <span class="spacer"></span>
+    <span class="sel-count" id="selCount"></span>    <div class="popover-anchor">
+      <button type="button" id="cellLayoutButton" class="secondary small" aria-expanded="false" aria-controls="cellLayout" title="Wygląd komórki: kolorowanie, opisy, rozmiary">Zajęcie</button>
+      <div id="cellLayout" class="popover" hidden></div>
+    </div>
+    <button type="button" id="legendButton" class="secondary small" aria-pressed="false" title="Legenda: podsumowanie godzin">Legenda</button>
+  </div>
+  <div class="grid-area">
+    <div class="grid-wrap" id="gridWrap"></div>
+    <aside id="legend" class="legend" hidden>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" role="tab" aria-selected="true">Podsumowanie godzin</button>
+        <span class="spacer"></span>
+        <button type="button" class="link close" id="legendClose" title="Zamknij">×</button>
+      </div>
+      <div id="summary" class="summary"></div>
+    </aside>
+  </div>
+</section>
+
+</body>
+</html>

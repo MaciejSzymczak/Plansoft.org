@@ -1,0 +1,20 @@
+<!-- Usluga Windows serwera WWW Caddy (WinSW). Plik generowany przez install.ps1. -->
+<service>
+  <id>plansoft-caddy</id>
+  <name>Plansoft.org Web - serwer WWW (Caddy)</name>
+  <description>Serwer WWW z SSL dla aplikacji Plansoft.org Web.</description>
+  <executable>{{CADDY_EXE}}</executable>
+  <arguments>run --config "{{CADDYFILE}}" --adapter caddyfile</arguments>
+  <workingdirectory>{{INSTALL_DIR}}</workingdirectory>
+  <!-- certyfikaty SSL i konfiguracja Caddy w folderze data (zostaja przy aktualizacji) -->
+  <env name="XDG_DATA_HOME" value="{{DATA_DIR}}"/>
+  <env name="XDG_CONFIG_HOME" value="{{DATA_DIR}}"/>
+  <depend>plansoft-web</depend>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <logpath>{{LOG_DIR}}</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

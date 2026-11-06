@@ -4664,7 +4664,8 @@ begin
    pGroups                  := ReadBool   ('wwwgenerator','Groups',true);
    pResources               := ReadBool   ('wwwgenerator','Resources',true);
    pLecturers               := ReadBool   ('wwwgenerator','Lecturers',true);
-   pPrintSettingsFileName   := ReadString ('wwwgenerator','PrintSettingsFileName','');
+   // starsze pliki: "folder/settings.ini" - zapisywane z "/" zamiast "\"
+   pPrintSettingsFileName   := StringReplace(ReadString ('wwwgenerator','PrintSettingsFileName',''), '/', '\', [rfReplaceAll]);
  end;
 
  iniFile.Free;

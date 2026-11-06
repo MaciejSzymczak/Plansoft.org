@@ -1,0 +1,16 @@
+Oracle Instant Client - potrzebny TYLKO dla baz Oracle 10 i 11.
+
+Dla Oracle 12 i nowszych (w tym Oracle XE) ten folder zostaw pusty: aplikacja łączy się
+z bazą bez klienta Oracle (node-oracledb w trybie Thin).
+
+Dla Oracle 10/11 umieść tutaj plik:
+  instantclient-basic-windows.x64-12.1.0.2.0.zip   (łączy się z Oracle 10.2 i nowszymi)
+albo
+  instantclient-basic-windows.x64-11.2.0.4.0.zip
+
+Plik pobiera się ze strony Oracle (Instant Client for Microsoft Windows x64; starsze wersje
+mogą wymagać bezpłatnego konta Oracle). Instant Client wymaga też bibliotek Microsoft Visual C++
+(12.1: Visual C++ 2010 Redistributable x64), jeżeli nie ma ich jeszcze na komputerze.
+
+Instalator rozpakuje plik do C:\PlansoftWeb\instantclient i przekaże aplikacji ścieżkę
+w zmiennej ORACLE_CLIENT_DIR.

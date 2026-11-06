@@ -1,0 +1,18 @@
+# Plik generowany przez install.ps1 - zmiany wprowadzaj w install.config.psd1
+# albo we wlasnym pliku config\Caddyfile.custom (wtedy ten szablon nie jest uzywany).
+{
+    http_port {{HTTP_PORT}}
+    https_port {{HTTPS_PORT}}
+{{GLOBAL}}
+}
+
+{{SITE}} {
+    encode gzip
+    reverse_proxy 127.0.0.1:{{APP_PORT}}
+    log {
+        output file {{LOG_DIR}}/caddy-access.log {
+            roll_size 10MiB
+            roll_keep 8
+        }
+    }
+}

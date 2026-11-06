@@ -1,0 +1,16 @@
+{
+  "name": "plansoft-web",
+  "version": "0.1.0",
+  "description": "Plansoft.org Web - wersja podstawowa (logowanie, wybór okresu, siatka semestralna)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "oracledb": "26.0.0"
+  }
+}

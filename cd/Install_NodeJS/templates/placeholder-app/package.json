@@ -1,0 +1,7 @@
+{
+  "name": "plansoft-web-placeholder",
+  "version": "0.0.1",
+  "description": "Strona testowa srodowiska Plansoft.org Web - zastepowana przez wlasciwa aplikacje (app\\*.zip)",
+  "main": "server.js",
+  "private": true
+}

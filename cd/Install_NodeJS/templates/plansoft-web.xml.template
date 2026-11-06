@@ -1,0 +1,23 @@
+<!-- Usluga Windows aplikacji Plansoft.org Web (WinSW). Plik generowany przez install.ps1. -->
+<service>
+  <id>plansoft-web</id>
+  <name>Plansoft.org Web - aplikacja</name>
+  <description>Aplikacja Plansoft.org (Node.js). Dostepna przez serwer WWW plansoft-caddy.</description>
+  <executable>{{NODE_EXE}}</executable>
+  <arguments>"{{APP_ENTRY}}"</arguments>
+  <workingdirectory>{{APP_DIR}}</workingdirectory>
+  <env name="NODE_ENV" value="production"/>
+  <env name="PORT" value="{{APP_PORT}}"/>
+  <env name="PLANSOFT_HOME" value="{{INSTALL_DIR}}"/>
+  <env name="PLANSOFT_CONFIG_DIR" value="{{CONF_DIR}}"/>
+  <env name="PLANSOFT_DATA_DIR" value="{{DATA_DIR}}"/>
+  <env name="PLANSOFT_DB_CONNECT" value="{{DB_CONNECT}}"/>
+  <env name="ORACLE_CLIENT_DIR" value="{{IC_DIR}}"/>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <logpath>{{LOG_DIR}}</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

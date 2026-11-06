@@ -2495,12 +2495,12 @@ begin
     WriteBool   ('wwwgenerator','Resources',Resources.Checked);
     WriteBool   ('wwwgenerator','Lecturers',Lecturers.Checked);
     fsettings.FormShow(nil);
-    fsettings.Save( extractFileDir(saveDialog.FileName)+'/settings.ini' );
-    WriteString ('wwwgenerator','PrintSettingsFileName',extractFileDir(saveDialog.FileName)+'/settings.ini');
+    fsettings.Save( extractFileDir(saveDialog.FileName)+'\settings.ini' );
+    WriteString ('wwwgenerator','PrintSettingsFileName',extractFileDir(saveDialog.FileName)+'\settings.ini');
   end;
   iniFile.Free;
 
-  AssignFile(f, extractFileDir(saveDialog.FileName)+'/publikacja.bat' );
+  AssignFile(f, extractFileDir(saveDialog.FileName)+'\publikacja.bat' );
   reWrite(f);
 
   writeLn(f, '"'+ApplicationDir + '\' + 'planowanie.exe" '+userName+' '+uutilityparent.EncryptShortString(1, 'PASSWORD:'+password, 'SoftwareFactory')+' '+DBname+' "inifile='+ saveDialog.FileName +'"');

@@ -1,0 +1,15 @@
+Folder na pliki aplikacji Plansoft.org Web.
+
+Umieść tutaj JEDEN plik zip z aplikacją (np. plansoft-web-2027.01.15.zip) i uruchom install.cmd.
+Gdy folder nie zawiera pliku zip, instalowana jest strona testowa.
+
+Zawartość pliku zip:
+  package.json    - pole "main" wskazuje plik startowy (domyślnie server.js)
+  server.js       - plik startowy
+  node_modules\   - wszystkie biblioteki (instalacja nie pobiera niczego z internetu)
+  setup.ps1       - opcjonalnie: dodatkowe kroki instalacji (np. skrypty bazy),
+                    wywoływany z parametrami -InstallDir i -Config
+
+Aplikacja dostaje zmienne środowiskowe:
+  PORT, PLANSOFT_HOME, PLANSOFT_CONFIG_DIR, PLANSOFT_DATA_DIR,
+  PLANSOFT_DB_CONNECT, ORACLE_CLIENT_DIR (puste, gdy nie ma Instant Client)
