@@ -4,8 +4,12 @@
 export class ChipField {
   // el: <div class="chips" data-type data-label>; search(q) -> Promise<[{id, name, org}]>
   // single: tylko jedna wartość (wybór nowej zastępuje poprzednią)
-  constructor(el, { search, onChange, onActivate, single }) {
+  // listOnSecondClick: pierwsze kliknięcie tylko wybiera pole (rozkład w siatce), lista podpowiedzi pojawia się
+  // po kliknięciu pola już wybranego, po wpisaniu tekstu albo strzałce w dół
+  constructor(el, { search, onChange, onActivate, single, listOnSecondClick }) {
     this.el = el;
+    this.listOnSecondClick = !!listOnSecondClick;
+    this.showOnFocus = false;
     this.type = el.dataset.type;
     this.search = search;
     this.single = !!single;
@@ -38,11 +42,19 @@ export class ChipField {
     el.addEventListener('mousedown', e => {
       // kliknięcie w pole (poza krzyżykiem i listą) = pokaż rozkład tego typu
       if (e.target.closest('.chip-x') || e.target.closest('.chips-dropdown')) return;
+      const show = !this.listOnSecondClick || el.classList.contains('active');
       this.onActivate(this);
+      if (e.target.closest('.chip')) return;
+      if (document.activeElement === this.input) { if (show && this.list.hidden) this.refresh(); }
+      else this.showOnFocus = show;
       if (e.target === this.input) return;
       if (!e.target.closest('.chip')) { e.preventDefault(); this.input.focus(); }
     });
-    this.input.addEventListener('focus', () => { this.onActivate(this); this.refresh(); });
+    this.input.addEventListener('focus', () => {
+      this.onActivate(this);
+      if (!this.listOnSecondClick || this.showOnFocus) this.refresh();
+      this.showOnFocus = false;
+    });
     this.input.addEventListener('blur', () => setTimeout(() => this.close(), 150));
     this.input.addEventListener('input', () => {
       clearTimeout(this.timer);

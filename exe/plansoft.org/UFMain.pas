@@ -955,6 +955,16 @@ type
   private
     resizeMode: boolean;
     timerShapes : integer;
+    //2026-11: przeci¹ganie zajêæ myszk¹ - ponowne klikniêcie ju¿ zaznaczonej komórki i przeci¹gniêcie
+    //przenosi zajêcia zaznaczonego obszaru, na tych samych zasadach co Wytnij/Wklej (modifyClasses clMove).
+    //Komunikaty myszy siatki przechwytuje GridWndProc (zwyk³e klikniêcie jest odtwarzane bez zmian)
+    OldGridWndProc  : TWndMethod;
+    gridDragPending : boolean;     // wciœniêto przycisk na zaznaczonej komórce, czekamy na ruch myszy
+    gridDragActive  : boolean;     // przeci¹ganie w toku (przekroczono próg ruchu)
+    gridDragDownMsg : Messages.TMessage;    // oryginalny WM_LBUTTONDOWN - odtwarzany, gdy nie by³o przeci¹gania
+    gridDragStartPt : TPoint;
+    gridDragCol, gridDragRow : integer;  // chwycona komórka
+    gridDragRect    : TGridRect;         // przeci¹gany obszar (zaznaczenie w chwili chwycenia)
     //used by Copy-Cut-Paste
     GridSelectionLeft : integer;
     GridSelectionRight : integer;
@@ -974,6 +984,11 @@ type
     ignoreEvents : boolean;
     activePulpit : integer;
     suppressCounterRefresh : boolean; //2026-07: guards refreshPanels' Podsumowanie godzin (Counter tab) requery during pure navigation, see BuildCalendar
+    procedure GridWndProc(var Message: Messages.TMessage);
+    function  gridDragCanStart(X, Y : integer; keys : integer) : boolean;
+    procedure gridDragPreview(X, Y : integer);
+    procedure gridDragFinish(X, Y : integer);
+    procedure gridDragCancel;
     Procedure stop;
     procedure setPeriod;
     Procedure fillPanel(Col, Row: Integer);
@@ -1239,6 +1254,9 @@ Var t : Integer;
     rid, excludedResources : String;
     weekSyncOn : boolean; // synchronizacja tygodni: zajêtoœæ tak¿e w pozosta³ych widocznych tygodniach
     busyClause : string;  // dni, w których szukamy zajêtoœci (periodClause albo wszystkie synchronizowane tygodnie)
+    // 2026-11: pola wyniku i nazwy z ustawieñ odczytane raz przed pêtl¹ (zamiast FieldByName / TEdit.Text w ka¿dym wierszu)
+    fDay, fHour, fCnt, fCntL, fCntG, fCntR, fCntR2, fSubName, fForName, fLecturers, fGroups, fRooms : TField;
+    nameLs, nameGs : string;
 
 Var L1, L2 : Integer;
 begin
@@ -1398,11 +1416,30 @@ begin
    +' group by classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name, form.name, day, hour';
 
    //copyToClipboard(SQLstmt);
+   // 2026-11: kursor klienta - wszystkie wiersze (czêsto kilka tysiêcy) pobierane jednym transferem,
+   // zamiast osobnego pobrania ka¿dego wiersza przy kursorze serwera (pierwsze rysowanie siatki czeka³o na to ok. 1 s)
+   QWork.Close;
+   QWork.CursorLocation := clUseClient;
+   try
    openSQL ( SQLstmt );
+   fDay       := QWork.FieldByName('DAY');
+   fHour      := QWork.FieldByName('HOUR');
+   fCnt       := QWork.FieldByName('cnt');
+   fCntL      := QWork.FieldByName('cntL');
+   fCntG      := QWork.FieldByName('cntG');
+   fCntR      := QWork.FieldByName('cntR');
+   fCntR2     := QWork.FieldByName('cntr2');
+   fSubName   := QWork.FieldByName('sub_name');
+   fForName   := QWork.FieldByName('for_name');
+   fLecturers := QWork.FieldByName('calc_lecturers');
+   fGroups    := QWork.FieldByName('calc_groups');
+   fRooms     := QWork.FieldByName('calc_rooms');
+   nameLs     := fprogramsettings.profileObjectNameLs.text;
+   nameGs     := fprogramsettings.profileObjectNameGs.text;
 
     While Not QWork.EOF Do Begin
-     X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
-     Y := QWork.FieldByName('HOUR').AsInteger;
+     X := DateTimeToTimeStamp(fDay.AsDateTime).Date;
+     Y := fHour.AsInteger;
 
      if weekSyncOn then X := FMain.syncWeeks.toCurrentWeek(FMain.conPeriod.Text, X);
      t := X-FirstDay;
@@ -1420,24 +1457,28 @@ begin
      if  (y < 1) or (y >MaxHours) then //Warning('Zaplanowana liczba godzin ( wartoœæ '+inttostr(y)+') jest wiêksza, ni¿ liczba godzin zdefiniowana dla okresu. Powoduje to, ¿e czêœæ zaplanowanych rekordow nie pojawia siê na ekranie. Mo¿liwe rozwi¹zania problemu: ' + '1. Zwiêksz liczbê godzin w definicji dla okresu lub 2. Usuñ b³êdne rekordy za pomoc¹ formularza Lista Zajêæ lub 3. Przeka¿ opis problemu serwisowi')
      else begin
        global[t][y].isBusy := True;
-       global[t][y].busyCnt := global[t][y].busyCnt + QWork.FieldByName('cnt').AsInteger;
+       global[t][y].busyCnt := global[t][y].busyCnt + fCnt.AsInteger;
        global[t][y].claIds  := merge(global[t][y].claIds,
-           '['+iif(QWork.FieldByName('cntL').AsInteger>0,'W','')+
-           iif(QWork.FieldByName('cntG').AsInteger>0,'G','')+
-           iif(QWork.FieldByName('cntR').AsInteger>0,'S','')+
-           iif(QWork.FieldByName('cntr2').AsInteger>0,'Z','')+'] '+
-           iif(weekSyncOn, FormatDateTime('yyyy-mm-dd', QWork.FieldByName('DAY').AsDateTime)+' ', '')+ // synchronizacja tygodni: w którym dniu
-           QWork.FieldByName('sub_name').AsString+' '+
-           ' ('+QWork.FieldByName('for_name').AsString+' '+
-           ')    '+fprogramsettings.profileObjectNameLs.text+':'+QWork.FieldByName('calc_lecturers').AsString+' '+
-           '    '+fprogramsettings.profileObjectNameGs.text+':'+QWork.FieldByName('calc_groups').AsString+' '+
-           '    Zasoby:'+QWork.FieldByName('calc_rooms').AsString,cr);
+           '['+iif(fCntL.AsInteger>0,'W','')+
+           iif(fCntG.AsInteger>0,'G','')+
+           iif(fCntR.AsInteger>0,'S','')+
+           iif(fCntR2.AsInteger>0,'Z','')+'] '+
+           iif(weekSyncOn, FormatDateTime('yyyy-mm-dd', fDay.AsDateTime)+' ', '')+ // synchronizacja tygodni: w którym dniu
+           fSubName.AsString+' '+
+           ' ('+fForName.AsString+' '+
+           ')    '+nameLs+':'+fLecturers.AsString+' '+
+           '    '+nameGs+':'+fGroups.AsString+' '+
+           '    Zasoby:'+fRooms.AsString,cr);
        global[t][y].bgroups  := merge(global[t][y].bgroups,
-           QWork.FieldByName('calc_groups').AsString,', ');
+           fGroups.AsString,', ');
      end;
 
      QWork.Next;
     End;
+   finally
+     QWork.Close;
+     QWork.CursorLocation := clUseServer;
+   end;
 
     if not fmain.FavOff.Checked then
     begin
@@ -2266,6 +2307,32 @@ Procedure TFMain.BuildCalendar (triggeredObject : String);
 var  colCnt, rowCnt : integer;
      rId : string;
      rName : string;
+
+  // 2026-11: dane potrzebne do narysowania siatki wczytane przed rysowaniem: zajêtoœæ (wolne terminy, preferowane
+  // terminy) i zajêcia bie¿¹cego obiektu. Wczeœniej wczytywa³a je dopiero pierwsza rysowana komórka - siatka stawa³a
+  // po pierwszej kropce zajêtoœci, a potem rysowa³a siê widocznie z góry na dó³. Warunki takie jak w GridDrawCell.
+  procedure preloadGridData;
+  var TS : TTimeStamp;
+      st : integer;
+      cl : TClass_;
+  begin
+    if TabViewType.TabIndex >= 4 then exit;
+    if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
+      if not BusyClassesCache.Valid then BusyClassesCache._LoadPeriod( StrToInt(NVL(conPeriod.text,'-1')) );
+    // zajêcia obiektu: pierwszy dzieñ bufora, pierwsza godzina - wczytuje do pamiêci ca³y okres
+    // (to samo zapytanie co w ccLoadPeriod, tak¿e dla zakresu dat CustomdateRange - pierwszy dzieñ = FirstDay bufora)
+    Dmodule.SingleValue(dmodule.CustomdateRange('SELECT TO_CHAR(DATE_FROM,''YYYY/MM/DD''),TO_CHAR(DATE_TO,''YYYY/MM/DD''), date_to-date_from, DATE_FROM, HOURS_PER_DAY FROM PERIODS WHERE ID='+conPeriod.TEXT));
+    if Dmodule.QWork.Fields[4].AsInteger < 1 then exit;
+    TS.Date := DateTimeToTimeStamp(Dmodule.QWork.Fields[3].AsDateTime).Date;
+    TS.Time := 0;
+    Case TabViewType.TabIndex Of
+      0: ClassByLecturerCaches.LGetClass(TS, 1, ConLecturer.Text, st, cl);
+      1: ClassByGroupCaches.GetClass   (TS, 1, ExtractWord(1, ConGroup.Text,   [';']), st, cl);
+      2: ClassByRoomCaches.GetClass    (TS, 1, ExtractWord(1, conResCat0.Text, [';']), st, cl);
+      3: ClassByResCat1Caches.GetClass (TS, 1, ExtractWord(1, CONResCat1.Text, [';']), st, cl);
+    end;
+  end;
+
 Begin
   if not canShow Then exit;
   if not CanBuildCalendar then exit;
@@ -2306,6 +2373,8 @@ Begin
     End;
     LastValidatedPeriodId := conPeriod.TEXT;
   End;
+
+  preloadGridData;
 
   TabViewType.Tabs[0] := fprogramsettings.profileObjectNameL.text+' '+ExtractWord(1, ConLecturer_value.Text,  [';']);
   TabViewType.Tabs[1] := fprogramsettings.profileObjectNameG.text+' '+ExtractWord(1, ConGroup_value.Text   ,  [';']);
@@ -4139,7 +4208,8 @@ begin
 end;
 
 procedure TClassByChildCache.ccLoadPeriod(PER_ID: Integer; childId: String; _SQL: String; pres_type: string);
-Var t : Integer;
+Var fields : TClassFields; // 2026-11: pola wyniku wyszukane raz przed pêtl¹
+    t : Integer;
     DateFrom, DateTo : String;
     X, Y : Integer;
     L1, L2 : Integer;
@@ -4208,6 +4278,10 @@ begin
       End;
    End;
 
+  // 2026-11: kursor klienta - wszystkie zajêcia okresu jednym transferem (jak przy zajêtoœci w tBusyClassesCache._LoadPeriod)
+  QWork.Close;
+  QWork.CursorLocation := clUseClient;
+  try
   OPENSQL(
    'SELECT CLA.*, '+
    '       SUB.abbreviation SUB_abbreviation,SUB.NAME SUB_NAME,SUB.COLOUR SUB_COLOUR,FRM.COLOUR FOR_COLOUR, OWNER.COLOUR OWNER_COLOUR, CREATOR.COLOUR CREATOR_COLOUR, CLA.COLOUR CLASS_COLOUR, CLA.DESC1, CLA.DESC2, CLA.DESC3, CLA.DESC4,'+
@@ -4220,10 +4294,11 @@ begin
    'WHERE SUB.ID (+)= CLA.SUB_ID AND OWNER.NAME (+)= CLA.OWNER AND CREATOR.NAME (+)= CLA.CREATED_BY AND CLA.FOR_ID = FRM.ID AND '+
    '      CLA.DAY BETWEEN '+DateFrom+' AND '+DateTo+' AND '+
    '      CLA.ID IN ('+_SQL+'('+ExtractWord(1,childId,[';'])+')) ');
+  fields := QWorkClassFields(Dmodule.QWork);
 
   While Not QWork.EOF Do Begin
-   X := DateTimeToTimeStamp(QWork.FieldByName('DAY').AsDateTime).Date;
-   Y := QWork.FieldByName('HOUR').AsInteger;
+   X := DateTimeToTimeStamp(fields.DAY.AsDateTime).Date;
+   Y := fields.HOUR.AsInteger;
 
    t := X-FirstDay;
 
@@ -4237,11 +4312,15 @@ begin
      // fmain.Memo1.Lines.Text := dGeneralDebug;
      // copyToClipboard('@@@@ ERROR4 ' + dGeneralDebug);
      // end;
-     Classes[t][y].Class_ := QWorkToClass(Dmodule.QWork);
+     Classes[t][y].Class_ := FieldsToClass(fields);
    end;
 
    QWork.Next;
   End;
+  finally
+    QWork.Close;
+    QWork.CursorLocation := clUseServer;
+  end;
   End;
 
   dHighData := high(Classes);
@@ -5104,15 +5183,15 @@ begin
   //ConFormChange(nil);
   FCellLayout.refreshLayout;
 
-  fmain.wlog('killSessions: Start');
-  try
-  if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
-     if not silentMode then SError('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
-  except
-    on E:exception  do
-      SError('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
-  End;
-  fmain.wlog('killSessions: Done');
+  //fmain.wlog('killSessions: Start');
+  //try
+  //if dmodule.SingleValue('select planner_utils.killSessions from dual')='Y' then
+  //   if not silentMode then SError('Aby unikn¹æ blokad skasowano z serwera Twoje poprzednie sesje');
+  //except
+  //  on E:exception  do
+  //    SError('Brak zainstalowanego sk³adnika do kasowania poprzednich sesji.'+cr+'Dostawca pomo¿e w rozwi¹zaniu problemu, zadzwoñ pod numer +48 604224658.'+cr+'Problem nie jest krytyczny, mo¿esz kontynuowaæ pracê.');
+  //End;
+  //fmain.wlog('killSessions: Done');
 
   logSession('LOGON');
 
@@ -7340,7 +7419,24 @@ end;
 
 procedure TFMain.GridMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var hdrObj, hdrHour, lastRow : integer;
+    hdrTS  : TTimeStamp;
+    myRect : TGridRect;
 begin
+ // klikniêcie w szar¹ komórkê z dat¹ (nag³ówek dnia, np. "07 X"): zaznacz wszystkie godziny tego dnia (ca³y s³upek)
+ if (Button = mbLeft) and (Shift * [ssShift, ssCtrl] = []) then begin
+   myRect := Grid.Selection;
+   hdrObj := AObjectId;
+   if (myRect.Left = myRect.Right) and (myRect.Top = myRect.Bottom) and (myRect.Left >= Grid.FixedCols)
+      and (convertGrid.ColRowToDate(hdrObj, hdrTS, hdrHour, myRect.Left, myRect.Top) = ConvHeader) then begin
+     lastRow := myRect.Top + convertGrid.convertSingleObject.MaxIloscGodzin;
+     if lastRow > Grid.RowCount - 1 then lastRow := Grid.RowCount - 1;
+     myRect.Top    := myRect.Top + 1;
+     myRect.Bottom := lastRow;
+     if myRect.Top <= myRect.Bottom then Grid.Selection := myRect;
+   end;
+ end;
+
  refreshLegend;
 
  with grid.Selection  Do
@@ -7405,6 +7501,11 @@ procedure TFMain.FormShow(Sender: TObject);
 
 begin
   FProgress.Hide;
+  // przeci¹ganie zajêæ myszk¹: w³asna obs³uga komunikatów siatki (raz, przed pierwszym klikniêciem)
+  if not Assigned(OldGridWndProc) then begin
+    OldGridWndProc  := Grid.WindowProc;
+    Grid.WindowProc := GridWndProc;
+  end;
   dockingPanel := strToInt( getSystemParam('FLegend.dockingPanel', inttostr(C_RIGHT) ));
   x;
   if resizeMode then exit;
@@ -7452,6 +7553,129 @@ begin
    resizeMode := false;
    BCloseApp.Visible := false;
  end;
+end;
+
+// ---- przeci¹ganie zajêæ myszk¹ (drag and drop) -------------------------------------------------------
+// Ponowne klikniêcie komórki, która JU¯ jest zaznaczona, i przeci¹gniêcie przenosi zajêcia ca³ego
+// zaznaczonego obszaru o tyle samo kolumn i wierszy - dok³adnie jak Wytnij + Wklej (modifyClasses clMove:
+// te same kontrole uprawnieñ, konfliktów, w³aœciciela, synchronizacji tygodni). Klikniêcie bez ruchu myszy
+// dzia³a jak dotychczas (komunikaty s¹ odtwarzane siatce), klikniêcie niezaznaczonej komórki - bez zmian.
+
+function TFMain.gridDragCanStart(X, Y : integer; keys : integer) : boolean;
+var c, r, obj, h : integer;
+    ts_ : TTimeStamp;
+begin
+  result := false;
+  if (keys and (MK_SHIFT or MK_CONTROL)) <> 0 then exit;    // Shift/Ctrl - zwyk³e zaznaczanie
+  if TabViewType.TabIndex >= 4 then exit;                    // kalendarz rezerwacji, przedmiot - bez przenoszenia
+  if not (UUtilityParent.CanInsert and UUtilityParent.CanDelete) then exit;   // jak Wytnij (usuwanie) + Wklej (wstawianie)
+  Grid.MouseToCell(X, Y, c, r);
+  if (c < Grid.FixedCols) or (r < Grid.FixedRows) then exit;
+  with Grid.Selection do
+    if (c < Left) or (c > Right) or (r < Top) or (r > Bottom) then exit;   // tylko ju¿ zaznaczona komórka
+  obj := AObjectId;
+  if convertGrid.ColRowToDate(obj, ts_, h, c, r) <> ConvClass then exit;   // komórka godziny (nie nag³ówek)
+  result := true;
+end;
+
+procedure TFMain.GridWndProc(var Message: Messages.TMessage);
+var pt : TPoint;
+begin
+  case Message.Msg of
+    WM_LBUTTONDOWN:
+      if (not gridDragPending) and
+         gridDragCanStart(SmallInt(LoWord(Message.LParam)), SmallInt(HiWord(Message.LParam)), Message.WParam) then begin
+        gridDragPending := true;
+        gridDragActive  := false;
+        gridDragDownMsg := Message;
+        gridDragStartPt := Point(SmallInt(LoWord(Message.LParam)), SmallInt(HiWord(Message.LParam)));
+        gridDragRect    := Grid.Selection;
+        Grid.MouseToCell(gridDragStartPt.X, gridDragStartPt.Y, gridDragCol, gridDragRow);
+        FToolWindow.Hide;
+        if Grid.CanFocus and (not Grid.Focused) then Grid.SetFocus;
+        SetCapture(Grid.Handle);
+        exit;
+      end;
+    WM_MOUSEMOVE:
+      if gridDragPending then begin
+        pt := Point(SmallInt(LoWord(Message.LParam)), SmallInt(HiWord(Message.LParam)));
+        if (not gridDragActive) and ((abs(pt.X - gridDragStartPt.X) > 4) or (abs(pt.Y - gridDragStartPt.Y) > 4)) then begin
+          gridDragActive := true;
+          Screen.Cursor  := crDrag;
+        end;
+        if gridDragActive then gridDragPreview(pt.X, pt.Y);
+        exit;
+      end;
+    WM_LBUTTONUP:
+      if gridDragPending then begin
+        pt := Point(SmallInt(LoWord(Message.LParam)), SmallInt(HiWord(Message.LParam)));
+        gridDragPending := false;
+        ReleaseCapture;
+        Screen.Cursor := crDefault;
+        if gridDragActive then begin
+          gridDragActive := false;
+          gridDragFinish(pt.X, pt.Y);
+        end else begin
+          // zwyk³e klikniêcie bez ruchu myszy: odtwórz je - siatka zachowuje siê jak dotychczas
+          OldGridWndProc(gridDragDownMsg);
+          OldGridWndProc(Message);
+        end;
+        exit;
+      end;
+    WM_KEYDOWN:
+      if gridDragPending and (Message.WParam = VK_ESCAPE) then begin
+        gridDragCancel;
+        exit;
+      end;
+    WM_CANCELMODE, WM_CAPTURECHANGED:
+      if gridDragPending then gridDragCancel;
+  end;
+  OldGridWndProc(Message);
+end;
+
+// podgl¹d: zaznaczenie przesuniête w miejsce upuszczenia; przy krawêdzi siatka siê przewija
+procedure TFMain.gridDragPreview(X, Y : integer);
+var c, r, dx, dy : integer;
+    myRect : TGridRect;
+begin
+  if (X > Grid.ClientWidth - 12) and (Grid.LeftCol + Grid.VisibleColCount < Grid.ColCount) then Grid.LeftCol := Grid.LeftCol + 1;
+  if (Y > Grid.ClientHeight - 12) and (Grid.TopRow + Grid.VisibleRowCount < Grid.RowCount) then Grid.TopRow := Grid.TopRow + 1;
+  Grid.MouseToCell(X, Y, c, r);
+  if (c >= 0) and (c < Grid.FixedCols) and (Grid.LeftCol > Grid.FixedCols) then Grid.LeftCol := Grid.LeftCol - 1;
+  if (r >= 0) and (r < Grid.FixedRows) and (Grid.TopRow > Grid.FixedRows) then Grid.TopRow := Grid.TopRow - 1;
+  if (c < Grid.FixedCols) or (r < Grid.FixedRows) then exit;
+  dx := c - gridDragCol;
+  dy := r - gridDragRow;
+  myRect.Left   := gridDragRect.Left   + dx;
+  myRect.Right  := gridDragRect.Right  + dx;
+  myRect.Top    := gridDragRect.Top    + dy;
+  myRect.Bottom := gridDragRect.Bottom + dy;
+  if (myRect.Left < Grid.FixedCols) or (myRect.Top < Grid.FixedRows) or
+     (myRect.Right > Grid.ColCount - 1) or (myRect.Bottom > Grid.RowCount - 1) then exit;
+  Grid.Selection := myRect;
+end;
+
+// upuszczenie: jak pasteArea po cutArea - przeniesienie zajêæ przeci¹ganego obszaru o (dx, dy)
+procedure TFMain.gridDragFinish(X, Y : integer);
+var c, r, dx, dy : integer;
+begin
+  Grid.MouseToCell(X, Y, c, r);
+  Grid.Selection := gridDragRect;   // modifyClasses przenosi zajêcia z bie¿¹cego zaznaczenia
+  if (c < Grid.FixedCols) or (r < Grid.FixedRows) then exit;   // upuszczono poza siatk¹ - bez zmian
+  dx := c - gridDragCol;
+  dy := r - gridDragRow;
+  if (dx = 0) and (dy = 0) then exit;
+  modifyClasses(dx, dy, clMove, '', '');
+  refreshGridAndLegend;
+end;
+
+procedure TFMain.gridDragCancel;
+begin
+  gridDragPending := false;
+  gridDragActive  := false;
+  if GetCapture = Grid.Handle then ReleaseCapture;
+  Screen.Cursor  := crDefault;
+  Grid.Selection := gridDragRect;
 end;
 
 procedure TFMain.GridMouseDown(Sender: TObject; Button: TMouseButton;

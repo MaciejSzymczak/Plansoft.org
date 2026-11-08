@@ -137,6 +137,46 @@ const ENTITIES = {
     columns: ['NAME', 'DATE_FROM', 'DATE_TO', 'HOURS_PER_DAY', 'SHOW_MON', 'SHOW_TUE', 'SHOW_WED', 'SHOW_THU', 'SHOW_FRI', 'SHOW_SAT', 'SHOW_SUN',
       'CREATED_BY', 'LOCKED_FLAG', 'ROL_ID', 'ID', 'INTEGRATION_ID', 'ORG_NAME'],
   },
+  // siatka godzinowa (FBrowseGRIDS): wspólna dla wszystkich planistów - bez tabeli uprawnień XXX_PLA
+  GRID: {
+    table: 'grids', title: 'Siatka godzinowa', one: 'godzina siatki', pla: null, orgCol: null, noHierarchy: true,
+    search: `grids.caption||'#'||grids.no||'#'||grids.hour_from||grids.hour_to`,
+    order: { default: 'grids.no' },
+    fields: [
+      { name: 'NO', label: 'Nr', type: 'number', required: true },
+      { name: 'CAPTION', label: 'Etykieta', required: true },
+      { name: 'HOUR_FROM', label: 'Godz. od', required: true, hint: 'gg:mm, np. 08:00' },
+      { name: 'HOUR_TO', label: 'Godz. do', required: true, hint: 'gg:mm, np. 08:45' },
+      { name: 'DURATION', label: 'Trwanie', type: 'number', required: true, default: 1 },
+    ],
+    columns: ['NO', 'CAPTION', 'HOUR_FROM', 'HOUR_TO', 'DURATION', 'ID', 'CREATED_BY', 'CREATION_DATE', 'LAST_UPDATE_DATE', 'LAST_UPDATED_BY'],
+    // CheckRecord: godziny w formacie gg:mm, numer od 1 do maxHours (DM.pas: 60)
+    validate: v => {
+      const errors = [];
+      for (const [c, label] of [['HOUR_FROM', 'Godz. od'], ['HOUR_TO', 'Godz. do']]) {
+        const x = v(c);
+        if (x && !(/^\d{2}:\d{2}$/.test(x) && +x.slice(0, 2) < 24 && +x.slice(3) < 60)) errors.push(`${label}: wartość "${x}" nie jest godziną w formacie gg:mm, np. 12:30`);
+      }
+      const no = v('NO');
+      if (no !== null && no !== undefined && (no < 1 || no > 60)) errors.push('Nr musi się zawierać pomiędzy 1 a 60');
+      return errors;
+    },
+  },
+};
+
+// typowe siatki (FBrowseGRIDS, menu "Utwórz typową siatkę" -> dmodule.generateGrid): [etykieta, od, do]
+const range = n => Array.from({ length: n }, (_, i) => i);
+const hh = h => String(h).padStart(2, '0');
+const q15 = range(60).map(i => { const m = 7 * 60 + i * 15; return `${hh(Math.floor(m / 60))}.${hh(m % 60)}`; });
+const GRID_PRESETS = {
+  q15: { label: 'Co 15 min, 7.00 - 21.45', rows: q15.map((c, i) => [c, c, i < 59 ? q15[i + 1] : '22.00']) },
+  h1234: { label: '1, 2, 3, 4 ... (co 60 min)', rows: range(40).map(i => [String(i + 1), i < 16 ? `${hh(7 + i)}:00` : '', i < 16 ? `${hh(7 + i)}:59` : '']) },
+  h12_34: { label: '1-2, 3-4, 5-6 ...', rows: range(17).map(i => [`${2 * i + 1}-${2 * i + 2}`, '', '']) },
+  h7_17: {
+    label: '7.00, 8.00, 9.00 ... (co 60 min)',
+    rows: range(40).map(i => [i < 17 ? `${7 + i}.00` : i === 17 ? '0.00' : String(i + 1), i < 16 ? `${hh(7 + i)}:00` : '', i < 16 ? `${hh(7 + i)}:59` : '']),
+  },
+  previous: { label: 'Importuj poprzednie ustawienia' },
 };
 
 // słowniki pól typu lookup: zapytanie listy (%Q = warunek wyszukiwania) albo stała lista wartości
@@ -153,6 +193,7 @@ const HIERARCHY_KINDS = [['STREAM', 'Potok'], ['ORG', 'Struktura organizacyjna']
 
 const COMMON_LABELS = {
   ID: 'Id', ORG_NAME: 'Nazwa jedn. org.', ORG_CODE: 'Kod struktury jedn. org.', CREATED_BY: 'Utworzone przez', CREATION_DATE: 'Data utworzenia',
+  LAST_UPDATE_DATE: 'Zmieniono', LAST_UPDATED_BY: 'Zmienił',
 };
 
 // --- pomocnicze ----------------------------------------------------------------------------
@@ -218,12 +259,13 @@ function selectList(e) {
   return [
     ...[...cols].map(c => {
       if (c === 'CREATION_DATE') return `to_char(${t}.creation_date, 'YYYY-MM-DD HH24:MI') creation_date`;
+      if (c === 'LAST_UPDATE_DATE') return `to_char(${t}.last_update_date, 'YYYY-MM-DD HH24:MI') last_update_date`;
       if (fieldOf(e, c).type === 'date') return `to_char(${t}.${c.toLowerCase()}, 'YYYY-MM-DD') ${c}`;
       return `${t}.${c.toLowerCase()}`;
     }),
     orgCol(e) ? 'org_units.name org_name, org_units.struct_code org_code' : 'null org_name, null org_code',
     ...Object.entries(e.extra || {}).map(([k, x]) => `${x.expr} ${k}`),
-    `(select nvl(max(access_type), 'E') from ${e.pla} x where x.${e.plaCol} = ${t}.id and x.pla_id = :pla) access_type`,
+    e.pla ? `(select nvl(max(access_type), 'E') from ${e.pla} x where x.${e.plaCol} = ${t}.id and x.pla_id = :pla) access_type` : `'E' access_type`,
     ...e.fields.filter(f => f.type === 'lookup' && f.lookup !== 'ORG').map(f => lookupExpr(t, f)),
   ].join(', ');
 }
@@ -255,9 +297,9 @@ function rowOut(e, r) {
 }
 
 async function list(s, e, url) {
-  const binds = { pla: plaId(s) };
+  const binds = e.pla ? { pla: plaId(s) } : {};
   const where = [
-    `${e.table}.id in (select ${e.plaCol} from ${e.pla} where pla_id = :pla)`,
+    e.pla ? `${e.table}.id in (select ${e.plaCol} from ${e.pla} where pla_id = :pla)` : '0=0',
     searchFilter(e.search, url.searchParams.get('q'), binds),
   ];
   const org = Number(url.searchParams.get('org'));
@@ -290,8 +332,8 @@ async function list(s, e, url) {
 async function getRecord(s, e, id, conn) {
   const sql = `select ${selectList(e)} from ${fromClause(e)}
      where ${joinClause(e)} and ${e.table}.id = :id
-       and ${e.table}.id in (select ${e.plaCol} from ${e.pla} where pla_id = :pla)`;
-  const binds = { id, pla: plaId(s) };
+       and ${e.pla ? `${e.table}.id in (select ${e.plaCol} from ${e.pla} where pla_id = :pla)` : '0=0'}`;
+  const binds = e.pla ? { id, pla: plaId(s) } : { id };
   const rows = conn ? (await conn.execute(sql, binds)).rows : await db.query(s.pool, sql, binds);
   if (!rows.length) throw httpError(404, 'Nie znaleziono rekordu lub brak uprawnień.');
   return rowOut(e, rows[0]);
@@ -342,6 +384,10 @@ async function checkWrite(s, e, binds, cur) {
   if (fieldOf(e, 'DATE_FROM').type === 'date' && val('DATE_FROM') && val('DATE_TO') && val('DATE_FROM') > val('DATE_TO')) {
     throw httpError(400, '„Data od” nie może być późniejsza niż „Data do”.');
   }
+  if (e.validate) {
+    const errors = e.validate(val);
+    if (errors.length) throw httpError(400, errors.join('\n'));
+  }
 }
 
 async function insert(s, e, values) {
@@ -359,7 +405,7 @@ async function insert(s, e, values) {
       `insert into ${e.table} (id, ${cols.join(', ')}, creation_date, created_by, last_update_date, last_updated_by)
        values (:id, ${cols.map(c => bindExpr(e, c)).join(', ')}, sysdate, user, sysdate, user)`, { id, ...binds });
     // dostęp do nowego rekordu: planista i jego role (jak FSharing.init('I', ...) w Delphi)
-    const owners = [s.plannerId, ...s.roles.map(r => r.id)];
+    const owners = e.pla ? [s.plannerId, ...s.roles.map(r => r.id)] : [];
     for (const p of owners) {
       await conn.execute(
         `insert into ${e.pla} (id, pla_id, ${e.plaCol}, access_type, creation_date, created_by, last_update_date, last_updated_by)
@@ -460,6 +506,33 @@ async function removeHierarchy(s, e, id, strId) {
   });
 }
 
+// --- typowa siatka godzinowa: usuwa wszystkie godziny i wstawia nowe (dmodule.generateGrid) -----------
+async function generateGrid(s, body) {
+  const flags = await plannerFlags(s);
+  if (flags.integrated) throw httpError(403, 'Zmiana jest wyłączona, ponieważ dane są zasilane z innego systemu (integracja).');
+  const preset = GRID_PRESETS[body.preset];
+  if (!preset) throw httpError(400, 'Nieznany rodzaj siatki.');
+  let rows = preset.rows;
+  if (!rows) {
+    // importPreviousGridSettings: parametry systemowe LESSON_NO1..9, LESSON_N10..60, LESSON_HFROMn, LESSON_HTOn
+    rows = [];
+    for (const i of range(60)) {
+      rows.push(await Promise.all([i < 9 ? `LESSON_NO${i + 1}` : `LESSON_N${i + 1}`, `LESSON_HFROM${i + 1}`, `LESSON_HTO${i + 1}`]
+        .map(n => systemParam(s, n, ''))));
+    }
+  }
+  await db.transaction(s.pool, async conn => {
+    await conn.execute('delete from grids');
+    for (const [i, [caption, from, to]] of rows.entries()) {
+      await conn.execute(`
+        insert into grids (id, no, caption, hour_from, hour_to, duration, creation_date, created_by, last_update_date, last_updated_by)
+        values (main_seq.nextval, :no, :caption, :hf, :ht, 1, sysdate, user, sysdate, user)`,
+      { no: i + 1, caption: caption || null, hf: from || null, ht: to || null });
+    }
+  });
+  return { count: rows.length };
+}
+
 // --- opis okna dla przeglądarki ------------------------------------------------------------
 
 async function meta(s, e, type) {
@@ -474,6 +547,7 @@ async function meta(s, e, type) {
     filter: e.filter ? { name: e.filter.name, label: e.filter.label, lookup: e.filter.lookup } : null,
     toggle: e.toggle ? { label: e.toggle.label } : null,
     hasOrg: !!orgCol(e), admin: flags.admin,
+    presets: e.table === 'grids' ? Object.entries(GRID_PRESETS).map(([code, p]) => ({ code, label: p.label })) : null,
     fields: e.fields.map(f => ({ ...f, type: f.type || 'text', max: lengths[f.name] || null })),
     columns: e.columns.map(c => ({ name: c, label: fieldLabel(c), type: (e.fields.find(f => f.name === c) || {}).type || 'text' })),
   };
@@ -492,15 +566,16 @@ async function lookup(s, name, url) {
 // --- routing /api/browse/... ---------------------------------------------------------------
 
 async function handle(req, res, s, url, readJson, send) {
-  const m = url.pathname.match(/^\/api\/(?:browse\/(L|G|S|SUB|FOR|PER)(?:\/(meta|\d+)(?:\/(hierarchy)(?:\/(\d+))?)?)?|lookup\/([A-Z_]+))$/);
+  const m = url.pathname.match(/^\/api\/(?:browse\/(L|G|S|SUB|FOR|PER|GRID)(?:\/(meta|generate|\d+)(?:\/(hierarchy)(?:\/(\d+))?)?)?|lookup\/([A-Z_]+))$/);
   if (!m) return false;
   const [, type, idOrMeta, sub, strId, lookupName] = m;
   try {
     if (lookupName) return send(res, 200, await lookup(s, lookupName, url)), true;
     const e = ENTITIES[type];
-    const id = idOrMeta && idOrMeta !== 'meta' ? Number(idOrMeta) : null;
+    const id = idOrMeta && /^\d+$/.test(idOrMeta) ? Number(idOrMeta) : null;
     const M = req.method;
     if (idOrMeta === 'meta' && M === 'GET') send(res, 200, await meta(s, e, type));
+    else if (idOrMeta === 'generate' && type === 'GRID' && M === 'POST') send(res, 200, await generateGrid(s, await readJson(req)));
     else if (!idOrMeta && M === 'GET') send(res, 200, await list(s, e, url));
     else if (!idOrMeta && M === 'POST') send(res, 200, await insert(s, e, (await readJson(req)).values));
     else if (id && !sub && M === 'GET') send(res, 200, await getRecord(s, e, id));

@@ -23,7 +23,13 @@ function el(tag, cls, text) {
 const dateLabel = d => { const t = fromDays(d); return String(t.getUTCDate()).padStart(2, '0') + ' ' + ROMAN[t.getUTCMonth()]; };
 const dateIso = d => fromDays(d).toISOString().slice(0, 10);
 
-export function renderSemesterGrid(container, period) {
+// klucz komórki: data|godzina|obiekt (obiekt pusty, gdy wszystkie wybrane obiekty są na jednym arkuszu)
+export const cellKey = (date, hour, obj) => `${date}|${hour}|${obj || ''}`;
+
+// opts.blocks: [{id, name}] - osobny arkusz dla każdego obiektu (opcja "Wiele obiektów" w oknie "Zajęcie"),
+// opts.orientation: 'vertical' (arkusze jeden pod drugim) | 'horizontal' (obok siebie); bez blocks - jeden arkusz
+// opts.week: poniedziałek (YYYY-MM-DD) - układ tygodniowy: jeden tydzień, w kolumnach obiekty (blocks)
+export function renderSemesterGrid(container, period, opts = {}) {
   container.innerHTML = '';
   const from = toDays(period.dateFrom);
   const to = toDays(period.dateTo);
@@ -32,6 +38,9 @@ export function renderSemesterGrid(container, period) {
 
   const weeks = [];
   for (let m = mondayOf(from); m <= to; m += 7) weeks.push(m);
+  const weekView = !!opts.week;
+  const weekNo = weekView ? weeks.indexOf(toDays(opts.week)) + 1 : 0;
+  if (weekView) weeks.splice(0, weeks.length, toDays(opts.week));
 
   const hours = [];
   for (let h = 1; h <= (period.hoursPerDay || 0); h++) {
@@ -39,74 +48,133 @@ export function renderSemesterGrid(container, period) {
     hours.push({ no: h, label: g && g.caption ? g.caption : String(h), title: g && g.from ? `${g.from}–${g.to}` : '' });
   }
 
+  const blocks = opts.blocks && opts.blocks.length ? opts.blocks : [null];
+  const split = blocks[0] !== null;
+  const horizontal = split && (weekView || opts.orientation === 'horizontal');
+  const colBlocks = horizontal ? blocks : [blocks[0]];   // arkusze obok siebie (kolumny)
+  const rowBlocks = horizontal ? [null] : blocks;        // arkusze jeden pod drugim (wiersze)
+  const cols = colBlocks.length * weeks.length;
+  const objId = b => (b ? String(b.id) : '');
+
   const today = todayDays();
-  const table = el('table', 'semester');
+  const table = el('table', 'semester' + (split ? ' split' : '') + (weekView ? ' week-view' : ''));
   const colgroup = el('colgroup');
   colgroup.append(el('col', 'c-day'), el('col', 'c-hour'));
-  weeks.forEach(() => colgroup.append(el('col', 'c-week')));
+  for (let c = 0; c < cols; c++) colgroup.append(el('col', 'c-week'));
   table.append(colgroup);
+  const blockStart = c => (c > 0 && c % weeks.length === 0 ? ' blk-start' : '');
 
-  // wiersz tygodni (numer tygodnia okresu) - ułatwia orientację przy przewijaniu
   const thead = el('thead');
+  // arkusze obok siebie: nad tygodniami nazwa obiektu
+  if (horizontal) {
+    const or = el('tr', 'objs');
+    or.append(el('th', 'corner', ''), el('th', 'corner', ''));
+    colBlocks.forEach((b, i) => {
+      const th = el('th', 'obj-col' + blockStart(i * weeks.length));
+      th.append(el('span', '', b.name));
+      th.colSpan = weeks.length;
+      th.title = weekView ? `${b.name} - kliknij, aby wrócić do układu semestralnego (rozkład tego obiektu)` : `${b.name} - kliknij, aby zaznaczyć cały arkusz`;
+      Object.assign(th.dataset, { c0: i * weeks.length, c1: (i + 1) * weeks.length - 1, obj: b.id });
+      or.append(th);
+    });
+    thead.append(or);
+  }
+  // wiersz tygodni (numer tygodnia okresu) - ułatwia orientację przy przewijaniu
   const wr = el('tr', 'weeks');
   wr.append(el('th', 'corner', ''), el('th', 'corner', ''));
-  weeks.forEach((m, i) => { const th = el('th', 'week', `tydz. ${i + 1}`); th.title = `${dateIso(m)} – ${dateIso(m + 6)}`; wr.append(th); });
+  colBlocks.forEach((b, bi) => weeks.forEach((m, i) => {
+    const c = bi * weeks.length + i;
+    const th = el('th', 'week' + blockStart(c), `tydz. ${weekView ? weekNo : i + 1}`);
+    th.title = `${b ? b.name + ': ' : ''}${dateIso(m)} – ${dateIso(m + 6)} - ` +
+      (weekView ? 'kliknij, aby wrócić do układu semestralnego' : 'kliknij, aby pokazać układ tygodniowy (w kolumnach obiekty)');
+    Object.assign(th.dataset, { col: c, monday: dateIso(m) });
+    if (b) th.dataset.obj = b.id;
+    wr.append(th);
+  }));
   thead.append(wr);
   table.append(thead);
 
   const tbody = el('tbody');
   const matrix = [];   // wiersze godzin (wszystkie dni po kolei) x tygodnie -> komórki
-  for (const wd of days) {
-    const first = matrix.length, last = first + hours.length - 1;
-    // wiersz z datami
-    const hr = el('tr', 'day-head');
-    const dn = el('th', 'day-name', DAY_NAMES[wd]);
-    dn.title = `${DAY_LONG[wd]} - kliknij, aby zaznaczyć cały dzień`;
-    dn.rowSpan = hours.length + 1;
-    Object.assign(dn.dataset, { r0: first, r1: last });
-    hr.append(dn, el('th', 'hour-no', ''));
-    weeks.forEach((m, c) => {
-      const d = m + wd;
-      const inside = d >= from && d <= to;
-      const th = el('th', 'date' + (inside ? '' : ' outside') + (d === today ? ' today' : ''), inside ? dateLabel(d) : '');
-      if (inside) th.title = `${DAY_LONG[wd]} ${dateIso(d)}`;
-      Object.assign(th.dataset, { r0: first, r1: last, col: c });
-      hr.append(th);
-    });
-    tbody.append(hr);
-
-    // wiersze godzin
-    for (const h of hours) {
-      const r = matrix.length;
-      const tr = el('tr', 'hour');
-      const hn = el('th', 'hour-no', h.label);
-      hn.title = (h.title ? h.title + ' - ' : '') + 'kliknij, aby zaznaczyć wiersz';
-      hn.dataset.row = r;
-      tr.append(hn);
-      const row = [];
-      weeks.forEach((m, c) => {
-        const d = m + wd;
-        const inside = d >= from && d <= to;
-        const td = el('td', inside ? 'cell' : 'cell outside');
-        Object.assign(td.dataset, { row: r, col: c });
-        if (inside) { td.dataset.date = dateIso(d); td.dataset.hour = h.no; }
-        tr.append(td);
-        row.push(td);
-      });
-      matrix.push(row);
+  for (const rb of rowBlocks) {
+    // arkusze jeden pod drugim: wiersz z nazwą obiektu
+    let objHead = null;
+    if (rb) {
+      const tr = el('tr', 'obj-head');
+      objHead = el('th', 'obj-name');
+      objHead.append(el('span', '', rb.name));
+      objHead.colSpan = cols + 2;
+      objHead.title = `${rb.name} - kliknij, aby zaznaczyć cały arkusz`;
+      Object.assign(objHead.dataset, { r0: matrix.length });
+      tr.append(objHead);
       tbody.append(tr);
     }
+    for (const wd of days) {
+      const first = matrix.length, last = first + hours.length - 1;
+      // wiersz z datami
+      const hr = el('tr', 'day-head');
+      const dn = el('th', 'day-name', DAY_NAMES[wd]);
+      dn.title = `${DAY_LONG[wd]} - kliknij, aby zaznaczyć cały dzień`;
+      dn.rowSpan = hours.length + 1;
+      Object.assign(dn.dataset, { r0: first, r1: last });
+      hr.append(dn, el('th', 'hour-no', ''));
+      colBlocks.forEach((cb, bi) => weeks.forEach((m, i) => {
+        const c = bi * weeks.length + i;
+        const d = m + wd;
+        const inside = d >= from && d <= to;
+        const th = el('th', 'date' + (inside ? '' : ' outside') + (d === today ? ' today' : '') + blockStart(c), inside ? dateLabel(d) : '');
+        if (inside) th.title = `${DAY_LONG[wd]} ${dateIso(d)}`;
+        Object.assign(th.dataset, { r0: first, r1: last, col: c });
+        hr.append(th);
+      }));
+      tbody.append(hr);
+
+      // wiersze godzin
+      for (const h of hours) {
+        const r = matrix.length;
+        const tr = el('tr', 'hour');
+        const hn = el('th', 'hour-no', h.label);
+        hn.title = (h.title ? h.title + ' - ' : '') + 'kliknij, aby zaznaczyć wiersz';
+        hn.dataset.row = r;
+        tr.append(hn);
+        const row = [];
+        colBlocks.forEach((cb, bi) => weeks.forEach((m, i) => {
+          const c = bi * weeks.length + i;
+          const d = m + wd;
+          const inside = d >= from && d <= to;
+          const td = el('td', (inside ? 'cell' : 'cell outside') + blockStart(c));
+          Object.assign(td.dataset, { row: r, col: c, obj: objId(rb || cb) });
+          if (inside) { td.dataset.date = dateIso(d); td.dataset.hour = h.no; }
+          tr.append(td);
+          row.push(td);
+        }));
+        matrix.push(row);
+        tbody.append(tr);
+      }
+    }
+    if (objHead) objHead.dataset.r1 = matrix.length - 1;
   }
   table.append(tbody);
-  thead.querySelectorAll('th.week').forEach((th, c) => { th.dataset.col = c; th.title += ' - kliknij, aby zaznaczyć kolumnę'; });
 
-  // komórki wg daty i godziny - do wypełniania zajęciami
+  // komórki wg daty, godziny i obiektu - do wypełniania zajęciami
   container.cells = new Map();
-  table.querySelectorAll('td.cell[data-date]').forEach(td => container.cells.set(td.dataset.date + '|' + td.dataset.hour, td));
+  container.blockIds = blocks.map(objId);
+  container.blockType = opts.type;
+  container.weekView = weekView;
+  table.querySelectorAll('td.cell[data-date]').forEach(td => container.cells.set(cellKey(td.dataset.date, td.dataset.hour, td.dataset.obj), td));
 
-  enableSelection(container, table, matrix, weeks.length);
+  enableSelection(container, table, matrix, cols);
   container.append(table);
+  // dwa wiersze nagłówka: wiersz tygodni przyklejony pod wierszem z nazwami obiektów
+  if (horizontal) {
+    const h = thead.querySelector('tr.objs').getBoundingClientRect().height;
+    wr.querySelectorAll('th').forEach(th => { th.style.top = h + 'px'; });
+  }
 }
+
+// komórki danego dnia i godziny we wszystkich arkuszach (lub w arkuszu obiektu obj)
+const cellsAt = (container, date, hour, obj) =>
+  (obj !== undefined ? [obj] : container.blockIds || ['']).map(o => container.cells.get(cellKey(date, hour, o))).filter(Boolean);
 
 // zaznaczanie jak w siatce Delphi: prostokąt myszą, nagłówek tygodnia = kolumna, godzina = wiersz,
 // nazwa dnia = wszystkie godziny dnia, data = godziny dnia w tym tygodniu; Shift rozszerza, Ctrl dodaje
@@ -135,6 +203,8 @@ function enableSelection(container, table, matrix, cols) {
     if (t.matches('tr.hour th.hour-no')) return { r0: +d.row, r1: +d.row, c0: 0, c1: cols - 1 };
     if (t.matches('th.day-name')) return { r0: +d.r0, r1: +d.r1, c0: 0, c1: cols - 1 };
     if (t.matches('th.date')) return { r0: +d.r0, r1: +d.r1, c0: +d.col, c1: +d.col };
+    if (t.matches('th.obj-name')) return { r0: +d.r0, r1: +d.r1, c0: 0, c1: cols - 1 };   // cały arkusz obiektu
+    if (t.matches('th.obj-col')) return { r0: 0, r1: rows - 1, c0: +d.c0, c1: +d.c1 };
     return null;
   };
 
@@ -152,15 +222,17 @@ function enableSelection(container, table, matrix, cols) {
     const targets = sources.map(x => {
       const r = x.r + dr, c = x.c + dc;
       const td = r >= 0 && r < rows && c >= 0 && c < cols ? matrix[r][c] : null;
-      return { src: x.td, td, ok: !!(td && td.dataset.date) };
+      // osobne arkusze obiektów: zajęcia zostają w arkuszu swojego obiektu (przesuwa się tylko termin)
+      return { src: x.td, td, ok: !!(td && td.dataset.date && td.dataset.obj === x.td.dataset.obj) };
     });
+    const seen = new Set();   // zajęcie kilku wybranych obiektów jest w kilku arkuszach - przesuwane raz
     return {
       targets,
       valid: targets.length > 0 && targets.every(t => t.ok),
       moves: targets.filter(t => t.ok).flatMap(t => t.src.dataset.cla.split(',').map(id => ({
         id: Number(id), from: { date: t.src.dataset.date, hour: Number(t.src.dataset.hour) },
         date: t.td.dataset.date, hour: Number(t.td.dataset.hour),
-      }))),
+      }))).filter(m => !seen.has(m.id) && seen.add(m.id)),
       // zaznaczenie po przesunięciu: ten sam obszar w nowym miejscu (moveSelection w Delphi)
       newSelection: keys.map(k => { const { r, c } = cellOf(k); return (r + dr) + ',' + (c + dc); }),
     };
@@ -175,7 +247,14 @@ function enableSelection(container, table, matrix, cols) {
 
   table.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
-    const t = e.target.closest('td.cell, th.week, tr.hour th.hour-no, th.day-name, th.date');
+    // numer tygodnia: układ tygodniowy; w układzie tygodniowym numer tygodnia lub obiekt - powrót do semestru
+    const wk = e.target.closest(container.weekView ? 'th.week, th.obj-col' : 'th.week');
+    if (wk) {
+      e.preventDefault();
+      container.dispatchEvent(new CustomEvent('gridweek', { detail: { monday: wk.dataset.monday, obj: wk.dataset.obj } }));
+      return;
+    }
+    const t = e.target.closest('td.cell, th.week, tr.hour th.hour-no, th.day-name, th.date, th.obj-name, th.obj-col');
     const area = t && areaOf(t);
     if (!area) return;
     e.preventDefault();
@@ -201,7 +280,7 @@ function enableSelection(container, table, matrix, cols) {
       return;
     }
     if (!drag) return;
-    const t = e.target.closest('td.cell, th.week, tr.hour th.hour-no, th.day-name, th.date');
+    const t = e.target.closest('td.cell, th.week, tr.hour th.hour-no, th.day-name, th.date, th.obj-name, th.obj-col');
     const area = t && areaOf(t);
     if (!area) return;
     selected = new Set([...base, ...rect(anchor, area)]);
@@ -234,6 +313,15 @@ function enableSelection(container, table, matrix, cols) {
     container.dispatchEvent(new CustomEvent('gridcontext', { detail: { x: e.clientX, y: e.clientY, cell: td } }));
   });
 
+  // podwójne kliknięcie komórki: okno dodawania zajęcia (jak GridDblClick w Delphi)
+  table.addEventListener('dblclick', e => {
+    const td = e.target.closest('td.cell');
+    if (!td || !td.dataset.date) return;
+    const key = td.dataset.row + ',' + td.dataset.col;
+    if (!selected.has(key)) { selected = new Set([key]); anchor = areaOf(td); paint(); notify(); }
+    container.dispatchEvent(new CustomEvent('griddblclick', { detail: { cell: td } }));
+  });
+
   container.setSelectionKeys = keys => {
     selected = new Set(keys.filter(k => { const { r, c } = cellOf(k); return r >= 0 && r < rows && c >= 0 && c < cols; }));
     paint(); notify();
@@ -251,12 +339,13 @@ function enableSelection(container, table, matrix, cols) {
     (keys || []).forEach(k => { const { td } = cellOf(k); if (td) td.classList.add(mode === 'cut' ? 'clip-cut' : 'clip-copy'); });
   };
 
-  // zaznaczone dni i godziny (bez komórek spoza okresu), posortowane
-  container.getSelection = () => [...selected]
-    .map(k => { const [r, c] = k.split(',').map(Number); return matrix[r][c]; })
-    .filter(td => td.dataset.date)
-    .map(td => ({ date: td.dataset.date, hour: Number(td.dataset.hour) }))
+  // zaznaczone dni i godziny (bez komórek spoza okresu), posortowane; ten sam termin w kilku arkuszach - raz
+  const selectedTds = () => [...selected].map(k => { const [r, c] = k.split(',').map(Number); return matrix[r][c]; }).filter(td => td.dataset.date);
+  container.getSelection = () => [...new Map(selectedTds().map(td => [td.dataset.date + '|' + td.dataset.hour,
+    { date: td.dataset.date, hour: Number(td.dataset.hour) }])).values()]
     .sort((a, b) => (a.date === b.date ? a.hour - b.hour : a.date < b.date ? -1 : 1));
+  // obiekty (arkusze), w których jest zaznaczenie; pusta lista - wszystkie obiekty na jednym arkuszu
+  container.getSelectionObjects = () => [...new Set(selectedTds().map(td => td.dataset.obj).filter(Boolean))];
   container.clearSelection = () => { selected = new Set(); anchor = null; paint(); notify(); };
   notify();   // nowa siatka (np. inny okres) - bez zaznaczenia
 }
@@ -280,7 +369,12 @@ const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDa
 function applySizes(table, layout) {
   const lineH = Math.round(layout.fontSize * 1.35);
   const lines = Math.max(1, layout.lines.reduce((n, code, i) => (code !== 'NONE' ? i + 1 : n), 0));
-  const width = layout.forceWidth ? layout.width : 78;
+  let width = layout.forceWidth ? layout.width : 78;
+  // układ tygodniowy (jak ConvWeekObjects w Delphi): kolumny obiektów dzielą szerokość okna, co najmniej 120 px
+  if (table.classList.contains('week-view') && !layout.forceWidth) {
+    const n = table.querySelectorAll('col.c-week').length || 1;
+    width = Math.max(120, Math.floor((table.parentElement.clientWidth - 106) / n));
+  }
   table.style.setProperty('--cw', width + 'px');
   table.style.setProperty('--ch', (layout.forceHeight ? layout.height : Math.max(22, lines * lineH + 2)) + 'px');
   table.style.setProperty('--cf', layout.fontSize + 'px');
@@ -298,11 +392,17 @@ export function fillClasses(container, data, layout, helpers) {
       td.textContent = ''; td.removeAttribute('title'); td.style.cssText = ''; delete td.dataset.cla;
     }
   }
+  // osobne arkusze: zajęcie w arkuszu każdego wybranego obiektu, który w nim uczestniczy
+  const blockIds = container.blockIds || [''];
+  const idsField = { L: 'lecIds', G: 'groIds', S: 'romIds' }[container.blockType];
+  const objsOf = c => (blockIds[0] === '' || !idsField ? [''] : String(c[idsField] || '').split(';').map(s => s.trim()).filter(id => blockIds.includes(id)));
   const byCell = new Map();
   for (const c of data.classes) {
-    const key = c.day + '|' + c.hour;
-    if (!byCell.has(key)) byCell.set(key, []);
-    byCell.get(key).push(c);
+    for (const obj of objsOf(c)) {
+      const key = cellKey(c.day, c.hour, obj);
+      if (!byCell.has(key)) byCell.set(key, []);
+      byCell.get(key).push(c);
+    }
   }
   const texts = new Map();   // klucz komórki -> tekst opisów (do "Ukryj takie same opisy")
   const keys = [...byCell.keys()].sort();
@@ -329,8 +429,8 @@ export function fillClasses(container, data, layout, helpers) {
       const lines = layout.lines.map(code => (code === 'NONE' ? null : helpers.text(c, code, data) || ''));
       const text = lines.filter(l => l !== null).join('\u0001');
       texts.set(key, text);
-      const [day, hour] = key.split('|');
-      const hide = layout.hideSame && texts.get(addDays(day, -7) + '|' + hour) === text;
+      const [day, hour, obj] = key.split('|');
+      const hide = layout.hideSame && texts.get(cellKey(addDays(day, -7), hour, obj)) === text;
       if (!hide) lines.forEach(l => { if (l !== null) box.append(el('div', '', l)); });
     }
     td.append(box);
@@ -357,9 +457,8 @@ export function paintBusy(container, rows, showGroups) {
     if (!byCell.has(k)) byCell.set(k, []);
     byCell.get(k).push(r);
   }
-  for (const [k, list] of byCell) {
-    const td = container.cells.get(k);
-    if (!td || td.classList.contains('busy')) continue;   // komórka z zajęciami bieżącego rozkładu
+  for (const [k, list] of byCell) for (const td of cellsAt(container, ...k.split('|'))) {
+    if (td.classList.contains('busy')) continue;   // komórka z zajęciami bieżącego rozkładu
     const types = [...new Set(list.flatMap(x => x.types.split('')))];
     const dot = document.createElement('span');
     dot.className = 'busy-dot';
@@ -381,15 +480,16 @@ export function paintBusy(container, rows, showGroups) {
 export function paintHints(container, hints) {
   if (!container.cells) return;
   container.querySelectorAll('.hint-tri').forEach(d => d.remove());
+  // osobne arkusze: ocena terminu w arkuszu ocenianego obiektu (inny typ obiektu - we wszystkich arkuszach)
+  const blockIds = container.blockIds || [''];
   const byCell = new Map();
   for (const h of hints || []) {
-    const k = h.day + '|' + h.hour;
+    const obj = blockIds.includes(String(h.resId)) ? String(h.resId) : '*';
+    const k = h.day + '|' + h.hour + '|' + obj;
     if (!byCell.has(k)) byCell.set(k, []);
     byCell.get(k).push(h);
   }
-  for (const [k, list] of byCell) {
-    const td = container.cells.get(k);
-    if (!td) continue;
+  for (const [k, list] of byCell) for (const td of (([d, h, o]) => cellsAt(container, d, h, o === '*' ? undefined : o))(k.split('|'))) {
     const worst = Math.min(...list.map(h => h.ratio));
     const tri = document.createElement('span');
     tri.className = 'hint-tri ' + (worst < 0 ? 'bad' : 'good');

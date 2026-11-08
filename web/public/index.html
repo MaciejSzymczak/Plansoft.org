@@ -61,6 +61,14 @@
         <button type="button" role="menuitem" data-browse="S">Zasoby</button>
         <button type="button" role="menuitem" data-browse="SUB">Przedmioty</button>
         <button type="button" role="menuitem" data-browse="FOR">Formy</button>
+        <button type="button" role="menuitem" data-browse="GRID">Siatka godzinowa</button>
+        <button type="button" role="menuitem" id="permissionsMenu">Uprawnienia</button>
+        <button type="button" role="menuitem" id="reportMenu">Raportowanie</button>
+        <button type="button" role="menuitem" data-tool="attendance">Lista obecności</button>
+        <div class="menu-sep" role="separator"></div>
+        <button type="button" role="menuitem" data-tool="dbSpace">Dostępne miejsce</button>
+        <button type="button" role="menuitem" data-tool="eventLog">Dziennik zdarzeń systemowych</button>
+        <button type="button" role="menuitem" data-tool="waitingTasks">Oczekujące zadania</button>
       </div>
     </div>
     <span class="spacer"></span>
@@ -70,9 +78,11 @@
   </header>
 
   <div class="selectors">
-    <div class="sel-col"><div class="chips" data-type="L" data-label="Wykładowca"></div></div>
-    <div class="sel-col"><div class="chips" data-type="G" data-label="Grupa"></div></div>
-    <div class="sel-col"><div class="chips" data-type="S" data-label="Sala"></div></div>
+    <div class="sel-stack">
+      <div class="sel-col"><div class="chips" data-type="L" data-label="Wykładowca"></div></div>
+      <div class="sel-col"><div class="chips" data-type="G" data-label="Grupa"></div></div>
+      <div class="sel-col"><div class="chips" data-type="S" data-label="Sala"></div></div>
+    </div>
     <div class="sel-col defaults" title="Domyślny przedmiot i forma - podpowiadane przy dodawaniu zajęć">
       <div class="chips small" data-type="SUB" data-label="Przedmiot (domyślny)"></div>
       <div class="chips small" data-type="FOR" data-label="Forma (domyślna)"></div>
@@ -82,6 +92,12 @@
 
   <div class="grid-bar">
     <div class="grid-title" id="gridTitle"></div>
+    <div class="week-nav" id="weekNav" hidden>
+      <button type="button" id="weekPrev" class="secondary small" title="Poprzedni tydzień">◀</button>
+      <span id="weekLabel"></span>
+      <button type="button" id="weekNext" class="secondary small" title="Następny tydzień">▶</button>
+      <button type="button" id="weekBack" class="secondary small" title="Wróć do układu semestralnego">Semestr</button>
+    </div>
     <span class="spacer"></span>
     <span class="sel-count" id="selCount"></span>    <div class="popover-anchor">
       <button type="button" id="cellLayoutButton" class="secondary small" aria-expanded="false" aria-controls="cellLayout" title="Wygląd komórki: kolorowanie, opisy, rozmiary">Zajęcie</button>

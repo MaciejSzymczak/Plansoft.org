@@ -123,10 +123,22 @@ async function add(s, body) {
     if (cap && cap.OVER_CAP > 0) warning = `Liczność grup/y przekracza pojemność sal/i o ${cap.OVER_CAP}.`;
   }
 
+  // --- edycja (bEditClassClick): edytowane zajęcia są zastępowane - usuwane w tej samej transakcji ---------
+  const isOwner = await ownerCheck(s);
+  let replace = ids(body.replace).slice(0, MAX_CELLS);
+  if (replace.length) {
+    if (!flags.canDelete) throw httpError(403, 'Nie możesz usuwać zajęć - edycja zajęć jest niedostępna.');
+    const b = {};
+    const own = await db.query(s.pool, `select id, owner from classes where id in (${inList('e', replace, b)})`, b);
+    const f = own.find(r => !isOwner(r.OWNER));
+    if (f) throw httpError(403, `Nie możesz zmieniać zajęć użytkownika ${f.OWNER}.`);
+    replace = own.map(r => r.ID);   // w międzyczasie usunięte - pomijane
+  }
+  const replaced = new Set(replace);
+
   // --- konflikty we wszystkich terminach -------------------------------------------------------
   const examined = await withChildsAndParents(s, [...lec, ...gro, ...rom]);
-  const conflicts = await findConflicts(s, examined, cells);
-  const isOwner = await ownerCheck(s);
+  const conflicts = (await findConflicts(s, examined, cells)).filter(c => !replaced.has(c.id));
   const newClass = { lec, gro, rom, sub, form, owner: owner.toUpperCase(), createdBy: s.user.toUpperCase() };
   for (const c of conflicts) {
     // doplanowanie: istniejące zajęcie zawiera się w nowym (te same przedmiot, forma, autor i właściciel)
@@ -148,7 +160,7 @@ async function add(s, body) {
   // --- zapis: usunięcie kolizji i wstawienie zajęć w jednej transakcji ---------------------------
   try {
     await db.transaction(s.pool, async conn => {
-      for (const id of [...new Set(conflicts.map(c => c.id))]) {
+      for (const id of [...new Set([...replace, ...conflicts.map(c => c.id)])]) {
         await conn.execute('begin api.delete_class(:id); end;', { id });
       }
       for (const c of cells) {
@@ -168,7 +180,7 @@ async function add(s, body) {
       });
     });
   } catch (e) { throw writeError(e); }
-  return { status: 'added', count: cells.length, replaced: conflicts.length, warning };
+  return { status: 'added', count: cells.length, replaced: conflicts.length, edited: replace.length, warning };
 }
 
 // zajęcia kolidujące w podanych terminach: wykładowcy (L), grupy (G), zasoby (S) - jak DBGetClassByLGR
@@ -344,4 +356,24 @@ async function supervisorCheck(s) {
   });
 }
 
-module.exports = { add, move, withChildsAndParents };
+// --- usuwanie zajęć zaznaczonych komórek (BDeleteClassClick w UFMain.pas): uprawnienie do usuwania i właściciel ----
+// body: { ids: [id zajęć] }
+async function remove(s, body) {
+  const flags = await plannerFlags(s);
+  if (!flags.canDelete) throw httpError(403, 'Nie możesz usuwać zajęć.');
+  const list = ids(body.ids).slice(0, MAX_CELLS);
+  if (!list.length) throw httpError(400, 'Nie wybrano zajęć do usunięcia.');
+  const binds = {};
+  const rows = await db.query(s.pool, `select id, owner from classes where id in (${inList('c', list, binds)})`, binds);
+  const isOwner = await ownerCheck(s);
+  const foreign = [...new Set(rows.filter(r => !isOwner(r.OWNER)).map(r => r.OWNER))];
+  if (foreign.length) throw httpError(403, `Nie możesz zmieniać zajęć użytkownika ${foreign.join(', ')}.`);
+  try {
+    await db.transaction(s.pool, async conn => {
+      for (const r of rows) await conn.execute('begin api.delete_class(:id); end;', { id: r.ID });
+    });
+  } catch (e) { throw writeError(e); }
+  return { count: rows.length, missing: list.length - rows.length };
+}
+
+module.exports = { add, move, remove, withChildsAndParents };

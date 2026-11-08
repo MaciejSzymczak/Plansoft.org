@@ -1,5 +1,6 @@
 // Okno słownika (wspólny trzon jak TFBrowseParent w Delphi): wykładowcy, grupy, zasoby.
 // Lista z wyszukiwaniem, filtrami i sortowaniem; obok formularz rekordu; dodaj/kopiuj/zapisz/usuń; hierarchia.
+import { excelButton, downloadXlsx } from './xlsx.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -14,8 +15,6 @@ function button(text, cls, onClick, title) {
   b.addEventListener('click', onClick);
   return b;
 }
-
-const csvQuote = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 export class BrowseWindow {
   constructor({ api, onChanged }) {
@@ -87,7 +86,17 @@ export class BrowseWindow {
     if (!m.canInsert) this.bAdd.title = this.bCopy.title = 'Dane są zasilane z innego systemu (integracja)';
     this.count = el('span', 'muted');
     tools.append(this.bAdd, this.bCopy, this.bDelete, button('Odśwież', 'secondary small', () => this.refresh()),
-      button('Eksport CSV', 'secondary small', () => this.exportCsv()), el('span', 'spacer'), this.count);
+      excelButton(() => this.exportExcel()));
+    // siatka godzinowa: "Utwórz typową siatkę" (bdelpopup w FBrowseGRIDS) - zastępuje wszystkie godziny siatki
+    if (m.presets) {
+      const sel = el('select', 'b-presets');
+      sel.title = 'Usuwa wszystkie godziny siatki i tworzy nowe według wzoru';
+      sel.append(new Option('Utwórz typową siatkę…', ''), ...m.presets.map(p => new Option(p.label, p.code)));
+      sel.disabled = !m.canInsert;
+      sel.addEventListener('change', () => { const v = sel.value; sel.value = ''; if (v) this.askPreset(m.presets.find(p => p.code === v)); });
+      tools.append(sel);
+    }
+    tools.append(el('span', 'spacer'), this.count);
 
     const body = el('div', 'b-body');
     this.listWrap = el('div', 'b-list');
@@ -314,7 +323,27 @@ export class BrowseWindow {
 
   recordName(r) {
     const v = r.values;
-    return [v.TITLE, v.LAST_NAME, v.FIRST_NAME, v.ABBREVIATION, v.NAME].filter(Boolean).join(' ') || `#${r.id}`;
+    return [v.TITLE, v.LAST_NAME, v.FIRST_NAME, v.ABBREVIATION, v.NAME, v.CAPTION].filter(Boolean).join(' ') || `#${r.id}`;
+  }
+
+  // potwierdzenie typowej siatki - usuwa wszystkie dotychczasowe godziny
+  askPreset(p) {
+    this.formWrap.querySelectorAll('.b-confirm').forEach(b => b.remove());
+    const box = el('div', 'b-confirm');
+    box.append(el('p', '', `Utworzyć siatkę „${p.label}”? Wszystkie dotychczasowe godziny siatki zostaną usunięte.`));
+    const yes = button('Utwórz siatkę', 'primary danger', async () => {
+      yes.disabled = true;
+      try {
+        const r = await this.api(`browse/${this.type}/generate`, { preset: p.code });
+        box.remove();
+        await this.refresh();
+        this.count.textContent = `Utworzono godzin: ${r.count}`;
+        this.onChanged(this.type);
+      } catch (e) { box.querySelector('p').textContent = e.message; yes.disabled = false; }
+    });
+    box.append(yes, button('Anuluj', 'secondary', () => box.remove()));
+    this.formWrap.prepend(box);
+    yes.focus();
   }
 
   // --- hierarchia: zasoby nadrzędne i podrzędne -------------------------------------------------
@@ -399,17 +428,13 @@ export class BrowseWindow {
     load();
   }
 
-  exportCsv() {
+  // eksport bieżącej listy (z filtrem i sortowaniem) do Excela - jak dm.ExportToExcel(DBGrid)
+  exportExcel() {
     const cols = this.meta.columns;
-    const lines = [cols.map(c => csvQuote(c.label)).join(';')];
-    for (const r of this.rows) lines.push(cols.map(c => {
+    const rows = this.rows.map(r => cols.map(c => {
       const f = this.meta.fields.find(x => x.name === c.name);
-      return csvQuote(f && f.type === 'lookup' ? (r.display[c.name] ?? r.values[c.name]) : r.values[c.name]);
-    }).join(';'));
-    const a = el('a');
-    a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
-    a.download = this.meta.title.toLowerCase() + '.csv';
-    document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      return f && f.type === 'lookup' ? (r.display[c.name] ?? r.values[c.name]) : r.values[c.name];
+    }));
+    downloadXlsx(this.meta.title.toLowerCase(), this.meta.title, cols.map(c => c.label), rows);
   }
 }

@@ -6,6 +6,9 @@ import { SummaryPanel, DEFAULT_SUMMARY } from './summary.js';
 import { BrowseWindow } from './browse.js';
 import { AddClassDialog, openConflicts } from './addClass.js';
 import { ListOrganizer } from './listOrganizer.js';
+import { PermissionsWindow } from './permissions.js';
+import { ReportWindow } from './report.js';
+import { ToolsWindow } from './tools.js';
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => [...document.querySelectorAll(sel)];
@@ -188,9 +191,19 @@ async function openPeriod(id) {
   $('#periodDates').textContent = `${state.period.dateFrom} – ${state.period.dateTo}`;
   show('viewMain');
   initFields();
-  renderSemesterGrid($('#gridWrap'), state.period);
+  state.gridSig = null;   // nowy okres - siatka rysowana od nowa (ensureGrid)
+  state.week = null;
   updateTitle();
   savePrefs();
+}
+
+// ponowne wczytanie bieżącego okresu (np. po zmianie siatki godzinowej), bez zmiany wyborów
+async function reloadPeriod() {
+  try { state.period = await api('periods/' + state.period.id); } catch (e) { return; }
+  $('#periodName').textContent = state.period.name;
+  $('#periodDates').textContent = `${state.period.dateFrom} – ${state.period.dateTo}`;
+  state.gridSig = null;
+  updateTitle();
 }
 
 function alertBox(text) {
@@ -214,6 +227,7 @@ function initFields() {
   $$('.selectors .chips[data-type=L], .selectors .chips[data-type=G], .selectors .chips[data-type=S]').forEach(el => {
     const f = new ChipField(el, {
       search,
+      listOnSecondClick: true,
       onChange: () => { if (state.active !== f.type) setActive(f.type); updateTitle(); savePrefs(); },
       onActivate: field => setActive(field.type),
     });
@@ -366,11 +380,65 @@ function updateTitle() {
     t.append(` – wybierz ${TYPE_NAMES_PL[state.active]} w polu „${f ? f.el.dataset.label : ''}”`);
     t.classList.add('empty');
   } else {
-    t.append(` – ${TYPE_NAMES[state.active]}: ${f.items.map(i => i.name).join(', ')}`);
+    const shown = shownObjects();
+    t.append(` – ${TYPE_NAMES[state.active]}: ${shown.map(i => i.name).join(', ')}`);
+    if (shown.length < f.items.length) t.append(Object.assign(document.createElement('span'), { className: 'muted', textContent: ` (pokazany pierwszy z ${f.items.length})` }));
     t.classList.remove('empty');
   }
   loadClasses();
 }
+
+// --- wiele wybranych obiektów (okno "Zajęcie", "Wiele obiektów") ------------------------------------
+// razem: wszystkie na jednym arkuszu; w pionie / w poziomie: osobny arkusz każdego obiektu; tylko pierwszy
+const multiMode = () => (state.layout && state.layout.multi) || 'together';
+function shownObjects() {
+  const f = state.fields[state.active];
+  const items = f ? f.items : [];
+  return multiMode() === 'first' && !state.week ? items.slice(0, 1) : items;   // układ tygodniowy: wszystkie w kolumnach
+}
+// siatka rysowana od nowa tylko przy zmianie okresu, układu arkuszy lub listy obiektów z osobnymi arkuszami
+function ensureGrid() {
+  if (!state.period) return;
+  const mode = multiMode(), items = shownObjects();
+  const week = state.week && items.length ? state.week : null;
+  const split = week || ((mode === 'vertical' || mode === 'horizontal') && items.length > 1);
+  const sig = [state.period.id, week || '', split ? mode : '', split ? state.active + ':' + items.map(i => i.id).join(',') : ''].join('|');
+  paintWeekNav(week);
+  if (sig === state.gridSig) return;
+  state.gridSig = sig;
+  renderSemesterGrid($('#gridWrap'), state.period, split ? { blocks: items, orientation: mode, type: state.active, week } : {});
+  clip = null;
+}
+
+// --- układ tygodniowy (kliknięcie w numer tygodnia, jak switchSemesterWeek w Delphi): jeden tydzień, w kolumnach
+//     wybrane obiekty; kliknięcie obiektu lub numeru tygodnia - powrót do semestru (kliknięty obiekt pierwszy na liście)
+const isoAddDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const mondayIso = iso => { const d = new Date(iso + 'T00:00:00Z'); return isoAddDays(iso, -((d.getUTCDay() + 6) % 7)); };
+function showWeek(monday) {
+  state.week = monday;
+  updateTitle();
+}
+function showSemester(objId) {
+  state.week = null;
+  const f = state.fields[state.active];
+  const i = objId ? f.items.findIndex(x => String(x.id) === String(objId)) : -1;
+  if (i > 0) { f.setItems([f.items[i], ...f.items.filter((x, j) => j !== i)]); savePrefs(); }
+  updateTitle();
+}
+function paintWeekNav(week) {
+  const nav = $('#weekNav');
+  nav.hidden = !week;
+  if (!week) return;
+  const first = mondayIso(state.period.dateFrom), last = mondayIso(state.period.dateTo);
+  const fmt = iso => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
+  $('#weekLabel').textContent = `Tydzień ${fmt(week)} – ${fmt(isoAddDays(week, 6))}`;
+  $('#weekPrev').disabled = week <= first;
+  $('#weekNext').disabled = week >= last;
+}
+$('#gridWrap').addEventListener('gridweek', e => (state.week ? showSemester(e.detail.obj) : showWeek(e.detail.monday)));
+$('#weekPrev').addEventListener('click', () => showWeek(isoAddDays(state.week, -7)));
+$('#weekNext').addEventListener('click', () => showWeek(isoAddDays(state.week, 7)));
+$('#weekBack').addEventListener('click', () => showSemester());
 
 // --- zajęcia w siatce ----------------------------------------------------------------------
 const plural = (n, one, few, many) =>
@@ -378,12 +446,13 @@ const plural = (n, one, few, many) =>
 
 let classesTimer, classesReq = 0;
 function loadClasses() {
+  ensureGrid();
   clearTimeout(classesTimer);
   classesTimer = setTimeout(async () => {
     const f = state.fields[state.active];
     if (!state.period || !f) return;
     const type = state.active;
-    const ids = f.items.map(i => i.id).join(',');
+    const ids = shownObjects().map(i => i.id).join(',');
     const req = ++classesReq;
     $$('#gridTitle .count:not(.flash):not(.error)').forEach(c => c.remove());   // ponowne wczytanie (np. po zapisie)
     const count = $('#gridTitle').appendChild(Object.assign(document.createElement('span'), { className: 'count' }));
@@ -421,7 +490,12 @@ function paintClasses() {
 new CellLayoutPanel($('#cellLayoutButton'), $('#cellLayout'), {
   getLayout: () => state.layout,
   getSettings: () => state.settings,
-  onChange: layout => { state.layout = layout; paintClasses(); savePrefs(); },
+  onChange: layout => {
+    const multiChanged = (layout.multi || 'together') !== multiMode();
+    state.layout = layout;
+    if (multiChanged) updateTitle(); else paintClasses();
+    savePrefs();
+  },
 });
 
 const summaryPanel = new SummaryPanel($('#summary'), {
@@ -467,7 +541,7 @@ const addClassDialog = new AddClassDialog({
   onAdded: r => {
     loadClasses();
     const n = r.count;
-    flashTitle(`Dodano ${n} ${plural(n, 'zajęcie', 'zajęcia', 'zajęć')}` + (r.replaced ? `, usunięto kolidujących: ${r.replaced}` : '') + (r.warning ? ` – ${r.warning}` : ''));
+    flashTitle(`${r.edited ? 'Zapisano' : 'Dodano'} ${n} ${plural(n, 'zajęcie', 'zajęcia', 'zajęć')}` + (r.replaced ? `, usunięto kolidujących: ${r.replaced}` : '') + (r.warning ? ` – ${r.warning}` : ''));
   },
 });
 const gridSelection = () => ($('#gridWrap').getSelection ? $('#gridWrap').getSelection() : []);
@@ -479,11 +553,48 @@ function openAddClass() {
     const items = state.fields[t] ? state.fields[t].items : [];
     prefill[t] = state.me.firstResource ? items.slice(0, 1) : items;
   }
+  // osobne arkusze obiektów: zaznaczenie w arkuszu jednego obiektu - zajęcie dla tego obiektu
+  const objs = $('#gridWrap').getSelectionObjects ? $('#gridWrap').getSelectionObjects() : [];
+  if (objs.length) prefill[state.active] = state.fields[state.active].items.filter(i => objs.includes(String(i.id)));
   addClassDialog.open({
     period: state.period.id, cells, prefill, settings: state.settings, user: state.me.user,
     sub: state.defaults.SUB.items[0], form: state.defaults.FOR.items[0],
     hours: state.period.hours.map(h => ({ no: h.no, label: h.caption || String(h.no) })),
   });
+}
+
+// edycja zajęcia (bEditClassClick): okno szczegółów z danymi zajęcia klikniętej komórki; zapis zastępuje
+// zajęcia zaznaczonych komórek nowymi wartościami
+function openEditClass(td) {
+  if (!state.period || !canInsert()) return;
+  const c = state.classData.classes.find(x => String(x.id) === td.dataset.cla.split(',')[0]);
+  if (!c) return;
+  const items = (list, map) => String(list || '').split(';').filter(Boolean).map(id => ({ id: Number(id), name: (map[id] || {}).label || id }));
+  addClassDialog.open({
+    period: state.period.id, cells: gridSelection(), settings: state.settings, user: state.me.user,
+    prefill: { L: items(c.lecIds, state.classData.lecturers), G: items(c.groIds, state.classData.groups), S: items(c.romIds, state.classData.rooms) },
+    sub: c.subId ? { id: c.subId, name: c.subName || c.sub } : null, form: { id: c.forId, name: c.formName || c.form },
+    hours: state.period.hours.map(h => ({ no: h.no, label: h.caption || String(h.no) })),
+    edit: {
+      ids: selectedClassIds(), kind: c.formKind === 'R' ? 'R' : 'C', fill: c.fill, colour: c.colours.CLASS || null,
+      owner: c.owner, createdBy: c.createdBy, desc: c.desc,
+    },
+  });
+}
+// podwójne kliknięcie (GridDblClick): zajęcie - edycja, pusta komórka - dodawanie
+$('#gridWrap').addEventListener('griddblclick', e => (e.detail.cell.dataset.cla ? openEditClass(e.detail.cell) : openAddClass()));
+
+// --- usuwanie zajęć zaznaczonych komórek (BDeleteClassClick; klawisz Delete) ------------------------
+const canDelete = () => !(state.me && state.me.canDelete === false);
+const selectedClassIds = () => [...new Set($$('#gridWrap td.cell.selected[data-cla]').flatMap(td => td.dataset.cla.split(',').map(Number)))];
+async function deleteSelected() {
+  const ids = selectedClassIds();
+  if (!ids.length) return flashTitle('Zaznacz zajęcia do usunięcia.', true);
+  if (!canDelete()) return flashTitle('Nie możesz usuwać zajęć.', true);
+  let r;
+  try { r = await api('classes/delete', { ids }); } catch (e) { if (e.message !== '401') flashTitle(e.message, true); loadClasses(); return; }
+  loadClasses();
+  flashTitle(`Usunięto ${r.count} ${plural(r.count, 'zajęcie', 'zajęcia', 'zajęć')}`);
 }
 
 // --- przesuwanie / kopiowanie zajęć: przeciąganie (gridmove) i schowek (Ctrl+C / Ctrl+X / Ctrl+V) ------
@@ -551,6 +662,7 @@ document.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input, textarea, select')) return;
   const k = e.key.toLowerCase();
   if (e.key === 'Insert') { e.preventDefault(); openAddClass(); }
+  else if (e.key === 'Delete') { e.preventDefault(); deleteSelected(); }
   else if ((e.ctrlKey || e.metaKey) && k === 'c') { e.preventDefault(); clipCopy('copy'); }
   else if ((e.ctrlKey || e.metaKey) && k === 'x') { e.preventDefault(); if (canInsert()) clipCopy('cut'); }
   else if ((e.ctrlKey || e.metaKey) && k === 'v') { e.preventDefault(); if (canInsert()) clipPaste(); }
@@ -620,12 +732,15 @@ function showCtx(x, y) {
   ctxMenu.innerHTML = '';
   const sel = gridSelection();
   const hasClass = !!$('#gridWrap td.cell.selected[data-cla]');
+  const claTd = $('#gridWrap td.cell.selected[data-cla]');
   ctxMenu.append(
     menuItem('Dodaj zajęcie', openAddClass, { key: 'Insert', disabled: !sel.length || !canInsert() }),
+    menuItem('Edytuj zajęcie', () => openEditClass(claTd), { key: 'dwuklik', disabled: !hasClass || !canInsert() || !canDelete() }),
     sep(),
     menuItem('Kopiuj', () => clipCopy('copy'), { key: 'Ctrl+C', disabled: !hasClass }),
     menuItem('Wytnij', () => clipCopy('cut'), { key: 'Ctrl+X', disabled: !hasClass || !canInsert() }),
     menuItem('Wklej', clipPaste, { key: 'Ctrl+V', disabled: !clip || !sel.length || !canInsert() }),
+    menuItem('Usuń', deleteSelected, { key: 'Delete', disabled: !hasClass || !canDelete() }),
     sep(),
     menuItem('Gdzie mogę przenieść zajęcie?', seeAvailable, { disabled: !hasClass }),
     sep(),
@@ -676,7 +791,8 @@ function flashTitle(text, error) {
 const browser = new BrowseWindow({
   api,
   // zmiany nazw/kolorów wykładowców, grup, sal, przedmiotów i form widać w siatce od razu
-  onChanged: () => { if (state.period) loadClasses(); },
+  // siatka godzinowa: etykiety godzin pochodzą z okresu - okres wczytywany od nowa
+  onChanged: type => { if (state.period) (type === 'GRID' || type === 'PER' ? reloadPeriod() : loadClasses()); },
 });
 const dataMenu = $('#dataMenu'), dataMenuButton = $('#dataMenuButton');
 function setDataMenu(open) { dataMenu.hidden = !open; dataMenuButton.setAttribute('aria-expanded', String(open)); }
@@ -686,6 +802,39 @@ dataMenu.addEventListener('keydown', e => { if (e.key === 'Escape') { setDataMen
 $$('#dataMenu [data-browse]').forEach(b => b.addEventListener('click', async () => {
   setDataMenu(false);
   try { await browser.open(b.dataset.browse); } catch (e) { if (e.message !== '401') console.error(e); }
+}));
+
+// --- Uprawnienia do obiektów (UFPlannerPermissions; wymaga EDIT_OBJ_PERMISSIONS) ----------------------
+let permissionsWindow = null;
+$('#permissionsMenu').addEventListener('click', () => {
+  setDataMenu(false);
+  if (state.me && state.me.editPermissions === false) return flashTitle('Nie posiadasz uprawnień do uruchomienia funkcji Uprawnienia', true);
+  if (!permissionsWindow) permissionsWindow = new PermissionsWindow({ api });
+  permissionsWindow.open();
+});
+
+// --- Raportowanie (FGrouping): bieżący okres, wybrane obiekty i zaznaczone terminy z okna głównego --------
+let reportWindow = null;
+$('#reportMenu').addEventListener('click', () => {
+  setDataMenu(false);
+  if (!reportWindow) {
+    reportWindow = new ReportWindow({
+      api,
+      getContext: () => ({
+        user: state.me.user, period: state.period, settings: state.settings, cells: gridSelection(),
+        objects: Object.fromEntries('LGS'.split('').map(t => [t, state.fields[t] ? state.fields[t].items : []])),
+      }),
+    });
+  }
+  reportWindow.open().catch(e => { if (e.message !== '401') flashTitle(e.message, true); });
+});
+
+// --- narzędzia: lista obecności, dostępne miejsce, dziennik zdarzeń, oczekujące zadania ------------------
+let toolsWindow = null;
+$$('#dataMenu [data-tool]').forEach(b => b.addEventListener('click', () => {
+  setDataMenu(false);
+  if (!toolsWindow) toolsWindow = new ToolsWindow({ api });
+  Promise.resolve(toolsWindow[b.dataset.tool]()).catch(e => { if (e.message !== '401') flashTitle(e.message, true); });
 }));
 
 async function loadSettings() {

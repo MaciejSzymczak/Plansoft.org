@@ -4,6 +4,9 @@
 const db = require('./db');
 const sessions = require('./sessions');
 const browse = require('./browse');
+const permissions = require('./permissions');
+const report = require('./report');
+const tools = require('./tools');
 const addClasses = require('./addClasses');
 const busy = require('./busy');
 const { POLISH, searchFilter } = require('./search');
@@ -69,7 +72,7 @@ async function readJson(req) {
 const plaId = s => s.roleId || s.plannerId;
 
 function me(s) {
-  return { user: s.user, plannerId: s.plannerId, roleId: s.roleId, roles: s.roles, firstResource: s.firstResource, canInsert: s.canInsert };
+  return { user: s.user, plannerId: s.plannerId, roleId: s.roleId, roles: s.roles, firstResource: s.firstResource, canInsert: s.canInsert, canDelete: s.canDelete, editPermissions: s.editPermissions };
 }
 
 // --- akcje ---------------------------------------------------------------------------------
@@ -90,7 +93,7 @@ async function login(req, res) {
     // te same warunki co przy logowaniu w programie Delphi (UFMain.pas)
     const perm = await db.query(pool, `select count(1) cnt from sys.dba_role_privs where grantee = user and granted_role = 'PLA_PERMISSION'`);
     if (!perm[0].CNT) throw new Error('Nie masz uprawnień do korzystania z aplikacji - brak nadanych uprawnień.');
-    const pla = await db.query(pool, `select id, name, first_resource_flag, can_insert from planners where name = user`);
+    const pla = await db.query(pool, `select id, name, first_resource_flag, can_insert, can_delete, edit_obj_permissions from planners where name = user`);
     if (!pla.length) throw new Error('Brak uprawnień do korzystania z Aplikacji. Skontaktuj się z administratorem systemu w celu dodania planisty (Dane | Planiści).');
     const roles = await db.query(pool,
       `select id, name from planners where type = 'ROLE' and id in (select rol_id from rol_pla where pla_id = :id) order by name`,
@@ -99,7 +102,7 @@ async function login(req, res) {
     const s = sessions.create(res, req, {
       pool, user: pla[0].NAME, plannerId: pla[0].ID, roleId: null,
       // okno dodawania zajęcia podpowiada tylko pierwszego wybranego wykładowcę/grupę/salę (FIRST_RESOURCE_FLAG)
-      firstResource: pla[0].FIRST_RESOURCE_FLAG === '+', canInsert: pla[0].CAN_INSERT === '+',
+      firstResource: pla[0].FIRST_RESOURCE_FLAG === '+', canInsert: pla[0].CAN_INSERT === '+', canDelete: pla[0].CAN_DELETE === '+', editPermissions: pla[0].EDIT_OBJ_PERMISSIONS === '+',
       roles: roles.map(r => ({ id: r.ID, name: r.NAME })),
     });
     send(res, 200, me(s));
@@ -440,10 +443,14 @@ async function handle(req, res, url) {
     if ((m = path.match(/^\/api\/objects\/(L|G|S)\/resolve$/)) && req.method === 'POST') return await resolveObjects(req, res, s, m[1]);
     if (path === '/api/classes/add' && req.method === 'POST') return send(res, 200, await addClasses.add(s, await readJson(req)));
     if (path === '/api/classes/move' && req.method === 'POST') return send(res, 200, await addClasses.move(s, await readJson(req)));
+    if (path === '/api/classes/delete' && req.method === 'POST') return send(res, 200, await addClasses.remove(s, await readJson(req)));
     if (path === '/api/busy' && req.method === 'GET') return send(res, 200, await busy.busy(s, url));
     if (path === '/api/hints' && req.method === 'GET') return send(res, 200, await busy.hints(s, url));
     if (path === '/api/hints' && req.method === 'POST') return send(res, 200, await busy.setHints(s, await readJson(req)));
     if (await browse.handle(req, res, s, url, readJson, send)) return;
+    if (await permissions.handle(req, res, s, url, readJson, send)) return;
+    if (await report.handle(req, res, s, url, readJson, send)) return;
+    if (await tools.handle(req, res, s, url, readJson, send)) return;
 
     send(res, 404, { error: 'Nie znaleziono.' });
   } catch (e) {

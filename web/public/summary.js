@@ -1,6 +1,8 @@
 // Legenda, zakładka "Podsumowanie godzin" - jak TabSheetCOUNTER w UFLegend.pas:
 // liczba godzin zajęć wybranych obiektów w okresie, z podziałem na wybrane kolumny.
 
+import { excelButton, downloadXlsx } from './xlsx.js';
+
 export const DEFAULT_SUMMARY = { group: ['subName', 'subAbbr', 'form'], groupsInLines: false, rollup: false };
 
 // kolejność i podpisy jak w Delphi; desc/lecDesc tylko gdy opis ma nazwę w ustawieniach
@@ -51,10 +53,7 @@ export class SummaryPanel {
     this.filter.placeholder = 'Dowolna fraza (przedmiot, forma, kolumny podziału)';
     let t;
     this.filter.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => this.refresh(), 300); });
-    const exp = el('button', 'secondary small', 'Eksport CSV');
-    exp.type = 'button';
-    exp.title = 'Zapisz tabelę do pliku CSV (Excel)';
-    exp.addEventListener('click', () => this.exportCsv());
+    const exp = excelButton(() => this.exportExcel());
     bar.append(this.filter, exp);
 
     this.details = el('details');
@@ -178,19 +177,11 @@ export class SummaryPanel {
     });
   }
 
-  exportCsv() {
+  exportExcel() {
     if (!this.data) return;
     const settings = this.getSettings();
-    const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const lines = [[...this.data.columns.map(k => heading(k, settings)), 'Liczba godzin'].map(q).join(';')];
-    for (const r of this.data.rows) {
-      lines.push([...r.values.map((v, i) => (r.rolled[i] ? 'Razem' : v ?? '--')), fmtHours(r.hours)].map(q).join(';'));
-    }
-    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-    const a = el('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'podsumowanie_godzin.csv';
-    document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    const header = [...this.data.columns.map(k => heading(k, settings)), 'Liczba godzin'];
+    const rows = this.data.rows.map(r => [...r.values.map((v, i) => (r.rolled[i] ? 'Razem' : v ?? '--')), r.hours]);
+    downloadXlsx('podsumowanie_godzin', 'Podsumowanie godzin', header, rows);
   }
 }

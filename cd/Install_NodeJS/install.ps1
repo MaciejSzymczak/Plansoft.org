@@ -11,7 +11,8 @@ param(
     [string]$ConfigFile = (Join-Path $PSScriptRoot 'install.config.psd1'),
     [string]$InstallDir,
     [switch]$SkipServices,
-    [switch]$SkipFirewall
+    [switch]$SkipFirewall,
+    [string]$UserSid
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,6 +42,26 @@ function Test-Admin {
     (New-Object Security.Principal.WindowsPrincipal $id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
+# --- paczka aplikacji ze zrodel ----------------------------------------------------------------
+# Na komputerze programisty obok instalatora jest kod aplikacji (..\..\web). Jezeli kod jest nowszy
+# niz paczka app\*.zip, paczka jest budowana od nowa (build.ps1) - instalacja zawsze wgrywa aktualna
+# wersje. Na plycie dla klienta folderu web nie ma i ten krok jest pomijany.
+$webSrc = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\web'))
+$buildScript = Join-Path $webSrc 'build.ps1'
+if ((Test-Path $buildScript) -and -not $UserSid) {
+    $zipNow = @(Get-ChildItem (Join-Path $PSScriptRoot 'app') -Filter '*.zip' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
+    $srcFiles = @(Get-Item (Join-Path $webSrc 'server.js'), (Join-Path $webSrc 'package.json'), (Join-Path $webSrc 'package-lock.json') -ErrorAction SilentlyContinue) +
+                @(Get-ChildItem (Join-Path $webSrc 'lib'), (Join-Path $webSrc 'public') -Recurse -File -ErrorAction SilentlyContinue)
+    $newest = ($srcFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
+    if ($zipNow.Count -eq 0 -or ($newest -and $newest.LastWriteTime -gt $zipNow[0].LastWriteTime)) {
+        Write-Host "Kod aplikacji jest nowszy niz paczka ($($newest.Name)) - buduje paczke od nowa (build.ps1)..."
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $buildScript
+        if ($LASTEXITCODE -ne 0) { throw 'Budowanie paczki aplikacji (build.ps1) nie powiodlo sie - instalacja przerwana.' }
+    } else {
+        Write-Host "Paczka aplikacji jest aktualna: $($zipNow[0].Name)"
+    }
+}
+
 # --- uprawnienia administratora (uslugi, zapora, PATH) ---------------------------------------
 $needAdmin = -not ($SkipServices -and $SkipFirewall)
 if ($needAdmin -and -not (Test-Admin)) {
@@ -49,6 +70,8 @@ if ($needAdmin -and -not (Test-Admin)) {
     if ($InstallDir)   { $argList += @('-InstallDir', "`"$InstallDir`"") }
     if ($SkipServices) { $argList += '-SkipServices' }
     if ($SkipFirewall) { $argList += '-SkipFirewall' }
+    # uzytkownik, ktory uruchomil instalacje - dostanie prawo restartu uslugi (deploy.ps1)
+    $argList += @('-UserSid', [Security.Principal.WindowsIdentity]::GetCurrent().User.Value)
     $p = Start-Process powershell.exe -Verb RunAs -ArgumentList $argList -Wait -PassThru
     exit $p.ExitCode
 }
@@ -100,6 +123,16 @@ try {
             if (Get-Service $s -ErrorAction SilentlyContinue) { Stop-Service $s -Force; Info "zatrzymano $s" }
         }
     }
+    # procesy uruchomione z folderu instalacji poza uslugami (np. node.exe uruchomiony recznie) blokuja
+    # podmiane plikow - "Access to the path 'node.exe' is denied"
+    $prefix = $InstallDir.TrimEnd('\') + '\'
+    $locked = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+        Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase) })
+    foreach ($proc in $locked) {
+        Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
+        Info "zatrzymano proces $($proc.Name) (PID $($proc.ProcessId)) uruchomiony z $InstallDir"
+    }
+    if ($locked.Count) { Start-Sleep -Seconds 2 }
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     function Expand-Zip($zip, $target) {
@@ -238,6 +271,16 @@ try {
             if ((Invoke-Native $exe @('install')) -ne 0) { throw "Nie udalo sie zarejestrowac uslugi $s" }
             Start-Service $s
             Info "$s - uruchomiona"
+        }
+        # rejestracja uslugi od nowa kasuje jej uprawnienia - uzytkownik, ktory uruchomil instalacje,
+        # dostaje prawo uruchamiania i restartu plansoft-web (potrzebne dla web\deploy.ps1)
+        $sid = if ($UserSid) { $UserSid } else { [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
+        $sddl = ((& sc.exe sdshow $AppService) | Where-Object { $_ -match '^D:' }) -join ''
+        $ace = "(A;;RPWPLCLOCRRC;;;$sid)"
+        if ($sddl -and -not $sddl.Contains($ace)) {
+            $new = if ($sddl -match '^(D:.*?)(S:.*)$') { $Matches[1] + $ace + $Matches[2] } else { $sddl + $ace }
+            if ((Invoke-Native 'sc.exe' @('sdset', $AppService, $new)) -eq 0) { Info "prawo restartu $AppService nadane (deploy.ps1)" }
+            else { Info "UWAGA: nie udalo sie nadac prawa restartu $AppService" }
         }
     } else {
         Step '9. Uslugi - pominieto (-SkipServices)'

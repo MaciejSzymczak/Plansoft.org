@@ -8,7 +8,15 @@ export const DEFAULT_LAYOUT = {
   forceWidth: false, width: 78,
   forceHeight: false, height: 22,
   fontSize: 11,
+  multi: 'together',   // wiele wybranych obiektów: together | vertical | horizontal | first
 };
+
+export const MULTI_OPTIONS = [
+  ['together', 'Wszystkie na jednym arkuszu'],
+  ['vertical', 'Pokazuj w pionie'],
+  ['horizontal', 'Pokazuj w poziomie'],
+  ['first', 'Pokazuj tylko pierwszy'],
+];
 
 // listy wyboru jak synchronizeComboboxColor / synchronizeComboboxDesc w UFMain.pas;
 // kategorie zasobów i nazwane opisy zajęć pochodzą z bazy (settings)
@@ -126,6 +134,11 @@ export class CellLayoutPanel {
     same.append(cb, ' Ukryj takie same opisy'); same.title = 'Nie powtarzaj opisu, gdy w poprzednim tygodniu o tej godzinie jest taki sam';
     desc.append(same);
 
+    const multi = el('fieldset'); multi.append(el('legend', '', 'Wiele obiektów'));
+    const ms = select(MULTI_OPTIONS, L.multi || 'together', v => this.set({ multi: v }));
+    ms.title = 'Jak pokazać rozkład, gdy wybrano kilku wykładowców, kilka grup lub sal';
+    multi.append(ms);
+
     const size = el('fieldset'); size.append(el('legend', '', 'Rozmiary'));
     const slider = (label, flag, key, min, max) => {
       const row = el('div', 'size');
@@ -148,6 +161,6 @@ export class CellLayoutPanel {
     reset.addEventListener('click', () => { this.onChange({ ...DEFAULT_LAYOUT, lines: [...DEFAULT_LAYOUT.lines] }); this.build(); });
     size.append(reset);
 
-    p.append(colour, desc, size);
+    p.append(colour, desc, multi, size);
   }
 }

@@ -105,7 +105,6 @@ type
     CopyField2: TComboBox;
     CopyField3: TComboBox;
     CopyField4: TComboBox;
-    KillSessions: TCheckBox;
     Rotate: TCheckBox;
     TabSheet2: TTabSheet;
     Tryb: TLabel;
@@ -199,8 +198,6 @@ begin
      setSystemParam('MaxNumberOfSheets', intToStr(strToint(MaxNumberOfSheets.Text)) );
      SetSystemParam('Form.DefaultEditFontSize',intToStr(strToint(EditFontSize.Text)));
      SetSystemParam('Form.DefaultFontSize'    ,intToStr(strToint(FontSize.Text)));
-     SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
-     SetSystemParam('KillSessions', BoolToStr(KillSessions.checked) );
      SetSystemParam('Rotate', BoolToStr(Rotate.checked) );
      SetSystemParam('CrossTableMaxRows',intToStr(strToint(CrossTableMaxRows.Text)));
 
@@ -266,7 +263,6 @@ begin
   CrossTableMaxRows.Text := GetSystemParam('CrossTableMaxRows','20');
 
   FontSize.Text     := GetSystemParam('Form.DefaultFontSize','8');
-  KillSessions.checked := StrToBool( GetSystemParam('KillSessions', '+' ) );
   Rotate.checked := StrToBool( GetSystemParam('Rotate', '-' ) );
   MaxNumberOfSheetsChange(nil);
   activeControl := BZamknij;

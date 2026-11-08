@@ -208,6 +208,18 @@ type
   end;
 
 Function QWorkToClass (ADOQuery : TADOQuery) : TClass_;
+
+// 2026-11: pola zapytania z zajeciami wyszukane raz (FindField), a nie w kazdym wierszu - szybkie wczytywanie
+// wielu wierszy (ccLoadPeriod). Brakujace pole = nil (wartosc pusta / 0, jak w QWorkToClass).
+Type TClassFields = Record
+                  ID, DAY, HOUR, FILL, SUB_ID, FOR_ID, FOR_KIND, SUB_abbreviation, SUB_NAME,
+                  SUB_COLOUR, FOR_COLOUR, OWNER_COLOUR, CREATOR_COLOUR, CLASS_COLOUR,
+                  DESC1, DESC2, DESC3, DESC4, FOR_abbreviation, FOR_NAME,
+                  CALC_LECTURERS, CALC_GROUPS, CALC_ROOMS, CALC_LEC_IDS, CALC_GRO_IDS, CALC_ROM_IDS, CALC_RESCAT_IDS,
+                  Created_by, Owner : TField;
+                 End;
+Function QWorkClassFields (ADOQuery : TADOQuery) : TClassFields;
+Function FieldsToClass (const F : TClassFields) : TClass_;
 Procedure DBGetClassByLecturer(DAY1, DAY2 : String; Zajecia: Integer; childId : String; Var Status : Integer; Var Class_ : TClass_);
 Procedure DBGetClassByGroup   (DAY1, DAY2 : String; Zajecia: Integer; GRO_ID        : String; Var Status : Integer; Var Class_ : TClass_);
 Procedure DBGetClassByRoom    (DAY1, DAY2 : String; Zajecia: Integer; ROM_ID        : String; Var Status : Integer; Var Class_ : TClass_);
@@ -1726,56 +1738,86 @@ End;
 
 
 Function QWorkToClass (ADOQuery : TADOQuery) : TClass_;
+Begin
+   Result := FieldsToClass( QWorkClassFields(ADOQuery) );
+End;
+
+Function QWorkClassFields (ADOQuery : TADOQuery) : TClassFields;
+Begin
+   Result.ID               := ADOQuery.FindField('ID');
+   Result.DAY              := ADOQuery.FieldByName('DAY'); // wymagane (jak dotad: FieldByName zglasza brak pola)
+   Result.HOUR             := ADOQuery.FindField('HOUR');
+   Result.FILL             := ADOQuery.FindField('FILL');
+   Result.SUB_ID           := ADOQuery.FindField('SUB_ID');
+   Result.FOR_ID           := ADOQuery.FindField('FOR_ID');
+   Result.FOR_KIND         := ADOQuery.FindField('FOR_KIND');
+   Result.SUB_abbreviation := ADOQuery.FindField('SUB_abbreviation');
+   Result.SUB_NAME         := ADOQuery.FindField('SUB_NAME');
+   Result.SUB_COLOUR       := ADOQuery.FindField('SUB_COLOUR');
+   Result.FOR_COLOUR       := ADOQuery.FindField('FOR_COLOUR');
+   Result.OWNER_COLOUR     := ADOQuery.FindField('OWNER_COLOUR');
+   Result.CREATOR_COLOUR   := ADOQuery.FindField('CREATOR_COLOUR');
+   Result.CLASS_COLOUR     := ADOQuery.FindField('CLASS_COLOUR');
+   Result.DESC1            := ADOQuery.FindField('DESC1');
+   Result.DESC2            := ADOQuery.FindField('DESC2');
+   Result.DESC3            := ADOQuery.FindField('DESC3');
+   Result.DESC4            := ADOQuery.FindField('DESC4');
+   Result.FOR_abbreviation := ADOQuery.FindField('FOR_abbreviation');
+   Result.FOR_NAME         := ADOQuery.FindField('FOR_NAME');
+   Result.CALC_LECTURERS   := ADOQuery.FindField('CALC_LECTURERS');
+   Result.CALC_GROUPS      := ADOQuery.FindField('CALC_GROUPS');
+   Result.CALC_ROOMS       := ADOQuery.FindField('CALC_ROOMS');
+   Result.CALC_LEC_IDS     := ADOQuery.FindField('CALC_LEC_IDS');
+   Result.CALC_GRO_IDS     := ADOQuery.FindField('CALC_GRO_IDS');
+   Result.CALC_ROM_IDS     := ADOQuery.FindField('CALC_ROM_IDS');
+   Result.CALC_RESCAT_IDS  := ADOQuery.FindField('CALC_RESCAT_IDS');
+   Result.Created_by       := ADOQuery.FindField('Created_by');
+   Result.Owner            := ADOQuery.FindField('Owner');
+End;
+
+Function FieldsToClass (const F : TClassFields) : TClass_;
 Var Class_ : TClass_;
-  function getStrValue (fieldName :  String) : String;
-  var fld: TField;
+  function getStrValue (fld : TField) : String;
   begin
-    fld := ADOQuery.FindField(fieldName);
     result := '';
     if Assigned(fld) then result :=  fld.AsString;
   end;
-  function getIntValue (fieldName :  String) : integer;
-  var fld: TField;
+  function getIntValue (fld : TField) : integer;
   begin
-    fld := ADOQuery.FindField(fieldName);
     result := 0;
     if Assigned(fld) then result :=  fld.AsInteger;
   end;
 Begin
    //@@@ komuniat o bledzie, gdy rozmiar pola przekracza rozmiar rekordu
-   Class_.ID                 := getIntValue('ID');
-   Class_.DAY                := dateTimeToTimeStamp ( ADOQuery.FieldByName('DAY').asDateTime );
-   Class_.HOUR               := getIntValue('HOUR');
-   Class_.FILL               := getIntValue('FILL');
-   Class_.SUB_ID             := getIntValue('SUB_ID');
-   Class_.FOR_ID             := getIntValue('FOR_ID');
-   Class_.FOR_KIND           := getStrValue('FOR_KIND');
-   CLASS_.SUB_abbreviation   := getStrValue('SUB_abbreviation');
-   CLASS_.SUB_NAME           := getStrValue('SUB_NAME');
-   CLASS_.SUB_COLOUR         := getIntValue('SUB_COLOUR');
-   CLASS_.FOR_COLOUR         := getIntValue('FOR_COLOUR');
-   CLASS_.OWNER_COLOUR       := getIntValue('OWNER_COLOUR');
-   CLASS_.CREATOR_COLOUR     := getIntValue('CREATOR_COLOUR');
-   CLASS_.CLASS_COLOUR       := getIntValue('CLASS_COLOUR');
-   CLASS_.DESC1              := getStrValue('DESC1');
-   CLASS_.DESC2              := getStrValue('DESC2');
-   CLASS_.DESC3              := getStrValue('DESC3');
-   CLASS_.DESC4              := getStrValue('DESC4');
-   //CLASS_.SUB_DESC1        := getStrValue('SUB_DESC1');
-   //CLASS_.SUB_DESC2        := getStrValue('SUB_DESC2').AsString;
-   CLASS_.FOR_abbreviation   := getStrValue('FOR_abbreviation');
-   CLASS_.FOR_NAME           := getStrValue('FOR_NAME');
-   //CLASS_.FOR_DESC1        := getStrValue('FOR_DESC1');
-   //CLASS_.FOR_DESC2        := getStrValue('FOR_DESC2');
-   CLASS_.CALC_LECTURERS     := getStrValue('CALC_LECTURERS');
-   CLASS_.CALC_GROUPS        := getStrValue('CALC_GROUPS');
-   CLASS_.CALC_ROOMS         := getStrValue('CALC_ROOMS');
-   CLASS_.CALC_LEC_IDS       := getStrValue('CALC_LEC_IDS');
-   CLASS_.CALC_GRO_IDS       := getStrValue('CALC_GRO_IDS');
-   CLASS_.CALC_ROM_IDS       := getStrValue('CALC_ROM_IDS');
-   CLASS_.CALC_RESCAT_IDS    := getStrValue('CALC_RESCAT_IDS');
-   CLASS_.Created_by         := getStrValue('Created_by');
-   CLASS_.Owner              := getStrValue('Owner');
+   Class_.ID                 := getIntValue(F.ID);
+   Class_.DAY                := dateTimeToTimeStamp ( F.DAY.asDateTime );
+   Class_.HOUR               := getIntValue(F.HOUR);
+   Class_.FILL               := getIntValue(F.FILL);
+   Class_.SUB_ID             := getIntValue(F.SUB_ID);
+   Class_.FOR_ID             := getIntValue(F.FOR_ID);
+   Class_.FOR_KIND           := getStrValue(F.FOR_KIND);
+   CLASS_.SUB_abbreviation   := getStrValue(F.SUB_abbreviation);
+   CLASS_.SUB_NAME           := getStrValue(F.SUB_NAME);
+   CLASS_.SUB_COLOUR         := getIntValue(F.SUB_COLOUR);
+   CLASS_.FOR_COLOUR         := getIntValue(F.FOR_COLOUR);
+   CLASS_.OWNER_COLOUR       := getIntValue(F.OWNER_COLOUR);
+   CLASS_.CREATOR_COLOUR     := getIntValue(F.CREATOR_COLOUR);
+   CLASS_.CLASS_COLOUR       := getIntValue(F.CLASS_COLOUR);
+   CLASS_.DESC1              := getStrValue(F.DESC1);
+   CLASS_.DESC2              := getStrValue(F.DESC2);
+   CLASS_.DESC3              := getStrValue(F.DESC3);
+   CLASS_.DESC4              := getStrValue(F.DESC4);
+   CLASS_.FOR_abbreviation   := getStrValue(F.FOR_abbreviation);
+   CLASS_.FOR_NAME           := getStrValue(F.FOR_NAME);
+   CLASS_.CALC_LECTURERS     := getStrValue(F.CALC_LECTURERS);
+   CLASS_.CALC_GROUPS        := getStrValue(F.CALC_GROUPS);
+   CLASS_.CALC_ROOMS         := getStrValue(F.CALC_ROOMS);
+   CLASS_.CALC_LEC_IDS       := getStrValue(F.CALC_LEC_IDS);
+   CLASS_.CALC_GRO_IDS       := getStrValue(F.CALC_GRO_IDS);
+   CLASS_.CALC_ROM_IDS       := getStrValue(F.CALC_ROM_IDS);
+   CLASS_.CALC_RESCAT_IDS    := getStrValue(F.CALC_RESCAT_IDS);
+   CLASS_.Created_by         := getStrValue(F.Created_by);
+   CLASS_.Owner              := getStrValue(F.Owner);
 
    Result := Class_;
 End;

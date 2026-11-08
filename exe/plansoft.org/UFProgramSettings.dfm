@@ -2364,16 +2364,6 @@ inherited FProgramSettings: TFProgramSettings
         Visible = False
         WordWrap = False
       end
-      object KillSessions: TCheckBox
-        Left = 7
-        Top = 297
-        Width = 491
-        Height = 15
-        Caption = 'Kasuj poprzednie sesje'
-        Checked = True
-        State = cbChecked
-        TabOrder = 5
-      end
       object Rotate: TCheckBox
         Left = 7
         Top = 313

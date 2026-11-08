@@ -98,7 +98,15 @@ input:focus-visible, select:focus-visible, button:focus-visible, .period-list:fo
 .period-button .muted { white-space: nowrap; font-size: 12px; }
 .topbar .who { color: var(--muted); }
 
-.selectors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, .8fr); gap: 10px; padding: 10px 16px 6px; }
+.selectors { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 10px; padding: 10px 16px 6px; align-items: start; }
+/* wykładowca, grupa, sala jedno pod drugim jak w Delphi: etykieta z lewej, wolne terminy z prawej */
+.sel-stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sel-stack .sel-col { flex-direction: row; align-items: center; gap: 10px; }
+.sel-stack .chips { flex: 1; display: flex; align-items: center; gap: 6px; padding: 3px 34px 3px 8px; }
+.sel-stack .chips-label { flex: none; width: 84px; margin: 0; }
+.sel-stack .chips-box { flex: 1; min-width: 0; }
+.sel-stack .chips-list { top: 50%; transform: translateY(-50%); }
+.sel-stack .free-terms { flex: none; width: 290px; }
 .sel-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .sel-col.defaults { gap: 6px; }
 .chips.small { padding: 3px 8px 4px; }
@@ -210,6 +218,22 @@ table.semester tr.hour:last-child td, table.semester tr.hour:last-child th { bor
 table.semester tbody tr.hour:has(+ tr.day-head) td, table.semester tbody tr.hour:has(+ tr.day-head) th.hour-no { border-bottom: 2px solid var(--border-strong); }
 table.semester td.cell:not(.outside):hover { background: var(--cell-hover); }
 table.semester td.cell.selected { background: var(--cell-selected); }
+/* osobne arkusze obiektów (okno "Zajęcie", "Wiele obiektów"): nazwa obiektu nad arkuszem, gruba linia między arkuszami */
+table.semester tr.obj-head th.obj-name {
+  text-align: left; padding: 6px 8px; background: var(--accent-soft); color: var(--text); font-weight: 700; font-size: 13px;
+  border-top: 2px solid var(--border-strong); border-bottom: 2px solid var(--border-strong); cursor: pointer;
+}
+table.semester tr.obj-head th.obj-name > span { position: sticky; left: 8px; }
+table.semester thead th.obj-col { background: var(--accent-soft); color: var(--text); font-weight: 700; text-align: left; cursor: pointer; }
+table.semester thead th.obj-col > span { position: sticky; left: 112px; }
+table.semester th.obj-name:hover, table.semester th.obj-col:hover { color: var(--accent); }
+table.semester .blk-start { border-left: 3px solid var(--border-strong); }
+table.semester.week-view .blk-start { border-left-width: 1px; }
+table.semester.week-view thead th.obj-col { text-align: center; }
+table.semester.week-view thead th.obj-col > span { position: static; }
+table.semester th.week { cursor: pointer; }
+.week-nav { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.week-nav[hidden] { display: none; }
 /* rozmiary komórek ustawia okno "Zajęcie" (zmienne --cw, --ch, --cf, --lh na tabeli) */
 table.semester col.c-week { width: var(--cw, 78px); }
 table.semester tr.hour td { height: var(--ch, 22px); min-width: var(--cw, 78px); max-width: var(--cw, 78px); }
@@ -379,8 +403,8 @@ dialog.addclass::backdrop, dialog.conflicts::backdrop { background: rgba(16, 24,
 dialog.addclass[open], dialog.conflicts[open] { display: flex; flex-direction: column; }
 .ac-info { margin: 8px 16px 0; }
 .ac-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 10px; margin-top: 6px; }
-.ac-tabs .tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; font-weight: 600; color: var(--muted); }
-.ac-tabs .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.ac-tabs .tab, .perm-tabs .tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; font-weight: 600; color: var(--muted); }
+.ac-tabs .tab.active, .perm-tabs .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .ac-form { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
 .ac-form .chips[hidden] { display: none; }
 .ac-for { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
@@ -407,8 +431,101 @@ dialog.conflicts .b-actions { padding: 10px 16px 16px; }
 
 @media (max-width: 760px) {
   .selectors { grid-template-columns: 1fr; }
+  .sel-stack .sel-col { flex-direction: column; align-items: stretch; gap: 2px; }
+  .sel-stack .free-terms { width: auto; }
   .free-options { flex-wrap: wrap; }
   .topbar .who { display: none; }
   .grid-area { flex-direction: column; }
   .legend { width: auto; max-width: none; margin: 10px 0 0; max-height: 60vh; }
 }
+/* lista wzorów w oknie "Siatka godzinowa" */
+.b-tools select.b-presets { padding: 3px 6px; font-size: 13px; width: auto; }
+/* przycisk "Eksport do Excel" z ikoną arkusza */
+.xls-button { display: inline-flex; align-items: center; gap: 5px; }
+.xls-button .xls-icon { flex: none; }
+/* --- okno "Uprawnienia do obiektów" (UFPlannerPermissions) --- */
+dialog.perm {
+  width: calc(100vw - 32px); height: calc(100vh - 32px); max-width: none; max-height: none; padding: 0; border: 0;
+  border-radius: var(--radius); display: none; flex-direction: column; background: var(--surface); color: var(--text);
+}
+dialog.perm[open] { display: flex; }
+dialog.perm .perm-find { flex-wrap: wrap; gap: 8px; align-items: center; }
+dialog.perm .perm-find input[type=search] { width: 200px; }
+dialog.perm .perm-find select { max-width: 280px; }
+dialog.perm .perm-tabs { padding: 0 16px; display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+dialog.perm .perm-wrap { flex: 1; overflow: auto; margin: 0 16px 16px; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+table.perm-grid { border-collapse: separate; border-spacing: 0; font-size: 12px; user-select: none; }
+table.perm-grid th, table.perm-grid td { border-right: 1px solid var(--grid-line); border-bottom: 1px solid var(--grid-line); }
+table.perm-grid thead th { position: sticky; top: 0; z-index: 2; background: var(--grid-head); vertical-align: bottom; }
+table.perm-grid thead th.corner { left: 0; z-index: 3; min-width: 300px; }
+table.perm-grid th.pla { width: 24px; min-width: 24px; max-width: 24px; height: 160px; padding: 4px 0; cursor: copy; font-weight: 600; }
+table.perm-grid th.pla > span { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; overflow: hidden; max-height: 152px; display: inline-block; }
+table.perm-grid th.pla.role { color: var(--accent); }
+table.perm-grid th.obj { position: sticky; left: 0; z-index: 1; background: var(--surface); text-align: left; font-weight: normal; padding: 2px 6px;
+  min-width: 300px; max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: copy; }
+table.perm-grid th.hl { background: #808080; color: #ffffff; }
+table.perm-grid td { width: 24px; min-width: 24px; height: 20px; text-align: center; font-weight: 700; cursor: cell; }
+table.perm-grid td.vE { background: #008000; color: #ffffff; }
+table.perm-grid td.vR { background: #0000ff; color: #ffffff; }
+table.perm-grid td.sel { box-shadow: inset 0 0 0 2px var(--accent); }
+table.perm-grid td.sel:not(.vE):not(.vR) { background: var(--cell-selected); }
+button.perm-e { border-color: #008000; color: #008000; }
+button.perm-r { border-color: #0000ff; color: #0000ff; }
+/* --- okno "Raportowanie" (FGrouping) --- */
+dialog.report {
+  width: calc(100vw - 32px); height: calc(100vh - 32px); max-width: none; max-height: none; padding: 0; border: 0;
+  border-radius: var(--radius); display: none; flex-direction: column; background: var(--surface); color: var(--text);
+}
+dialog.report[open] { display: flex; }
+.rep-top { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 220px); gap: 10px; padding: 0 16px 8px; max-height: 46vh; overflow: auto; }
+.rep-top fieldset { border: 1px solid var(--border); border-radius: 6px; margin: 0; padding: 6px 10px 10px; min-width: 0; }
+.rep-top legend { font-weight: 600; font-size: 12px; color: var(--muted); padding: 0 4px; }
+.rep-cols { display: block; column-width: 200px; column-gap: 14px; font-size: 13px; }
+.rep-cols .check { display: flex; align-items: center; gap: 5px; cursor: pointer; break-inside: avoid; padding: 1px 0; }
+.rep-cols .check.sub { color: var(--muted); padding-left: 14px; }
+.rep-cols .check[hidden] { display: none; }
+.rep-where { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.rep-field { display: grid; grid-template-columns: 120px minmax(0, 1fr); align-items: center; gap: 6px; }
+.rep-field input, .rep-field select { padding: 3px 6px; min-width: 0; }
+.rep-dates { display: flex; align-items: center; gap: 6px; }
+.rep-where .check { display: flex; align-items: center; gap: 5px; }
+.rep-order input { width: 100%; padding: 3px 6px; }
+.rep-tools { position: relative; }
+.rep-menu { position: relative; display: inline-block; }
+.rep-menu .menu { position: absolute; top: 100%; left: 0; margin-top: 4px; z-index: 40; min-width: 260px; }
+.rep-menu .menu button { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; }
+.rep-sql { margin: 0 16px 8px; padding: 8px; max-height: 160px; overflow: auto; background: var(--grid-head); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; white-space: pre-wrap; }
+.rep-wrap { flex: 1; overflow: auto; margin: 0 16px 16px; border: 1px solid var(--border); border-radius: 6px; }
+table.rep-grid { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+table.rep-grid th, table.rep-grid td { border-right: 1px solid var(--grid-line); border-bottom: 1px solid var(--grid-line); padding: 3px 6px; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.rep-grid thead th { position: sticky; top: 0; z-index: 1; background: var(--grid-head); text-align: left; }
+table.rep-grid tfoot td { position: sticky; bottom: 0; background: var(--grid-head); font-weight: 700; }
+table.rep-grid .num { text-align: right; }
+table.rep-grid .no { color: var(--muted); text-align: right; }
+.rep-ask { margin: 8px; }
+/* --- okna narzędzi: dostępne miejsce, dziennik zdarzeń, oczekujące zadania, lista obecności --- */
+#dataMenu .menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
+dialog.tool { padding: 0; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--text); width: min(560px, calc(100vw - 32px)); }
+dialog.tool.wide { width: calc(100vw - 32px); height: calc(100vh - 32px); max-width: none; max-height: none; }
+dialog.tool[open].wide { display: flex; flex-direction: column; }
+.tool-body { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; flex: 1; }
+.tool-list { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 6px; min-height: 120px; }
+table.tool-grid { border-collapse: separate; border-spacing: 0; font-size: 12px; width: 100%; }
+table.tool-grid th, table.tool-grid td { border-bottom: 1px solid var(--grid-line); padding: 3px 8px; text-align: left; vertical-align: top; }
+table.tool-grid thead th { position: sticky; top: 0; background: var(--grid-head); }
+table.tool-grid .num { text-align: right; }
+table.tool-grid tr.err td { color: var(--error); }
+table.tool-grid tr.top td { background: #ffe4c8; }
+.space-bar { position: relative; height: 28px; border: 1px solid #969696; background: #e8e8e8; border-radius: 4px; overflow: hidden; }
+.space-fill { height: 100%; }
+.space-fill.ok { background: #2e964a; } .space-fill.warn { background: #e6911e; } .space-fill.bad { background: #ce2e2e; }
+.space-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; }
+.space-nums { display: flex; gap: 18px; flex-wrap: wrap; }
+.space-details { max-height: 50vh; overflow: auto; }
+.space-details h3 { font-size: 13px; margin: 4px 0; }
+.tool-form { display: flex; flex-direction: column; gap: 10px; }
+dialog.perm-sub { padding: 0; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--text); width: min(560px, calc(100vw - 32px)); }
+dialog.perm-sub.wide { width: calc(100vw - 64px); height: calc(100vh - 64px); max-width: none; max-height: none; }
+dialog.perm-sub[open].wide { display: flex; flex-direction: column; }
+.perm-transfer { border: 1px solid var(--border); border-radius: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 10px; padding: 6px 10px 10px; }
+.perm-transfer legend { font-weight: 600; font-size: 12px; color: var(--muted); }

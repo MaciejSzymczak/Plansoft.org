@@ -36,6 +36,7 @@ export class AddClassDialog {
   }
 
   // ctx: { period, cells: [{date, hour}], hours: [{no, label}], prefill: {L, G, S}, settings, user }
+  // ctx.edit: edycja zajęcia (bEditClassClick) - { ids: zastępowane zajęcia, kind, fill, colour, owner, createdBy, desc }
   open(ctx) {
     this.ctx = ctx;
     const prefs = loadPrefs(ctx.user);
@@ -44,11 +45,12 @@ export class AddClassDialog {
     const search = (type, q) => this.api(`objects/${type}?q=${encodeURIComponent(q)}${type === 'FOR' ? '&kind=' + this.kind : ''}`);
 
     const head = el('div', 'b-head');
-    head.append(el('h2', '', 'Dodaj zajęcie'), el('span', 'spacer'), button('×', 'link close', () => d.close()));
+    const edit = ctx.edit;
+    head.append(el('h2', '', edit ? 'Edytuj zajęcie' : 'Dodaj zajęcie'), el('span', 'spacer'), button('×', 'link close', () => d.close()));
     const info = el('p', 'muted ac-info', this.cellsText());
 
     const tabs = el('div', 'tabs ac-tabs');
-    this.kind = 'C';
+    this.kind = edit && edit.kind === 'R' ? 'R' : 'C';
     const tabC = button('Zajęcia', 'tab active', () => this.setKind('C'));
     const tabR = button('Rezerwacja', 'tab', () => this.setKind('R'));
     tabs.append(tabC, tabR);
@@ -60,7 +62,8 @@ export class AddClassDialog {
     this.forRow = el('div', 'ac-for');
     this.forRow.append(el('span', 'muted', 'Rezerwacja dla:'));
     for (const [v, label] of [['L', 'Wykładowcy'], ['G', 'Grupy'], ['S', 'Sale']]) {
-      const l = el('label', 'check'); const r = el('input'); r.type = 'radio'; r.name = 'resFor'; r.value = v; r.checked = v === 'L';
+      const l = el('label', 'check'); const r = el('input'); r.type = 'radio'; r.name = 'resFor'; r.value = v;
+      r.checked = v === (edit && this.kind === 'R' ? ['L', 'G', 'S'].find(t => (ctx.prefill[t] || []).length) || 'L' : 'L');
       r.addEventListener('change', () => this.updateKind());
       l.append(r, ' ' + label); this.forRow.append(l);
     }
@@ -72,29 +75,30 @@ export class AddClassDialog {
     };
     for (const t of 'LGS') this.fields[t].setItems(ctx.prefill[t] || []);
     // domyślny przedmiot i forma z okna głównego, a gdy ich nie ma - ostatnio użyte
-    const sub = ctx.sub || prefs.sub, frm = ctx.form || prefs.form;
+    const sub = edit ? ctx.sub : ctx.sub || prefs.sub, frm = edit ? ctx.form : ctx.form || prefs.form;
     if (sub) this.fields.SUB.setItems([sub]);
     if (frm) this.fields.FOR.setItems([frm]);
     this.chipEls = { L: elL, G: elG, S: elS, SUB: elSub, FOR: elFor };
 
     const row = el('div', 'ac-row');
     const fillL = el('label', 'b-field'); fillL.append(el('span', '', 'Wypełnienie [%] *'));
-    this.fill = el('input'); this.fill.type = 'number'; this.fill.min = 1; this.fill.max = 100; this.fill.value = prefs.fill || 100;
+    this.fill = el('input'); this.fill.type = 'number'; this.fill.min = 1; this.fill.max = 100; this.fill.value = edit ? edit.fill : prefs.fill || 100;
     this.fill.title = 'Jaka część godziny jest zajęta (100 = cała)';
     fillL.append(this.fill);
     const colL = el('label', 'b-field'); colL.append(el('span', '', 'Kolor (status)'));
     const colBox = el('div', 'ac-colour');
     this.colour = el('input'); this.colour.type = 'color'; this.colour.value = '#ffffff';
     const noCol = el('label', 'check'); this.noColour = el('input'); this.noColour.type = 'checkbox'; this.noColour.checked = true;
+    if (edit && edit.colour) { this.colour.value = edit.colour; this.noColour.checked = false; }
     noCol.append(this.noColour, ' brak');
     this.colour.addEventListener('input', () => { this.noColour.checked = false; });
     colBox.append(this.colour, noCol);
     colL.append(colBox);
     const ownL = el('label', 'b-field'); ownL.append(el('span', '', 'Właściciel'));
-    this.owner = el('input'); this.owner.value = ctx.user; this.owner.title = 'Planista, do którego należą zajęcia (kilku: oddziel średnikiem)';
+    this.owner = el('input'); this.owner.value = edit ? edit.owner || ctx.user : ctx.user; this.owner.title = 'Planista, do którego należą zajęcia (kilku: oddziel średnikiem)';
     ownL.append(this.owner);
     const crL = el('label', 'b-field'); crL.append(el('span', '', 'Utworzył'));
-    const cr = el('input'); cr.value = ctx.user; cr.disabled = true; crL.append(cr);
+    const cr = el('input'); cr.value = edit ? edit.createdBy || ctx.user : ctx.user; cr.disabled = true; crL.append(cr);
     row.append(fillL, colL, ownL, crL);
 
     // opisy zajęcia - tylko te, które mają nazwę w ustawieniach (CLASS_DESC1..4)
@@ -103,7 +107,7 @@ export class AddClassDialog {
     ctx.settings.descPlural.forEach((name, i) => {
       if (!name) { this.descs.push(null); return; }
       const l = el('label', 'b-field'); l.append(el('span', '', name));
-      const t = el('input'); l.append(t); descBox.append(l); this.descs.push(t);
+      const t = el('input'); if (edit) t.value = edit.desc[i] || ''; l.append(t); descBox.append(l); this.descs.push(t);
     });
 
     this.error = el('p', 'error ac-error'); this.error.hidden = true;
@@ -154,6 +158,7 @@ export class AddClassDialog {
       sub: r ? null : (this.fields.SUB.items[0] || {}).id, form: (this.fields.FOR.items[0] || {}).id,
       fill: Number(this.fill.value), colour: this.noColour.checked ? null : this.colour.value,
       owner: this.owner.value.trim(), desc: this.descs.map(t => (t ? t.value.trim() : null)), confirm,
+      replace: this.ctx.edit ? this.ctx.edit.ids : undefined,
     };
   }
 
@@ -186,7 +191,7 @@ export class AddClassDialog {
     const names = t => this.fields[t].items.map(i => i.name).join(', ');
     const p = this.payload(false);
     openConflicts(this.conflictsDialog, {
-      newTitle: 'Nowe zajęcie',
+      newTitle: this.ctx.edit ? 'Zmienione zajęcie' : 'Nowe zajęcie',
       newRows: [[this.cellsText().replace(/^Terminy?: /, ''), '',
         p.lec.length ? names('L') : '', p.gro.length ? names('G') : '', p.rom.length ? names('S') : '',
         p.sub ? names('SUB') : '', names('FOR'), p.owner]],

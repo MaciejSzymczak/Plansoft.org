@@ -52,7 +52,13 @@ C:\PlansoftWeb
 ## Aktualizacja
 
 Uruchom ponownie `install.cmd`. Usługi są zatrzymywane, programy i aplikacja podmieniane,
-a foldery `config`, `data` i `logs` zostają bez zmian.
+a foldery `config`, `data` i `logs` zostają bez zmian. Zatrzymywane są też inne programy
+uruchomione z folderu instalacji (np. ręcznie uruchomiony `node.exe`), które blokowałyby podmianę plików.
+
+Na komputerze z kodem źródłowym (obok instalatora jest folder `..\..\web`) instalator najpierw
+sprawdza, czy kod aplikacji jest nowszy niż paczka `app\*.zip` – jeśli tak, buduje ją od nowa
+(`web\build.ps1`), więc zawsze instaluje aktualną wersję. Po instalacji użytkownik, który ją
+uruchomił, ma prawo restartu usługi `plansoft-web` (potrzebne dla `web\deploy.ps1`).
 
 ## SSL
 
