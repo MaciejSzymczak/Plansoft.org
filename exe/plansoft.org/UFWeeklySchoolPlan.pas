@@ -494,8 +494,9 @@ begin
           txt := '';
           for k := 0 to classList.cnt-1 do begin
             if classList.classes[k].FOR_KIND = 'R'
-              then s := XMLescapeChars(classList.classes[k].FOR_abbreviation)
-              else s := classCellText(classList.classes[k], descCodes, sizes, bolds, links, suffix);
+              then s := XMLescapeChars(NVL(classList.classes[k].FOR_name, classList.classes[k].FOR_abbreviation))
+              // plan tygodniowy ma miejsce na pe³ne nazwy - tak¿e gdy w ustawieniach wybrano skróty
+              else s := classCellText(classList.classes[k], descCodes, sizes, bolds, links, suffix, true);
             colour := lessonColour(classList.classes[k], coloringIndex);
             one := '<div style="background:'+DelphiColourToHTML(ColorToRGB(colour))+';color:'+textColourFor(colour)+'"><span>'+s+'</span></div>';
             if Pos(one, all) = 0 then begin

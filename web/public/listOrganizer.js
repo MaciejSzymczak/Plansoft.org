@@ -37,7 +37,7 @@ export class ListOrganizer {
     const d = this.dialog;
     d.innerHTML = '';
     const head = el('div', 'b-head');
-    head.append(el('h2', '', `Lista: ${TITLES[type]}`), el('span', 'spacer'), button('×', 'link close', () => d.close(), 'Anuluj'));
+    head.append(el('h2', '', `Organizer: ${TITLES[type]}`), el('span', 'spacer'), button('×', 'link close', () => d.close(), 'Anuluj'));
 
     // "Wybierz kolejny": pole z podpowiedziami, wybrana pozycja dopisywana na koniec listy
     const addBox = el('div', 'chips small lo-add');

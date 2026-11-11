@@ -3,7 +3,7 @@ inherited FListOrganizer: TFListOrganizer
   Top = 228
   Width = 703
   Height = 684
-  Caption = ''
+  Caption = 'Organizer'
   Position = poDesigned
   PixelsPerInch = 96
   TextHeight = 14

@@ -25,8 +25,6 @@ type
     Shape1: TShape;
     bdelpopup: TSpeedButton;
     beditpopup: TSpeedButton;
-    SeeAvailable: TSpeedButton;
-    Shape2: TShape;
     bfavpopup: TSpeedButton;
     procedure Shape1aContextPopup(Sender: TObject; MousePos: TPoint;
       var Handled: Boolean);
@@ -46,7 +44,6 @@ type
     procedure moveUpMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure bdelpopupClick(Sender: TObject);
-    procedure SeeAvailableClick(Sender: TObject);
     procedure bfavpopupClick(Sender: TObject);
     procedure AddClassDblClick(Sender: TObject);
   private
@@ -177,11 +174,6 @@ begin
  fmain.Show;
 end;
 
-
-procedure TFToolWindow.SeeAvailableClick(Sender: TObject);
-begin
- fmain.ShowAvailableTerms;
-end;
 
 procedure TFToolWindow.bfavpopupClick(Sender: TObject);
 begin

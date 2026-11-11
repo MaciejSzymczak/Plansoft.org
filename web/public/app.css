@@ -102,7 +102,7 @@ input:focus-visible, select:focus-visible, button:focus-visible, .period-list:fo
 /* wykładowca, grupa, sala jedno pod drugim jak w Delphi: etykieta z lewej, wolne terminy z prawej */
 .sel-stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .sel-stack .sel-col { flex-direction: row; align-items: center; gap: 10px; }
-.sel-stack .chips { flex: 1; display: flex; align-items: center; gap: 6px; padding: 3px 34px 3px 8px; }
+.sel-stack .chips { flex: 1; display: flex; align-items: center; gap: 6px; padding: 3px 62px 3px 8px; }
 .sel-stack .chips-label { flex: none; width: 84px; margin: 0; }
 .sel-stack .chips-box { flex: 1; min-width: 0; }
 .sel-stack .chips-list { top: 50%; transform: translateY(-50%); }
@@ -137,14 +137,6 @@ table.semester td.cell.clip-copy { outline: 2px dashed var(--accent); outline-of
 table.semester td.cell.clip-cut { outline: 2px dashed var(--error); outline-offset: -3px; }
 
 /* menu kontekstowe siatki */
-.ctx-menu { position: fixed; z-index: 60; min-width: 250px; }
-.ctx-menu button { display: flex; justify-content: space-between; gap: 18px; width: 100%; }
-.ctx-menu button:disabled { color: var(--muted); opacity: .55; cursor: default; background: none; }
-.ctx-menu .key { color: var(--muted); font-size: 12px; }
-.ctx-menu .has-sub::after { content: '▸'; color: var(--muted); }
-.ctx-menu .menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
-.ctx-menu .menu-head { padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--muted); }
-.ctx-sub { position: absolute; min-width: 260px; z-index: 61; }
 
 /* --- pole wyboru jak w Outlooku --- */
 .chips {
@@ -169,6 +161,14 @@ table.semester td.cell.clip-cut { outline: 2px dashed var(--error); outline-offs
 .chip.dragging { opacity: .4; }
 .chip.drop-before { box-shadow: -3px 0 0 var(--accent); }
 .chip.drop-after { box-shadow: 3px 0 0 var(--accent); }
+/* kliknięta nazwa: obiekt, którego rozkład jest na ekranie */
+.chip.picked { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.chip.picked .chip-x { color: #ffffff; }
+.chip.picked .chip-x:hover { background: rgba(255, 255, 255, .25); color: #ffffff; }
+/* dwuklik w pole: lista przesunięta o jedną pozycję - pierwszy trafia na koniec */
+.chip.rotated { animation: chip-rotated .35s ease-out; }
+@keyframes chip-rotated { from { transform: translateX(-24px); opacity: .2; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .chip.rotated { animation: none; } }
 .chips-dropdown {
   position: absolute; left: -1px; right: -1px; top: 100%; margin-top: 4px; z-index: 20; background: var(--surface);
   border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: var(--shadow); max-height: 320px; overflow: auto;
@@ -220,14 +220,14 @@ table.semester td.cell:not(.outside):hover { background: var(--cell-hover); }
 table.semester td.cell.selected { background: var(--cell-selected); }
 /* osobne arkusze obiektów (okno "Zajęcie", "Wiele obiektów"): nazwa obiektu nad arkuszem, gruba linia między arkuszami */
 table.semester tr.obj-head th.obj-name {
-  text-align: left; padding: 6px 8px; background: var(--accent-soft); color: var(--text); font-weight: 700; font-size: 13px;
-  border-top: 2px solid var(--border-strong); border-bottom: 2px solid var(--border-strong); cursor: pointer;
+  text-align: left; padding: 7px 8px; background: var(--accent); color: #ffffff; font-weight: 700; font-size: 14px;
+  border-top: 6px solid var(--surface); border-bottom: 2px solid var(--border-strong); cursor: pointer;
 }
 table.semester tr.obj-head th.obj-name > span { position: sticky; left: 8px; }
-table.semester thead th.obj-col { background: var(--accent-soft); color: var(--text); font-weight: 700; text-align: left; cursor: pointer; }
+table.semester thead th.obj-col { background: var(--accent); color: #ffffff; font-weight: 700; font-size: 14px; text-align: left; cursor: pointer; }
 table.semester thead th.obj-col > span { position: sticky; left: 112px; }
-table.semester th.obj-name:hover, table.semester th.obj-col:hover { color: var(--accent); }
-table.semester .blk-start { border-left: 3px solid var(--border-strong); }
+table.semester th.obj-name:hover, table.semester th.obj-col:hover { color: #ffffff; text-decoration: underline; }
+table.semester .blk-start { border-left: 6px solid var(--accent); }
 table.semester.week-view .blk-start { border-left-width: 1px; }
 table.semester.week-view thead th.obj-col { text-align: center; }
 table.semester.week-view thead th.obj-col > span { position: static; }
@@ -255,6 +255,34 @@ table.semester td.cell.reservation {
 table.semester .cla { width: calc(var(--cw, 78px) - 4px); max-height: var(--ch, 22px); overflow: hidden; font-size: var(--cf, 11px); line-height: var(--lh, 15px); }
 table.semester .cla > div { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 table.semester .cla > div:first-child { font-weight: 600; }
+/* "Wiele obiektów" w poziomie / w pionie: każde zajęcie komórki w osobnym kwadraciku; kolumna tygodnia (w poziomie)
+   lub wiersz godziny (w pionie) rozszerza się tak, żeby zmieściły się wszystkie */
+table.semester tr.hour td.cell.stack { padding: 0; max-width: none; }
+table.semester td.cell.stack .cla-stack { display: flex; gap: 1px; background: var(--grid-line); }
+table.semester td.cell.stack-vertical .cla-stack { flex-direction: column; }
+table.semester td.cell.stack .cla { width: calc(var(--cw, 78px) - 1px); height: var(--ch, 22px); padding: 0 2px; box-sizing: border-box; background: #ffffff; }
+table.semester td.cell.stack .cla.reservation { background: repeating-linear-gradient(to bottom, #c0c0c0 0 1px, #ffffff 1px 5px); color: #000000; }
+table.semester td.cell.stack.selected .cla { box-shadow: inset 0 0 0 100px rgba(31, 95, 168, .25); }
+/* scalanie (okno "Zajęcie"): takie same zajęcia w sąsiednich komórkach sklejone - bez linii siatki między nimi;
+   kwadracik wydłużony o linię siatki, linia pod / obok pozostałymi kwadracikami rysowana w komórce (mg-v / mg-h) */
+table.semester td.cell.mg-down { border-bottom-color: transparent; }
+table.semester td.cell.mg-right { border-right-color: transparent; }
+table.semester td.cell.stack.mg-v { border-bottom-width: 0; }
+table.semester td.cell.stack.mg-v .cla-stack { padding-bottom: 1px; }
+table.semester td.cell.stack.mg-h { border-right-width: 0; }
+table.semester td.cell.stack.mg-h .cla-stack { padding-right: 1px; }
+table.semester td.cell.stack .cla.mg-down { height: calc(var(--ch, 22px) + 1px); max-height: none; margin-bottom: -1px; }
+table.semester td.cell.stack .cla.mg-right { width: var(--cw, 78px); margin-right: -1px; }
+table.semester td.cell.stack .cla.gap { background: #ffffff; }
+table.semester td.cell.stack .cla.gap, table.semester td.cell.stack.selected .cla.gap { box-shadow: none; }
+/* zaznaczona scalona grupa: podświetlone tylko jej kwadraciki */
+table.semester.grp-active td.cell.stack.selected .cla:not(.grp-sel) { box-shadow: none; }
+/* "pokazuj tylko pierwszy": przełączanie obiektów przyciskami nad siatką - wjazd nowego rozkładu z boku */
+@keyframes grid-slide-left { from { transform: translateX(60px); opacity: .2; } to { transform: none; opacity: 1; } }
+@keyframes grid-slide-right { from { transform: translateX(-60px); opacity: .2; } to { transform: none; opacity: 1; } }
+table.semester.slide-left { animation: grid-slide-left .35s ease-out; }
+table.semester.slide-right { animation: grid-slide-right .35s ease-out; }
+@media (prefers-reduced-motion: reduce) { table.semester.slide-left, table.semester.slide-right { animation: none; } }
 .grid-title .count { color: var(--muted); font-size: 12px; margin-left: 8px; }
 
 /* --- pasek nad siatką, okno "Zajęcie" --- */
@@ -401,6 +429,17 @@ dialog.addclass { width: min(760px, calc(100vw - 32px)); }
 dialog.conflicts { width: min(1200px, calc(100vw - 32px)); }
 dialog.addclass::backdrop, dialog.conflicts::backdrop { background: rgba(16, 24, 40, .4); }
 dialog.addclass[open], dialog.conflicts[open] { display: flex; flex-direction: column; }
+/* "Które zajęcie chcesz edytować?" - komórka z kilkoma zajęciami */
+dialog.pick-class {
+  padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(16, 24, 40, .3);
+  background: var(--surface); color: var(--text); width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+}
+dialog.pick-class::backdrop { background: rgba(16, 24, 40, .4); }
+dialog.pick-class[open] { display: flex; flex-direction: column; }
+dialog.pick-class .pick-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; overflow: auto; }
+dialog.pick-class .pick-item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+dialog.pick-class .pick-item .muted { font-size: 12px; }
+dialog.pick-class .b-actions { padding: 0 16px 16px; justify-content: flex-end; }
 .ac-info { margin: 8px 16px 0; }
 .ac-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 10px; margin-top: 6px; }
 .ac-tabs .tab, .perm-tabs .tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; font-weight: 600; color: var(--muted); }
@@ -529,3 +568,203 @@ dialog.perm-sub.wide { width: calc(100vw - 64px); height: calc(100vh - 64px); ma
 dialog.perm-sub[open].wide { display: flex; flex-direction: column; }
 .perm-transfer { border: 1px solid var(--border); border-radius: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 10px; padding: 6px 10px 10px; }
 .perm-transfer legend { font-weight: 600; font-size: 12px; color: var(--muted); }
+/* "Gdzie mogę przenieść zajęcia?" włączony: cały przycisk czerwony, subtelnie mruga (czerwony / jasnoczerwony) */
+button.see-avail.on { background: #e00000; border-color: #b00000; color: #ffffff; animation: see-avail-blink 1.4s steps(1) infinite; }
+@keyframes see-avail-blink { 50% { background: #ff8080; border-color: #e06060; } }
+@media (prefers-reduced-motion: reduce) { button.see-avail.on { animation: none; } }
+
+/* --- okno narzędzi przy siatce (FToolWindow) i menu podręczne (TPopupMenu) - wygląd jak w Delphi --- */
+.tool-window {
+  position: fixed; z-index: 70; width: 445px; height: 49px; font: 12px 'Segoe UI', Tahoma, sans-serif;
+  transition: opacity .08s linear; user-select: none;
+}
+.tool-window .tw-frame { position: absolute; background: #fff; border: 1px solid #000; border-radius: 8px; box-shadow: 0 3px 12px rgba(0, 0, 0, .25); }
+.tool-window .tw-shape { position: absolute; border: 1px solid #808080; border-radius: 8px; box-sizing: border-box; }
+.tool-window .tw-btn {
+  position: absolute; box-sizing: border-box; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid transparent; border-radius: 0; cursor: default; color: #000;
+}
+.tool-window .tw-btn img { display: block; image-rendering: pixelated; pointer-events: none; }
+.tool-window .tw-btn:hover:not(:disabled) { border-color: #fff #808080 #808080 #fff; background: #f0f0f0; }
+.tool-window .tw-btn:active:not(:disabled) { border-color: #808080 #fff #fff #808080; }
+.tool-window .tw-btn:focus-visible { outline: 1px dotted #000; outline-offset: -3px; }
+.tool-window .tw-btn:disabled img { filter: grayscale(1) contrast(.4) brightness(1.3); opacity: .55; }
+
+.tw-menu {
+  position: fixed; z-index: 80; min-width: 160px; padding: 2px; display: flex; flex-direction: column;
+  background: #f0f0f0; border: 1px solid #979797; box-shadow: 2px 2px 3px rgba(0, 0, 0, .3);
+  font: 12px 'Segoe UI', Tahoma, sans-serif; color: #000;
+}
+.tw-menu .tw-item {
+  display: flex; align-items: center; gap: 8px; min-height: 22px; padding: 1px 18px 1px 6px; margin: 0;
+  background: none; border: 1px solid transparent; border-radius: 0; text-align: left; white-space: nowrap; color: #000; font: inherit; cursor: default;
+}
+.tw-menu .tw-item:hover:not(:disabled), .tw-menu .tw-item:focus-visible, .tw-menu .tw-item.open { background: #cce8ff; border-color: #99d1ff; outline: none; }
+.tw-menu .tw-item:disabled { color: #8d8d8d; }
+.tw-menu .tw-item-icon { width: 32px; display: flex; justify-content: center; flex: none; }
+.tw-menu .tw-item-icon img { display: block; }
+.tw-menu .tw-item-label { flex: 1; padding-left: 4px; }
+.tw-menu .tw-item-arrow { margin-right: -12px; font-size: 10px; }
+.tw-menu .tw-sep { height: 1px; background: #bdbdbd; margin: 3px 2px 3px 28px; }
+
+dialog.tw-dialog {
+  padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(16, 24, 40, .3);
+  background: var(--surface); color: var(--text); width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: visible;
+}
+dialog.tw-dialog.tw-wide { width: min(980px, calc(100vw - 32px)); }
+dialog.tw-dialog::backdrop { background: rgba(16, 24, 40, .4); }
+dialog.tw-dialog[open] { display: flex; flex-direction: column; }
+.tw-dlg-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; overflow: visible; min-height: 0; }
+dialog.tw-wide .tw-dlg-body { overflow: auto; }
+.tw-dlg-actions { padding: 10px 16px 14px; }
+.tw-desc-list { max-height: 300px; overflow: auto; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; }
+.tw-desc-row { display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+.tw-desc-row .muted { font-size: 12px; margin-left: auto; }
+.tw-table-wrap { overflow: auto; max-height: 60vh; }
+
+/* --- okres: wiersze ukryte w ustawieniach okresu (ATTRIBS_15) - niskie, bez etykiety, jak w Delphi --- */
+table.semester tr.hour.row-hidden td.cell, table.semester tr.hour.row-hidden th.hour-no { height: calc(var(--ch, 22px) / 4); padding-top: 0; padding-bottom: 0; }
+table.semester tr.hour.row-hidden td.cell > * { height: calc(var(--ch, 22px) / 4) !important; max-height: calc(var(--ch, 22px) / 4) !important; overflow: hidden; font-size: 0; line-height: 0; }
+/* przycisk "Edytuj okres" (EditPeriod) i pola widoczności tygodni / wierszy w formularzu okresu */
+#editPeriodButton { margin-left: -4px; }
+.b-vis-box { display: flex; gap: 4px; }
+.b-vis-box .b-vis { flex: 1; min-width: 0; font-family: Consolas, monospace; letter-spacing: 1px; }
+dialog.browse.single { width: min(640px, calc(100vw - 32px)); }
+dialog.browse.single .b-form { overflow: auto; max-height: calc(100vh - 120px); }
+dialog.vis-dialog {
+  padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(16, 24, 40, .3);
+  background: var(--surface); color: var(--text); width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+}
+dialog.vis-dialog::backdrop { background: rgba(16, 24, 40, .4); }
+dialog.vis-dialog[open] { display: flex; flex-direction: column; }
+.vis-tools { display: flex; gap: 14px; padding: 8px 16px 0; }
+.vis-list { overflow: auto; padding: 6px 16px; display: flex; flex-direction: column; gap: 2px; min-height: 0; }
+.vis-row { padding: 2px 0; white-space: pre; }
+.vis-actions { padding: 10px 16px 14px; }
+
+/* --- dni wolne w siatce: zajęcia niedozwolone - krzyżyk, dozwolone - paski (DrawStriped w Delphi) --- */
+table.semester td.cell.hol-no { background-color: #f1f2f4; }
+/* nakładka nad komórką (także nad zajęciami): krzyżyk / paski */
+table.semester td.cell.hol-no::before, table.semester td.cell.hol-ok::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+table.semester td.cell.hol-no::before {
+  background-image: linear-gradient(to top right, transparent calc(50% - .7px), rgba(90, 98, 112, .75) 50%, transparent calc(50% + .7px)),
+                    linear-gradient(to bottom right, transparent calc(50% - .7px), rgba(90, 98, 112, .75) 50%, transparent calc(50% + .7px));
+}
+table.semester td.cell.hol-ok::before { background-image: repeating-linear-gradient(135deg, transparent 0 5px, rgba(225, 160, 40, .35) 5px 7px); }
+table.semester td.cell.hol-ok:not(.busy)::after, table.semester td.cell.hol-no:not(.busy)::after {
+  content: attr(data-hol); position: absolute; left: 2px; bottom: 1px; font-size: 9px; color: #6b7280; pointer-events: none;
+  max-width: calc(100% - 4px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+
+/* --- okno "Dni wolne okresu" --- */
+dialog.holidays {
+  padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(16, 24, 40, .3);
+  background: var(--surface); color: var(--text); width: min(1180px, calc(100vw - 32px)); height: min(820px, calc(100vh - 48px));
+}
+dialog.holidays::backdrop { background: rgba(16, 24, 40, .4); }
+dialog.holidays[open] { display: flex; flex-direction: column; }
+.hol-bar, .hol-tools { display: flex; align-items: center; gap: 12px; padding: 8px 16px 0; flex-wrap: wrap; }
+.hol-sym { flex-direction: row; align-items: center; gap: 6px; }
+.hol-sym input { width: 140px; }
+.hol-legend { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+.hol-sw { display: inline-block; width: 14px; height: 14px; border: 1px solid #c4c8cf; border-radius: 3px; vertical-align: middle; flex: none; }
+.hol-sw.hol-no, .hol-day.hol-no { background: #f3c4c4; border-color: #d98b8b; }
+.hol-sw.hol-ok, .hol-day.hol-ok { background: repeating-linear-gradient(135deg, #fff3d6 0 4px, #f2c66b 4px 6px); border-color: #e0b35a; }
+.hol-sw.hol-part, .hol-day.hol-part { background: linear-gradient(to top, #f2c66b 45%, #fff 45%); border-color: #e0b35a; }
+.hol-info { padding: 6px 16px 0; margin: 0; font-size: 13px; }
+dialog.holidays .error { margin: 6px 16px 0; }
+.hol-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 300px; gap: 12px; padding: 10px 16px 14px; }
+.hol-cal { overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; align-content: start; }
+.hol-month { border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+.hol-mname { font-weight: 600; text-transform: capitalize; margin-bottom: 6px; }
+.hol-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.hol-wd { font-size: 10px; color: var(--muted); text-align: center; }
+.hol-day { padding: 4px 0; font-size: 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); cursor: pointer; }
+.hol-day:hover:not(:disabled) { border-color: var(--accent); }
+.hol-day.outside { opacity: .3; cursor: default; }
+.hol-list { overflow: auto; border-left: 1px solid var(--border); padding-left: 12px; }
+.hol-list h3 { margin: 0 0 8px; font-size: 14px; }
+.hol-row { display: grid; grid-template-columns: 16px auto 1fr auto; gap: 2px 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.hol-row .muted { grid-column: 2 / 5; grid-row: 2; font-size: 12px; }
+.hol-row button { grid-column: 4; grid-row: 1; }
+
+/* --- Idź do daty --- */
+dialog.goto-date { width: min(360px, calc(100vw - 32px)); }
+.goto-actions { padding: 10px 16px 14px; }
+
+/* --- tabela przestawna --- */
+dialog.pivot {
+  padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 10px 40px rgba(16, 24, 40, .3);
+  background: var(--surface); color: var(--text); width: min(1300px, calc(100vw - 32px)); height: min(860px, calc(100vh - 48px));
+}
+dialog.pivot::backdrop { background: rgba(16, 24, 40, .4); }
+dialog.pivot[open] { display: flex; flex-direction: column; }
+.pv-form-row { display: flex; gap: 16px; padding: 10px 16px 0; flex-wrap: wrap; }
+.pv-rows { display: flex; gap: 6px; }
+.pv-filters { display: flex; gap: 14px; align-items: center; padding: 8px 16px 0; flex-wrap: wrap; }
+.pv-filters input[type=search] { flex: 1; min-width: 220px; }
+.pv-actions { padding: 10px 16px; align-items: center; }
+.pv-out { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 16px; }
+table.pv-table { border-collapse: collapse; font-size: 13px; }
+table.pv-table th, table.pv-table td { border: 1px solid var(--border); padding: 3px 8px; }
+table.pv-table thead th { position: sticky; top: 0; background: var(--surface-2, #f3f5f8); z-index: 1; }
+table.pv-table tbody th { text-align: left; font-weight: normal; background: #fafbfc; }
+table.pv-table td.num, table.pv-table th.num { text-align: right; }
+table.pv-table td.zero { color: transparent; }
+table.pv-table tfoot td, table.pv-table tfoot th { font-weight: 600; background: #eef2f7; }
+table.pv-table tr > :last-child { font-weight: 600; }
+
+/* --- SwitchMenu: panel menu z wyszukiwaniem --- */
+#viewMain.side-open { margin-left: 290px; }
+.side-menu {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 290px; z-index: 30; display: flex; flex-direction: column; gap: 8px;
+  padding: 10px; background: var(--surface); border-right: 1px solid var(--border); box-sizing: border-box;
+}
+.side-menu[hidden] { display: none; }
+.side-list { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+.side-group { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--muted); padding: 10px 6px 4px; }
+.side-item { text-align: left; background: none; border: 0; padding: 6px 8px; border-radius: 4px; cursor: pointer; color: inherit; }
+.side-item:hover, .side-item:focus-visible { background: var(--accent-soft); outline: none; }
+.side-obj { display: flex; gap: 6px; align-items: center; padding: 3px 8px; font-size: 13px; }
+.side-obj-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.switch-menu[aria-pressed=true] { background: var(--accent-soft); }
+
+/* przycisk "Rotuj" obok organizera (rorL/rorG/rorR) */
+.chips-list.chips-rotate { right: 34px; display: flex; align-items: center; justify-content: center; }
+
+/* --- legenda: Znajdź wykładowcę / grupę / salę --- */
+.legend .tabs { flex-wrap: wrap; }
+.legend .tab { white-space: nowrap; }
+.find-info { margin: 0; padding: 4px 10px; font-size: 12px; }
+.find-table .find-row { cursor: pointer; }
+.find-table .find-row:hover, .find-table .find-row:focus-visible { background: var(--accent-soft); outline: none; }
+.find-pct { position: relative; width: 64px; min-width: 64px; }
+.find-bar { position: absolute; left: 2px; top: 3px; bottom: 3px; border-radius: 2px; opacity: .3; }
+.find-num { position: relative; }
+
+/* --- DrawSuppressionS/F: zajęcia innego przedmiotu / formy przygaszone kratką (DrawSuppressionH/V w Delphi) --- */
+table.semester td.cell.busy.suppressed::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .62) 0 2px, transparent 2px 4px),
+              repeating-linear-gradient(90deg, rgba(255, 255, 255, .62) 0 2px, transparent 2px 4px);
+}
+.chips .suppress { position: absolute; right: 8px; top: 5px; font-size: 11px; font-weight: normal; color: var(--muted); display: flex; gap: 3px; align-items: center; cursor: pointer; }
+.chips .suppress input { margin: 0; }
+
+/* --- wskaźnik pracy (Raportowanie, Tabela przestawna): spinner i pasek postępu nad wynikami --- */
+.work-overlay { position: fixed; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, .72); border-radius: 6px; }
+.work-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 26px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); min-width: 240px; }
+.work-spinner { width: 34px; height: 34px; border: 4px solid var(--accent-soft); border-top-color: var(--accent); border-radius: 50%; animation: work-spin .8s linear infinite; }
+.work-text { font-weight: 600; }
+.work-bar { position: relative; width: 200px; height: 6px; border-radius: 3px; background: var(--accent-soft); overflow: hidden; }
+.work-bar span { position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 3px; background: var(--accent); animation: work-bar 1.2s ease-in-out infinite; }
+.work-time { font-size: 12px; min-height: 1em; }
+@keyframes work-spin { to { transform: rotate(360deg); } }
+@keyframes work-bar { from { left: -40%; } to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) { .work-spinner, .work-bar span { animation-duration: 3s; } }
+/* Idź do daty (FSelectDate): data, Wybierz, dni tygodnia */
+dialog.goto-date { width: min(440px, calc(100vw - 32px)); }
+.goto-row { display: flex; gap: 8px; }
+.goto-row input { flex: 1; }
+.goto-days { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.goto-days button:last-child { grid-column: 1 / 3; }

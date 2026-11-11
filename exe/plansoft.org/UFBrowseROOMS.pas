@@ -67,7 +67,6 @@ type
     ToolsPopup: TPopupMenu;
     BMassImport: TMenuItem;
     Scalaj1: TMenuItem;
-    UtwrzmapGooglezzasobami1: TMenuItem;
     LabelORGUNI_ID: TLabel;
     ORGUNI_ID: TDBEdit;
     ORGUNI_ID_VALUE: TEdit;
@@ -115,7 +114,6 @@ type
     procedure btoolsClick(Sender: TObject);
     procedure BMassImportClick(Sender: TObject);
     procedure Scalaj1Click(Sender: TObject);
-    procedure UtwrzmapGooglezzasobami1Click(Sender: TObject);
     procedure ORGUNI_IDChange(Sender: TObject);
     procedure ORGUNI_ID_VALUEClick(Sender: TObject);
     procedure BSelectORGUNI_IDClick(Sender: TObject);
@@ -609,11 +607,6 @@ end;
 procedure TFBrowseROOMS.Scalaj1Click(Sender: TObject);
 begin
   CONSOLIDATIONShowModalAsBrowser(2);
-end;
-
-procedure TFBrowseROOMS.UtwrzmapGooglezzasobami1Click(Sender: TObject);
-begin
-  fmain.GoogleMapEasyClick(nil);
 end;
 
 procedure TFBrowseROOMS.ORGUNI_IDChange(Sender: TObject);

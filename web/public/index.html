@@ -48,10 +48,12 @@
 <!-- główne okno -->
 <section id="viewMain" class="view main" hidden>
   <header class="topbar">
+    <button type="button" id="switchMenuButton" class="secondary small switch-menu" aria-pressed="false" aria-controls="sideMenu" title="Menu i wyszukiwanie">☰</button>
     <span class="brand small"><span class="logo">P</span> Plansoft.org</span>
     <button type="button" id="periodButton" class="period-button" title="Zmień okres">
       <span class="caption">Okres</span> <b id="periodName"></b> <span id="periodDates" class="muted"></span>
     </button>
+    <button type="button" id="editPeriodButton" class="secondary small" title="Edytuj okres" aria-label="Edytuj okres">…</button>
     <div class="popover-anchor">
       <button type="button" id="dataMenuButton" class="secondary small" aria-expanded="false" aria-haspopup="menu">Dane ▾</button>
       <div id="dataMenu" class="menu" role="menu" hidden>
@@ -62,13 +64,20 @@
         <button type="button" role="menuitem" data-browse="SUB">Przedmioty</button>
         <button type="button" role="menuitem" data-browse="FOR">Formy</button>
         <button type="button" role="menuitem" data-browse="GRID">Siatka godzinowa</button>
+        <button type="button" role="menuitem" id="holidaysMenu">Dni wolne okresu</button>
         <button type="button" role="menuitem" id="permissionsMenu">Uprawnienia</button>
-        <button type="button" role="menuitem" id="reportMenu">Raportowanie</button>
-        <button type="button" role="menuitem" data-tool="attendance">Lista obecności</button>
         <div class="menu-sep" role="separator"></div>
         <button type="button" role="menuitem" data-tool="dbSpace">Dostępne miejsce</button>
         <button type="button" role="menuitem" data-tool="eventLog">Dziennik zdarzeń systemowych</button>
         <button type="button" role="menuitem" data-tool="waitingTasks">Oczekujące zadania</button>
+      </div>
+    </div>
+    <div class="popover-anchor">
+      <button type="button" id="reportsMenuButton" class="secondary small" aria-expanded="false" aria-haspopup="menu">Raporty i publikowanie ▾</button>
+      <div id="reportsMenu" class="menu" role="menu" hidden>
+        <button type="button" role="menuitem" id="reportMenu">Raportowanie</button>
+        <button type="button" role="menuitem" id="pivotMenu">Tabela przestawna</button>
+        <button type="button" role="menuitem" data-tool="attendance">Lista obecności</button>
       </div>
     </div>
     <span class="spacer"></span>
@@ -99,8 +108,12 @@
       <button type="button" id="weekBack" class="secondary small" title="Wróć do układu semestralnego">Semestr</button>
     </div>
     <span class="spacer"></span>
-    <span class="sel-count" id="selCount"></span>    <div class="popover-anchor">
-      <button type="button" id="cellLayoutButton" class="secondary small" aria-expanded="false" aria-controls="cellLayout" title="Wygląd komórki: kolorowanie, opisy, rozmiary">Zajęcie</button>
+    <span class="sel-count" id="selCount"></span>
+    <button type="button" id="goToDateButton" class="secondary small" title="Przejdź do daty">Idź do daty</button>
+    <button type="button" id="previewButton" class="secondary small" aria-haspopup="menu" title="Szybki podgląd - rozkład do wydruku">Podgląd ▾</button>
+    <button type="button" id="seeAvailButton" class="secondary small see-avail" aria-pressed="false" title="Gdzie mogę przenieść zajęcie?">Gdzie przenieść?</button>
+    <div class="popover-anchor">
+      <button type="button" id="cellLayoutButton" class="secondary small" aria-expanded="false" aria-controls="cellLayout" title="Układ: wygląd komórki - kolorowanie, opisy, rozmiary">Układ</button>
       <div id="cellLayout" class="popover" hidden></div>
     </div>
     <button type="button" id="legendButton" class="secondary small" aria-pressed="false" title="Legenda: podsumowanie godzin">Legenda</button>
@@ -109,13 +122,22 @@
     <div class="grid-wrap" id="gridWrap"></div>
     <aside id="legend" class="legend" hidden>
       <div class="tabs" role="tablist">
-        <button type="button" class="tab active" role="tab" aria-selected="true">Podsumowanie godzin</button>
+        <button type="button" class="tab active" role="tab" aria-selected="true" data-tab="summary">Podsumowanie godzin</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="L">Znajdź wykładowcę</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="G">Znajdź grupę</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="S">Znajdź salę</button>
         <span class="spacer"></span>
         <button type="button" class="link close" id="legendClose" title="Zamknij">×</button>
       </div>
       <div id="summary" class="summary"></div>
+      <div id="find" class="summary" hidden></div>
     </aside>
   </div>
+  <!-- SwitchMenu: panel z poleceniami menu i wyszukiwaniem obiektów (TreeView1 + SearchMenu1..3 w Delphi) -->
+  <aside id="sideMenu" class="side-menu" hidden aria-label="Menu i wyszukiwanie">
+    <input type="search" id="sideSearch" placeholder="Szukaj polecenia lub obiektu…" autocomplete="off">
+    <div id="sideList" class="side-list"></div>
+  </aside>
 </section>
 
 </body>

@@ -6,7 +6,10 @@ export class ChipField {
   // single: tylko jedna wartość (wybór nowej zastępuje poprzednią)
   // listOnSecondClick: pierwsze kliknięcie tylko wybiera pole (rozkład w siatce), lista podpowiedzi pojawia się
   // po kliknięciu pola już wybranego, po wpisaniu tekstu albo strzałce w dół
-  constructor(el, { search, onChange, onActivate, single, listOnSecondClick }) {
+  // onPick(item): kliknięcie w nazwę (pojedyncze - podwójne przesuwa listę); setPicked(id) - nazwa zaznaczona
+  constructor(el, { search, onChange, onActivate, onPick, single, listOnSecondClick }) {
+    this.onPick = onPick || null;
+    this.pickedId = null;
     this.el = el;
     this.listOnSecondClick = !!listOnSecondClick;
     this.showOnFocus = false;
@@ -63,6 +66,18 @@ export class ChipField {
     this.input.addEventListener('keydown', e => this.onKey(e));
   }
 
+  // przycisk "Rotuj" (CONLECTURER_valueDblClick w Delphi): lista przesuwa się o jedną pozycję -
+  // pierwszy na koniec (LROR), np. kolejny wykładowca staje się pierwszym
+  rotate() {
+    if (this.single || this.items.length < 2) return;
+    this.close();
+    this.items.push(this.items.shift());
+    this.render();
+    const last = this.box.querySelectorAll('.chip')[this.items.length - 1];
+    if (last) last.classList.add('rotated');
+    this.onChange(this);
+  }
+
   setItems(items) {
     this.items = items.slice();
     this.render();
@@ -73,8 +88,14 @@ export class ChipField {
     this.box.querySelectorAll('.chip').forEach(c => c.remove());
     this.items.forEach((it, i) => {
       const chip = document.createElement('span');
-      chip.className = 'chip';
+      chip.className = 'chip' + (this.pickedId !== null && String(it.id) === String(this.pickedId) ? ' picked' : '');
+      chip.dataset.id = it.id;
       chip.draggable = true;
+      // kliknięcie w nazwę: zaznacz obiekt
+      if (this.onPick) chip.addEventListener('click', e => {
+        if (e.target.closest('.chip-x') || e.detail > 1) return;
+        this.onPick(it);
+      });
       chip.title = it.org ? `${it.name} (${it.org})` : it.name;
       const name = document.createElement('span');
       name.className = 'chip-name';
@@ -123,6 +144,11 @@ export class ChipField {
     });
     this.el.classList.toggle('has-items', this.items.length > 0);
     this.input.placeholder = this.items.length ? '' : 'Wpisz, aby wyszukać…';
+  }
+
+  setPicked(id) {
+    this.pickedId = id === undefined ? null : id;
+    this.box.querySelectorAll('.chip').forEach(c => c.classList.toggle('picked', this.pickedId !== null && c.dataset.id === String(this.pickedId)));
   }
 
   isAfter(e, chip) {

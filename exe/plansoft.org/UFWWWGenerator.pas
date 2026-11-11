@@ -185,7 +185,8 @@ function  isLinkableCode(code : shortString) : boolean;
 function  linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : string; const weekSuffix : string = '') : string;
 // treœæ komórki zajêæ wg ustawieñ Plik | Drukuj (Zawartoœæ, Wielkoœæ, Pogrubienie, Link) - po 5 pozycji
 function  classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
-                        const bolds, links : array of boolean; const weekSuffix : string = '') : string;
+                        const bolds, links : array of boolean; const weekSuffix : string = '';
+                        const fullNames : boolean = false) : string;
 procedure resetLinkFileNames;
 // nazwa pliku rozk³adu bez rozszerzenia - jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam)
 function  timetableFileName(resType, resIds : string) : string;
@@ -772,11 +773,15 @@ var linkKeys        : TStringList = nil; // posortowane klucze 'L123', 'G45', 'R
     linkNames       : TStringList = nil;
     linkKindsLoaded : string = '';
 
+// pe³ne nazwy wyk³adowców (z tytu³em) i grup na grafiku tygodniowym: 'L123=dr Jan Kowalski', 'G45=Informatyka rok 1'
+var fullNameCache   : TStringList = nil;
+
 procedure resetLinkFileNames;
 begin
   FreeAndNil(linkKeys);
   FreeAndNil(linkNames);
   linkKindsLoaded := '';
+  FreeAndNil(fullNameCache);
 end;
 
 // zawartoœæ, która ma swój rozk³ad: wyk³adowca, grupa, zasoby (wszystkie albo kategoria)
@@ -884,31 +889,68 @@ begin
   end;
 end;
 
-function classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
-                       const bolds, links : array of boolean; const weekSuffix : string = '') : string;
-var t : integer;
-    token : string;
+// pe³ne nazwy wyk³adowców ('L') lub grup ('G') wg identyfikatorów zajêcia, w tej samej kolejnoœci (linkResourceNames)
+function fullNamesOf(kind : char; ids : string) : string;
+var t   : integer;
+    id, key, sql : string;
 begin
   result := '';
+  if fullNameCache = nil then fullNameCache := TStringList.Create;
+  for t := 1 to WordCount(ids, [';']) do begin
+    id := Trim(ExtractWord(t, ids, [';']));
+    if id = '' then continue;
+    key := kind + id;
+    if fullNameCache.IndexOfName(key) = -1 then begin
+      if kind = 'L' then sql := sql_LECDESC + id
+                    else sql := 'SELECT nvl(name, abbreviation) FROM groups WHERE ID=' + id;
+      fullNameCache.Add(key + '=' + Trim(DModule.SingleValue(sql)));
+    end;
+    result := Merge(result, fullNameCache.Values[key], '; ');
+  end;
+end;
+
+// fullNames: grafik tygodniowy - zawsze pe³ne nazwy (wyk³adowców, grup, przedmiotów, form), bez skracania tekstów
+function classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
+                       const bolds, links : array of boolean; const weekSuffix : string = '';
+                       const fullNames : boolean = false) : string;
+var t : integer;
+    token, forName : string;
+
+  // MaxLength* z parametrów systemu; na grafiku tygodniowym bez obcinania
+  function maxLen(param : string) : integer;
+  begin
+    if fullNames then result := MaxInt
+                 else result := StrToInt(NVL(GetSystemParam(param),'1000'));
+  end;
+
+begin
+  result := '';
+  forName := Class_.FOR_name;
+  if isBlank(forName) then forName := Class_.FOR_abbreviation;
   If Class_.FILL <> 100 Then result := '<FONT style="font-size:'+sizes[0]+'px;">'+intToStr(Class_.FILL)+'%'+'</FONT>';
   For t := 0 To High(descCodes) Do Begin
     Token := '';
-    if  descCodes[t]= 'L'          then Token := Copy(Class_.CALC_LECTURERS,   1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_LECTURERS'),'1000')))    else
+    if fullNames and ((descCodes[t] = 'L') or (descCodes[t] = 'L+'))   then Token := fullNamesOf('L', Class_.CALC_LEC_IDS) else
+    if fullNames and  (descCodes[t] = 'G')                             then Token := fullNamesOf('G', Class_.CALC_GRO_IDS) else
+    if fullNames and  (descCodes[t] = 'S')                             then Token := Class_.SUB_name                       else
+    if fullNames and  (descCodes[t] = 'F')                             then Token := forName                               else
+    if fullNames and ((descCodes[t] = 'SF') or (descCodes[t] = 'SF+')) then Token := Class_.SUB_name+' ('+forName+')'      else
+    if  descCodes[t]= 'L'          then Token := Copy(Class_.CALC_LECTURERS,   1, maxLen('MaxLengthCALC_LECTURERS'))    else
     if  descCodes[t]= 'L+'         then Token := fmain.LecToNames (Class_.calc_lec_ids)    else
-    if  descCodes[t]= 'G'          then Token := Copy(Class_.CALC_GROUPS,      1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_GROUPS'),'1000')))       else
-    if  descCodes[t]= 'S'          then Token := Copy(Class_.SUB_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000')))  else
-    if  descCodes[t]= 'F'          then Token := Copy(Class_.FOR_abbreviation, 1, StrToInt(NVL(GetSystemParam('MaxLengthFOR_abbreviation'),'1000')))  else
-    if  descCodes[t]= 'SF'         then Token := Copy(Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')', 1, StrToInt(NVL(GetSystemParam('MaxLengthSUB_abbreviation'),'1000'))) else
+    if  descCodes[t]= 'G'          then Token := Copy(Class_.CALC_GROUPS,      1, maxLen('MaxLengthCALC_GROUPS'))       else
+    if  descCodes[t]= 'S'          then Token := Copy(Class_.SUB_abbreviation, 1, maxLen('MaxLengthSUB_abbreviation'))  else
+    if  descCodes[t]= 'F'          then Token := Copy(Class_.FOR_abbreviation, 1, maxLen('MaxLengthFOR_abbreviation'))  else
+    if  descCodes[t]= 'SF'         then Token := Copy(Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')', 1, maxLen('MaxLengthSUB_abbreviation')) else
     if  descCodes[t]= 'SF+'        then Token := Class_.SUB_name+'('+Class_.FOR_abbreviation+')' else
-    if  descCodes[t]= 'OWNER'      then Token := Copy(Class_.Owner,            1, StrToInt(NVL(GetSystemParam('MaxLengthOwner'),'1000')))             else
-    if  descCodes[t]= 'CREATED_BY' then Token := Copy(Class_.Created_by,       1, StrToInt(NVL(GetSystemParam('MaxLengthCreated_by'),'1000')))        else
-    if  descCodes[t]= 'NONE'       then {}                                                                                                            else
-    if  descCodes[t]= 'DESC1'      then Token := Copy(Class_.desc1,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc1'),'1000')))             else
-    if  descCodes[t]= 'DESC2'      then Token := Copy(Class_.desc2,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc2'),'1000')))             else
-    if  descCodes[t]= 'DESC3'      then Token := Copy(Class_.desc3,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc3'),'1000')))             else
-    if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, StrToInt(NVL(GetSystemParam('MaxLengthDesc4'),'1000')))             else
-    if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')))
-    else token := Copy(ucommon.getResourcesByType(descCodes[t], Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS ), 1, StrToInt(NVL(GetSystemParam('MaxLengthCALC_ROOMS'),'1000')));
+    if  descCodes[t]= 'OWNER'      then Token := Copy(Class_.Owner,            1, maxLen('MaxLengthOwner'))             else
+    if  descCodes[t]= 'CREATED_BY' then Token := Copy(Class_.Created_by,       1, maxLen('MaxLengthCreated_by'))        else
+    if  descCodes[t]= 'NONE'       then {}                                                                              else
+    if  descCodes[t]= 'DESC1'      then Token := Copy(Class_.desc1,            1, maxLen('MaxLengthDesc1'))             else
+    if  descCodes[t]= 'DESC2'      then Token := Copy(Class_.desc2,            1, maxLen('MaxLengthDesc2'))             else
+    if  descCodes[t]= 'DESC3'      then Token := Copy(Class_.desc3,            1, maxLen('MaxLengthDesc3'))             else
+    if  descCodes[t]= 'DESC4'      then Token := Copy(Class_.desc4,            1, maxLen('MaxLengthDesc4'))             else
+    if  descCodes[t]= 'ALL_RES'    then Token := Copy(Class_.CALC_ROOMS,       1, maxLen('MaxLengthCALC_ROOMS'))
+    else token := Copy(ucommon.getResourcesByType(descCodes[t], Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS ), 1, maxLen('MaxLengthCALC_ROOMS'));
 
     // Link: ka¿da nazwa wyk³adowcy / grupy / zasobu prowadzi do jego rozk³adu
     If links[t] Then Token := linkResourceNames(descCodes[t], Token, Class_.CALC_LEC_IDS, Class_.CALC_GRO_IDS, Class_.CALC_ROM_IDS, Class_.CALC_RESCAT_IDS, weekSuffix);
@@ -1069,7 +1111,7 @@ Procedure TFWWWGenerator.CalendarToHTML(
        End
        Else Colour := clRed {ikona alert};
 
-       S := classCellText(Class_, [D1, D2, D3, D4, D5], [S1, S2, S3, S4, S5], [B1, B2, B3, B4, B5], [Link1, Link2, Link3, Link4, Link5]);
+       S := classCellText(Class_, [D1, D2, D3, D4, D5], [S1, S2, S3, S4, S5], [B1, B2, B3, B4, B5], [Link1, Link2, Link3, Link4, Link5], '', weeklyView);
 
        If Class_.FILL <> 100 Then AddCell('BORDERCOLORDARK=red BORDERCOLORLIGHT=RED',S,DelphiColourToHTML(Colour))
                              Else AddCell('',S,DelphiColourToHTML(Colour));

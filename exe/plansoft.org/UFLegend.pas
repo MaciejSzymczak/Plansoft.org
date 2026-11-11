@@ -624,12 +624,13 @@ begin
     if (fmain.TabViewType.TabIndex = 2) then presId := ExtractWord(1,Nvl(fmain.conResCat0.Text,'-1'),[';']);
     if (fmain.TabViewType.TabIndex = 3) then presId := ExtractWord(1,Nvl(fmain.ConResCat1.Text,'-1'),[';']);
     // okres tygodniowy z obiektami w kolumnach: podsumowanie dla wszystkich wyk³adowców/grup/sal widocznych w siatce
+    // pusta lista (np. chwilowo, gdy wybór grup czyœci listê przed zmian¹ zak³adki) - jak wy¿ej: -1, bo "IN ()" = ORA-00936
     if convertGrid.convertMode = ConvWeekObjects then
       Case fmain.TabViewType.TabIndex Of
-        0: presId := fmain.ConLecturer.Text;
-        1: presId := fmain.ConGroup.Text;
-        2: presId := fmain.conResCat0.Text;
-        3: presId := fmain.ConResCat1.Text;
+        0: presId := Nvl(fmain.ConLecturer.Text,'-1');
+        1: presId := Nvl(fmain.ConGroup.Text,'-1');
+        2: presId := Nvl(fmain.conResCat0.Text,'-1');
+        3: presId := Nvl(fmain.ConResCat1.Text,'-1');
       end;
     ChildsAndParents := '('+replace(getChildsAndParents(presId, '', true, false, true),';',',')+')';   //2024.07.25
 
@@ -1022,7 +1023,7 @@ end;
 procedure TFLegend.gridCounterCellClick(Column: TColumn);
 var itemsL, itemsG, itemsR, itemsF, itemsS : TStringList;
     t : Integer;
- function hasAccess (pId : String) : boolean;
+ function hasAccess (pId : String; const quiet : boolean = false) : boolean;
  var sql : string;
      UserOrRoleID : string;
  begin
@@ -1046,8 +1047,51 @@ var itemsL, itemsG, itemsR, itemsF, itemsS : TStringList;
    +';pla_id5='+UserOrRoleID
    );
   result := dmodule.QWork.Fields[0].AsString='1';
-  if not result then SError('Brak uprawnien');
+  if (not result) and (not quiet) then SError('Brak uprawnien');
  end;
+
+ // Rozk³ad wszystkich wyk³adowców / grup / sal: identyfikatory ze wszystkich wierszy podsumowania godzin
+ // (bez powtórzeñ, w kolejnoœci wierszy); obiekty bez uprawnieñ s¹ pomijane - jeden komunikat na koñcu
+ function allIds (kind : char) : string;
+ var bm : TBookmark;
+     ids, skipped : TStringList;
+     t : integer;
+     procedure add(id : string);
+     begin
+       if (id = '') or (ids.IndexOf(id) >= 0) or (skipped.IndexOf(id) >= 0) then exit;
+       if hasAccess(id, true) then ids.Add(id) else skipped.Add(id);
+     end;
+ begin
+   result := '';
+   ids := TStringList.Create;
+   skipped := TStringList.Create;
+   bm := QueryCounter.GetBookmark;
+   QueryCounter.DisableControls;
+   try
+     QueryCounter.First;
+     while not QueryCounter.Eof do begin
+       case kind of
+         'L': add(QueryCounter.FieldByName('LEC_ID').AsString);
+         'R': add(QueryCounter.FieldByName('ROM_ID').AsString);
+         'G': if chGnewLine.Checked then add(QueryCounter.FieldByName('GRO_ID').AsString)
+              else for t := 1 to WordCount(QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']) do
+                add(ExtractWord(t, QueryCounter.FieldByName('CALC_GRO_IDS').AsString, [';']));
+       end;
+       QueryCounter.Next;
+     end;
+     for t := 0 to ids.Count - 1 do result := Merge(result, ids[t], ';');
+     if skipped.Count > 0 then
+       SError('Pominiêto obiekty, do których nie masz uprawnieñ: ' + IntToStr(skipped.Count));
+   finally
+     QueryCounter.GotoBookmark(bm);
+     QueryCounter.FreeBookmark(bm);
+     QueryCounter.EnableControls;
+     ids.Free;
+     skipped.Free;
+   end;
+ end;
+
+ var ids : string;
 
 begin
   itemsL := TStringList.Create;
@@ -1087,6 +1131,15 @@ begin
     if FLegendNavigation.selectedOption='dspL' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspG' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 1; fmain.congroup.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspR' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := FLegendNavigation.selectedId; end;
+    if (FLegendNavigation.selectedOption='dspAllL') or (FLegendNavigation.selectedOption='dspAllG') or (FLegendNavigation.selectedOption='dspAllR') then begin
+      ids := allIds(FLegendNavigation.selectedOption[7]);
+      if ids = '' then exit;
+      case FLegendNavigation.selectedOption[7] of
+        'L': begin fmain.TabViewType.TabIndex := 0; fmain.conlecturer.Text := ids; end;
+        'G': begin fmain.TabViewType.TabIndex := 1; fmain.congroup.Text   := ids; end;
+        'R': begin fmain.TabViewType.TabIndex := 2; fmain.conResCat0.Text := ids; end;
+      end;
+    end;
     if FLegendNavigation.selectedOption='dspS' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.TabViewType.TabIndex := 5; fmain.DrawSuppressionS.Checked := true; fmain.consubject.Text := FLegendNavigation.selectedId; end;
     if FLegendNavigation.selectedOption='dspF' then begin if not hasAccess(FLegendNavigation.selectedId) then exit; fmain.DrawSuppressionF.Checked := true; fmain.conForm.Text := FLegendNavigation.selectedId; end;
 

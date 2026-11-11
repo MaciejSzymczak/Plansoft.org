@@ -232,8 +232,6 @@ type
     mmprofileObjectNameC2s: TMenuItem;
     mmprofileObjectNamePeriods: TMenuItem;
     Legend: TSpeedButton;
-    xzoomIn: TSpeedButton;
-    xzoomOut: TSpeedButton;
     Normal: TSpeedButton;
     bReports: TSpeedButton;
     BAddClass: TSpeedButton;
@@ -300,10 +298,6 @@ type
     N14: TMenuItem;
     MMDiagram: TMenuItem;
     AutoSaver: TTimer;
-    bmoveUp: TSpeedButton;
-    bmoveDown: TSpeedButton;
-    bmoveright: TSpeedButton;
-    bmoveLeft: TSpeedButton;
     Shape10a: TShape;
     bSeeAvailable: TSpeedButton;
     bfavpopup: TSpeedButton;
@@ -311,15 +305,8 @@ type
     Listywarto1: TMenuItem;
     N18: TMenuItem;
     Zmiehas1: TMenuItem;
-    Shape8a: TShape;
     Shape7a: TShape;
-    xShape4a: TShape;
     Shape1a: TShape;
-    bcopyarea: TSpeedButton;
-    bcutarea: TSpeedButton;
-    bpastearea: TSpeedButton;
-    bclearselection: TSpeedButton;
-    Shape9a: TShape;
     BFullScreen: TSpeedButton;
     Timer1: TTimer;
     DelPopup: TPopupMenu;
@@ -431,7 +418,6 @@ type
     BitBtnCLEARROLE: TSpeedButton;
     BSelectComb: TSpeedButton;
     Listazajchistoriazmian1: TMenuItem;
-    BTraceHistory: TSpeedButton;
     Wydrukiwukadzietygodnia1: TMenuItem;
     Zajciawgprzedmiotwukadtygodniowy1: TMenuItem;
     Zajciawgwykadowcwukadtygodniowy1: TMenuItem;
@@ -458,12 +444,6 @@ type
     DBUpdates: TMemo;
     Wskanikiefektywnoci1: TMenuItem;
     Label2: TLabel;
-    bthpopup: TSpeedButton;
-    thPopup: TPopupMenu;
-    MenuItem2: TMenuItem;
-    MapaGooglezzasobami1: TMenuItem;
-    GoogleMapEasy: TMenuItem;
-    GoogleMapAdv: TMenuItem;
     SearchPanel: TPanel;
     TreeView1: TTreeView;
     Panel1: TPanel;
@@ -508,12 +488,10 @@ type
     EksportujdoGoogleKalendarz2: TMenuItem;
     WskanikiefektywnociwykresyGoogle1: TMenuItem;
     N12: TMenuItem;
-    MapaGooglezzasobami3: TMenuItem;
     fastQueryGenericString: TMemo;
     gridPanel: TPanel;
     Grid: TDrawGrid;
     refreshFilter: TTimer;
-    Generatorslajdw1: TMenuItem;
     Preferowaneterminy1: TMenuItem;
     N20: TMenuItem;
     Lista1: TMenuItem;
@@ -610,8 +588,6 @@ type
     procedure conResCat0Change(Sender: TObject);
     procedure ConSubjectChange(Sender: TObject);
     procedure conPeriodChange(Sender: TObject);
-    procedure xzoomInClick(Sender: TObject);
-    procedure xzoomOutClick(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure BAddClassClick(Sender: TObject);
@@ -705,20 +681,10 @@ type
     procedure TimerShapesEngineTimer(Sender: TObject);
     procedure bconflictspopupMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure xzoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure BIMPMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
-    procedure bmoveLeftMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure GridMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure bcopyareaClick(Sender: TObject);
-    procedure bcutareaClick(Sender: TObject);
-    procedure bpasteareaClick(Sender: TObject);
-    procedure bclearselectionClick(Sender: TObject);
-    procedure bcopyareaMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure FormShow(Sender: TObject);
     procedure BFullScreenClick(Sender: TObject);
     procedure GridMouseDown(Sender: TObject; Button: TMouseButton;
@@ -821,7 +787,6 @@ type
     procedure BitBtnCLEARROLEClick(Sender: TObject);
     procedure BSelectCombClick(Sender: TObject);
     procedure Listazajchistoriazmian1Click(Sender: TObject);
-    procedure BTraceHistoryClick(Sender: TObject);
     procedure Przedmiotyvswykladowcy1Click(Sender: TObject);
     procedure Przedmiotyvsgrupy1Click(Sender: TObject);
     procedure Przedmiotyvssale1Click(Sender: TObject);
@@ -841,8 +806,6 @@ type
     procedure Innatabelaprzestawna1Click(Sender: TObject);
     procedure Wskanikiefektywnoci1Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
-    procedure GoogleMapEasyClick(Sender: TObject);
-    procedure GoogleMapAdvClick(Sender: TObject);
     procedure CONLECTURER_valueClick(Sender: TObject);
     procedure CONGROUP_valueClick(Sender: TObject);
     procedure conResCat0_valueClick(Sender: TObject);
@@ -884,9 +847,7 @@ type
     procedure Utwrzwitrynwww2Click(Sender: TObject);
     procedure EksportujdoGoogleKalendarz2Click(Sender: TObject);
     procedure WskanikiefektywnociwykresyGoogle1Click(Sender: TObject);
-    procedure MapaGooglezzasobami3Click(Sender: TObject);
     procedure refreshFilterTimer(Sender: TObject);
-    procedure Generatorslajdw1Click(Sender: TObject);
     procedure Preferowaneterminy1Click(Sender: TObject);
     procedure Lista1Click(Sender: TObject);
     procedure DrawSuppressionSClick(Sender: TObject);
@@ -965,6 +926,14 @@ type
     gridDragStartPt : TPoint;
     gridDragCol, gridDragRow : integer;  // chwycona komórka
     gridDragRect    : TGridRect;         // przeci¹gany obszar (zaznaczenie w chwili chwycenia)
+    //2026-11: "Gdzie mogê przenieœæ zajêcia?" - bSeeAvailable wciœniêty: zasoby i identyfikatory zaznaczonych zajêæ
+    //(listy rozdzielone ';'), z których liczona jest zajêtoœæ terminów (tBusyClassesCache._LoadPeriod)
+    seeAvailLec, seeAvailGro, seeAvailRom, seeAvailCla : string;
+    seeAvailOn    : boolean;             // tryb w³¹czony (przycisk bSeeAvailable "wciœniêty")
+    seeAvailBlink : TTimer;              // subtelne mruganie t³a (czerwony / jasnoczerwony)
+    seeAvailBlinkRed : boolean;          // mruganie: teraz t³o czerwone (false - jasnoczerwone)
+    // glify przycisku bSeeAvailable: oryginalny, z czerwonym i z jasnoczerwonym t³em (tryb w³¹czony)
+    seeAvailGlyphNormal, seeAvailGlyphRed, seeAvailGlyphLight : TBitmap;
     //used by Copy-Cut-Paste
     GridSelectionLeft : integer;
     GridSelectionRight : integer;
@@ -981,10 +950,19 @@ type
     PeriodHolidaysReadOnly : Boolean;
     gridRefreshCounter   : Integer;
     userLogged : boolean;
+    gridPaintFrozen : boolean;   // pierwsze uruchomienie: siatka nie jest rysowana, dopóki uk³ad okna nie jest gotowy
     ignoreEvents : boolean;
     activePulpit : integer;
     suppressCounterRefresh : boolean; //2026-07: guards refreshPanels' Podsumowanie godzin (Counter tab) requery during pure navigation, see BuildCalendar
     procedure GridWndProc(var Message: Messages.TMessage);
+    procedure freezeGridPaint;
+    procedure unfreezeGridPaint;
+    function  seeAvailableCollect(var changed : boolean) : boolean;
+    procedure seeAvailableLook;
+    procedure seeAvailableHint;
+    procedure seeAvailableReload;
+    procedure seeAvailableBlinkTick(Sender: TObject);
+    function  seeAvailableGlyph(aColor : TColor) : TBitmap;
     function  gridDragCanStart(X, Y : integer; keys : integer) : boolean;
     procedure gridDragPreview(X, Y : integer);
     procedure gridDragFinish(X, Y : integer);
@@ -1185,7 +1163,7 @@ Uses AutoCreate, UFDetails, UFWarning,
   UFProgramSettings, UFChangePassword, UFToolWindow,
   UFCopyClasses, UFPurgeData, UFprogressBar, UFTTCheckResults,
   UFTTCombinations, UFMassImport, UFExportTimetable, UFCopyMethod, UFAbolitionTime, inifiles, UFMatrix,
-  UFGoogleMap, UFDatesSelector, UFSlideshowGenerator, UFActionTree,
+  UFDatesSelector, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
   FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks, UFBrowseEVENTLOG;
@@ -1252,11 +1230,41 @@ Var t : Integer;
     havingRom2 : string;
 
     rid, excludedResources : String;
+    // 2026-11: "Gdzie mogê przenieœæ zajêcia?" - zasoby zaznaczonych zajêæ (zajêty, gdy zajêty którykolwiek)
+    AvLecCond, AvGroCond, AvRomCond, AvNotCla : String;
     weekSyncOn : boolean; // synchronizacja tygodni: zajêtoœæ tak¿e w pozosta³ych widocznych tygodniach
     busyClause : string;  // dni, w których szukamy zajêtoœci (periodClause albo wszystkie synchronizowane tygodnie)
     // 2026-11: pola wyniku i nazwy z ustawieñ odczytane raz przed pêtl¹ (zamiast FieldByName / TEdit.Text w ka¿dym wierszu)
     fDay, fHour, fCnt, fCntL, fCntG, fCntR, fCntR2, fSubName, fForName, fLecturers, fGroups, fRooms : TField;
     nameLs, nameGs : string;
+    // 2026-11: opisy zajêtoœci sklejane w bazie (jeden wiersz na komórkê); aggregated=false - dotychczasowe zapytanie
+    aggregated : boolean;
+    aggSQL     : string;
+    fTxt, fBgroups : TField;
+
+  // zapytanie SQLstmt zgrupowane po komórce (dzieñ, godzina): teksty jak w pêtli poni¿ej (claIds), sklejone CR
+  // w tej samej kolejnoœci, w jakiej dotychczasowe zapytanie zwraca wiersze (rownum rn) - od pierwszego opisu zale¿y
+  // kolor kropki zajêtoœci (GetColor w GridDrawCell),
+  // grupy sklejone ', ' (bgroups), suma cnt. Komórki, których teksty nie zmieszcz¹ siê w 4000 bajtach LISTAGG,
+  // przychodz¹ jak dot¹d - po jednym wierszu na zajêcie (pêtla i tak dokleja kolejne wiersze do komórki).
+  function busyAggregatedSQL : string;
+  var qLs, qGs : string;
+  begin
+    qLs := StringReplace(nameLs, '''', '''''', [rfReplaceAll]);
+    qGs := StringReplace(nameGs, '''', '''''', [rfReplaceAll]);
+    result :=
+      'with b as (select q.*, rownum rn from ('+cr+SQLstmt+cr+') q),'+cr+
+      'r as (select b.*, ''[''||case when cntL>0 then ''W'' end||case when cntG>0 then ''G'' end||case when cntR>0 then ''S'' end||case when cntR2>0 then ''Z'' end||''] ''||'+
+           iif(weekSyncOn, 'to_char(day,''yyyy-mm-dd'')||'' ''||', '')+ // synchronizacja tygodni: w którym dniu
+           'sub_name||'' ''||'' (''||for_name||'' ''||'')    ''||'''+qLs+':''||calc_lecturers||'' ''||''    ''||'''+qGs+':''||calc_groups||'' ''||''    Zasoby:''||calc_rooms txt'+cr+
+      '        from b),'+cr+
+      's as (select r.*, sum(lengthb(txt)+2) over (partition by day, hour) tl, sum(nvl(lengthb(calc_groups),0)+2) over (partition by day, hour) gl from r)'+cr+
+      'select day, hour, min(rn) rn, sum(cnt) cnt, listagg(txt, chr(13)||chr(10)) within group (order by rn) txt, listagg(calc_groups, '', '') within group (order by rn) bgroups'+cr+
+      '  from s where tl <= 3900 and gl <= 3900 group by day, hour'+cr+
+      'union all'+cr+
+      'select day, hour, rn, cnt, txt, calc_groups bgroups from s where tl > 3900 or gl > 3900'+cr+
+      'order by rn';
+  end;
 
 Var L1, L2 : Integer;
 begin
@@ -1354,6 +1362,36 @@ begin
 
   End;
 
+  // "Gdzie mogê przenieœæ zajêcia?" (bSeeAvailable wciœniêty): wyk³adowcy, grupy i zasoby wszystkich zaznaczonych
+  // zajêæ (z wykluczeniami, jak przy "poka¿ wolne terminy"); same przenoszone zajêcia nie s¹ zajêtoœci¹
+  AvLecCond := ''; AvGroCond := ''; AvRomCond := ''; AvNotCla := '';
+  if FMain.seeAvailOn then begin
+    if FMain.seeAvailLec <> '' then begin
+      AvLecCond := 'lec_id in ('+replace(FMain.seeAvailLec,';',',')+')';
+      excludedResources := getExcludedResources(FMain.seeAvailLec,'lec_id');
+      if (excludedResources<>'') then AvLecCond := Merge(AvLecCond, excludedResources, ' OR ');
+    end;
+    if FMain.seeAvailGro <> '' then begin
+      AvGroCond := 'gro_id in ('+replace(FMain.seeAvailGro,';',',')+')';
+      excludedResources := getExcludedResources(FMain.seeAvailGro,'gro_id');
+      if (excludedResources<>'') then AvGroCond := Merge(AvGroCond, excludedResources, ' OR ');
+    end;
+    if FMain.seeAvailRom <> '' then begin
+      AvRomCond := 'rom_id in ('+replace(FMain.seeAvailRom,';',',')+')';
+      excludedResources := getExcludedResources(FMain.seeAvailRom,'rom_id');
+      if (excludedResources<>'') then AvRomCond := Merge(AvRomCond, excludedResources, ' OR ');
+    end;
+    // po 900 identyfikatorów w jednym "not in" (ORA-01795: najwy¿ej 1000 wyra¿eñ na liœcie)
+    rid := '';
+    for t := 1 to WordCount(FMain.seeAvailCla, [';']) do begin
+      rid := Merge(rid, ExtractWord(t, FMain.seeAvailCla, [';']), ',');
+      if (t mod 900 = 0) or (t = WordCount(FMain.seeAvailCla, [';'])) then begin
+        AvNotCla := AvNotCla + ' and classes.id not in ('+rid+')';
+        rid := '';
+      end;
+    end;
+  end;
+
    NotLec    := '';
    NotGro    := '';
    NotRom    := '';
@@ -1386,12 +1424,12 @@ begin
 
   SQLstmt :=
    'select classes.id, calc_lecturers, calc_groups, calc_rooms, sub.name sub_name, form.name for_name, day, hour, count(1) cnt'+cr+
-   iif(LecCond='',',0 cntL'    ,',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+LecCond+')) cntL')+cr+
-   iif(GroCond='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+GroCond+')) cntG')+cr+
-   iif(RomCond='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+RomCond+'))  cntR')+cr+
+   iif(Merge(LecCond,AvLecCond,' OR ')='',',0 cntL'    ,',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+Merge(LecCond,AvLecCond,' OR ')+')) cntL')+cr+
+   iif(Merge(GroCond,AvGroCond,' OR ')='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+Merge(GroCond,AvGroCond,' OR ')+')) cntG')+cr+
+   iif(Merge(RomCond,AvRomCond,' OR ')='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+Merge(RomCond,AvRomCond,' OR ')+'))  cntR')+cr+
    iif(ResCat1Cond='',',0 cntR2',',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+')) cntR2')+cr+
    'from   classes, subjects sub, forms form'+cr+
-   'where sub_id=sub.id(+) and for_id=form.id(+) and classes.id in'+cr+
+   'where sub_id=sub.id(+) and for_id=form.id(+)'+AvNotCla+' and classes.id in'+cr+
    '('+cr+
    'select -1 from dual'+cr+
    iif(LecCond='',''    ,'union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+LecCond+')'+cr)+
@@ -1402,6 +1440,10 @@ begin
       iif((RomCond<>'') and (FMain.ShowAllAnyResCat0.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+RomCond+') group by day, hour having count(1)'+ havingRom  +')'+cr,'')+
    iif(ResCat1Cond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+')'+cr)+
       iif((ResCat1Cond<>'') and (FMain.ShowAllAnyResCat1.ItemIndex>0),'and (day, hour) in (select day, hour from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+') group by day, hour having count(1)'+ HavingRom2  +')'+cr,'')+
+   // "Gdzie mogê przenieœæ zajêcia?": termin zajêty, gdy zajêty jest którykolwiek zasób zaznaczonych zajêæ
+   iif(AvLecCond='','','union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+AvLecCond+')'+cr)+
+   iif(AvGroCond='','','union select cla_id from gro_cla where no_conflict_flag is null and '+busyClause+' and ('+AvGroCond+')'+cr)+
+   iif(AvRomCond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+AvRomCond+')'+cr)+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
@@ -1418,24 +1460,51 @@ begin
    //copyToClipboard(SQLstmt);
    // 2026-11: kursor klienta - wszystkie wiersze (czêsto kilka tysiêcy) pobierane jednym transferem,
    // zamiast osobnego pobrania ka¿dego wiersza przy kursorze serwera (pierwsze rysowanie siatki czeka³o na to ok. 1 s)
+   nameLs     := fprogramsettings.profileObjectNameLs.text;
+   nameGs     := fprogramsettings.profileObjectNameGs.text;
    QWork.Close;
    QWork.CursorLocation := clUseClient;
    try
-   openSQL ( SQLstmt );
+   // 2026-11: najpierw zapytanie zgrupowane po komórce (kilka razy mniej wierszy i kolumn do przes³ania);
+   // b³¹d (np. Oracle starszy ni¿ 11.2 - brak LISTAGG) - bez komunikatu, zapytanie jak dot¹d
+   aggregated := true;
+   aggSQL := busyAggregatedSQL;
+   try
+     dmodule.resetConnection ( Dmodule.QWork );
+     QWork.ParamCheck := false;
+     QWork.SQL.Text := aggSQL;
+     dm.logSQLStart('openSQL', aggSQL);
+     QWork.Open;
+     dm.logSQLStop;
+   except
+     on E:exception do begin
+       fmain.wlog('tBusyClassesCache._LoadPeriod: zapytanie zgrupowane niedostêpne, zapytanie jak dot¹d: ' + E.Message);
+       aggregated := false;
+     end;
+   end;
+   if not aggregated then begin
+     QWork.Close;
+     openSQL ( SQLstmt );
+   end;
    fDay       := QWork.FieldByName('DAY');
    fHour      := QWork.FieldByName('HOUR');
    fCnt       := QWork.FieldByName('cnt');
-   fCntL      := QWork.FieldByName('cntL');
-   fCntG      := QWork.FieldByName('cntG');
-   fCntR      := QWork.FieldByName('cntR');
-   fCntR2     := QWork.FieldByName('cntr2');
-   fSubName   := QWork.FieldByName('sub_name');
-   fForName   := QWork.FieldByName('for_name');
-   fLecturers := QWork.FieldByName('calc_lecturers');
-   fGroups    := QWork.FieldByName('calc_groups');
-   fRooms     := QWork.FieldByName('calc_rooms');
-   nameLs     := fprogramsettings.profileObjectNameLs.text;
-   nameGs     := fprogramsettings.profileObjectNameGs.text;
+   fTxt := nil; fBgroups := nil; fCntL := nil; fCntG := nil; fCntR := nil; fCntR2 := nil;
+   fSubName := nil; fForName := nil; fLecturers := nil; fGroups := nil; fRooms := nil;
+   if aggregated then begin
+     fTxt     := QWork.FieldByName('txt');
+     fBgroups := QWork.FieldByName('bgroups');
+   end else begin
+     fCntL      := QWork.FieldByName('cntL');
+     fCntG      := QWork.FieldByName('cntG');
+     fCntR      := QWork.FieldByName('cntR');
+     fCntR2     := QWork.FieldByName('cntr2');
+     fSubName   := QWork.FieldByName('sub_name');
+     fForName   := QWork.FieldByName('for_name');
+     fLecturers := QWork.FieldByName('calc_lecturers');
+     fGroups    := QWork.FieldByName('calc_groups');
+     fRooms     := QWork.FieldByName('calc_rooms');
+   end;
 
     While Not QWork.EOF Do Begin
      X := DateTimeToTimeStamp(fDay.AsDateTime).Date;
@@ -1458,6 +1527,11 @@ begin
      else begin
        global[t][y].isBusy := True;
        global[t][y].busyCnt := global[t][y].busyCnt + fCnt.AsInteger;
+       if aggregated then begin
+         // opisy sklejone w bazie (te same teksty co poni¿ej)
+         global[t][y].claIds  := merge(global[t][y].claIds,  fTxt.AsString,     cr);
+         global[t][y].bgroups := merge(global[t][y].bgroups, fBgroups.AsString, ', ');
+       end else begin
        global[t][y].claIds  := merge(global[t][y].claIds,
            '['+iif(fCntL.AsInteger>0,'W','')+
            iif(fCntG.AsInteger>0,'G','')+
@@ -1471,6 +1545,7 @@ begin
            '    Zasoby:'+fRooms.AsString,cr);
        global[t][y].bgroups  := merge(global[t][y].bgroups,
            fGroups.AsString,', ');
+       end;
      end;
 
      QWork.Next;
@@ -1478,6 +1553,7 @@ begin
    finally
      QWork.Close;
      QWork.CursorLocation := clUseServer;
+     QWork.ParamCheck := true;
    end;
 
     if not fmain.FavOff.Checked then
@@ -2157,14 +2233,6 @@ procedure TFMain.RefreshGrid;
   Shape7a.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   bAddClass.Visible := V;
   bAddClass.Enabled := canInsert;
-  bmoveLeft.Enabled := canInsert and canDelete;
-  bmoveUp.Enabled := canInsert and canDelete;
-  bmoveDown.Enabled := canInsert and canDelete;
-  bmoveright.Enabled := canInsert and canDelete;
-  bcutarea.Enabled := canDelete;
-  bpastearea.Enabled := canInsert;
-  bcopyarea.Enabled := canInsert or canDelete;
-  bclearselection.Enabled := canInsert or canDelete;
 
   bEditClass.Visible := V;
   bDeleteClass.Visible := V;
@@ -2172,10 +2240,6 @@ procedure TFMain.RefreshGrid;
   bdelpopup.Visible := V;
   beditpopup.Visible := V;
   DeepRefreshButton.Visible := V;
-  bcopyarea.Visible := V;
-  bcutarea.Visible := V;
-  bpastearea.Visible := V;
-  bclearselection.Visible := V;
   GoToDate.Visible := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   //zoomIn.Visible := V;
   //zoomOut.Visible := V;
@@ -2184,19 +2248,14 @@ procedure TFMain.RefreshGrid;
   LCONROLE_VALUE.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   GoToDate.Visible  := (TabViewType.TabIndex <4) or (TabViewType.TabIndex=5);
   BitBtnCLEARROLE.Visible := not isBlank(conRole.Text) and ((TabViewType.TabIndex <4) or (TabViewType.TabIndex=5));
-  bmoveDown.Visible := v;
-  bmoveUp.Visible := v;
-  bmoveLeft.Visible := v;
-  bmoveRight.Visible := v;
   // "Gdzie mogê przenieœæ zajêcie?" i preferowane terminy - jak w menu podrêcznym (FToolWindow)
   Shape10a.Visible := v;
   bSeeAvailable.Visible := v;
+  seeAvailableLook;
   bfavpopup.Visible := v;
   Shape1a.Visible := v;
   //Shape4a.Visible := v;
   Shape7a.Visible := v;
-  Shape8a.Visible := v;
-  Shape9a.Visible := v;
  End;
 
  var fontHeightInPixels : integer;
@@ -2317,7 +2376,7 @@ var  colCnt, rowCnt : integer;
       cl : TClass_;
   begin
     if TabViewType.TabIndex >= 4 then exit;
-    if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
+    if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
       if not BusyClassesCache.Valid then BusyClassesCache._LoadPeriod( StrToInt(NVL(conPeriod.text,'-1')) );
     // zajêcia obiektu: pierwszy dzieñ bufora, pierwsza godzina - wczytuje do pamiêci ca³y okres
     // (to samo zapytanie co w ccLoadPeriod, tak¿e dla zakresu dat CustomdateRange - pierwszy dzieñ = FirstDay bufora)
@@ -2541,21 +2600,6 @@ Begin
   layoutPeriodButtons;
   LeftPanel.Invalidate;
 End;
-
-procedure TFMain.xzoomInClick(Sender: TObject);
-begin
- gridFont.Font.Size := gridFont.Font.Size + 1;
- RefreshGrid;
-end;
-
-procedure TFMain.xzoomOutClick(Sender: TObject);
-begin
- If gridFont.Font.Size > 1  Then
-  Begin
-    gridFont.Font.Size := gridFont.Font.Size - 1;
-    RefreshGrid;
-  End;
-end;
 
 procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
@@ -3018,7 +3062,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 		  out_hints   : string;
 	 Begin
      out_ratio := 0;
-	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
+	   if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
      	   BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
 
 		     if out_isbusy Then begin
@@ -3939,7 +3983,7 @@ var drawDone : boolean;
  begin
      out_isbusy := false;
      hints      := hintsText;
-	   if ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then
+	   if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then
 	      BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
      if out_isbusy then DrawFreeText('Kolizje', out_claids + iif(hints <> '', cr + cr + 'Preferowane terminy:' + cr + hints, ''))
      else if hints <> '' then DrawFreeText('Preferowane terminy', hints);
@@ -5652,7 +5696,14 @@ end;
 
 procedure TFMain.refreshLegend;
 var CONDL, CONDG, CONDR : String;
+    seeAvailChanged : boolean;
 begin
+ // "Gdzie mogê przenieœæ zajêcia?" wciœniêty: zaznaczono inne zajêcia - kropki zajêtoœci dla nich;
+ // zaznaczenie komórki bez zajêæ - kropki znikaj¹ (przycisk pozostaje wciœniêty do zaznaczenia zajêæ)
+ if seeAvailOn then begin
+   seeAvailableCollect(seeAvailChanged);
+   if seeAvailChanged then begin seeAvailableHint; seeAvailableReload; end;
+ end;
  StatusBar.Panels[7].Text := '(' + inttostr(grid.Selection.Top) + ':' + inttostr(grid.Selection.Left) + ')    Suma: ' + inttostr ( (grid.Selection.Right - grid.Selection.Left + 1) * (grid.Selection.bottom - grid.Selection.top + 1) );
  if not flegend.Visible then exit;
 
@@ -5927,6 +5978,7 @@ begin
    //2026-07: setPeriod already performs a full refresh (SetVisibles + DeepRefreshImmediate -> BuildCalendar -> RefreshGrid);
    //calling RefreshGrid again right after made the grid visibly rebuild/flicker twice on first login. Only fall back
    //to a plain RefreshGrid when there is no period at all (setPeriod would have been skipped, e.g. brand-new/empty DB).
+   if not userLogged then freezeGridPaint;
    If Not isBlank(conPeriod.Text) Then setPeriod else RefreshGrid;
    //BIMP.Enabled := False;
    //BEXP.Enabled := False;
@@ -7349,29 +7401,16 @@ begin
   setActiveShape(1);
 end;
 
+// ramki grup przycisków na pasku: 1 = Shape1a (zajêcia), 7 = Shape7a (legenda); inne numery - ¿adna ramka
 procedure TFMain.setActiveShape( no : integer);
- var s : array [1..9] of tshape;
-     t : integer;
-begin
- s[ 1] := Shape1a;
- s[ 2] := xShape4a; //dummy value- currently not used
- s[ 3] := xShape4a; //dummy value- currently not used
- s[ 4] := xShape4a; //dummy value- currently not used
- s[ 5] := xShape4a; //dummy value- currently not used
- s[ 6] := xShape4a; //dummy value- currently not used
- s[ 7] := Shape7a;
- s[ 8] := Shape8a;
- s[ 9] := Shape9a;
-
- if no <> 0 then begin
-   s[no].Pen.Style := psDot;
-   s[no].Pen.Color := clBlack;
+ procedure paint(s : TShape; active : boolean);
+ begin
+   if active then begin s.Pen.Style := psDot;   s.Pen.Color := clBlack;  end
+             else begin s.Pen.Style := psSolid; s.Pen.Color := clSilver; end;
  end;
- for t := 1 to 9 do
-   if t <> no then begin
-     s[t].Pen.Style := psSolid;
-     s[t].Pen.Color := clSilver;
-   end;
+begin
+ paint(Shape1a, no = 1);
+ paint(Shape7a, no = 7);
  timerShapes := 9;
 end;
 
@@ -7399,36 +7438,31 @@ begin
   setActiveShape(3);
 end;
 
-procedure TFMain.xzoomInMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-begin
-  setActiveShape(4);
-end;
-
 procedure TFMain.BIMPMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   setActiveShape(7);
 end;
 
-procedure TFMain.bmoveLeftMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
-begin
-  setActiveShape(8);
-end;
-
 procedure TFMain.GridMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var hdrObj, hdrHour, lastRow : integer;
+var hdrObj, hdrHour, lastRow, hdrCol : integer;
     hdrTS  : TTimeStamp;
     myRect : TGridRect;
+    isHeaderRow : boolean;
 begin
- // klikniêcie w szar¹ komórkê z dat¹ (nag³ówek dnia, np. "07 X"): zaznacz wszystkie godziny tego dnia (ca³y s³upek)
+ // klikniêcie w szar¹ komórkê z dat¹ (nag³ówek dnia, np. "07 X"): zaznacz wszystkie godziny tego dnia (ca³y s³upek);
+ // kilka dat zaznaczonych przeci¹gniêciem myszy w poziomie (jeden wiersz dat): wszystkie godziny zaznaczonych dni
  if (Button = mbLeft) and (Shift * [ssShift, ssCtrl] = []) then begin
    myRect := Grid.Selection;
-   hdrObj := AObjectId;
-   if (myRect.Left = myRect.Right) and (myRect.Top = myRect.Bottom) and (myRect.Left >= Grid.FixedCols)
-      and (convertGrid.ColRowToDate(hdrObj, hdrTS, hdrHour, myRect.Left, myRect.Top) = ConvHeader) then begin
+   // wiersz dat: któraœ z zaznaczonych komórek jest dat¹ (komórki spoza okresu w tym wierszu nie s¹ datami)
+   isHeaderRow := false;
+   if (myRect.Top = myRect.Bottom) and (myRect.Left >= Grid.FixedCols) then
+     for hdrCol := myRect.Left to myRect.Right do begin
+       hdrObj := AObjectId;
+       if convertGrid.ColRowToDate(hdrObj, hdrTS, hdrHour, hdrCol, myRect.Top) = ConvHeader then begin isHeaderRow := true; break; end;
+     end;
+   if isHeaderRow then begin
      lastRow := myRect.Top + convertGrid.convertSingleObject.MaxIloscGodzin;
      if lastRow > Grid.RowCount - 1 then lastRow := Grid.RowCount - 1;
      myRect.Top    := myRect.Top + 1;
@@ -7446,32 +7480,6 @@ begin
  end;
 
  autoExpandSelection;
-end;
-
-procedure TFMain.bcopyareaClick(Sender: TObject);
-begin
-  CopyArea;
-end;
-
-procedure TFMain.bcutareaClick(Sender: TObject);
-begin
-  CutArea;
-end;
-
-procedure TFMain.bpasteareaClick(Sender: TObject);
-begin
-  PasteArea;
-end;
-
-procedure TFMain.bclearselectionClick(Sender: TObject);
-begin
-  clearSelection;
-end;
-
-procedure TFMain.bcopyareaMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
-begin
-  setActiveShape(9);
 end;
 
 procedure TFMain.FormShow(Sender: TObject);
@@ -7506,6 +7514,19 @@ begin
     OldGridWndProc  := Grid.WindowProc;
     Grid.WindowProc := GridWndProc;
   end;
+  // "Gdzie mogê przenieœæ zajêcia?": przycisk dwustanowy (stan w seeAvailOn), w³¹czony - ca³y przycisk czerwony,
+  // subtelnie mruga. Czerwone jest t³o glifu przycisku (ikona na czerwonym tle prawie na ca³¹ powierzchniê przycisku):
+  // przy motywach XP p³aski TSpeedButton maluje t³o rodzica, wiêc kolorowe t³o pod przyciskiem nie by³oby widoczne
+  if not Assigned(seeAvailBlink) then begin
+    seeAvailGlyphNormal := TBitmap.Create;
+    seeAvailGlyphNormal.Assign(bSeeAvailable.Glyph);
+    seeAvailGlyphRed   := seeAvailableGlyph(clRed);
+    seeAvailGlyphLight := seeAvailableGlyph($008080FF);   // jasnoczerwony
+    seeAvailBlink := TTimer.Create(self);
+    seeAvailBlink.Interval := 700;
+    seeAvailBlink.Enabled := false;
+    seeAvailBlink.OnTimer := seeAvailableBlinkTick;
+  end;
   dockingPanel := strToInt( getSystemParam('FLegend.dockingPanel', inttostr(C_RIGHT) ));
   x;
   if resizeMode then exit;
@@ -7521,6 +7542,10 @@ begin
   setupFillButton;
 end;
 
+// 2026-11: pierwsze uruchomienie bez mrugniêcia siatki. Siatka jest budowana w FormShow (BLoginClick), a dopiero
+// tutaj zmienia siê uk³ad okna (panel menu, zadokowana legenda, pe³ny ekran) - wczeœniej siatka rysowa³a siê przy
+// ka¿dej z tych zmian. Teraz rysowanie siatki jest zamro¿one od zalogowania (BLoginClick) do koñca tej procedury
+// i siatka jest rysowana raz, w docelowym uk³adzie.
 procedure TFMain.RefreshAfterOnShowTimer(Sender: TObject);
 begin
  RefreshAfterOnShow.Enabled := false;
@@ -7528,11 +7553,39 @@ begin
  Legend.Down      := (getSystemParam('Legend.Down')='+') or (getSystemParam('Legend.Down')='');
  BFullScreen.down := (getSystemParam('BFullScreen.down')='+') or (getSystemParam('BFullScreen.down')='');
 
- SwitchMenuClick(nil);
- LegendClick(nil);
- Penyekran1Click(nil);
- updateLeftPanel;
- userLogged := true;
+ try
+   // pe³ny ekran tworzy okno na nowo (nowe uchwyty siatki) - dlatego najpierw, a potem ponowne zamro¿enie
+   Penyekran1Click(nil);
+   if gridPaintFrozen then begin
+     gridPaintFrozen := false;
+     freezeGridPaint;
+   end;
+   SwitchMenuClick(nil);
+   LegendClick(nil);
+   updateLeftPanel;
+   userLogged := true;
+ finally
+   unfreezeGridPaint;
+ end;
+end;
+
+// siatka i nag³ówek nie s¹ rysowane (WM_SETREDRAW) - zachowuj¹ rozmiar i wyrównanie, w odró¿nieniu od Visible := false
+procedure TFMain.freezeGridPaint;
+begin
+  if gridPaintFrozen then exit;
+  SendMessage(Grid.Handle, WM_SETREDRAW, 0, 0);
+  SendMessage(HeaderGrid.Handle, WM_SETREDRAW, 0, 0);
+  gridPaintFrozen := true;
+end;
+
+procedure TFMain.unfreezeGridPaint;
+begin
+  if not gridPaintFrozen then exit;
+  gridPaintFrozen := false;
+  SendMessage(Grid.Handle, WM_SETREDRAW, 1, 0);
+  SendMessage(HeaderGrid.Handle, WM_SETREDRAW, 1, 0);
+  RedrawWindow(HeaderGrid.Handle, nil, 0, RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN or RDW_UPDATENOW);
+  RedrawWindow(Grid.Handle, nil, 0, RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN or RDW_UPDATENOW);
 end;
 
 procedure TFMain.BFullScreenClick(Sender: TObject);
@@ -7721,8 +7774,203 @@ end;
 end;
 
 procedure TFMain.bSeeAvailableClick(Sender: TObject);
+var changed : boolean;
 begin
-  ShowAvailableTerms;
+  // 2026-11: przycisk dwustanowy - wciœniêty: kropki zajêtoœci pokazuj¹ terminy, do których nie mo¿na przenieœæ
+  // zaznaczonych zajêæ; pola wyk³adowcy, grupy, zasobu i "poka¿ wolne terminy" pozostaj¹ bez zmian
+  seeAvailOn := not seeAvailOn;
+  if seeAvailOn then
+    if not seeAvailableCollect(changed) then begin
+      seeAvailOn := false;
+      seeAvailableLook;
+      SError( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
+      exit;
+    end;
+  seeAvailableLook;
+  seeAvailableReload;
+end;
+
+// wygl¹d przycisku: tryb w³¹czony - ca³y przycisk czerwony i subtelnie mruga (czerwony / jasnoczerwony)
+procedure TFMain.seeAvailableLook;
+begin
+  if not Assigned(seeAvailBlink) then exit;
+  seeAvailBlinkRed := true;
+  if seeAvailOn then bSeeAvailable.Glyph.Assign(seeAvailGlyphRed)
+                else bSeeAvailable.Glyph.Assign(seeAvailGlyphNormal);
+  seeAvailBlink.Enabled := seeAvailOn and bSeeAvailable.Visible;
+  seeAvailableHint;
+end;
+
+// podpowiedŸ przycisku: tryb w³¹czony - obiekty, dla których sprawdzana jest dostêpnoœæ (ka¿dy w osobnej linii)
+procedure TFMain.seeAvailableHint;
+  function lines(ids, sqlDesc : string) : string;
+  var names : string;
+      n : integer;
+  begin
+    result := '';
+    if ids = '' then exit;
+    names := FChange(ids, sqlDesc);
+    for n := 1 to WordCount(names, [';']) do
+      result := result + cr + '   ' + Trim(ExtractWord(n, names, [';']));
+  end;
+var s : string;
+begin
+  if not seeAvailOn then begin
+    bSeeAvailable.Hint := 'Gdzie mogê przenieœæ zajêcie?';
+    exit;
+  end;
+  s := 'Gdzie mogê przenieœæ zajêcie? - W£¥CZONE (kliknij, aby wy³¹czyæ)' + cr +
+       iif(seeAvailCla = '', 'Zaznacz zajêcie, aby zobaczyæ, gdzie mo¿na je przenieœæ.',
+                             'Kropki pokazuj¹ terminy, w których zajête s¹ obiekty zaznaczonych zajêæ:');
+  if seeAvailLec <> '' then s := s + cr + fprogramsettings.profileObjectNameLs.Text + ':' + lines(seeAvailLec, sql_LECDESC);
+  if seeAvailGro <> '' then s := s + cr + fprogramsettings.profileObjectNameGs.Text + ':' + lines(seeAvailGro, sql_GRODESC);
+  if seeAvailRom <> '' then s := s + cr + 'Zasoby:' + lines(seeAvailRom, sql_ResCat0DESC);
+  // '|' rozdziela w podpowiedzi czêœæ krótk¹ i d³ug¹
+  bSeeAvailable.Hint := StringReplace(s, '|', '/', [rfReplaceAll]);
+end;
+
+procedure TFMain.seeAvailableBlinkTick(Sender: TObject);
+begin
+  if not (seeAvailOn and bSeeAvailable.Visible) then begin seeAvailBlink.Enabled := false; exit; end;
+  seeAvailBlinkRed := not seeAvailBlinkRed;
+  if seeAvailBlinkRed then bSeeAvailable.Glyph.Assign(seeAvailGlyphRed)
+                      else bSeeAvailable.Glyph.Assign(seeAvailGlyphLight);
+end;
+
+// glif przycisku bSeeAvailable na tle aColor: t³o prawie na ca³¹ powierzchniê przycisku, oryginalna ikona poœrodku.
+// Lewy dolny piksel glifu TSpeedButton jest kolorem przezroczystym - ustawiony na kolor, którego nie ma w reszcie glifu,
+// ¿eby t³o pozosta³o nieprzezroczyste (przezroczysty jest tylko ten jeden piksel w rogu)
+function TFMain.seeAvailableGlyph(aColor : TColor) : TBitmap;
+var w, h, x, y, ox, oy, a, cr, cg, cb, sw, sh, i : integer;
+    hasAlpha : boolean;
+    tc : integer;
+    bi : TBitmapInfo;
+    buf : array of Byte;
+    dc : HDC;
+begin
+  w := bSeeAvailable.Width - 4;
+  h := bSeeAvailable.Height - 4;
+  result := TBitmap.Create;
+  result.PixelFormat := pf24bit;
+  result.Width  := w;
+  result.Height := h;
+  result.Canvas.Brush.Color := aColor;
+  result.Canvas.FillRect(Rect(0, 0, w, h));
+  // ikona nak³adana piksel po pikselu: glif ma kana³ alfa (32 bity), którego Delphi 7 nie uwzglêdnia przy rysowaniu;
+  // piksele czytane przez GetDIBits (kopia 32-bitowej bitmapy w Delphi 7 traci treœæ); bez kana³u alfa - przezroczysty
+  // jest kolor lewego dolnego piksela (jak w TSpeedButton)
+  sw := seeAvailGlyphNormal.Width;
+  sh := seeAvailGlyphNormal.Height;
+  if (sw > 0) and (sh > 0) then begin
+    SetLength(buf, sw * sh * 4);
+    FillChar(bi, SizeOf(bi), 0);
+    bi.bmiHeader.biSize        := SizeOf(TBitmapInfoHeader);
+    bi.bmiHeader.biWidth       := sw;
+    bi.bmiHeader.biHeight      := -sh;   // od góry
+    bi.bmiHeader.biPlanes      := 1;
+    bi.bmiHeader.biBitCount    := 32;
+    bi.bmiHeader.biCompression := BI_RGB;
+    dc := GetDC(0);
+    try
+      GetDIBits(dc, seeAvailGlyphNormal.Handle, 0, sh, @buf[0], bi, DIB_RGB_COLORS);
+    finally
+      ReleaseDC(0, dc);
+    end;
+    cr := GetRValue(ColorToRGB(aColor)); cg := GetGValue(ColorToRGB(aColor)); cb := GetBValue(ColorToRGB(aColor));
+    ox := (w - sw) div 2;
+    oy := (h - sh) div 2;
+    hasAlpha := false;
+    for i := 0 to sw * sh - 1 do if buf[i*4+3] <> 0 then hasAlpha := true;
+    i := (sh - 1) * sw * 4;   // lewy dolny piksel
+    tc := buf[i] or (buf[i+1] shl 8) or (buf[i+2] shl 16);
+    for y := 0 to sh - 1 do
+      for x := 0 to sw - 1 do
+        if (x + ox >= 0) and (x + ox < w) and (y + oy >= 0) and (y + oy < h) then begin
+          i := (y * sw + x) * 4;
+          if hasAlpha then a := buf[i+3]
+          else if (buf[i] or (buf[i+1] shl 8) or (buf[i+2] shl 16)) = tc then a := 0
+          else a := 255;
+          if a > 0 then
+            result.Canvas.Pixels[x + ox, y + oy] := RGB( (buf[i+2] * a + cr * (255 - a)) div 255,
+                                                         (buf[i+1] * a + cg * (255 - a)) div 255,
+                                                         (buf[i]   * a + cb * (255 - a)) div 255 );
+        end;
+  end;
+  result.Canvas.Pixels[0, h - 1] := $00010203;
+end;
+
+// zasoby (wyk³adowcy, grupy, zasoby) i identyfikatory wszystkich zajêæ z zaznaczonych komórek;
+// wynik false - w zaznaczeniu nie ma zajêæ (listy s¹ czyszczone - kropki znikaj¹), changed - listy siê zmieni³y
+function TFMain.seeAvailableCollect(var changed : boolean) : boolean;
+var col, row, k : integer;
+    cl : TClass_;
+    L, G, R, C : string;
+    colObjs : string;   // grafik tygodniowy: obiekty kolumn, w których s¹ zaznaczone zajêcia
+  procedure addIds(var list : string; ids : string);
+  var n : integer;
+      id : string;
+  begin
+    for n := 1 to WordCount(ids, [';']) do begin
+      id := Trim(ExtractWord(n, ids, [';']));
+      if (id <> '') and (Pos(';'+id+';', ';'+list+';') = 0) then list := Merge(list, id, ';');
+    end;
+  end;
+  // lista bez identyfikatorów z ids
+  function withoutIds(list, ids : string) : string;
+  var n : integer;
+      id : string;
+  begin
+    result := '';
+    for n := 1 to WordCount(list, [';']) do begin
+      id := ExtractWord(n, list, [';']);
+      if Pos(';'+id+';', ';'+ids+';') = 0 then result := Merge(result, id, ';');
+    end;
+  end;
+begin
+  result  := false;
+  changed := false;
+  if TabViewType.TabIndex >= 4 then exit; // kalendarz rezerwacji i widok przedmiotu - bez zajêæ pojedynczych obiektów
+  L := ''; G := ''; R := ''; C := ''; colObjs := '';
+  with Grid.Selection do
+    for col := Left to Right do
+      for row := Top to Bottom do
+        if GetClassByRowCol(col, row, cl) = ClassFound then begin
+          addIds(L, cl.calc_lec_ids);
+          addIds(G, cl.calc_gro_ids);
+          addIds(R, cl.calc_rom_ids);
+          addIds(C, intToStr(cl.id));
+          if AObjectId <> -1 then addIds(colObjs, intToStr(AObjectId));   // GetClassByRowCol ustawia obiekt kolumny
+          result := true;
+        end;
+  if not result then begin
+    changed := (seeAvailLec <> '') or (seeAvailGro <> '') or (seeAvailRom <> '') or (seeAvailCla <> '');
+    seeAvailLec := ''; seeAvailGro := ''; seeAvailRom := ''; seeAvailCla := '';
+    exit;
+  end;
+  // grafik tygodniowy z obiektami w kolumnach: zajêcie przeniesione do innej kolumny dostaje obiekt tej kolumny
+  // (wyk³adowcê / grupê / salê), wiêc zajêtoœæ obiektu kolumny, z której pochodzi, nie jest konfliktem - nie jest sprawdzana
+  if (convertGrid.convertMode = ConvWeekObjects) and (colObjs <> '') then
+    Case TabViewType.TabIndex Of
+      0: L := withoutIds(L, colObjs);
+      1: G := withoutIds(G, colObjs);
+      2, 3: R := withoutIds(R, colObjs);
+    end;
+  k := 0;
+  if (L <> seeAvailLec) or (G <> seeAvailGro) or (R <> seeAvailRom) or (C <> seeAvailCla) then k := 1;
+  changed := k = 1;
+  seeAvailLec := L; seeAvailGro := G; seeAvailRom := R; seeAvailCla := C;
+end;
+
+// zajêtoœæ od nowa (wczytana przed rysowaniem, jak w BuildCalendar) i przerysowanie siatki
+procedure TFMain.seeAvailableReload;
+begin
+  BusyClassesCache.ClearCache;
+  if not CanShow then exit;
+  if isBlank(conPeriod.Text) then exit;
+  if TabViewType.TabIndex < 4 then
+    if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
+      BusyClassesCache._LoadPeriod( StrToInt(NVL(conPeriod.text,'-1')) );
+  Grid.Invalidate;
 end;
 
 procedure TFMain.ppDeleteClick(Sender: TObject);
@@ -7741,7 +7989,6 @@ begin
  if btn.Name = 'bdelpopup'       then fmain.DelPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'beditpopup'      then fmain.EditPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bfavpopup'       then fmain.FavouritePopup.Popup(Point.X,Point.Y);
- if btn.Name = 'bthpopup'        then fmain.thPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bReports'        then fmain.reportsPopup.Popup(Point.X,Point.Y);
  if btn.Name = 'bwww'            then fmain.wwwPopup.Popup(Point.X,Point.Y);
 
@@ -7848,53 +8095,11 @@ begin
 end;
 
 procedure tfmain.showAvailableTerms;
- var col, row : integer;
-     newTS : TTimeStamp;
-     newZajecia : Integer;
-     myclass    : TClass_;
-
 begin
-
-  With Grid.Selection Do begin
-   if (Left <> Right) or (top <> bottom) then
-   begin
-     SError('Wska¿ pojedyncz¹ komórkê');
-     exit;
-   end;
-   col := left;
-   row := top;
-  end;
-
-  If convertGrid.ColRowToDate(AObjectId, newTS,newZajecia,Col,Row) <> ConvClass Then
-  begin
-   SError( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
-   exit;
-  end;
-
-  If GetClassByRowCol(Grid.Col, Grid.Row, myClass) <> ClassFound Then
-  begin
-   SError( format('Zaznacz %s',[fprogramsettings.profileObjectNameClassacc.text]) );
-   exit;
-  end;
-
-  canShow := false;
-  ConLecturer.Text := myClass.calc_lec_ids; //getChildsAndParents(, '', true, false, true);
-  ConGroup.Text := myClass.calc_gro_ids; //getChildsAndParents(, '', true, false, true);
-  conResCat0.Text := myClass.calc_rom_ids; //getChildsAndParents(, '', true, false, true);
-
-  ConSubject.Text        := inttostr(myClass.sub_id);
-  ConForm.Text           := inttostr(myClass.for_id);
-  ConLecturer_value.Text := FChange(ConLecturer.text, sql_LECDESC);
-  ConGroup_value.Text    := FChange(ConGroup.text  , sql_GRODESC);
-  conResCat0_value.Text  := FChange(conResCat0.text, sql_ResCat0DESC);
-  conResCat1_value.Text  := FChange(conResCat1.text, sql_RESCAT1DESC);
-
-  ShowFreeTermsL.Checked := true;
-  ShowFreeTermsG.Checked := true;
-  ShowFreeTermsR.Checked := true;
-  canShow := true;
-  deepRefreshDelayed;
-
+  // 2026-11: tryb "Gdzie mogê przenieœæ zajêcia?" - jak wciœniêcie przycisku bSeeAvailable (tak¿e z okna narzêdzi FToolWindow);
+  // pola wyk³adowcy, grupy, zasobu i "poka¿ wolne terminy" pozostaj¹ bez zmian
+  seeAvailOn := false;   // klikniêcie w³¹cza tryb (i zbiera zasoby z zaznaczonych zajêæ)
+  bSeeAvailableClick(bSeeAvailable);
 end;
 
 procedure TFMain.Kopiowaniegrupowe1Click(Sender: TObject);
@@ -8822,21 +9027,13 @@ begin
   AutoCreate.CLASSES_HistoryShowModalAsBrowser('','','', '','','','',false, true);
 end;
 
-procedure TFMain.BTraceHistoryClick(Sender: TObject);
-begin
- logChanges := not logChanges;
-
- if logChanges then dmodule.sql('begin update planners set log_changes=''+'' where name = user; planner_utils.enable_trial; end;')
-               else dmodule.sql('begin update planners set log_changes=''-'' where name = user; planner_utils.disable_trial; end;');
-end;
-
 procedure TFMain.setHistoryEnabled;
 begin
   try
    trackHistoryInstalled := true;
    logChanges := iif( dmodule.SingleValue('select log_changes from planners where name = user') = '+', true, false);
-   if logChanges then begin dmodule.sql('begin planner_utils.enable_trial; end;');  BTraceHistory.Down := true; end
-                      else begin dmodule.sql('begin planner_utils.disable_trial; end;'); BTraceHistory.Down := false; end;
+   if logChanges then dmodule.sql('begin planner_utils.enable_trial; end;')
+                 else dmodule.sql('begin planner_utils.disable_trial; end;');
   except
     trackHistoryInstalled := false;
   end;
@@ -8981,26 +9178,6 @@ end;
 procedure TFMain.MenuItem2Click(Sender: TObject);
 begin
   Listazajchistoriazmian1Click(nil);
-end;
-
-procedure TFMain.GoogleMapEasyClick(Sender: TObject);
-begin
-  FGoogleMap  := TFGoogleMap.Create(Application);
-  With FGoogleMap do Begin
-    Show;
-    BCreateClick(nil);
-    BCloseClick(nil);
-    free;
-  End;
-end;
-
-procedure TFMain.GoogleMapAdvClick(Sender: TObject);
-begin
-  FGoogleMap  := TFGoogleMap.Create(Application);
-  With FGoogleMap do Begin
-    showmodal;
-    free;
-  End;
 end;
 
 procedure TFMain.CONLECTURER_valueClick(Sender: TObject);
@@ -9687,11 +9864,6 @@ begin
   Wskanikiefektywnoci1Click(nil);
 end;
 
-procedure TFMain.MapaGooglezzasobami3Click(Sender: TObject);
-begin
-  GoogleMapAdvClick(nil);
-end;
-
 function TFMain.getWhereFastFilter(filter, tableName : string) : string;
  begin
   if Filter='' then
@@ -9708,14 +9880,6 @@ function TFMain.getWhereFastFilter(filter, tableName : string) : string;
   end;
 end;
 
-
-procedure TFMain.Generatorslajdw1Click(Sender: TObject);
-begin
- Application.CreateForm(TFSlideshowGenerator, FSlideshowGenerator);
- FSlideshowGenerator.showmodal;
- FSlideshowGenerator.Free;
- FSlideshowGenerator := nil;
-end;
 
 procedure TFMain.Preferowaneterminy1Click(Sender: TObject);
 begin

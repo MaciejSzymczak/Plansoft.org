@@ -7,6 +7,7 @@ const browse = require('./browse');
 const permissions = require('./permissions');
 const report = require('./report');
 const tools = require('./tools');
+const holidays = require('./holidays');
 const addClasses = require('./addClasses');
 const busy = require('./busy');
 const { POLISH, searchFilter } = require('./search');
@@ -72,7 +73,7 @@ async function readJson(req) {
 const plaId = s => s.roleId || s.plannerId;
 
 function me(s) {
-  return { user: s.user, plannerId: s.plannerId, roleId: s.roleId, roles: s.roles, firstResource: s.firstResource, canInsert: s.canInsert, canDelete: s.canDelete, editPermissions: s.editPermissions };
+  return { user: s.user, plannerId: s.plannerId, roleId: s.roleId, roles: s.roles, firstResource: s.firstResource, canInsert: s.canInsert, canDelete: s.canDelete, editPermissions: s.editPermissions, canEdit: s.canEdit };
 }
 
 // --- akcje ---------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ async function login(req, res) {
     // te same warunki co przy logowaniu w programie Delphi (UFMain.pas)
     const perm = await db.query(pool, `select count(1) cnt from sys.dba_role_privs where grantee = user and granted_role = 'PLA_PERMISSION'`);
     if (!perm[0].CNT) throw new Error('Nie masz uprawnień do korzystania z aplikacji - brak nadanych uprawnień.');
-    const pla = await db.query(pool, `select id, name, first_resource_flag, can_insert, can_delete, edit_obj_permissions from planners where name = user`);
+    const pla = await db.query(pool, `select id, name, first_resource_flag, can_insert, can_delete, edit_obj_permissions, can_edit_l, can_edit_g, can_edit_r, can_edit_s, can_edit_f, can_edit_o, can_edit_d from planners where name = user`);
     if (!pla.length) throw new Error('Brak uprawnień do korzystania z Aplikacji. Skontaktuj się z administratorem systemu w celu dodania planisty (Dane | Planiści).');
     const roles = await db.query(pool,
       `select id, name from planners where type = 'ROLE' and id in (select rol_id from rol_pla where pla_id = :id) order by name`,
@@ -103,6 +104,7 @@ async function login(req, res) {
       pool, user: pla[0].NAME, plannerId: pla[0].ID, roleId: null,
       // okno dodawania zajęcia podpowiada tylko pierwszego wybranego wykładowcę/grupę/salę (FIRST_RESOURCE_FLAG)
       firstResource: pla[0].FIRST_RESOURCE_FLAG === '+', canInsert: pla[0].CAN_INSERT === '+', canDelete: pla[0].CAN_DELETE === '+', editPermissions: pla[0].EDIT_OBJ_PERMISSIONS === '+',
+      canEdit: Object.fromEntries('LGRSFOD'.split('').map(k => [k, pla[0]['CAN_EDIT_' + k] === '+'])),
       roles: roles.map(r => ({ id: r.ID, name: r.NAME })),
     });
     send(res, 200, me(s));
@@ -138,18 +140,22 @@ async function periods(req, res, s, url) {
 async function period(req, res, s, id) {
   const rows = await db.query(s.pool, `
     select id, name, to_char(date_from, 'YYYY-MM-DD') date_from, to_char(date_to, 'YYYY-MM-DD') date_to, hours_per_day,
-           show_mon||show_tue||show_wed||show_thu||show_fri||show_sat||show_sun days
+           show_mon||show_tue||show_wed||show_thu||show_fri||show_sat||show_sun days, attribs_13, attribs_14, attribs_15
       from periods
      where id = :id and id in (select per_id from per_pla where pla_id = :pla)`, { id, pla: plaId(s) });
   if (!rows.length) return send(res, 404, { error: 'Nie znaleziono okresu lub brak uprawnień.' });
   const p = rows[0];
   const hours = await db.query(s.pool,
     `select no, caption, hour_from, hour_to from grids where no between 1 and :n order by no`, { n: p.HOURS_PER_DAY || 0 });
+  // własne etykiety godzin (ATTRIBS_14, po przecinku; jak gridCustomLabels: ExtractWord pomija puste, najwyżej 20 znaków)
+  const labels = String(p.ATTRIBS_14 || '').split(',').filter(Boolean).map(x => x.slice(0, 20));
   send(res, 200, {
     id: p.ID, name: p.NAME, dateFrom: p.DATE_FROM, dateTo: p.DATE_TO,
     hoursPerDay: p.HOURS_PER_DAY,
     days: (p.DAYS || '').split('').map(c => c === '+'),    // pon..niedz
-    hours: hours.map(h => ({ no: h.NO, caption: h.CAPTION, from: (h.HOUR_FROM || '').trim(), to: (h.HOUR_TO || '').trim() })),
+    hours: hours.map(h => ({ no: h.NO, caption: labels[h.NO - 1] || h.CAPTION, from: (h.HOUR_FROM || '').trim(), to: (h.HOUR_TO || '').trim() })),
+    // ukryte wiersze (ATTRIBS_15) i tygodnie (ATTRIBS_13): znak na godzinę / tydzień, '-' = ukryty, wzorzec powtarzany
+    hideRows: p.ATTRIBS_15 || '', weekVisibility: p.ATTRIBS_13 || '',
   });
 }
 
@@ -197,6 +203,8 @@ const CLASS_LINKS = {
   L: { table: 'lec_cla', col: 'lec_id', perm: 'select lec_id from lec_pla where pla_id = :pla' },
   G: { table: 'gro_cla', col: 'gro_id', perm: 'select gro_id from gro_pla where pla_id = :pla' },
   S: { table: 'rom_cla', col: 'rom_id', perm: 'select rom_id from rom_pla where pla_id = :pla' },
+  // rozkład przedmiotu (zakładka "Przedmiot" w Delphi, TabViewType 5): zajęcia z wybranym przedmiotem
+  SUB: { direct: 'cla.sub_id' },
 };
 
 // kolor Delphi (TColor = $00BBGGRR) -> #rrggbb
@@ -216,8 +224,10 @@ function scopeParams(url, s) {
   const idList = ids.map((id, i) => { binds['o' + i] = id; return ':o' + i; }).join(',');
   // jak ccLoadPeriod w Delphi: zajęcia wybranych obiektów bez dodatkowego filtra uprawnień XXX_PLA
   // (uprawnienia ograniczają tylko listy wyboru obiektów)
-  const objClause = `cla.id in (select cla_id from ${link.table} where ${link.col} in (${idList}))`;
-  return { link, ids, idList, binds, objClause };
+  const objClause = link.direct ? `${link.direct} in (${idList || 'null'})` : `cla.id in (select cla_id from ${link.table} where ${link.col} in (${idList}))`;
+  const objExpr = link.direct ? link.direct
+    : `(select max(x.${link.col}) from ${link.table} x where x.cla_id = cla.id and x.${link.col} in (${idList}))`;
+  return { link, ids, idList, binds, objClause, objExpr };
 }
 
 // lista id "1;2;3" z wielu wierszy -> tablica liczb bez powtórzeń
@@ -244,7 +254,7 @@ async function classes(req, res, s, url) {
 
   // jak ccLoadPeriod: najpierw zajęcia zależne (nadrzędne/podrzędne) wybranych obiektów
   const resType = { L: 'L', G: 'G', S: 'R' }[url.searchParams.get('type')];
-  try {
+  if (resType) try {
     await db.transaction(s.pool, async conn => {
       for (const id of p.ids) {
         await conn.execute(`begin planner_utils.insert_dependency_classes(:id, :t, :per, '-'); end;`, { id: String(id), t: resType, per: p.binds.per });
@@ -260,7 +270,7 @@ async function classes(req, res, s, url) {
            cla.calc_lecturers, cla.calc_groups, cla.calc_rooms, cla.calc_lec_ids, cla.calc_gro_ids, cla.calc_rom_ids, cla.calc_rescat_ids,
            cla.desc1, cla.desc2, cla.desc3, cla.desc4, cla.owner, cla.created_by, cla.sub_id, cla.for_id,
            sub.colour sub_colour, frm.colour for_colour, cla.colour class_colour, owner.colour owner_colour, creator.colour creator_colour,
-           (select max(x.${p.link.col}) from ${p.link.table} x where x.cla_id = cla.id and x.${p.link.col} in (${p.idList})) obj_id
+           ${p.objExpr} obj_id
       from classes cla, subjects sub, forms frm, periods per, planners owner, planners creator
      where sub.id(+) = cla.sub_id and frm.id = cla.for_id
        and owner.name(+) = cla.owner and creator.name(+) = cla.created_by
@@ -290,6 +300,19 @@ async function classes(req, res, s, url) {
       },
     })),
   });
+}
+
+// --- wartości słownikowe opisów zajęć (FIN_LOOKUP_VALUESShowModalAsMultiselectExt w changeDesc) ------
+// GET /api/desc-values?type=<nazwa opisu w liczbie mnogiej>&q= -> [{ value, key, aux1, aux2 }]
+async function descValues(s, url) {
+  const type = String(url.searchParams.get('type') || '');
+  if (!type) return [];
+  const binds = { t: type + '%' };
+  const q = searchFilter('description||str_key||aux_desc1||aux_desc2', url.searchParams.get('q'), binds);
+  const rows = await db.query(s.pool, `
+    select * from (select description, str_key, aux_desc1, aux_desc2 from fin_lookup_values
+                    where lookup_type like :t and ${q} order by description) where rownum <= 500`, binds);
+  return rows.map(r => ({ value: r.DESCRIPTION || '', key: r.STR_KEY || '', aux1: r.AUX_DESC1 || '', aux2: r.AUX_DESC2 || '' }));
 }
 
 // --- ustawienia potrzebne w oknie "Zajęcie" i w podsumowaniu (UFProgramSettings) ------------
@@ -444,6 +467,11 @@ async function handle(req, res, url) {
     if (path === '/api/classes/add' && req.method === 'POST') return send(res, 200, await addClasses.add(s, await readJson(req)));
     if (path === '/api/classes/move' && req.method === 'POST') return send(res, 200, await addClasses.move(s, await readJson(req)));
     if (path === '/api/classes/delete' && req.method === 'POST') return send(res, 200, await addClasses.remove(s, await readJson(req)));
+    if (path === '/api/classes/modify' && req.method === 'POST') return send(res, 200, await addClasses.modify(s, await readJson(req)));
+    if (path === '/api/desc-values' && req.method === 'GET') return send(res, 200, await descValues(s, url));
+    if (path === '/api/find' && req.method === 'POST') return send(res, 200, await busy.find(s, await readJson(req)));
+    if (path === '/api/hints/list' && req.method === 'GET') return send(res, 200, await busy.hintsList(s, url));
+    if (path === '/api/hints/delete' && req.method === 'POST') return send(res, 200, await busy.hintsDelete(s, await readJson(req)));
     if (path === '/api/busy' && req.method === 'GET') return send(res, 200, await busy.busy(s, url));
     if (path === '/api/hints' && req.method === 'GET') return send(res, 200, await busy.hints(s, url));
     if (path === '/api/hints' && req.method === 'POST') return send(res, 200, await busy.setHints(s, await readJson(req)));
@@ -451,6 +479,7 @@ async function handle(req, res, url) {
     if (await permissions.handle(req, res, s, url, readJson, send)) return;
     if (await report.handle(req, res, s, url, readJson, send)) return;
     if (await tools.handle(req, res, s, url, readJson, send)) return;
+    if (await holidays.handle(req, res, s, url, readJson, send)) return;
 
     send(res, 404, { error: 'Nie znaleziono.' });
   } catch (e) {

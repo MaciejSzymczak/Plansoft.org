@@ -3,6 +3,7 @@
 // opcje (cała baza, tryb diagnostyczny, podgląd SQL), zapis i odczyt ustawień.
 import { ChipField } from './chips.js';
 import { EXCEL_ICON, downloadXlsx } from './xlsx.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -155,7 +156,7 @@ export class ReportWindow {
     this.rebuildTools = () => {
       tools.innerHTML = '';
       tools.append(
-        button('Odśwież', 'primary small', () => this.refresh(), 'Odśwież zawartość raportu'),
+        this.bRefresh = button('Odśwież', 'primary small', () => this.refresh(), 'Odśwież zawartość raportu'),
         menu('Zapisz', [
           { label: ' Otwórz w Excel', html: EXCEL_ICON, run: () => this.save('xlsx') },
           { label: 'Otwórz w przeglądarce', run: () => this.save('html') },
@@ -230,7 +231,8 @@ export class ReportWindow {
     try { localStorage.setItem(PREF_KEY(this.ctx.user), JSON.stringify(this.settingsToSave())); } catch { /* brak pamięci przeglądarki */ }
     this.status.textContent = 'Oczekiwanie na odpowiedź serwera…';
     try {
-      this.data = await this.api('report', { ...v, ...this.opts, cells: v.selectedDates ? this.ctx.cells : [] });
+      this.data = await withProgress(this.wrap, 'Odświeżanie raportu…',
+        () => this.api('report', { ...v, ...this.opts, cells: v.selectedDates ? this.ctx.cells : [] }), [this.bRefresh].filter(Boolean));
     } catch (e) { this.status.textContent = ''; this.showError(e.message); return false; }
     this.render();
     return true;
@@ -307,7 +309,9 @@ ${rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('\
     const v = this.values();
     this.status.textContent = 'Oczekiwanie na odpowiedź serwera…';
     let r;
-    try { r = await this.api('report', { ...v, ...this.opts, report, cells: v.selectedDates ? this.ctx.cells : [] }); } catch (e) { this.status.textContent = ''; this.showError(e.message); return; }
+    try {
+      r = await withProgress(this.wrap, 'Tworzenie raportu…', () => this.api('report', { ...v, ...this.opts, report, cells: v.selectedDates ? this.ctx.cells : [] }), [this.bRefresh].filter(Boolean));
+    } catch (e) { this.status.textContent = ''; this.showError(e.message); return; }
     this.data = r;
     this.render();
     const idx = n => r.columns.indexOf(n);

@@ -146,6 +146,33 @@ object FLegendNavigation: TFLegendNavigation
     BevelOuter = bvNone
     TabOrder = 9
   end
+  object BAllL: TBitBtn
+    Left = 8
+    Top = 588
+    Width = 172
+    Height = 22
+    Caption = 'Rozk'#322'ad wszystkich wyk'#322'adowc'#243'w'
+    TabOrder = 11
+    OnClick = BAllClick
+  end
+  object BAllG: TBitBtn
+    Left = 186
+    Top = 588
+    Width = 172
+    Height = 22
+    Caption = 'Rozk'#322'ad wszystkich grup'
+    TabOrder = 12
+    OnClick = BAllClick
+  end
+  object BAllR: TBitBtn
+    Left = 364
+    Top = 588
+    Width = 172
+    Height = 22
+    Caption = 'Rozk'#322'ad wszystkich sal'
+    TabOrder = 13
+    OnClick = BAllClick
+  end
   object Bcancel: TBitBtn
     Left = 8
     Top = 588

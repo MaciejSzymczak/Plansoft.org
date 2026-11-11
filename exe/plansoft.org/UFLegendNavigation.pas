@@ -24,7 +24,11 @@ type
     PanelRowS: TPanel;
     PanelRowF: TPanel;
     Bcancel: TBitBtn;
+    BAllL: TBitBtn;
+    BAllG: TBitBtn;
+    BAllR: TBitBtn;
     procedure FormShow(Sender: TObject);
+    procedure BAllClick(Sender: TObject);
     procedure BcancelClick(Sender: TObject);
     procedure ListDblClick(Sender: TObject);
     procedure ListClick(Sender: TObject);
@@ -57,7 +61,7 @@ type
     procedure NewWndProcS(var Message: TMessage);
     procedure NewWndProcF(var Message: TMessage);
   public
-    selectedOption : ShortString;
+    selectedOption : ShortString;   // dspL/dspG/dspR/... - jeden obiekt; dspAllL/dspAllG/dspAllR - wszystkie obiekty z podsumowania
     selectedId : ShortString; // matches the 'Var ID : ShortString' params of *ShowModalAsSingleRecord etc.
     // items* : one line per object, formatted 'id|display name' - the id is stripped from what's
     // shown (only the name is visible) and kept per-row via TListBox.Items.Objects instead.
@@ -206,6 +210,15 @@ begin
   y := layoutSection(2, LabelR, ListR, PanelRowR, y);
   y := layoutSection(3, LabelS, ListS, PanelRowS, y);
   y := layoutSection(4, LabelF, ListF, PanelRowF, y);
+
+  // Rozk³ad wszystkich wyk³adowców / grup / sal - widoczne tylko dla kategorii, które s¹ w podsumowaniu
+  BAllL.Visible := ListL.Items.Count > 0;
+  BAllG.Visible := ListG.Items.Count > 0;
+  BAllR.Visible := ListR.Items.Count > 0;
+  if BAllL.Visible or BAllG.Visible or BAllR.Visible then begin
+    BAllL.Top := y; BAllG.Top := y; BAllR.Top := y;
+    y := y + BAllL.Height + 8;
+  end;
 
   Bcancel.Top := y;
   ClientHeight := y + Bcancel.Height + 8;
@@ -409,6 +422,16 @@ procedure TFLegendNavigation.FormShow(Sender: TObject);
 begin
   selectedOption := '';
   selectedId := '';
+end;
+
+// wszystkie obiekty danej kategorii widoczne w podsumowaniu godzin - identyfikatory zbiera FLegend
+procedure TFLegendNavigation.BAllClick(Sender: TObject);
+begin
+  if Sender = BAllL then selectedOption := 'dspAllL';
+  if Sender = BAllG then selectedOption := 'dspAllG';
+  if Sender = BAllR then selectedOption := 'dspAllR';
+  selectedId := '';
+  Close;
 end;
 
 procedure TFLegendNavigation.BcancelClick(Sender: TObject);

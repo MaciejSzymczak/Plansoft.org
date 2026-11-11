@@ -8,14 +8,18 @@ export const DEFAULT_LAYOUT = {
   forceWidth: false, width: 78,
   forceHeight: false, height: 22,
   fontSize: 11,
-  multi: 'together',   // wiele wybranych obiektów: together | vertical | horizontal | first
+  multi: 'horizontal',   // wiele wybranych obiektów: vertical | horizontal | first
+  mergeV: false,         // scalanie w pionie: takie same zajęcia w kolejnych godzinach dnia sklejone
+  mergeH: false,         // scalanie w poziomie: takie same zajęcia w kolejnych tygodniach sklejone
 };
 
+// 'week' to polecenie (nie tryb): przełącza na układ tygodniowy - wszystkie obiekty na jednym arkuszu tygodniowym
+export const MULTI_MODES = ['vertical', 'horizontal', 'first'];
 export const MULTI_OPTIONS = [
-  ['together', 'Wszystkie na jednym arkuszu'],
   ['vertical', 'Pokazuj w pionie'],
   ['horizontal', 'Pokazuj w poziomie'],
-  ['first', 'Pokazuj tylko pierwszy'],
+  ['first', 'Pokazuj jeden'],
+  ['week', 'Wszystkie na jednym arkuszu tygodniowym'],
 ];
 
 // listy wyboru jak synchronizeComboboxColor / synchronizeComboboxDesc w UFMain.pas;
@@ -135,9 +139,24 @@ export class CellLayoutPanel {
     desc.append(same);
 
     const multi = el('fieldset'); multi.append(el('legend', '', 'Wiele obiektów'));
-    const ms = select(MULTI_OPTIONS, L.multi || 'together', v => this.set({ multi: v }));
+    const ms = select(MULTI_OPTIONS, L.multi || DEFAULT_LAYOUT.multi, v => { this.set({ multi: v }); if (!this.panel.hidden) { this.build(); this.panel.querySelector('fieldset.multi select').focus(); } });
     ms.title = 'Jak pokazać rozkład, gdy wybrano kilku wykładowców, kilka grup lub sal';
+    multi.className = 'multi';
     multi.append(ms);
+    // scalanie: kwadraciki obok siebie (w poziomie) można sklejać tylko w pionie, jeden pod drugim - tylko w poziomie
+    const mode = L.multi || DEFAULT_LAYOUT.multi;
+    const mergeBox = (label, key, off, hint) => {
+      const lb = el('label', 'check'); const m = el('input'); m.type = 'checkbox';
+      m.checked = !!L[key]; m.disabled = off;
+      m.addEventListener('change', () => this.set({ [key]: m.checked }));
+      lb.append(m, ' ' + label);
+      lb.title = off ? 'Niedostępne, gdy kwadraciki są pokazywane ' + (key === 'mergeV' ? 'jeden pod drugim' : 'obok siebie') : hint;
+      if (off) lb.classList.add('muted');
+      return lb;
+    };
+    multi.append(
+      mergeBox('Scalanie w pionie', 'mergeV', mode === 'vertical', 'Sklejaj takie same zajęcia w kolejnych godzinach dnia'),
+      mergeBox('Scalanie w poziomie', 'mergeH', mode === 'horizontal', 'Sklejaj takie same zajęcia w kolejnych tygodniach'));
 
     const size = el('fieldset'); size.append(el('legend', '', 'Rozmiary'));
     const slider = (label, flag, key, min, max) => {

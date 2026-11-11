@@ -40,12 +40,23 @@ export function renderSemesterGrid(container, period, opts = {}) {
   for (let m = mondayOf(from); m <= to; m += 7) weeks.push(m);
   const weekView = !!opts.week;
   const weekNo = weekView ? weeks.indexOf(toDays(opts.week)) + 1 : 0;
+  // numery tygodni okresu (etykiety "tydz. N"); tygodnie ukryte w okresie (ATTRIBS_13, '-' = ukryty, wzorzec
+  // powtarzany) są w układzie semestralnym pomijane, jak OmitWeeks w UUtilities.pas
+  let weekNos = weeks.map((m, i) => i + 1);
   if (weekView) weeks.splice(0, weeks.length, toDays(opts.week));
+  else if (period.weekVisibility) {
+    const vis = period.weekVisibility;
+    const keep = weeks.map((m, i) => vis[i % vis.length] !== '-');
+    weekNos = weekNos.filter((n, i) => keep[i]);
+    weeks.splice(0, weeks.length, ...weeks.filter((m, i) => keep[i]));
+  }
 
   const hours = [];
   for (let h = 1; h <= (period.hoursPerDay || 0); h++) {
     const g = period.hours.find(x => x.no === h);
-    hours.push({ no: h, label: g && g.caption ? g.caption : String(h), title: g && g.from ? `${g.from}–${g.to}` : '' });
+    // wiersze ukryte w okresie (ATTRIBS_15, '-' = ukryty): niskie, bez etykiety (gridHiddenRows w Delphi)
+    const hidden = !!period.hideRows && period.hideRows[(h - 1) % period.hideRows.length] === '-';
+    hours.push({ no: h, label: g && g.caption ? g.caption : String(h), title: g && g.from ? `${g.from}–${g.to}` : '', hidden });
   }
 
   const blocks = opts.blocks && opts.blocks.length ? opts.blocks : [null];
@@ -84,7 +95,7 @@ export function renderSemesterGrid(container, period, opts = {}) {
   wr.append(el('th', 'corner', ''), el('th', 'corner', ''));
   colBlocks.forEach((b, bi) => weeks.forEach((m, i) => {
     const c = bi * weeks.length + i;
-    const th = el('th', 'week' + blockStart(c), `tydz. ${weekView ? weekNo : i + 1}`);
+    const th = el('th', 'week' + blockStart(c), `tydz. ${weekView ? weekNo : weekNos[i]}`);
     th.title = `${b ? b.name + ': ' : ''}${dateIso(m)} – ${dateIso(m + 6)} - ` +
       (weekView ? 'kliknij, aby wrócić do układu semestralnego' : 'kliknij, aby pokazać układ tygodniowy (w kolumnach obiekty)');
     Object.assign(th.dataset, { col: c, monday: dateIso(m) });
@@ -132,9 +143,9 @@ export function renderSemesterGrid(container, period, opts = {}) {
       // wiersze godzin
       for (const h of hours) {
         const r = matrix.length;
-        const tr = el('tr', 'hour');
-        const hn = el('th', 'hour-no', h.label);
-        hn.title = (h.title ? h.title + ' - ' : '') + 'kliknij, aby zaznaczyć wiersz';
+        const tr = el('tr', 'hour' + (h.hidden ? ' row-hidden' : ''));
+        const hn = el('th', 'hour-no', h.hidden ? '' : h.label);
+        hn.title = (h.hidden ? `${h.label} (wiersz ukryty w ustawieniach okresu) - ` : '') + (h.title ? h.title + ' - ' : '') + 'kliknij, aby zaznaczyć wiersz';
         hn.dataset.row = r;
         tr.append(hn);
         const row = [];
@@ -192,6 +203,9 @@ function enableSelection(container, table, matrix, cols) {
   };
   const paint = () => {
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) matrix[r][c].classList.toggle('selected', selected.has(r + ',' + c));
+    table.classList.toggle('grp-active', !!activeGrpId);
+    table.querySelectorAll('.cla.grp-sel').forEach(b => b.classList.remove('grp-sel'));
+    if (activeGrpId) table.querySelectorAll(`.cla[data-grp="${activeGrpId}"]`).forEach(b => b.classList.add('grp-sel'));
   };
   const notify = () => container.dispatchEvent(new CustomEvent('gridselect', { detail: { count: container.getSelection().length } }));
 
@@ -216,8 +230,28 @@ function enableSelection(container, table, matrix, cols) {
   const clearGhost = () => { ghost.forEach(td => td.classList.remove('drop-target', 'drop-bad')); ghost.clear(); table.classList.remove('moving'); };
   const cellOf = k => { const [r, c] = k.split(',').map(Number); return { r, c, td: matrix[r] && matrix[r][c] }; };
 
-  // przesunięcie obszaru keys o (dr, dc): zajęcia do przeniesienia, poprawność, nowe zaznaczenie
-  container.movesFor = (keys, dr, dc) => {
+  // scalone zajęcia (fillClasses, mergeGroups): kliknięcie zaznacza wszystkie komórki grupy, a przesuwanie, edycja
+  // i usuwanie dotyczy tylko zajęć grupy (container.activeGroup - identyfikatory; null - zajęcia całych komórek)
+  let activeGrpId = null;
+  container.activeGroup = null;
+  const groupAt = t => {
+    const g = t.closest('[data-grp]');
+    return g && container.mergeGroups && container.mergeGroups.has(g.dataset.grp) ? { id: g.dataset.grp, ...container.mergeGroups.get(g.dataset.grp) } : null;
+  };
+  const setGroup = grp => { activeGrpId = grp ? grp.id : null; container.activeGroup = grp ? new Set(grp.ids) : null; };
+  // po odświeżeniu zajęć grupy są numerowane od nowa: zaznaczona grupa odszukiwana po zajęciach
+  container.restoreGroup = () => {
+    if (!container.activeGroup) return;
+    const ids = [...container.activeGroup].sort().join(',');
+    const found = [...container.mergeGroups].find(([, g]) => [...g.ids].sort().join(',') === ids);
+    setGroup(found ? { id: found[0], ...found[1] } : null);
+    paint();
+  };
+  const selectGroup = (grp, area) => { selected = new Set(grp.keys); anchor = area; setGroup(grp); paint(); notify(); };
+
+  // przesunięcie obszaru keys o (dr, dc): zajęcia do przeniesienia, poprawność, nowe zaznaczenie;
+  // only - przesuwane tylko te zajęcia (scalona grupa)
+  container.movesFor = (keys, dr, dc, only) => {
     const sources = keys.map(cellOf).filter(x => x.td && x.td.dataset.cla);
     const targets = sources.map(x => {
       const r = x.r + dr, c = x.c + dc;
@@ -232,7 +266,7 @@ function enableSelection(container, table, matrix, cols) {
       moves: targets.filter(t => t.ok).flatMap(t => t.src.dataset.cla.split(',').map(id => ({
         id: Number(id), from: { date: t.src.dataset.date, hour: Number(t.src.dataset.hour) },
         date: t.td.dataset.date, hour: Number(t.td.dataset.hour),
-      }))).filter(m => !seen.has(m.id) && seen.add(m.id)),
+      }))).filter(m => (!only || only.has(m.id)) && !seen.has(m.id) && seen.add(m.id)),
       // zaznaczenie po przesunięciu: ten sam obszar w nowym miejscu (moveSelection w Delphi)
       newSelection: keys.map(k => { const { r, c } = cellOf(k); return (r + dr) + ',' + (c + dc); }),
     };
@@ -240,7 +274,7 @@ function enableSelection(container, table, matrix, cols) {
   const paintGhost = () => {
     clearGhost();
     table.classList.add('moving');
-    const m = container.movesFor(move.keys, move.dr, move.dc);
+    const m = container.movesFor(move.keys, move.dr, move.dc, move.only);
     const bad = !m.valid;
     m.targets.forEach(x => { if (x.td) { x.td.classList.add(bad ? 'drop-bad' : 'drop-target'); ghost.add(x.td); } });
   };
@@ -259,10 +293,15 @@ function enableSelection(container, table, matrix, cols) {
     if (!area) return;
     e.preventDefault();
     const key = area.r0 + ',' + area.c0;
-    if (t.matches('td.cell.busy') && selected.has(key) && !e.shiftKey && !e.ctrlKey && !e.metaKey && container.canMove) {
-      move = { r: area.r0, c: area.c0, keys: [...selected], dr: 0, dc: 0, active: false };
+    const grp = t.matches('td.cell') ? groupAt(e.target) : null;
+    const plain = !e.shiftKey && !e.ctrlKey && !e.metaKey;
+    // zaznaczona grupa: chwycić można tylko jej zajęcie; zaznaczony obszar - dowolne zajęcie
+    if (t.matches('td.cell.busy') && selected.has(key) && plain && container.canMove && (!activeGrpId || (grp && grp.id === activeGrpId))) {
+      move = { r: area.r0, c: area.c0, keys: [...selected], dr: 0, dc: 0, active: false, grp, only: container.activeGroup };
       return;
     }
+    if (grp && plain) { selectGroup(grp, area); return; }
+    setGroup(null);
     base = e.ctrlKey || e.metaKey ? new Set(selected) : new Set();
     if (!(e.shiftKey && anchor)) anchor = area;
     drag = area;
@@ -284,6 +323,7 @@ function enableSelection(container, table, matrix, cols) {
     const area = t && areaOf(t);
     if (!area) return;
     selected = new Set([...base, ...rect(anchor, area)]);
+    setGroup(null);
     paint();
   });
   document.addEventListener('mouseup', e => {
@@ -292,24 +332,37 @@ function enableSelection(container, table, matrix, cols) {
       move = null;
       clearGhost();
       if (!m.active || (m.dr === 0 && m.dc === 0)) {
-        // kliknięcie bez przesunięcia: zaznacz tylko tę komórkę
-        selected = new Set([m.r + ',' + m.c]); anchor = { r0: m.r, r1: m.r, c0: m.c, c1: m.c }; paint(); notify();
+        // kliknięcie bez przesunięcia: zaznacz tylko tę komórkę (scalone zajęcie - całą grupę)
+        const area = { r0: m.r, r1: m.r, c0: m.c, c1: m.c };
+        if (m.grp) { selectGroup(m.grp, area); return; }
+        setGroup(null);
+        selected = new Set([m.r + ',' + m.c]); anchor = area; paint(); notify();
         return;
       }
-      container.dispatchEvent(new CustomEvent('gridmove', { detail: { copy: e.ctrlKey || e.metaKey, ...container.movesFor(m.keys, m.dr, m.dc) } }));
+      container.dispatchEvent(new CustomEvent('gridmove', { detail: { copy: e.ctrlKey || e.metaKey, ...container.movesFor(m.keys, m.dr, m.dc, m.only) } }));
       return;
     }
-    if (drag) { drag = null; notify(); }
+    if (drag) {
+      drag = null; notify();
+      container.dispatchEvent(new CustomEvent('gridmouseup', { detail: { x: e.clientX, y: e.clientY, count: container.getSelection().length } }));
+    }
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && move) { move = null; clearGhost(); } });
+
+  // komórka spoza zaznaczenia (lub inne scalone zajęcie): zaznacz ją albo całą grupę scalonych komórek
+  const pickCell = (td, target) => {
+    const key = td.dataset.row + ',' + td.dataset.col;
+    const grp = groupAt(target);
+    if (grp && grp.id !== activeGrpId) return selectGroup(grp, areaOf(td));
+    if (!selected.has(key)) { setGroup(null); selected = new Set([key]); anchor = areaOf(td); paint(); notify(); }
+  };
 
   // prawy przycisk: menu kontekstowe; kliknięcie poza zaznaczeniem zaznacza tę komórkę
   table.addEventListener('contextmenu', e => {
     const td = e.target.closest('td.cell');
     if (!td) return;
     e.preventDefault();
-    const key = td.dataset.row + ',' + td.dataset.col;
-    if (!selected.has(key)) { selected = new Set([key]); anchor = areaOf(td); paint(); notify(); }
+    pickCell(td, e.target);
     container.dispatchEvent(new CustomEvent('gridcontext', { detail: { x: e.clientX, y: e.clientY, cell: td } }));
   });
 
@@ -317,13 +370,13 @@ function enableSelection(container, table, matrix, cols) {
   table.addEventListener('dblclick', e => {
     const td = e.target.closest('td.cell');
     if (!td || !td.dataset.date) return;
-    const key = td.dataset.row + ',' + td.dataset.col;
-    if (!selected.has(key)) { selected = new Set([key]); anchor = areaOf(td); paint(); notify(); }
+    pickCell(td, e.target);
     container.dispatchEvent(new CustomEvent('griddblclick', { detail: { cell: td } }));
   });
 
   container.setSelectionKeys = keys => {
-    selected = new Set(keys.filter(k => { const { r, c } = cellOf(k); return r >= 0 && r < rows && c >= 0 && c < cols; }));
+    setGroup(null);
+    selected =new Set(keys.filter(k => { const { r, c } = cellOf(k); return r >= 0 && r < rows && c >= 0 && c < cols; }));
     paint(); notify();
   };
   container.getSelectionKeys = () => [...selected];
@@ -346,7 +399,7 @@ function enableSelection(container, table, matrix, cols) {
     .sort((a, b) => (a.date === b.date ? a.hour - b.hour : a.date < b.date ? -1 : 1));
   // obiekty (arkusze), w których jest zaznaczenie; pusta lista - wszystkie obiekty na jednym arkuszu
   container.getSelectionObjects = () => [...new Set(selectedTds().map(td => td.dataset.obj).filter(Boolean))];
-  container.clearSelection = () => { selected = new Set(); anchor = null; paint(); notify(); };
+  container.clearSelection = () => { setGroup(null); selected = new Set(); anchor = null; paint(); notify(); };
   notify();   // nowa siatka (np. inny okres) - bez zaznaczenia
 }
 
@@ -388,10 +441,12 @@ export function fillClasses(container, data, layout, helpers) {
   applySizes(table, layout);
   for (const td of container.cells.values()) {
     if (td.classList.contains('busy')) {
-      td.classList.remove('busy', 'multi', 'reservation');
-      td.textContent = ''; td.removeAttribute('title'); td.style.cssText = ''; delete td.dataset.cla;
+      td.classList.remove('busy', 'multi', 'reservation', 'stack', 'stack-horizontal', 'stack-vertical', 'mg-down', 'mg-right', 'mg-v', 'mg-h');
+      td.textContent = ''; td.removeAttribute('title'); td.style.cssText = ''; delete td.dataset.cla; delete td.dataset.grp;
     }
+    td._units = null;
   }
+  container.mergeGroups = new Map();
   // osobne arkusze: zajęcie w arkuszu każdego wybranego obiektu, który w nim uczestniczy
   const blockIds = container.blockIds || [''];
   const idsField = { L: 'lecIds', G: 'groIds', S: 'romIds' }[container.blockType];
@@ -404,8 +459,34 @@ export function fillClasses(container, data, layout, helpers) {
       byCell.get(key).push(c);
     }
   }
+  // "Wiele obiektów" - w poziomie / w pionie: każde zajęcie komórki w osobnym kwadraciku (obok siebie / jeden pod
+  // drugim), np. 5 wybranych wykładowców z zajęciami w tym terminie - 5 kwadracików; razem - pierwsze zajęcie komórki
+  const stack = !container.weekView && (layout.multi === 'horizontal' || layout.multi === 'vertical') ? layout.multi : null;
+  const lineTexts = c => layout.lines.map(code => (code === 'NONE' ? null : helpers.text(c, code, data) || ''));
   const texts = new Map();   // klucz komórki -> tekst opisów (do "Ukryj takie same opisy")
-  const keys = [...byCell.keys()].sort();
+
+  // scalanie (okno "Zajęcie"): takie same zajęcia (wykładowcy, grupy, zasoby, przedmiot, forma i cztery opisy)
+  // w sąsiednich komórkach sklejone w jeden prostokąt - w pionie kolejne godziny dnia, w poziomie kolejne tygodnie;
+  // kwadraciki obok siebie można scalać tylko w pionie, a jeden pod drugim tylko w poziomie
+  const mergeV = !!layout.mergeV && stack !== 'vertical';
+  const mergeH = !!layout.mergeH && stack !== 'horizontal';
+  const stackDir = stack === 'horizontal' ? (mergeV ? 'V' : null) : stack === 'vertical' ? (mergeH ? 'H' : null) : null;
+  const sig = x => [x.lecIds, x.groIds, x.romIds, x.subId, x.forId, ...x.desc].join('|');
+  const at = new Map([...container.cells.values()].map(td => [td.dataset.row + ',' + td.dataset.col, td]));
+  // poprzednia komórka: godzina wyżej tego samego dnia (V) albo ta sama godzina tydzień wcześniej (H), ten sam arkusz
+  const prevTd = (td, dir) => {
+    const r = +td.dataset.row, c = +td.dataset.col;
+    const p = dir === 'V' ? at.get((r - 1) + ',' + c) : at.get(r + ',' + (c - 1));
+    if (!p || p.dataset.obj !== td.dataset.obj) return null;
+    return p.dataset.date === (dir === 'V' ? td.dataset.date : addDays(td.dataset.date, -7)) ? p : null;
+  };
+  const unit = (td, box, list, s) => { const u = { td, box, ids: list.map(x => x.id), sig: s }; u.parent = u; return u; };
+
+  // kolejno dniami i godzinami (liczbowo) - poprzednia komórka jest już narysowana
+  const keys = [...byCell.keys()].sort((a, b) => {
+    const [da, ha, oa] = a.split('|'), [db, hb, ob] = b.split('|');
+    return da !== db ? (da < db ? -1 : 1) : ha !== hb ? ha - hb : oa < ob ? -1 : oa > ob ? 1 : 0;
+  });
   for (const key of keys) {
     const list = byCell.get(key);
     const td = container.cells.get(key);
@@ -413,27 +494,64 @@ export function fillClasses(container, data, layout, helpers) {
     const c = list[0];
     td.classList.add('busy');
     td.dataset.cla = list.map(x => x.id).join(',');   // zajęcia komórki - do przesuwania myszą
-    if (list.length > 1) td.classList.add('multi');
 
-    const box = el('div', 'cla');
-    // rezerwacja: zawsze kreskowana z nazwą formy (chyba że kolorowanie wg formy)
-    if (c.formKind === 'R' && layout.colour !== 'F') {
-      td.classList.add('reservation');
-      box.append(el('div', '', c.form));
-    } else {
-      const colours = helpers.colours(c, layout.colour, data);
-      if (colours.length) {
-        td.style.background = cellBackground(colours, c.fill);
-        td.style.color = textOn(colours[0]);
+    if (stack) {   // także jedno zajęcie - kwadracik tej samej wielkości (kolumna / wiersz może być szerszy)
+      td.classList.add('stack', 'stack-' + stack);
+      const wrap = el('div', 'cla-stack');
+      // przy scalaniu zajęcie takie jak w poprzedniej komórce trafia na tę samą pozycję (w razie potrzeby z pustym miejscem)
+      let slots = list;
+      if (stackDir) {
+        const prev = prevTd(td, stackDir), rest = [...list];
+        slots = [];
+        if (prev && prev._units) prev._units.forEach((u, i) => {
+          const j = u ? rest.findIndex(x => sig(x) === u.sig) : -1;
+          if (j >= 0) slots[i] = rest.splice(j, 1)[0];
+        });
+        for (const x of rest) { let i = 0; while (slots[i]) i++; slots[i] = x; }
+        slots = Array.from(slots, x => x || null);
       }
-      const lines = layout.lines.map(code => (code === 'NONE' ? null : helpers.text(c, code, data) || ''));
-      const text = lines.filter(l => l !== null).join('\u0001');
-      texts.set(key, text);
-      const [day, hour, obj] = key.split('|');
-      const hide = layout.hideSame && texts.get(cellKey(addDays(day, -7), hour, obj)) === text;
-      if (!hide) lines.forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+      td._units = [];
+      for (const x of slots) {
+        const box = el('div', 'cla');
+        td._units.push(x ? unit(td, box, [x], sig(x)) : null);
+        if (!x) box.classList.add('gap');
+        else if (x.formKind === 'R' && layout.colour !== 'F') {
+          box.classList.add('reservation');
+          box.append(el('div', '', x.form));
+        } else {
+          const colours = helpers.colours(x, layout.colour, data);
+          if (colours.length) {
+            box.style.background = cellBackground(colours, x.fill);
+            box.style.color = textOn(colours[0]);
+          }
+          lineTexts(x).forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+        }
+        wrap.append(box);
+      }
+      td.append(wrap);
+    } else {
+      if (list.length > 1) td.classList.add('multi');
+      const box = el('div', 'cla');
+      // rezerwacja: zawsze kreskowana z nazwą formy (chyba że kolorowanie wg formy)
+      if (c.formKind === 'R' && layout.colour !== 'F') {
+        td.classList.add('reservation');
+        box.append(el('div', '', c.form));
+      } else {
+        const colours = helpers.colours(c, layout.colour, data);
+        if (colours.length) {
+          td.style.background = cellBackground(colours, c.fill);
+          td.style.color = textOn(colours[0]);
+        }
+        const lines = lineTexts(c);
+        const text = lines.filter(l => l !== null).join('\u0001');
+        texts.set(key, text);
+        const [day, hour, obj] = key.split('|');
+        const hide = layout.hideSame && texts.get(cellKey(addDays(day, -7), hour, obj)) === text;
+        if (!hide) lines.forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+      }
+      td.append(box);
+      td._units = [unit(td, box, list, list.map(sig).sort().join('\n'))];
     }
-    td.append(box);
     td.title = list.map(x => [
       `${x.subName || x.sub}${x.formName ? ' – ' + x.formName : ''}`,
       x.lecturers && 'Wykładowcy: ' + x.lecturers,
@@ -442,6 +560,53 @@ export function fillClasses(container, data, layout, helpers) {
       ...x.desc.map((d, i) => d && `${helpers.descName(i)}: ${d}`),
       x.fill < 100 && `Wypełnienie: ${x.fill}%`,
     ].filter(Boolean).join('\n')).join('\n\n');
+  }
+  if (mergeV || mergeH) mergeUnits(container, keys.map(k => container.cells.get(k)).filter(td => td && td._units), stack ? [stackDir] : [mergeV && 'V', mergeH && 'H'].filter(Boolean), prevTd);
+  if (container.restoreGroup) container.restoreGroup();
+}
+
+// sklejanie takich samych zajęć z poprzednią komórką (dirs: 'V' - z komórką wyżej, 'H' - z komórką tydzień wcześniej);
+// grupy sklejonych komórek w container.mergeGroups: { keys: ['wiersz,kolumna'], ids: [zajęcia] } - zaznaczane razem
+function mergeUnits(container, tds, dirs, prevTd) {
+  const find = u => (u.parent === u ? u : (u.parent = find(u.parent)));
+  for (const td of tds) {
+    for (const dir of dirs) {
+      const p = prevTd(td, dir);
+      if (!p || !p._units) continue;
+      td._units.forEach((u, i) => {
+        const pu = p._units[i];
+        if (!u || !pu || u.sig !== pu.sig) return;
+        find(u).parent = find(pu);
+        if (td.classList.contains('stack')) {
+          // kwadracik wydłużony o linię siatki; linia między pozostałymi kwadracikami rysowana w komórce (mg-v / mg-h)
+          pu.box.classList.add(dir === 'V' ? 'mg-down' : 'mg-right');
+          p.classList.add(dir === 'V' ? 'mg-v' : 'mg-h');
+        } else {
+          p.classList.add(dir === 'V' ? 'mg-down' : 'mg-right');
+          p.style.backgroundOrigin = 'border-box';   // kolor zajęcia także pod przezroczystą linią siatki
+        }
+      });
+    }
+  }
+  const groups = new Map();
+  for (const td of tds) for (const u of td._units) {
+    if (!u) continue;
+    const r = find(u);
+    if (!groups.has(r)) groups.set(r, []);
+    groups.get(r).push(u);
+  }
+  let n = 0;
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const id = String(++n);
+    list.forEach((u, i) => {
+      (u.td.classList.contains('stack') ? u.box : u.td).dataset.grp = id;
+      if (i > 0) u.box.textContent = '';   // opis tylko w pierwszej (górnej lewej) komórce prostokąta
+    });
+    container.mergeGroups.set(id, {
+      keys: [...new Set(list.map(u => u.td.dataset.row + ',' + u.td.dataset.col))],
+      ids: [...new Set(list.flatMap(u => u.ids))],
+    });
   }
 }
 
@@ -497,5 +662,22 @@ export function paintHints(container, hints) {
     tri.style.borderWidth = `${size}px ${size}px 0 0`;
     tri.title = list.map(h => `${h.resName || 'id ' + h.resId} - ${h.ratio < 0 ? 'termin niepreferowany' : 'termin preferowany'} (${h.ratio})`).join('\n');
     td.append(tri);
+  }
+}
+
+// dni wolne okresu (HOLIDAY_DAYS; drawReservationsCalendar/DrawStriped w Delphi): zajęcia niedozwolone - krzyżyk,
+// dozwolone - paski; symbol dnia wolnego w podpowiedzi i w pustej komórce
+export function paintHolidays(container, items) {
+  if (!container.cells) return;
+  container.querySelectorAll('td.cell.hol-ok, td.cell.hol-no').forEach(td => {
+    td.classList.remove('hol-ok', 'hol-no');
+    delete td.dataset.hol;
+    if (td.dataset.holTitle) { td.title = td.dataset.holTitle === '-' ? '' : td.dataset.holTitle; delete td.dataset.holTitle; }
+  });
+  for (const it of items || []) for (const td of cellsAt(container, it.date, String(it.hour))) {
+    td.classList.add(it.allowed ? 'hol-ok' : 'hol-no');
+    td.dataset.hol = it.type;
+    td.dataset.holTitle = td.title || '-';
+    td.title = `${it.type}${it.allowed ? ' (zajęcia dozwolone)' : ' - w tym terminie nie można planować zajęć'}` + (td.title ? '\n' + td.title : '');
   }
 }

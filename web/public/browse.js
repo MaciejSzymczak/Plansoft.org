@@ -231,6 +231,21 @@ export class BrowseWindow {
       else if (f.type === 'colour') { input = el('input'); input.type = 'color'; input.value = v || '#ffffff'; input.dataset.empty = v ? '' : '1'; input.addEventListener('input', () => { input.dataset.empty = ''; }); }
       else if (f.type === 'check') { input = el('input'); input.type = 'checkbox'; input.checked = v === '+'; }
       else if (f.type === 'lookup') input = this.select(this.lookups[f.lookup], v, '');
+      else if (f.type === 'weeks' || f.type === 'rows') {
+        // widoczność tygodni / wierszy (WEEK_VISIBILITY_BTN, HIDE_ROWS_BTN): tekst +/- i wybór z listy
+        input = el('input'); input.value = v ?? ''; input.className = 'b-vis';
+        const pick = button('…', 'secondary small b-vis-btn', () => (f.type === 'weeks' ? this.pickWeeks(input) : this.pickRows(input)),
+          f.type === 'weeks' ? 'Widoczność tygodni - wybierz z listy' : 'Widoczność wierszy - wybierz z listy');
+        pick.disabled = !!readOnly;
+        const box = el('span', 'b-vis-box');
+        box.append(input, pick);
+        input.disabled = !!readOnly;
+        this.inputs[f.name] = input;
+        if (f.hint) lb.title = f.hint;
+        lb.append(caption, box);
+        form.append(lb);
+        continue;
+      }
       else {
         input = el('input');
         if (f.type === 'number') { input.type = 'number'; input.step = '1'; }
@@ -260,6 +275,78 @@ export class BrowseWindow {
     if (this.meta.hierarchy && this.mode !== 'insert' && this.current) this.renderHierarchy(w, readOnly);
   }
 
+  // --- okna "Widoczność tygodni" (FWeekVisibility) i "Widoczność wierszy" (FHideRows) -------------------
+  // lista z polami wyboru: zaznaczone = widoczne; wynik jako znaki +/- (tydzień lub godzina siatki po kolei)
+  visDialog(title, items, onOk) {
+    const d = el('dialog', 'vis-dialog');
+    const head = el('div', 'b-head');
+    head.append(el('h2', '', title), el('span', 'spacer'), button('×', 'link close', () => d.close()));
+    const tools = el('div', 'vis-tools');
+    const list = el('div', 'vis-list');
+    const boxes = items.map(it => {
+      const l = el('label', 'check vis-row'); const cb = el('input'); cb.type = 'checkbox'; cb.checked = it.checked;
+      l.append(cb, ' ' + it.label); list.append(l); return cb;
+    });
+    tools.append(button('Zaznacz wszystkie', 'link', () => boxes.forEach(b => { b.checked = true; })),
+      button('Odznacz wszystkie', 'link', () => boxes.forEach(b => { b.checked = false; })));
+    const actions = el('div', 'b-actions vis-actions');
+    actions.append(button('OK', 'primary', () => { onOk(boxes.map(b => b.checked)); d.close(); }), button('Anuluj', 'secondary', () => d.close()));
+    d.append(head, tools, list, actions);
+    d.addEventListener('close', () => d.remove());
+    document.body.append(d);
+    d.showModal();
+    if (boxes[0]) boxes[0].focus();
+  }
+  pickWeeks(input) {
+    const df = this.inputs.DATE_FROM && this.inputs.DATE_FROM.value, dt = this.inputs.DATE_TO && this.inputs.DATE_TO.value;
+    if (!df || !dt) return this.showError('Wpisz daty okresu.');
+    const day = 864e5, monday = s => { const t = Date.parse(s + 'T00:00:00Z'); return t - ((new Date(t).getUTCDay() + 6) % 7) * day; };
+    const start = monday(df), n = Math.floor((monday(dt) - start) / (7 * day)) + 1;
+    if (n > 40) return this.showError(`Ukrywanie tygodni jest dostępne maksymalnie dla 40 tygodni (1 rok). Ten okres obejmuje ${n} tygodni.`);
+    const fmt = t => { const x = new Date(t); return `${String(x.getUTCDate()).padStart(2, '0')}.${String(x.getUTCMonth() + 1).padStart(2, '0')}.${x.getUTCFullYear()}`; };
+    const s = input.value.trim();
+    const items = Array.from({ length: n }, (_, i) => ({
+      label: `Tydzień ${i + 1}:   ${fmt(start + i * 7 * day)} - ${fmt(start + (i * 7 + 6) * day)}`,
+      checked: !s || s[i % s.length] !== '-',
+    }));
+    this.visDialog('Widoczność tygodni', items, v => { input.value = v.map(x => (x ? '+' : '-')).join(''); });
+  }
+  async pickRows(input) {
+    const n = Number(this.inputs.HOURS_PER_DAY && this.inputs.HOURS_PER_DAY.value) || 60;
+    let hours;
+    try { hours = (await this.api('lookup/GRID_HOURS')).filter(h => h.code <= n); } catch (e) { return this.showError(e.message); }
+    const s = input.value.trim();
+    const items = hours.map(h => ({ no: h.code, label: h.name || String(h.code), checked: !s || s[(h.code - 1) % s.length] !== '-' }));
+    this.visDialog('Widoczność wierszy', items, v => {
+      const max = Math.max(0, ...items.map(i => i.no));
+      const out = Array(max).fill('+');
+      items.forEach((it, i) => { if (!v[i]) out[it.no - 1] = '-'; });
+      input.value = out.join('');
+    });
+  }
+
+  // --- jeden rekord (PERIODSShowModalAsSingleRecord(aedit) - przycisk EditPeriod) ---------------------
+  async openRecord(type, id) {
+    this.type = type;
+    this.single = true;
+    this.meta = await this.api(`browse/${type}/meta`);
+    this.lookups = {};
+    for (const f of this.meta.fields.filter(x => x.type === 'lookup')) await this.loadLookup(f.lookup);
+    const r = await this.api(`browse/${type}/${id}`);
+    const d = this.dialog;
+    d.innerHTML = '';
+    d.classList.add('single');
+    const head = el('div', 'b-head');
+    head.append(el('h2', '', `${this.meta.one[0].toUpperCase()}${this.meta.one.slice(1)}: ${r.values.NAME || ''}`), el('span', 'spacer'), button('×', 'link close', () => d.close(), 'Zamknij (Esc)'));
+    this.formWrap = el('div', 'b-form');
+    d.append(head, this.formWrap);
+    this.current = r; this.mode = 'view';
+    this.renderForm(r.values, r.readOnly);
+    d.addEventListener('close', () => { this.single = false; d.classList.remove('single'); }, { once: true });
+    if (!d.open) d.showModal();
+    const i = this.formWrap.querySelector('input:not([disabled])'); if (i) i.focus();
+  }
+
   formValues() {
     const out = {};
     for (const f of this.meta.fields) {
@@ -282,6 +369,7 @@ export class BrowseWindow {
         : await this.api(`browse/${this.type}/${this.current.id}`, { values }, 'PUT');
       this.mode = 'view';
       this.current = r;
+      if (this.single) { this.dialog.close(); this.onChanged(this.type); return; }
       await this.refresh(r.id);
       this.flash(inserting ? 'Dodano.' : 'Zapisano.');
       this.onChanged(this.type);

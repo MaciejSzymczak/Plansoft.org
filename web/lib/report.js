@@ -129,6 +129,7 @@ async function run(s, o, settings) {
   const descL = n => (settings.descSingular[n - 1] || `Opis ${n}`);
   const report = o.report || null;   // LEC_UTILIZATION / STUDENTHOURS: stały układ jak generateReport
 
+  if (o.classId) add('ID zajęcia', 'classes.id');   // tabela przestawna, tryb "Zajęcia": jeden wiersz na zajęcie
   if (o.day) add('Dzień', `to_char(classes.day, 'YYYY-MM-DD')`);
   if (o.month) add('Miesiąc', `to_char(classes.day, 'YYYY-MM')`);
   if (o.dayOfWeek) add('Dzień tyg.', `to_char(classes.day, 'dy', 'NLS_DATE_LANGUAGE=polish')`);

@@ -2063,9 +2063,5 @@ inherited FBrowseROOMS: TFBrowseROOMS
       Caption = 'Scalaj'
       OnClick = Scalaj1Click
     end
-    object UtwrzmapGooglezzasobami1: TMenuItem
-      Caption = 'Utw'#243'rz map'#281' Google z zasobami'
-      OnClick = UtwrzmapGooglezzasobami1Click
-    end
   end
 end

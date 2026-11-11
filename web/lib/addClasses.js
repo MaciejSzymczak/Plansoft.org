@@ -4,6 +4,7 @@
 // i wstawienie (planner_utils.insert_classes).
 'use strict';
 const db = require('./db');
+const holidays = require('./holidays');
 
 const MAX_CELLS = 2000;
 const plaId = s => s.roleId || s.plannerId;
@@ -14,8 +15,10 @@ const isoDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
 
 async function plannerFlags(s) {
   const r = (await db.query(s.pool,
-    `select can_insert, can_delete, is_admin from planners where id = :id`, { id: s.plannerId }))[0] || {};
-  return { canInsert: r.CAN_INSERT === '+', canDelete: r.CAN_DELETE === '+' };
+    `select can_insert, can_delete, is_admin, can_edit_l, can_edit_g, can_edit_r, can_edit_s, can_edit_f, can_edit_o, can_edit_d
+       from planners where id = :id`, { id: s.plannerId }))[0] || {};
+  const canEdit = Object.fromEntries('LGRSFOD'.split('').map(k => [k, r['CAN_EDIT_' + k] === '+']));
+  return { canInsert: r.CAN_INSERT === '+', canDelete: r.CAN_DELETE === '+', canEdit };
 }
 
 // obiekty bez uprawnień XXX_PLA (jak HasPermissionX/PermissionDetails w FDetails)
@@ -110,6 +113,8 @@ async function add(s, body) {
     && c.date >= per.DATE_FROM && c.date <= per.DATE_TO && !seen.has(c.date + '|' + c.hour) && seen.add(c.date + '|' + c.hour));
   if (!cells.length) errors.push('Zaznacz w siatce terminy, do których chcesz dodać zajęcia.');
   if (cells.length > MAX_CELLS) errors.push(`Można dodać najwyżej ${MAX_CELLS} zajęć naraz.`);
+  const blocked = await holidays.blockedCells(s, body.period, cells);
+  if (blocked.length) errors.push('W tym terminie nie można planować zajęć (dzień wolny): ' + blocked.slice(0, 5).map(c => `${c.date} godz. ${c.hour}`).join(', ') + (blocked.length > 5 ? ` i ${blocked.length - 5} więcej` : ''));
   if (errors.length) throw httpError(400, errors.join('\n'));
 
   // --- przekroczenie pojemności sal (ostrzeżenie, jak canInsertClass) -------------------------
@@ -286,6 +291,8 @@ async function move(s, body) {
     const missing = await missingPermissions(s, table, col, list);
     if (missing.length) errors.push(`Nie masz uprawnień do planowania dla ${what}: ${missing.join(', ')}`);
   }
+  const blocked = await holidays.blockedCells(s, body.period, items.filter(i => i.date !== i.old.DAY || i.hour !== i.old.HOUR).map(i => ({ date: i.date, hour: i.hour })));
+  if (blocked.length) errors.push('W tym terminie nie można planować zajęć (dzień wolny): ' + blocked.slice(0, 5).map(c => `${c.date} godz. ${c.hour}`).join(', '));
   if (errors.length) throw httpError(400, [...new Set(errors)].join('\n'));
   const unchanged = items.every(i => i.date === i.old.DAY && i.hour === i.old.HOUR);
   if (unchanged) return { status: 'moved', count: 0 };
@@ -376,4 +383,146 @@ async function remove(s, body) {
   return { count: rows.length, missing: list.length - rows.length };
 }
 
-module.exports = { add, move, remove, withChildsAndParents };
+// --- zmiana zajęć zaznaczonych komórek: menu Edytuj (beditpopup) i Usuń (bdelpopup) okna narzędzi -------------
+// jak modifyClass w UFMain.pas (clAttachLec.., clChangeSub.., clDeleteLec..): każde zajęcie jest usuwane i wstawiane
+// ponownie ze zmienioną wartością (CommitClassChange); zajęcie bez wykładowców, grup i zasobów nie jest wstawiane.
+// Błąd przy którymkolwiek zajęciu - żadne nie jest zmieniane (jak Cofnij1Click po nieudanym modifyClass).
+// body: { ids, op, value, onlyIfEmpty }
+//   attachL/G/S (value: [id], onlyIfEmpty - "Gdy nie ma"), attachOwner (value: planista),
+//   changeSub / changeFor (value: id), changeOwner (value: planista), changeColour (value: '#rrggbb'),
+//   changeDesc1..4 (value: tekst), deleteL/G/S (value: [] - wszystkich, [id] - wybranych),
+//   deleteOwner (value: '' - przywróć domyślnego, planista - odłącz wybranego), deleteSub, deleteDesc1..4
+const MODIFY_OPS = /^(attach[LGS]|attachOwner|changeSub|changeFor|changeOwner|changeColour|changeDesc[1-4]|delete[LGS]|deleteOwner|deleteSub|deleteDesc[1-4])$/;
+async function modify(s, body) {
+  const op = String(body.op || '');
+  if (!MODIFY_OPS.test(op)) throw httpError(400, 'Nieznane polecenie.');
+  // uprawnienia planisty jak w Delphi (ppaddL.Enabled := canEditL ... ppchangeClass.Enabled := canEditAll)
+  const flags = await plannerFlags(s);
+  const need = /[LGS]$/.test(op) && !/Desc/.test(op) && op !== 'deleteSub' && op !== 'changeSub' ? { L: 'L', G: 'G', S: 'R' }[op.slice(-1)]
+    : /Owner/.test(op) ? 'O' : /Desc/.test(op) ? 'D' : /Sub/.test(op) ? 'S' : op === 'changeFor' ? 'F' : null;
+  if (op === 'changeColour' ? !Object.values(flags.canEdit).every(Boolean) : !flags.canEdit[need])
+    throw httpError(403, 'Nie masz uprawnienia do tej zmiany zajęć (Planiści - uprawnienia do edycji).');
+  const list = ids(body.ids).slice(0, MAX_CELLS);
+  if (!list.length) throw httpError(400, 'Zaznacz zajęcia.');
+
+  const binds = {};
+  const rows = await db.query(s.pool, `
+    select id, to_char(day, 'YYYY-MM-DD') day, hour, fill, sub_id, for_id, owner, created_by, colour,
+           calc_lec_ids, calc_gro_ids, calc_rom_ids, desc1, desc2, desc3, desc4
+      from classes where id in (${inList('c', list, binds)})`, binds);
+  const isOwner = await ownerCheck(s);
+  const foreign = [...new Set(rows.filter(r => !isOwner(r.OWNER)).map(r => r.OWNER))];
+  if (foreign.length) throw httpError(403, `Nie możesz zmieniać zajęć użytkownika ${foreign.join(', ')}.`);
+
+  // wartość polecenia
+  const kindOf = op.slice(-1), col = { L: 'CALC_LEC_IDS', G: 'CALC_GRO_IDS', S: 'CALC_ROM_IDS' }[kindOf];
+  let value = body.value;
+  const planner = async name => {
+    const r = (await db.query(s.pool, `select name from planners where upper(name) = upper(:n)`, { n: String(name || '').trim() }))[0];
+    if (!r) throw httpError(400, 'Wybierz planistę.');
+    return r.NAME.toUpperCase();
+  };
+  if (/^attach[LGS]$/.test(op)) {
+    value = ids(value);
+    if (!value.length) throw httpError(400, 'Nie wybrano obiektów.');
+    const [table, c, what] = { L: ['lec_pla', 'lec_id', 'wykładowców'], G: ['gro_pla', 'gro_id', 'grup'], S: ['rom_pla', 'rom_id', 'zasobów'] }[kindOf];
+    const missing = await missingPermissions(s, table, c, value);
+    if (missing.length) throw httpError(403, `Nie masz uprawnień do planowania dla ${what}: ${missing.join(', ')}`);
+  } else if (/^delete[LGS]$/.test(op)) {
+    value = ids(value);
+  } else if (op === 'attachOwner' || op === 'changeOwner' || (op === 'deleteOwner' && value)) {
+    value = await planner(value);
+  } else if (op === 'changeSub') {
+    value = Number(value);
+    if (!(await db.query(s.pool, `select 1 from sub_pla where sub_id = :id and pla_id = :pla`, { id: value, pla: plaId(s) })).length)
+      throw httpError(403, 'Nie masz uprawnień do wybranego przedmiotu.');
+  } else if (op === 'changeFor') {
+    value = Number(value);
+    if (!(await db.query(s.pool, `select 1 from for_pla where for_id = :id and pla_id = :pla`, { id: value, pla: plaId(s) })).length)
+      throw httpError(403, 'Nie masz uprawnień do wybranej formy zajęć.');
+  } else if (op === 'changeColour') {
+    if (!/^#[0-9a-f]{6}$/i.test(value || '')) throw httpError(400, 'Wybierz kolor.');
+    value = (n => ((n & 255) << 16) | (n & 0xff00) | (n >> 16))(parseInt(value.slice(1), 16));   // TColor (BGR)
+  } else if (/^changeDesc/.test(op)) {
+    value = String(value || '').slice(0, 4000);
+  }
+
+  // nowe wartości zajęć (tylko zmienione)
+  const joinIds = a => a.join(';') || null;
+  const items = [];
+  for (const o of rows) {
+    const n = {
+      lec: splitIds(o.CALC_LEC_IDS), gro: splitIds(o.CALC_GRO_IDS), rom: splitIds(o.CALC_ROM_IDS), sub: o.SUB_ID, form: o.FOR_ID,
+      owner: o.OWNER || '', colour: o.COLOUR, desc: [o.DESC1, o.DESC2, o.DESC3, o.DESC4],
+    };
+    const key = { L: 'lec', G: 'gro', S: 'rom' }[kindOf];
+    let added = [];
+    const owners = () => n.owner.toUpperCase().split(';').map(x => x.trim()).filter(Boolean);
+    if (/^attach[LGS]$/.test(op)) {
+      if (body.onlyIfEmpty && n[key].length) continue;              // "Gdy nie ma": inny obiekt już jest
+      added = value.filter(v => !n[key].includes(v));
+      if (!added.length) continue;
+      n[key] = [...n[key], ...added];
+    } else if (/^delete[LGS]$/.test(op)) {
+      const next = value.length ? n[key].filter(v => !value.includes(v)) : [];
+      if (next.length === n[key].length) continue;
+      n[key] = next;
+    } else if (op === 'attachOwner') {
+      if (owners().includes(value)) continue;
+      n.owner = [...owners(), value].join(';');
+    } else if (op === 'deleteOwner') {
+      const next = value ? owners().filter(x => x !== value).join(';') || (o.CREATED_BY || '') : (o.CREATED_BY || '');
+      if (next.toUpperCase() === n.owner.toUpperCase()) continue;
+      n.owner = next;
+    } else if (op === 'changeOwner') {
+      if (n.owner.toUpperCase() === value) continue;
+      n.owner = value;
+    } else if (op === 'changeSub') { if (n.sub === value) continue; n.sub = value; }
+    else if (op === 'changeFor') { if (n.form === value) continue; n.form = value; }
+    else if (op === 'deleteSub') { if (!n.sub) continue; n.sub = null; }
+    else if (op === 'changeColour') { if (n.colour === value) continue; n.colour = value; }
+    else if (/^changeDesc/.test(op)) { const i = +op.slice(-1) - 1; if ((n.desc[i] || '') === value) continue; n.desc[i] = value || null; }
+    else if (/^deleteDesc/.test(op)) { const i = +op.slice(-1) - 1; if (!n.desc[i]) continue; n.desc[i] = null; }
+    items.push({ o, n, added });
+  }
+  if (!items.length) return { count: 0, removed: 0 };
+
+  // dołączone obiekty: konflikty z innymi zajęciami w tym samym terminie (canInsertClass) - przerwanie, jak w Delphi
+  if (/^attach[LGS]$/.test(op)) {
+    const examined = await withChildsAndParents(s, value);
+    const changed = new Set(items.map(i => i.o.ID));
+    const found = [];
+    const byTerm = new Map();
+    for (const i of items) byTerm.set(i.o.DAY + '|' + i.o.HOUR, { date: i.o.DAY, hour: i.o.HOUR });
+    for (const c of await findConflicts(s, examined, [...byTerm.values()])) if (!changed.has(c.id)) found.push(c);
+    if (found.length) {
+      throw httpError(409, 'Nie można dołączyć - konflikt z innymi zajęciami:\n'
+        + found.slice(0, 8).map(c => `${c.day} godz. ${c.hourCaption || c.hour}: ${[c.subject, c.lecturers, c.groups, c.rooms].filter(Boolean).join(', ')} (${c.owner})`).join('\n')
+        + (found.length > 8 ? `\n... i ${found.length - 8} więcej` : ''));
+    }
+  }
+
+  let removed = 0;
+  try {
+    await db.transaction(s.pool, async conn => {
+      for (const { o, n } of items) {
+        let tt = null;
+        try { tt = (await conn.execute('select tt_planner.get_tt_cla(:id) tt from dual', { id: o.ID })).rows[0].TT; } catch { tt = null; }
+        await conn.execute('begin api.delete_class(:id); end;', { id: o.ID });
+        if (!n.lec.length && !n.gro.length && !n.rom.length) { removed++; continue; }
+        await conn.execute(`
+          begin
+            planner_utils.insert_classes(to_date(:day, 'YYYY-MM-DD'), :hour, :fill, :sub, :form, :owner, :lec, :gro, :rom, :col,
+                                         :d1, :d2, :d3, :d4, :tt);
+          end;`, {
+          day: o.DAY, hour: o.HOUR, fill: o.FILL, sub: n.sub || null, form: n.form, owner: n.owner,
+          lec: joinIds(n.lec), gro: joinIds(n.gro), rom: joinIds(n.rom), col: n.colour,
+          d1: n.desc[0], d2: n.desc[1], d3: n.desc[2], d4: n.desc[3], tt,
+        });
+      }
+    });
+  } catch (e) { throw writeError(e); }
+  return { count: items.length, removed };
+}
+
+module.exports = { add, move, remove, modify, withChildsAndParents };

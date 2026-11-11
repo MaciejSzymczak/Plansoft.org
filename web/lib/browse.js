@@ -125,15 +125,25 @@ const ENTITIES = {
       { name: 'SHOW_SUN', label: 'Niedziele', type: 'check', default: '+', group: 'Pokazuj dni tygodnia' },
       { name: 'ROL_ID', label: 'Domyślna autoryzacja', type: 'lookup', lookup: 'PLANNER' },
       { name: 'LOCKED_FLAG', label: 'Planowanie zablokowane dla innych', type: 'check', default: '-', adminOnly: true },
-      { name: 'ATTRIBS_15', label: 'Widoczność wierszy', hint: 'Ukryte wiersze (godziny) siatki' },
+      { name: 'ATTRIBS_15', label: 'Widoczność wierszy', type: 'rows', hint: 'Znak na godzinę siatki: + widoczna, - ukryta (np. ++-+); przycisk „…” - wybór z listy' },
       { name: 'ATTRIBS_14', label: 'Siatka: własne etykiety' },
       { name: 'PER_ORGUNI_ID', label: 'Jednostka', type: 'lookup', lookup: 'ORG' },
-      { name: 'ATTRIBS_13', label: 'Widoczność tygodni', hint: 'Znak na tydzień: + widoczny, - ukryty (np. ++-+)' },
+      { name: 'ATTRIBS_13', label: 'Widoczność tygodni', type: 'weeks', hint: 'Znak na tydzień: + widoczny, - ukryty (np. ++-+); przycisk „…” - wybór z listy' },
       { name: 'PARENT_PER_ID', label: 'Kopiuj dni wolne z okresu', type: 'lookup', lookup: 'PERIOD' },
       { name: 'DESC1', label: 'Opis 1' },
       { name: 'DESC2', label: 'Opis 2' },
       { name: 'INTEGRATION_ID', label: 'ID integracji' },
     ],
+    // CheckRecord (uFBrowsePERIODS.pas): co najmniej jeden dzień tygodnia i jeden widoczny tydzień
+    validate: v => {
+      const errors = [];
+      if (!['SHOW_MON', 'SHOW_TUE', 'SHOW_WED', 'SHOW_THU', 'SHOW_FRI', 'SHOW_SAT', 'SHOW_SUN'].some(c => v(c) === '+')) errors.push('Okres musi zawierać przynajmniej jeden dzień');
+      const weeks = v('ATTRIBS_13') || '', rows = v('ATTRIBS_15') || '';
+      if (weeks && !/^[+-]+$/.test(weeks)) errors.push('Widoczność tygodni: dozwolone są tylko znaki + (tydzień widoczny) i - (tydzień ukryty)');
+      else if (weeks && !weeks.includes('+')) errors.push('Widoczność tygodni musi zawierać przynajmniej jeden widoczny tydzień (znak +)');
+      if (rows && !/^[+-]+$/.test(rows)) errors.push('Widoczność wierszy: dozwolone są tylko znaki + (wiersz widoczny) i - (wiersz ukryty)');
+      return errors;
+    },
     columns: ['NAME', 'DATE_FROM', 'DATE_TO', 'HOURS_PER_DAY', 'SHOW_MON', 'SHOW_TUE', 'SHOW_WED', 'SHOW_THU', 'SHOW_FRI', 'SHOW_SAT', 'SHOW_SUN',
       'CREATED_BY', 'LOCKED_FLAG', 'ROL_ID', 'ID', 'INTEGRATION_ID', 'ORG_NAME'],
   },
@@ -184,6 +194,8 @@ const LOOKUPS = {
   ORG: { list: `select id code, substr(name||' ('||struct_code||')',1,100) name from org_units where %Q order by name`, search: `name||code||struct_code`, numeric: true },
   PLANNER: { list: `select id code, name from planners where %Q order by name`, search: 'name', numeric: true },
   GROUP_TYPE: { list: `select code, name from lookups_group_type where %Q order by name`, search: 'name||code' },
+  // godziny siatki (FHideRows: select no, caption from grids)
+  GRID_HOURS: { list: `select no code, caption name from grids where %Q order by no`, search: 'caption', numeric: true },
   RESCAT: { list: `select id code, name from resource_categories where id > 0 and %Q order by name`, search: 'name', numeric: true },
   PERIOD: { list: `select id code, name from periods where sub_period_parent is null and %Q order by date_from desc`, search: 'name', numeric: true },
   FORM_KIND: { values: [{ code: 'C', name: 'Forma zajęć' }, { code: 'R', name: 'Rezerwacja' }] },
