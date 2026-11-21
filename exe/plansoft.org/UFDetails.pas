@@ -247,6 +247,7 @@ type
     procedure setResLimitation   ( p_rescat_id : integer );
     procedure subjectChange(eventName : string);
     procedure formChange(eventName : string);
+    procedure embedButtons;
   private
     // pola Przedmiot / Forma zajêæ / Forma rezerwacji: lista podpowiedzi podczas wpisywania (0 = S_value1, 1 = F_value1, 2 = F_value2)
     lookupList       : TListBox;
@@ -1059,6 +1060,7 @@ begin
   CWeeksChange(nil);
   formChange('formShow');
   subjectChange('formShow');
+  embedButtons;
 
 end;
 
@@ -1297,6 +1299,8 @@ begin
   rescat1_2_value.Visible := rgReservationFor.ItemIndex  = 3;
   selectResCat1_2.Visible := rgReservationFor.ItemIndex  = 3;
   validResCat1_2.Visible  := rgReservationFor.ItemIndex  = 3;
+  // przyciski wyboru w polach: ukryty przycisk nie by³ rozmieszczony (embedButtons pomija niewidoczne)
+  if Visible then embedButtons;
 end;
 
 procedure TFDetails.SelectOwnerClick(Sender: TObject);
@@ -2176,21 +2180,68 @@ end;
 procedure TFDetails.L_value1Change(Sender: TObject);
 begin
   ClearL.Visible := L_value1.Text <> '';
+  if Visible then embedButtons; // ukryty przycisk nie zostawia przerwy w polu
 end;
 
 procedure TFDetails.G_value1Change(Sender: TObject);
 begin
   ClearG.Visible := G_value1.Text <> '';
+  if Visible then embedButtons; // ukryty przycisk nie zostawia przerwy w polu
 end;
 
 procedure TFDetails.rescat0_1_valueChange(Sender: TObject);
 begin
   ClearR.Visible := rescat0_1_value.Text <> '';
+  if Visible then embedButtons; // ukryty przycisk nie zostawia przerwy w polu
 end;
 
 procedure TFDetails.rescat1_1_valueChange(Sender: TObject);
 begin
     ClearR2.Visible := rescat1_1_value.Text <> '';
+    if Visible then embedButtons;
+end;
+
+// przyciski wewn¹trz pól, przy prawej krawêdzi - jak w oknie g³ównym (TFMain.embedRorButtons); od prawej:
+//   wybór (SelectL1 / SelectG1 / ...), wyczyœæ (clearL / clearG / ...) - widoczny tylko przy wype³nionym polu.
+// Pole dostaje prawy margines na szerokoœæ przycisków (EM_SETMARGINS), ¿eby tekst nie wchodzi³ pod przyciski.
+procedure TFDetails.embedButtons;
+  const W = 20;
+  // kolejne kontrolki od prawej krawêdzi pola; niewidoczne nie zajmuj¹ miejsca
+  procedure embed(ed : TEdit; const ctrls : array of TControl);
+  var t, x : integer;
+  begin
+    x := ed.ClientWidth;
+    for t := 0 to High(ctrls) do begin
+      if ctrls[t].Parent <> ed then begin
+        ctrls[t].Parent  := ed;
+        ctrls[t].Anchors := [akTop, akRight];
+      end;
+      if not ctrls[t].Visible then continue;
+      x := x - W;
+      ctrls[t].SetBounds(x, 0, W, ed.ClientHeight);
+    end;
+    SendMessage(ed.Handle, EM_SETMARGINS, EC_RIGHTMARGIN, MakeLong(0, ed.ClientWidth - x + 2));
+  end;
+begin
+  if csLoading in ComponentState then exit;
+  // "wyczyœæ" tylko przy wype³nionym polu (OnChange nie zachodzi, gdy pole jest puste od pocz¹tku)
+  clearL.Visible  := L_value1.Text <> '';
+  clearG.Visible  := G_value1.Text <> '';
+  clearR.Visible  := rescat0_1_value.Text <> '';
+  clearR2.Visible := rescat1_1_value.Text <> '';
+  // zak³adka Zajêcia
+  embed(L_value1,        [SelectL1,        clearL]);
+  embed(G_value1,        [SelectG1,        clearG]);
+  embed(rescat0_1_value, [selectResCat0_1, clearR]);
+  embed(rescat1_1_value, [selectResCat1_1, clearR2]);
+  embed(S_value1,        [SelectS1]);
+  embed(F_value1,        [SelectF1]);
+  // zak³adka Rezerwacje
+  embed(L_value2,        [SelectL2]);
+  embed(G_value2,        [SelectG2]);
+  embed(rescat0_2_value, [sr2]);
+  embed(rescat1_2_value, [selectResCat1_2]);
+  embed(F_value2,        [selectF2]);
 end;
 
 procedure TFDetails.SpeedButton1Click(Sender: TObject);

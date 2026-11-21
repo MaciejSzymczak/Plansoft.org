@@ -5,7 +5,7 @@ object FCellLayout: TFCellLayout
   AlphaBlendValue = 250
   BorderStyle = bsNone
   Caption = 'FCellLayout'
-  ClientHeight = 294
+  ClientHeight = 310
   ClientWidth = 392
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -24,7 +24,7 @@ object FCellLayout: TFCellLayout
     Left = 0
     Top = 0
     Width = 377
-    Height = 289
+    Height = 305
     Pen.Mode = pmMask
     Shape = stRoundRect
   end
@@ -183,7 +183,7 @@ object FCellLayout: TFCellLayout
       Height = 33
       Ctl3D = True
       LineSize = 0
-      Max = 200
+      Max = 400
       Min = 5
       ParentCtl3D = False
       ParentShowHint = False
@@ -694,6 +694,15 @@ object FCellLayout: TFCellLayout
     State = cbChecked
     TabOrder = 3
     OnClick = HideTheSameDescClick
+  end
+  object OneLineDesc: TCheckBox
+    Left = 96
+    Top = 282
+    Width = 193
+    Height = 17
+    Caption = 'W jednej linii'
+    TabOrder = 4
+    OnClick = OneLineDescClick
   end
   object cellTimer: TTimer
     Enabled = False

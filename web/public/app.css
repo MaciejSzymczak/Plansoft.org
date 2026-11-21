@@ -768,3 +768,18 @@ dialog.goto-date { width: min(440px, calc(100vw - 32px)); }
 .goto-row input { flex: 1; }
 .goto-days { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .goto-days button:last-child { grid-column: 1 / 3; }
+/* Plan lekcji: wybór tygodnia */
+dialog.week-pick { width: min(460px, calc(100vw - 32px)); }
+.week-list { width: 100%; font-size: 14px; }
+/* tabela przestawna: tryb "Zajęcia" - zajęcia jak karty, od góry komórki */
+table.pv-table.pv-classes td { vertical-align: top; min-width: 170px; padding: 4px; }
+table.pv-table.pv-classes .pv-cla { background: #f6f8fb; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 12px; line-height: 1.3; }
+table.pv-table.pv-classes .pv-cla + .pv-cla { margin-top: 4px; }
+table.pv-table.pv-classes .pv-dates { color: var(--muted); font-size: 11px; margin-top: 2px; }
+table.pv-table th.pv-rh.rep { border-top-color: transparent; }
+.pv-layout { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px 0; }
+.pv-group { border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0; }
+.pv-group legend { font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 4px; }
+.pv-group select { max-width: 200px; }
+.pv-content { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; width: 100%; }
+.pv-content.off { opacity: .5; }

@@ -25,6 +25,10 @@ create or replace package USOS is
    | History 
    | 2022.01.30 Maciej Szymczak created  
    | 2024.10.29 Maciej Szymczak updates  
+   | 2026.11.19 Maciej Szymczak USOS_PLAN_ONLY_CYKL (optional): dictionaries and plan are downloaded for USOS_CYKL
+   |            and also for USOS_PLAN_ONLY_CYKL (planning the next semester before the current one ends).
+   |            The schedule is sent for USOS_CYKL only. Empty USOS_PLAN_ONLY_CYKL = previous behaviour.
+   |            NOTE: the parameter name must NOT start with USOS_CYKL (queries use like 'USOS_CYKL%').
    \-----------------------------------------------------------------------------------------------------------------------------*/ 
 
     procedure integration_from_usos_dict (pCleanYpMode varchar2 default 'N');
@@ -38,57 +42,42 @@ package body USOS is
 
 --2022.09.19 remove obsolete items from tt_resource_list
 
+
+-- 2026.11.19 WYSYLKA PLANU phase (USOS ==> Plansoft.org: integration_from_usos_dict, integration_from_usos_plan)
+--            is done for USOS_CYKL and, if set, also for USOS_PLAN_ONLY_CYKL.
+--            WYSYLKA ROZKLADU phase (Plansoft.org ==> USOS: integration_to_usos) is done for USOS_CYKL only.
+type t_cycles is table of varchar2(100);
+
+function cyclesToDownload return t_cycles is
+  vCykl     varchar2(100);
+  vPlanOnly varchar2(100);
+  vResult   t_cycles := t_cycles();
+begin
+  select max(value) into vCykl     from system_parameters where name like 'USOS_CYKL%';
+  select max(value) into vPlanOnly from system_parameters where name = 'USOS_PLAN_ONLY_CYKL';
+  if vCykl is not null then
+    vResult.extend; vResult(vResult.count) := vCykl;      -- the cycle being sent - always first
+  end if;
+  if vPlanOnly is not null and vPlanOnly <> nvl(vCykl, '-') then
+    vResult.extend; vResult(vResult.count) := vPlanOnly;  -- the next cycle - download only
+  end if;
+  return vResult;
+end;
+
+function cyclesAsText(pCycles t_cycles) return varchar2 is
+  vResult varchar2(400);
+begin
+  for i in 1 .. pCycles.count loop
+    vResult := vResult || case when i > 1 then ',' end || pCycles(i);
+  end loop;
+  return vResult;
+end;
+
 ---------------------------------------------------------------------------------------------------------------------------------------
-procedure integration_from_usos_dict (pCleanYpMode varchar2 default 'N') as 
+-- role, period and subjects of one cycle
+procedure dict_cycle_role_subjects (pCleanYpMode varchar2, pCykl varchar2) as
  trace varchar2(200);
 begin
-    if (pCleanYpMode='Y') then
-      rollback; --sometimes required by USOS!
-    end if;
-
-    --declare x decimal; begin x := 1/0; end; --deliberate error
-    -- ******************************************************************
-    -- ****************** LECTURERS *************************************
-    -- ******************************************************************
-    trace := 'LECTURERS.MERGE';
-    merge into lecturers m using  
-        (
-            select id, nazwa, imie, nazwisko || decode(abbrPostfixName,1,null,abbrPostfixName) as nazwisko
-            , abbrPrefix || decode(abbrPostfix,1,null,abbrPostfix) abbreviation, orguni_id from 
-            (
-            SELECT o.id, t.nazwa, o.imie, o.nazwisko, (select id from org_units where code = o.jed_org_kod) orguni_id
-                 , lpad(o.imie,2)||lpad(o.nazwisko,2) abbrPrefix
-                 , ROW_NUMBER() OVER (PARTITION BY lpad(o.imie,2)||lpad(o.nazwisko,2) ORDER BY o.utw_data, o.imie, o.nazwisko ) AS abbrPostfix
-                 , ROW_NUMBER() OVER (PARTITION BY o.imie||o.nazwisko ORDER BY o.utw_data, o.imie, o.nazwisko ) AS abbrPostfixName
-                from dz_osoby@USOS o 
-                inner join dz_pracownicy@USOS p on p.os_id = o.id 
-                left join dz_tytuly@USOS t on t.id = o.tytul_przed
-                where p.id is not null
-            )  
-        ) usos
-    on (m.integration_id = usos.id)
-         when not matched then insert (id, abbreviation, title, first_name, last_name, integration_id, orguni_id, colour) 
-         values (main_seq.nextval, abbreviation, usos.nazwa, usos.imie, usos.nazwisko,  usos.id, usos.orguni_id
-               , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255)))
-         when matched then update 
-            set title=usos.nazwa
-              , first_name=usos.imie
-              , last_name=usos.nazwisko
-              , abbreviation = usos.abbreviation
-              , orguni_id=usos.orguni_id;
-    --
-    if (pCleanYpMode='Y') then
-      trace := 'LECTURERS.TRUNCATE LEC_PLA';
-      execute immediate 'truncate table lec_pla';
-    end if;
-    trace := 'LECTURERS.INSERT LEC_PLA';
-    insert into lec_pla (id, lec_id, pla_id)
-        select lecpla_seq.nextval, lec_id,pla_id  from
-        (
-        select l.id lec_id, p.id pla_id from lecturers l, planners p
-        minus
-        select lec_id,pla_id from lec_pla
-        );
     -- ******************************************************************
     -- ****************** ROLE ******************************************
     -- ******************************************************************
@@ -96,7 +85,7 @@ begin
     merge into planners m using  
         (
          select opis, kod from dz_cykle_dydaktyczne@usos 
-          where kod in (select value from system_parameters where name like 'USOS_CYKL%')
+          where kod in (pCykl)
         ) usos
     on (m.integration_id = usos.kod)
          when not matched then insert (
@@ -158,7 +147,7 @@ begin
          select opis, data_od, data_do, kod
               , (select id from planners where integration_id = kod) rol_id
          from dz_cykle_dydaktyczne@usos 
-          where kod in (select value from system_parameters where name like 'USOS_CYKL%')
+          where kod in (pCykl)
         ) usos
     on (m.integration_id = usos.kod)
          when not matched then insert (
@@ -192,13 +181,24 @@ begin
               , date_to=usos.data_do;    
     --
     trace := 'PERIOD.DELETE ROL_PLA';
-    delete from rol_pla where rol_id in (select id rol_id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'));
+    delete from rol_pla where rol_id in (select id rol_id from planners where integration_id in (pCykl));
     trace := 'PERIOD.INSERT ROL_PLA';
     insert into rol_pla (id, rol_id, pla_id)
         select rolpla_seq.nextval, r.rol_id, p.id 
         from  
-        (select id rol_id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%')) r
+        (select id rol_id from planners where integration_id in (pCykl)) r
         ,(select id from planners where type = 'USER') p;
+    --2026.11.19 make the period available to all users and roles (like other objects)
+    trace := 'PERIOD.INSERT PER_PLA';
+    insert into per_pla (id, per_id, pla_id)
+        select perpla_seq.nextval, per_id, pla_id
+        from (
+            select per.id per_id, p.id pla_id
+              from periods per, planners p
+             where per.integration_id in (pCykl)
+            minus
+            select per_id, pla_id from per_pla
+        );
 
     -- ******************************************************************
     -- ****************** SUBJECTS **************************************
@@ -218,7 +218,7 @@ begin
                  , (select Id from org_units where code = JED_ORG_KOD) orguni_id 
              from dz_przedmioty@USOS p
             inner join dz_przedmioty_cykli@USOS c on c.prz_kod = p.kod
-            where c.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
+            where c.cdyd_kod in (pCykl)
             )
         ) usos
     on (m.integration_id = usos.kod)
@@ -243,7 +243,7 @@ begin
     ---   
     if (pCleanYpMode='Y') then
         trace := 'SUBJECTS.DELETE SUB_PLA';
-        delete from sub_pla where pla_id in (select id  from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%'));
+        delete from sub_pla where pla_id in (select id  from planners where integration_id in (pCykl));
     end if; 
     trace := 'SUBJECTS.INSERT SUB_PLA';
     insert into sub_pla (id, pla_id, sub_id)
@@ -253,114 +253,24 @@ begin
                r.id pla_id
              , sub.id  sub_id
         from  
-        (select id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%')) r
+        (select id from planners where integration_id in (pCykl)) r
         ,(select id 
           from subjects where abbreviation in (
             SELECT prz_kod
              from dz_przedmioty_cykli@USOS c
-            where c.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
+            where c.cdyd_kod in (pCykl)
           )) sub
           minus 
           select pla_id, sub_id from sub_pla
           );
     ---   
-    -- ******************************************************************
-    -- ****************** ROOMS *****************************************
-    -- ******************************************************************
-    trace := 'ROOMS.MERGE';
-    merge into rooms m using  
-        (
-         select id
-             , numer
-             , liczba_miejsc
-             , bud_kod
-             , nvl((select id from org_units where code = jed_org_kod),(select id from org_units where rownum=1)) orguni_id 
-             from dz_sale@usos  
-        ) usos
-    on (m.integration_id = usos.id)
-         when not matched then insert (    
-                    id,
-                    name,
-                    rescat_id, 
-                    attribn_01,
-                    attribs_01,
-                    integration_id,
-                    orguni_id,
-                    colour
-                ) 
-         values (
-               main_seq.nextval
-             , usos.numer
-             , 1
-             , usos.liczba_miejsc
-             , usos.bud_kod
-             , usos.id
-             , usos.orguni_id
-             , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255)))
-         when matched then update 
-            set name=usos.numer
-              , attribn_01=usos.liczba_miejsc
-              , attribs_01=usos.bud_kod
-              , orguni_id=usos.orguni_id;
-    ---          
-    if (pCleanYpMode='Y') then
-        trace := 'ROOMS.TRUNCATE ROM_PLA';
-        execute immediate 'truncate table rom_pla';
-    end if;
-    trace := 'ROOMS.INSERT ROM_PLA';
-    insert into rom_pla (id, rom_id, pla_id)
-        select rompla_seq.nextval, rom_id, pla_id
-        from (
-        select rom.id rom_id, p.id pla_id from rooms rom, planners p where upper(rom.name) not like '%STREAMING%'
-        minus
-        select rom_id, pla_id from rom_pla
-        );
-    ---          
-    -- ******************************************************************
-    -- ****************** FORMS *****************************************
-    -- ******************************************************************
-    trace := 'FORMS.MERGE';
-    merge into forms m using  
-        (
-          select substrb(kod,1,30) kod
-               , substrb(opis,1,30) opis
-               , description from dz_typy_zajec@usos
-        ) usos
-    on (m.integration_id = usos.kod)
-         when not matched then insert (
-            id,
-            abbreviation,
-            name,
-            kind,
-            sort_order_on_reports,
-            colour,
-            integration_id
-         ) 
-         values (main_seq.nextval
-                ,usos.kod
-                ,usos.opis
-                ,'C'
-                , 1
-                , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255))
-                ,usos.kod
-         )       
-         when matched then update 
-            set abbreviation=usos.kod
-              , name=usos.opis;
-    ---          
-    if (pCleanYpMode='Y') then
-        trace := 'FORMS.TRUNC FOR_PLA';
-        execute immediate 'truncate table for_pla';
-    end if;
-    trace := 'FORMS.INSERT FOR_PLA';
-    insert into for_pla (id, for_id, pla_id)
-        select forpla_seq.nextval, for_id, pla_id 
-        from (
-        select m.id for_id, p.id  pla_id from forms m, planners p
-        minus
-        select for_id, pla_id from for_pla
-        );
-    ---
+end;
+
+---------------------------------------------------------------------------------------------------------------------------------------
+-- groups of one cycle
+procedure dict_cycle_groups (pCleanYpMode varchar2, pCykl varchar2, pTwoCycles varchar2) as
+ trace varchar2(200);
+begin
     -- **********************************************************
     -- ************* GROUPS *************************************
     -- **********************************************************
@@ -378,7 +288,7 @@ begin
             --inner join dz_prowadzacy_grup@usos pg on pg.zaj_cyk_id = zc.id and pg.gr_nr = g.nr
             , org_units
             where  code = p.JED_ORG_KOD 
-              and zc.cdyd_kod in (select value from system_parameters where name like 'USOS_CYKL%')
+              and zc.cdyd_kod in (pCykl)
               and g.opis is not null
               and not g.opis like '% %'
               and length(g.opis)<30
@@ -415,7 +325,9 @@ begin
     --
     if (pCleanYpMode='Y') then
       trace := 'GROUPS.DEL GRO_PLA';
-      delete from gro_pla where gro_id in (select id from groups where usos_period in (select value from system_parameters where name like 'USOS_CYKL%'));
+      delete from gro_pla where gro_id in (select id from groups where usos_period in (pCykl))
+         --two cycles downloaded: keep links of shared groups to the other cycle's role
+         and (pTwoCycles = 'N' or pla_id in (select id from planners where integration_id in (pCykl)));
     end if;
     trace := 'GROUPS.INSERT GRO_PLA';
     insert into gro_pla (id, gro_id, pla_id)
@@ -423,22 +335,16 @@ begin
         from (
             select r.Id gro_id, p.id pla_id 
             from  
-            (select id  from groups where usos_period in (select value from system_parameters where name like 'USOS_CYKL%')) r
-            ,(select id from planners where integration_id in (select value from system_parameters where name like 'USOS_CYKL%')) p
+            (select id  from groups where usos_period in (pCykl)) r
+            ,(select id from planners where integration_id in (pCykl)) p
             minus 
             select gro_id, pla_id from gro_pla
         );
-    xxmsz_tools.insertIntoEventLog('FROM USOS_DCT:'||pCleanYpMode||': OK', 'I', 'INTEGRATION_FROM_USOS' );
-    delete from xxmsztools_eventlog where module_name = 'INTEGRATION_FROM_USOS' and created < sysdate - 7;
-    commit;
---exception
---    when others then
---    xxmsz_tools.insertIntoEventLog(substrb('FROM USOS: ' || pCleanYpMode || trace ||': '||sqlerrm,1,230), 'I', 'INTEGRATION_FROM_USOS' );
 end;
 
-
 ---------------------------------------------------------------------------------------------------------------------------------------
-procedure integration_from_usos_plan (pCleanYpMode varchar2 default 'N') as 
+-- plan (TT_COMBINATIONS) of one cycle
+procedure plan_cycle (pCleanYpMode varchar2, pCykl varchar2) as
  trace varchar2(200);
 begin
     -- ******************************************************************
@@ -454,10 +360,7 @@ begin
         declare
          pcdyd_kod varchar2(100);
         begin
-          select value 
-            into pcdyd_kod 
-            from system_parameters 
-            where name like 'USOS_CYKL%';
+          pcdyd_kod := pCykl;
         merge into TT_INTERFACE m using  
         (
             select  
@@ -497,13 +400,13 @@ begin
             , FOR_ID = (select Id from forms where integration_id=FOR_INTEGRATION_ID)    
             , GRO_ID = (select Id from groups where integration_id=GRO_INTEGRATION_ID);    
         select value into prescat_comb_id from system_parameters where name = 'USOS_RESCAT_COMB_ID';
-        select id into pCycle_per_id from periods where integration_id = (select value from system_parameters where name like 'USOS_CYKL%');
+        select id into pCycle_per_id from periods where integration_id = (pCykl);
         trace := 'COMBINATIONS. UPDATE2 TT_INTERFACE';
         update tt_interface set per_id = pCycle_per_id;
         --
         select id rol_id 
           into pCycle_pla_id
-          from planners where integration_id = (select value from system_parameters where name like 'USOS_CYKL%');
+          from planners where integration_id = (pCykl);
         --link combination type with cycle
         trace := 'COMBINATIONS. INSERT TT_PLA';
         delete from TT_PLA where Pla_Id = pCycle_pla_id;
@@ -514,9 +417,7 @@ begin
         -- ******************************************************************
         -- TT_COMBINATIONS
         trace := 'COMBINATIONS.MERGE';
-         if (pCleanYpMode='Y') then
-            delete from TT_COMBINATIONS where integration_id is not null;
-         end if;
+         --TT_COMBINATIONS clean-up is done once, before the loop (integration_from_usos_plan)
          merge into TT_COMBINATIONS  m 
          using (select * from TT_INTERFACE) usos
             on (m.INTEGRATION_ID = usos.integration_id)
@@ -689,13 +590,201 @@ begin
                  );
     end;   
 
-    ---  
+end;
+
+---------------------------------------------------------------------------------------------------------------------------------------
+procedure integration_from_usos_dict (pCleanYpMode varchar2 default 'N') as
+ trace varchar2(200);
+ vCycles    t_cycles := cyclesToDownload;
+ vTwoCycles varchar2(1) := case when vCycles.count > 1 then 'Y' else 'N' end;
+begin
+    if (pCleanYpMode='Y') then
+      rollback; --sometimes required by USOS!
+    end if;
+
+    --declare x decimal; begin x := 1/0; end; --deliberate error
+    -- ******************************************************************
+    -- ****************** LECTURERS *************************************
+    -- ******************************************************************
+    trace := 'LECTURERS.MERGE';
+    merge into lecturers m using  
+        (
+            select id, nazwa, imie, nazwisko || decode(abbrPostfixName,1,null,abbrPostfixName) as nazwisko
+            , abbrPrefix || decode(abbrPostfix,1,null,abbrPostfix) abbreviation, orguni_id from 
+            (
+            SELECT o.id, t.nazwa, o.imie, o.nazwisko, (select id from org_units where code = o.jed_org_kod) orguni_id
+                 , lpad(o.imie,2)||lpad(o.nazwisko,2) abbrPrefix
+                 , ROW_NUMBER() OVER (PARTITION BY lpad(o.imie,2)||lpad(o.nazwisko,2) ORDER BY o.utw_data, o.imie, o.nazwisko ) AS abbrPostfix
+                 , ROW_NUMBER() OVER (PARTITION BY o.imie||o.nazwisko ORDER BY o.utw_data, o.imie, o.nazwisko ) AS abbrPostfixName
+                from dz_osoby@USOS o 
+                inner join dz_pracownicy@USOS p on p.os_id = o.id 
+                left join dz_tytuly@USOS t on t.id = o.tytul_przed
+                where p.id is not null
+            )  
+        ) usos
+    on (m.integration_id = usos.id)
+         when not matched then insert (id, abbreviation, title, first_name, last_name, integration_id, orguni_id, colour) 
+         values (main_seq.nextval, abbreviation, usos.nazwa, usos.imie, usos.nazwisko,  usos.id, usos.orguni_id
+               , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255)))
+         when matched then update 
+            set title=usos.nazwa
+              , first_name=usos.imie
+              , last_name=usos.nazwisko
+              , abbreviation = usos.abbreviation
+              , orguni_id=usos.orguni_id;
+    --
+    if (pCleanYpMode='Y') then
+      trace := 'LECTURERS.TRUNCATE LEC_PLA';
+      execute immediate 'truncate table lec_pla';
+    end if;
+    trace := 'LECTURERS.INSERT LEC_PLA';
+    insert into lec_pla (id, lec_id, pla_id)
+        select lecpla_seq.nextval, lec_id,pla_id  from
+        (
+        select l.id lec_id, p.id pla_id from lecturers l, planners p
+        minus
+        select lec_id,pla_id from lec_pla
+        );
+    -- ******************************************************************
+    -- ****************** ROLE, PERIOD, SUBJECTS (for each cycle) *******
+    -- ******************************************************************
+    for i in 1 .. vCycles.count loop
+      dict_cycle_role_subjects(pCleanYpMode, vCycles(i));
+    end loop;
+    -- ******************************************************************
+    -- ****************** ROOMS *****************************************
+    -- ******************************************************************
+    trace := 'ROOMS.MERGE';
+    merge into rooms m using  
+        (
+         select id
+             , numer
+             , liczba_miejsc
+             , bud_kod
+             , nvl((select id from org_units where code = jed_org_kod),(select id from org_units where rownum=1)) orguni_id 
+             from dz_sale@usos  
+        ) usos
+    on (m.integration_id = usos.id)
+         when not matched then insert (    
+                    id,
+                    name,
+                    rescat_id, 
+                    attribn_01,
+                    attribs_01,
+                    integration_id,
+                    orguni_id,
+                    colour
+                ) 
+         values (
+               main_seq.nextval
+             , usos.numer
+             , 1
+             , usos.liczba_miejsc
+             , usos.bud_kod
+             , usos.id
+             , usos.orguni_id
+             , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255)))
+         when matched then update 
+            set name=usos.numer
+              , attribn_01=usos.liczba_miejsc
+              , attribs_01=usos.bud_kod
+              , orguni_id=usos.orguni_id;
+    ---          
+    if (pCleanYpMode='Y') then
+        trace := 'ROOMS.TRUNCATE ROM_PLA';
+        execute immediate 'truncate table rom_pla';
+    end if;
+    trace := 'ROOMS.INSERT ROM_PLA';
+    insert into rom_pla (id, rom_id, pla_id)
+        select rompla_seq.nextval, rom_id, pla_id
+        from (
+        select rom.id rom_id, p.id pla_id from rooms rom, planners p where upper(rom.name) not like '%STREAMING%'
+        minus
+        select rom_id, pla_id from rom_pla
+        );
+    ---          
+    -- ******************************************************************
+    -- ****************** FORMS *****************************************
+    -- ******************************************************************
+    trace := 'FORMS.MERGE';
+    merge into forms m using  
+        (
+          select substrb(kod,1,30) kod
+               , substrb(opis,1,30) opis
+               , description from dz_typy_zajec@usos
+        ) usos
+    on (m.integration_id = usos.kod)
+         when not matched then insert (
+            id,
+            abbreviation,
+            name,
+            kind,
+            sort_order_on_reports,
+            colour,
+            integration_id
+         ) 
+         values (main_seq.nextval
+                ,usos.kod
+                ,usos.opis
+                ,'C'
+                , 1
+                , round(dbms_random.value(128,255)) + 256*round(dbms_random.value(128,255)) + 256*256*round(dbms_random.value(128,255))
+                ,usos.kod
+         )       
+         when matched then update 
+            set abbreviation=usos.kod
+              , name=usos.opis;
+    ---          
+    if (pCleanYpMode='Y') then
+        trace := 'FORMS.TRUNC FOR_PLA';
+        execute immediate 'truncate table for_pla';
+    end if;
+    trace := 'FORMS.INSERT FOR_PLA';
+    insert into for_pla (id, for_id, pla_id)
+        select forpla_seq.nextval, for_id, pla_id 
+        from (
+        select m.id for_id, p.id  pla_id from forms m, planners p
+        minus
+        select for_id, pla_id from for_pla
+        );
+    ---
+    -- **********************************************************
+    -- ************* GROUPS (for each cycle) ********************
+    -- **********************************************************
+    for i in 1 .. vCycles.count loop
+      dict_cycle_groups(pCleanYpMode, vCycles(i), vTwoCycles);
+    end loop;
+    xxmsz_tools.insertIntoEventLog('FROM USOS_DCT:'||pCleanYpMode||':'||cyclesAsText(vCycles)||': OK', 'I', 'INTEGRATION_FROM_USOS' );
+    delete from xxmsztools_eventlog where module_name = 'INTEGRATION_FROM_USOS' and created < sysdate - 7;
+    commit;
+--exception
+--    when others then
+--    xxmsz_tools.insertIntoEventLog(substrb('FROM USOS: ' || pCleanYpMode || trace ||': '||sqlerrm,1,230), 'I', 'INTEGRATION_FROM_USOS' );
+end;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+procedure integration_from_usos_plan (pCleanYpMode varchar2 default 'N') as
+ trace varchar2(200);
+ vCycles t_cycles := cyclesToDownload;
+begin
+    -- TT_COMBINATIONS clean-up once, for all cycles (as before: all combinations from USOS)
+    if (pCleanYpMode='Y') then
+       trace := 'COMBINATIONS.DELETE';
+       delete from TT_COMBINATIONS where integration_id is not null;
+    end if;
+    for i in 1 .. vCycles.count loop
+      trace := 'PLAN '||vCycles(i);
+      plan_cycle(pCleanYpMode, vCycles(i));
+    end loop;
+
+    ---
     -- ******************************************************************
     -- *************recalc_combination122  ******************************
     -- ******************************************************************
     tt_planner.recalc_combination122( pCleanYpMode );
 
-    xxmsz_tools.insertIntoEventLog('FROM USOS_PLAN:'||pCleanYpMode||': OK', 'I', 'INTEGRATION_FROM_USOS' );
+    xxmsz_tools.insertIntoEventLog('FROM USOS_PLAN:'||pCleanYpMode||':'||cyclesAsText(vCycles)||': OK', 'I', 'INTEGRATION_FROM_USOS' );
     delete from xxmsztools_eventlog where module_name = 'INTEGRATION_FROM_USOS' and created < sysdate - 7;
     commit;
 exception
@@ -706,13 +795,6 @@ end;
 
 
 
-
-
-
-
-
-
----------------------------------------------------------------------------------------------------------------------------------------
 procedure integration_to_usos (pCleanYpMode varchar2 default 'N') as 
   trace varchar2(200);
 begin      

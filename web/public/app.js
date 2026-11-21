@@ -12,8 +12,9 @@ import { ToolsWindow } from './tools.js';
 import { ToolWindow, openPopup, pickItems, pickColour, pickDesc, hintsList } from './toolWindow.js';
 import { HolidaysWindow } from './holidays.js';
 import { PivotWindow } from './pivot.js';
-import { previewGrid, previewWeeklyPlan } from './preview.js';
+import { previewGrid, openWeeklyPlan, periodWeeks } from './preview.js';
 import { FindPanel } from './find.js';
+import { withProgress } from './progress.js';
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => [...document.querySelectorAll(sel)];
@@ -140,7 +141,7 @@ async function loadPeriods() {
   const list = $('#periodList');
   const q = $('#periodSearch').value.trim();
   try {
-    periodRows = await api('periods?q=' + encodeURIComponent(q));
+    periodRows = await withProgress($('#periodList'), 'Wczytywanie okresów…', () => api('periods?q=' + encodeURIComponent(q)), [], 300);
   } catch (e) {
     if (e.message !== '401') { list.textContent = e.message; }
     return;
@@ -191,7 +192,7 @@ $('#periodButton').addEventListener('click', () => showPeriods(true));
 
 async function openPeriod(id) {
   try {
-    state.period = await api('periods/' + id);
+    state.period = await withProgress(null, 'Otwieranie okresu…', () => api('periods/' + id), [], 150);
   } catch (e) {
     if (e.message !== '401') alertBox(e.message);
     return;
@@ -545,7 +546,7 @@ function loadClasses() {
     if (ids) {
       count.textContent = 'wczytywanie…';
       try {
-        rows = await api(`classes?period=${state.period.id}&type=${type}&ids=${ids}`);
+        rows = await withProgress($('#gridWrap'), 'Wczytywanie rozkładu…', () => api(`classes?period=${state.period.id}&type=${type}&ids=${ids}`), [], 300);
       } catch (e) {
         if (req === classesReq && e.message !== '401') { count.textContent = e.message; count.className = 'count error'; }
         return;
@@ -814,7 +815,7 @@ async function deleteSelected() {
   if (!ids.length) return flashTitle('Zaznacz zajęcia do usunięcia.', true);
   if (!canDelete()) return flashTitle('Nie możesz usuwać zajęć.', true);
   let r;
-  try { r = await api('classes/delete', { ids }); } catch (e) { if (e.message !== '401') flashTitle(e.message, true); loadClasses(); return; }
+  try { r = await withProgress($('#gridWrap'), 'Usuwanie zajęć…', () => api('classes/delete', { ids }), [], 150); } catch (e) { if (e.message !== '401') flashTitle(e.message, true); loadClasses(); return; }
   loadClasses();
   flashTitle(`Usunięto ${r.count} ${plural(r.count, 'zajęcie', 'zajęcia', 'zajęć')}`);
 }
@@ -829,7 +830,7 @@ async function runMove({ moves, copy, valid, newSelection }, after) {
   const run = async confirm => {
     let r;
     try {
-      r = await api('classes/move', { period: state.period.id, moves: moves.map(m => ({ id: m.id, date: m.date, hour: m.hour })), copy, confirm });
+      r = await withProgress($('#gridWrap'), 'Przenoszenie zajęć…', () => api('classes/move', { period: state.period.id, moves: moves.map(m => ({ id: m.id, date: m.date, hour: m.hour })), copy, confirm }), [], 150);
     } catch (err) {
       if (err.message !== '401') flashTitle(err.message, true);
       return;
@@ -962,7 +963,7 @@ async function setRating(ratio) {
   const cells = gridSelection();
   if (!cells.length) return flashTitle('Zaznacz terminy w siatce.', true);
   try {
-    await api('hints', { period: state.period.id, resId: obj.id, ratio, cells });
+    await withProgress($('#gridWrap'), 'Zapisywanie preferencji…', () => api('hints', { period: state.period.id, resId: obj.id, ratio, cells }), [], 150);
   } catch (e) { if (e.message !== '401') flashTitle(e.message, true); return; }
   if (state.fav === 'off') { state.fav = 'current'; savePrefs(); }   // pokaż od razu ustawione oceny
   flashTitle(`${obj.name}: ${RATINGS.find(r => r[0] === ratio)[1]} (${cells.length} ${plural(cells.length, 'termin', 'terminy', 'terminów')})`);
@@ -978,7 +979,7 @@ async function modifySelected(op, value, extra = {}) {
   const ids = selectedClassIds();
   if (!ids.length) return flashTitle('Zaznacz zajęcia.', true);
   let r;
-  try { r = await api('classes/modify', { ids, op, value, ...extra }); }
+  try { r = await withProgress($('#gridWrap'), 'Zmienianie zajęć…', () => api('classes/modify', { ids, op, value, ...extra }), [], 150); }
   catch (e) { if (e.message !== '401') flashTitle(e.message, true); loadClasses(); return; }
   loadClasses();
   flashTitle(r.count ? `Zmieniono ${r.count} ${plural(r.count, 'zajęcie', 'zajęcia', 'zajęć')}` + (r.removed ? `, usunięto zajęć bez wykładowców, grup i zasobów: ${r.removed}` : '') : 'Bez zmian.');
@@ -1290,6 +1291,55 @@ $('#goToDateButton').addEventListener('click', () => {
   input.focus();
 });
 
+// --- Plan lekcji: wybór tygodnia (selectWeek w UFWeeklySchoolPlan.pas) -------------------------------------
+// domyślnie: tydzień daty zaznaczonej w siatce, bieżący tydzień układu tygodniowego, tydzień z dzisiejszą datą, pierwszy widoczny
+const weekDialog = document.createElement('dialog');
+weekDialog.className = 'pick-class week-pick';
+document.body.append(weekDialog);
+function chooseWeekForPlan() {
+  const weeks = periodWeeks(state.period);
+  if (!weeks.length) return;
+  const sel = gridSelection()[0];
+  const inWeek = (d, w) => d && Date.parse(d + 'T00:00:00Z') >= w.monday && Date.parse(d + 'T00:00:00Z') <= w.monday + 6 * 864e5;
+  const today = new Date().toISOString().slice(0, 10);
+  let idx = weeks.findIndex(w => inWeek(sel && sel.date, w));
+  if (idx < 0) idx = weeks.findIndex(w => inWeek(state.week, w));
+  if (idx < 0) idx = weeks.findIndex(w => inWeek(today, w));
+  if (idx < 0) idx = weeks.findIndex(w => w.visible);
+  if (idx < 0) idx = 0;
+  const fmt = (t, y) => { const d = new Date(t); return `${String(d.getUTCDate()).padStart(2, '0')}.${String(d.getUTCMonth() + 1).padStart(2, '0')}${y ? '.' + d.getUTCFullYear() : ''}`; };
+  const d = weekDialog;
+  d.innerHTML = '';
+  const head = Object.assign(document.createElement('div'), { className: 'b-head' });
+  head.append(Object.assign(document.createElement('h2'), { textContent: 'Tygodniowy rozkład zajęć (Plan lekcji)' }));
+  const body = Object.assign(document.createElement('div'), { className: 'pick-body' });
+  body.append(Object.assign(document.createElement('p'), { textContent: 'Wybierz tydzień, dla którego chcesz utworzyć plan zajęć:' }));
+  const list = Object.assign(document.createElement('select'), { size: 14, className: 'week-list' });
+  weeks.forEach((w, i) => list.append(new Option(`Tydzień ${w.no}:   ${fmt(w.monday)} – ${fmt(w.monday + 6 * 864e5, true)}${w.visible ? '' : '   (niewidoczny)'}`, i)));
+  list.value = String(idx);
+  body.append(list);
+  const go = () => {
+    d.close();
+    const type = state.active;
+    openWeeklyPlan({
+      period: state.period, type, objects: shownObjects(), data: state.classData, holidays: state.holidays,
+      periodName: `${state.period.name} (${state.period.dateFrom} – ${state.period.dateTo})`,
+      colourOf: c => (cellHelpers.colours(c, state.layout.colour, state.classData) || [])[0] || '#ffffff',
+    }, Number(list.value));
+  };
+  list.addEventListener('dblclick', go);
+  list.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+  const actions = Object.assign(document.createElement('div'), { className: 'b-actions goto-actions' });
+  const ok = Object.assign(document.createElement('button'), { type: 'button', className: 'primary', textContent: 'Utwórz plan' });
+  ok.addEventListener('click', go);
+  const cancel = Object.assign(document.createElement('button'), { type: 'button', className: 'secondary', textContent: 'Anuluj' });
+  cancel.addEventListener('click', () => d.close());
+  actions.append(ok, cancel);
+  d.append(head, body, actions);
+  d.showModal();
+  list.focus();
+}
+
 // --- Podgląd (Preview / PPreview): strona do wydruku -----------------------------------------------------
 function previewTitle() {
   const shown = shownObjects();
@@ -1303,7 +1353,7 @@ $('#previewButton').addEventListener('click', e => {
     { label: state.week ? 'Tygodniowy rozkład zajęć' : 'Semestralny rozkład zajęć', disabled: !has,
       onClick: () => previewGrid({ title: previewTitle(), subtitle: previewSubtitle(), gridWrap: $('#gridWrap') }) },
     ...(state.week ? [] : [{ label: 'Tygodniowy rozkład zajęć (Plan lekcji)', disabled: !has || !state.classData,
-      onClick: () => previewWeeklyPlan({ title: previewTitle().replace('Rozkład zajęć', 'Plan lekcji'), subtitle: previewSubtitle(), period: state.period, data: state.classData, settings: state.settings }) }]),
+      onClick: () => chooseWeekForPlan() }]),
     '-',
     { label: 'Zaawansowane: własny układ', onClick: () => openPivot({ rows: ['hour', '', ''], col: 'dayOfWeek' }) },
   ], e.currentTarget);

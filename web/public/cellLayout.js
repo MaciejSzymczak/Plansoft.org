@@ -5,6 +5,7 @@ export const DEFAULT_LAYOUT = {
   colour: 'S',
   lines: ['SF', 'G', 'NONE', 'NONE', 'NONE'],
   hideSame: false,
+  oneLine: false,        // opisy w jednej linii rozdzielone " - " (domyślnie jeden pod drugim)
   forceWidth: false, width: 78,
   forceHeight: false, height: 22,
   fontSize: 11,
@@ -137,6 +138,10 @@ export class CellLayoutPanel {
     cb.addEventListener('change', () => this.set({ hideSame: cb.checked }));
     same.append(cb, ' Ukryj takie same opisy'); same.title = 'Nie powtarzaj opisu, gdy w poprzednim tygodniu o tej godzinie jest taki sam';
     desc.append(same);
+    const one = el('label', 'check'); const ob = el('input'); ob.type = 'checkbox'; ob.checked = !!L.oneLine;
+    ob.addEventListener('change', () => this.set({ oneLine: ob.checked }));
+    one.append(ob, ' W jednej linii'); one.title = 'Opisy w komórce w jednej linii, rozdzielone "- "';
+    desc.append(one);
 
     const multi = el('fieldset'); multi.append(el('legend', '', 'Wiele obiektów'));
     const ms = select(MULTI_OPTIONS, L.multi || DEFAULT_LAYOUT.multi, v => { this.set({ multi: v }); if (!this.panel.hidden) { this.build(); this.panel.querySelector('fieldset.multi select').focus(); } });
@@ -170,7 +175,7 @@ export class CellLayoutPanel {
       row.append(lb, r, v);
       return row;
     };
-    size.append(slider('Chcę ustalić szerokość', 'forceWidth', 'width', 5, 200));
+    size.append(slider('Chcę ustalić szerokość', 'forceWidth', 'width', 5, 400));
     size.append(slider('Chcę ustalić wysokość', 'forceHeight', 'height', 5, 100));
     const font = el('label', 'line'); font.append(el('span', '', 'Czcionka'));
     font.append(select([8, 9, 10, 11, 12, 13, 14, 16].map(n => [String(n), `${n} px`]), String(L.fontSize), v => this.set({ fontSize: Number(v) })));

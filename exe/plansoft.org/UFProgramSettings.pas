@@ -105,7 +105,6 @@ type
     CopyField2: TComboBox;
     CopyField3: TComboBox;
     CopyField4: TComboBox;
-    Rotate: TCheckBox;
     TabSheet2: TTabSheet;
     Tryb: TLabel;
     Label33: TLabel;
@@ -113,10 +112,8 @@ type
     DIFF_END_DATE: TEdit;
     Label32: TLabel;
     Button2: TButton;
-    GroupBox3: TGroupBox;
-    Label34: TLabel;
-    CrossTableMaxRows: TEdit;
     LogFileDir: TEdit;
+    BRefreshRedundantFields: TButton;
     OpenFolder: TSpeedButton;
     GroupBox4: TGroupBox;
     Button3: TButton;
@@ -147,6 +144,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure CheckClick(Sender: TObject);
     procedure ResPlaHistoryClick(Sender: TObject);
+    procedure BRefreshRedundantFieldsClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -164,7 +162,7 @@ implementation
 
 {$R *.dfm}
 
-uses dm, UFMessageBox;
+uses dm, UFMessageBox, UProgress;
 
 procedure TFProgramSettings.BRunMonitorClick(Sender: TObject);
 begin
@@ -198,8 +196,6 @@ begin
      setSystemParam('MaxNumberOfSheets', intToStr(strToint(MaxNumberOfSheets.Text)) );
      SetSystemParam('Form.DefaultEditFontSize',intToStr(strToint(EditFontSize.Text)));
      SetSystemParam('Form.DefaultFontSize'    ,intToStr(strToint(FontSize.Text)));
-     SetSystemParam('Rotate', BoolToStr(Rotate.checked) );
-     SetSystemParam('CrossTableMaxRows',intToStr(strToint(CrossTableMaxRows.Text)));
 
   except
    SError('Maksymalna liczba buforowanych arkuszy musi byæ liczb¹. Rozmiary czcionek musz¹ byæ liczbami');
@@ -260,10 +256,7 @@ begin
   inherited;
   EditFontSize.Text := GetSystemParam('Form.DefaultEditFontSize','8');
 
-  CrossTableMaxRows.Text := GetSystemParam('CrossTableMaxRows','20');
-
   FontSize.Text     := GetSystemParam('Form.DefaultFontSize','8');
-  Rotate.checked := StrToBool( GetSystemParam('Rotate', '-' ) );
   MaxNumberOfSheetsChange(nil);
   activeControl := BZamknij;
   //
@@ -645,6 +638,25 @@ begin
   if ResPlaHistory.Enabled and ResPlaHistory.Checked then
     if question('Po w³¹czeniu œledzenia historii zmian uprawnieñ nie bêdzie mo¿na go wy³¹czyæ. Czy kontynuowaæ?') <> idYes then
       ResPlaHistory.Checked := false;
+end;
+
+procedure TFProgramSettings.BRefreshRedundantFieldsClick(Sender: TObject);
+begin
+ If not isAdmin Then Begin
+  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
+  Exit;
+ End;
+
+ FProgress.Show;
+ FProgress.ProgressBar.Position := 50;
+ FProgress.Refresh;
+ try
+  DModule.SQL('BEGIN PLANNER_UTILS.UPDATE_LGRS; END;');
+ finally
+  FProgress.Hide;
+ end;
+ FMain.deepRefreshDelayed;
+ SError('Pola zosta³y odœwie¿one');
 end;
 
 end.

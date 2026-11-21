@@ -1,6 +1,7 @@
 // Okno słownika (wspólny trzon jak TFBrowseParent w Delphi): wykładowcy, grupy, zasoby.
 // Lista z wyszukiwaniem, filtrami i sortowaniem; obok formularz rekordu; dodaj/kopiuj/zapisz/usuń; hierarchia.
 import { excelButton, downloadXlsx } from './xlsx.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -124,7 +125,7 @@ export class BrowseWindow {
     if (this.toggle && this.toggle.checked) q.set('toggle', '1');
     if (this.sort) { q.set('sort', this.sort); q.set('dir', this.dir); }
     try {
-      this.rows = await this.api(`browse/${this.type}?${q}`);
+      this.rows = await withProgress(this.listWrap, 'Wczytywanie…', () => this.api(`browse/${this.type}?${q}`), [], 300);
     } catch (e) { this.listWrap.textContent = e.message; return; }
     this.count.textContent = `${this.rows.length} ${this.rows.length === 2000 ? '(pierwsze 2000)' : ''}`.trim();
     const keep = selectId || (this.current && this.current.id);
@@ -365,8 +366,8 @@ export class BrowseWindow {
     const inserting = this.mode === 'insert';
     try {
       const r = inserting
-        ? await this.api(`browse/${this.type}`, { values })
-        : await this.api(`browse/${this.type}/${this.current.id}`, { values }, 'PUT');
+        ? await withProgress(this.formWrap, 'Zapisywanie…', () => this.api(`browse/${this.type}`, { values }), [], 150)
+        : await withProgress(this.formWrap, 'Zapisywanie…', () => this.api(`browse/${this.type}/${this.current.id}`, { values }, 'PUT'), [], 150);
       this.mode = 'view';
       this.current = r;
       if (this.single) { this.dialog.close(); this.onChanged(this.type); return; }
@@ -396,7 +397,7 @@ export class BrowseWindow {
     box.append(el('p', '', `Czy na pewno chcesz usunąć rekord ${this.recordName(r)}?`));
     const yes = button('Usuń', 'primary danger', async () => {
       try {
-        await this.api(`browse/${this.type}/${r.id}`, undefined, 'DELETE');
+        await withProgress(this.listWrap, 'Usuwanie…', () => this.api(`browse/${this.type}/${r.id}`, undefined, 'DELETE'), [], 150);
         this.current = null;
         box.remove();
         await this.refresh();
@@ -422,7 +423,7 @@ export class BrowseWindow {
     const yes = button('Utwórz siatkę', 'primary danger', async () => {
       yes.disabled = true;
       try {
-        const r = await this.api(`browse/${this.type}/generate`, { preset: p.code });
+        const r = await withProgress(this.listWrap, 'Tworzenie siatki…', () => this.api(`browse/${this.type}/generate`, { preset: p.code }), [], 150);
         box.remove();
         await this.refresh();
         this.count.textContent = `Utworzono godzin: ${r.count}`;

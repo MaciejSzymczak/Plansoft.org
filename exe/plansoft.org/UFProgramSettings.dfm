@@ -2364,37 +2364,6 @@ inherited FProgramSettings: TFProgramSettings
         Visible = False
         WordWrap = False
       end
-      object Rotate: TCheckBox
-        Left = 7
-        Top = 313
-        Width = 491
-        Height = 15
-        Caption = 'Przycisk ... rotuje zasoby'
-        TabOrder = 6
-      end
-      object GroupBox3: TGroupBox
-        Left = 8
-        Top = 344
-        Width = 553
-        Height = 57
-        Caption = 'Widok wielu zasob'#243'w'
-        TabOrder = 7
-        object Label34: TLabel
-          Left = 8
-          Top = 24
-          Width = 136
-          Height = 14
-          Caption = 'Maksymalna liczba wierszy:'
-        end
-        object CrossTableMaxRows: TEdit
-          Left = 152
-          Top = 16
-          Width = 121
-          Height = 22
-          TabOrder = 0
-          Text = '20'
-        end
-      end
       object GroupBox4: TGroupBox
         Left = 568
         Top = 264
@@ -2438,6 +2407,15 @@ inherited FProgramSettings: TFProgramSettings
           TabOrder = 3
           Text = 'value'
         end
+      end
+      object BRefreshRedundantFields: TButton
+        Left = 8
+        Top = 304
+        Width = 185
+        Height = 25
+        Caption = 'Od'#347'wie'#380' pola nadmiarowe'
+        TabOrder = 6
+        OnClick = BRefreshRedundantFieldsClick
       end
       object GroupBox5: TGroupBox
         Left = 8

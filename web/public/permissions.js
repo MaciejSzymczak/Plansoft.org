@@ -3,6 +3,7 @@
 // Edycja / Odczyt / Usuń - dla zaznaczonego prostokąta; podwójne kliknięcie, Spacja, Enter, Insert, Delete -
 // zmiana cykliczna: brak -> E -> R -> brak (InvertSelection). Każda zmiana zapisywana od razu.
 import { excelButton, downloadXlsx } from './xlsx.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -98,7 +99,7 @@ export class PermissionsWindow {
       org: this.org.value, childs: this.childs.checked ? '1' : '0',
     });
     this.msg.textContent = 'wczytywanie…';
-    try { this.data = await this.api('permissions?' + q); } catch (e) { this.msg.textContent = e.message; return; }
+    try { this.data = await withProgress(this.dialog, 'Wczytywanie uprawnień…', () => this.api('permissions?' + q), [], 300); } catch (e) { this.msg.textContent = e.message; return; }
     this.sel = null;
     this.render();
   }
@@ -212,7 +213,7 @@ export class PermissionsWindow {
     changes.forEach(x => paint(x.td, x.access || ''));
     this.msg.textContent = `Zapisywanie (${changes.length})…`;
     try {
-      await this.api('permissions', { tab: this.tab, cells: changes.map(x => ({ row: x.row, pla: x.pla, access: x.access })) });
+      await withProgress(this.dialog, 'Zapisywanie uprawnień…', () => this.api('permissions', { tab: this.tab, cells: changes.map(x => ({ row: x.row, pla: x.pla, access: x.access })) }), [], 150);
       changes.forEach(x => { this.data.cells[`${x.row}:${x.pla}`] = x.access || undefined; });
       this.msg.textContent = `Zapisano: ${changes.length} ${changes.length === 1 ? 'komórka' : 'komórek'}`;
     } catch (e) {
@@ -261,10 +262,10 @@ export class PermissionsWindow {
       if (!go.dataset.confirm) { go.dataset.confirm = '1'; go.textContent = 'Czy na pewno wykonać transfer? Kliknij ponownie'; return; }
       go.disabled = true; msg.className = 'muted'; msg.textContent = 'Wykonywanie…';
       try {
-        await this.api('permissions/transfer', {
+        await withProgress(this.dialog, 'Przenoszenie uprawnień…', () => this.api('permissions/transfer', {
           from: Number(from.value), to: Number(to.value), classes: classes.checked,
           ...Object.fromEntries(Object.entries(checks).map(([k, c]) => [k, c.checked])),
-        });
+        }), [], 150);
         msg.textContent = 'Zrobione. Odśwież okno, żeby zobaczyć zmiany.';
         if (this.data) this.refresh();
       } catch (e) { msg.className = 'error'; msg.textContent = e.message; }
@@ -291,7 +292,7 @@ export class PermissionsWindow {
       count.textContent = 'wczytywanie…';
       const p = new URLSearchParams({ q: q.value, pla: pla.value, by: by.value });
       let r;
-      try { r = await this.api('permissions/history?' + p); } catch (e) { count.textContent = ''; list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
+      try { r = await withProgress(list, 'Wczytywanie historii…', () => this.api('permissions/history?' + p), [], 200); } catch (e) { count.textContent = ''; list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
       rows = r.rows;
       note.hidden = r.tracking;
       note.textContent = 'Śledzenie historii zmian uprawnień jest wyłączone (parametr RES_PLA_HISTORY). Można je włączyć w oknie Ustawienia konfiguracyjne programu Delphi.';

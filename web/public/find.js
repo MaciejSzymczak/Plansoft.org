@@ -2,6 +2,7 @@
 // obiekty z procentem wolnych terminów spośród zaznaczonych w siatce (Wolne [%]), najpierw najbardziej dostępne;
 // "pokaż: wszystkie / dostępne" (FindMode), fraza; kliknięcie obiektu - Rozkład / Szczegóły (FActionTree w Delphi).
 import { openPopup } from './toolWindow.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -40,7 +41,7 @@ export class FindPanel {
     const cells = this.getCells();
     let r;
     try {
-      r = await this.api('find', { type: this.type, cells, q: this.filter.value.trim(), onlyFree: this.mode.value === 'free' });
+      r = await withProgress(this.root, 'Wyszukiwanie…', () => this.api('find', { type: this.type, cells, q: this.filter.value.trim(), onlyFree: this.mode.value === 'free' }), [], 300);
     } catch (e) { if (req === this.req) this.info.textContent = e.message; return; }
     if (req !== this.req) return;
     this.info.textContent = cells.length

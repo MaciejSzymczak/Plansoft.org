@@ -26,6 +26,9 @@ type
     Label3: TLabel;
     USOS_INTEGRATION_USER: TEdit;
     USOS_CYKL: TEdit;
+    LUSOS_PLAN_ONLY_CYKL: TLabel;
+    USOS_PLAN_ONLY_CYKL: TEdit;
+    LPlanOnlyInfo: TLabel;
     Label1: TLabel;
     BStage1: TBitBtn;
     Label4: TLabel;
@@ -76,6 +79,7 @@ type
     procedure PageControl1Changing(Sender: TObject;
       var AllowChange: Boolean);
     procedure BVersionClick(Sender: TObject);
+    procedure USOS_PLAN_ONLY_CYKLChange(Sender: TObject);
     procedure BStage3_version2Click(Sender: TObject);
     procedure BStage1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -113,6 +117,8 @@ begin
   PageControl2.TabIndex := 0;
   PageControl1.TabIndex := 0;
   USOS_CYKL.text          := NVL( dmodule.dbgetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL'), {for backward compatibility} dmodule.dbgetSystemParam('USOS_CYKL') );
+  USOS_PLAN_ONLY_CYKL.text:= NVL( dmodule.dbgetSystemParam(fmain.getUserOrRoleId+':USOS_PLAN_ONLY_CYKL'), dmodule.dbgetSystemParam('USOS_PLAN_ONLY_CYKL') );
+  USOS_PLAN_ONLY_CYKLChange(nil);
   RESCAT_COMB_ID.text     := dmodule.dbgetSystemParam('USOS_RESCAT_COMB_ID');
   USOS_HOURS_PER_DAY.text := dmodule.dbgetSystemParam('USOS_HOURS_PER_DAY');
   USOS_INTEGRATION_USER.text := dmodule.dbgetSystemParam('USOS_INTEGRATION_USER');
@@ -321,6 +327,9 @@ begin
   progress('USOS_CYKL');
   dmodule.dbSetSystemParam('USOS_CYKL', USOS_CYKL.text);
   dmodule.dbSetSystemParam(fmain.getUserOrRoleId+':USOS_CYKL', USOS_CYKL.text);
+  progress('USOS_PLAN_ONLY_CYKL');
+  dmodule.dbSetSystemParam('USOS_PLAN_ONLY_CYKL', Trim(USOS_PLAN_ONLY_CYKL.text));
+  dmodule.dbSetSystemParam(fmain.getUserOrRoleId+':USOS_PLAN_ONLY_CYKL', Trim(USOS_PLAN_ONLY_CYKL.text));
   progress('USOS_RESCAT_COMB_ID');
   dmodule.dbSetSystemParam('USOS_RESCAT_COMB_ID', RESCAT_COMB_ID.text);
   progress('USOS_HOURS_PER_DAY');
@@ -458,6 +467,15 @@ procedure TFUSOS.PageControl1Changing(Sender: TObject;
   var AllowChange: Boolean);
 begin
    AllowChange:= IsAdmin;
+end;
+
+procedure TFUSOS.USOS_PLAN_ONLY_CYKLChange(Sender: TObject);
+begin
+  if Trim(USOS_PLAN_ONLY_CYKL.Text) = '' then
+    LPlanOnlyInfo.Caption := ''
+  else
+    LPlanOnlyInfo.Caption := 'Tryb przejœciowy: pobieranie planu dla '+USOS_CYKL.Text+' i '+Trim(USOS_PLAN_ONLY_CYKL.Text)+','
+                           + #13#10 + 'wysy³anie rozk³adu tylko dla '+USOS_CYKL.Text;
 end;
 
 procedure TFUSOS.BVersionClick(Sender: TObject);

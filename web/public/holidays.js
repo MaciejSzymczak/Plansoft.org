@@ -1,3 +1,4 @@
+import { withProgress } from './progress.js';
 // Dni wolne okresu - zamiast kalendarza rezerwacji Delphi (zakładka kalendarza, InvertReservations, PPCopyDays):
 // kalendarz całego okresu (miesiącami); kliknięcie dnia oznacza cały dzień jako wolny albo usuwa oznaczenie,
 // Shift+kliknięcie - zakres dni; pojedyncze godziny - terminy zaznaczone w siatce. Symbol i "Zajęcia dozwolone"
@@ -91,7 +92,7 @@ export class HolidaysWindow {
 
   async load() {
     let r;
-    try { r = await this.api(`holidays?period=${this.period.id}`); } catch (e) { return this.error(e.message); }
+    try { r = await withProgress(this.cal, 'Wczytywanie dni wolnych…', () => this.api(`holidays?period=${this.period.id}`), [], 200); } catch (e) { return this.error(e.message); }
     this.items = r.items;
     this.canEdit = r.canEdit;
     for (const b of [this.bSelSet, this.bSelDel, this.bClear, this.copySel, this.symInput, this.alInput]) b.disabled = !r.canEdit;
@@ -181,7 +182,7 @@ export class HolidaysWindow {
     this.error('');
     if (!cells || !cells.length) return this.error('Zaznacz terminy w siatce okna głównego.');
     try {
-      await this.api('holidays/set', { period: this.period.id, cells, remove, type: this.symbol, allowed: this.allowed });
+      await withProgress(this.cal, 'Zapisywanie dni wolnych…', () => this.api('holidays/set', { period: this.period.id, cells, remove, type: this.symbol, allowed: this.allowed }), [], 150);
     } catch (e) { return this.error(e.message); }
     await this.load();
     this.onChanged();
@@ -189,13 +190,13 @@ export class HolidaysWindow {
 
   async clearAll() {
     if (!confirm(`Usunąć wszystkie dni wolne z okresu ${this.period.name}?`)) return;
-    try { await this.api('holidays/clear', { period: this.period.id }); } catch (e) { return this.error(e.message); }
+    try { await withProgress(this.cal, 'Usuwanie dni wolnych…', () => this.api('holidays/clear', { period: this.period.id }), [], 150); } catch (e) { return this.error(e.message); }
     await this.load();
     this.onChanged();
   }
 
   async copyFrom(from) {
-    try { await this.api('holidays/copy', { period: this.period.id, from: Number(from), deleteExisting: false }); } catch (e) { return this.error(e.message); }
+    try { await withProgress(this.cal, 'Kopiowanie dni wolnych…', () => this.api('holidays/copy', { period: this.period.id, from: Number(from), deleteExisting: false }), [], 150); } catch (e) { return this.error(e.message); }
     await this.load();
     this.onChanged();
   }

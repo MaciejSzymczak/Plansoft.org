@@ -2,6 +2,7 @@
 // liczba godzin zajęć wybranych obiektów w okresie, z podziałem na wybrane kolumny.
 
 import { excelButton, downloadXlsx } from './xlsx.js';
+import { withProgress } from './progress.js';
 
 export const DEFAULT_SUMMARY = { group: ['subName', 'subAbbr', 'form'], groupsInLines: false, rollup: false };
 
@@ -112,7 +113,7 @@ export class SummaryPanel {
     });
     let data;
     try {
-      data = await this.api('summary?' + q);
+      data = await withProgress(this.root, 'Podsumowanie godzin…', () => this.api('summary?' + q), [], 300);
     } catch (e) {
       if (req === this.req && e.message !== '401') this.message(e.message);
       return;

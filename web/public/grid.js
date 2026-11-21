@@ -421,7 +421,7 @@ const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDa
 // rozmiary komórek wg ustawień okna "Zajęcie": szerokość, wysokość (domyślnie tyle linii, ile opisów), czcionka
 function applySizes(table, layout) {
   const lineH = Math.round(layout.fontSize * 1.35);
-  const lines = Math.max(1, layout.lines.reduce((n, code, i) => (code !== 'NONE' ? i + 1 : n), 0));
+  const lines = layout.oneLine ? 1 : Math.max(1, layout.lines.reduce((n, code, i) => (code !== 'NONE' ? i + 1 : n), 0));
   let width = layout.forceWidth ? layout.width : 78;
   // układ tygodniowy (jak ConvWeekObjects w Delphi): kolumny obiektów dzielą szerokość okna, co najmniej 120 px
   if (table.classList.contains('week-view') && !layout.forceWidth) {
@@ -463,6 +463,11 @@ export function fillClasses(container, data, layout, helpers) {
   // drugim), np. 5 wybranych wykładowców z zajęciami w tym terminie - 5 kwadracików; razem - pierwsze zajęcie komórki
   const stack = !container.weekView && (layout.multi === 'horizontal' || layout.multi === 'vertical') ? layout.multi : null;
   const lineTexts = c => layout.lines.map(code => (code === 'NONE' ? null : helpers.text(c, code, data) || ''));
+  // "W jednej linii": niepuste opisy w jednym wierszu rozdzielone " - " (jak FCellLayout.OneLineDesc w Delphi)
+  const appendLines = (box, lines) => {
+    if (layout.oneLine) { const s = lines.filter(Boolean).join(' - '); if (s) box.append(el('div', '', s)); }
+    else lines.forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+  };
   const texts = new Map();   // klucz komórki -> tekst opisów (do "Ukryj takie same opisy")
 
   // scalanie (okno "Zajęcie"): takie same zajęcia (wykładowcy, grupy, zasoby, przedmiot, forma i cztery opisy)
@@ -524,7 +529,7 @@ export function fillClasses(container, data, layout, helpers) {
             box.style.background = cellBackground(colours, x.fill);
             box.style.color = textOn(colours[0]);
           }
-          lineTexts(x).forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+          appendLines(box, lineTexts(x));
         }
         wrap.append(box);
       }
@@ -547,7 +552,7 @@ export function fillClasses(container, data, layout, helpers) {
         texts.set(key, text);
         const [day, hour, obj] = key.split('|');
         const hide = layout.hideSame && texts.get(cellKey(addDays(day, -7), hour, obj)) === text;
-        if (!hide) lines.forEach(l => { if (l !== null) box.append(el('div', '', l)); });
+        if (!hide) appendLines(box, lines);
       }
       td.append(box);
       td._units = [unit(td, box, list, list.map(sig).sort().join('\n'))];

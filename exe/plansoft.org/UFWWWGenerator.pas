@@ -186,8 +186,10 @@ function  linkResourceNames(code, token, lecIds, groIds, romIds, rescatIds : str
 // treœæ komórki zajêæ wg ustawieñ Plik | Drukuj (Zawartoœæ, Wielkoœæ, Pogrubienie, Link) - po 5 pozycji
 function  classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
                         const bolds, links : array of boolean; const weekSuffix : string = '';
-                        const fullNames : boolean = false) : string;
+                        const fullNames : boolean = false; const oneLine : boolean = false) : string;
 procedure resetLinkFileNames;
+// linki do rozk³adów prowadz¹ tylko do plików istniej¹cych w folderze tworzonego pliku (fileName - œcie¿ka tego pliku)
+procedure setLinkFolder(const fileName : string);
 // nazwa pliku rozk³adu bez rozszerzenia - jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam)
 function  timetableFileName(resType, resIds : string) : string;
 
@@ -776,12 +778,47 @@ var linkKeys        : TStringList = nil; // posortowane klucze 'L123', 'G45', 'R
 // pe³ne nazwy wyk³adowców (z tytu³em) i grup na grafiku tygodniowym: 'L123=dr Jan Kowalski', 'G45=Informatyka rok 1'
 var fullNameCache   : TStringList = nil;
 
+// folder tworzonego pliku i zapamiêtane wyniki sprawdzenia, czy plik docelowy linku istnieje (Objects <> nil = istnieje)
+var linkFolder      : string = '';
+    linkExists      : TStringList = nil;
+
 procedure resetLinkFileNames;
 begin
   FreeAndNil(linkKeys);
   FreeAndNil(linkNames);
   linkKindsLoaded := '';
   FreeAndNil(fullNameCache);
+  FreeAndNil(linkExists);
+end;
+
+procedure setLinkFolder(const fileName : string);
+var dir : string;
+begin
+  // œcie¿ka bywa sklejana z "/" (publikacja)
+  dir := Copy(fileName, 1, LastDelimiter('\/:', fileName));
+  if not SameText(dir, linkFolder) then begin
+    linkFolder := dir;
+    FreeAndNil(linkExists);
+  end;
+end;
+
+// Rozk³ady wyk³adowców / grup / sal innego wydzia³u nie s¹ publikowane - link do nieistniej¹cego pliku nie powstaje.
+// Publikacja zapisuje najpierw puste pliki wszystkich tworzonych rozk³adów, wiêc link do rozk³adu tworzonego
+// póŸniej te¿ powstaje; do rozk³adów opublikowanych w tym folderze wczeœniej - równie¿.
+function linkTargetExists(const fileName : string) : boolean;
+var i : integer;
+begin
+  if linkFolder = '' then begin result := true; exit; end;
+  if linkExists = nil then begin
+    linkExists := TStringList.Create;
+    linkExists.CaseSensitive := false;
+    linkExists.Sorted := true;
+  end;
+  if linkExists.Find(fileName, i) then result := linkExists.Objects[i] <> nil
+  else begin
+    result := FileExists(linkFolder + fileName);
+    linkExists.AddObject(fileName, TObject(ord(result)));
+  end;
 end;
 
 // zawartoœæ, która ma swój rozk³ad: wyk³adowca, grupa, zasoby (wszystkie albo kategoria)
@@ -880,7 +917,7 @@ begin
         end;
       ext := '.htm';
     end;
-    if (fname <> '') and (Trim(part) <> '') then begin
+    if (fname <> '') and (Trim(part) <> '') and linkTargetExists(fname + ext) then begin
       lead := Copy(part, 1, Length(part) - Length(TrimLeft(part)));
       part := lead + '<a href="'+XMLescapeChars(fname)+ext+'" style="color:inherit">'+Trim(part)+'</a>';
     end;
@@ -912,7 +949,7 @@ end;
 // fullNames: grafik tygodniowy - zawsze pe³ne nazwy (wyk³adowców, grup, przedmiotów, form), bez skracania tekstów
 function classCellText(const Class_ : TClass_; const descCodes, sizes : array of shortString;
                        const bolds, links : array of boolean; const weekSuffix : string = '';
-                       const fullNames : boolean = false) : string;
+                       const fullNames : boolean = false; const oneLine : boolean = false) : string;
 var t : integer;
     token, forName : string;
 
@@ -959,8 +996,10 @@ begin
       Token := '<FONT style="font-size:'+sizes[t]+'px;">'+Token+'</FONT>';
       If bolds[t] Then Token := '<B>'+Token+'</B>';
     End;
-    result := Merge(result, Token, '<BR/>');
+    result := Merge(result, Token, iif(oneLine, ' - ', '<BR/>'));
   End;
+  // w jednej linii: bez zawijania - w w¹skiej komórce przegl¹darka ³ama³aby tekst na spacjach
+  If oneLine and not isBlank(result) Then result := '<SPAN style="white-space:nowrap;">'+result+'</SPAN>';
 end;
 
 procedure TFWWWGenerator.ComboSortOrderChange(Sender: TObject);
@@ -1111,7 +1150,8 @@ Procedure TFWWWGenerator.CalendarToHTML(
        End
        Else Colour := clRed {ikona alert};
 
-       S := classCellText(Class_, [D1, D2, D3, D4, D5], [S1, S2, S3, S4, S5], [B1, B2, B3, B4, B5], [Link1, Link2, Link3, Link4, Link5], '', weeklyView);
+       S := classCellText(Class_, [D1, D2, D3, D4, D5], [S1, S2, S3, S4, S5], [B1, B2, B3, B4, B5], [Link1, Link2, Link3, Link4, Link5], '', weeklyView,
+                        TCheckBox(FSettings.FindComponent(iif(presType = 'LEC', 'L', iif(presType = 'GRO', 'G', 'R')) + 'OneLine')).Checked);
 
        If Class_.FILL <> 100 Then AddCell('BORDERCOLORDARK=red BORDERCOLORLIGHT=RED',S,DelphiColourToHTML(Colour))
                              Else AddCell('',S,DelphiColourToHTML(Colour));
@@ -1936,6 +1976,7 @@ Var xp, yp          : Integer;
 
 //-------------------------------------------------------------------------------------------
 begin
+ setLinkFolder(FileName); // kolumna Link: tylko do rozk³adów istniej¹cych w folderze tego pliku
  addECTSflag := (LegendMode and 4 = 4);
  currentChartClasses := tcurrentChartClasses.create();
  ReservationsCache := tReservationsCache.Create;
@@ -2322,6 +2363,75 @@ var ColoringIndex    : shortString;
           pageTitle : string;
           allWeeks : TStringList; // tygodnie z planami tygodni (skrypt weekPlanScript)
           weeksJs : string;
+          placeholders : TStringList; // puste pliki zapisane przed tworzeniem rozk³adów
+
+      // Kolumna Link: najpierw puste pliki wszystkich tworzonych rozk³adów (i planów tygodni) - przy tworzeniu
+      // rozk³adów link powstaje tylko wtedy, gdy plik jest w folderze (linkTargetExists). Istniej¹ce pliki
+      // (rozk³ady opublikowane wczeœniej) zostaj¹ bez zmian - tworzone rozk³ady je nadpisz¹.
+      procedure createPlaceholders;
+      var weekSuffixes : TStringList;
+
+        procedure one(const name : string);
+        var f : textFile;
+        begin
+          if FileExists(Folder.Text+'\'+name) then exit;
+          AssignFile(f, Folder.Text+'\'+name);
+          Rewrite(f);
+          CloseFile(f);
+          placeholders.Add(Folder.Text+'\'+name);
+        end;
+
+        procedure list(L : TCheckListBox; resType : string; pdf, weekPlans : boolean);
+        var t, w : integer;
+            id : string;
+        begin
+          for t := 0 to L.Count - 1 do
+            if L.Checked[t] then begin
+              one(StringToValidFileName(L.Items[t]) + iif(pdf, '.pdf', '.htm'));
+              // plany tygodni: nazwy jak UFWeeklySchoolPlan.weeklyPlanFileName
+              if weekPlans and not FSettings.weeklyView.Checked then begin
+                id := inttostr(integer(L.Items.Objects[t]));
+                for w := 0 to weekSuffixes.Count - 1 do
+                  one(timetableFileName(resType, id) + weekSuffixes[w] + '.htm');
+              end;
+            end;
+        end;
+
+      begin
+        weekSuffixes := TStringList.Create;
+        try
+          if (Groups.Checked and FSettings.GWeekPlans.Checked) or (lecturers.Checked and FSettings.LWeekPlans.Checked) or
+             (Resources.Checked and FSettings.RWeekPlans.Checked) then begin
+            // tygodnie okresu - jak TWeekPlanButtons.Create (brak - tworzone teraz, a nie dopiero przy rozk³adzie)
+            if DModule.SingleValue('select count(1) from periods where sub_period_parent = '+currentPeriod.Text) = '0' then
+              fmain.createWeeks(currentPeriod.Text);
+            DModule.openSQL('select to_char(date_from,''yyyy-mm-dd''), to_char(date_to,''yyyy-mm-dd'')'+
+                            '  from periods where sub_period_parent = '+currentPeriod.Text+' order by sub_period_num');
+            while not DModule.QWork.Eof do begin
+              weekSuffixes.Add('_'+DModule.QWork.Fields[0].AsString+'_'+DModule.QWork.Fields[1].AsString); // weeklyPlanSuffix
+              DModule.QWork.Next;
+            end;
+          end;
+          if Groups.Checked    then list(GList, 'GRO', FSettings.GPdfPrintOut.Checked, FSettings.GWeekPlans.Checked);
+          if lecturers.Checked then list(LList, 'LEC', FSettings.LPdfPrintOut.Checked, FSettings.LWeekPlans.Checked);
+          if Resources.Checked then list(RList, 'ROM', FSettings.RPdfPrintOut.Checked, FSettings.RWeekPlans.Checked);
+        finally
+          weekSuffixes.Free;
+        end;
+        FreeAndNil(linkExists); // pliki w folderze siê zmieni³y - sprawdzane od nowa
+      end;
+
+      // puste pliki, które nie zosta³y wype³nione (tydzieñ bez planu, przerwane tworzenie) - usuwane
+      procedure removeEmptyPlaceholders;
+      var t : integer;
+          sr : TSearchRec;
+      begin
+        for t := 0 to placeholders.Count - 1 do
+          if FindFirst(placeholders[t], faAnyFile, sr) = 0 then begin
+            if sr.Size = 0 then DeleteFile(placeholders[t]);
+            FindClose(sr);
+          end;
+      end;
 
       // link spisu treœci; data-week-plan: pocz¹tek nazwy planów tygodni obiektu (telefon - plan bie¿¹cego tygodnia)
       procedure link(const item : string);
@@ -2345,7 +2455,9 @@ var ColoringIndex    : shortString;
       allWeeks := TStringList.Create;
       allWeeks.Sorted := true;
       allWeeks.Duplicates := dupIgnore;
+      placeholders := TStringList.Create;
       try
+      createPlaceholders;
       // spis treœci: tylko index.html (index.xml i layout.xslt nie s¹ ju¿ tworzone); index.html i menu.css w UTF-8
       assignFile(f, Folder.Text+'\menu.css');
       Rewrite(f);
@@ -2471,6 +2583,8 @@ var ColoringIndex    : shortString;
       flush(fh);
       CloseFile(fh);
       finally
+        removeEmptyPlaceholders;
+        placeholders.Free;
         allWeeks.Free;
       end;
       if not fmain.silentMode then begin

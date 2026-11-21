@@ -49,7 +49,7 @@ procedure CalendarToHTMLSubject(
 
 implementation
 
-uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db, UFWWWGenerator, UFWeeklySchoolPlan;
+uses Windows, Graphics, DM, UFMain, UUtilities, UCommon, UUtilityParent, Db, UFWWWGenerator, UFWeeklySchoolPlan, UFSettings;
 
 var MaxLegendPositions : integer = 1000;
 
@@ -471,8 +471,9 @@ procedure CalendarToHTMLSubject(
            Token := '<FONT style="font-size:'+Sizes[t]+'px;">'+Token+'</FONT>';
            If Bolds[t] Then Token := '<B>'+Token+'</B>';
          End;
-         S := Merge(S, Token, '<BR/>');
+         S := Merge(S, Token, iif(FSettings.SOneLine.Checked, ' - ', '<BR/>'));
        End;
+       If FSettings.SOneLine.Checked and not isBlank(S) Then S := '<SPAN style="white-space:nowrap;">'+S+'</SPAN>';
 
        If Class_.FILL <> 100 Then AddCell('BORDERCOLORDARK=red BORDERCOLORLIGHT=RED',S,DelphiColourToHTML(Colour))
                              Else AddCell('',S,DelphiColourToHTML(Colour));
@@ -876,6 +877,7 @@ procedure CalendarToHTMLSubject(
 
 //-------------------------------------------------------------------------------------------
 begin
+ UFWWWGenerator.setLinkFolder(FileName); // kolumna Link: tylko do rozk³adów istniej¹cych w folderze tego pliku
  if isBlank(pPeriodId) or isBlank(presId) then begin
    SError('Brak wybranego okresu lub przedmiotu.');
    exit;

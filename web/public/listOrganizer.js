@@ -2,6 +2,7 @@
 // kolejność, ukrywanie, wybór kolejnych, "Zależne" (nadrzędne i podrzędne), zapis i odczyt zestawu z pliku.
 // Plik: jeden identyfikator w wierszu - ten sam format co w programie Delphi.
 import { ChipField } from './chips.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -132,7 +133,7 @@ export class ListOrganizer {
   async related() {
     if (!this.items.length) return;
     try {
-      const r = await this.api(`objects/${this.type}/resolve`, { ids: this.items.map(i => i.id), related: true });
+      const r = await withProgress(this.dialog, 'Wyszukiwanie zależnych…', () => this.api(`objects/${this.type}/resolve`, { ids: this.items.map(i => i.id), related: true }), [], 150);
       const added = r.items.length - this.items.length;
       this.items = r.items;
       this.render();
@@ -166,7 +167,7 @@ export class ListOrganizer {
   async openFile(file) {
     const ids = (await file.text()).split(/\r?\n/).map(s => Number(s.trim())).filter(n => Number.isInteger(n) && n > 0);
     try {
-      const r = await this.api(`objects/${this.type}/resolve`, { ids });
+      const r = await withProgress(this.dialog, 'Wczytywanie listy…', () => this.api(`objects/${this.type}/resolve`, { ids }), [], 150);
       this.items = r.items;
       this.current = this.items.length ? 0 : -1;
       this.render();

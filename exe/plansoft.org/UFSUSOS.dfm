@@ -84,6 +84,41 @@ inherited FUSOS: TFUSOS
           TabOrder = 0
           Text = 'USOS_CYKL'
         end
+        object LUSOS_PLAN_ONLY_CYKL: TLabel
+          Left = 24
+          Top = 62
+          Width = 245
+          Height = 14
+          Caption = 'Opcjonalnie: Kod cyklu tylko do pobrania planu'
+        end
+        object USOS_PLAN_ONLY_CYKL: TEdit
+          Left = 24
+          Top = 78
+          Width = 121
+          Height = 22
+          Hint = 
+            'Opcjonalnie. Wpisz kod przysz'#322'ego cyklu, aby pobiera'#263' s'#322'owniki i plan ' +
+            'r'#243'wnie'#380' dla niego (opr'#243'cz cyklu z pola Kod cyklu). Rozk'#322'ad jest ' +
+            'wysy'#322'any tylko dla cyklu z pola Kod cyklu. Puste pole = dotychczasowe dzia'#322'anie.'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 6
+          OnChange = USOS_PLAN_ONLY_CYKLChange
+        end
+        object LPlanOnlyInfo: TLabel
+          Left = 24
+          Top = 108
+          Width = 330
+          Height = 42
+          AutoSize = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clRed
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          WordWrap = True
+        end
         object BStage1: TBitBtn
           Left = 360
           Top = 8

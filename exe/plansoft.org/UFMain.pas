@@ -247,7 +247,6 @@ type
     Uprawnieniadoobiektw1: TMenuItem;
     BLogin: TSpeedButton;
     Edycja1: TMenuItem;
-    Odwiepolanadmiarowe1: TMenuItem;
     bwww: TSpeedButton;
     ConLecturer: TEdit;
     CONLECTURER_value: TEdit;
@@ -381,8 +380,6 @@ type
     BRescat0: TSpeedButton;
     LprofileObjectNameL: TSpeedButton;
     LprofileObjectNameG: TSpeedButton;
-    lshowAvail: TLabel;
-    Shape1: TShape;
     gridFont: TFontDialog;
     pRightDockPanel: TPanel;
     VSplitter: TSplitter;
@@ -406,15 +403,15 @@ type
     Siatkagodzinowa1: TMenuItem;
     bdelpopup: TSpeedButton;
     BitBtnPER: TSpeedButton;
-    selectl: TSpeedButton;
-    selectg: TSpeedButton;
-    selectr: TSpeedButton;
-    selectResCat1: TSpeedButton;
+    selectl: TBitBtn;
+    selectg: TBitBtn;
+    selectr: TBitBtn;
+    selectResCat1: TBitBtn;
     BitBtnROLE: TSpeedButton;
     BitBtnSUB: TSpeedButton;
     BitBtnFORM: TSpeedButton;
-    BClearSx: TSpeedButton;
-    BClearF: TSpeedButton;
+    BClearSx: TBitBtn;
+    BClearF: TBitBtn;
     BitBtnCLEARROLE: TSpeedButton;
     BSelectComb: TSpeedButton;
     Listazajchistoriazmian1: TMenuItem;
@@ -516,6 +513,7 @@ type
     Przywr1: TMenuItem;
     Odczwybranego1: TMenuItem;
     Przywrckomunikaty1: TMenuItem;
+    mmAllowGridDrag: TMenuItem;
     recreateDependencies: TMenuItem;
     ReservationType: TEdit;
     LabelReservationType: TLabel;
@@ -575,6 +573,7 @@ type
     showbgroups: TCheckBox;
     LprofileObjectNameC1: TSpeedButton;
     HeaderGrid: TDrawGrid;
+    Ustawieniauytkowniika1: TMenuItem;
     procedure Tkaninyinformacje1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -611,7 +610,6 @@ type
     procedure mmprofileObjectNamePlannersClick(Sender: TObject);
     procedure Uprawnieniadoobiektw1Click(Sender: TObject);
     procedure BLoginClick(Sender: TObject);
-    procedure Odwiepolanadmiarowe1Click(Sender: TObject);
     procedure Zamknij1Click(Sender: TObject);
     procedure ValidLClick(Sender: TObject);
     procedure ValidGClick(Sender: TObject);
@@ -869,6 +867,7 @@ type
     procedure Przywr1Click(Sender: TObject);
     procedure Odczwybranego1Click(Sender: TObject);
     procedure Przywrckomunikaty1Click(Sender: TObject);
+    procedure mmAllowGridDragClick(Sender: TObject);
     procedure recreateDependenciesClick(Sender: TObject);
     procedure USOSIntegracja1Click(Sender: TObject);
     procedure Listaobecno1Click(Sender: TObject);
@@ -941,6 +940,7 @@ type
     GridSelectionBottom : integer;
     //Used by HighlightSelection
     GridLastSelection : shortString;
+    GridLastSelRect   : TGridRect; //2026-11: previous selection - its labels are repainted when the selection changes
     GridSelectionMode   : integer;
     StartUp : boolean;
     dockingPanel  : integer;
@@ -950,12 +950,17 @@ type
     PeriodHolidaysReadOnly : Boolean;
     gridRefreshCounter   : Integer;
     userLogged : boolean;
-    gridPaintFrozen : boolean;   // pierwsze uruchomienie: siatka nie jest rysowana, dopóki uk³ad okna nie jest gotowy
+    gridPaintFrozen : boolean;
+    searchMenuLayout : boolean;  // layoutSearchMenu w trakcie (zmiana tekstu pola wywo³uje OnChange)   // pierwsze uruchomienie: siatka nie jest rysowana, dopóki uk³ad okna nie jest gotowy
     ignoreEvents : boolean;
     activePulpit : integer;
     suppressCounterRefresh : boolean; //2026-07: guards refreshPanels' Podsumowanie godzin (Counter tab) requery during pure navigation, see BuildCalendar
     procedure GridWndProc(var Message: Messages.TMessage);
     procedure freezeGridPaint;
+    procedure embedRorButtons;
+    procedure layoutSearchMenu;
+    procedure compactSearchMenu;
+    procedure rotateClick(Sender: TObject);
     procedure unfreezeGridPaint;
     function  seeAvailableCollect(var changed : boolean) : boolean;
     procedure seeAvailableLook;
@@ -989,6 +994,12 @@ type
     Procedure addDBItemsItemsToTreeView(aTreeview: TTreeview; aFilter1, aFilter2, aFilter3 : string);
     procedure updateLeftPanel;
     procedure HighLightGrid;
+    procedure InvalidateSelectionLabels(const S : TGridRect);
+    procedure InvalidateGridArea(ALeft, ARight, ATop, ABottom : integer);
+    procedure refreshLegendDelayed;
+    procedure refreshLegendTimerTimer(Sender: TObject);
+    procedure setCellText(ACol, ARow : integer; const AText : string);
+    function  getCellText(ACol, ARow : integer) : string;
     procedure CopyPeriodDays(deleteExisting : boolean);
     procedure setUserOrRoleId;
     Procedure HighLight(Var grid : TDrawGrid; Rect : TRect);
@@ -1028,6 +1039,8 @@ type
     PriorText : String;
     PriorCol : Integer;
     PriorRow : Integer;
+    CellTextCache : array of array of string; //2026-11: text drawn in each class cell [col][row], used by "Ukryj takie same opisy"
+    refreshLegendTimer : TTimer; //2026-11: keyboard selection - refreshLegend after 1 s without keystrokes (created on first use)
     //
     emergencyExit : boolean;
     //
@@ -2131,6 +2144,7 @@ end;
 
 // stan przycisku "Synchronizacja tygodni" zapamiêtany miêdzy uruchomieniami programu ('+' = wciœniêty)
 const weekSyncParam = 'WEEK_SYNC';
+      allowGridDragParam = 'ALLOW_GRID_DRAG';
 
 procedure TFMain.FormCreate(Sender: TObject);
   procedure init;
@@ -2144,6 +2158,7 @@ procedure TFMain.FormCreate(Sender: TObject);
    BusyClassesCache      := tBusyClassesCache.create;
    syncWeeks             := TWeekSync.Create;
    WeekSync.Down         := GetSystemParam(weekSyncParam) = '+';
+   mmAllowGridDrag.Checked := GetSystemParam(allowGridDragParam) <> '-';
    periodValueWidth      := CONPERIOD_VALUE.Width;
 
    ClassByLecturerCaches.init;
@@ -2174,6 +2189,10 @@ begin
   gridSelectionMode   := clNone;
 
   GridLastSelection := '';
+  GridLastSelRect.Left   := -1; //no previous selection yet
+  GridLastSelRect.Right  := -1;
+  GridLastSelRect.Top    := -1;
+  GridLastSelRect.Bottom := -1;
 
   timerShapes := 2;
   init;
@@ -2308,6 +2327,7 @@ begin
      fontHeightInPixels := Grid.Canvas.TextHeight('X');
      Grid.DefaultRowHeight := fontHeightInPixels * 1;
      //HeaderGrid.DefaultRowHeight := fontHeightInPixels * 1;
+     If not FcellLayout.OneLineDesc.Checked Then Begin
      If getCode(FcellLayout.D2) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 2;
      If getCode(FcellLayout.D3) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 3;
      If getCode(FcellLayout.D4) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 4;
@@ -2315,6 +2335,7 @@ begin
      If getCode(FcellLayout.D6) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 6;
      If getCode(FcellLayout.D7) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 7;
      If getCode(FcellLayout.D8) <> 'NONE' Then Grid.DefaultRowHeight := fontHeightInPixels * 8;
+     End;
      // Przedmiot (tab 5) stacks up to 5 classes per cell (see DrawSubjectMulti) - the D1..D8
      // line-count above is calibrated for ONE class's info-lines (Lecturer/Group/Room views)
      // and is normally far too short for this tab, silently hiding all content in the cell.
@@ -2477,6 +2498,7 @@ End;
 
 procedure TFMain.ConLecturerChange(Sender: TObject);
 begin
+  embedRorButtons; // "Rotuj" tylko przy kilku obiektach w polu
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    ConLecturer_value.Text := FChange(ConLecturer.text, sql_LECDESC);
@@ -2489,6 +2511,7 @@ end;
 
 procedure TFMain.ConGroupChange(Sender: TObject);
 begin
+  embedRorButtons; // "Rotuj" tylko przy kilku obiektach w polu
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    ConGroup_value.Text := FChange(ConGroup.text, sql_GRODESC);
@@ -2502,6 +2525,7 @@ end;
 
 procedure TFMain.conResCat0Change(Sender: TObject);
 begin
+  embedRorButtons; // "Rotuj" tylko przy kilku obiektach w polu
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    conResCat0_value.Text := FChange(conResCat0.text,sql_ResCat0DESC);
@@ -2598,6 +2622,7 @@ Begin
   WeekUp.Visible                    := PrevWeek.Visible;
   WeekSync.Visible                  := PrevWeek.Visible;
   layoutPeriodButtons;
+  embedRorButtons; // przyciski w polach wyboru - widocznoœæ przycisku wyboru zale¿y od okresu
   LeftPanel.Invalidate;
 End;
 
@@ -2767,6 +2792,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                          ComboBoxes : Array[1..8] Of TComboBox;
                          colR, colG, colB : ShortString;
                          currText : string;
+                         part, oneLineText : string;
 
                      procedure ColorToRGB(I : Integer);
                      Var s: ShortString;
@@ -2838,31 +2864,41 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
                    fontHeightInPixels := grid.Canvas.TextHeight('X');
 
                    currText := '';
+                   oneLineText := '';
 
                     For t := 1 To 5 Do begin
                      code := getCode(ComboBoxes[t]);
+                     part := '';
                      if  code= 'NONE'       then {}                                                                              else
-                     if  code= 'L'          then currText := currText + Class_.CALC_LECTURERS                                  else
-                     if  code= 'L+'         then currText := currText +  LecToNames (Class_.calc_lec_ids)                       else
-                     if  code= 'G'          then currText := currText + Class_.CALC_GROUPS                                      else
-                     if  code= 'S'          then currText := currText +  Class_.SUB_abbreviation                                 else
-                     if  code= 'F'          then currText := currText +  Class_.FOR_abbreviation                                 else
-                     if  code= 'SF'         then currText := currText +  Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')' else
-                     if  code= 'SF+'        then currText := currText +  Class_.sub_name+'('+Class_.FOR_abbreviation+')' else
-                     if  code= 'OWNER'      then currText := currText +  Class_.Owner                                            else
-                     if  code= 'CREATED_BY' then currText := currText +  Class_.Created_by                                       else
-                     if  code= 'DESC1'      then currText := currText +  Class_.desc1                                            else
-                     if  code= 'DESC2'      then currText := currText +  Class_.desc2                                            else
-                     if  code= 'DESC3'      then currText := currText +  Class_.desc3                                            else
-                     if  code= 'DESC4'      then currText := currText +  Class_.desc4                                            else
-                     if  code= 'ALL_RES'    then currText := currText +  Class_.CALC_ROOMS  else
-                     currText := currText + ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
+                     if  code= 'L'          then part := Class_.CALC_LECTURERS                                  else
+                     if  code= 'L+'         then part :=  LecToNames (Class_.calc_lec_ids)                       else
+                     if  code= 'G'          then part := Class_.CALC_GROUPS                                      else
+                     if  code= 'S'          then part :=  Class_.SUB_abbreviation                                 else
+                     if  code= 'F'          then part :=  Class_.FOR_abbreviation                                 else
+                     if  code= 'SF'         then part :=  Class_.SUB_abbreviation+'('+Class_.FOR_abbreviation+')' else
+                     if  code= 'SF+'        then part :=  Class_.sub_name+'('+Class_.FOR_abbreviation+')' else
+                     if  code= 'OWNER'      then part :=  Class_.Owner                                            else
+                     if  code= 'CREATED_BY' then part :=  Class_.Created_by                                       else
+                     if  code= 'DESC1'      then part :=  Class_.desc1                                            else
+                     if  code= 'DESC2'      then part :=  Class_.desc2                                            else
+                     if  code= 'DESC3'      then part :=  Class_.desc3                                            else
+                     if  code= 'DESC4'      then part :=  Class_.desc4                                            else
+                     if  code= 'ALL_RES'    then part :=  Class_.CALC_ROOMS  else
+                     part := ucommon.getResourcesByType(code, Class_.CALC_RESCAT_IDS, Class_.CALC_ROOMS );
+                     currText := currText + part;
+                     if part <> '' then oneLineText := iif(oneLineText = '', part, oneLineText + ' - ' + part);
                    end;
 
-                   if (FCellLayout.HideTheSameDesc.Checked) and (PriorRow = arow) and (PriorCol +1 = acol) and (currText = PriorText) then
+                   //2026-11: compare with the left neighbour (if visible), not with the previously painted cell -
+                   //when a single cell is repainted (e.g. after a click) the previously painted cell is a different one
+                   setCellText(acol, arow, currText);
+                   if (FCellLayout.HideTheSameDesc.Checked) and (acol - 1 >= Grid.LeftCol) and (currText = getCellText(acol - 1, arow)) then
                    begin
                     //Grid.Canvas.TextOut(Left, Top+((1-1)*fontHeightInPixels), inttostr(acol) + inttostr(arow) + currText + ':' + PriorText  )
                    end
+                   else
+                   if FCellLayout.OneLineDesc.Checked then
+                     Grid.Canvas.TextOut(Left, Top, oneLineText)
                    else
                    For t := 1 To 5 Do begin
                      code := getCode(ComboBoxes[t]);
@@ -3272,6 +3308,7 @@ begin
                      End;
     ConvClass:
      Begin
+      setCellText(ACol, ARow, ''); //2026-11: no text unless Generic draws one (see "Ukryj takie same opisy")
       If TabViewType.TabIndex<4 Then BusyClasses;
 
       Case TabViewType.TabIndex Of
@@ -5253,22 +5290,30 @@ end;
 
 procedure TFMain.copyArea;
 begin
+  InvalidateGridArea(gridSelectionLeft, gridSelectionRight, gridSelectionTop, gridSelectionBottom); //2026-11: remove the previous frame
   gridSelectionLeft   := grid.Selection.Left;
   gridSelectionRight  := grid.Selection.Right;
   gridSelectionTop    := grid.Selection.Top;
   gridSelectionBottom := grid.Selection.Bottom;
   gridSelectionMode   := clGreen;
-  refreshGridAndLegend;
+  //2026-11: was refreshGridAndLegend - only the frame changes, so repaint only the marked area (no flicker)
+  InvalidateGridArea(gridSelectionLeft, gridSelectionRight, gridSelectionTop, gridSelectionBottom);
+  HeaderGrid.Visible := true;
+  refreshPanels;
 end;
 
 procedure TFMain.cutArea;
 begin
+  InvalidateGridArea(gridSelectionLeft, gridSelectionRight, gridSelectionTop, gridSelectionBottom); //2026-11: remove the previous frame
   gridSelectionLeft   := grid.Selection.Left;
   gridSelectionRight  := grid.Selection.Right;
   gridSelectionTop    := grid.Selection.Top;
   gridSelectionBottom := grid.Selection.Bottom;
   gridSelectionMode   := clRed;
-  refreshGridAndLegend;
+  //2026-11: was refreshGridAndLegend - only the frame changes, so repaint only the marked area (no flicker)
+  InvalidateGridArea(gridSelectionLeft, gridSelectionRight, gridSelectionTop, gridSelectionBottom);
+  HeaderGrid.Visible := true;
+  refreshPanels;
 
 end;
 
@@ -5298,11 +5343,14 @@ end;
 
 procedure TFMain.clearSelection;
 begin
+  InvalidateGridArea(gridSelectionLeft, gridSelectionRight, gridSelectionTop, gridSelectionBottom); //2026-11: remove the frame
   gridSelectionLeft   := -1;
   gridSelectionRight  := -1;
   gridSelectionTop    := -1;
   gridSelectionBottom := -1;
-  refreshGridAndLegend;
+  //2026-11: was refreshGridAndLegend - only the frame changes, so repaint only the marked area (no flicker)
+  HeaderGrid.Visible := true;
+  refreshPanels;
 end;
 
 procedure TFMain.deleteLecFromSelection;
@@ -5992,19 +6040,6 @@ begin
  fmain.wlog('BLoginClick: Stop');
 end;
 
-procedure TFMain.Odwiepolanadmiarowe1Click(Sender: TObject);
-begin
-  inherited;
- If not isAdmin Then Begin
-  SError('Ta funkcja mo¿e byæ uruchamiana tylko przez u¿ytkownika o uprawnieniach administratora');
-  Exit;
- End;
-
- DModule.SQL('BEGIN PLANNER_UTILS.UPDATE_LGRS; END;');
- deepRefreshDelayed;
- SError('Pola zosta³y odœwie¿one');
-end;
-
 procedure TFMain.Zamknij1Click(Sender: TObject);
 begin
  Close;
@@ -6183,27 +6218,31 @@ end;
 
 procedure TFMain.CONLECTURER_valueEnter(Sender: TObject);
 begin
+  // fokus w kontrolce wewn¹trz pola (poka¿ wolne terminy, przyciski) - bez prze³¹czania widoku: prze³¹czenie
+  // przebudowuje siatkê, a kontrolka odœwie¿a j¹ sama (siatka rysowa³a siê dwa razy)
+  if ActiveControl <> Sender then exit;
   TabViewType.TabIndex := 0;
 end;
 
 procedure TFMain.CONGROUP_valueEnter(Sender: TObject);
 begin
+  // fokus w kontrolce wewn¹trz pola (poka¿ wolne terminy, przyciski) - bez prze³¹czania widoku: prze³¹czenie
+  // przebudowuje siatkê, a kontrolka odœwie¿a j¹ sama (siatka rysowa³a siê dwa razy)
+  if ActiveControl <> Sender then exit;
   TabViewType.TabIndex := 1;
 end;
 
 procedure TFMain.conResCat0_valueEnter(Sender: TObject);
 begin
+  // fokus w kontrolce wewn¹trz pola (poka¿ wolne terminy, przyciski) - bez prze³¹czania widoku: prze³¹czenie
+  // przebudowuje siatkê, a kontrolka odœwie¿a j¹ sama (siatka rysowa³a siê dwa razy)
+  if ActiveControl <> Sender then exit;
   TabViewType.TabIndex := 2;
 end;
 
 
 procedure TFMain.rorLClick(Sender: TObject);
 begin
-  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
-    CONLECTURER.Text := LROR(CONLECTURER.Text,';');
-    exit;
-  end;
-
   TabViewType.TabIndex := 0;
   CanShow := False;
   ValidLClick(nil);
@@ -6215,11 +6254,6 @@ end;
 
 procedure TFMain.rorGClick(Sender: TObject);
 begin
-  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
-    CONGROUP.Text := LROR(CONGROUP.Text,';');
-    exit;
-  end;
-
   TabViewType.TabIndex := 1;
   CanShow := False;
   ValidGClick(nil);
@@ -6231,11 +6265,6 @@ end;
 
 procedure TFMain.rorRClick(Sender: TObject);
 begin
-  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
-     conResCat0.Text := LROR(conResCat0.Text,';');
-    exit;
-  end;
-
   TabViewType.TabIndex := 2;
   CanShow := False;
   ValidRClick(nil);
@@ -7529,6 +7558,8 @@ begin
   end;
   dockingPanel := strToInt( getSystemParam('FLegend.dockingPanel', inttostr(C_RIGHT) ));
   x;
+  embedRorButtons;
+  layoutSearchMenu;
   if resizeMode then exit;
   ShowFreeTermsLClick(nil);
   BLoginClick(nil);
@@ -7606,6 +7637,111 @@ begin
    resizeMode := false;
    BCloseApp.Visible := false;
  end;
+ embedRorButtons; // zmiana stylu okna tworzy pola od nowa - margines pola trzeba ustawiæ ponownie
+end;
+
+// przyciski wewn¹trz pól wyboru, przy prawej krawêdzi - jak w wersji WEB; od prawej:
+//   wyk³adowca / grupa / sala / zasób: ShowFreeTermsL (poka¿ wolne terminy - przy liœcie trybu ShowAllAnyL za polem),
+//     rorL (organizer), selectl (wybór), Rotuj (jak dwuklik pola) - pierwszy od lewej,
+//     widoczny tylko przy co najmniej dwóch obiektach w polu (ukryty nie zostawia przerwy),
+//   przedmiot / forma: BClearSx / BClearF (wyczyœæ), DrawSuppressionS / DrawSuppressionF (wyró¿niaj).
+// Pole dostaje prawy margines na szerokoœæ przycisków (EM_SETMARGINS), ¿eby tekst nie wchodzi³ pod przyciski.
+// Wywo³ywane wielokrotnie (FormShow, pe³ny ekran): po odtworzeniu uchwytu pola margines jest tracony.
+procedure TFMain.embedRorButtons;
+  const W = 20;
+  // kolejne kontrolki od prawej krawêdzi pola; niewidoczne nie zajmuj¹ miejsca
+  procedure embed(ed : TEdit; const ctrls : array of TControl);
+  var t, x : integer;
+  begin
+    x := ed.ClientWidth;
+    for t := 0 to High(ctrls) do begin
+      if ctrls[t].Parent <> ed then begin
+        ctrls[t].Parent  := ed;
+        ctrls[t].Anchors := [akTop, akRight];
+      end;
+      if not ctrls[t].Visible then continue;
+      if ctrls[t] is TCheckBox then begin
+        x := x - 17;                // 1 piksel odstêpu z lewej - pole wyboru nie przylega do przycisku obok
+        ctrls[t].SetBounds(x + 1, (ed.ClientHeight - 16) div 2, 15, 16);
+      end else begin
+        x := x - W;
+        ctrls[t].SetBounds(x, 0, W, ed.ClientHeight);
+      end;
+    end;
+    SendMessage(ed.Handle, EM_SETMARGINS, EC_RIGHTMARGIN, MakeLong(0, ed.ClientWidth - x + 2));
+  end;
+  // przycisk "Rotuj": pierwszy na koniec listy (LROR) - to samo co dwuklik pola; ikona: strza³ka w kó³ku
+  // (BMP 16x16, 24 bity, t³o - fuksja = kolor przezroczysty)
+  function rotateButton(ed : TEdit) : TBitBtn;
+  const
+  RotateGlyphHex =
+    '424D360300000000000036000000280000001000000010000000010018000000000000030000130B0000130B00000000000000000000FF00FFFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF' +
+    'DFD8D3D1C6BEDFD8D3FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFBAAA9E5F3A1E5F3A1E5F3A1E5F3A1E5F3A1E' +
+    'BAAA9EFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF98806D5F3A1E5F3A1E6C4A318C715D6C4A315F3A1E5F3A1E98806DFF00FFFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FFC3B5AA5F3A1E5F3A1ED1C6BEFF00FFFF00FFFF00FFD1C6BE5F3A1E5F3A1EC3B5AAFF00FFFF00FFFF00FFFF00FFFF00FF' +
+    '6A472D5F3A1ECBBFB6FF00FFFF00FFFF00FFFF00FFFF00FFCBBFB65F3A1E6A472DFF00FFFF00FFFF00FFFF00FFF1EDEB5F3A1E5F3A1EFF00FFFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FFFF00FF5F3A1E5F3A1EF1EDEBFF00FFFF00FFFF00FFE8E3DF5F3A1E75553DFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF' +
+    'FF00FF75553D5F3A1EE8E3DFFF00FFFF00FFFF00FFFF00FF5F3A1E5F3A1EFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF7252395F3A1EFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FF7859415F3A1EB4A396FF00FF98806DDCD5CEFF00FFFF00FFFF00FFFF00FFDFD8D3FF00FFFF00FFFF00FFFF00FFFF00FF' +
+    'D7CDC65F3A1E5F3A1EAC988A5F3A1E644025FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFB7A79A5F3A1E5F3A1E' +
+    '5F3A1E5F3A1E927865FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFDCD5CE5F3A1E5F3A1E5F3A1E5F3A1EC8BCB2' +
+    'FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF5F3A1E5F3A1E613C21927865CBBFB6FF00FFFF00FFFF00FFFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFDFD8D3BAAA9EE8E3DFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF' +
+    'FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF';
+  var bmp : TBitmap;
+      ms  : TMemoryStream;
+      buf : array of byte;
+  begin
+    result := TBitBtn(ed.FindComponent('rot_' + ed.Name));
+    if result <> nil then exit;
+    result := TBitBtn.Create(ed);
+    result.Name     := 'rot_' + ed.Name;
+    result.Caption  := '';
+    result.Hint     := 'Rotuj: pierwszy na koniec listy, kolejny staje siê pierwszym (to samo co dwuklik pola)';
+    result.ShowHint := true;
+    result.OnClick  := rotateClick;
+    bmp := TBitmap.Create;
+    ms  := TMemoryStream.Create;
+    try
+      SetLength(buf, Length(RotateGlyphHex) div 2);
+      HexToBin(PChar(RotateGlyphHex), PChar(@buf[0]), Length(buf));
+      ms.WriteBuffer(buf[0], Length(buf));
+      ms.Position := 0;
+      bmp.LoadFromStream(ms);
+      result.Glyph.Assign(bmp);
+    finally
+      ms.Free;
+      bmp.Free;
+    end;
+  end;
+  // "Rotuj" ma sens tylko przy kilku obiektach w polu (identyfikatory oddzielone œrednikiem)
+  function rotate(ed : TEdit; ids : TEdit) : TBitBtn;
+  begin
+    result := rotateButton(ed);
+    result.Visible := WordCount(ids.Text, [';']) > 1;
+  end;
+begin
+  // wywo³anie z OnChange pól w trakcie wczytywania formularza - kontrolki mog¹ jeszcze nie istnieæ
+  if (csLoading in ComponentState) or (CONPERIOD_VALUE = nil) or (conResCat1_value = nil) or (BClearF = nil) then exit;
+  embed(CONLECTURER_value, [ShowFreeTermsL,       rorL,       selectl,       rotate(CONLECTURER_value, CONLECTURER)]);
+  embed(CONGROUP_value,    [ShowFreeTermsG,       rorG,       selectg,       rotate(CONGROUP_value,    CONGROUP)]);
+  embed(conResCat0_value,  [ShowFreeTermsR,       rorR,       selectr,       rotate(conResCat0_value,  conResCat0)]);
+  embed(conResCat1_value,  [ShowFreeTermsResCat1, rorResCat1, selectResCat1, rotate(conResCat1_value,  conResCat1)]);
+  embed(CONSUBJECT_value,  [BClearSx, DrawSuppressionS]);
+  embed(CONFORM_VALUE,     [BClearF,  DrawSuppressionF]);
+  if Assigned(FSettings) then layoutPeriodButtons;
+end;
+
+// "Rotuj" wewn¹trz pola - to samo co podwójne klikniêcie pola
+procedure TFMain.rotateClick(Sender: TObject);
+var ed : TControl;
+begin
+  ed := (Sender as TControl).Parent;
+  if ed = CONLECTURER_value then CONLECTURER_valueDblClick(ed) else
+  if ed = CONGROUP_value    then CONGROUP_valueDblClick(ed)    else
+  if ed = conResCat0_value  then conResCat0_valueDblClick(ed)  else
+  if ed = conResCat1_value  then conResCat1_valueDblClick(ed);
 end;
 
 // ---- przeci¹ganie zajêæ myszk¹ (drag and drop) -------------------------------------------------------
@@ -7619,6 +7755,7 @@ var c, r, obj, h : integer;
     ts_ : TTimeStamp;
 begin
   result := false;
+  if not mmAllowGridDrag.Checked then exit;                  // wy³¹czone w menu
   if (keys and (MK_SHIFT or MK_CONTROL)) <> 0 then exit;    // Shift/Ctrl - zwyk³e zaznaczanie
   if TabViewType.TabIndex >= 4 then exit;                    // kalendarz rezerwacji, przedmiot - bez przenoszenia
   if not (UUtilityParent.CanInsert and UUtilityParent.CanDelete) then exit;   // jak Wytnij (usuwanie) + Wklej (wstawianie)
@@ -8173,7 +8310,7 @@ procedure TFMain.GridKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   HighLightGrid;
-  refreshLegend;
+  refreshLegendDelayed; //2026-11: was refreshLegend - with Shift+arrows it ran after every keystroke and the application hung
   autoExpandSelection;
 end;
 
@@ -8316,6 +8453,7 @@ end;
 
 procedure TFMain.conResCat1Change(Sender: TObject);
 begin
+  embedRorButtons; // "Rotuj" tylko przy kilku obiektach w polu
   BusyClassesCache.ClearCache;
   If CanShow Then Begin
    conResCat1_value.Text:= FChange(conResCat1.text, sql_ResCat1DESC);
@@ -8332,6 +8470,9 @@ end;
 
 procedure TFMain.conResCat1_valueEnter(Sender: TObject);
 begin
+  // fokus w kontrolce wewn¹trz pola (poka¿ wolne terminy, przyciski) - bez prze³¹czania widoku: prze³¹czenie
+  // przebudowuje siatkê, a kontrolka odœwie¿a j¹ sama (siatka rysowa³a siê dwa razy)
+  if ActiveControl <> Sender then exit;
   TabViewType.TabIndex := 3;
 end;
 
@@ -8367,11 +8508,6 @@ end;
 
 procedure TFMain.rorResCat1Click(Sender: TObject);
 begin
-  if StrToBool( GetSystemParam('Rotate', '-' ) ) then begin
-    conResCat1.Text := LROR(conResCat1.Text,';');
-    exit;
-  end;
-
   TabViewType.TabIndex := 3;
   CanShow := False;
   ValidResCat1Click(nil);
@@ -9541,10 +9677,10 @@ begin
   s1 := iif(SearchMenu1.Text = 'Szukaj...', '', SearchMenu1.Text);
   if pos(';',s1)<>0 then s1 :=  searchAndReplace(s1,';','');
 
-  s2 := iif(SearchMenu2.Text = 'Szukaj...', '', SearchMenu2.Text);
+  s2 := iif((SearchMenu2.Text = 'Szukaj...') or not SearchMenu2.Visible, '', SearchMenu2.Text);
   if pos(';',s2)<>0 then s2 :=  searchAndReplace(s2,';','');
 
-  s3 := iif(SearchMenu3.Text = 'Szukaj...', '', SearchMenu3.Text);
+  s3 := iif((SearchMenu3.Text = 'Szukaj...') or not SearchMenu3.Visible, '', SearchMenu3.Text);
   if pos(';',s3)<>0 then s3 :=  searchAndReplace(s3,';','');
 
   TreeView1.Items.BeginUpdate;
@@ -9559,8 +9695,39 @@ end;
 
 procedure TFMain.SearchMenu1Change(Sender: TObject);
 begin
+  if not (SearchMenu1.Focused or SearchMenu2.Focused or SearchMenu3.Focused) then compactSearchMenu
+                                                                            else layoutSearchMenu;
   NavigatorCnt := 2;
   TTNavigator.Enabled := true;
+end;
+
+// pola wyszukiwania menu: SearchMenu2 widoczne, gdy SearchMenu1 ma wartoœæ, SearchMenu3 - gdy SearchMenu2
+// (pole z wartoœci¹ jest zawsze widoczne - puste pole wy¿ej jest doci¹gane przy wyjœciu z pola, compactSearchMenu);
+// Panel1 ma wysokoœæ do ostatniego widocznego pola
+procedure TFMain.layoutSearchMenu;
+  function hasValue(ed : TEdit) : boolean;
+  begin
+    result := (Trim(ed.Text) <> '') and (ed.Text <> 'Szukaj...');
+  end;
+  procedure setShown(ed : TEdit; shown : boolean);
+  begin
+    ed.Visible := shown;   // tekst zostaje (po ponownym pokazaniu pola), ukryte pole nie filtruje - searchMenuText
+  end;
+var bottom : integer;
+begin
+  if searchMenuLayout then exit;
+  searchMenuLayout := true;
+  try
+    setShown(SearchMenu2, hasValue(SearchMenu1) or hasValue(SearchMenu2) or SearchMenu2.Focused);
+    setShown(SearchMenu3, (SearchMenu2.Visible and hasValue(SearchMenu2)) or hasValue(SearchMenu3) or SearchMenu3.Focused);
+    bottom := BFastSearchNew.Top + BFastSearchNew.Height;
+    if SearchMenu1.Top + SearchMenu1.Height > bottom then bottom := SearchMenu1.Top + SearchMenu1.Height;
+    if SearchMenu2.Visible then bottom := SearchMenu2.Top + SearchMenu2.Height;
+    if SearchMenu3.Visible then bottom := SearchMenu3.Top + SearchMenu3.Height;
+    Panel1.Height := bottom + 7;
+  finally
+    searchMenuLayout := false;
+  end;
 end;
 
 procedure TFMain.TreeView1Click(Sender: TObject);
@@ -9700,8 +9867,8 @@ begin
     TreeView1.Visible := false;
     CopyMenuToTreeView(mm, TreeView1);
     s1 := iif(SearchMenu1.Text = 'Szukaj...', '', SearchMenu1.Text);
-    s2 := iif(SearchMenu2.Text = 'Szukaj...', '', SearchMenu2.Text);
-    s3 := iif(SearchMenu3.Text = 'Szukaj...', '', SearchMenu3.Text);
+    s2 := iif((SearchMenu2.Text = 'Szukaj...') or not SearchMenu2.Visible, '', SearchMenu2.Text);
+    s3 := iif((SearchMenu3.Text = 'Szukaj...') or not SearchMenu3.Visible, '', SearchMenu3.Text);
     clearNotMatchingItems(TreeView1, s1, s2, s3 );
     if (s1 <> '') or (s2 <> '') or (s3 <> '') then
         addDBItemsItemsToTreeView(TreeView1, s1, s2, s3 );
@@ -9901,18 +10068,10 @@ procedure TFMain.updateLeftPanel;
 var parentPanel : Twincontrol;
   procedure setParent (parentPanel : Twincontrol);
   begin
-   BClearSx.Parent := parentPanel;
-   BClearF.Parent := parentPanel;
    Preview.Parent := parentPanel;
    BCopy.Parent := parentPanel;
    BPaste.Parent := parentPanel;
-   lshowAvail.Parent := parentPanel;
-   Shape1.Parent := parentPanel;
    BSelectComb.Parent := parentPanel;
-   selectl.Parent := parentPanel;
-   selectg.Parent := parentPanel;
-   selectr.Parent := parentPanel;
-   selectResCat1.Parent := parentPanel;
    LprofileObjectNameL.Parent := parentPanel;
    LprofileObjectNameG.Parent := parentPanel;
    BRescat0.Parent := parentPanel;
@@ -9951,6 +10110,7 @@ begin
  CONROLE_VALUE.Parent            := parentPanel;
  BitBtnCLEARROLE.Parent          := parentPanel;
 
+ embedRorButtons; // pole okresu zmieni³o rodzica - przyciski w polu i margines od nowa
  LeftPanel.Invalidate;
  CalViewPanel.Invalidate;
 end;
@@ -10184,6 +10344,36 @@ end;
 procedure TFMain.SearchMenu1Exit(Sender: TObject);
 begin
  if (Sender as TEdit).Text = '' then  (Sender as TEdit).Text := 'Szukaj...';
+ compactSearchMenu;
+end;
+
+// pola wyszukiwania menu: wartoœci bez przerw - puste pole jest zastêpowane nastêpnym (3 -> 2, 2 -> 1);
+// nie w trakcie pisania w polu (wtedy pole bywa chwilowo puste) - przy wyjœciu z pól wyszukiwania
+procedure TFMain.compactSearchMenu;
+var v : array[1..3] of string;
+    n, t : integer;
+    eds : array[1..3] of TEdit;
+begin
+  if searchMenuLayout then exit;
+  // fokus w którymœ z pól (np. przejœcie z pola 1 do pola 2) - doci¹gniêcie dopiero po wyjœciu z pól,
+  // inaczej wartoœæ pola z fokusem zosta³aby zdublowana
+  if SearchMenu1.Focused or SearchMenu2.Focused or SearchMenu3.Focused then begin layoutSearchMenu; exit; end;
+  eds[1] := SearchMenu1; eds[2] := SearchMenu2; eds[3] := SearchMenu3;
+  n := 0;
+  for t := 1 to 3 do
+    if (Trim(eds[t].Text) <> '') and (eds[t].Text <> 'Szukaj...') then begin
+      inc(n);
+      v[n] := eds[t].Text;
+    end;
+  for t := n + 1 to 3 do v[t] := 'Szukaj...';
+  searchMenuLayout := true;
+  try
+    for t := 1 to 3 do
+      if eds[t].Text <> v[t] then eds[t].Text := v[t];
+  finally
+    searchMenuLayout := false;
+  end;
+  layoutSearchMenu;
 end;
 
 procedure TFMain.TreeModeCleanupClick(Sender: TObject);
@@ -10266,6 +10456,12 @@ procedure TFMain.Przywrckomunikaty1Click(Sender: TObject);
 begin
   SetSystemParam('MESSAGE.SkipCapacityOverflow','-');
   SError('Ostrze¿enia o przekroczonej zajêtoœci sal zosta³y przywrócone');
+end;
+
+procedure TFMain.mmAllowGridDragClick(Sender: TObject);
+begin
+  mmAllowGridDrag.Checked := not mmAllowGridDrag.Checked;
+  SetSystemParam(allowGridDragParam, iif(mmAllowGridDrag.Checked, '+', '-'));
 end;
 
 procedure TFMain.recreateDependenciesClick(Sender: TObject);
@@ -10640,8 +10836,13 @@ begin
  GridCurrentSelection := IntToStr(grid.Selection.Left) +','+ IntToStr(grid.Selection.Right) +','+ IntToStr(grid.Selection.Top) +','+ IntToStr(grid.Selection.Bottom);
  if (GridCurrentSelection <>  GridLastSelection ) then begin
    GridLastSelection := GridCurrentSelection;
-   //Refresh entire grid, call HighLight(Rect) for each rect. No database reload is needed.
-   gridRefreshCounter := 2;
+   //2026-11: repaint only the label cells of the previous and the current selection, right away.
+   //Before: the entire grid was refreshed ~1 s later (timer gridRefresh), which caused a visible flicker.
+   //Data cells are repainted by TDrawGrid itself when the selection changes.
+   InvalidateSelectionLabels(GridLastSelRect);
+   GridLastSelRect := grid.Selection;
+   InvalidateSelectionLabels(GridLastSelRect);
+   gridRefreshCounter := 2; //refreshPanels is still done by the timer, as before
    gridRefresh.Enabled := true;
  end;
 end;
@@ -10653,11 +10854,112 @@ begin
     gridRefresh.Enabled := false;
     suppressCounterRefresh := true; //2026-07: HighLightGrid (mouse move / arrow keys) just re-highlights the selection, not an actual schedule change - do not requery Podsumowanie godzin
     try
-      refreshGridAndLegend;
+      //2026-11: was refreshGridAndLegend - grid.Refresh/HeaderGrid.Refresh replaced by InvalidateSelectionLabels in HighLightGrid
+      HeaderGrid.Visible := true;
+      refreshPanels;
     finally
       suppressCounterRefresh := false;
     end;
   end;
+end;
+
+//2026-11: invalidate only the cells that show the selection: row labels (columns 0-1) of the selected rows,
+//column labels (row 0) of the selected columns in Grid and in HeaderGrid. Only visible cells are invalidated.
+procedure TFMain.InvalidateSelectionLabels(const S : TGridRect);
+var c, r, rFrom, rTo, cFrom, cTo : integer;
+    cellR : TRect;
+begin
+  if (S.Left < 0) or (S.Top < 0) then exit; //no previous selection yet
+
+  rFrom := S.Top;
+  if rFrom < Grid.TopRow then rFrom := Grid.TopRow;
+  rTo := S.Bottom;
+  if rTo > Grid.TopRow + Grid.VisibleRowCount then rTo := Grid.TopRow + Grid.VisibleRowCount;
+  if rTo > Grid.RowCount - 1 then rTo := Grid.RowCount - 1;
+  for r := rFrom to rTo do
+    for c := 0 to 1 do
+      if c < Grid.ColCount then begin
+        cellR := Grid.CellRect(c, r);
+        if not IsRectEmpty(cellR) then InvalidateRect(Grid.Handle, @cellR, False);
+      end;
+
+  cFrom := S.Left;
+  if cFrom < Grid.LeftCol then cFrom := Grid.LeftCol;
+  cTo := S.Right;
+  if cTo > Grid.LeftCol + Grid.VisibleColCount then cTo := Grid.LeftCol + Grid.VisibleColCount;
+  if cTo > Grid.ColCount - 1 then cTo := Grid.ColCount - 1;
+  for c := cFrom to cTo do begin
+    cellR := Grid.CellRect(c, 0);
+    if not IsRectEmpty(cellR) then InvalidateRect(Grid.Handle, @cellR, False);
+    if HeaderGrid.Visible and (c < HeaderGrid.ColCount) then begin
+      cellR := HeaderGrid.CellRect(c, 0);
+      if not IsRectEmpty(cellR) then InvalidateRect(HeaderGrid.Handle, @cellR, False);
+    end;
+  end;
+end;
+
+//2026-11: keyboard selection - update the status bar right away, refresh the legend (Podsumowanie godzin,
+//Znajdz wykladowce/grupe/sale) after 1 s without keystrokes, like the mouse selection does once at the end
+procedure TFMain.refreshLegendDelayed;
+begin
+  StatusBar.Panels[7].Text := '(' + inttostr(grid.Selection.Top) + ':' + inttostr(grid.Selection.Left) + ')    Suma: ' + inttostr ( (grid.Selection.Right - grid.Selection.Left + 1) * (grid.Selection.bottom - grid.Selection.top + 1) );
+  if refreshLegendTimer = nil then begin
+    refreshLegendTimer := TTimer.Create(self);
+    refreshLegendTimer.Enabled  := false;
+    refreshLegendTimer.Interval := 1000;
+    refreshLegendTimer.OnTimer  := refreshLegendTimerTimer;
+  end;
+  refreshLegendTimer.Enabled := false; //restart the countdown on every keystroke
+  refreshLegendTimer.Enabled := true;
+end;
+
+procedure TFMain.refreshLegendTimerTimer(Sender: TObject);
+begin
+  refreshLegendTimer.Enabled := false;
+  refreshLegend;
+end;
+
+//2026-11: invalidate only the given cells of Grid (visible part) instead of refreshing the whole grid
+procedure TFMain.InvalidateGridArea(ALeft, ARight, ATop, ABottom : integer);
+var c, r, cFrom, cTo, rFrom, rTo : integer;
+    cellR : TRect;
+begin
+  if (ALeft < 0) or (ATop < 0) then exit; //nothing marked
+
+  cFrom := ALeft;
+  if cFrom < Grid.LeftCol then cFrom := Grid.LeftCol;
+  cTo := ARight;
+  if cTo > Grid.LeftCol + Grid.VisibleColCount then cTo := Grid.LeftCol + Grid.VisibleColCount;
+  if cTo > Grid.ColCount - 1 then cTo := Grid.ColCount - 1;
+
+  rFrom := ATop;
+  if rFrom < Grid.TopRow then rFrom := Grid.TopRow;
+  rTo := ABottom;
+  if rTo > Grid.TopRow + Grid.VisibleRowCount then rTo := Grid.TopRow + Grid.VisibleRowCount;
+  if rTo > Grid.RowCount - 1 then rTo := Grid.RowCount - 1;
+
+  for r := rFrom to rTo do
+    for c := cFrom to cTo do begin
+      cellR := Grid.CellRect(c, r);
+      if not IsRectEmpty(cellR) then InvalidateRect(Grid.Handle, @cellR, False);
+    end;
+end;
+
+//2026-11: text drawn in class cells, used by "Ukryj takie same opisy" (FCellLayout.HideTheSameDesc)
+procedure TFMain.setCellText(ACol, ARow : integer; const AText : string);
+begin
+  if (ACol < 0) or (ARow < 0) then exit;
+  if ACol >= Length(CellTextCache) then SetLength(CellTextCache, ACol + 1);
+  if ARow >= Length(CellTextCache[ACol]) then SetLength(CellTextCache[ACol], ARow + 1);
+  CellTextCache[ACol][ARow] := AText;
+end;
+
+function TFMain.getCellText(ACol, ARow : integer) : string;
+begin
+  result := '';
+  if (ACol < 0) or (ARow < 0) or (ACol >= Length(CellTextCache)) then exit;
+  if ARow >= Length(CellTextCache[ACol]) then exit;
+  result := CellTextCache[ACol][ARow];
 end;
 
 procedure TFMain.RaportZdrowieSystemu1Click(Sender: TObject);
@@ -11279,29 +11581,47 @@ end;
 
 // przyciski obok pola okresu (CONPERIOD_VALUE): semestr - EditPeriod i WeekDown; tydzieñ - << ^ v >> i synchronizacja
 // tygodni (pole okresu wê¿sze o jeden przycisk, ¿eby wszystkie zmieœci³y siê przed BitBtnPER)
+// przyciski okresu wewn¹trz pola CONPERIOD_VALUE, przy prawej krawêdzi (jak przyciski pól wyboru - embedRorButtons):
+// uk³ad semestralny - EditPeriod, WeekDown; uk³ad tygodniowy - PrevWeek, WeekUp, WeekDown, NextWeek, WeekSync
+// (EditPeriod ukryty - SetVisibles). Przyciski le¿¹ na panelu w polu: TSpeedButton nie ma w³asnego okna, a WeekSync
+// musi zostaæ przyciskiem dwustanowym. Pole dostaje prawy margines na szerokoœæ przycisków.
 procedure TFMain.layoutPeriodButtons;
-var x : integer;
-
-  procedure place(button : TSpeedButton; width : integer);
-  begin
-    button.SetBounds(x, EditPeriod.Top, width, EditPeriod.Height);
-    x := x + width;
-  end;
-
+const W = 21;
+var x, i : integer;
+    pnl  : TPanel;
+    all  : array[0..5] of TSpeedButton;
+    order: array of TSpeedButton;
 begin
-  if FSettings.WeeklyView.Checked then CONPERIOD_VALUE.Width := periodValueWidth - WeekSync.Width
-                                  else CONPERIOD_VALUE.Width := periodValueWidth;
-  x := CONPERIOD_VALUE.Left + CONPERIOD_VALUE.Width - 1;
-  if FSettings.WeeklyView.Checked then begin
-    place(PrevWeek, WeekSync.Width);
-    place(WeekUp,   WeekSync.Width);
-    place(WeekDown, WeekSync.Width);
-    place(NextWeek, WeekSync.Width);
-    place(WeekSync, WeekSync.Width);
-  end else begin
-    place(EditPeriod, EditPeriod.Width);
-    place(WeekDown,   EditPeriod.Width);
+  all[0] := EditPeriod; all[1] := PrevWeek; all[2] := WeekUp; all[3] := WeekDown; all[4] := NextWeek; all[5] := WeekSync;
+  pnl := TPanel(CONPERIOD_VALUE.FindComponent('periodButtons'));
+  if pnl = nil then begin
+    pnl := TPanel.Create(CONPERIOD_VALUE);
+    pnl.Name        := 'periodButtons';
+    pnl.Caption     := '';
+    pnl.BevelOuter  := bvNone;
+    pnl.ParentBackground := false;
+    pnl.ParentColor := false;
+    pnl.Color       := CONPERIOD_VALUE.Color;
+    pnl.Parent      := CONPERIOD_VALUE;
+    pnl.Anchors     := [akTop, akRight];
+    for i := 0 to High(all) do all[i].Parent := pnl;
   end;
+  if FSettings.WeeklyView.Checked then begin
+    SetLength(order, 5);
+    order[0] := PrevWeek; order[1] := WeekUp; order[2] := WeekDown; order[3] := NextWeek; order[4] := WeekSync;
+  end else begin
+    SetLength(order, 2);
+    order[0] := EditPeriod; order[1] := WeekDown;
+  end;
+  x := 0;
+  for i := 0 to High(order) do
+    if order[i].Visible then begin
+      order[i].SetBounds(x, 0, W, CONPERIOD_VALUE.ClientHeight);
+      x := x + W;
+    end;
+  pnl.SetBounds(CONPERIOD_VALUE.ClientWidth - x, 0, x, CONPERIOD_VALUE.ClientHeight);
+  pnl.Visible := x > 0;
+  SendMessage(CONPERIOD_VALUE.Handle, EM_SETMARGINS, EC_RIGHTMARGIN, MakeLong(0, x + 2));
 end;
 
 // ---------------------------------------------------------------------------------------------------------------

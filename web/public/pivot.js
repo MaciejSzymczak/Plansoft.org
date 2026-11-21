@@ -44,7 +44,8 @@ const FIELDS = [
 const ALL_FLAGS = ['L', 'G', 'R', 'S', 'F', 'FnewColumn', 'day', 'month', 'dayOfWeek', 'hour', 'Luni', 'Gtype', 'Sorg', 'owner', 'createdBy',
   'desc1', 'desc2', 'desc3', 'desc4', 'LnewLine', 'GnewLine', 'RnewLine', 'Gstudents', 'Gorg', 'Gparent', 'Rorg', 'fill', 'creationDate',
   'integrationId', 'classId', 'emergency'];
-const WD_ORDER = ['pon', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz', 'nie'];
+// numer dnia tygodnia z nazwy skróconej Oracle (Pn, Wt, Śr, Cz, Pt, So, N) lub dłuższej (pon., czw., niedz.)
+const wdIndex = v => { const x = String(v).toLowerCase().replace('.', ''); return ['pn', 'wt', 'śr', 'cz', 'pt', 'so', 'n'].findIndex((p, i) => x.startsWith(p) || (i === 0 && x.startsWith('po'))); };
 const MAX = 4;          // pól w wierszach i w kolumnach
 const MAX_CONTENT = 6;  // pól zajęcia na przecięciu (cell1..cell6 w Delphi)
 const PREF_KEY = user => 'plansoft.web.pivot2.' + user;
@@ -197,7 +198,7 @@ export class PivotWindow {
       if (dates && dayIdx >= 0 && row[dayIdx]) e.dates.add(String(row[dayIdx]));
     }
     const order = key => (a, b) => {
-      if (key === 'dayOfWeek') return WD_ORDER.indexOf(a.replace('.', '')) - WD_ORDER.indexOf(b.replace('.', ''));
+      if (key === 'dayOfWeek') return wdIndex(a) - wdIndex(b);
       if (key === 'hour' && this.ctx.period) { const h = this.ctx.period.hours.map(x => x.caption || String(x.no)); return h.indexOf(a) - h.indexOf(b); }
       return a.localeCompare(b, 'pl', { numeric: true });
     };

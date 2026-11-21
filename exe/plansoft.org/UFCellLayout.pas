@@ -31,6 +31,7 @@ type
     D7: TComboBox;
     D8: TComboBox;
     HideTheSameDesc: TCheckBox;
+    OneLineDesc: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure cellTimerTimer(Sender: TObject);
     procedure CellColorChange(Sender: TObject);
@@ -51,6 +52,7 @@ type
       Y: Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure HideTheSameDescClick(Sender: TObject);
+    procedure OneLineDescClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -66,6 +68,10 @@ var
   FCellLayout: TFCellLayout;
 
 implementation
+
+uses UUtilityParent;
+
+const oneLineDescParam = 'CellLayout.OneLine';
 
 
 {$R *.dfm}
@@ -89,6 +95,10 @@ begin
   displayFlag := false;
   self.AlphaBlendValue := 0;
   self.AlphaBlend := true;
+  // W jednej linii: rejestr (HKCU), domyœlnie wy³¹czone; bez OnClick, bo FMain nie jest jeszcze gotowy
+  OneLineDesc.OnClick := nil;
+  OneLineDesc.Checked := GetSystemParam(oneLineDescParam) = '+';
+  OneLineDesc.OnClick := OneLineDescClick;
 end;
 
 procedure TFCellLayout.cellTimerTimer(Sender: TObject);
@@ -267,6 +277,12 @@ end;
 
 procedure TFCellLayout.HideTheSameDescClick(Sender: TObject);
 begin
+ refreshLayout;
+end;
+
+procedure TFCellLayout.OneLineDescClick(Sender: TObject);
+begin
+ SetSystemParam(oneLineDescParam, iif(OneLineDesc.Checked, '+', '-'));
  refreshLayout;
 end;
 

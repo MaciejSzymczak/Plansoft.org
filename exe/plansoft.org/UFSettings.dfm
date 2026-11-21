@@ -614,6 +614,17 @@ inherited FSettings: TFSettings
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
       end
+      object LOneLine: TCheckBox
+        Left = 176
+        Top = 200
+        Width = 130
+        Height = 17
+        Hint = 'Opisy zaj'#281#263' w kom'#243'rce w jednej linii, rozdzielone '#8222'- '#8221
+        Caption = 'W jednej linii'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 100
+      end
       object LWeekPlans: TCheckBox
         Left = 0
         Top = 360
@@ -1246,6 +1257,17 @@ inherited FSettings: TFSettings
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
       end
+      object GOneLine: TCheckBox
+        Left = 176
+        Top = 200
+        Width = 130
+        Height = 17
+        Hint = 'Opisy zaj'#281#263' w kom'#243'rce w jednej linii, rozdzielone '#8222'- '#8221
+        Caption = 'W jednej linii'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 100
+      end
       object GWeekPlans: TCheckBox
         Left = 0
         Top = 360
@@ -1877,6 +1899,17 @@ inherited FSettings: TFSettings
         Height = 17
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 6
+      end
+      object ROneLine: TCheckBox
+        Left = 176
+        Top = 200
+        Width = 130
+        Height = 17
+        Hint = 'Opisy zaj'#281#263' w kom'#243'rce w jednej linii, rozdzielone '#8222'- '#8221
+        Caption = 'W jednej linii'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 100
       end
       object RWeekPlans: TCheckBox
         Left = 0
@@ -2517,6 +2550,17 @@ inherited FSettings: TFSettings
         Height = 17
         Caption = 'Powtarzaj nazwy miesi'#281'cy'
         TabOrder = 7
+      end
+      object SOneLine: TCheckBox
+        Left = 176
+        Top = 200
+        Width = 130
+        Height = 17
+        Hint = 'Opisy zaj'#281#263' w kom'#243'rce w jednej linii, rozdzielone '#8222'- '#8221
+        Caption = 'W jednej linii'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 100
       end
       object SWeekPlans: TCheckBox
         Left = 0

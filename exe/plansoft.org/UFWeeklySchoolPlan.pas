@@ -392,6 +392,7 @@ var prefix : string;
 
 begin
   result := false;
+  setLinkFolder(fileName); // linki: tylko do planów istniej¹cych w folderze tego planu
 
   // ustawienia zawartoœci komórek z Plik | Drukuj - zak³adka wyk³adowcy / grupy / zasobu
   if resType = 'LEC' then prefix := 'L' else
@@ -496,7 +497,7 @@ begin
             if classList.classes[k].FOR_KIND = 'R'
               then s := XMLescapeChars(NVL(classList.classes[k].FOR_name, classList.classes[k].FOR_abbreviation))
               // plan tygodniowy ma miejsce na pe³ne nazwy - tak¿e gdy w ustawieniach wybrano skróty
-              else s := classCellText(classList.classes[k], descCodes, sizes, bolds, links, suffix, true);
+              else s := classCellText(classList.classes[k], descCodes, sizes, bolds, links, suffix, true);   // bez 'W jednej linii' - zawsze kilka linii
             colour := lessonColour(classList.classes[k], coloringIndex);
             one := '<div style="background:'+DelphiColourToHTML(ColorToRGB(colour))+';color:'+textColourFor(colour)+'"><span>'+s+'</span></div>';
             if Pos(one, all) = 0 then begin

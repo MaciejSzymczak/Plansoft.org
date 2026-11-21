@@ -1,6 +1,7 @@
 // Dodawanie zajęcia do zaznaczonych terminów: okno szczegółów (jak FDetails w Delphi, zakładki Zajęcia i Rezerwacja)
 // i okno konfliktów (jak FShowConflicts: nowe zajęcie, kolidujące zajęcia, "Kontynuuj - usuń istniejące zajęcia").
 import { ChipField } from './chips.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -174,7 +175,7 @@ export class AddClassDialog {
     if (!p.lec.length && !p.gro.length && !p.rom.length) return this.showError('Wybierz wykładowcę, grupę lub salę.');
     this.ok.disabled = true;
     try {
-      const r = await this.api('classes/add', p);
+      const r = await withProgress(this.dialog, 'Zapisywanie zajęć…', () => this.api('classes/add', p), [], 150);
       if (r.status === 'conflicts') { this.showConflicts(r); return; }
       if (p.kind === 'C') savePrefs(this.ctx.user, { sub: this.fields.SUB.items[0], form: this.fields.FOR.items[0], fill: p.fill });
       this.conflictsDialog.close();

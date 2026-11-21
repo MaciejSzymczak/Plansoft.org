@@ -1,6 +1,7 @@
 // Okna narzędzi z menu Delphi: Dostępne miejsce (TFDBSpace), Dziennik zdarzeń systemowych (TFBrowseEVENTLOG),
 // Oczekujące zadania (TFWaitingTasks, odświeżanie co 5 minut) i Lista obecności (wybór dat, wynik HTML w nowej karcie).
 import { excelButton, downloadXlsx } from './xlsx.js';
+import { withProgress } from './progress.js';
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -61,7 +62,7 @@ export class ToolsWindow {
     const b = this.shell('Dostępne miejsce', 'small');
     b.append(el('p', 'muted', 'Wczytywanie…'));
     let r;
-    try { r = await this.api('tools/dbspace'); } catch (e) { b.innerHTML = ''; return this.error(e.message); }
+    try { r = await withProgress(b, 'Sprawdzanie miejsca w bazie…', () => this.api('tools/dbspace'), [], 150); } catch (e) { b.innerHTML = ''; return this.error(e.message); }
     b.innerHTML = '';
     const pct = Number(r.usedPercent) || 0;
     const bar = el('div', 'space-bar');
@@ -77,7 +78,7 @@ export class ToolsWindow {
       if (!details.hidden && !details.childElementCount) {
         details.append(el('p', 'muted', 'Wczytywanie…'));
         try {
-          const rows = await this.api('tools/dbspace/segments');
+          const rows = await withProgress(this.dialog, 'Wczytywanie…', () => this.api('tools/dbspace/segments'), [], 150);
           details.innerHTML = '';
           details.append(el('h3', '', '20 największych segmentów'),
             table([['owner', 'Właściciel'], ['name', 'Segment'], ['type', 'Typ'], ['mb', 'MB', 'num']], rows, (r, i) => (i < 3 ? 'top' : '')));
@@ -97,7 +98,7 @@ export class ToolsWindow {
     let rows = [];
     const load = async () => {
       count.textContent = 'wczytywanie…';
-      try { rows = await this.api('tools/eventlog?q=' + encodeURIComponent(q.value.trim())); } catch (e) { count.textContent = ''; list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
+      try { rows = await withProgress(list, 'Wczytywanie dziennika…', () => this.api('tools/eventlog?q=' + encodeURIComponent(q.value.trim())), [], 200); } catch (e) { count.textContent = ''; list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
       list.innerHTML = '';
       list.append(table([['created', 'Data i godzina'], ['type', 'Rodzaj'], ['module', 'Moduł'], ['message', 'Komunikat'], ['id', 'Id', 'num']], rows,
         r => (/err|błąd|blad/i.test(r.type || '') ? 'err' : '')));
@@ -122,7 +123,7 @@ export class ToolsWindow {
     const list = el('div', 'tool-list');
     const load = async () => {
       let rows;
-      try { rows = await this.api('tools/tasks'); } catch (e) { list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
+      try { rows = await withProgress(list, 'Wczytywanie zadań…', () => this.api('tools/tasks'), [], 200); } catch (e) { list.innerHTML = ''; list.append(el('p', 'error pad', e.message)); return; }
       list.innerHTML = '';
       list.append(rows.length
         ? table([['id', 'Id', 'num'], ['code', 'Kod'], ['description', 'Opis'], ['period', 'Okres'], ['status', 'Status'], ['priority', 'Priorytet', 'num'], ['created', 'Utworzono'], ['createdBy', 'Utworzył']], rows)
@@ -157,7 +158,7 @@ export class ToolsWindow {
       // karta otwierana od razu (przed odpowiedzią serwera), żeby przeglądarka nie zablokowała okna
       const w = window.open('', '_blank');
       try {
-        const r = await this.api('tools/attendance', { from: from.value, to: to.value });
+        const r = await withProgress(form, 'Przygotowywanie listy obecności…', () => this.api('tools/attendance', { from: from.value, to: to.value }), [], 0);
         const html = r.html || '<p>Brak danych.</p>';
         const url = URL.createObjectURL(new Blob([/<meta[^>]+charset/i.test(html) ? html : '<meta charset="utf-8">' + html], { type: 'text/html;charset=utf-8' }));
         if (w) w.location = url; else window.open(url, '_blank');
