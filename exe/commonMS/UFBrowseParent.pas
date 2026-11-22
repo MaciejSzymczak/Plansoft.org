@@ -2976,6 +2976,7 @@ procedure TFBrowseParent.eSearchChange(Sender: TObject);
 begin
   inherited;
   SearchCounter := 3;
+  BCancelSearch.Visible := ESearch.Text <> ''; //2026-11: only when there is something to clear
 end;
 
 //------------------------------------------------------------------

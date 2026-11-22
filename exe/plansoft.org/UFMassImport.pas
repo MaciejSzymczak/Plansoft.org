@@ -52,10 +52,14 @@ var
 
 implementation
 
-uses DM, UFMain, StrUtils, UFMessageBox, UProgress, ComObj, UUtilities;
+uses DM, UFMain, StrUtils, UFMessageBox, UProgress, ComObj, UUtilities, UFProgramSettings;
 
 // po imporcie s³owniki i listy w otwartych oknach mog¹ byæ nieaktualne
 const restartHint = 'Zaleca siê teraz ponowne uruchomienie aplikacji.';
+
+// 2026-11: liczba zajêæ z pliku: komórka Excela z liczb¹ u³amkow¹ przychodzi jako tekst z przecinkiem dziesiêtnym
+// (ustawienia regionalne), np. '4,5' - zamiana na liczbê niezale¿nie od NLS_NUMERIC_CHARACTERS sesji (ORA-01722)
+const CLASSES_CNT_SQL = 'to_number(replace(trim(:classes_cnt), '','', ''.''), ''999999999990D99999'', ''NLS_NUMERIC_CHARACTERS=''''.,'''''')';
 
 {$R *.dfm}
 
@@ -354,7 +358,10 @@ begin
                end;
 
             5: begin
-                 if isDeleteRow then begin
+                 if isDeleteRow and FProgramSettings.Plan2Enabled.Checked then begin
+                   //2026-11: Plan2 - the item of the study plan with this Integration Id is deleted
+                   dmodule.SQL(myQuery, 'delete from spl_items where integration_id = :integration_id', 'integration_id='+integrationId);
+                 end else if isDeleteRow then begin
                    //rekord pomijany w TT_INTERFACE (tabela jest czyszczona dla biezacego uzytkownika na poczatku importu) i kasowany z docelowej tabeli TT_COMBINATIONS
                    dmodule.SQL(myQuery, 'delete from tt_resource_lists where tt_comb_id in (select id from TT_COMBINATIONS where integration_id = :integration_id)', 'integration_id='+integrationId);
                    dmodule.SQL(myQuery, 'delete from TT_INCLUSIONS where tt_comb_id in (select id from TT_COMBINATIONS where integration_id = :integration_id)', 'integration_id='+integrationId);
@@ -362,13 +369,13 @@ begin
                  end else if integrationId='' then begin
                    dmodule.SQLNoBinding(myQuery
                            , 'insert into TT_INTERFACE (integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+
-                             ' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, :classes_cnt)'
+                             ' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, '+CLASSES_CNT_SQL+')'
                            , 'lec_integration_id='+l_col1+';sub_integration_id='+l_col3+';for_integration_id='+l_col4+';gro_integration_id='+l_col2+';per_integration_id='+l_col5+';classes_cnt='+l_col6+';integration_id='+integrationId);
                  end else begin
                    dmodule.SQLNoBinding(myQuery
                            , 'merge into TT_INTERFACE m using dual on (integration_id = :integration_id)'+
-                             ' when not matched then insert ( integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, :classes_cnt)'+
-                             ' when matched then update set lec_integration_id=:lec_integration_id, sub_integration_id=:sub_integration_id, for_integration_id = :for_integration_id, '+'gro_integration_id = :gro_integration_id, per_integration_id = :per_integration_id, classes_cnt = :classes_cnt'
+                             ' when not matched then insert ( integration_id, lec_integration_id, sub_integration_id, for_integration_id, gro_integration_id, per_integration_id, classes_cnt)'+' values (:integration_id, :lec_integration_id, :sub_integration_id, :for_integration_id, :gro_integration_id, :per_integration_id, '+CLASSES_CNT_SQL+')'+
+                             ' when matched then update set lec_integration_id=:lec_integration_id, sub_integration_id=:sub_integration_id, for_integration_id = :for_integration_id, '+'gro_integration_id = :gro_integration_id, per_integration_id = :per_integration_id, classes_cnt = '+CLASSES_CNT_SQL
                            , 'lec_integration_id='+l_col1+';sub_integration_id='+l_col3+';for_integration_id='+l_col4+';gro_integration_id='+l_col2+';per_integration_id='+l_col5+';classes_cnt='+l_col6+';integration_id='+integrationId);
                  end;
                end;
@@ -823,6 +830,10 @@ begin
   sqlstmt := format('begin tt_interface_pkg.import(''%s''); end;',
                  [deleteExistingPlan
                 ]);
+  //2026-11: Plan2 - the plan goes to SPL_ITEMS (the same file template, the same report). No commit in the package -
+  //RunImport commits (dmodule.CommitTrans)
+  if FProgramSettings.Plan2Enabled.Checked then
+    sqlstmt := format('begin spl_pkg.import_from_interface(''%s''); end;', [deleteExistingPlan]);
   try
    query.SQL.clear;
    query.SQL.Add(sqlstmt);

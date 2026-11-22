@@ -116,7 +116,24 @@ export class AddClassDialog {
     const actions = el('div', 'b-actions');
     this.ok = el('button', 'primary', 'OK'); this.ok.type = 'submit';
     actions.append(this.ok, button('Anuluj', 'secondary', () => d.close()));
-    form.append(this.forRow, elL, elG, elS, elSub, elFor, row, descBox, this.error, this.warning, actions);
+    // "Wybierz kombinację" (FDetails.BSelectComb): Plan studiów 2 - wykładowca (gdy pozycja go ma), grupa, przedmiot, forma
+    let splRow = null;
+    if (ctx.pickSpl) {
+      splRow = el('div', 'ac-row');
+      splRow.append(button('Wybierz z planu studiów', 'secondary small', async () => {
+        const first = t => this.fields[t].items[0];
+        const items = await ctx.pickSpl({ gro: first('G'), lec: first('G') ? null : first('L') });
+        if (!items || !items.length) return;
+        const uniq = list => [...new Map(list.map(x => [x.id, x])).values()];
+        this.fields.G.setItems(uniq(items.map(i => ({ id: i.groId, name: i.gro }))));
+        const lecs = uniq(items.filter(i => i.lecId).map(i => ({ id: i.lecId, name: i.lec })));
+        if (lecs.length) this.fields.L.setItems(lecs);
+        const subs = uniq(items.map(i => ({ id: i.subId, name: i.sub }))), frms = uniq(items.map(i => ({ id: i.forId, name: i.form })));
+        this.fields.SUB.setItems(subs.length === 1 ? subs : []);
+        this.fields.FOR.setItems(frms.length === 1 ? frms : []);
+      }));
+    }
+    form.append(this.forRow, ...(splRow ? [splRow] : []), elL, elG, elS, elSub, elFor, row, descBox, this.error, this.warning, actions);
     form.addEventListener('submit', e => { e.preventDefault(); this.submit(false); });
 
     d.append(head, info, tabs, form);

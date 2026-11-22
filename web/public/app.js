@@ -15,6 +15,7 @@ import { PivotWindow } from './pivot.js';
 import { previewGrid, openWeeklyPlan, periodWeeks } from './preview.js';
 import { FindPanel } from './find.js';
 import { withProgress } from './progress.js';
+import { SplPanel, SplWindow, SPL_DRAG_TYPE, splCaption } from './spl.js';
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => [...document.querySelectorAll(sel)];
@@ -30,6 +31,8 @@ const state = {
   classData: null, layout: null, summary: null, legend: false,
   // "Gdzie mogę przenieść zajęcia?": włączony tryb, zasoby (L/G/S) i identyfikatory (cla) zaznaczonych zajęć
   seeAvail: { on: false, L: [], G: [], S: [], cla: [] },
+  // Plan studiów 2: włączony w Delphi (SPL_ENABLED), pozycja wybrana na liście "Plan studiów"
+  spl: { enabled: false, sel: null },
 };
 
 // --- API -----------------------------------------------------------------------------------
@@ -555,6 +558,7 @@ function loadClasses() {
     if (req !== classesReq) return;   // w międzyczasie zmieniono wybór
     state.classData = rows.classes ? rows : { classes: [], lecturers: {}, groups: {}, rooms: {} };
     paintClasses();
+    if (state.legend && legendTab() === 'spl') splPanel.refresh();   // Plan studiów: zaplanowane godziny po każdej zmianie
     const n = state.classData.classes.length;
     count.textContent = ids ? `${n} ${plural(n, 'zajęcie', 'zajęcia', 'zajęć')}` : '';
   }, 50);
@@ -643,13 +647,16 @@ const findPanel = new FindPanel($('#find'), {
 function legendTab() { return state.legendTab || 'summary'; }
 function refreshLegendTab() {
   if (!state.legend) return;
-  if (legendTab() === 'summary') summaryPanel.refresh(); else findPanel.setType(legendTab());
+  if (legendTab() === 'summary') summaryPanel.refresh(); else if (legendTab() === 'spl') splPanel.refresh(); else findPanel.setType(legendTab());
 }
 function setLegendTab(tab) {
+  if (tab === 'spl' && !state.spl.enabled) tab = 'summary';
   state.legendTab = tab;
   $$('#legend .tab[data-tab]').forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle('active', on); b.setAttribute('aria-selected', String(on)); });
   $('#summary').hidden = tab !== 'summary';
-  $('#find').hidden = tab === 'summary';
+  $('#find').hidden = tab === 'summary' || tab === 'spl';
+  $('#spl').hidden = tab !== 'spl';
+  if (tab !== 'spl') splPanel.select(null);   // poza listą "Plan studiów" - "Gdzie przenieść?" znów dla zaznaczonych zajęć
   refreshLegendTab();
 }
 $$('#legend .tab[data-tab]').forEach(b => b.addEventListener('click', () => { setLegendTab(b.dataset.tab); savePrefs(); }));
@@ -662,6 +669,7 @@ $('#gridWrap').addEventListener('gridselect', () => {
 
 function setLegend(open, save = true) {
   state.legend = open;
+  if (!open) splPanel.select(null);
   $('#legend').hidden = !open;
   $('#legendButton').setAttribute('aria-pressed', String(open));
   if (open) setLegendTab(legendTab());
@@ -699,7 +707,9 @@ const addClassDialog = new AddClassDialog({
 });
 const gridSelection = () => ($('#gridWrap').getSelection ? $('#gridWrap').getSelection() : []);
 function readOnlyMsg() { flashTitle('Rozkład przedmiotu jest tylko do podglądu - wybierz wykładowcę, grupę lub salę.', true); }
-function openAddClass() {
+// spl - pozycja planu studiów upuszczona na siatkę: grupa, przedmiot, forma i wykładowca pozycji; pozycja bez
+// wykładowcy - wykładowca widoku (widok wykładowcy), w innych widokach wybierany w oknie
+function openAddClass(spl) {
   if (subjectView()) return readOnlyMsg();
   const cells = gridSelection();
   if (!cells.length || !state.period || !canInsert()) return;
@@ -710,13 +720,85 @@ function openAddClass() {
   }
   // osobne arkusze obiektów: zaznaczenie w arkuszu jednego obiektu - zajęcie dla tego obiektu
   const objs = $('#gridWrap').getSelectionObjects ? $('#gridWrap').getSelectionObjects() : [];
-  if (objs.length) prefill[state.active] = state.fields[state.active].items.filter(i => objs.includes(String(i.id)));
+  const given = spl ? { G: true, L: !!spl.lecId } : {};
+  if (objs.length && !given[state.active]) prefill[state.active] = state.fields[state.active].items.filter(i => objs.includes(String(i.id)));
+  if (spl) {
+    prefill.G = [{ id: spl.groId, name: spl.gro }];
+    if (spl.lecId) prefill.L = [{ id: spl.lecId, name: spl.lec }];
+    else if (state.active !== 'L') prefill.L = [];
+  }
   addClassDialog.open({
     period: state.period.id, cells, prefill, settings: state.settings, user: state.me.user,
-    sub: state.defaults.SUB.items[0], form: state.defaults.FOR.items[0],
+    sub: spl ? { id: spl.subId, name: spl.sub } : state.defaults.SUB.items[0],
+    form: spl ? { id: spl.forId, name: spl.form } : state.defaults.FOR.items[0],
     hours: state.period.hours.map(h => ({ no: h.no, label: h.caption || String(h.no) })),
+    pickSpl: state.spl.enabled ? pickSplItems : null,
   });
 }
+
+// --- Plan studiów 2 (spl.js) ----------------------------------------------------------------------
+const splWindow = new SplWindow({ api, onChanged: () => { if (state.legend && legendTab() === 'spl') splPanel.refresh(); } });
+const splPanel = new SplPanel($('#spl'), {
+  api,
+  getContext: () => ({
+    period: state.period && state.period.id, type: state.active,
+    ids: ['L', 'G', 'S'].includes(state.active) && state.fields[state.active] ? shownObjects().map(i => i.id) : [],
+  }),
+  onSelect: item => {
+    state.spl.sel = item;
+    if (!state.seeAvail.on) return;
+    Object.assign(state.seeAvail, seeAvailCollect() || { L: [], G: [], S: [], cla: [] });
+    paintSeeAvail();
+    loadBusy();
+  },
+  onDetails: () => openSplWindow(false),
+});
+// filtry okna: okres siatki, wykładowca / grupa widoku (albo podane)
+function openSplWindow(select, preset) {
+  const first = t => state.fields[t] && state.fields[t].items[0];
+  return splWindow.open({
+    select,
+    preset: preset || {
+      per: state.period ? { id: state.period.id, name: state.period.name } : null,
+      lec: state.active === 'L' ? first('L') : null, gro: state.active === 'G' ? first('G') : null,
+    },
+  });
+}
+// okno dodawania zajęcia: "Wybierz z planu studiów"
+function pickSplItems({ gro, lec }) {
+  return openSplWindow(true, { per: state.period ? { id: state.period.id, name: state.period.name } : null, gro, lec });
+}
+async function loadSplStatus() {
+  try { state.spl.enabled = !!(await api('spl/status')).enabled; } catch { state.spl.enabled = false; }
+  $('#splTab').hidden = !state.spl.enabled;
+  $('#splMenu').hidden = !state.spl.enabled;
+  if (!state.spl.enabled && legendTab() === 'spl') setLegendTab('summary');
+}
+$('#splMenu').addEventListener('click', () => openSplWindow(false));
+// przeciągnięcie pozycji na komórkę siatki: zajęcie w tej komórce (upuszczenie na zaznaczony obszar - we wszystkich
+// zaznaczonych komórkach)
+let splDropTd = null;
+const splDropMark = td => { if (splDropTd) splDropTd.classList.remove('spl-drop'); splDropTd = td; if (td) td.classList.add('spl-drop'); };
+$('#gridWrap').addEventListener('dragover', e => {
+  if (!e.dataTransfer || ![...e.dataTransfer.types].includes(SPL_DRAG_TYPE)) return;
+  const td = e.target.closest('td.cell');
+  if (!td || !td.dataset.date || subjectView() || !canInsert()) { splDropMark(null); return; }
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  splDropMark(td);
+});
+$('#gridWrap').addEventListener('dragleave', e => { if (!e.currentTarget.contains(e.relatedTarget)) splDropMark(null); });
+$('#gridWrap').addEventListener('drop', e => {
+  if (!e.dataTransfer || ![...e.dataTransfer.types].includes(SPL_DRAG_TYPE)) return;
+  e.preventDefault();
+  splDropMark(null);
+  const td = e.target.closest('td.cell');
+  const item = splPanel.itemById(e.dataTransfer.getData(SPL_DRAG_TYPE));
+  if (!td || !td.dataset.date || !item) return;
+  if (!td.classList.contains('selected')) $('#gridWrap').setSelectionKeys([td.dataset.row + ',' + td.dataset.col]);
+  splPanel.select(item);
+  openAddClass(item);
+});
 
 // edycja zajęcia (bEditClassClick): okno szczegółów z danymi zajęcia klikniętej komórki; zapis zastępuje
 // zajęcia zaznaczonych komórek nowymi wartościami
@@ -897,6 +979,13 @@ document.addEventListener('keydown', e => {
 //     pola wyboru i "pokaż wolne terminy" bez zmian (zaznaczone "wolne terminy" są uwzględniane dodatkowo) ----------------
 // zasoby i identyfikatory zajęć z zaznaczonych komórek; null - w zaznaczeniu nie ma zajęć
 function seeAvailCollect() {
+  // Plan studiów: wybrana pozycja - zaznaczone zajęcia są pomijane; wykładowca i grupa pozycji (pozycja bez wykładowcy -
+  // wykładowca widoku), sala widoku - te same obiekty, co zajęcie dodane przez przeciągnięcie pozycji na siatkę
+  const sp = state.spl.sel;
+  if (sp) {
+    const view = t => (state.active === t && state.fields[t] ? shownObjects().map(i => String(i.id)) : []);
+    return { L: sp.lecId ? [String(sp.lecId)] : view('L'), G: [String(sp.groId)], S: view('S'), cla: [] };
+  }
   if (!state.classData) return null;
   const byId = new Map(state.classData.classes.map(c => [String(c.id), c]));
   const sets = { L: new Set(), G: new Set(), S: new Set() }, cla = new Set(), objs = new Set();
@@ -931,6 +1020,7 @@ function paintSeeAvail() {
   const names = (ids, map) => ids.map(id => '   ' + ((map[id] || {}).label || id)).join('\n');
   const parts = ['Gdzie mogę przenieść zajęcie? - WŁĄCZONE (kliknij, aby wyłączyć)',
     av.cla.length ? 'Kropki pokazują terminy, w których zajęte są obiekty zaznaczonych zajęć:' : 'Zaznacz zajęcie, aby zobaczyć, gdzie można je przenieść.'];
+  if (state.spl.sel) parts.splice(1, 1, 'Plan studiów: ' + splCaption(state.spl.sel), 'Kropki pokazują terminy, w których zajęte są obiekty tej pozycji planu studiów:');
   if (av.L.length) parts.push('Wykładowcy:\n' + names(av.L, d.lecturers));
   if (av.G.length) parts.push('Grupy:\n' + names(av.G, d.groups));
   if (av.S.length) parts.push('Zasoby:\n' + names(av.S, d.rooms));
@@ -942,7 +1032,7 @@ function seeAvailToggle() {
     state.seeAvail = { on: false, L: [], G: [], S: [], cla: [] };
   } else {
     const c = seeAvailCollect();
-    if (!c) return flashTitle('Zaznacz zajęcie.', true);
+    if (!c) return flashTitle(state.spl.enabled ? 'Zaznacz zajęcie albo pozycję planu studiów.' : 'Zaznacz zajęcie.', true);
     state.seeAvail = { on: true, ...c };
   }
   paintSeeAvail();
@@ -1423,6 +1513,7 @@ try { if (localStorage.getItem('plansoft.web.sidemenu') === '+') setSideMenu(tru
 
 async function loadSettings() {
   try { state.settings = await api('settings'); } catch { /* zostają wartości domyślne */ }
+  await loadSplStatus();
 }
 
 // --- start ---------------------------------------------------------------------------------

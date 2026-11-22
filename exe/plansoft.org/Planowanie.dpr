@@ -64,6 +64,7 @@ uses
   UFTTCombinations in 'UFTTCombinations.pas' {FTTCombinations},
   UFBrowseTT_RESCAT_COMBINATIONS in 'UFBrowseTT_RESCAT_COMBINATIONS.pas' {FBrowseTT_RESCAT_COMBINATIONS},
   UFBrowseTT_COMBINATIONS in 'UFBrowseTT_COMBINATIONS.pas' {FBrowseTT_COMBINATIONS},
+  UFBrowseSPL_ITEMS in 'UFBrowseSPL_ITEMS.pas' {FBrowseSPL_ITEMS},
   UFGenericFilter in 'UFGenericFilter.pas' {FGenericFilter: TFrame},
   UFMassImport in 'UFMassImport.pas' {FMassImport},
   UFExportTimetable in 'UFExportTimetable.pas' {FExportTimetable},

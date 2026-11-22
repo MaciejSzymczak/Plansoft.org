@@ -3,7 +3,7 @@ inherited FBrowseTT_COMBINATIONS: TFBrowseTT_COMBINATIONS
   Top = 198
   Width = 1074
   Height = 717
-  Caption = 'Plan Studi'#243'w (Ograniczenia)'
+  Caption = 'Plan Studi'#243'w'
   PixelsPerInch = 96
   TextHeight = 14
   inherited Status: TPanel

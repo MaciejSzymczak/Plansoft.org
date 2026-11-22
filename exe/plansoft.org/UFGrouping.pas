@@ -95,13 +95,13 @@ type
     egzaminiwykadwoddzielnejliniinie1: TMenuItem;
     egzaminiwykadwoddzielnejliniitak2: TMenuItem;
     egzaminiwykadwoddzielnejliniinie2: TMenuItem;
-    bClearPeriod: TSpeedButton;
-    EditPeriod: TSpeedButton;
-    bClearL: TSpeedButton;
-    bClearG: TSpeedButton;
-    bClearRes0: TSpeedButton;
-    bClearS: TSpeedButton;
-    bClearF: TSpeedButton;
+    bClearPeriod: TBitBtn;
+    EditPeriod: TBitBtn;
+    bClearL: TBitBtn;
+    bClearG: TBitBtn;
+    bClearRes0: TBitBtn;
+    bClearS: TBitBtn;
+    bClearF: TBitBtn;
     PERSettings: TStrHolder;
     LSettings: TStrHolder;
     GSettings: TStrHolder;
@@ -221,6 +221,7 @@ type
     procedure conResCat0_valueChange(Sender: TObject);
     procedure CONS_VALUEChange(Sender: TObject);
     procedure CONF_VALUEChange(Sender: TObject);
+    procedure embedButtons;
     procedure ChSelectedDatesClick(Sender: TObject);
     procedure chLnewLineClick(Sender: TObject);
     procedure chGnewLineClick(Sender: TObject);
@@ -788,6 +789,7 @@ begin
     CONPERIOD.Text := FMain.conPeriod.Text;
 
   CONPERIOD_VALUEChange(CONPERIOD_VALUE);
+  embedButtons; //2026-11: buttons inside the fields
 end;
 
 Procedure TFGrouping.UpdStatus(S : String);
@@ -1606,31 +1608,74 @@ procedure TFGrouping.CONPERIOD_VALUEChange(Sender: TObject);
 begin
   bClearPeriod.Visible := (sender as tedit).Text <> '';
   EditPeriod.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
+end;
+
+//2026-11: buttons inside the fields, at the right edge - like FDetails.embedButtons; from the right:
+//  "..." (edit the period), clear - visible only when the field is filled.
+//The field gets a right margin (EM_SETMARGINS), so the text does not go under the buttons.
+procedure TFGrouping.embedButtons;
+  const W = 20;
+  procedure embed(ed : TEdit; const ctrls : array of TControl);
+  var t, x : integer;
+  begin
+    x := ed.ClientWidth;
+    for t := 0 to High(ctrls) do begin
+      if ctrls[t].Parent <> ed then begin
+        ctrls[t].Parent  := ed;
+        ctrls[t].Anchors := [akTop, akRight];
+      end;
+      if not ctrls[t].Visible then continue;
+      x := x - W;
+      ctrls[t].SetBounds(x, 0, W, ed.ClientHeight);
+    end;
+    SendMessage(ed.Handle, EM_SETMARGINS, EC_RIGHTMARGIN, MakeLong(0, ed.ClientWidth - x + 2));
+  end;
+begin
+  if csLoading in ComponentState then exit;
+  bClearPeriod.Visible := CONPERIOD_VALUE.Text <> '';
+  EditPeriod.Visible   := CONPERIOD_VALUE.Text <> '';
+  bClearL.Visible      := CONL_VALUE.Text <> '';
+  bClearG.Visible      := CONG_VALUE.Text <> '';
+  bClearRes0.Visible   := conResCat0_value.Text <> '';
+  bClearS.Visible      := CONS_VALUE.Text <> '';
+  bClearF.Visible      := CONF_VALUE.Text <> '';
+  embed(CONPERIOD_VALUE,  [EditPeriod, bClearPeriod]);
+  embed(CONL_VALUE,       [bClearL]);
+  embed(CONG_VALUE,       [bClearG]);
+  embed(conResCat0_value, [bClearRes0]);
+  embed(CONS_VALUE,       [bClearS]);
+  embed(CONF_VALUE,       [bClearF]);
 end;
 
 procedure TFGrouping.CONL_VALUEChange(Sender: TObject);
 begin
   bClearL.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
 end;
 
 procedure TFGrouping.CONG_VALUEChange(Sender: TObject);
 begin
   bClearG.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
 end;
 
 procedure TFGrouping.conResCat0_valueChange(Sender: TObject);
 begin
   bClearRes0.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
 end;
 
 procedure TFGrouping.CONS_VALUEChange(Sender: TObject);
 begin
   bClearS.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
 end;
 
 procedure TFGrouping.CONF_VALUEChange(Sender: TObject);
 begin
   bClearF.Visible := (sender as tedit).Text <> '';
+  if Visible then embedButtons; // a hidden button leaves no gap in the field
 end;
 
 procedure TFGrouping.ChSelectedDatesClick(Sender: TObject);

@@ -63,6 +63,7 @@
         <button type="button" role="menuitem" data-browse="S">Zasoby</button>
         <button type="button" role="menuitem" data-browse="SUB">Przedmioty</button>
         <button type="button" role="menuitem" data-browse="FOR">Formy</button>
+        <button type="button" role="menuitem" id="splMenu" hidden>Plan studiów</button>
         <button type="button" role="menuitem" data-browse="GRID">Siatka godzinowa</button>
         <button type="button" role="menuitem" id="holidaysMenu">Dni wolne okresu</button>
         <button type="button" role="menuitem" id="permissionsMenu">Uprawnienia</button>
@@ -126,11 +127,13 @@
         <button type="button" class="tab" role="tab" aria-selected="false" data-tab="L">Znajdź wykładowcę</button>
         <button type="button" class="tab" role="tab" aria-selected="false" data-tab="G">Znajdź grupę</button>
         <button type="button" class="tab" role="tab" aria-selected="false" data-tab="S">Znajdź salę</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="spl" id="splTab" hidden title="Plan studiów: przeciągnij pozycję na siatkę">Plan studiów</button>
         <span class="spacer"></span>
         <button type="button" class="link close" id="legendClose" title="Zamknij">×</button>
       </div>
       <div id="summary" class="summary"></div>
       <div id="find" class="summary" hidden></div>
+      <div id="spl" class="summary" hidden></div>
     </aside>
   </div>
   <!-- SwitchMenu: panel z poleceniami menu i wyszukiwaniem obiektów (TreeView1 + SearchMenu1..3 w Delphi) -->

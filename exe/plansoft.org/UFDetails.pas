@@ -316,7 +316,7 @@ implementation
 {$R *.DFM}
 
 Uses UUtilityParent, AutoCreate, DM, UCommon, UFMain, UFProgramSettings, UUtilities,
-  UFFloatingMessage, ADODB;
+  UFFloatingMessage, ADODB, UFBrowseSPL_ITEMS;
 
 // synchronizacja tygodni (FMain.WeekSync): zmiany z tego okna trafi¹ tak¿e do pozosta³ych widocznych tygodni
 procedure TFDetails.setWeekSyncInfo(active : boolean);
@@ -1577,6 +1577,39 @@ Var KeyValues  : String;
     end;
 begin
   KeyValues := '';
+  //2026-11: Plan2 - lecturer, group, subject, form from the selected study plan items (filters: group of the class,
+  //otherwise its lecturer)
+  if FProgramSettings.Plan2Enabled.Checked then begin
+    if SPL_ITEMSShowModalAsMultiSelect(KeyValues, FMain.conPeriod.Text,
+                                       iif(Trim(g1.Text) = '', ExtractWord(1, l1.Text, [';']), ''),
+                                       ExtractWord(1, g1.Text, [';'])) <> mrOK then exit;
+    if KeyValues = '' then exit;
+    bf1 := true; bs1 := true; bl1 := true; bg1 := true;
+    canRefresh := false;
+    with dmodule do begin
+      opensql('select lec_id, gro_id, sub_id, for_id from spl_items where id in ('+KeyValues+') order by id');
+      qwork.First;
+      while not qwork.Eof do begin
+        if bf1 then begin f1.Text := ''; bf1 := false; end; f1.Text := addValue(f1.Text, qwork.fieldbyname('for_id').AsString);
+        if bs1 then begin s1.Text := ''; bs1 := false; end; s1.Text := addValue(s1.Text, qwork.fieldbyname('sub_id').AsString);
+        if bg1 then begin g1.Text := ''; bg1 := false; end; g1.Text := addValue(g1.Text, qwork.fieldbyname('gro_id').AsString);
+        //the lecturer is optional - kept when no item has it
+        if qwork.fieldbyname('lec_id').AsString <> '' then begin
+          if bl1 then begin l1.Text := ''; bl1 := false; end;
+          l1.Text := addValue(l1.Text, qwork.fieldbyname('lec_id').AsString);
+        end;
+        qwork.Next;
+      end;
+    end;
+    if wordCount(f1.Text, [';'])>1 then f1.Text := '';
+    if wordCount(s1.Text, [';'])>1 then s1.Text := '';
+    canRefresh := true;
+    L1Change(nil);
+    G1Change(nil);
+    S1Change(nil);
+    F1Change(nil);
+    exit;
+  end;
   If TT_COMBINATIONSShowModalAsMultiSelect(KeyValues) = mrOK Then begin
 
    bf1            := true;

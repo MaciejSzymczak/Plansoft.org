@@ -10,6 +10,7 @@ const tools = require('./tools');
 const holidays = require('./holidays');
 const addClasses = require('./addClasses');
 const busy = require('./busy');
+const spl = require('./spl');
 const { POLISH, searchFilter } = require('./search');
 
 // --- obiekty: wykładowcy, grupy, sale ------------------------------------------------------
@@ -480,6 +481,7 @@ async function handle(req, res, url) {
     if (await report.handle(req, res, s, url, readJson, send)) return;
     if (await tools.handle(req, res, s, url, readJson, send)) return;
     if (await holidays.handle(req, res, s, url, readJson, send)) return;
+    if (await spl.handle(req, res, s, url, readJson, send)) return;
 
     send(res, 404, { error: 'Nie znaleziono.' });
   } catch (e) {

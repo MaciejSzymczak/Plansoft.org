@@ -2477,6 +2477,18 @@ inherited FProgramSettings: TFProgramSettings
           TabOrder = 4
           OnClick = ResPlaHistoryClick
         end
+        object Plan2Enabled: TCheckBox
+          Left = 320
+          Top = 74
+          Width = 225
+          Height = 17
+          Hint = 'Nowy plan studi'#243'w (tabele SPL_ITEMS). Wymaga aktualizacji bazy danych 2026.11.21'
+          Caption = 'Plan studi'#243'w 2'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 5
+          OnClick = Plan2EnabledClick
+        end
       end
     end
     object TabNumbering: TTabSheet

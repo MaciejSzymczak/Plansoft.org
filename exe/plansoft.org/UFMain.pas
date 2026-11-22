@@ -199,6 +199,17 @@ TNodeInfo = class
     Id: string;
   end;
 
+//2026-11: Plan2 - study plan item (SPL_ITEMS) in the "Plan studiów" list (TreeRecentlyused)
+TSplNodeInfo = class(TNodeInfo)
+  public
+    LecId, GroId, SubId, ForId : string;
+    Caption : string;
+    //row of the list: names, hours, position in the default order (sort order of the plan)
+    PerName, SubName, ForName, GroName, LecName : string;
+    Planned, Scheduled : double;
+    Pos : integer;
+  end;
+
 type tgridCustomLabels = Array[1..dm.maxHours] Of String[20];
 
 
@@ -933,6 +944,26 @@ type
     seeAvailBlinkRed : boolean;          // mruganie: teraz t³o czerwone (false - jasnoczerwone)
     // glify przycisku bSeeAvailable: oryginalny, z czerwonym i z jasnoczerwonym t³em (tryb w³¹czony)
     seeAvailGlyphNormal, seeAvailGlyphRed, seeAvailGlyphLight : TBitmap;
+    //2026-11: Plan2 - item selected in the "Plan studiów" list (Id = '' - none) and drop of an item onto the grid
+    plan2Sel  : TSplNodeInfo;
+    plan2Drop : boolean;
+    //"Plan studiów" list (instead of TreeRecentlyused, created in code): filters, list, rows read from the database
+    plan2Filter   : TPanel;
+    plan2Search   : TEdit;
+    plan2Scope    : TComboBox;
+    plan2Status   : TComboBox;
+    plan2Edit     : TButton;
+    plan2Export   : TButton;
+    plan2Import   : TButton;
+    plan2Sort     : TComboBox;
+    plan2List     : TListView;
+    plan2Rows     : TList;
+    plan2SortCol  : integer;   // -1: order of the plan (Kolejnoœæ)
+    plan2SortDesc : boolean;
+    plan2Filling  : boolean;
+    plan2SelTimer : TTimer;
+    plan2Dirty    : boolean;   // classes (or the plan) may have changed - the list is read again on the next refresh
+    plan2LastKey  : string;    // period, view and scope of the list read last
     //used by Copy-Cut-Paste
     GridSelectionLeft : integer;
     GridSelectionRight : integer;
@@ -968,6 +999,31 @@ type
     procedure seeAvailableReload;
     procedure seeAvailableBlinkTick(Sender: TObject);
     function  seeAvailableGlyph(aColor : TColor) : TBitmap;
+    //2026-11: Plan2
+    procedure plan2TreeModeSync;
+    function  plan2Active : boolean;
+    function  plan2Selected : boolean;
+    procedure plan2FillTree;
+    procedure plan2ShowList;
+    function  plan2Key : string;
+    procedure plan2CreateControls;
+    procedure plan2SelectInfo(info : TSplNodeInfo);
+    procedure plan2ListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure plan2SelTimerTimer(Sender: TObject);
+    procedure plan2ListColumnClick(Sender: TObject; Column: TListColumn);
+    procedure plan2ListCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
+    procedure plan2ListCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure plan2FilterChange(Sender: TObject);
+    procedure plan2ScopeChange(Sender: TObject);
+    procedure plan2FilterResize(Sender: TObject);
+    procedure plan2EditClick(Sender: TObject);
+    procedure plan2ExportClick(Sender: TObject);
+    procedure plan2ImportClick(Sender: TObject);
+    procedure plan2SortChange(Sender: TObject);
+    procedure plan2ApplySort;
+    procedure GridPlan2DragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure GridPlan2DragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure plan2SelectComb;
     function  gridDragCanStart(X, Y : integer; keys : integer) : boolean;
     procedure gridDragPreview(X, Y : integer);
     procedure gridDragFinish(X, Y : integer);
@@ -1179,7 +1235,8 @@ Uses AutoCreate, UFDetails, UFWarning,
   UFDatesSelector, UFActionTree,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
-  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks, UFBrowseEVENTLOG;
+  FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks, UFBrowseEVENTLOG,
+  UFBrowseSPL_ITEMS;
 
 var dummy : string;
 const LastValidatedPeriodId : string = '###invalid###'; // typed constant = writable global, cache for the PERIODS existence check in BuildCalendar
@@ -1245,10 +1302,12 @@ Var t : Integer;
     rid, excludedResources : String;
     // 2026-11: "Gdzie mogê przenieœæ zajêcia?" - zasoby zaznaczonych zajêæ (zajêty, gdy zajêty którykolwiek)
     AvLecCond, AvGroCond, AvRomCond, AvNotCla : String;
+    // 2026-11: Plan2 - lecturer and group of the study plan item selected in the list "Plan studiów" (source "Plan")
+    SplLecCond, SplGroCond : String;
     weekSyncOn : boolean; // synchronizacja tygodni: zajêtoœæ tak¿e w pozosta³ych widocznych tygodniach
     busyClause : string;  // dni, w których szukamy zajêtoœci (periodClause albo wszystkie synchronizowane tygodnie)
     // 2026-11: pola wyniku i nazwy z ustawieñ odczytane raz przed pêtl¹ (zamiast FieldByName / TEdit.Text w ka¿dym wierszu)
-    fDay, fHour, fCnt, fCntL, fCntG, fCntR, fCntR2, fSubName, fForName, fLecturers, fGroups, fRooms : TField;
+    fDay, fHour, fCnt, fCntL, fCntG, fCntR, fCntR2, fCntP, fSubName, fForName, fLecturers, fGroups, fRooms : TField;
     nameLs, nameGs : string;
     // 2026-11: opisy zajêtoœci sklejane w bazie (jeden wiersz na komórkê); aggregated=false - dotychczasowe zapytanie
     aggregated : boolean;
@@ -1267,7 +1326,7 @@ Var t : Integer;
     qGs := StringReplace(nameGs, '''', '''''', [rfReplaceAll]);
     result :=
       'with b as (select q.*, rownum rn from ('+cr+SQLstmt+cr+') q),'+cr+
-      'r as (select b.*, ''[''||case when cntL>0 then ''W'' end||case when cntG>0 then ''G'' end||case when cntR>0 then ''S'' end||case when cntR2>0 then ''Z'' end||''] ''||'+
+      'r as (select b.*, ''[''||case when cntL>0 then ''W'' end||case when cntG>0 then ''G'' end||case when cntR>0 then ''S'' end||case when cntR2>0 then ''Z'' end||case when cntP>0 then ''P'' end||''] ''||case when cntP>0 then ''Plan: '' end||'+
            iif(weekSyncOn, 'to_char(day,''yyyy-mm-dd'')||'' ''||', '')+ // synchronizacja tygodni: w którym dniu
            'sub_name||'' ''||'' (''||for_name||'' ''||'')    ''||'''+qLs+':''||calc_lecturers||'' ''||''    ''||'''+qGs+':''||calc_groups||'' ''||''    Zasoby:''||calc_rooms txt'+cr+
       '        from b),'+cr+
@@ -1405,6 +1464,18 @@ begin
     end;
   end;
 
+  SplLecCond := ''; SplGroCond := '';
+  if FMain.plan2Selected then begin
+    if FMain.plan2Sel.LecId <> '' then begin
+      SplLecCond := 'lec_id = '+FMain.plan2Sel.LecId;
+      excludedResources := getExcludedResources(FMain.plan2Sel.LecId,'lec_id');
+      if (excludedResources<>'') then SplLecCond := Merge(SplLecCond, excludedResources, ' OR ');
+    end;
+    SplGroCond := 'gro_id = '+FMain.plan2Sel.GroId;
+    excludedResources := getExcludedResources(FMain.plan2Sel.GroId,'gro_id');
+    if (excludedResources<>'') then SplGroCond := Merge(SplGroCond, excludedResources, ' OR ');
+  end;
+
    NotLec    := '';
    NotGro    := '';
    NotRom    := '';
@@ -1441,6 +1512,9 @@ begin
    iif(Merge(GroCond,AvGroCond,' OR ')='',',0 cntG'    ,',(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+Merge(GroCond,AvGroCond,' OR ')+')) cntG')+cr+
    iif(Merge(RomCond,AvRomCond,' OR ')='',',0 cntR'    ,',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+Merge(RomCond,AvRomCond,' OR ')+'))  cntR')+cr+
    iif(ResCat1Cond='',',0 cntR2',',(select count(1) from rom_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+ResCat1Cond+')) cntR2')+cr+
+   iif(SplLecCond+SplGroCond='',',0 cntP',
+       ',(select count(1) from lec_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+NVL(SplLecCond,'1=0')+'))'+
+       '+(select count(1) from gro_cla where cla_id=classes.id and no_conflict_flag is null and '+busyClause+' and ('+NVL(SplGroCond,'1=0')+')) cntP')+cr+
    'from   classes, subjects sub, forms form'+cr+
    'where sub_id=sub.id(+) and for_id=form.id(+)'+AvNotCla+' and classes.id in'+cr+
    '('+cr+
@@ -1457,6 +1531,9 @@ begin
    iif(AvLecCond='','','union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+AvLecCond+')'+cr)+
    iif(AvGroCond='','','union select cla_id from gro_cla where no_conflict_flag is null and '+busyClause+' and ('+AvGroCond+')'+cr)+
    iif(AvRomCond='','','union select cla_id from rom_cla where no_conflict_flag is null and '+busyClause+' and ('+AvRomCond+')'+cr)+
+   // Plan studiów: termin zajêty przez wyk³adowcê lub grupê wybranej pozycji planu
+   iif(SplLecCond='','','union select cla_id from lec_cla where no_conflict_flag is null and '+busyClause+' and ('+SplLecCond+')'+cr)+
+   iif(SplGroCond='','','union select cla_id from gro_cla where no_conflict_flag is null and '+busyClause+' and ('+SplGroCond+')'+cr)+
    ')'+cr+
    // i nie jest uzupe³nieniem
    comment1+cr+
@@ -1502,7 +1579,7 @@ begin
    fDay       := QWork.FieldByName('DAY');
    fHour      := QWork.FieldByName('HOUR');
    fCnt       := QWork.FieldByName('cnt');
-   fTxt := nil; fBgroups := nil; fCntL := nil; fCntG := nil; fCntR := nil; fCntR2 := nil;
+   fTxt := nil; fBgroups := nil; fCntL := nil; fCntG := nil; fCntR := nil; fCntR2 := nil; fCntP := nil;
    fSubName := nil; fForName := nil; fLecturers := nil; fGroups := nil; fRooms := nil;
    if aggregated then begin
      fTxt     := QWork.FieldByName('txt');
@@ -1512,6 +1589,7 @@ begin
      fCntG      := QWork.FieldByName('cntG');
      fCntR      := QWork.FieldByName('cntR');
      fCntR2     := QWork.FieldByName('cntr2');
+     fCntP      := QWork.FieldByName('cntP');
      fSubName   := QWork.FieldByName('sub_name');
      fForName   := QWork.FieldByName('for_name');
      fLecturers := QWork.FieldByName('calc_lecturers');
@@ -1549,7 +1627,9 @@ begin
            '['+iif(fCntL.AsInteger>0,'W','')+
            iif(fCntG.AsInteger>0,'G','')+
            iif(fCntR.AsInteger>0,'S','')+
-           iif(fCntR2.AsInteger>0,'Z','')+'] '+
+           iif(fCntR2.AsInteger>0,'Z','')+
+           iif(fCntP.AsInteger>0,'P','')+'] '+
+           iif(fCntP.AsInteger>0,'Plan: ','')+
            iif(weekSyncOn, FormatDateTime('yyyy-mm-dd', fDay.AsDateTime)+' ', '')+ // synchronizacja tygodni: w którym dniu
            fSubName.AsString+' '+
            ' ('+fForName.AsString+' '+
@@ -2397,7 +2477,7 @@ var  colCnt, rowCnt : integer;
       cl : TClass_;
   begin
     if TabViewType.TabIndex >= 4 then exit;
-    if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
+    if seeAvailOn or plan2Selected or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
       if not BusyClassesCache.Valid then BusyClassesCache._LoadPeriod( StrToInt(NVL(conPeriod.text,'-1')) );
     // zajêcia obiektu: pierwszy dzieñ bufora, pierwsza godzina - wczytuje do pamiêci ca³y okres
     // (to samo zapytanie co w ccLoadPeriod, tak¿e dla zakresu dat CustomdateRange - pierwszy dzieñ = FirstDay bufora)
@@ -3085,6 +3165,8 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
       Result := RGB(255, 128, 128)  //A lighter red, with more white mixed in
     else if S = '[S]' then
       Result := RGB(192, 0, 0) //A middle red tone, slightly darker
+    else if S = '[P]' then
+      Result := RGB(128, 0, 255) //2026-11: Plan2 - only the selected study plan item (source "Plan")
     else
       Result := clRed;
    end;
@@ -3098,7 +3180,7 @@ procedure TFMain.GridDrawCell(Sender: TObject; ACol, ARow: Integer;
 		  out_hints   : string;
 	 Begin
      out_ratio := 0;
-	   if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
+	   if seeAvailOn or plan2Selected or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or ( (FavSelected.Checked) or (FavAll.Checked) ) then begin
      	   BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
 
 		     if out_isbusy Then begin
@@ -3780,6 +3862,8 @@ end;
 
 procedure TFMain.AddClassToGrid(firstResourceFlag : boolean);
 var weekObjects : string;
+    aLec, aGro, kindForId : string; //2026-11: Plan2 - lecturer, group, form of the new class
+    aSub, aFor : integer;
 begin
  If TabViewType.TabIndex = 4 Then Begin InvertReservations; Exit; End;
  If TabViewType.TabIndex = 5 Then Exit; // Przedmiot is a read-only view - a cell can hold several classes, no single-class action applies
@@ -3787,6 +3871,25 @@ begin
 
  // okres tygodniowy z obiektami w kolumnach: wyk³adowcy/grupy/sale zaznaczonych kolumn ('' w zwyk³ym uk³adzie)
  weekObjects := convertGrid.weekObjectsInCols(Grid.Selection.Left, Grid.Selection.Right);
+
+ aLec := iif(canEditL,  iif((weekObjects <> '') and (TabViewType.TabIndex = 0), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)), '');
+ aGro := iif(canEditG,  iif((weekObjects <> '') and (TabViewType.TabIndex = 1), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)), '');
+ aSub := iif(canEditS, strToInt(iif(ConSubject.Text='','0',ConSubject.Text)),0);
+ aFor := iif(canEditF, strToInt(iif(ConForm.Text=''   ,'0',ConForm.Text)),0);
+ kindForId := nvl(ConForm.Text,'-1');
+ //2026-11: Plan2 - a study plan item dropped onto the grid: group, subject, form and lecturer of the item;
+ //item without the lecturer - the lecturer of the view (lecturer tab), otherwise chosen in the window
+ if plan2Drop and plan2Selected then begin
+   if canEditG then aGro := plan2Sel.GroId;
+   if canEditS then aSub := strToInt(plan2Sel.SubId);
+   if canEditF then aFor := strToInt(plan2Sel.ForId);
+   kindForId := plan2Sel.ForId;
+   if canEditL then
+     if plan2Sel.LecId <> '' then aLec := plan2Sel.LecId
+     else if TabViewType.TabIndex <> 0 then aLec := '';
+   //the object of the grid column is not used when the item gives it
+   if (TabViewType.TabIndex = 1) or ((TabViewType.TabIndex = 0) and (plan2Sel.LecId <> '')) then weekObjects := '';
+ end;
 
  With FDetails Do Begin
 
@@ -3798,8 +3901,8 @@ begin
      TS
    , Zajecia
    , -1
-   , iif(canEditL,  iif((weekObjects <> '') and (TabViewType.TabIndex = 0), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConLecturer.Text,  [';']), ConLecturer.Text)), '')
-   , iif(canEditG,  iif((weekObjects <> '') and (TabViewType.TabIndex = 1), weekObjects, iif(firstResourceFlag, ExtractWord(1, ConGroup.Text,  [';']), ConGroup.Text)), '')
+   , aLec
+   , aGro
    , iif(canEditR,  iif((weekObjects <> '') and (TabViewType.TabIndex = 2), merge ( weekObjects, conResCat1.Text, ';'),
                     iif((weekObjects <> '') and (TabViewType.TabIndex = 3), merge ( conResCat0.Text, weekObjects, ';'),
                     iif(firstResourceFlag, ExtractWord(1, merge ( conResCat0.Text, conResCat1.Text, ';'),  [';']), merge ( conResCat0.Text, conResCat1.Text, ';')))), '')
@@ -3809,11 +3912,11 @@ begin
       ,repeatString(dmodule.pResCatId1, wordCount(iif((weekObjects <> '') and (TabViewType.TabIndex = 3), weekObjects, conResCat1.Text),[';']) ,';' )
       ,';'
      )
-   , iif(canEditS, strToInt(iif(ConSubject.Text='','0',ConSubject.Text)),0)
-   , iif(canEditF, strToInt(iif(ConForm.Text=''   ,'0',ConForm.Text)),0)
+   , aSub
+   , aFor
    , 100
    , 0
-   , dmodule.SingleValue('select kind from forms where id='+nvl(ConForm.Text,'-1'))
+   , dmodule.SingleValue('select kind from forms where id='+kindForId)
    , TabViewType.TabIndex
    , dm.UserName
    , dm.UserName
@@ -3838,6 +3941,9 @@ end;
 
 procedure TFMain.refreshPanels;
 begin
+ //2026-11: Plan2 - the list "Plan studiów" is read again only after a change (not on a mere click in the grid:
+ //BuildCalendar sets suppressCounterRefresh - the same rule as for "Podsumowanie godzin" below)
+ if not suppressCounterRefresh then plan2Dirty := true;
  //Refresh recently used
  refreshRecentlyUsed('');
  //Refresh Legend
@@ -4020,7 +4126,7 @@ var drawDone : boolean;
  begin
      out_isbusy := false;
      hints      := hintsText;
-	   if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then
+	   if seeAvailOn or plan2Selected or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked then
 	      BusyClassesCache.IsBusy(TS, Zajecia, out_isbusy, out_busyCnt, out_ratio, out_claids, out_bgroups);
      if out_isbusy then DrawFreeText('Kolizje', out_claids + iif(hints <> '', cr + cr + 'Preferowane terminy:' + cr + hints, ''))
      else if hints <> '' then DrawFreeText('Preferowane terminy', hints);
@@ -6343,6 +6449,7 @@ procedure TFMain.Ustawieniaprogramu2Click(Sender: TObject);
 begin
   inherited;
   FProgramSettings.ShowModal;
+  plan2TreeModeSync; //2026-11: Plan2 switched on / off
   deepRefreshDelayed;
 end;
 
@@ -6546,6 +6653,7 @@ begin
   End;
 
   FProgramSettings.ShowModal;
+  plan2TreeModeSync; //2026-11: Plan2 switched on / off
   buildMenu;
   deepRefreshDelayed;
 end;
@@ -7556,6 +7664,10 @@ begin
     seeAvailBlink.Enabled := false;
     seeAvailBlink.OnTimer := seeAvailableBlinkTick;
   end;
+  //2026-11: Plan2 - drag & drop of a study plan item from the "Plan studiów" list onto the grid
+  if plan2Sel = nil then plan2Sel := TSplNodeInfo.Create;
+  Grid.OnDragOver := GridPlan2DragOver;
+  Grid.OnDragDrop := GridPlan2DragDrop;
   dockingPanel := strToInt( getSystemParam('FLegend.dockingPanel', inttostr(C_RIGHT) ));
   x;
   embedRorButtons;
@@ -7568,6 +7680,7 @@ begin
   TreeMode.OnChange := nil;
   TreeMode.ItemIndex := 0;
   TreeMode.OnChange := TreeModeChange;
+  plan2TreeModeSync; //2026-11: Plan2
 
   RefreshAfterOnShow.Enabled := true;
   setupFillButton;
@@ -8105,7 +8218,7 @@ begin
   if not CanShow then exit;
   if isBlank(conPeriod.Text) then exit;
   if TabViewType.TabIndex < 4 then
-    if seeAvailOn or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
+    if seeAvailOn or plan2Selected or ShowFreeTermsL.Checked or ShowFreeTermsG.Checked or ShowFreeTermsR.Checked or ShowFreeTermsResCat1.Checked or (FavSelected.Checked) or (FavAll.Checked) then
       BusyClassesCache._LoadPeriod( StrToInt(NVL(conPeriod.text,'-1')) );
   Grid.Invalidate;
 end;
@@ -8684,6 +8797,11 @@ end;
 
 procedure TFMain.Kombinacjezasobw1Click(Sender: TObject);
 begin
+  //2026-11: Plan2 (SPL_ITEMS) when switched on in Plik | Ustawienia programu
+  if FProgramSettings.Plan2Enabled.Checked then begin
+    SPL_ITEMSShowModalAsBrowser;
+    exit;
+  end;
   TT_COMBINATIONSShowModalAsBrowser;
   //FTTCombinations.showModal;
 end;
@@ -9075,6 +9193,53 @@ begin
   setUserOrRoleId;
 end;
 
+//2026-11: Plan2 - BSelectComb: lecturer, group, subject, form of the classes from the selected study plan items
+procedure TFMain.plan2SelectComb;
+var ids, lecId, groId : string;
+    bf1, bs1, bl1, bg1 : boolean;
+  function addValue(values: String; value : string) : string;
+  begin
+    result := values;
+    if (value <> '') and not ExistsValue(values, [';'], value) then result := Merge(values, value, ';');
+  end;
+begin
+  lecId := ''; groId := '';
+  if TabViewType.TabIndex = 0 then lecId := ExtractWord(1, ConLecturer.Text, [';']);
+  if TabViewType.TabIndex = 1 then groId := ExtractWord(1, ConGroup.Text, [';']);
+  if SPL_ITEMSShowModalAsMultiSelect(ids, conPeriod.Text, lecId, groId) <> mrOK then exit;
+  if ids = '' then exit;
+
+  CanShow := false;
+  bf1 := true; bs1 := true; bl1 := true; bg1 := true;
+  with dmodule do begin
+    opensql('select lec_id, gro_id, sub_id, for_id from spl_items where id in ('+ids+') order by id');
+    qwork.First;
+    while not qwork.Eof do begin
+      if bf1 then begin conform.Text    := ''; bf1 := false; end; conform.Text    := addValue(conform.Text   , qwork.fieldbyname('for_id').AsString);
+      if bs1 then begin consubject.Text := ''; bs1 := false; end; consubject.Text := addValue(consubject.Text, qwork.fieldbyname('sub_id').AsString);
+      if bg1 then begin congroup.Text   := ''; bg1 := false; end; congroup.Text   := addValue(congroup.Text  , qwork.fieldbyname('gro_id').AsString);
+      //the lecturer is optional - kept when no item has it
+      if qwork.fieldbyname('lec_id').AsString <> '' then begin
+        if bl1 then begin conlecturer.Text := ''; bl1 := false; end;
+        conlecturer.Text := addValue(conlecturer.Text, qwork.fieldbyname('lec_id').AsString);
+      end;
+      qwork.Next;
+    end;
+  end;
+
+  if wordCount(conform.Text, [';'])>1 then conform.Text := '';
+  if wordCount(consubject.Text, [';'])>1 then consubject.Text := '';
+
+  CanShow := true;
+  canBuildCalendar := false;
+  ConLecturerChange(conlecturer);
+  ConGroupChange   (congroup);
+  consubjectChange (consubject);
+  conformChange    (conform);
+  canBuildCalendar := true;
+  deepRefreshDelayed;
+end;
+
 procedure TFMain.BSelectCombClick(Sender: TObject);
 Var KeyValues  : String;
     KeyValue   : shortString;
@@ -9098,6 +9263,7 @@ Var KeyValues  : String;
      end;
     end;
 begin
+  if FProgramSettings.Plan2Enabled.Checked then begin plan2SelectComb; exit; end; //2026-11: Plan2
   KeyValues := '';
   If TT_COMBINATIONSShowModalAsMultiSelect(KeyValues) = mrOK Then begin
 
@@ -10138,8 +10304,541 @@ end;
 procedure TFMain.GridClick(Sender: TObject);
 begin
  FCellLayout.hideCellLayout(true) ;
+ //2026-11: Plan2 - a click in the grid switches off the dots of the study plan item (the item is deselected)
+ if plan2Selected then begin
+   plan2SelTimer.Enabled := false;
+   plan2Filling := true;
+   try
+     plan2List.Selected := nil;
+   finally
+     plan2Filling := false;
+   end;
+   plan2SelectInfo(nil);
+ end;
 end;
 
+
+//2026-11: Plan2 ------------------------------------------------------------------------------------------------
+const C_PLAN2_TREEMODE = 'Plan studiów';
+      C_PLAN2_COLS : array[0..5] of string = ('Przedmiot', 'Forma', 'Grupa', 'Wyk³adowca', 'Zapl. / plan', 'Okres');
+      C_PLAN2_WIDTHS : array[0..5] of integer = (130, 70, 60, 100, 75, 90);
+      // "Sortuj": item of the list -> column of plan2List (-1: order of the plan), descending
+      C_PLAN2_SORTS : array[0..6] of string = ('Sortuj: kolejnoœæ', 'Sortuj: przedmiot', 'Sortuj: forma', 'Sortuj: grupa',
+                                               'Sortuj: wyk³adowca', 'Sortuj: do zaplanowania', 'Sortuj: okres');
+      C_PLAN2_SORT_COL  : array[0..6] of integer = (-1, 0, 1, 2, 3, 4, 5);
+      C_PLAN2_SORT_DESC : array[0..6] of boolean = (false, false, false, false, false, true, false);
+
+//"Plan studiów" in the list of TreeMode only when Plan2 is switched on (Plik | Ustawienia programu)
+procedure TFMain.plan2TreeModeSync;
+var i : integer;
+begin
+  i := TreeMode.Items.IndexOf(C_PLAN2_TREEMODE);
+  if FProgramSettings.Plan2Enabled.Checked then begin
+    if i < 0 then TreeMode.Items.Add(C_PLAN2_TREEMODE);
+  end else
+    if i >= 0 then begin
+      if TreeMode.ItemIndex = i then begin
+        TreeMode.ItemIndex := 0;
+        TreeModeChange(nil);
+      end;
+      TreeMode.Items.Delete(i);
+    end;
+end;
+
+function TFMain.plan2Active : boolean;
+begin
+  result := (TreeMode.ItemIndex > 0) and (TreeMode.Items[TreeMode.ItemIndex] = C_PLAN2_TREEMODE);
+end;
+
+function TFMain.plan2Selected : boolean;
+begin
+  result := plan2Active and Assigned(plan2Sel) and (plan2Sel.Id <> '');
+end;
+
+//the item selected in the list (nil - none). The dots of the item (source "Plan") are independent of bSeeAvailable
+//and "poka¿ wolne terminy" - the busy cache is loaded again with or without the item
+procedure TFMain.plan2SelectInfo(info : TSplNodeInfo);
+var oldId : string;
+begin
+  if plan2Sel = nil then plan2Sel := TSplNodeInfo.Create;
+  oldId := plan2Sel.Id;
+  if Assigned(info) then begin
+    plan2Sel.Id      := info.Id;
+    plan2Sel.LecId   := info.LecId;
+    plan2Sel.GroId   := info.GroId;
+    plan2Sel.SubId   := info.SubId;
+    plan2Sel.ForId   := info.ForId;
+    plan2Sel.Caption := info.Caption;
+  end else
+    plan2Sel.Id := '';
+  if plan2Sel.Id <> oldId then seeAvailableReload;
+end;
+
+//controls of the list, created once in the place of TreeRecentlyused
+procedure TFMain.plan2CreateControls;
+var t : integer;
+begin
+  if Assigned(plan2List) then exit;
+  plan2Rows     := TList.Create;
+  plan2SortCol  := -1;
+  plan2SortDesc := false;
+
+  plan2Filter := TPanel.Create(self);
+  plan2Filter.Parent     := PanelRecentlyUsed;
+  plan2Filter.BevelOuter := bvNone;
+  plan2Filter.Height     := 48;
+  plan2Filter.Top        := 5000;   // below the panel with TreeMode
+  plan2Filter.Align      := alTop;
+  plan2Filter.OnResize   := plan2FilterResize;
+
+  plan2Search := TEdit.Create(self);
+  plan2Search.Parent   := plan2Filter;
+  plan2Search.SetBounds(2, 2, 200, 21);
+  plan2Search.Hint     := 'Szukaj: przedmiot, forma, grupa, wyk³adowca, okres (kilka fraz oddziel przecinkiem)';
+  plan2Search.ShowHint := true;
+  plan2Search.OnChange := plan2FilterChange;
+
+  plan2Scope := TComboBox.Create(self);
+  plan2Scope.Parent := plan2Filter;
+  plan2Scope.Style  := csDropDownList;
+  plan2Scope.SetBounds(2, 25, 100, 21);
+  plan2Scope.Items.Add('Obiekt widoku');
+  plan2Scope.Items.Add('Wszystkie w okresie');
+  plan2Scope.ItemIndex := 0;
+  plan2Scope.Hint     := 'Pozycje planu: wyk³adowcy / grupy / zasobu z siatki albo wszystkie w okresie siatki';
+  plan2Scope.ShowHint := true;
+  plan2Scope.OnChange := plan2ScopeChange;
+
+  plan2Status := TComboBox.Create(self);
+  plan2Status.Parent := plan2Filter;
+  plan2Status.Style  := csDropDownList;
+  plan2Status.SetBounds(104, 25, 100, 21);
+  plan2Status.Items.Add('Wszystkie');
+  plan2Status.Items.Add('Do zaplanowania');
+  plan2Status.Items.Add('Zaplanowane');
+  plan2Status.ItemIndex := 0;
+  plan2Status.OnChange  := plan2FilterChange;
+
+  plan2Sort := TComboBox.Create(self);
+  plan2Sort.Parent := plan2Filter;
+  plan2Sort.Style  := csDropDownList;
+  plan2Sort.SetBounds(150, 2, 110, 21);
+  for t := 0 to High(C_PLAN2_SORTS) do plan2Sort.Items.Add(C_PLAN2_SORTS[t]);
+  plan2Sort.ItemIndex := 0;   // default: Kolejnoœæ (SORT_ORDER of the plan)
+  plan2Sort.DropDownCount := 10;
+  plan2Sort.Hint     := 'Porz¹dek listy (tak¿e klikniêcie nag³ówka kolumny)';
+  plan2Sort.ShowHint := true;
+  plan2Sort.OnChange := plan2SortChange;
+
+  plan2Edit := TButton.Create(self);
+  plan2Edit.Parent   := plan2Filter;
+  plan2Edit.SetBounds(206, 24, 55, 23);
+  plan2Edit.Caption  := 'Edycja';
+  plan2Edit.Hint     := 'Okno "Plan studiów": edycja pozycji, filtry, Przelicz, Powi¹zane zajêcia';
+  plan2Edit.ShowHint := true;
+  plan2Edit.OnClick  := plan2EditClick;
+
+  plan2Export := TButton.Create(self);
+  plan2Export.Parent   := plan2Filter;
+  plan2Export.SetBounds(262, 24, 55, 23);
+  plan2Export.Caption  := 'Export';
+  plan2Export.Hint     := 'Zapisz pozycje z listy w pliku Excel (format "Pobierz dane z programu Excel | Plan studiów")';
+  plan2Export.ShowHint := true;
+  plan2Export.OnClick  := plan2ExportClick;
+
+  plan2Import := TButton.Create(self);
+  plan2Import.Parent   := plan2Filter;
+  plan2Import.SetBounds(318, 24, 55, 23);
+  plan2Import.Caption  := 'Import';
+  plan2Import.Hint     := 'Pobierz plan studiów z pliku Excel (to samo co Pobierz dane z programu Excel | Plan studiów)';
+  plan2Import.ShowHint := true;
+  plan2Import.OnClick  := plan2ImportClick;
+
+  plan2List := TListView.Create(self);
+  plan2List.Parent        := PanelRecentlyUsed;
+  plan2List.Align         := alClient;
+  plan2List.ViewStyle     := vsReport;
+  plan2List.RowSelect     := true;
+  plan2List.ReadOnly      := true;
+  plan2List.HideSelection := false;
+  plan2List.DragMode      := dmAutomatic;   // drag & drop onto the grid (GridPlan2DragOver / GridPlan2DragDrop)
+  plan2List.Hint          := 'Kliknij pozycjê: kropki "Plan" w siatce. Przeci¹gnij na siatkê: dodaj zajêcie. Kliknij nag³ówek: sortuj';
+  plan2List.ShowHint      := true;
+  for t := 0 to High(C_PLAN2_COLS) do
+    with plan2List.Columns.Add do begin
+      Caption := C_PLAN2_COLS[t];
+      Width   := C_PLAN2_WIDTHS[t];
+      if t = 4 then Alignment := taRightJustify;
+    end;
+  plan2List.OnSelectItem      := plan2ListSelectItem;
+  plan2List.OnColumnClick     := plan2ListColumnClick;
+  plan2List.OnCompare         := plan2ListCompare;
+  plan2List.OnCustomDrawItem  := plan2ListCustomDrawItem;
+
+  plan2SelTimer := TTimer.Create(self);
+  plan2SelTimer.Enabled  := false;
+  plan2SelTimer.Interval := 60;
+  plan2SelTimer.OnTimer  := plan2SelTimerTimer;
+  plan2FilterResize(nil);
+end;
+
+//search: the whole width; second line: scope, status (halves of the rest) and "Edycja" at the right edge
+procedure TFMain.plan2FilterResize(Sender: TObject);
+var w, b : integer;
+begin
+  if not Assigned(plan2Import) then exit;
+  w := plan2Filter.ClientWidth - 4;
+  if w < 120 then exit;
+  //first line: search and "Sortuj"
+  plan2Sort.Width   := iif(w > 300, 140, w div 3);
+  plan2Sort.Left    := 2 + w - plan2Sort.Width;
+  plan2Search.Width := w - plan2Sort.Width - 2;
+  // buttons at the right edge: Edycja, Export, Import
+  plan2Import.Left  := 2 + w - plan2Import.Width;
+  plan2Export.Left  := plan2Import.Left - plan2Export.Width - 1;
+  plan2Edit.Left    := plan2Export.Left - plan2Edit.Width - 1;
+  b := plan2Edit.Width + plan2Export.Width + plan2Import.Width + 4;
+  plan2Scope.Width  := (w - b) div 2 - 1;
+  plan2Status.Left  := 2 + (w - b) div 2 + 1;
+  plan2Status.Width := (w - b) - (w - b) div 2 - 1;
+end;
+
+//"Export": the items of the list (as shown: filters, order) to an Excel file accepted by the import
+procedure TFMain.plan2ExportClick(Sender: TObject);
+var t : integer;
+    ids : string;
+begin
+  ids := '';
+  for t := 0 to plan2List.Items.Count - 1 do
+    if Assigned(plan2List.Items[t].Data) then ids := Merge(ids, TSplNodeInfo(plan2List.Items[t].Data).Id, ',');
+  SPL_ITEMSExportToExcel(ids);
+end;
+
+//"Import": the same as Plik | Pobierz dane z programu Excel | Plan studiów - asks for the file and imports it
+procedure TFMain.plan2ImportClick(Sender: TObject);
+begin
+  if isIntegrated then begin
+    SError('Poniewa¿ uruchomiono funkcje Zasilanie danymi innego systemu, ta funkcja nie jest dostêpna');
+    exit;
+  end;
+  if FMassImport = nil then Application.CreateForm(TFMassImport, FMassImport);
+  FMassImport.importType.ItemIndex := 5;   // Plan studiów
+  FMassImport.DeletePlan.Checked := false;
+  FMassImport.BitBtn3Click(nil);          // import (not a test run): file dialog, import, report
+  plan2FillTree;
+end;
+
+//"Edycja": the window "Plan studiów" (UFBrowseSPL_ITEMS), then the list again (items may have been changed)
+procedure TFMain.plan2EditClick(Sender: TObject);
+begin
+  SPL_ITEMSShowModalAsBrowser;
+  plan2FillTree;
+end;
+
+//items of the periods overlapping the period of the grid: for the lecturer / group / room of the view, or all.
+//Scheduled hours are calculated from the current classes (the same rules as spl_pkg.recalc, one query), so the list
+//follows every change of classes (refreshPanels).
+//period, view (tab, objects) and scope of the list
+function TFMain.plan2Key : string;
+begin
+  result := conPeriod.Text+'|'+intToStr(TabViewType.TabIndex)+'|'+ConLecturer.Text+'|'+ConGroup.Text+'|'+
+            conResCat0.Text+'|'+conResCat1.Text+'|'+iif(Assigned(plan2Scope), intToStr(plan2Scope.ItemIndex), '');
+end;
+
+procedure TFMain.plan2FillTree;
+var ids, cond, dp, lec : string;
+    info : TSplNodeInfo;
+    t : integer;
+begin
+  if not Assigned(plan2List) then exit;
+  plan2Dirty   := false;
+  plan2LastKey := plan2Key;
+  plan2Filling := true;
+  try
+    plan2List.Items.Clear;
+    for t := 0 to plan2Rows.Count - 1 do TSplNodeInfo(plan2Rows[t]).Free;
+    plan2Rows.Clear;
+  finally
+    plan2Filling := false;
+  end;
+  if isBlank(conPeriod.Text) then begin plan2ShowList; exit; end;
+
+  cond := '';
+  if plan2Scope.ItemIndex = 1 then cond := '0=0'
+  else
+    Case TabViewType.TabIndex of
+      0: begin
+           ids := replace(ConLecturer.Text, ';', ',');
+           //items without the lecturer: linked to the classes of the lecturer (as in the window "Plan studiów")
+           if ids <> '' then cond := '(i.lec_id in ('+ids+') or (i.lec_id is null and exists (select 1 from spl_item_cla c, lec_cla lc where c.item_id = i.id and lc.cla_id = c.cla_id and lc.lec_id in ('+ids+'))))';
+         end;
+      1: begin
+           ids := replace(ConGroup.Text, ';', ',');
+           if ids <> '' then cond := 'i.gro_id in ('+ids+')';
+         end;
+      2, 3: begin
+           if TabViewType.TabIndex = 2 then ids := replace(conResCat0.Text, ';', ',')
+                                       else ids := replace(conResCat1.Text, ';', ',');
+           if ids <> '' then cond := 'exists (select 1 from spl_item_cla c, rom_cla rc where c.item_id = i.id and rc.cla_id = c.cla_id and rc.rom_id in ('+ids+'))';
+         end;
+    end;
+  if cond = '' then begin plan2ShowList; exit; end;
+  dp := intToStr(StrToIntDef(dmodule.dbgetSystemParam('GRID_DECIMAL_PLACES', '4'), 4));
+
+  Screen.Cursor := crHourGlass;
+  try
+    try
+      dmodule.openSQL(fastQuery,
+        'with it as (select i.id, i.per_id, i.gro_id, i.sub_id, i.for_id, i.lec_id, i.planned_hours, i.sort_order'+cr+
+        '              from spl_items i, periods per, periods cur'+cr+
+        '             where cur.id = '+conPeriod.Text+cr+
+        '               and per.id = i.per_id and per.date_from <= cur.date_to and per.date_to >= cur.date_from'+cr+
+        '               and '+cond+'),'+cr+
+        '     h as (select it.id item_id, sum(round(nvl(cla.fill,100)/100 * nvl(g.duration,1), '+dp+')) hours'+cr+
+        '             from it, periods per, classes cla, grids g'+cr+
+        '            where per.id = it.per_id'+cr+
+        '              and cla.day between per.date_from and per.date_to'+cr+
+        '              and cla.hour <= nvl(per.hours_per_day, cla.hour)'+cr+
+        '              and g.no = cla.hour'+cr+
+        '              and cla.for_id = it.for_id'+cr+
+        '              and (cla.sub_id = it.sub_id or exists (select 1 from str_elems se where se.parent_id = cla.sub_id and se.child_id = it.sub_id))'+cr+
+        '              and exists (select 1 from gro_cla gc where gc.cla_id = cla.id and gc.gro_id = it.gro_id)'+cr+
+        '              and (it.lec_id is null or exists (select 1 from lec_cla lc where lc.cla_id = cla.id and lc.lec_id = it.lec_id))'+cr+
+        '            group by it.id)'+cr+
+        'select it.id, it.lec_id, it.gro_id, it.sub_id, it.for_id, it.planned_hours, nvl(h.hours, 0) scheduled_now'+cr+
+        '     , per.name per_dsp, sub.name sub_dsp, xfor.name for_dsp, gro.abbreviation gro_dsp'+cr+
+        '     , trim(lec.last_name||'' ''||lec.first_name) lec_dsp'+cr+
+        '  from it, h, periods per, subjects sub, forms xfor, groups gro, lecturers lec'+cr+
+        ' where h.item_id (+) = it.id and per.id = it.per_id and sub.id = it.sub_id and xfor.id = it.for_id'+cr+
+        '   and gro.id = it.gro_id and lec.id (+) = it.lec_id'+cr+
+        '   and '+getWhereClause('groups', 'gro')+cr+
+        ' order by it.sort_order, sub.name, xfor.name, gro.abbreviation, lec_dsp');
+    except
+      on E: Exception do begin SError('Plan studiów: ' + E.Message); exit; end;
+    end;
+    with fastQuery do begin
+      first;
+      while not Eof do begin
+        info := TSplNodeInfo.Create;
+        info.Id        := FieldByName('id').AsString;
+        info.LecId     := FieldByName('lec_id').AsString;
+        info.GroId     := FieldByName('gro_id').AsString;
+        info.SubId     := FieldByName('sub_id').AsString;
+        info.ForId     := FieldByName('for_id').AsString;
+        info.PerName   := FieldByName('per_dsp').AsString;
+        info.SubName   := FieldByName('sub_dsp').AsString;
+        info.ForName   := FieldByName('for_dsp').AsString;
+        info.GroName   := FieldByName('gro_dsp').AsString;
+        info.LecName   := FieldByName('lec_dsp').AsString;
+        info.Planned   := FieldByName('planned_hours').AsFloat;
+        info.Scheduled := FieldByName('scheduled_now').AsFloat;
+        info.Pos       := plan2Rows.Count;
+        lec := info.LecName;
+        info.Caption   := info.SubName + ', ' + info.ForName + ' - ' + info.GroName + iif(lec <> '', ', ' + lec, '');
+        plan2Rows.Add(info);
+        next;
+      end;
+    end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  plan2ShowList;
+end;
+
+//rows of plan2Rows matching the search phrase and the status, sorted; the selected item stays selected
+procedure TFMain.plan2ShowList;
+var t, k, n : integer;
+    info : TSplNodeInfo;
+    phrases, txt : string;
+    ok : boolean;
+    item, selItem : TListItem;
+begin
+  if not Assigned(plan2List) then exit;
+  phrases := replacePolishChars(AnsiUppercase(Trim(plan2Search.Text)));
+  selItem := nil;
+  plan2Filling := true;
+  plan2List.Items.BeginUpdate;
+  try
+    plan2List.Items.Clear;
+    for t := 0 to plan2Rows.Count - 1 do begin
+      info := TSplNodeInfo(plan2Rows[t]);
+      Case plan2Status.ItemIndex of
+        1: if info.Scheduled >= info.Planned then continue;
+        2: if info.Scheduled <  info.Planned then continue;
+      end;
+      if phrases <> '' then begin
+        // "Dowolna fraza": phrases separated by commas, any of them
+        txt := replacePolishChars(AnsiUppercase(info.SubName+'#'+info.ForName+'#'+info.GroName+'#'+info.LecName+'#'+info.PerName));
+        ok := false;
+        n := WordCount(phrases, [',']);
+        for k := 1 to n do
+          if (Trim(ExtractWord(k, phrases, [','])) <> '') and (Pos(Trim(ExtractWord(k, phrases, [','])), txt) > 0) then begin ok := true; break; end;
+        if not ok then continue;
+      end;
+      item := plan2List.Items.Add;
+      item.Caption := info.SubName;
+      item.SubItems.Add(info.ForName);
+      item.SubItems.Add(info.GroName);
+      item.SubItems.Add(info.LecName);
+      item.SubItems.Add(FormatFloat('0.##', info.Scheduled) + ' / ' + FormatFloat('0.##', info.Planned));
+      item.SubItems.Add(info.PerName);
+      item.Data := info;
+      if Assigned(plan2Sel) and (plan2Sel.Id <> '') and (info.Id = plan2Sel.Id) then selItem := item;
+    end;
+    plan2List.AlphaSort;
+    if Assigned(selItem) then begin
+      selItem.Selected := true;
+      selItem.Focused  := true;
+    end;
+  finally
+    plan2List.Items.EndUpdate;
+    plan2Filling := false;
+  end;
+  if Assigned(selItem) then begin
+    selItem.MakeVisible(false);
+    plan2Sel.Caption := TSplNodeInfo(selItem.Data).Caption;
+  end else
+    if Assigned(plan2Sel) and (plan2Sel.Id <> '') then plan2SelectInfo(nil);   // not on the list any more
+end;
+
+procedure TFMain.plan2FilterChange(Sender: TObject);
+begin
+  plan2ShowList;
+end;
+
+procedure TFMain.plan2ScopeChange(Sender: TObject);
+begin
+  plan2FillTree;
+end;
+
+//selection: applied after a moment - a click deselects the old item and selects the new one (one reload of the dots)
+procedure TFMain.plan2ListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+begin
+  if plan2Filling then exit;
+  plan2SelTimer.Enabled := false;
+  plan2SelTimer.Enabled := true;
+end;
+
+procedure TFMain.plan2SelTimerTimer(Sender: TObject);
+begin
+  plan2SelTimer.Enabled := false;
+  if Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data) then plan2SelectInfo(TSplNodeInfo(plan2List.Selected.Data))
+                                                                       else plan2SelectInfo(nil);
+end;
+
+//click on the header: sort by the column, next click - descending
+procedure TFMain.plan2ListColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  if Column.Index = plan2SortCol then plan2SortDesc := not plan2SortDesc
+  else begin
+    plan2SortCol  := Column.Index;
+    plan2SortDesc := false;
+  end;
+  plan2ApplySort;
+end;
+
+//"Sortuj" list
+procedure TFMain.plan2SortChange(Sender: TObject);
+begin
+  if plan2Sort.ItemIndex < 0 then exit;
+  plan2SortCol  := C_PLAN2_SORT_COL[plan2Sort.ItemIndex];
+  plan2SortDesc := C_PLAN2_SORT_DESC[plan2Sort.ItemIndex];
+  plan2ApplySort;
+end;
+
+//sorts the list; the header of the sorted column and the "Sortuj" list show the order
+procedure TFMain.plan2ApplySort;
+var t : integer;
+    ev : TNotifyEvent;
+begin
+  for t := 0 to plan2List.Columns.Count - 1 do
+    plan2List.Columns[t].Caption := C_PLAN2_COLS[t] + iif(t = plan2SortCol, iif(plan2SortDesc, ' (Z-A)', ' (A-Z)'), '');
+  for t := 0 to High(C_PLAN2_SORT_COL) do
+    if C_PLAN2_SORT_COL[t] = plan2SortCol then begin
+      ev := plan2Sort.OnChange;
+      plan2Sort.OnChange := nil;
+      plan2Sort.ItemIndex := t;
+      plan2Sort.OnChange := ev;
+      break;
+    end;
+  plan2List.AlphaSort;   // plan2SortCol = -1: order of the plan (plan2ListCompare - Pos)
+end;
+
+procedure TFMain.plan2ListCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
+var a, b : TSplNodeInfo;
+    x, y : double;
+begin
+  a := TSplNodeInfo(Item1.Data);
+  b := TSplNodeInfo(Item2.Data);
+  Compare := 0;
+  if (a = nil) or (b = nil) then exit;
+  Case plan2SortCol of
+    0: Compare := AnsiCompareText(a.SubName, b.SubName);
+    1: Compare := AnsiCompareText(a.ForName, b.ForName);
+    2: Compare := AnsiCompareText(a.GroName, b.GroName);
+    3: Compare := AnsiCompareText(a.LecName, b.LecName);
+    4: begin
+         // hours still to be planned
+         x := a.Planned - a.Scheduled;
+         y := b.Planned - b.Scheduled;
+         if x < y then Compare := -1 else if x > y then Compare := 1;
+       end;
+    5: Compare := AnsiCompareText(a.PerName, b.PerName);
+  end;
+  if plan2SortDesc then Compare := -Compare;
+  if Compare = 0 then Compare := a.Pos - b.Pos;   // then the order of the plan
+end;
+
+//planned: normal; scheduled: grey; more than planned: red
+procedure TFMain.plan2ListCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+var info : TSplNodeInfo;
+begin
+  DefaultDraw := true;
+  info := TSplNodeInfo(Item.Data);
+  if info = nil then exit;
+  if info.Scheduled > info.Planned then Sender.Canvas.Font.Color := clRed
+  else if info.Scheduled >= info.Planned then Sender.Canvas.Font.Color := clGray
+  else Sender.Canvas.Font.Color := clWindowText;
+end;
+
+procedure TFMain.GridPlan2DragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+var c, r : integer;
+begin
+  Accept := false;
+  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) then exit;
+  if not (Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data)) then exit;
+  if TabViewType.TabIndex >= 4 then exit;
+  Grid.MouseToCell(X, Y, c, r);
+  Accept := (c >= Grid.FixedCols) and (r >= Grid.FixedRows);
+end;
+
+//drop onto a cell: new class of the item in this cell (onto the selected area - in all selected cells)
+procedure TFMain.GridPlan2DragDrop(Sender, Source: TObject; X, Y: Integer);
+var c, r : integer;
+    sel : TGridRect;
+begin
+  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) then exit;
+  if not (Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data)) then exit;
+  Grid.MouseToCell(X, Y, c, r);
+  if (c < Grid.FixedCols) or (r < Grid.FixedRows) then exit;
+  plan2SelTimer.Enabled := false;
+  plan2SelectInfo(TSplNodeInfo(plan2List.Selected.Data));
+  if not plan2Selected then exit;
+  if not canInsert then begin SError('Brak uprawnieñ do dodawania zajêæ'); exit; end;
+  with Grid.Selection do
+    if not ((c >= Left) and (c <= Right) and (r >= Top) and (r <= Bottom)) then begin
+      sel.Left := c; sel.Right := c; sel.Top := r; sel.Bottom := r;
+      Grid.Selection := sel;
+    end;
+  if Grid.CanFocus then Grid.SetFocus;
+  plan2Drop := true;
+  try
+    AddClassToGrid(gFirstResourceFlag);
+  finally
+    plan2Drop := false;
+  end;
+end;
+//2026-11: Plan2 end ---------------------------------------------------------------------------------------------
 
 Procedure TFMain.refreshRecentlyUsed(aFilter : string);
   Var
@@ -10214,9 +10913,22 @@ Procedure TFMain.refreshRecentlyUsed(aFilter : string);
     end;
 Begin
   PanelRecentlyUsed.Visible := elementEnabled('"Ostatnio u¿ywane"','2016.09.12', true);
+  //2026-11: Plan2 - the list "Plan studiów" (filters, sorting, drag & drop onto the grid) instead of the tree
+  if plan2Active then plan2CreateControls;
+  if Assigned(plan2List) then begin
+    plan2Filter.Visible := plan2Active;
+    plan2List.Visible   := plan2Active;
+  end;
+  TreeRecentlyused.Visible := not plan2Active;
 
   if TreeMode.ItemIndex <= 0 then begin
     TreeRecentlyused.Items.Clear;
+    Exit;
+  end;
+
+  if plan2Active then begin
+    //the list is read again when the period, the view or the scope changed, or after a change of classes
+    if plan2Dirty or (plan2Key <> plan2LastKey) then plan2FillTree;
     Exit;
   end;
 
@@ -10332,6 +11044,7 @@ end;
 
 procedure TFMain.TreeModeChange(Sender: TObject);
 begin
+ if (not plan2Active) and Assigned(plan2Sel) and (plan2Sel.Id <> '') then plan2SelectInfo(nil); //2026-11: Plan2
  refreshRecentlyUsed('');
  TreeModeCleanup.Visible := TreeMode.ItemIndex<=2;
 end;

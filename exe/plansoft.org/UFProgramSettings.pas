@@ -127,6 +127,7 @@ type
     ChildAndParentsLec: TCheckBox;
     ChildAndParentsRom: TCheckBox;
     ResPlaHistory: TCheckBox;
+    Plan2Enabled: TCheckBox;
     procedure BRunMonitorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure MaxNumberOfSheetsChange(Sender: TObject);
@@ -144,6 +145,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure CheckClick(Sender: TObject);
     procedure ResPlaHistoryClick(Sender: TObject);
+    procedure Plan2EnabledClick(Sender: TObject);
     procedure BRefreshRedundantFieldsClick(Sender: TObject);
   private
     { Private declarations }
@@ -236,6 +238,7 @@ begin
   dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_LEC' , iif(ChildAndParentsLec.Checked ,'+','-'));
   dmodule.dbSetSystemParam('CHILDS_AND_PARENTS_ROM' , iif(ChildAndParentsRom.Checked ,'+','-'));
   dmodule.dbSetSystemParam('RES_PLA_HISTORY' , iif(ResPlaHistory.Checked ,'+','-'));
+  dmodule.dbSetSystemParam('SPL_ENABLED'     , iif(Plan2Enabled.Checked  ,'+','-')); //2026-11: Plan2, global
 
 end;
 
@@ -272,6 +275,7 @@ begin
   // Enabled is set before Checked, so that ResPlaHistoryClick does not ask on load
   ResPlaHistory.Enabled       := dmodule.dbgetSystemParam('RES_PLA_HISTORY' ,'-') <> '+';
   ResPlaHistory.Checked       := not ResPlaHistory.Enabled;
+  Plan2Enabled.Checked        := dmodule.dbgetSystemParam('SPL_ENABLED' ,'-') = '+';
 
   Pages.ActivePage := SAdvanced;
   Pages.ActivePage.Invalidate; //2026-07: fixes controls left blank until mouse-hover after switching tabs (same fix as UFSettings.pas ZMIANA_20270712 / UFLegend.pas)
@@ -428,6 +432,7 @@ begin
   MaxNumberOfSheets.Text := GetSystemParam('MaxNumberOfSheets','60');
 
   profileType.ItemIndex           := strToInt ( GetSystemParam('profileType'   , '0') );
+  Plan2Enabled.Checked            := dmodule.dbgetSystemParam('SPL_ENABLED' ,'-') = '+'; //2026-11: Plan2
 
   with dmodule do begin
       openSQL('select id, name, plural_name, name_accusative, name_genitive from resource_categories where id in (-2,-3,-4,-5,-6,-7) order by id');
@@ -630,6 +635,18 @@ procedure TFProgramSettings.CheckClick(Sender: TObject);
 begin
   inherited;
 serror( Fmain.MapPlannerSupervisors.getValue( value.text ) );
+end;
+
+//2026-11: Plan2 needs the tables of the database update 2026.11.21
+procedure TFProgramSettings.Plan2EnabledClick(Sender: TObject);
+begin
+  //the version is read from the database: loadConfiguration (at logon) sets Checked - and fires OnClick -
+  //before FMain reads dmodule.DbversionInstalled
+  if Plan2Enabled.Checked then
+    if dmodule.SingleValue('select max(name) from system_parameters where name like ''VERSION%''') < 'VERSION 2026.11.21' then begin
+      SError('Plan studiów 2 wymaga aktualizacji bazy danych do wersji 2026.11.21');
+      Plan2Enabled.Checked := false;
+    end;
 end;
 
 procedure TFProgramSettings.ResPlaHistoryClick(Sender: TObject);
