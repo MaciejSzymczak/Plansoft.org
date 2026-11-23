@@ -13,7 +13,7 @@ implementation
 
 Uses Windows, Messages,  UFProgramSettings, UUtilityParent,
   SysUtils, Classes, Graphics, Controls,  Dialogs, ADODB, DM, UFSettings
-  ,UFormConfig, StdCtrls, Buttons, ExtCtrls, StrHlder, ComCtrls, ufmain, uutilities, UCommon, AutoCreate;
+  ,UFormConfig, StdCtrls, Buttons, ExtCtrls, StrHlder, ComCtrls, ufmain, uutilities, UCommon, AutoCreate, UFWWWGenerator;
 
 
 // telefon: kolumny tabeli jedna pod drug¹, ka¿da pod swoim nag³ówkiem (wiersze tabeli "rozpuszczone" - display: contents,
@@ -223,7 +223,9 @@ end;
           WriteLn(fh, UTF8Encode('<html>'));
           WriteLn(fh, UTF8Encode('<head>'));
           WriteLn(fh, UTF8Encode(indexPageHead));
-          WriteLn(fh, UTF8Encode('<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>'));
+          WriteLn(fh, UTF8Encode('<title>Zajêcia'+FWWWGenerator.titleSuffixText+'</title>')); //2026-11: was "Plansoft.org - zajêcia", + "Tytu³: Przyrostek"
+          //2026-11: website icon (favicon.png in the folder of the website)
+          WriteLn(fh, UTF8Encode('<link rel="icon" type="image/png" href="favicon.png">'));
           WriteLn(fh, UTF8Encode('</head>'));
           WriteLn(fh, UTF8Encode('<body>'));
           // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css

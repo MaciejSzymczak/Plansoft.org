@@ -112,13 +112,13 @@ inherited FBrowseParent: TFBrowseParent
           Height = 14
           Caption = 'Sortuj wg'
         end
-        object BFilter: TSpeedButton
+        object BFilter: TBitBtn
           Left = 768
           Top = 28
           Width = 25
           Height = 25
+          TabStop = False
           Hint = 'Szukanie zaawansowane'
-          AllowAllUp = True
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
             1800000000000003000000000000000000000000000000000000C0C0C0C0C0C0
@@ -172,13 +172,13 @@ inherited FBrowseParent: TFBrowseParent
           Alignment = taRightJustify
           Caption = 'Szukaj'
         end
-        object BSearchValue: TSpeedButton
+        object BSearchValue: TBitBtn
           Left = 792
           Top = 28
           Width = 25
           Height = 25
+          TabStop = False
           Hint = 'Wybierz wartosc z listy'
-          AllowAllUp = True
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
             2000000000000004000000000000000000000000000000000000000000000000
@@ -611,7 +611,7 @@ inherited FBrowseParent: TFBrowseParent
           Tag = 67108864
           Left = 122
           Top = 30
-          Width = 623
+          Width = 695
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clRed
@@ -629,6 +629,7 @@ inherited FBrowseParent: TFBrowseParent
           Height = 25
           Hint = 'Anuluj szukanie (klawisz skr'#243'tu: spacja)'
           TabOrder = 8
+          TabStop = False
           Visible = False
           OnClick = BCancelSearchClick
           Glyph.Data = {

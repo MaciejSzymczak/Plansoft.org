@@ -71,6 +71,17 @@ async function busy(s, url) {
       (having ? ` and (day, hour) in (select day, hour from ${d.table} where no_conflict_flag is null and ${period} and ${cond} group by day, hour having count(1) ${having})` : ''));
     counts.push(`(select count(1) from ${d.table} x where x.cla_id = classes.id and x.no_conflict_flag is null and (x.${cond}${avCond ? ' or x.' + avCond : ''})) cnt${t}`);
   }
+  // Plan studiów: wykładowca i grupa wybranej pozycji planu (z wykluczeniami) - osobne źródło kropek "Plan" (typ P)
+  const splConds = [];
+  for (const [key, d] of [['splL', TYPES.L], ['splG', TYPES.G]]) {
+    const ids = idList(q.get(key));
+    if (!ids.length) continue;
+    const allIds = [...new Set([...ids, ...await excludedIds(s, ids)])];
+    const c = `${d.col} in (${inList(key.toLowerCase(), allIds, binds)})`;
+    parts.push(`select cla_id from ${d.table} where no_conflict_flag is null and ${period} and ${c}`);
+    splConds.push(`(select count(1) from ${d.table} x where x.cla_id = classes.id and x.no_conflict_flag is null and x.${c})`);
+  }
+  counts.push(splConds.length ? splConds.join(' + ') + ' cntP' : '0 cntP');
   if (!parts.length) return [];
   // przenoszone zajęcia (po 900 w jednym "not in" - ORA-01795)
   const avNot = idList(q.get('avNot'), 5000);
@@ -97,8 +108,8 @@ async function busy(s, url) {
        and classes.id in (${parts.join(' union ')})${respect}${notMoved}`, binds);
   return rows.map(r => ({
     id: r.ID, day: r.DAY, hour: r.HOUR,
-    types: (r.CNTL > 0 ? 'W' : '') + (r.CNTG > 0 ? 'G' : '') + (r.CNTS > 0 ? 'S' : ''),
-    text: `${r.SUB_NAME || ''} (${r.FOR_NAME || ''})  Wykładowcy: ${r.CALC_LECTURERS || ''}  Grupy: ${r.CALC_GROUPS || ''}  Zasoby: ${(r.CALC_ROOMS || '').trim()}`,
+    types: (r.CNTL > 0 ? 'W' : '') + (r.CNTG > 0 ? 'G' : '') + (r.CNTS > 0 ? 'S' : '') + (r.CNTP > 0 ? 'P' : ''),
+    text: `${r.CNTP > 0 ? 'Plan: ' : ''}${r.SUB_NAME || ''} (${r.FOR_NAME || ''})  Wykładowcy: ${r.CALC_LECTURERS || ''}  Grupy: ${r.CALC_GROUPS || ''}  Zasoby: ${(r.CALC_ROOMS || '').trim()}`,
     groups: r.CALC_GROUPS || '',
   }));
 }

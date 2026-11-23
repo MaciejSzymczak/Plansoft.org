@@ -25,69 +25,141 @@ function button(text, cls, onClick, title) {
 const fmt = n => (Math.round(Number(n || 0) * 100) / 100).toLocaleString('pl-PL');
 export const splCaption = i => `${i.sub}, ${i.form} - ${i.gro}${i.lec ? ', ' + i.lec : ''}`;
 
-// --- lista przy siatce -------------------------------------------------------------------------
+// --- lista przy siatce (TreeMode "Plan studiów" w Delphi) --------------------------------------------
+// szukaj (kilka fraz po przecinku), Sortuj, zakres (obiekt widoku / wszystkie w okresie), stan, Edycja;
+// tabela: klik w nagłówek sortuje, klik w pozycję - kropki "Plan" w siatce, przeciągnięcie na siatkę - dodaj zajęcie
+const POL = { 'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z' };
+const norm = v => String(v || '').toUpperCase().replace(/[ĄĆĘŁŃÓŚŹŻ]/g, c => POL[c]);
+const COLS = [
+  ['Przedmiot', i => i.sub], ['Forma', i => i.form], ['Grupa', i => i.gro], ['Wykładowca', i => i.lec],
+  ['Zapl. / plan', i => i.planned - i.scheduled], ['Okres', i => i.per],
+];
+// Sortuj: [nazwa, kolumna (-1: kolejność planu), malejąco]
+const SORTS = [['kolejność', -1, false], ['przedmiot', 0, false], ['forma', 1, false], ['grupa', 2, false],
+  ['wykładowca', 3, false], ['do zaplanowania', 4, true], ['okres', 5, false]];
+
 export class SplPanel {
-  // getContext() -> { period, type: 'L'|'G'|'S'|..., ids: [..] }; onSelect(item | null)
-  constructor(root, { api, getContext, onSelect, onDetails }) {
+  // getContext() -> { period, type: 'L'|'G'|'S'|..., ids: [..] }; onSelect(item | null); onEdit(); onSchedule(item) - "Rozplanuj"
+  constructor(root, { api, getContext, onSelect, onEdit, onSchedule }) {
+    this.onSchedule = onSchedule || (() => {});
     this.root = root;
     this.api = api;
     this.getContext = getContext;
     this.onSelect = onSelect || (() => {});
-    this.onDetails = onDetails || (() => {});
+    this.onEdit = onEdit || (() => {});
     this.selected = null;
     this.items = [];
     this.req = 0;
+    this.sortCol = -1;
+    this.sortDesc = false;
     root.innerHTML = '';
-    const bar = el('div', 'bar');
-    this.info = el('span', 'muted', '');
-    bar.append(this.info, el('span', 'spacer'), button('Okno planu studiów', 'secondary small', () => this.onDetails(), 'Plan studiów: filtry, Przelicz, Powiązane zajęcia'));
+    const bar1 = el('div', 'bar spl-bar');
+    this.search = el('input');
+    this.search.type = 'search';
+    this.search.placeholder = 'Szukaj: przedmiot, forma, grupa, wykładowca, okres';
+    this.search.title = 'Kilka fraz oddziel przecinkiem';
+    this.search.addEventListener('input', () => this.render());
+    this.sort = el('select');
+    this.sort.title = 'Porządek listy (także kliknięcie nagłówka kolumny)';
+    SORTS.forEach(([n], k) => this.sort.append(new Option('Sortuj: ' + n, String(k))));
+    this.sort.addEventListener('change', () => { const [, c, d] = SORTS[Number(this.sort.value)]; this.sortCol = c; this.sortDesc = d; this.render(); });
+    bar1.append(this.search, this.sort);
+    const bar2 = el('div', 'bar spl-bar');
+    this.scope = el('select');
+    this.scope.title = 'Pozycje planu: wykładowcy / grupy / sali z siatki albo wszystkie w okresie siatki';
+    this.scope.append(new Option('Obiekt widoku', 'obj'), new Option('Wszystkie w okresie', 'all'));
+    this.scope.addEventListener('change', () => this.refresh());
+    this.status = el('select');
+    this.status.append(new Option('Wszystkie', '0'), new Option('Do zaplanowania', '1'), new Option('Zaplanowane', '2'));
+    this.status.addEventListener('change', () => this.render());
+    bar2.append(this.scope, this.status, button('Edycja', 'secondary small', () => this.onEdit(), 'Okno "Plan studiów": edycja pozycji, filtry, Przelicz, Powiązane zajęcia'));
+    this.info = el('div', 'muted spl-info', '');
     this.list = el('div', 'table-wrap spl-list');
-    root.append(bar, this.list);
+    root.append(bar1, bar2, this.info, this.list);
   }
 
   async refresh() {
     const ctx = this.getContext();
     const req = ++this.req;
-    if (!ctx.period) return this.render([], 'Wybierz okres.');
-    if (!['L', 'G', 'S'].includes(ctx.type)) return this.render([], 'Plan studiów jest dostępny w widoku wykładowcy, grupy i sali.');
-    if (!ctx.ids.length) return this.render([], 'Wybierz wykładowcę, grupę lub salę.');
+    const all = this.scope.value === 'all';
+    if (!ctx.period) return this.load([], 'Wybierz okres.');
+    if (!all && !['L', 'G', 'S'].includes(ctx.type)) return this.load([], 'Plan studiów: widok wykładowcy, grupy lub sali (albo zakres "Wszystkie w okresie").');
+    if (!all && !ctx.ids.length) return this.load([], 'Wybierz wykładowcę, grupę lub salę.');
     let r;
-    try { r = await this.api(`spl/panel?period=${ctx.period}&type=${ctx.type}&ids=${ctx.ids.join(',')}`); }
-    catch (e) { if (req === this.req && e.message !== '401') this.render([], e.message); return; }
+    try { r = await this.api(`spl/panel?period=${ctx.period}&type=${ctx.type}&ids=${ctx.ids.join(',')}${all ? '&scope=all' : ''}`); }
+    catch (e) { if (req === this.req && e.message !== '401') this.load([], e.message); return; }
     if (req !== this.req) return;
-    this.render(r.items, r.items.length ? '' : 'Brak pozycji planu studiów.');
+    this.load(r.items, r.items.length ? '' : 'Brak pozycji planu studiów.');
   }
 
-  render(items, message) {
-    this.items = items;
-    this.list.innerHTML = '';
-    this.info.textContent = message || '';
-    if (this.selected && !items.some(i => i.id === this.selected.id)) this.select(null);
-    const todo = items.filter(i => i.scheduled < i.planned), done = items.filter(i => i.scheduled >= i.planned);
-    for (const [head, list] of [['Do zaplanowania', todo], ['Zaplanowane', done]]) {
-      if (!items.length) break;
-      const h = el('div', 'spl-head', `${head} (${list.length})`);
-      h.title = 'Kliknij, aby odznaczyć pozycję';
-      h.addEventListener('click', () => this.select(null));
-      this.list.append(h);
-      for (const i of list) {
-        const row = el('div', 'spl-item');
-        row.draggable = true;
-        row.dataset.id = i.id;
-        row.classList.toggle('selected', !!this.selected && this.selected.id === i.id);
-        const over = i.scheduled > i.planned ? `  (nadmiar ${fmt(i.scheduled - i.planned)})` : '';
-        row.append(el('span', 'spl-cap', splCaption(i)), el('span', 'spl-hours' + (over ? ' over' : ''), `${fmt(i.scheduled)} / ${fmt(i.planned)}${over}`));
-        row.title = 'Kliknij: wybierz (Gdzie przenieść? - gdzie można umieścić). Przeciągnij na siatkę: dodaj zajęcie.';
-        row.addEventListener('click', () => this.select(this.selected && this.selected.id === i.id ? null : i));
-        row.addEventListener('dragstart', e => {
-          this.select(i);
-          e.dataTransfer.setData(SPL_DRAG_TYPE, String(i.id));
-          e.dataTransfer.setData('text/plain', splCaption(i));
-          e.dataTransfer.effectAllowed = 'copy';
-        });
-        this.list.append(row);
+  load(items, message) {
+    this.items = items.map((i, n) => ({ ...i, pos: n }));
+    this.message = message || '';
+    this.render();
+  }
+
+  render() {
+    const phrases = norm(this.search.value).split(',').map(x => x.trim()).filter(Boolean);
+    const st = this.status.value;
+    let rows = this.items.filter(i => (st !== '1' || i.scheduled < i.planned) && (st !== '2' || i.scheduled >= i.planned));
+    if (phrases.length) rows = rows.filter(i => { const t = norm([i.sub, i.form, i.gro, i.lec, i.per].join('#')); return phrases.some(p => t.includes(p)); });
+    const col = this.sortCol, desc = this.sortDesc;
+    rows.sort((a, b) => {
+      let c = 0;
+      if (col >= 0) {
+        const x = COLS[col][1](a), y = COLS[col][1](b);
+        c = typeof x === 'number' ? x - y : String(x || '').localeCompare(String(y || ''), 'pl');
+        if (desc) c = -c;
       }
+      return c || a.pos - b.pos;
+    });
+    this.list.innerHTML = '';
+    this.info.textContent = this.message || (this.items.length ? `Pozycji: ${rows.length}${rows.length !== this.items.length ? ' z ' + this.items.length : ''}` : '');
+    const k = SORTS.findIndex(([, c, d]) => c === col && (c !== 4 || d === desc));
+    this.sort.value = String(k >= 0 ? k : SORTS.findIndex(([, c]) => c === col));
+    if (!rows.length) { if (this.selected && !this.items.some(i => i.id === this.selected.id)) this.select(null); return; }
+    const tbl = el('table', 'spl-table');
+    const hr = el('tr');
+    COLS.forEach(([name], n) => {
+      const th = el('th', n === 4 ? 'num' : '', name + (n === col ? (desc ? ' ▼' : ' ▲') : ''));
+      th.title = 'Sortuj (kliknij jeszcze raz - odwrotnie)';
+      th.addEventListener('click', () => { if (this.sortCol === n) this.sortDesc = !this.sortDesc; else { this.sortCol = n; this.sortDesc = false; } this.render(); });
+      hr.append(th);
+    });
+    hr.append(el('th', '', ''));   // "Rozplanuj..."
+    const thead = el('thead'); thead.append(hr);
+    const tbody = el('tbody');
+    let selVisible = false;
+    for (const i of rows) {
+      const tr = el('tr', 'spl-item' + (i.scheduled > i.planned ? ' over' : i.scheduled >= i.planned ? ' done' : ''));
+      tr.draggable = true;
+      tr.dataset.id = i.id;
+      if (this.selected && this.selected.id === i.id) { tr.classList.add('selected'); selVisible = true; }
+      for (const v of [i.sub, i.form, i.gro, i.lec, `${fmt(i.scheduled)} / ${fmt(i.planned)}`, i.per]) tr.append(el('td', '', v));
+      tr.lastChild.previousSibling.className = 'num';
+      // "Rozplanuj..." w każdym wierszu: terminy do akceptacji (pozycja zaplanowana - okno o tym informuje)
+      const tdS = el('td', 'spl-sch-link');
+      {
+        const a = el('a', '', 'Rozplanuj...');
+        a.href = '#';
+        a.title = 'Zaproponuj terminy na brakujące godziny (bez konfliktów) i dodaj zajęcia';
+        a.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.onSchedule(i); });
+        tdS.append(a);
+      }
+      tr.append(tdS);
+      tr.title = splCaption(i) + `\nZaplanowano ${fmt(i.scheduled)} z ${fmt(i.planned)} godz.\nKliknij: kropki "Plan" w siatce. Przeciągnij na siatkę: dodaj zajęcie.`;
+      tr.addEventListener('click', () => this.select(this.selected && this.selected.id === i.id ? null : i));
+      tr.addEventListener('dragstart', e => {
+        this.select(i);
+        e.dataTransfer.setData(SPL_DRAG_TYPE, String(i.id));
+        e.dataTransfer.setData('text/plain', splCaption(i));
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      tbody.append(tr);
     }
+    tbl.append(thead, tbody);
+    this.list.append(tbl);
+    if (this.selected && !selVisible) this.select(null);   // not on the list any more
   }
 
   select(item) {
@@ -302,5 +374,170 @@ export class SplWindow {
     if (!ids.length) { this.count.textContent = 'Zaznacz pozycje.'; return; }
     this.result = this.rows.filter(i => ids.includes(i.id));
     this.dialog.close();
+  }
+}
+
+// --- okno "Rozplanuj" ---------------------------------------------------------------------------------------
+// terminy na godziny do zaplanowania (spl_pkg.propose: bez konfliktów wykładowcy, grupy i sali, z dniami wolnymi),
+// lista do akceptacji, zaznaczone dodawane jak zwykłe zajęcia (classes/add)
+const WEEKDAYS = ['Dowolny dzień', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+const DAY_NAMES = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];
+
+export class SplScheduleDialog {
+  constructor({ api, onAdded }) {
+    this.api = api;
+    this.onAdded = onAdded || (() => {});
+    this.dialog = el('dialog', 'browse single spl-schedule');
+    document.body.append(this.dialog);
+    this.dialog.addEventListener('close', () => { this.dialog.innerHTML = ''; });
+  }
+
+  search(type, q) { return this.api(`objects/${type}?q=${encodeURIComponent(q)}`); }
+
+  // item: pozycja z listy; viewLec / viewRom: {id, name} z okna głównego (wykładowca dla pozycji bez wykładowcy, sala)
+  async open({ item, viewLec, viewRom, user }) {
+    this.user = user;
+    let info;
+    try { info = await this.api('spl/schedule-info?item=' + item.id); } catch (e) { alert(e.message); return; }
+    this.info = info;
+    const it = info.item;
+    const d = this.dialog;
+    d.innerHTML = '';
+    const head = el('div', 'b-head');
+    head.append(el('h2', '', 'Rozplanuj'), el('span', 'spacer'), button('×', 'link close', () => d.close(), 'Zamknij (Esc)'));
+    const body = el('div', 'spl-sch-body');
+    body.append(el('p', 'spl-sch-title', `${splCaption(it)}. Do zaplanowania: ${fmt(info.left)} z ${fmt(it.planned)} godz.`));
+
+    const chip = (type, label, value, single = true) => {
+      const box = el('div', 'chips small'); box.dataset.type = type; box.dataset.label = label;
+      const f = new ChipField(box, { search: (t, q) => this.search(t, q), single, onChange: () => this.clearTerms() });
+      if (value) f.setItems([value]);
+      return { box, f };
+    };
+    // pozycja z wykładowcą - ten wykładowca; bez wykładowcy - najpierw wybór (domyślnie wykładowca z ekranu)
+    this.itemHasLec = !!it.lecId;
+    const lec = chip('L', this.itemHasLec ? 'Wykładowca (pozycji planu)' : 'Wykładowca (pozycja bez wykładowcy - wybierz)',
+      this.itemHasLec ? { id: it.lecId, name: it.lec } : viewLec);
+    if (this.itemHasLec) lec.box.classList.add('disabled');
+    this.lec = lec.f;
+    const rom = chip('S', 'Sala (opcjonalnie)', viewRom);
+    this.rom = rom.f;
+    body.append(lec.box, rom.box);
+
+    const mode = el('fieldset', 'spl-sch-mode');
+    mode.append(el('legend', '', 'Sposób'));
+    this.modeEven = el('input'); this.modeEven.type = 'radio'; this.modeEven.name = 'splmode'; this.modeEven.checked = true;
+    const modeFirst = el('input'); modeFirst.type = 'radio'; modeFirst.name = 'splmode';
+    const l1 = el('label', 'check'); l1.append(this.modeEven, ' Równomiernie: ten sam dzień i godzina co tydzień (gdy za mało - także kolejne dni tygodnia)');
+    const l2 = el('label', 'check'); l2.append(modeFirst, ' Pierwsze wolne terminy (jak najwcześniej)');
+    mode.append(l1, l2);
+    body.append(mode);
+
+    const sel = (label, options, value) => {
+      const l = el('label', 'field', label + ' ');
+      const s = el('select');
+      options.forEach(([v, t]) => s.append(new Option(t, String(v))));
+      if (value !== undefined) s.value = String(value);
+      s.addEventListener('change', () => this.clearTerms());
+      l.append(s);
+      return { l, s };
+    };
+    const hours = info.hours.map(h => [h.no, h.label]);
+    const wd = sel('Dzień tygodnia', WEEKDAYS.map((n, i) => [i, n]), 0);
+    const blk = sel('Bloków pod rząd', [1, 2, 3, 4].map(n => [n, String(n)]), 1);
+    const hf = sel('Godziny od', hours, hours.length ? hours[0][0] : '');
+    const ht = sel('do', hours, hours.length ? hours[hours.length - 1][0] : '');
+    this.wd = wd.s; this.blk = blk.s; this.hf = hf.s; this.ht = ht.s;
+    const row = el('div', 'spl-sch-row'); row.append(wd.l, blk.l, hf.l, ht.l);
+    body.append(row);
+
+    const bar = el('div', 'spl-sch-row');
+    this.status = el('span', 'muted', '');
+    bar.append(button('Zaproponuj terminy', 'primary', () => this.propose()), this.status);
+    body.append(bar);
+    this.terms = el('div', 'spl-sch-terms');
+    body.append(this.terms);
+    this.error = el('p', 'error'); this.error.hidden = true;
+    body.append(this.error);
+
+    const actions = el('div', 'b-actions');
+    this.addBtn = button('Dodaj zaznaczone zajęcia', 'primary', () => this.add());
+    this.addBtn.disabled = true;
+    actions.append(this.addBtn, button('Zamknij', 'secondary', () => d.close()));
+    d.append(head, body, actions);
+    if (!d.open) d.showModal();
+  }
+
+  clearTerms() { this.list = []; this.terms.innerHTML = ''; this.status.textContent = ''; this.addBtn.disabled = true; }
+
+  async propose() {
+    this.error.hidden = true;
+    const lec = this.lec.items[0];
+    if (!this.itemHasLec && !lec) { this.status.textContent = 'Pozycja bez wykładowcy - najpierw wybierz wykładowcę.'; return; }
+    const rom = this.rom.items[0];
+    const q = new URLSearchParams({
+      item: this.info.item.id, mode: this.modeEven.checked ? 'EVEN' : 'FIRST', weekday: this.wd.value,
+      from: this.hf.value, to: this.ht.value, block: this.blk.value,
+    });
+    if (lec) q.set('lec', lec.id);
+    if (rom) q.set('rom', rom.id);
+    let r;
+    try { r = await withProgress(this.dialog, 'Szukanie terminów…', () => this.api('spl/propose?' + q), [], 200); }
+    catch (e) { this.error.textContent = e.message; this.error.hidden = false; return; }
+    this.clearTerms();
+    if (r.status === 'ERR') { this.status.textContent = r.message; return; }
+    if (r.status === 'DONE') { this.status.textContent = 'Pozycja jest już w pełni zaplanowana.'; return; }
+    this.list = r.terms.map(t => ({ ...t, on: true }));
+    const label = no => (this.info.hours.find(h => h.no === no) || { label: String(no) }).label;
+    const tbl = el('table', 'spl-table');
+    const hr = el('tr');
+    const all = el('input'); all.type = 'checkbox'; all.checked = true;
+    all.addEventListener('change', () => { this.list.forEach(t => { t.on = all.checked; }); tbl.querySelectorAll('tbody input').forEach(c => { c.checked = all.checked; }); this.count(); });
+    const th0 = el('th'); th0.append(all); hr.append(th0);
+    for (const h of ['Data', 'Dzień', 'Godzina', 'Godzin', 'Spotkanie']) hr.append(el('th', '', h));
+    const thead = el('thead'); thead.append(hr);
+    const tbody = el('tbody');
+    for (const t of this.list) {
+      const tr = el('tr');
+      const c = el('input'); c.type = 'checkbox'; c.checked = true;
+      c.addEventListener('change', () => { t.on = c.checked; this.count(); });
+      const td0 = el('td'); td0.append(c); tr.append(td0);
+      const day = new Date(t.date + 'T12:00:00');
+      for (const v of [t.date, DAY_NAMES[day.getDay()], label(t.hour), fmt(t.hours), String(t.meeting)]) tr.append(el('td', '', v));
+      tbody.append(tr);
+    }
+    tbl.append(thead, tbody);
+    this.terms.append(tbl);
+    this.status.textContent = r.status === 'OK'
+      ? `Terminy bez konfliktów na ${fmt(r.total)} godz. Odznacz niepotrzebne i dodaj.`
+      : `Brakuje ${fmt(r.left)} z ${fmt(r.total)} godz. - nie ma więcej wolnych terminów (zmień dzień, godziny, salę albo sposób).`;
+    this.count();
+  }
+
+  count() { this.addBtn.disabled = !this.list.some(t => t.on); }
+
+  async add() {
+    const cells = this.list.filter(t => t.on).map(t => ({ date: t.date, hour: t.hour }));
+    if (!cells.length) return;
+    const it = this.info.item;
+    const lec = this.lec.items[0], rom = this.rom.items[0];
+    const p = {
+      period: it.perId, cells, kind: 'C', lec: lec ? [lec.id] : [], gro: [it.groId], rom: rom ? [rom.id] : [],
+      sub: it.subId, form: it.forId, fill: 100, colour: null, owner: this.user, desc: [null, null, null, null], confirm: false,
+    };
+    this.error.hidden = true;
+    this.addBtn.disabled = true;
+    try {
+      const r = await withProgress(this.dialog, 'Dodawanie zajęć…', () => this.api('classes/add', p), [], 150);
+      if (r.status === 'conflicts') {
+        this.error.textContent = `W międzyczasie pojawiły się konflikty (${r.conflicts.length}) - zaproponuj terminy jeszcze raz.`;
+        this.error.hidden = false;
+        return;
+      }
+      this.dialog.close();
+      this.onAdded(r);
+    } catch (e) {
+      this.error.textContent = e.message; this.error.hidden = false;
+    } finally { this.count(); }
   }
 }

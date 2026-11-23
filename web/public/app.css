@@ -785,14 +785,20 @@ table.pv-table th.pv-rh.rep { border-top-color: transparent; }
 .pv-content.off { opacity: .5; }
 
 /* --- Plan studiów 2 (spl.js): lista przy siatce i okno --- */
-.spl-list { padding: 4px 0; }
-.spl-head { padding: 6px 8px 2px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; }
-.spl-item { display: flex; gap: 8px; align-items: baseline; padding: 4px 8px 4px 16px; font-size: 12px; cursor: grab; border-bottom: 1px solid var(--grid-line); }
+.spl-bar { display: flex; gap: 6px; padding: 6px 8px 0; align-items: center; }
+.spl-bar input[type=search] { flex: 1; min-width: 0; padding: 5px 8px; }
+.spl-bar select { min-width: 0; padding: 4px 6px; }
+.spl-bar select:first-child { flex: 1; }
+.spl-info { padding: 4px 8px; font-size: 12px; }
+.spl-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.spl-table th { position: sticky; top: 0; background: var(--grid-head); color: var(--muted); text-align: left; padding: 4px 6px; cursor: pointer; white-space: nowrap; border-bottom: 1px solid var(--border-strong); }
+.spl-table td { padding: 3px 6px; border-bottom: 1px solid var(--grid-line); white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+.spl-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.spl-item { cursor: grab; }
 .spl-item:hover { background: var(--cell-hover); }
 .spl-item.selected { background: var(--accent-soft); }
-.spl-item .spl-cap { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.spl-item .spl-hours { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
-.spl-item .spl-hours.over { color: var(--error); }
+.spl-item.done td { color: var(--muted); }
+.spl-item.over td { color: var(--error); }
 #gridWrap td.cell.spl-drop { outline: 2px dashed var(--accent); outline-offset: -2px; }
 .spl-filters .chips.small { min-width: 170px; flex: 0 1 200px; }
 .spl-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
@@ -804,3 +810,13 @@ table.pv-table th.pv-rh.rep { border-top-color: transparent; }
 .spl-edit { display: flex; flex-direction: column; gap: 8px; }
 .spl-edit .field { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
 @media (max-width: 800px) { .spl-body { grid-template-columns: 1fr; } .spl-side { border-left: 0; border-top: 1px solid var(--border); } }
+/* --- Plan studiów: "Rozplanuj" --- */
+.spl-sch-link a { color: var(--accent); white-space: nowrap; }
+dialog.spl-schedule { width: min(720px, calc(100vw - 32px)); }
+.spl-sch-body { padding: 8px 16px; overflow: auto; display: flex; flex-direction: column; gap: 8px; min-height: 0; flex: 1; }
+.spl-sch-title { margin: 0; font-weight: 600; }
+.spl-sch-mode { border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+.spl-sch-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spl-sch-row .field { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.spl-sch-terms { overflow: auto; max-height: 45vh; border-top: 1px solid var(--border); }
+.chips.disabled { pointer-events: none; opacity: .75; }

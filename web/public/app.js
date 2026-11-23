@@ -15,7 +15,7 @@ import { PivotWindow } from './pivot.js';
 import { previewGrid, openWeeklyPlan, periodWeeks } from './preview.js';
 import { FindPanel } from './find.js';
 import { withProgress } from './progress.js';
-import { SplPanel, SplWindow, SPL_DRAG_TYPE, splCaption } from './spl.js';
+import { SplPanel, SplWindow, SplScheduleDialog, SPL_DRAG_TYPE, splCaption } from './spl.js';
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => [...document.querySelectorAll(sel)];
@@ -374,7 +374,8 @@ function loadBusy() {
     let busyRows = [], hintRows = [];
     try {
       const av = state.seeAvail.on ? state.seeAvail : null;
-      if (anyFree() || av) {
+      const sp = state.spl.sel;   // Plan studiów: kropki "Plan" wybranej pozycji
+      if (anyFree() || av || sp) {
         const q = new URLSearchParams({ period: state.period.id });
         for (const t of 'LGS') {
           if (!state.free[t].on || !ids(t)) continue;
@@ -389,7 +390,8 @@ function loadBusy() {
           q.set('respect', '1');
           q.set('sub', (state.defaults.SUB.items[0] || {}).id || ''); q.set('form', (state.defaults.FOR.items[0] || {}).id || '');
         }
-        if ([...q.keys()].some(k => ['L', 'G', 'S', 'avL', 'avG', 'avS'].includes(k))) busyRows = await api('busy?' + q);
+        if (sp) { if (sp.lecId) q.set('splL', sp.lecId); q.set('splG', sp.groId); }
+        if ([...q.keys()].some(k => ['L', 'G', 'S', 'avL', 'avG', 'avS', 'splL', 'splG'].includes(k))) busyRows = await api('busy?' + q);
       }
       if (state.fav !== 'off') {
         const f = state.fields[state.active];
@@ -656,7 +658,7 @@ function setLegendTab(tab) {
   $('#summary').hidden = tab !== 'summary';
   $('#find').hidden = tab === 'summary' || tab === 'spl';
   $('#spl').hidden = tab !== 'spl';
-  if (tab !== 'spl') splPanel.select(null);   // poza listą "Plan studiów" - "Gdzie przenieść?" znów dla zaznaczonych zajęć
+  if (tab !== 'spl') splPanel.select(null);   // poza listą "Plan studiów" - bez kropek "Plan"
   refreshLegendTab();
 }
 $$('#legend .tab[data-tab]').forEach(b => b.addEventListener('click', () => { setLegendTab(b.dataset.tab); savePrefs(); }));
@@ -744,14 +746,29 @@ const splPanel = new SplPanel($('#spl'), {
     period: state.period && state.period.id, type: state.active,
     ids: ['L', 'G', 'S'].includes(state.active) && state.fields[state.active] ? shownObjects().map(i => i.id) : [],
   }),
-  onSelect: item => {
-    state.spl.sel = item;
-    if (!state.seeAvail.on) return;
-    Object.assign(state.seeAvail, seeAvailCollect() || { L: [], G: [], S: [], cla: [] });
-    paintSeeAvail();
-    loadBusy();
+  // wybrana pozycja: kropki "Plan" w siatce - niezależnie od "Gdzie przenieść?" i "pokaż wolne terminy"
+  onSelect: item => { state.spl.sel = item; loadBusy(); },
+  onEdit: () => openSplWindow(false),
+  // "Rozplanuj...": wykładowca z ekranu (dla pozycji bez wykładowcy), sala z ekranu w widoku sali
+  onSchedule: item => {
+    const first = t => state.fields[t] && state.fields[t].items[0];
+    splSchedule.open({ item, viewLec: first('L'), viewRom: state.active === 'S' ? first('S') : null, user: state.me.user });
   },
-  onDetails: () => openSplWindow(false),
+});
+const splSchedule = new SplScheduleDialog({
+  api,
+  onAdded: r => {
+    loadClasses();   // siatka i lista planu (odświeżana po wczytaniu zajęć)
+    const n = r.count;
+    flashTitle(`Dodano ${n} ${plural(n, 'zajęcie', 'zajęcia', 'zajęć')}` + (r.warning ? ` – ${r.warning}` : ''));
+  },
+});
+// kliknięcie w siatkę wyłącza kropki "Plan" (pozycja planu zostaje odznaczona)
+$('#gridWrap').addEventListener('gridmouseup', () => { if (state.spl.sel) splPanel.select(null); });
+// przycisk "Plan studiów" obok "Legenda": lista planu w legendzie (drugie kliknięcie zamyka)
+$('#splButton').addEventListener('click', () => {
+  if (state.legend && legendTab() === 'spl') { setLegend(false); return; }
+  setLegend(true); setLegendTab('spl'); savePrefs();
 });
 // filtry okna: okres siatki, wykładowca / grupa widoku (albo podane)
 function openSplWindow(select, preset) {
@@ -771,6 +788,7 @@ function pickSplItems({ gro, lec }) {
 async function loadSplStatus() {
   try { state.spl.enabled = !!(await api('spl/status')).enabled; } catch { state.spl.enabled = false; }
   $('#splTab').hidden = !state.spl.enabled;
+  $('#splButton').hidden = !state.spl.enabled;
   $('#splMenu').hidden = !state.spl.enabled;
   if (!state.spl.enabled && legendTab() === 'spl') setLegendTab('summary');
 }
@@ -979,13 +997,6 @@ document.addEventListener('keydown', e => {
 //     pola wyboru i "pokaż wolne terminy" bez zmian (zaznaczone "wolne terminy" są uwzględniane dodatkowo) ----------------
 // zasoby i identyfikatory zajęć z zaznaczonych komórek; null - w zaznaczeniu nie ma zajęć
 function seeAvailCollect() {
-  // Plan studiów: wybrana pozycja - zaznaczone zajęcia są pomijane; wykładowca i grupa pozycji (pozycja bez wykładowcy -
-  // wykładowca widoku), sala widoku - te same obiekty, co zajęcie dodane przez przeciągnięcie pozycji na siatkę
-  const sp = state.spl.sel;
-  if (sp) {
-    const view = t => (state.active === t && state.fields[t] ? shownObjects().map(i => String(i.id)) : []);
-    return { L: sp.lecId ? [String(sp.lecId)] : view('L'), G: [String(sp.groId)], S: view('S'), cla: [] };
-  }
   if (!state.classData) return null;
   const byId = new Map(state.classData.classes.map(c => [String(c.id), c]));
   const sets = { L: new Set(), G: new Set(), S: new Set() }, cla = new Set(), objs = new Set();
@@ -1020,7 +1031,6 @@ function paintSeeAvail() {
   const names = (ids, map) => ids.map(id => '   ' + ((map[id] || {}).label || id)).join('\n');
   const parts = ['Gdzie mogę przenieść zajęcie? - WŁĄCZONE (kliknij, aby wyłączyć)',
     av.cla.length ? 'Kropki pokazują terminy, w których zajęte są obiekty zaznaczonych zajęć:' : 'Zaznacz zajęcie, aby zobaczyć, gdzie można je przenieść.'];
-  if (state.spl.sel) parts.splice(1, 1, 'Plan studiów: ' + splCaption(state.spl.sel), 'Kropki pokazują terminy, w których zajęte są obiekty tej pozycji planu studiów:');
   if (av.L.length) parts.push('Wykładowcy:\n' + names(av.L, d.lecturers));
   if (av.G.length) parts.push('Grupy:\n' + names(av.G, d.groups));
   if (av.S.length) parts.push('Zasoby:\n' + names(av.S, d.rooms));
@@ -1032,7 +1042,7 @@ function seeAvailToggle() {
     state.seeAvail = { on: false, L: [], G: [], S: [], cla: [] };
   } else {
     const c = seeAvailCollect();
-    if (!c) return flashTitle(state.spl.enabled ? 'Zaznacz zajęcie albo pozycję planu studiów.' : 'Zaznacz zajęcie.', true);
+    if (!c) return flashTitle('Zaznacz zajęcie.', true);
     state.seeAvail = { on: true, ...c };
   }
   paintSeeAvail();

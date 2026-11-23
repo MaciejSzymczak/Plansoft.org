@@ -956,7 +956,11 @@ type
     plan2Export   : TButton;
     plan2Import   : TButton;
     plan2Sort     : TComboBox;
-    plan2List     : TListView;
+    plan2List     : TDrawGrid;   // the list (a grid - only visible cells are drawn, scrolls fast)
+    plan2View     : TList;       // rows of the list: plan2Rows after the search / status, sorted
+    plan2DownRow, plan2DownCol : integer;   // mouse down on the list (drag starts after a move of a few pixels)
+    plan2DownPt   : TPoint;
+    plan2DragInfo : TSplNodeInfo;           // item dragged onto the grid
     plan2Rows     : TList;
     plan2SortCol  : integer;   // -1: order of the plan (Kolejnoœæ)
     plan2SortDesc : boolean;
@@ -1008,11 +1012,14 @@ type
     function  plan2Key : string;
     procedure plan2CreateControls;
     procedure plan2SelectInfo(info : TSplNodeInfo);
-    procedure plan2ListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure plan2ListDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure plan2ListSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+    procedure plan2ListMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure plan2ListMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure plan2ListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    function  plan2RowInfo(ARow : integer) : TSplNodeInfo;
+    procedure plan2Schedule(info : TSplNodeInfo);
     procedure plan2SelTimerTimer(Sender: TObject);
-    procedure plan2ListColumnClick(Sender: TObject; Column: TListColumn);
-    procedure plan2ListCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
-    procedure plan2ListCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure plan2FilterChange(Sender: TObject);
     procedure plan2ScopeChange(Sender: TObject);
     procedure plan2FilterResize(Sender: TObject);
@@ -1236,7 +1243,7 @@ Uses AutoCreate, UFDetails, UFWarning,
   UFCellLayout, UFListOrganizer, UFSUSOS, UFPulpitSelector, UFIntegration, UWebServices,
   UProgress, UFSelectDate, UUtilities, UFFloatingMessage, UFDataEnrichment,
   FVersions, StrUtils, UFCustomConnectionString, UFDBSpace, UFWaitingTasks, UFBrowseEVENTLOG,
-  UFBrowseSPL_ITEMS;
+  UFBrowseSPL_ITEMS, CommCtrl;
 
 var dummy : string;
 const LastValidatedPeriodId : string = '###invalid###'; // typed constant = writable global, cache for the PERIODS existence check in BuildCalendar
@@ -4904,6 +4911,9 @@ var  iniFile : tinifile;
      pdefaultFolder             : string ;
      pPageName                  : string ;
      pAddText                   : string ;
+     pTitleSuffix               : string ; //2026-11: "Tytu³: Przyrostek"
+     pQRCodes                   : boolean; //2026-11: Barcody.docx
+     pQRDomain                  : string ;
      pDoNotGenerateTableOfCon   : boolean;
      pGoogleUser                : string ;
      pGooglePassword            : string ;
@@ -4922,6 +4932,9 @@ begin
    pDefaultFolder           := ReadString ('wwwgenerator','DefaultFolder','');
    pPageName                := ReadString ('wwwgenerator','PageName','');        //empty = period name
    pAddText                 := ReadString ('wwwgenerator','AddText','');
+   pTitleSuffix             := ReadString ('wwwgenerator','TitleSuffix','- Plansoft.org'); //files saved before 2026-11 - the default
+   pQRCodes                 := ReadBool   ('wwwgenerator','QRCodes',false);
+   pQRDomain                := ReadString ('wwwgenerator','QRDomain','https://Tu_wpisz_domene_swojej_uczelni');
    pDoNotGenerateTableOfCon := ReadBool   ('wwwgenerator','DoNotGenerateTableOfCon',false);
    pGoogleUser              := ReadString ('wwwgenerator','GoogleUser','');
    pGooglePassword          := ReadString ('wwwgenerator','GooglePassword','');
@@ -4954,6 +4967,9 @@ begin
      defaultFolder                    := pdefaultFolder;
      PageName.Text                    := pPageName;
      addText.Text                     := pAddText;
+     TitleSuffix.Text                 := pTitleSuffix;
+     GenQRCodes.Checked               := pQRCodes;
+     QRDomain.Text                    := pQRDomain;
      DoNotGenerateTableOfCon.Checked  := pDoNotGenerateTableOfCon;
      Groups.Checked                   := pGroups;
      Resources.Checked                := pResources;
@@ -5906,6 +5922,9 @@ Begin
  dmodule.CommitTrans;
  FWWWGenerator := TFWWWGenerator.Create(Application);
  FWWWGenerator.currentPeriod.Text := conPeriod.Text;
+ //2026-11: website: a week chosen in the main window - its semester (the parent period)
+ if (pgentype = 0) and not isBlank(conPeriod.Text) then
+   FWWWGenerator.currentPeriod.Text := NVL(DModule.SingleValue('select sub_period_parent from periods where id = '+conPeriod.Text), conPeriod.Text);
  FWWWGenerator.genType.ItemIndex := pgenType;
  FWWWGenerator.ShowModal;
  FWWWGenerator.Free;
@@ -10307,12 +10326,6 @@ begin
  //2026-11: Plan2 - a click in the grid switches off the dots of the study plan item (the item is deselected)
  if plan2Selected then begin
    plan2SelTimer.Enabled := false;
-   plan2Filling := true;
-   try
-     plan2List.Selected := nil;
-   finally
-     plan2Filling := false;
-   end;
    plan2SelectInfo(nil);
  end;
 end;
@@ -10320,13 +10333,42 @@ end;
 
 //2026-11: Plan2 ------------------------------------------------------------------------------------------------
 const C_PLAN2_TREEMODE = 'Plan studiów';
-      C_PLAN2_COLS : array[0..5] of string = ('Przedmiot', 'Forma', 'Grupa', 'Wyk³adowca', 'Zapl. / plan', 'Okres');
-      C_PLAN2_WIDTHS : array[0..5] of integer = (130, 70, 60, 100, 75, 90);
+      C_PLAN2_COLS : array[0..6] of string = ('Przedmiot', 'Forma', 'Grupa', 'Wyk³adowca', 'Zapl. / plan', 'Okres', '');
+      C_PLAN2_WIDTHS : array[0..6] of integer = (130, 70, 60, 100, 75, 90, 75);
+      C_PLAN2_SCHEDULE_COL = 6;   // "Rozplanuj..." - a link in every row
       // "Sortuj": item of the list -> column of plan2List (-1: order of the plan), descending
       C_PLAN2_SORTS : array[0..6] of string = ('Sortuj: kolejnoœæ', 'Sortuj: przedmiot', 'Sortuj: forma', 'Sortuj: grupa',
                                                'Sortuj: wyk³adowca', 'Sortuj: do zaplanowania', 'Sortuj: okres');
       C_PLAN2_SORT_COL  : array[0..6] of integer = (-1, 0, 1, 2, 3, 4, 5);
       C_PLAN2_SORT_DESC : array[0..6] of boolean = (false, false, false, false, false, true, false);
+
+var gPlan2SortCol  : integer = -1;   // plan2CompareRows: column (-1: order of the plan), descending
+    gPlan2SortDesc : boolean = false;
+
+//rows of the list "Plan studiów" (TList.Sort): by the column, then in the order of the plan
+function plan2CompareRows(Item1, Item2 : Pointer) : Integer;
+var a, b : TSplNodeInfo;
+    x, y : double;
+begin
+  a := TSplNodeInfo(Item1);
+  b := TSplNodeInfo(Item2);
+  result := 0;
+  Case gPlan2SortCol of
+    0: result := AnsiCompareText(a.SubName, b.SubName);
+    1: result := AnsiCompareText(a.ForName, b.ForName);
+    2: result := AnsiCompareText(a.GroName, b.GroName);
+    3: result := AnsiCompareText(a.LecName, b.LecName);
+    4: begin
+         // hours still to be planned
+         x := a.Planned - a.Scheduled;
+         y := b.Planned - b.Scheduled;
+         if x < y then result := -1 else if x > y then result := 1;
+       end;
+    5: result := AnsiCompareText(a.PerName, b.PerName);
+  end;
+  if gPlan2SortDesc then result := -result;
+  if result = 0 then result := a.Pos - b.Pos;
+end;
 
 //"Plan studiów" in the list of TreeMode only when Plan2 is switched on (Plik | Ustawienia programu)
 procedure TFMain.plan2TreeModeSync;
@@ -10371,6 +10413,7 @@ begin
     plan2Sel.Caption := info.Caption;
   end else
     plan2Sel.Id := '';
+  if Assigned(plan2List) then plan2List.Invalidate;   // the highlighted row
   if plan2Sel.Id <> oldId then seeAvailableReload;
 end;
 
@@ -10454,26 +10497,25 @@ begin
   plan2Import.ShowHint := true;
   plan2Import.OnClick  := plan2ImportClick;
 
-  plan2List := TListView.Create(self);
-  plan2List.Parent        := PanelRecentlyUsed;
-  plan2List.Align         := alClient;
-  plan2List.ViewStyle     := vsReport;
-  plan2List.RowSelect     := true;
-  plan2List.ReadOnly      := true;
-  plan2List.HideSelection := false;
-  plan2List.DragMode      := dmAutomatic;   // drag & drop onto the grid (GridPlan2DragOver / GridPlan2DragDrop)
-  plan2List.Hint          := 'Kliknij pozycjê: kropki "Plan" w siatce. Przeci¹gnij na siatkê: dodaj zajêcie. Kliknij nag³ówek: sortuj';
-  plan2List.ShowHint      := true;
-  for t := 0 to High(C_PLAN2_COLS) do
-    with plan2List.Columns.Add do begin
-      Caption := C_PLAN2_COLS[t];
-      Width   := C_PLAN2_WIDTHS[t];
-      if t = 4 then Alignment := taRightJustify;
-    end;
-  plan2List.OnSelectItem      := plan2ListSelectItem;
-  plan2List.OnColumnClick     := plan2ListColumnClick;
-  plan2List.OnCompare         := plan2ListCompare;
-  plan2List.OnCustomDrawItem  := plan2ListCustomDrawItem;
+  plan2View := TList.Create;
+  plan2List := TDrawGrid.Create(self);
+  plan2List.Parent           := PanelRecentlyUsed;
+  plan2List.Align            := alClient;
+  plan2List.ColCount         := Length(C_PLAN2_COLS);
+  plan2List.RowCount         := 2;
+  plan2List.FixedCols        := 0;
+  plan2List.FixedRows        := 1;
+  plan2List.DefaultRowHeight := 18;
+  plan2List.DefaultDrawing   := false;
+  plan2List.Options          := [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goColSizing, goThumbTracking];
+  plan2List.Hint             := 'Kliknij pozycjê: kropki "Plan" w siatce. Przeci¹gnij na siatkê: dodaj zajêcie. Kliknij nag³ówek: sortuj. Rozplanuj...: terminy na brakuj¹ce godziny';
+  plan2List.ShowHint         := true;
+  for t := 0 to High(C_PLAN2_COLS) do plan2List.ColWidths[t] := C_PLAN2_WIDTHS[t];
+  plan2List.OnDrawCell   := plan2ListDrawCell;
+  plan2List.OnSelectCell := plan2ListSelectCell;
+  plan2List.OnMouseDown  := plan2ListMouseDown;
+  plan2List.OnMouseMove  := plan2ListMouseMove;
+  plan2List.OnMouseUp    := plan2ListMouseUp;
 
   plan2SelTimer := TTimer.Create(self);
   plan2SelTimer.Enabled  := false;
@@ -10509,8 +10551,7 @@ var t : integer;
     ids : string;
 begin
   ids := '';
-  for t := 0 to plan2List.Items.Count - 1 do
-    if Assigned(plan2List.Items[t].Data) then ids := Merge(ids, TSplNodeInfo(plan2List.Items[t].Data).Id, ',');
+  for t := 0 to plan2View.Count - 1 do ids := Merge(ids, TSplNodeInfo(plan2View[t]).Id, ',');
   SPL_ITEMSExportToExcel(ids);
 end;
 
@@ -10555,7 +10596,8 @@ begin
   plan2LastKey := plan2Key;
   plan2Filling := true;
   try
-    plan2List.Items.Clear;
+    plan2View.Clear;
+    plan2DragInfo := nil;
     for t := 0 to plan2Rows.Count - 1 do TSplNodeInfo(plan2Rows[t]).Free;
     plan2Rows.Clear;
   finally
@@ -10647,58 +10689,47 @@ end;
 
 //rows of plan2Rows matching the search phrase and the status, sorted; the selected item stays selected
 procedure TFMain.plan2ShowList;
-var t, k, n : integer;
+var t, k, n, selRow : integer;
     info : TSplNodeInfo;
     phrases, txt : string;
     ok : boolean;
-    item, selItem : TListItem;
 begin
   if not Assigned(plan2List) then exit;
   phrases := replacePolishChars(AnsiUppercase(Trim(plan2Search.Text)));
-  selItem := nil;
+  plan2View.Clear;
+  for t := 0 to plan2Rows.Count - 1 do begin
+    info := TSplNodeInfo(plan2Rows[t]);
+    Case plan2Status.ItemIndex of
+      1: if info.Scheduled >= info.Planned then continue;
+      2: if info.Scheduled <  info.Planned then continue;
+    end;
+    if phrases <> '' then begin
+      // "Dowolna fraza": phrases separated by commas, any of them
+      txt := replacePolishChars(AnsiUppercase(info.SubName+'#'+info.ForName+'#'+info.GroName+'#'+info.LecName+'#'+info.PerName));
+      ok := false;
+      n := WordCount(phrases, [',']);
+      for k := 1 to n do
+        if (Trim(ExtractWord(k, phrases, [','])) <> '') and (Pos(Trim(ExtractWord(k, phrases, [','])), txt) > 0) then begin ok := true; break; end;
+      if not ok then continue;
+    end;
+    plan2View.Add(info);
+  end;
+  gPlan2SortCol  := plan2SortCol;
+  gPlan2SortDesc := plan2SortDesc;
+  plan2View.Sort(plan2CompareRows);
+  selRow := -1;
+  for t := 0 to plan2View.Count - 1 do
+    if Assigned(plan2Sel) and (plan2Sel.Id <> '') and (TSplNodeInfo(plan2View[t]).Id = plan2Sel.Id) then selRow := t + 1;
   plan2Filling := true;
-  plan2List.Items.BeginUpdate;
   try
-    plan2List.Items.Clear;
-    for t := 0 to plan2Rows.Count - 1 do begin
-      info := TSplNodeInfo(plan2Rows[t]);
-      Case plan2Status.ItemIndex of
-        1: if info.Scheduled >= info.Planned then continue;
-        2: if info.Scheduled <  info.Planned then continue;
-      end;
-      if phrases <> '' then begin
-        // "Dowolna fraza": phrases separated by commas, any of them
-        txt := replacePolishChars(AnsiUppercase(info.SubName+'#'+info.ForName+'#'+info.GroName+'#'+info.LecName+'#'+info.PerName));
-        ok := false;
-        n := WordCount(phrases, [',']);
-        for k := 1 to n do
-          if (Trim(ExtractWord(k, phrases, [','])) <> '') and (Pos(Trim(ExtractWord(k, phrases, [','])), txt) > 0) then begin ok := true; break; end;
-        if not ok then continue;
-      end;
-      item := plan2List.Items.Add;
-      item.Caption := info.SubName;
-      item.SubItems.Add(info.ForName);
-      item.SubItems.Add(info.GroName);
-      item.SubItems.Add(info.LecName);
-      item.SubItems.Add(FormatFloat('0.##', info.Scheduled) + ' / ' + FormatFloat('0.##', info.Planned));
-      item.SubItems.Add(info.PerName);
-      item.Data := info;
-      if Assigned(plan2Sel) and (plan2Sel.Id <> '') and (info.Id = plan2Sel.Id) then selItem := item;
-    end;
-    plan2List.AlphaSort;
-    if Assigned(selItem) then begin
-      selItem.Selected := true;
-      selItem.Focused  := true;
-    end;
+    plan2List.RowCount := plan2View.Count + 1 + iif(plan2View.Count = 0, 1, 0);   // at least one row under the header
+    if selRow > 0 then plan2List.Row := selRow;   // also scrolls the row into view
   finally
-    plan2List.Items.EndUpdate;
     plan2Filling := false;
   end;
-  if Assigned(selItem) then begin
-    selItem.MakeVisible(false);
-    plan2Sel.Caption := TSplNodeInfo(selItem.Data).Caption;
-  end else
-    if Assigned(plan2Sel) and (plan2Sel.Id <> '') then plan2SelectInfo(nil);   // not on the list any more
+  plan2List.Invalidate;
+  if selRow > 0 then plan2Sel.Caption := TSplNodeInfo(plan2View[selRow - 1]).Caption
+  else if Assigned(plan2Sel) and (plan2Sel.Id <> '') then plan2SelectInfo(nil);   // not on the list any more
 end;
 
 procedure TFMain.plan2FilterChange(Sender: TObject);
@@ -10711,8 +10742,14 @@ begin
   plan2FillTree;
 end;
 
-//selection: applied after a moment - a click deselects the old item and selects the new one (one reload of the dots)
-procedure TFMain.plan2ListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+function TFMain.plan2RowInfo(ARow : integer) : TSplNodeInfo;
+begin
+  result := nil;
+  if Assigned(plan2View) and (ARow >= 1) and (ARow <= plan2View.Count) then result := TSplNodeInfo(plan2View[ARow - 1]);
+end;
+
+//selection (keyboard, click): applied after a moment - one reload of the dots for quick changes
+procedure TFMain.plan2ListSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
 begin
   if plan2Filling then exit;
   plan2SelTimer.Enabled := false;
@@ -10722,19 +10759,73 @@ end;
 procedure TFMain.plan2SelTimerTimer(Sender: TObject);
 begin
   plan2SelTimer.Enabled := false;
-  if Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data) then plan2SelectInfo(TSplNodeInfo(plan2List.Selected.Data))
-                                                                       else plan2SelectInfo(nil);
+  plan2SelectInfo(plan2RowInfo(plan2List.Row));
 end;
 
-//click on the header: sort by the column, next click - descending
-procedure TFMain.plan2ListColumnClick(Sender: TObject; Column: TListColumn);
+//header: sort by the column (next click - descending); a row: select (drag after a move); empty space: deselect
+procedure TFMain.plan2ListMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var c, r : integer;
 begin
-  if Column.Index = plan2SortCol then plan2SortDesc := not plan2SortDesc
-  else begin
-    plan2SortCol  := Column.Index;
-    plan2SortDesc := false;
+  plan2DownRow := -1;
+  plan2DownCol := -1;
+  if Button <> mbLeft then exit;
+  plan2List.MouseToCell(X, Y, c, r);
+  if r = 0 then begin
+    if (c < 0) or (c = C_PLAN2_SCHEDULE_COL) then exit;
+    if c = plan2SortCol then plan2SortDesc := not plan2SortDesc
+    else begin plan2SortCol := c; plan2SortDesc := false; end;
+    plan2ApplySort;
+    exit;
   end;
-  plan2ApplySort;
+  if plan2RowInfo(r) = nil then begin
+    plan2SelTimer.Enabled := false;
+    plan2SelectInfo(nil);
+    exit;
+  end;
+  plan2DownRow := r;
+  plan2DownCol := c;
+  plan2DownPt  := Point(X, Y);
+  if c <> C_PLAN2_SCHEDULE_COL then begin
+    plan2SelTimer.Enabled := false;
+    plan2SelTimer.Enabled := true;   // also a click on the row selected before (OnSelectCell is not fired then)
+  end;
+end;
+
+procedure TFMain.plan2ListMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  if (plan2DownRow < 1) or not (ssLeft in Shift) then exit;
+  if (Abs(X - plan2DownPt.X) < 5) and (Abs(Y - plan2DownPt.Y) < 5) then exit;
+  plan2DragInfo := plan2RowInfo(plan2DownRow);
+  plan2DownRow := -1;
+  if plan2DragInfo = nil then exit;
+  plan2SelTimer.Enabled := false;
+  plan2SelectInfo(plan2DragInfo);
+  plan2List.BeginDrag(true);   // GridPlan2DragOver / GridPlan2DragDrop
+end;
+
+//"Rozplanuj..." - a click (press and release on the same cell)
+procedure TFMain.plan2ListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var c, r : integer;
+begin
+  if (Button <> mbLeft) or (plan2DownCol <> C_PLAN2_SCHEDULE_COL) then exit;
+  plan2List.MouseToCell(X, Y, c, r);
+  if (c <> plan2DownCol) or (r <> plan2DownRow) then exit;
+  plan2DownRow := -1;
+  plan2DownCol := -1;
+  plan2Schedule(plan2RowInfo(r));
+end;
+
+//the window "Rozplanuj" for the item (every row; a planned item - the window says so)
+procedure TFMain.plan2Schedule(info : TSplNodeInfo);
+var viewRom : string;
+begin
+  if info = nil then exit;
+  viewRom := '';
+  if TabViewType.TabIndex = 2 then viewRom := ExtractWord(1, conResCat0.Text, [';']);
+  if SPL_ITEMSSchedule(info.Id, ExtractWord(1, ConLecturer.Text, [';']), viewRom) > 0 then begin
+    plan2Dirty := true;
+    DeepRefreshImmediate('plan2Schedule');   // new classes in the grid, the list and "Podsumowanie godzin"
+  end;
 end;
 
 //"Sortuj" list
@@ -10751,8 +10842,6 @@ procedure TFMain.plan2ApplySort;
 var t : integer;
     ev : TNotifyEvent;
 begin
-  for t := 0 to plan2List.Columns.Count - 1 do
-    plan2List.Columns[t].Caption := C_PLAN2_COLS[t] + iif(t = plan2SortCol, iif(plan2SortDesc, ' (Z-A)', ' (A-Z)'), '');
   for t := 0 to High(C_PLAN2_SORT_COL) do
     if C_PLAN2_SORT_COL[t] = plan2SortCol then begin
       ev := plan2Sort.OnChange;
@@ -10761,52 +10850,61 @@ begin
       plan2Sort.OnChange := ev;
       break;
     end;
-  plan2List.AlphaSort;   // plan2SortCol = -1: order of the plan (plan2ListCompare - Pos)
+  plan2ShowList;   // sorted (plan2SortCol = -1: order of the plan)
 end;
 
-procedure TFMain.plan2ListCompare(Sender: TObject; Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
-var a, b : TSplNodeInfo;
-    x, y : double;
+//cells: header (sorted column: (A-Z) / (Z-A)), planned: normal, scheduled: grey, more than planned: red,
+//the selected item: highlighted, "Rozplanuj..." - a link
+procedure TFMain.plan2ListDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+var cv : TCanvas;
+    info : TSplNodeInfo;
+    txt : string;
+    sel : boolean;
+    st : TFontStyles;
+    x : integer;
 begin
-  a := TSplNodeInfo(Item1.Data);
-  b := TSplNodeInfo(Item2.Data);
-  Compare := 0;
-  if (a = nil) or (b = nil) then exit;
-  Case plan2SortCol of
-    0: Compare := AnsiCompareText(a.SubName, b.SubName);
-    1: Compare := AnsiCompareText(a.ForName, b.ForName);
-    2: Compare := AnsiCompareText(a.GroName, b.GroName);
-    3: Compare := AnsiCompareText(a.LecName, b.LecName);
-    4: begin
-         // hours still to be planned
-         x := a.Planned - a.Scheduled;
-         y := b.Planned - b.Scheduled;
-         if x < y then Compare := -1 else if x > y then Compare := 1;
-       end;
-    5: Compare := AnsiCompareText(a.PerName, b.PerName);
+  cv := plan2List.Canvas;
+  if ARow = 0 then begin
+    cv.Brush.Color := clBtnFace;
+    cv.Font.Color  := clBtnText;
+    st := [];
+    txt := C_PLAN2_COLS[ACol] + iif(ACol = plan2SortCol, iif(plan2SortDesc, ' (Z-A)', ' (A-Z)'), '');
+  end else begin
+    info := plan2RowInfo(ARow);
+    sel  := Assigned(info) and Assigned(plan2Sel) and (plan2Sel.Id <> '') and (info.Id = plan2Sel.Id);
+    if sel then cv.Brush.Color := clHighlight else cv.Brush.Color := clWindow;
+    st := [];
+    txt := '';
+    if Assigned(info) then begin
+      Case ACol of
+        0: txt := info.SubName;
+        1: txt := info.ForName;
+        2: txt := info.GroName;
+        3: txt := info.LecName;
+        4: txt := FormatFloat('0.##', info.Scheduled) + ' / ' + FormatFloat('0.##', info.Planned);
+        5: txt := info.PerName;
+        6: txt := 'Rozplanuj...';
+      end;
+      if sel then cv.Font.Color := clHighlightText
+      else if ACol = C_PLAN2_SCHEDULE_COL then cv.Font.Color := clBlue
+      else if info.Scheduled > info.Planned then cv.Font.Color := clRed
+      else if info.Scheduled >= info.Planned then cv.Font.Color := clGray
+      else cv.Font.Color := clWindowText;
+      if ACol = C_PLAN2_SCHEDULE_COL then st := [fsUnderline];
+    end;
   end;
-  if plan2SortDesc then Compare := -Compare;
-  if Compare = 0 then Compare := a.Pos - b.Pos;   // then the order of the plan
-end;
-
-//planned: normal; scheduled: grey; more than planned: red
-procedure TFMain.plan2ListCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
-var info : TSplNodeInfo;
-begin
-  DefaultDraw := true;
-  info := TSplNodeInfo(Item.Data);
-  if info = nil then exit;
-  if info.Scheduled > info.Planned then Sender.Canvas.Font.Color := clRed
-  else if info.Scheduled >= info.Planned then Sender.Canvas.Font.Color := clGray
-  else Sender.Canvas.Font.Color := clWindowText;
+  if cv.Font.Style <> st then cv.Font.Style := st;   // a new font only when the style changes
+  cv.FillRect(Rect);
+  x := Rect.Left + 3;
+  if (ACol = 4) and (ARow > 0) then x := Rect.Right - 3 - cv.TextWidth(txt);
+  cv.TextRect(Rect, x, Rect.Top + 2, txt);
 end;
 
 procedure TFMain.GridPlan2DragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 var c, r : integer;
 begin
   Accept := false;
-  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) then exit;
-  if not (Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data)) then exit;
+  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) or (plan2DragInfo = nil) then exit;
   if TabViewType.TabIndex >= 4 then exit;
   Grid.MouseToCell(X, Y, c, r);
   Accept := (c >= Grid.FixedCols) and (r >= Grid.FixedRows);
@@ -10817,12 +10915,11 @@ procedure TFMain.GridPlan2DragDrop(Sender, Source: TObject; X, Y: Integer);
 var c, r : integer;
     sel : TGridRect;
 begin
-  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) then exit;
-  if not (Assigned(plan2List.Selected) and Assigned(plan2List.Selected.Data)) then exit;
+  if (not Assigned(plan2List)) or (Source <> plan2List) or (not plan2Active) or (plan2DragInfo = nil) then exit;
   Grid.MouseToCell(X, Y, c, r);
   if (c < Grid.FixedCols) or (r < Grid.FixedRows) then exit;
   plan2SelTimer.Enabled := false;
-  plan2SelectInfo(TSplNodeInfo(plan2List.Selected.Data));
+  plan2SelectInfo(plan2DragInfo);
   if not plan2Selected then exit;
   if not canInsert then begin SError('Brak uprawnieñ do dodawania zajêæ'); exit; end;
   with Grid.Selection do

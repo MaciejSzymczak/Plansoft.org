@@ -57,6 +57,18 @@ create or replace package SPL_PKG is
     -- the same period, group, subject, form and lecturer. Items are created or updated (planned hours), then linked to
     -- the classes (recalc). A row with Integration Id only (other columns empty) deletes the item - in UFMassImport.
     procedure import_from_interface (pDeleteExisting varchar2 default 'N');
+
+    -- "Rozplanuj": terms for the hours of the item still to be planned (planned - scheduled_hours_now), without DML.
+    --   pMode     FIRST - the first free terms; EVEN - the same weekday and hour every week, spread evenly over the period
+    --   pWeekday  0 - any day, 1..7 - Monday..Sunday first (then the next days of the week, when it is not enough)
+    --   pHourFrom, pHourTo - rows of the grid; pBlock - rows one after another in one meeting
+    --   pLecId    lecturer (null - the lecturer of the item), pRomId - room (optional)
+    -- A term is free when the lecturer, the group and the room (with excluded resources, planner_utils) have no classes,
+    -- the day is shown in the period, the row is not hidden and it is not a day off (holiday_days, classes not allowed).
+    -- One meeting per day. Result: 'OK;<hours to plan>;<hours not covered>' or 'PART;..' or 'DONE;0;0' or 'ERR;<message>',
+    -- then the terms '|yyyy-mm-dd;hour;hours;meeting' (one per row of the grid).
+    function propose (pItemId number, pMode varchar2, pWeekday number, pHourFrom number, pHourTo number, pBlock number
+                    , pLecId number default null, pRomId number default null) return varchar2;
 end;
 /
 
@@ -233,6 +245,193 @@ begin
     end if;
 
     recalc_scope(pPerTo, null, null, pGroTo);
+end;
+
+---------------------------------------------------------------------------------------------------------------------------------------
+function propose (pItemId number, pMode varchar2, pWeekday number, pHourFrom number, pHourTo number, pBlock number
+                , pLecId number default null, pRomId number default null) return varchar2 is
+    type tSet   is table of number index by varchar2(30);
+    type tDates is table of date   index by pls_integer;
+    busy      tSet;     -- 'yyyymmdd#hour' (hour 0 - the whole day) of the lecturer / group / room, days off
+    usedDay   tSet;     -- days with a proposed meeting of this item
+    dur       tSet;     -- hours of a row of the grid
+    vItem     spl_items%rowtype;
+    vPer      periods%rowtype;
+    vLec      number;
+    vLeft     number;   -- hours still to be covered by the proposal
+    vTotal    number;
+    vRes      varchar2(4000);
+    vMeeting  number := 0;
+    vFrom     number;
+    vTo       number;
+    vBlock    number;
+    vDays     varchar2(7);
+    vHidden   varchar2(400);
+    vOrder    varchar2(7);
+    vTooLong  boolean := false;
+    cands     tDates;
+
+    function k (d date, h number) return varchar2 is begin return to_char(d, 'yyyymmdd')||'#'||h; end;
+    function weekday (d date) return number is begin return trunc(d) - trunc(d, 'IW') + 1; end;   -- 1 = Monday
+
+    -- ids and their excluded resources (planner_utils.get_excluded_res_ids), comma separated
+    function withExcluded (pId number) return varchar2 is
+      v varchar2(4000);
+    begin
+      if pId is null then return null; end if;
+      begin
+        execute immediate 'select planner_utils.get_excluded_res_ids(:p) from dual' into v using to_char(pId);
+      exception when others then v := null;
+      end;
+      v := trim(both ',' from replace(replace(v, ';', ','), ' ', ''));
+      return to_char(pId) || case when v is not null then ','||v end;
+    end;
+
+    procedure loadBusy (pTable varchar2, pCol varchar2, pIds varchar2) is
+      c sys_refcursor;
+      v varchar2(30);
+    begin
+      if pIds is null then return; end if;
+      open c for 'select distinct to_char(day, ''yyyymmdd'')||''#''||hour from '||pTable||
+                 ' where no_conflict_flag is null and day between :a and :b and '||pCol||' in ('||pIds||')'
+                 using vPer.date_from, vPer.date_to;
+      loop
+        fetch c into v;
+        exit when c%notfound;
+        busy(v) := 1;
+      end loop;
+      close c;
+    end;
+
+    function hours (h number) return number is
+      s number := 0;
+    begin
+      for x in h .. h + vBlock - 1 loop
+        s := s + case when dur.exists(to_char(x)) then dur(to_char(x)) else 1 end;
+      end loop;
+      return s;
+    end;
+
+    -- the meeting (rows h .. h+block-1) fits on day d
+    function fits (d date, h number) return boolean is
+    begin
+      if usedDay.exists(to_char(d, 'yyyymmdd')) then return false; end if;
+      if substr(vDays, weekday(d), 1) <> '+' then return false; end if;
+      if busy.exists(k(d, 0)) then return false; end if;
+      for x in h .. h + vBlock - 1 loop
+        if x > vTo then return false; end if;
+        if busy.exists(k(d, x)) then return false; end if;
+        if vHidden is not null and substr(vHidden, mod(x - 1, length(vHidden)) + 1, 1) = '-' then return false; end if;
+      end loop;
+      return true;
+    end;
+
+    procedure take (d date, h number) is
+      e varchar2(100);
+    begin
+      vMeeting := vMeeting + 1;
+      usedDay(to_char(d, 'yyyymmdd')) := 1;
+      for x in h .. h + vBlock - 1 loop
+        e := '|'||to_char(d, 'yyyy-mm-dd')||';'||x||';'||to_char(case when dur.exists(to_char(x)) then dur(to_char(x)) else 1 end, 'FM99990.0999', 'NLS_NUMERIC_CHARACTERS=''.,''')||';'||vMeeting;
+        if nvl(length(vRes), 0) + length(e) > 3900 then vTooLong := true; return; end if;
+        vRes := vRes || e;
+      end loop;
+      vLeft := vLeft - hours(h);
+    end;
+
+    -- the first free terms, days of the week in the order vOrder (one pass per day of the week, or one pass - any day)
+    procedure first_free is
+      d date;
+    begin
+      for p in 1 .. length(vOrder) loop
+        d := vPer.date_from;
+        while d <= vPer.date_to and vLeft > 0 and not vTooLong loop
+          if substr(vOrder, p, 1) = '0' or weekday(d) = to_number(substr(vOrder, p, 1)) then
+            for h in vFrom .. vTo - vBlock + 1 loop
+              if fits(d, h) then take(d, h); exit; end if;
+            end loop;
+          end if;
+          d := d + 1;
+        end loop;
+        exit when vLeft <= 0 or vTooLong;
+      end loop;
+    end;
+
+    -- the same day of the week and hour every week, spread evenly over the period. Days of the week in the order vOrder
+    -- (the preferred day first): on each day the hour with most free weeks (the earliest of equal ones); when the day is
+    -- not enough, all its free weeks are taken and the next day of the week is used (e.g. Mondays, then also Tuesdays).
+    -- Still not enough - the first free terms.
+    procedure even is
+      d date;
+      n number;
+      need number;
+      bestN number; bestH number;
+      best tDates;
+    begin
+      for p in 1 .. length(vOrder) loop
+        bestN := 0;
+        for h in vFrom .. vTo - vBlock + 1 loop
+          cands.delete;
+          n := 0;
+          d := vPer.date_from;
+          while d <= vPer.date_to loop
+            if weekday(d) = to_number(substr(vOrder, p, 1)) and fits(d, h) then n := n + 1; cands(n) := d; end if;
+            d := d + 1;
+          end loop;
+          if n > bestN then bestN := n; bestH := h; best := cands; end if;
+        end loop;
+        if bestN > 0 then
+          need := ceil(vLeft / hours(bestH));
+          if bestN >= need then
+            for i in 0 .. need - 1 loop take(best(floor(i * bestN / need) + 1), bestH); end loop;
+          else
+            for i in 1 .. bestN loop take(best(i), bestH); end loop;
+          end if;
+        end if;
+        exit when vLeft <= 0 or vTooLong;
+      end loop;
+      if vLeft > 0 and not vTooLong then first_free; end if;
+    end;
+begin
+    begin
+      select * into vItem from spl_items where id = pItemId;
+      select * into vPer from periods where id = vItem.per_id;
+    exception
+      when no_data_found then return 'ERR;Nie znaleziono pozycji planu';
+    end;
+    vTotal := greatest(nvl(vItem.planned_hours, 0) - scheduled_hours_now(pItemId), 0);
+    if vTotal <= 0 then return 'DONE;0;0'; end if;
+    vLeft  := vTotal;
+    vLec   := nvl(pLecId, vItem.lec_id);
+    vBlock := greatest(nvl(pBlock, 1), 1);
+    vFrom  := greatest(nvl(pHourFrom, 1), 1);
+    vTo    := least(nvl(pHourTo, vPer.hours_per_day), vPer.hours_per_day);
+    vDays  := nvl(vPer.show_mon,'+')||nvl(vPer.show_tue,'+')||nvl(vPer.show_wed,'+')||nvl(vPer.show_thu,'+')||
+              nvl(vPer.show_fri,'+')||nvl(vPer.show_sat,'+')||nvl(vPer.show_sun,'+');
+    vHidden := vPer.attribs_15;
+    if nvl(pWeekday, 0) between 1 and 7 then
+      vOrder := '';
+      for i in 0 .. 6 loop vOrder := vOrder || to_char(mod(pWeekday - 1 + i, 7) + 1); end loop;
+    else
+      vOrder := case when upper(pMode) = 'EVEN' then '1234567' else '0' end;
+    end if;
+
+    for g in (select no, nvl(duration, 1) duration from grids where no between 1 and vPer.hours_per_day) loop
+      dur(to_char(g.no)) := g.duration;
+    end loop;
+    loadBusy('lec_cla', 'lec_id', withExcluded(vLec));
+    loadBusy('gro_cla', 'gro_id', withExcluded(vItem.gro_id));
+    loadBusy('rom_cla', 'rom_id', withExcluded(pRomId));
+    -- days off of the period, classes not allowed (hour empty - the whole day)
+    for hd in (select day, hour from holiday_days where per_id = vPer.id and classes_allowed = '-') loop
+      busy(k(hd.day, nvl(hd.hour, 0))) := 1;
+    end loop;
+
+    if upper(pMode) = 'EVEN' then even; else first_free; end if;
+
+    return case when vLeft <= 0 then 'OK' else 'PART' end ||';'||
+           to_char(vTotal, 'FM99990.0999', 'NLS_NUMERIC_CHARACTERS=''.,''')||';'||
+           to_char(greatest(vLeft, 0), 'FM99990.0999', 'NLS_NUMERIC_CHARACTERS=''.,''')|| vRes;
 end;
 
 ---------------------------------------------------------------------------------------------------------------------------------------

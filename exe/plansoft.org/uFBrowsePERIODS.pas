@@ -291,7 +291,18 @@ begin
 end;
 
 procedure TFBrowsePERIODS.AfterPost;
+var perId : string;
 begin
+ //2026-11: the dates of a period with weeks changed - the weeks keep the old dates (week plans, the website,
+ //switching to a week in the grid), so they are created again (like "Utwórz tygodnie")
+ perId := Query.FieldByName('ID').AsString;
+ if (perId <> '') and ((Query.FindField('SUB_PERIOD_PARENT') = nil) or Query.FieldByName('SUB_PERIOD_PARENT').IsNull) then
+   if DModule.SingleValue('select case when count(*) > 0 and (min(w.date_from) <> max(p.date_from) or max(w.date_to) <> max(p.date_to))'+
+                          ' then 1 else 0 end from periods w, periods p where p.id = '+perId+' and w.sub_period_parent = p.id') = '1' then
+     if question('Daty okresu nie zgadzaj¹ siê z datami jego tygodni (tygodnie maj¹ daty sprzed zmiany).'+cr+cr+
+                 'Tygodnie s¹ potrzebne do planów tygodniowych, witryny www i przechodzenia do tygodnia w siatce.'+cr+
+                 'Czy utworzyæ tygodnie tego okresu od nowa?') = id_yes then
+       FMain.createWeeks(perId);
  If CurrOperation in [AInsert,ACopy] Then begin
     FSharing.init('I','PER',ID.Text, QUERY.FieldByName('NAME').AsString);
     dmodule.CommitTrans;

@@ -902,7 +902,8 @@ begin
 
  WriteLn(f, '<HEAD>');
  WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">');
- WriteLn(f, '<TITLE>Plansoft.org - '+ subjectName +'</TITLE>');
+ WriteLn(f, '<TITLE>'+ wwwTimetableTitle(subjectName, pPeriodId) +'</TITLE>'); //2026-11: like the weekly plan
+ if weekPlanButtons <> nil then WriteLn(f, weekPlanButtons.currentWeekScript); //2026-11: ?CurrentWeek=Y - the plan of the current week
 
  WriteLn(f, ' <style>');
  WriteLn(f, 'table, td, th {');
@@ -919,6 +920,8 @@ begin
  if weekPlanButtons <> nil then WriteLn(f, weekPlanButtonCss);
  WriteLn(f, '</style>');
 
+ //2026-11: website icon (favicon.png in the folder of the website)
+ WriteLn(f, '<link rel="icon" type="image/png" href="favicon.png">');
  WriteLn(f, '</HEAD>');
  WriteLn(f, '<BODY>');
 

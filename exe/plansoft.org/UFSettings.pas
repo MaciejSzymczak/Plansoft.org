@@ -252,6 +252,7 @@ type
     LLink4: TCheckBox;
     LLink5: TCheckBox;
     LWeekPlans: TCheckBox;
+    LCurrentWeek: TCheckBox;
     LOneLine: TCheckBox;
     GLink1: TCheckBox;
     GLink2: TCheckBox;
@@ -259,6 +260,7 @@ type
     GLink4: TCheckBox;
     GLink5: TCheckBox;
     GWeekPlans: TCheckBox;
+    GCurrentWeek: TCheckBox;
     GOneLine: TCheckBox;
     RLink1: TCheckBox;
     RLink2: TCheckBox;
@@ -266,6 +268,7 @@ type
     RLink4: TCheckBox;
     RLink5: TCheckBox;
     RWeekPlans: TCheckBox;
+    RCurrentWeek: TCheckBox;
     ROneLine: TCheckBox;
     SLink1: TCheckBox;
     SLink2: TCheckBox;
@@ -273,6 +276,7 @@ type
     SLink4: TCheckBox;
     SLink5: TCheckBox;
     SWeekPlans: TCheckBox;
+    SCurrentWeek: TCheckBox;
     SOneLine: TCheckBox;
     Label15: TLabel;
     Label16: TLabel;
@@ -600,6 +604,7 @@ begin
    writeBool('L','LLink4', LLink4.Checked);
    writeBool('L','LLink5', LLink5.Checked);
    writeBool('L','LWeekPlans', LWeekPlans.Checked);
+   writeBool('L','LCurrentWeek', LCurrentWeek.Checked);
    writeBool('L','LOneLine', LOneLine.Checked);
    writeBool('L','Lnotes_before', Lnotes_before.Checked);
    writeBool('L','Lnotes_after', Lnotes_after.Checked);
@@ -655,6 +660,7 @@ begin
    writeBool('G','GLink4', GLink4.Checked);
    writeBool('G','GLink5', GLink5.Checked);
    writeBool('G','GWeekPlans', GWeekPlans.Checked);
+   writeBool('G','GCurrentWeek', GCurrentWeek.Checked);
    writeBool('G','GOneLine', GOneLine.Checked);
    writeBool('G','Gnotes_before', Gnotes_before.Checked);
    writeBool('G','Gnotes_after', Gnotes_after.Checked);
@@ -709,6 +715,7 @@ begin
    writeBool('R','RLink4', RLink4.Checked);
    writeBool('R','RLink5', RLink5.Checked);
    writeBool('R','RWeekPlans', RWeekPlans.Checked);
+   writeBool('R','RCurrentWeek', RCurrentWeek.Checked);
    writeBool('R','ROneLine', ROneLine.Checked);
    writeBool('R','Rnotes_before', Gnotes_before.Checked);
    writeBool('R','Rnotes_after', Gnotes_after.Checked);
@@ -760,6 +767,7 @@ begin
    writeBool('S','SLink4', SLink4.Checked);
    writeBool('S','SLink5', SLink5.Checked);
    writeBool('S','SWeekPlans', SWeekPlans.Checked);
+   writeBool('S','SCurrentWeek', SCurrentWeek.Checked);
    writeBool('S','SOneLine', SOneLine.Checked);
    writeBool('S','Snotes_before', Snotes_before.Checked);
    writeBool('S','Snotes_after', Snotes_after.Checked);
@@ -914,10 +922,11 @@ begin
    LLink4.Checked := readBool('L','LLink4', false);
    LLink5.Checked := readBool('L','LLink5', false);
    LWeekPlans.Checked := readBool('L','LWeekPlans', true); // brak ustawienia (stare pliki) = zaznaczone
+   LCurrentWeek.Checked := readBool('L','LCurrentWeek', true); // brak ustawienia (stare pliki) = zaznaczone
    LOneLine.Checked := readBool('L','LOneLine', false); // brak ustawienia (stare pliki) = jak dot퉐, opisy jeden pod drugim
    Lnotes_before.Checked := readBool('L','Lnotes_before', true);
    Lnotes_after.Checked  := readBool('L','Lnotes_after', true);
-   LPdfprintOut.Checked  := readBool('L','LPdfprintOut', true);
+   LPdfprintOut.Checked  := readBool('L','LPdfprintOut', false); //2026-11: no setting (old files) = unchecked, like in the form
    lpdfg.Checked  := readBool('L','lpdfg', false);
    lpdfl.Checked  := readBool('L','lpdfl', false);
    lpdfo.Checked  := readBool('L','lpdfo', false);
@@ -980,10 +989,11 @@ begin
    GLink4.Checked := readBool('G','GLink4', false);
    GLink5.Checked := readBool('G','GLink5', false);
    GWeekPlans.Checked := readBool('G','GWeekPlans', true); // brak ustawienia (stare pliki) = zaznaczone
+   GCurrentWeek.Checked := readBool('G','GCurrentWeek', true); // brak ustawienia (stare pliki) = zaznaczone
    GOneLine.Checked := readBool('G','GOneLine', false); // brak ustawienia (stare pliki) = jak dot퉐, opisy jeden pod drugim
    Gnotes_before.Checked := readBool('G','Gnotes_before', true);
    Gnotes_after.Checked  := readBool('G','Gnotes_after', true);
-   GPdfprintOut.Checked  := readBool('G','GPdfprintOut', true);
+   GPdfprintOut.Checked  := readBool('G','GPdfprintOut', false); //2026-11: no setting (old files) = unchecked, like in the form
    gpdfg.Checked  := readBool('G','gpdfg', false);
    gpdfl.Checked  := readBool('G','gpdfl', false);
    gpdfo.Checked  := readBool('G','gpdfo', false);
@@ -1046,10 +1056,11 @@ begin
    RLink4.Checked := readBool('R','RLink4', false);
    RLink5.Checked := readBool('R','RLink5', false);
    RWeekPlans.Checked := readBool('R','RWeekPlans', true); // brak ustawienia (stare pliki) = zaznaczone
+   RCurrentWeek.Checked := readBool('R','RCurrentWeek', true); // brak ustawienia (stare pliki) = zaznaczone
    ROneLine.Checked := readBool('R','ROneLine', false); // brak ustawienia (stare pliki) = jak dot퉐, opisy jeden pod drugim
    Rnotes_before.Checked := readBool('R','Rnotes_before', true);
    Rnotes_after.Checked  := readBool('R','Rnotes_after', true);
-   RPdfprintOut.Checked  := readBool('R','RPdfprintOut', true);
+   RPdfprintOut.Checked  := readBool('R','RPdfprintOut', false); //2026-11: no setting (old files) = unchecked, like in the form
    rpdfg.Checked  := readBool('R','rpdfg', false);
    rpdfl.Checked  := readBool('R','rpdfl', false);
    rpdfo.Checked  := readBool('R','rpdfo', false);
@@ -1113,10 +1124,11 @@ begin
    SLink4.Checked := readBool('S','SLink4', false);
    SLink5.Checked := readBool('S','SLink5', false);
    SWeekPlans.Checked := readBool('S','SWeekPlans', true); // brak ustawienia (stare pliki) = zaznaczone
+   SCurrentWeek.Checked := readBool('S','SCurrentWeek', true); // brak ustawienia (stare pliki) = zaznaczone
    SOneLine.Checked := readBool('S','SOneLine', false); // brak ustawienia (stare pliki) = jak dot퉐, opisy jeden pod drugim
    Snotes_before.Checked := readBool('S','Snotes_before', true);
    Snotes_after.Checked  := readBool('S','Snotes_after', true);
-   SPdfprintOut.Checked  := readBool('S','SPdfprintOut', true);
+   SPdfprintOut.Checked  := readBool('S','SPdfprintOut', false); //2026-11: no setting (old files) = unchecked, like in the form
    Spdfg.Checked  := readBool('S','Spdfg', false);
    Spdfl.Checked  := readBool('S','Spdfl', false);
    Spdfo.Checked  := readBool('S','Spdfo', false);

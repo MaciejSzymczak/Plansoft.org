@@ -12,7 +12,7 @@ unit UFMoveClasses;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, DB,
   UFormConfig, StdCtrls, Buttons, ExtCtrls, CheckLst, ComCtrls, ADODB, UFilteredCheckList;
 
 type
@@ -71,6 +71,8 @@ implementation
 uses DM, UFMain, UUtilities, UCommon, UUtilityParent, UFProgramSettings, UProgress;
 
 {$R *.DFM}
+
+const dayNames : array[1..7] of string = ('niedziela', 'poniedzia³ek', 'wtorek', 'œroda', 'czwartek', 'pi¹tek', 'sobota');
 
 procedure TFMoveClasses.FormCreate(Sender: TObject);
 begin
@@ -146,16 +148,19 @@ begin
 end;
 
 procedure TFMoveClasses.NewDateFromChange(Sender: TObject);
-const dayNames : array[1..7] of string = ('niedziela', 'poniedzia³ek', 'wtorek', 'œroda', 'czwartek', 'pi¹tek', 'sobota');
 var d : integer;
 begin
   d := shiftDays;
+  LShift.Font.Color := clWindowText;
   if d = 0 then LShift.Caption := 'Przesuniêcie: 0 dni - zmieñ now¹ datê pocz¹tkow¹'
   else begin
     LShift.Caption := 'Przesuniêcie: ' + iif(d > 0, 'o ' + IntToStr(d) + ' dni póŸniej', 'o ' + IntToStr(-d) + ' dni wczeœniej') +
                       ' (nowy okres: ' + FormatDateTime('yyyy-mm-dd', DateFrom.Date + d) + ' - ' + FormatDateTime('yyyy-mm-dd', DateTo.Date + d) + ')';
     if DayOfWeek(DateFrom.Date) <> DayOfWeek(NewDateFrom.Date) then
-      LShift.Caption := LShift.Caption + '. Uwaga: zmieni siê dzieñ tygodnia (' + dayNames[DayOfWeek(DateFrom.Date)] + ' -> ' + dayNames[DayOfWeek(NewDateFrom.Date)] + ')';
+    begin
+      LShift.Caption := LShift.Caption + '. Uwaga: zmieni siê dzieñ tygodnia wszystkich zajêæ (' + dayNames[DayOfWeek(DateFrom.Date)] + ' -> ' + dayNames[DayOfWeek(NewDateFrom.Date)] + ')';
+      LShift.Font.Color := clRed; //2026-11: e.g. 2 years = 730 days = 104 weeks + 2 days - Tuesday -> Thursday
+    end;
   end;
 end;
 
@@ -163,7 +168,7 @@ procedure TFMoveClasses.BMoveClick(Sender: TObject);
 var selL, selG, selR : TStringList;
     ins              : TADOQuery;
     reportFile       : string;
-    days, cnt, moved, total, notMoved : integer;
+    days, cnt, moved, total, notMoved, weeks : integer;
     committed        : boolean;
 
   // czy któryœ z identyfikatorów "1;2;3" jest zaznaczony
@@ -175,12 +180,6 @@ var selL, selG, selR : TStringList;
       if sel.IndexOf(Trim(ExtractWord(i, ids, [';']))) >= 0 then begin result := true; exit; end;
   end;
 
-  function idList(alias, claTable : string) : string;
-  begin
-    result := '(SELECT LISTAGG(XC.'+alias+'_ID, '';'') WITHIN GROUP (ORDER BY XC.ID) FROM '+claTable+' XC'+
-              '  WHERE XC.CLA_ID = CLA.ID AND XC.IS_CHILD = ''N'') '+alias+'_IDS';
-  end;
-
 begin
   days := shiftDays;
   if Trunc(DateTo.Date) < Trunc(DateFrom.Date) then begin
@@ -190,6 +189,23 @@ begin
   if days = 0 then begin
     SError('Nowa data pocz¹tkowa jest taka sama jak data pocz¹tkowa - zajêcia nie zosta³yby przesuniête');
     exit;
+  end;
+  //2026-11: a shift which is not a number of whole weeks changes the day of the week of all classes
+  //(e.g. 2 years forward = 730 days: Tuesday -> Thursday) - whole weeks are proposed
+  if days mod 7 <> 0 then begin
+    weeks := Round(days / 7);
+    if weeks = 0 then
+      if days > 0 then weeks := 1 else weeks := -1;
+    if Question('Przesuniêcie o ' + IntToStr(Abs(days)) + ' dni zmieni dzieñ tygodnia wszystkich zajêæ (' +
+                dayNames[DayOfWeek(DateFrom.Date)] + ' -> ' + dayNames[DayOfWeek(NewDateFrom.Date)] + ').' + cr + cr +
+                'Czy przesun¹æ o ' + IntToStr(Abs(weeks * 7)) + ' dni (' + IntToStr(Abs(weeks)) + ' tyg.) - z zachowaniem dni tygodnia?' + cr +
+                'Nowa data pocz¹tkowa: ' + FormatDateTime('yyyy-mm-dd', DateFrom.Date + weeks * 7) + ' (' + dayNames[DayOfWeek(DateFrom.Date + weeks * 7)] + ').') = ID_YES then begin
+      NewDateFrom.Date := DateFrom.Date + weeks * 7;
+      NewDateFromChange(nil);
+      days := shiftDays;
+    end else
+      if Question('Przesun¹æ zajêcia o ' + IntToStr(Abs(days)) + ' dni, ze zmian¹ dnia tygodnia (' +
+                  dayNames[DayOfWeek(DateFrom.Date)] + ' -> ' + dayNames[DayOfWeek(NewDateFrom.Date)] + ')?') <> ID_YES then exit;
   end;
   if not (UutilityParent.CanInsert and UutilityParent.CanDelete) then begin
     SError('Nie mo¿esz przesuwaæ zajêæ - potrzebne s¹ uprawnienia do wstawiania i usuwania zajêæ');
@@ -220,11 +236,21 @@ begin
       ins := TADOQuery.Create(self);
       ins.Connection := DModule.ADOConnection;
       ins.SQL.Text := 'insert into cla_interface (line_no, cla_id, status, message) values (:line_no, :cla_id, :status, :message)';
+      //2026-11: types of the parameters - an empty status / message (Null) without a type raised the ADO error
+      //"Parameter object is improperly defined. Inconsistent or incomplete information was provided"
+      ins.Parameters.ParamByName('line_no').DataType := ftInteger;
+      ins.Parameters.ParamByName('cla_id').DataType  := ftInteger;
+      ins.Parameters.ParamByName('status').DataType  := ftString;
+      ins.Parameters.ParamByName('status').Size      := 30;
+      ins.Parameters.ParamByName('message').DataType := ftString;
+      ins.Parameters.ParamByName('message').Size     := 4000;
 
       // zajêcia i rezerwacje okresu z co najmniej jednym zaznaczonym obiektem;
       // bez zajêæ tworzonych automatycznie (w³aœciciel AUTO - przesuwaj¹ siê z zajêciami, z których powsta³y)
       DModule.OpenSQL(
-        'SELECT CLA.ID, CLA.OWNER, '+idList('LEC', 'LEC_CLA')+', '+idList('GRO', 'GRO_CLA')+', '+idList('ROM', 'ROM_CLA')+
+        //2026-11: directly assigned objects from CALC_*_IDS (the same as LISTAGG of XXX_CLA with IS_CHILD = 'N', which
+        //Oracle 10 does not have)
+        'SELECT CLA.ID, CLA.OWNER, CLA.CALC_LEC_IDS LEC_IDS, CLA.CALC_GRO_IDS GRO_IDS, CLA.CALC_ROM_IDS ROM_IDS'+
         ' FROM CLASSES CLA'+
         ' WHERE NVL(CLA.OWNER, ''-'') <> ''AUTO'''+
         '   AND CLA.DAY BETWEEN '+DateToOracle(DateFrom.Date)+' AND '+DateToOracle(DateTo.Date)+
@@ -288,14 +314,25 @@ begin
       FProgress.Refresh;
       moved    := StrToIntDef(DModule.SingleValue('select count(*) from cla_interface where created_by = user and status = ''OK'''), 0);
       notMoved := total - moved;
-      DModule.OpenSQL('select cla_interface_pkg.getMoveReport(' + IntToStr(days) + ') from dual');
-      with TStringList.Create do try
-        Text := UTF8Encode(DModule.QWork.Fields[0].AsString);
-        SaveToFile(reportFile);
+      //2026-11: the report (CLOB) by its own query with a client cursor, like TFMassImport.SaveReport -
+      //QWork (server cursor) returned only the first characters of the CLOB
+      with TADOQuery.Create(self) do try
+        Connection     := DModule.ADOConnection;
+        CursorLocation := clUseClient;
+        CommandTimeout := 1000;
+        ParamCheck     := false;
+        SQL.Text       := 'select cla_interface_pkg.getMoveReport(' + IntToStr(days) + ') from dual';
+        Open;
+        with TStringList.Create do try
+          Text := UTF8Encode(Fields[0].AsString);
+          SaveToFile(reportFile);
+        finally
+          Free;
+        end;
+        Close;
       finally
         Free;
       end;
-      DModule.QWork.Close;
       FProgress.Hide;
       Screen.Cursor := crDefault;
       ExecuteFile(reportFile, '', '', SW_SHOWMAXIMIZED);

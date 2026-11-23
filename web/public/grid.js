@@ -616,7 +616,7 @@ function mergeUnits(container, tds, dirs, prevTd) {
 }
 
 // --- wolne terminy: zajętość wybranych zasobów w pustych komórkach (DrawBusy w Delphi) -------------
-const BUSY_COLOUR = { W: '#ffff00', G: '#ff8080', S: '#c00000' };   // wykładowca / grupa / sala, kilka typów: czerwony
+const BUSY_COLOUR = { W: '#ffff00', G: '#ff8080', S: '#c00000', P: '#8000ff' };   // wykładowca / grupa / sala / Plan studiów, kilka typów: czerwony
 export function paintBusy(container, rows, showGroups) {
   if (!container.cells) return;
   container.querySelectorAll('.busy-dot').forEach(d => d.remove());

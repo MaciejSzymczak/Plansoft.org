@@ -85,6 +85,10 @@ type
     SpeedButton2: TSpeedButton;
     LPageName: TLabel;
     PageName: TEdit;
+    LTitleSuffix: TLabel;
+    TitleSuffix: TEdit;
+    GenQRCodes: TCheckBox;
+    QRDomain: TEdit;
     PageNameHelp: TSpeedButton;
     procedure BitBtnPERClick(Sender: TObject);
     procedure currentPeriodChange(Sender: TObject);
@@ -115,14 +119,19 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     procedure currentPeriod_VALUEClick(Sender: TObject);
     procedure PageNameHelpClick(Sender: TObject);
+    procedure GenQRCodesClick(Sender: TObject);
   private
     formPrepared : boolean;
+    progressDone, progressTotal : integer;   // FProgress while the website is created
     settingsLoaded : boolean;
   public
     defaultFolder : string;
     // plany tygodni utworzone przez ostatnie calendarToHTML (TWeekPlanButtons.fileBase / createdWeeks); '' - brak
     lastWeekPlanBase, lastWeekPlanWeeks : string;
     function getPageTitle : string;
+    function titleSuffixText : string;
+    procedure generateRoomQRCodes;
+    procedure progressStep;
     procedure setStatus(i : shortString);
     procedure copyGifs (fileName: String);
     Procedure calendarToHTML(
@@ -193,10 +202,13 @@ procedure setLinkFolder(const fileName : string);
 // nazwa pliku rozk³adu bez rozszerzenia - jak w publikacji / trybie wsadowym (np. Pan_Szymanski_Adam)
 function  timetableFileName(resType, resIds : string) : string;
 
+//2026-11: TITLE of a timetable: "Plan zajêæ - <name> - <dates of the period>" + "Przyrostek do tytu³u"
+function wwwTimetableTitle(name, periodId : string) : string;
+
 implementation
 
 uses AutoCreate, UUtilityParent, FileCtrl, UFWeeklySchoolPlan, UFSettings, uFModuleFilter, uFBrowseGROUPS,
-  UFProgramSettings, UFBrowseROOMS, UFBrowseLECTURERS, UIcsGenerator;
+  UFProgramSettings, UFBrowseROOMS, UFBrowseLECTURERS, UIcsGenerator, UQRCode, ComObj, Variants, UProgress;
 
 
 const
@@ -687,6 +699,7 @@ procedure TFWWWGenerator.FormShow(Sender: TObject);
 begin
   inherited;
   genTypeChange (nil);
+  QRDomain.Visible := GenQRCodes.Checked; //2026-11: the address of the website - only with QR codes
 
   with fprogramSettings do begin
    //set by autogenerator
@@ -1786,6 +1799,7 @@ Var xp, yp          : Integer;
     objectCharts    : array of tcurrentChartClasses; // zajêcia kolejnych kolumn, indeksy jak convertGrid.weekObjIds
     objNames        : string;
     objName         : string;
+    titleName       : string;
     firstResId      : string;
     savedWeekMode   : integer;
     savedWeekIds, savedWeekNames : string;
@@ -2036,7 +2050,13 @@ begin
 
  WriteLn(f, '<HEAD>');
  WriteLn(f, '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">');
- WriteLn(f, '<TITLE>Plansoft.org - '+ fprogramSettings.profileObjectNameClassgen.Text +'</TITLE>');
+ if weekPlanButtons <> nil then WriteLn(f, weekPlanButtons.currentWeekScript); //2026-11: ?CurrentWeek=Y - the plan of the current week
+ //2026-11: TITLE like in the weekly plan: the name of the object and the dates (was "Plansoft.org - zajêcia")
+ if weekObjectsMode then titleName := SearchAndReplace(objNames, ';', ', ')
+ else if presType = 'LEC' then titleName := DModule.SingleValue(sql_LECDESC+firstResId)
+ else if presType = 'GRO' then titleName := DModule.SingleValue(sql_GRODESC+firstResId)
+ else titleName := DModule.SingleValue(sql_ResCat0DESC+firstResId);
+ WriteLn(f, '<TITLE>'+ wwwTimetableTitle(titleName, pPeriodId) +'</TITLE>');
 
  WriteLn(f, ' <style>');
  WriteLn(f, 'table, td, th {');
@@ -2055,6 +2075,8 @@ begin
  if weekPlanButtons <> nil then WriteLn(f, weekPlanButtonCss);
  WriteLn(f, '</style>');
 
+ //2026-11: website icon (favicon.png in the folder of the website)
+ WriteLn(f, '<link rel="icon" type="image/png" href="favicon.png">');
  WriteLn(f, '</HEAD>');
  WriteLn(f, '<BODY>');
 
@@ -2434,22 +2456,34 @@ var ColoringIndex    : shortString;
       end;
 
       // link spisu treœci; data-week-plan: pocz¹tek nazwy planów tygodni obiektu (telefon - plan bie¿¹cego tygodnia)
-      procedure link(const item : string);
+      // currentWeek ("Wyœwietl bie¿¹cy tydzieñ"): link with ?CurrentWeek=Y - the timetable opens the plan of the current week
+      procedure link(const item : string; currentWeek : boolean);
       var i : integer;
-          attr : string;
+          attr, param : string;
       begin
         attr := '';
+        param := '';
         if lastWeekPlanWeeks <> '' then begin
           attr := ' data-week-plan="'+XMLescapeChars(lastWeekPlanBase)+'"';
           for i := 1 to WordCount(lastWeekPlanWeeks, [';']) do allWeeks.Add(ExtractWord(i, lastWeekPlanWeeks, [';']));
+          if currentWeek and (fileExt = '.htm') then param := '?CurrentWeek=Y';
         end;
-        WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(item))+fileExt+'"'+attr+'>'+XMLescapeChars(item)+'</a>'));
+        WriteLn(fh, UTF8Encode('<a href="'+XMLescapeChars(StringToValidFileName(item))+fileExt+param+'"'+attr+'>'+XMLescapeChars(item)+'</a>'));
         lastWeekPlanBase  := '';
         lastWeekPlanWeeks := '';
       end;
 
     begin
       pageTitle := getPageTitle;
+      //2026-11: FProgress - one step per timetable (and per room of Barcody.docx)
+      progressDone  := 0;
+      progressTotal := 0;
+      for t := 0 to GList.Count - 1 do if Groups.Checked    and GList.Checked[t] then inc(progressTotal);
+      for t := 0 to LList.Count - 1 do if lecturers.Checked and LList.Checked[t] then inc(progressTotal);
+      for t := 0 to RList.Count - 1 do if Resources.Checked and RList.Checked[t] then inc(progressTotal, iif(GenQRCodes.Checked, 2, 1));
+      FProgress.ProgressBar.Position := 0;
+      FProgress.Show;
+      FProgress.Refresh;
       lastWeekPlanBase  := '';
       lastWeekPlanWeeks := '';
       allWeeks := TStringList.Create;
@@ -2471,7 +2505,9 @@ var ColoringIndex    : shortString;
       WriteLn(fh, UTF8Encode('<html>'));
       WriteLn(fh, UTF8Encode('<head>'));
       WriteLn(fh, UTF8Encode(indexPageHead));
-      WriteLn(fh, UTF8Encode('<title>Plansoft.org - '+fprogramSettings.profileObjectNameClassgen.Text+'</title>'));
+      WriteLn(fh, UTF8Encode('<title>Zajêcia'+titleSuffixText+'</title>')); //2026-11: was "Plansoft.org - zajêcia", + "Tytu³: Przyrostek"
+      //2026-11: website icon (favicon.png in the folder of the website)
+      WriteLn(fh, UTF8Encode('<link rel="icon" type="image/png" href="favicon.png">'));
       WriteLn(fh, UTF8Encode('</head>'));
       WriteLn(fh, UTF8Encode('<body>'));
       // wygl¹d (kolory, czcionki) w menu.css - zak³adka Zaawansowane - css
@@ -2535,7 +2571,8 @@ var ColoringIndex    : shortString;
                , gpdfo.checked
                , gpdfs.checked, weeklyView.Checked, glegendColorBy.ItemIndex
                , GLink1.Checked, GLink2.Checked, GLink3.Checked, GLink4.Checked, GLink5.Checked, GWeekPlans.Checked );
-               link(GList.Items[t]);
+               link(GList.Items[t], FSettings.GCurrentWeek.Checked);
+               progressStep;
              end;
            end;
            WriteLn(fh, UTF8Encode('</ul></div></td>'));
@@ -2547,7 +2584,8 @@ var ColoringIndex    : shortString;
              if LList.Checked[t] then begin
                ColoringIndex := getCode(FSettings.LViewType);
                With FSettings Do CalendarToHTML(currentPeriod.Text, inttostr(integer(LList.Items.Objects[t])), 'LEC', getCode(LD1), getCode(LD2), getCode(LD3), getCode(LD4), getCode(LD5), LHEADER.Lines, LFOOTER.Lines, llShowLegend.Checked, iif(llegendAbbr.checked,1,0)*2+iif(llegendSummary.checked,1,0)*1 , lAddCreationDate.itemindex, ColoringIndex, LW.Text, LH.Text, LCELLSIZE.Text, LS1.Text, LS2.Text, LS3.Text, LS4.Text, LS5.Text, LB1.Checked, LB2.Checked, LB3.Checked, LB4.Checked, LB5.Checked,Folder.Text+'/'+StringToValidFileName(LList.Items[t])+'.htm', LRepeatMonthNames.Checked, LHideEmptyRows.Checked, LHideDows, lcomboSpan.itemIndex, lspanEmptyCells.checked,  ltransposition.Checked, lVerticalLines.checked, lnotes_before.Checked, lnotes_after.Checked, LPdfprintOut.checked, lpdfg.checked, lpdfl.checked, lpdfo.checked, lpdfs.checked, weeklyView.Checked, llegendColorBy.ItemIndex, LLink1.Checked, LLink2.Checked, LLink3.Checked, LLink4.Checked, LLink5.Checked, LWeekPlans.Checked);
-               link(LList.Items[t]);
+               link(LList.Items[t], FSettings.LCurrentWeek.Checked);
+               progressStep;
              end;
            end;
            WriteLn(fh, UTF8Encode('</ul></div></td>'));
@@ -2564,7 +2602,8 @@ var ColoringIndex    : shortString;
                  on E:EDatabaseError do If Question('Wyst¹pi³ b³¹d bazy danych podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                  on E:exception      do If Question('Wyst¹pi³ b³¹d podczas tworzenia rozk³adu dla zasobu '+Folder.Text+'/'+StringToValidFileName(RList.Items[t])+'.htm'+'. Przeka¿ treœæ tego komunikatu serwisowi technicznemu. Czy chcesz kontynuowaæ proces generowania witryny ?'+CR+E.Message) <> ID_YES Then Raise;
                end;
-               link(RList.Items[t]);
+               link(RList.Items[t], FSettings.RCurrentWeek.Checked);
+               progressStep;
              end;
            end;
            WriteLn(fh, UTF8Encode('</ul></div></td>')); // zamkniêcie kolumny Zasoby - tylko gdy kolumna jest w tabeli
@@ -2586,6 +2625,12 @@ var ColoringIndex    : shortString;
         removeEmptyPlaceholders;
         placeholders.Free;
         allWeeks.Free;
+        FProgress.Hide;
+      end;
+      try
+        if GenQRCodes.Checked then generateRoomQRCodes; //2026-11: Barcody.docx - QR codes for the doors of rooms
+      finally
+        FProgress.Hide;
       end;
       if not fmain.silentMode then begin
           ShowFolder(Folder.Text);
@@ -2644,6 +2689,9 @@ begin
     WriteInteger('wwwgenerator','GenType',genType.ItemIndex);
     WriteString ('wwwgenerator','DefaultFolder',Folder.Text);
     WriteString ('wwwgenerator','PageName',PageName.Text);
+    WriteString ('wwwgenerator','TitleSuffix',TitleSuffix.Text); //2026-11: "Tytu³: Przyrostek"
+    WriteBool   ('wwwgenerator','QRCodes',GenQRCodes.Checked);    //2026-11: Barcody.docx
+    WriteString ('wwwgenerator','QRDomain',QRDomain.Text);
     WriteString ('wwwgenerator','AddText',AddText.Text);
     WriteBool   ('wwwgenerator','DoNotGenerateTableOfCon',DoNotGenerateTableOfCon.Checked);
     WriteString ('wwwgenerator','RoleName',fmain.CONROLE_VALUE.text);
@@ -2804,8 +2852,11 @@ begin
     GLinkLabel.Visible := genType.ItemIndex =0;
     RLinkLabel.Visible := genType.ItemIndex =0;
     LWeekPlans.Visible := genType.ItemIndex =0;
+    LCurrentWeek.Visible := genType.ItemIndex =0;
     GWeekPlans.Visible := genType.ItemIndex =0;
+    GCurrentWeek.Visible := genType.ItemIndex =0;
     RWeekPlans.Visible := genType.ItemIndex =0;
+    RCurrentWeek.Visible := genType.ItemIndex =0;
 
     //LViewTypeGroup.Visible     := genType.ItemIndex =0;
     //GViewTypeGroup.Visible     := genType.ItemIndex =0;
@@ -2873,8 +2924,11 @@ begin
     ghelp.Visible              := true;
     rhelp.Visible              := true;
     LWeekPlans.Visible         := true;
+    LCurrentWeek.Visible       := true;
     GWeekPlans.Visible         := true;
+    GCurrentWeek.Visible       := true;
     RWeekPlans.Visible         := true;
+    RCurrentWeek.Visible       := true;
   end;
   settingsLoaded := true;
 end;
@@ -2933,6 +2987,172 @@ begin
 end;
 
 // nazwa strony w index.html; puste pole = nazwa okresu
+procedure TFWWWGenerator.GenQRCodesClick(Sender: TObject);
+begin
+  QRDomain.Visible := GenQRCodes.Checked;
+  if QRDomain.Visible and Visible then QRDomain.SetFocus;
+end;
+
+//2026-11: "Generuj barcody dla sal do pliku Barcody.docx": Barcody.docx in the folder of the website - for every room
+//of the website a label with its QR code (4 per A4 page, a frame, the name of the room), to be printed and put on
+//the door. The QR code holds the address of the timetable of the room on the website (QRDomain + the file name,
+//like the link in index.html, with ?CurrentWeek=Y when "Wyœwietl bie¿¹cy tydzieñ" is on) - the phone opens the plan
+//of the current week. The codes are drawn by UQRCode (Word 2010 has no QR field), the document is made by Word.
+procedure TFWWWGenerator.generateRoomQRCodes;
+const PLACEHOLDER = 'https://Tu_wpisz_domene_swojej_uczelni';
+var domain, fileExt, url, tmpDir, bmpFile, fileName : string;
+    rooms, bmps : TStringList;
+    t, n, p : integer;
+    wd, doc, tbl, cell, rng, shp : OleVariant;
+    bmp : TBitmap;
+    currentWeek : boolean;
+    buf : array[0..MAX_PATH] of Char;
+  // cm -> points (Word: CentimetersToPoints called with an integer fails - "Unspecified error")
+  function cmToPt(cm : double) : double;
+  begin
+    result := cm * 72 / 2.54;
+  end;
+  // the file name in the address: UTF-8, percent-encoded (like a browser does with the link of index.html)
+  function urlEncode(const s : string) : string;
+  var u : string;
+      i : integer;
+  begin
+    u := UTF8Encode(s);
+    result := '';
+    for i := 1 to Length(u) do
+      if u[i] in ['A'..'Z', 'a'..'z', '0'..'9', '-', '_', '.', '~'] then result := result + u[i]
+      else result := result + '%' + IntToHex(Ord(u[i]), 2);
+  end;
+  procedure msg(const s : string);
+  begin
+    fmain.wlog('QR: ' + s);
+    if not fmain.silentMode then SError(s);
+  end;
+begin
+  domain := Trim(QRDomain.Text);
+  while (domain <> '') and (domain[Length(domain)] = '/') do Delete(domain, Length(domain), 1);
+  if (domain = '') or (AnsiCompareText(domain, PLACEHOLDER) = 0) then begin
+    msg('Plik Barcody.docx nie zosta³ utworzony: wpisz adres witryny uczelni (pole obok "Generuj barcody dla sal do pliku Barcody.docx").');
+    exit;
+  end;
+  if not Resources.Checked then begin
+    msg('Plik Barcody.docx nie zosta³ utworzony: zaznacz zasoby (sale), dla których tworzona jest witryna.');
+    exit;
+  end;
+  fileExt := iif(FSettings.RPdfPrintOut.Checked, '.pdf', '.htm');
+  currentWeek := (fileExt = '.htm') and FSettings.RWeekPlans.Checked and FSettings.RCurrentWeek.Checked and not FSettings.weeklyView.Checked;
+  GetTempPath(MAX_PATH, buf);
+  tmpDir := IncludeTrailingPathDelimiter(StrPas(buf));
+  rooms := TStringList.Create;
+  bmps  := TStringList.Create;
+  try
+    for t := 0 to RList.Count - 1 do
+      if RList.Checked[t] then rooms.Add(RList.Items[t]);
+    if rooms.Count = 0 then begin
+      msg('Plik Barcody.docx nie zosta³ utworzony: brak zaznaczonych sal.');
+      exit;
+    end;
+    setStatus('Tworzenie kodów QR dla sal (Barcody.docx)...');
+    try
+      wd := CreateOleObject('Word.Application');
+      try
+        wd.Visible := false;
+        wd.DisplayAlerts := 0;
+        doc := wd.Documents.Add;
+        doc.PageSetup.TopMargin    := cmToPt(1);
+        doc.PageSetup.BottomMargin := cmToPt(1);
+        doc.PageSetup.LeftMargin   := cmToPt(1);
+        doc.PageSetup.RightMargin  := cmToPt(1);
+        // 2 x 2 labels on an A4 page: a frame around every label, a label is not split between pages
+        tbl := doc.Tables.Add(doc.Range, (rooms.Count + 1) div 2, 2);
+        tbl.Borders.Enable := true;
+        tbl.Borders.OutsideLineWidth := 12;
+        tbl.Borders.InsideLineWidth  := 12;
+        tbl.Rows.AllowBreakAcrossPages := false;
+        tbl.Rows.HeightRule := 2;   // wdRowHeightExactly
+        tbl.Rows.Height := cmToPt(13.7);
+        tbl.Range.ParagraphFormat.Alignment  := 1;   // centre
+        tbl.Range.ParagraphFormat.SpaceAfter := 0;
+        for n := 0 to rooms.Count - 1 do begin
+          setStatus('Kod QR: ' + rooms[n]);
+          progressStep;
+          url := domain + '/' + urlEncode(StringToValidFileName(rooms[n]) + fileExt) + iif(currentWeek, '?CurrentWeek=Y', '');
+          bmpFile := tmpDir + 'plansoft_qr_' + IntToStr(n) + '.bmp';
+          bmp := QRCodeToBitmap(url, QR_ECC_MEDIUM, 10, 4);   // url: ASCII only (encoded)
+          try
+            bmp.SaveToFile(bmpFile);
+          finally
+            bmp.Free;
+          end;
+          bmps.Add(bmpFile);
+          cell := tbl.Cell(n div 2 + 1, n mod 2 + 1);
+          cell.VerticalAlignment := 1;   // centre
+          cell.Range.Text := 'Sala'#13 + rooms[n] + #13 + iif(currentWeek, 'Plan zajêæ – bie¿¹cy tydzieñ', 'Plan zajêæ') + #13;
+          cell.Range.Paragraphs.Item(1).Range.Font.Size  := 14;
+          cell.Range.Paragraphs.Item(1).Range.Font.Color := 8421504;   // grey
+          cell.Range.Paragraphs.Item(2).Range.Font.Size  := 30;
+          cell.Range.Paragraphs.Item(2).Range.Font.Bold  := true;
+          cell.Range.Paragraphs.Item(3).Range.Font.Size  := 12;
+          cell.Range.Paragraphs.Item(3).SpaceAfter := 10;
+          rng := cell.Range;
+          rng.MoveEnd(1, -1);
+          rng.Collapse(0);
+          shp := doc.InlineShapes.AddPicture(bmpFile, false, true, rng);
+          shp.Width  := cmToPt(6.5);
+          shp.Height := cmToPt(6.5);
+          rng := cell.Range;
+          rng.MoveEnd(1, -1);
+          rng.Collapse(0);
+          rng.InsertAfter(#13'Zeskanuj telefonem'#13 + url);
+          p := cell.Range.Paragraphs.Count;
+          cell.Range.Paragraphs.Item(p - 1).Range.Font.Size := 11;
+          cell.Range.Paragraphs.Item(p - 1).SpaceBefore := 8;
+          cell.Range.Paragraphs.Item(p).Range.Font.Size  := 7;
+          cell.Range.Paragraphs.Item(p).Range.Font.Color := 8421504;
+        end;
+        fileName := Folder.Text + '\Barcody.docx';
+        if FileExists(fileName) then DeleteFile(fileName);
+        doc.SaveAs(fileName, 16);   // wdFormatDocumentDefault (docx)
+        doc.Close(0);
+      finally
+        wd.Quit;
+        wd := Unassigned;
+      end;
+    except
+      on E : Exception do msg('Nie uda³o siê utworzyæ pliku Barcody.docx (potrzebny jest program Microsoft Word): ' + E.Message);
+    end;
+    for t := 0 to bmps.Count - 1 do DeleteFile(bmps[t]);
+  finally
+    rooms.Free;
+    bmps.Free;
+  end;
+end;
+
+//2026-11: FProgress while the website is created: the next timetable (or room of Barcody.docx) is ready
+procedure TFWWWGenerator.progressStep;
+begin
+  inc(progressDone);
+  if progressTotal <= 0 then exit;
+  FProgress.ProgressBar.Position := round(progressDone * FProgress.ProgressBar.Max / progressTotal);
+  if not FProgress.Visible then FProgress.Show;
+  FProgress.Refresh;
+end;
+
+//2026-11: "Przyrostek do tytu³u" - added at the end of TITLE of every timetable (' ' + suffix; empty - nothing)
+function TFWWWGenerator.titleSuffixText : string;
+begin
+  result := Trim(TitleSuffix.Text);
+  if result <> '' then result := ' ' + XMLescapeChars(result);
+end;
+
+//2026-11: TITLE of a timetable: "Plan zajêæ - <name> - <dates of the period>" + "Przyrostek do tytu³u"
+function wwwTimetableTitle(name, periodId : string) : string;
+begin
+  result := 'Plan zajêæ - ' + XMLescapeChars(name) + ' - ' +
+            DModule.SingleValue('select to_char(date_from, ''dd.mm.yyyy'')||'' - ''||to_char(date_to, ''dd.mm.yyyy'') from periods where id = '+periodId);
+  if Assigned(FWWWGenerator) then result := result + FWWWGenerator.titleSuffixText;
+end;
+
 function TFWWWGenerator.getPageTitle : string;
 begin
   if trim(PageName.Text) <> '' then result := trim(PageName.Text)

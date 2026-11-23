@@ -56,6 +56,9 @@ type
     function    createdWeeks : string;
     // pocz¹tek nazwy pliku planu tygodnia - bez dat tygodnia i rozszerzenia (weeklyPlanFileName)
     function    fileBase : string;
+    // <script> do <head> grafiku semestralnego: z parametrem CurrentWeek=Y (?CurrentWeek=Y, &CurrentWeek=Y, #CurrentWeek=Y)
+    // przechodzi do planu bie¿¹cego tygodnia; '' - brak tygodni z planami
+    function    currentWeekScript : string;
   end;
 
 // style przycisku w grafiku semestralnym (do <style>)
@@ -545,10 +548,14 @@ begin
     add('<head>');
     add('<meta charset="utf-8">');
     add('<meta name="viewport" content="width=device-width, initial-scale=1">');
-    add('<title>Plan zajêæ - '+XMLescapeChars(resName)+' - '+FormatDateTime('dd.mm.yyyy', weekFrom)+' - '+FormatDateTime('dd.mm.yyyy', weekTo)+'</title>');
+    add('<title>Plan zajêæ - '+XMLescapeChars(resName)+' - '+FormatDateTime('dd.mm.yyyy', weekFrom)+' - '+FormatDateTime('dd.mm.yyyy', weekTo)+
+        //2026-11: "Przyrostek do tytu³u" - when created from the window "Tworzenie witryny www" (not a preview)
+        iif(Assigned(FWWWGenerator) and FWWWGenerator.Visible, FWWWGenerator.titleSuffixText, '')+'</title>');
     add('<style>');
     add(planCss);
     add('</style>');
+    //2026-11: website icon (favicon.png in the folder of the website)
+    add('<link rel="icon" type="image/png" href="favicon.png">');
     add('</head>');
     add('<body>');
     add('<div class="sheet">');
@@ -760,6 +767,44 @@ begin
   for w := 0 to High(weeks) do
     if Pos('weekPlanBtn', weeks[w].button) > 0 then
       result := result + iif(result = '', '', ';') + FormatDateTime('yyyy-mm-dd', weeks[w].dateFrom) + '_' + FormatDateTime('yyyy-mm-dd', weeks[w].dateTo);
+end;
+
+//2026-11: link to the semester timetable with CurrentWeek=Y (e.g. a QR code on the door of a room) opens the plan of the
+//current week - before the semester / between weeks the next week, after the semester the last one (like index.html).
+//Weeks with columns in the grid (their plans are created with the timetable). Inline script, no external files: works
+//from a disk (file://) and from a web server; on a server the plan is checked first (HEAD) - missing: the semester
+//timetable stays (hidden for the time of the check, no flash). location.replace - "Back" does not return here.
+//Without the parameter nothing changes; the arrow "up" in the weekly plan links without the parameter.
+function TWeekPlanButtons.currentWeekScript : string;
+var w : integer;
+    js, base : string;
+begin
+  result := '';
+  if not weeksMarked then markWeeks;
+  js := '';
+  for w := 0 to High(weeks) do
+    if weeks[w].inGrid then
+      js := js + iif(js = '', '', ',') + '["'+FormatDateTime('yyyy-mm-dd', weeks[w].dateFrom)+'","'+FormatDateTime('yyyy-mm-dd', weeks[w].dateTo)+'"]';
+  if js = '' then exit;
+  base := StringReplace(StringReplace(fileBase, '\', '\\', [rfReplaceAll]), '"', '\"', [rfReplaceAll]);
+  result :=
+    '<script>'+#13#10+
+    '(function () {'+#13#10+
+    '  var q = (location.search + "&" + location.hash).replace(/[?#]/g, "&");'+#13#10+
+    '  if (!/&CurrentWeek=Y(&|$)/i.test(q)) return;'+#13#10+
+    '  var weeks = ['+js+'], base = "'+base+'";'+#13#10+
+    '  function pad(n) { return (n < 10 ? "0" : "") + n; }'+#13#10+
+    '  var d = new Date(), day = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()), w = weeks[weeks.length - 1];'+#13#10+
+    '  for (var i = 0; i < weeks.length; i++) if (day <= weeks[i][1]) { w = weeks[i]; break; }'+#13#10+
+    '  var url = base + "_" + w[0] + "_" + w[1] + ".htm";'+#13#10+
+    '  if (location.protocol.indexOf("http") !== 0 || !window.fetch) { location.replace(url); return; }'+#13#10+
+    '  var root = document.documentElement;'+#13#10+
+    '  function show() { root.style.visibility = ""; }'+#13#10+
+    '  root.style.visibility = "hidden";'+#13#10+
+    '  setTimeout(show, 4000);'+#13#10+
+    '  fetch(url, { method: "HEAD", cache: "no-store" }).then(function (r) { if (r.ok) location.replace(url); else show(); }, show);'+#13#10+
+    '})();'+#13#10+
+    '</script>';
 end;
 
 function TWeekPlanButtons.fileBase : string;

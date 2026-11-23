@@ -115,12 +115,16 @@ procedure SPL_ITEMSShowModalAsBrowser;
 function  SPL_ITEMSShowModalAsMultiSelect(var IDs : String; aPerId, aLecId, aGroId : string) : TModalResult;
 //items (ids "1,2,3", in this order) to an Excel file in the format of "Pobierz dane z programu Excel | Plan studiów"
 procedure SPL_ITEMSExportToExcel(IDs : string);
+//"Rozplanuj": terms for the hours still to be planned (spl_pkg.propose), the accepted ones are added as classes.
+//aViewLecId / aViewRomId - lecturer / room of the main window (default lecturer of an item without lecturer).
+//Result: number of added classes.
+function  SPL_ITEMSSchedule(aItemId, aViewLecId, aViewRomId : string) : integer;
 
 implementation
 
 {$R *.dfm}
 
-uses DM, UUtilityParent, UCommon, AutoCreate, UFProgramSettings, UFMain, ComObj;
+uses DM, UUtilityParent, UCommon, AutoCreate, UFProgramSettings, UFMain, ComObj, UUtilities, DateUtils;
 
 type
   // "Utworz plan na podstawie zajec": okres i grupa - skad i dokad, kopiowanie wykladowcow (form created in code)
@@ -554,6 +558,311 @@ begin
     all.Free;
     chunk.Free;
     rows.Free;
+  end;
+end;
+
+// ------------------------------------------------------------------------------------------------ "Rozplanuj"
+type
+  TSplScheduleDlg = class(TForm)
+  public
+    ItemId, GroId, SubId, ForId, LecId, RomId : string;
+    ItemHasLec : boolean;
+    LInfo, LStatus : TLabel;
+    LecEdit, RomEdit : TEdit;
+    Mode : TRadioGroup;
+    WeekDay, HFrom, HTo, Block : TComboBox;
+    List : TListView;
+    BAdd : TButton;
+    Added : integer;
+    constructor CreateDlg(AOwner : TComponent);
+    procedure LecClick(Sender : TObject);
+    procedure RomClick(Sender : TObject);
+    procedure RomClearClick(Sender : TObject);
+    procedure ProposeClick(Sender : TObject);
+    procedure AddClick(Sender : TObject);
+    function  selectLecturer : boolean;
+  end;
+
+constructor TSplScheduleDlg.CreateDlg(AOwner : TComponent);
+  function lbl(x, y : integer; txt : string) : TLabel;
+  begin
+    result := TLabel.Create(self);
+    result.Parent := self; result.Left := x; result.Top := y; result.Caption := txt;
+  end;
+  function combo(x, y, w : integer) : TComboBox;
+  begin
+    result := TComboBox.Create(self);
+    result.Parent := self; result.Style := csDropDownList; result.SetBounds(x, y, w, 21); result.DropDownCount := 16;
+  end;
+var b : TButton;
+    t : integer;
+const days : array[0..7] of string = ('Dowolny dzieñ', 'Poniedzia³ek', 'Wtorek', 'Œroda', 'Czwartek', 'Pi¹tek', 'Sobota', 'Niedziela');
+begin
+  inherited CreateNew(AOwner);
+  Caption      := 'Rozplanuj';
+  BorderStyle  := bsSizeable;
+  Position     := poScreenCenter;
+  ClientWidth  := 640;
+  ClientHeight := 600;
+  Font.Name    := 'Tahoma';
+  Constraints.MinWidth  := 560;
+  Constraints.MinHeight := 420;
+
+  LInfo := lbl(12, 10, '');
+  LInfo.Font.Style := [fsBold];
+  LInfo.AutoSize := false; LInfo.Width := 616; LInfo.Height := 32; LInfo.WordWrap := true;
+  LInfo.Anchors := [akLeft, akTop, akRight];
+
+  lbl(12, 50, 'Wyk³adowca');
+  LecEdit := TEdit.Create(self);
+  with LecEdit do begin Parent := self; SetBounds(150, 46, 330, 21); ReadOnly := true; Cursor := crHandPoint; Hint := 'Kliknij, aby wybraæ z listy'; ShowHint := true; OnClick := LecClick; end;
+  lbl(12, 78, 'Sala (opcjonalnie)');
+  RomEdit := TEdit.Create(self);
+  with RomEdit do begin Parent := self; SetBounds(150, 74, 330, 21); ReadOnly := true; Cursor := crHandPoint; Hint := 'Kliknij, aby wybraæ z listy'; ShowHint := true; OnClick := RomClick; end;
+  b := TButton.Create(self);
+  with b do begin Parent := self; SetBounds(484, 74, 60, 21); Caption := 'Bez sali'; OnClick := RomClearClick; end;
+
+  Mode := TRadioGroup.Create(self);
+  with Mode do begin
+    Parent := self; SetBounds(12, 102, 616, 58); Caption := 'Sposób';
+    Items.Add('Pierwsze wolne terminy (jak najwczeœniej)');
+    Items.Add('Równomiernie: ten sam dzieñ i godzina co tydzieñ (gdy za ma³o - tak¿e kolejne dni tygodnia)');
+    ItemIndex := 1;
+    Anchors := [akLeft, akTop, akRight];
+  end;
+
+  lbl(12, 172, 'Dzieñ tygodnia');
+  WeekDay := combo(150, 168, 130);
+  for t := 0 to 7 do WeekDay.Items.Add(days[t]);
+  WeekDay.ItemIndex := 0;
+  lbl(300, 172, 'Bloków pod rz¹d');
+  Block := combo(410, 168, 60);
+  for t := 1 to 4 do Block.Items.Add(intToStr(t));
+  Block.ItemIndex := 0;
+  lbl(12, 200, 'Godziny od');
+  HFrom := combo(150, 196, 130);
+  lbl(300, 200, 'do');
+  HTo := combo(410, 196, 130);
+
+  b := TButton.Create(self);
+  with b do begin Parent := self; SetBounds(12, 228, 160, 25); Caption := 'Zaproponuj terminy'; Default := true; OnClick := ProposeClick; end;
+
+  LStatus := lbl(184, 233, '');
+  LStatus.AutoSize := false; LStatus.Width := 444; LStatus.Anchors := [akLeft, akTop, akRight];
+
+  List := TListView.Create(self);
+  with List do begin
+    Parent := self; SetBounds(12, 262, 616, 290);
+    Anchors := [akLeft, akTop, akRight, akBottom];
+    ViewStyle := vsReport; RowSelect := true; ReadOnly := true; Checkboxes := true; HideSelection := false;
+    with Columns.Add do begin Caption := 'Data';      Width := 90;  end;
+    with Columns.Add do begin Caption := 'Dzieñ';     Width := 95;  end;
+    with Columns.Add do begin Caption := 'Godzina';   Width := 170; end;
+    with Columns.Add do begin Caption := 'Godzin';    Width := 60;  Alignment := taRightJustify; end;
+    with Columns.Add do begin Caption := 'Spotkanie'; Width := 70;  Alignment := taRightJustify; end;
+  end;
+
+  BAdd := TButton.Create(self);
+  with BAdd do begin Parent := self; SetBounds(352, 564, 180, 25); Caption := 'Dodaj zaznaczone zajêcia'; Enabled := false; OnClick := AddClick; Anchors := [akRight, akBottom]; end;
+  b := TButton.Create(self);
+  with b do begin Parent := self; SetBounds(540, 564, 88, 25); Caption := 'Zamknij'; Cancel := true; ModalResult := mrCancel; Anchors := [akRight, akBottom]; end;
+end;
+
+function TSplScheduleDlg.selectLecturer : boolean;
+var KeyValue : ShortString;
+begin
+  KeyValue := LecId;
+  result := LECTURERSShowModalAsSelect(KeyValue, '', '0=0', '') = mrOK;
+  if result then begin
+    LecId := KeyValue;
+    LecEdit.Text := FBrowseSPL_ITEMS.resourceName(1, LecId);
+  end;
+end;
+
+procedure TSplScheduleDlg.LecClick(Sender : TObject);
+begin
+  if ItemHasLec then exit;   // the lecturer of the item
+  if selectLecturer then begin List.Items.Clear; BAdd.Enabled := false; end;
+end;
+
+procedure TSplScheduleDlg.RomClick(Sender : TObject);
+var KeyValue : ShortString;
+begin
+  KeyValue := RomId;
+  if ROOMSShowModalAsSelect(dmodule.pResCatId0, '', KeyValue, '0=0', '') = mrOK then begin
+    RomId := KeyValue;
+    RomEdit.Text := FBrowseSPL_ITEMS.resourceName(3, RomId);
+    List.Items.Clear; BAdd.Enabled := false;
+  end;
+end;
+
+procedure TSplScheduleDlg.RomClearClick(Sender : TObject);
+begin
+  RomId := '';
+  RomEdit.Text := '';
+  List.Items.Clear; BAdd.Enabled := false;
+end;
+
+//spl_pkg.propose: 'OK|PART|DONE|ERR;<hours to plan>;<not covered>' + '|yyyy-mm-dd;hour;hours;meeting' ...
+procedure TSplScheduleDlg.ProposeClick(Sender : TObject);
+const days : array[1..7] of string = ('poniedzia³ek', 'wtorek', 'œroda', 'czwartek', 'pi¹tek', 'sobota', 'niedziela');
+var res, head, e, status : string;
+    t, n : integer;
+    d : TDateTime;
+    item : TListItem;
+  function hourNo(c : TComboBox) : string;
+  begin
+    if c.ItemIndex < 0 then result := 'null' else result := intToStr(integer(c.Items.Objects[c.ItemIndex]));
+  end;
+  function hourLabel(no : integer) : string;
+  var k : integer;
+  begin
+    result := intToStr(no);
+    for k := 0 to HFrom.Items.Count - 1 do
+      if integer(HFrom.Items.Objects[k]) = no then begin result := HFrom.Items[k]; exit; end;
+  end;
+begin
+  // item without lecturer: first the lecturer (default - the one of the main window), then the terms
+  if (not ItemHasLec) and (LecId = '') then
+    if not selectLecturer then exit;
+  List.Items.Clear;
+  BAdd.Enabled := false;
+  Screen.Cursor := crHourGlass;
+  try
+    res := dmodule.SingleValue('select spl_pkg.propose('+ItemId+', '''+iif(Mode.ItemIndex = 1, 'EVEN', 'FIRST')+''', '+
+             intToStr(WeekDay.ItemIndex)+', '+hourNo(HFrom)+', '+hourNo(HTo)+', '+intToStr(Block.ItemIndex + 1)+', '+
+             iif(LecId = '', 'null', LecId)+', '+iif(RomId = '', 'null', RomId)+') r from dual');
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  n := WordCount(res, ['|']);
+  head := ExtractWord(1, res, ['|']);
+  status := ExtractWord(1, head, [';']);
+  if status = 'ERR' then begin LStatus.Caption := Copy(head, 5, 500); exit; end;
+  if status = 'DONE' then begin LStatus.Caption := 'Pozycja jest ju¿ w pe³ni zaplanowana.'; exit; end;
+  List.Items.BeginUpdate;
+  try
+    for t := 2 to n do begin
+      e := ExtractWord(t, res, ['|']);
+      d := EncodeDate(StrToInt(Copy(e, 1, 4)), StrToInt(Copy(e, 6, 2)), StrToInt(Copy(e, 9, 2)));
+      item := List.Items.Add;
+      item.Caption := Copy(e, 1, 10);
+      item.SubItems.Add(days[DayOfTheWeek(d)]);
+      item.SubItems.Add(hourLabel(StrToInt(ExtractWord(2, e, [';']))));
+      item.SubItems.Add(StringReplace(ExtractWord(3, e, [';']), '.', DecimalSeparator, []));
+      item.SubItems.Add(ExtractWord(4, e, [';']));
+      item.Data := Pointer(StrToInt(ExtractWord(2, e, [';'])));   // row of the grid
+      item.Checked := true;
+    end;
+  finally
+    List.Items.EndUpdate;
+  end;
+  if status = 'OK' then
+    LStatus.Caption := 'Terminy bez konfliktów na ' + ExtractWord(2, head, [';']) + ' godz. Odznacz niepotrzebne i dodaj.'
+  else
+    LStatus.Caption := 'Brakuje ' + ExtractWord(3, head, [';']) + ' z ' + ExtractWord(2, head, [';']) +
+                       ' godz. - nie ma wiêcej wolnych terminów (zmieñ dzieñ, godziny, salê albo sposób).';
+  BAdd.Enabled := List.Items.Count > 0;
+end;
+
+//the checked terms as classes - the same insert as in the main window (planner_utils_insert_classes: canInsertClass,
+//insert_classes); the transaction as in FMain.insertClasses (the changes are saved / undone with Zapisz / Cofnij)
+procedure TSplScheduleDlg.AddClick(Sender : TObject);
+var t, ok, cnt : integer;
+    cl : TClass_;
+    e : string;
+begin
+  cnt := 0;
+  for t := 0 to List.Items.Count - 1 do if List.Items[t].Checked then inc(cnt);
+  if cnt = 0 then begin SError('Zaznacz terminy'); exit; end;
+  dmodule.CommitTrans;
+  ok := 0;
+  Screen.Cursor := crHourGlass;
+  try
+    for t := 0 to List.Items.Count - 1 do begin
+      if not List.Items[t].Checked then continue;
+      e := List.Items[t].Caption;
+      cl.id           := 0;
+      cl.day          := DateTimeToTimeStamp(EncodeDate(StrToInt(Copy(e, 1, 4)), StrToInt(Copy(e, 6, 2)), StrToInt(Copy(e, 9, 2))));
+      cl.hour         := integer(List.Items[t].Data);
+      cl.fill         := 100;
+      cl.sub_id       := StrToInt(SubId);
+      cl.for_id       := StrToInt(ForId);
+      cl.class_colour := 0;
+      cl.owner        := dm.UserName;
+      cl.calc_lec_ids := LecId;
+      cl.calc_gro_ids := GroId;
+      cl.calc_rom_ids := RomId;
+      cl.desc1 := ''; cl.desc2 := ''; cl.desc3 := ''; cl.desc4 := '';
+      if planner_utils_insert_classes(cl, '', -1, false) then inc(ok);
+    end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  Added := Added + ok;
+  Info('Dodano zajêæ: ' + intToStr(ok) + ' z ' + intToStr(cnt) + '.');
+  if ok > 0 then ModalResult := mrOK;
+end;
+
+function SPL_ITEMSSchedule(aItemId, aViewLecId, aViewRomId : string) : integer;
+var dlg : TSplScheduleDlg;
+    per, labels, hidden, lbl : string;
+    no, k : integer;
+begin
+  result := 0;
+  if not Assigned(FBrowseSPL_ITEMS) then FBrowseSPL_ITEMS := TFBrowseSPL_ITEMS.Create(Application);
+  dlg := TSplScheduleDlg.CreateDlg(nil);
+  try
+    dmodule.SingleValue('select i.id, i.gro_id, i.sub_id, i.for_id, i.lec_id, i.per_id, i.planned_hours'+
+                        ', spl_pkg.scheduled_hours_now(i.id) sch, sub.name||'', ''||xfor.name||'' - ''||gro.abbreviation sub_dsp'+
+                        '  from spl_items i, subjects sub, forms xfor, groups gro'+
+                        ' where i.id = '+aItemId+' and sub.id = i.sub_id and xfor.id = i.for_id and gro.id = i.gro_id');
+    with dmodule.QWork do begin
+      if IsEmpty then begin SError('Nie znaleziono pozycji planu'); exit; end;
+      dlg.ItemId := aItemId;
+      dlg.GroId  := FieldByName('gro_id').AsString;
+      dlg.SubId  := FieldByName('sub_id').AsString;
+      dlg.ForId  := FieldByName('for_id').AsString;
+      dlg.LecId  := FieldByName('lec_id').AsString;
+      per        := FieldByName('per_id').AsString;
+      dlg.LInfo.Caption := FieldByName('sub_dsp').AsString + '.   Do zaplanowania: ' +
+        FormatFloat('0.##', FieldByName('planned_hours').AsFloat - FieldByName('sch').AsFloat) + ' z ' +
+        FormatFloat('0.##', FieldByName('planned_hours').AsFloat) + ' godz.';
+    end;
+    dlg.ItemHasLec := dlg.LecId <> '';
+    if not dlg.ItemHasLec then dlg.LecId := aViewLecId;   // item without lecturer: the lecturer of the main window
+    if dlg.LecId <> '' then dlg.LecEdit.Text := FBrowseSPL_ITEMS.resourceName(1, dlg.LecId);
+    if dlg.ItemHasLec then begin dlg.LecEdit.Color := clBtnFace; dlg.LecEdit.Cursor := crDefault; dlg.LecEdit.Hint := 'Wyk³adowca pozycji planu'; end
+                      else dlg.LecEdit.Hint := 'Pozycja bez wyk³adowcy - wybierz wyk³adowcê (kliknij)';
+    dlg.RomId := aViewRomId;
+    if dlg.RomId <> '' then dlg.RomEdit.Text := FBrowseSPL_ITEMS.resourceName(3, dlg.RomId);
+
+    // rows of the grid of the period: own labels (ATTRIBS_14), hidden rows (ATTRIBS_15) left out
+    dmodule.SingleValue('select hours_per_day, attribs_14, attribs_15 from periods where id = '+per);
+    labels := dmodule.QWork.FieldByName('attribs_14').AsString;
+    hidden := dmodule.QWork.FieldByName('attribs_15').AsString;
+    dmodule.openSQL('select no, caption, hour_from from grids where no between 1 and '+
+                    intToStr(dmodule.QWork.FieldByName('hours_per_day').AsInteger)+' order by no');
+    with dmodule.QWork do begin
+      First;
+      while not Eof do begin
+        no := FieldByName('no').AsInteger;
+        if (hidden = '') or (Copy(hidden, ((no - 1) mod Length(hidden)) + 1, 1) <> '-') then begin
+          lbl := Trim(ExtractWord(no, labels, [',']));
+          if lbl = '' then lbl := Trim(FieldByName('caption').AsString);
+          lbl := intToStr(no) + '.  ' + lbl + iif(Trim(FieldByName('hour_from').AsString) <> '', '  (' + Trim(FieldByName('hour_from').AsString) + ')', '');
+          dlg.HFrom.Items.AddObject(lbl, TObject(no));
+          dlg.HTo.Items.AddObject(lbl, TObject(no));
+        end;
+        Next;
+      end;
+    end;
+    dlg.HFrom.ItemIndex := 0;
+    dlg.HTo.ItemIndex   := dlg.HTo.Items.Count - 1;
+    k := dlg.ShowModal;
+    if k = mrOK then result := dlg.Added else result := dlg.Added;
+  finally
+    dlg.Free;
   end;
 end;
 

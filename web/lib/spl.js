@@ -48,27 +48,46 @@ async function requireEnabled(s) {
   if (!await enabled(s)) throw httpError(400, 'Plan studiów 2 nie jest włączony (Delphi: Plik | Ustawienia programu).');
 }
 
-// GET /api/spl/panel?period&type=L|G|S&ids=1,2 - lista przy siatce: pozycje okresów nakładających się na okres siatki,
-// dla wykładowcy / grupy / sali widoku; zaplanowane godziny liczone z bieżących zajęć (spl_pkg.scheduled_hours_now)
+// GET /api/spl/panel?period&type=L|G|S&ids=1,2&scope=all - lista przy siatce (TreeMode "Plan studiów" w Delphi):
+// pozycje okresów nakładających się na okres siatki, dla wykładowcy / grupy / sali widoku (scope=all - wszystkie);
+// zaplanowane godziny liczone z bieżących zajęć jednym zapytaniem (te same reguły co spl_pkg.recalc)
 async function panel(s, url) {
   await requireEnabled(s);
   const period = num(url.searchParams.get('period'));
   const type = url.searchParams.get('type');
   const ids = idList(url.searchParams.get('ids'));
-  if (!period || !ids.length || !['L', 'G', 'S'].includes(type)) return { items: [] };
+  const all = url.searchParams.get('scope') === 'all';
+  if (!period || (!all && (!ids.length || !['L', 'G', 'S'].includes(type)))) return { items: [] };
   const binds = { pla: plaId(s), cur: period };
-  const list = ids.map((id, n) => { binds['i' + n] = id; return ':i' + n; }).join(',');
-  const cond = {
+  // all: the ids of the view are not used (and not bound - NJS-098)
+  const list = all ? '' : ids.map((id, n) => { binds['i' + n] = id; return ':i' + n; }).join(',');
+  const cond = all ? '0=0' : {
     // pozycje bez wykładowcy: powiązane z zajęciami wykładowcy (jak w oknie "Plan studiów")
     L: `(i.lec_id in (${list}) or (i.lec_id is null and exists (select 1 from spl_item_cla c, lec_cla lc where c.item_id = i.id and lc.cla_id = c.cla_id and lc.lec_id in (${list}))))`,
     G: `i.gro_id in (${list})`,
     S: `exists (select 1 from spl_item_cla c, rom_cla rc where c.item_id = i.id and rc.cla_id = c.cla_id and rc.rom_id in (${list}))`,
   }[type];
+  const dp = Number(((await db.query(s.pool, `select value from system_parameters where name = 'GRID_DECIMAL_PLACES'`))[0] || {}).VALUE) || 4;
   const rows = await db.query(s.pool, `
-    select ${SELECT}, spl_pkg.scheduled_hours_now(i.id) scheduled_now
-      from ${FROM}
-       and exists (select 1 from periods cur where cur.id = :cur and per.date_from <= cur.date_to and per.date_to >= cur.date_from)
-       and ${cond} and ${PERM}
+    with it as (select i.id
+                  from spl_items i, periods per, periods cur
+                 where cur.id = :cur and per.id = i.per_id and per.date_from <= cur.date_to and per.date_to >= cur.date_from
+                   and ${cond} and ${PERM}),
+         h as (select i.id item_id, sum(round(nvl(cla.fill,100)/100 * nvl(g.duration,1), ${dp})) hours
+                 from it, spl_items i, periods per, classes cla, grids g
+                where i.id = it.id and per.id = i.per_id
+                  and cla.day between per.date_from and per.date_to
+                  and cla.hour <= nvl(per.hours_per_day, cla.hour)
+                  and g.no = cla.hour
+                  and cla.for_id = i.for_id
+                  and (cla.sub_id = i.sub_id or exists (select 1 from str_elems se where se.parent_id = cla.sub_id and se.child_id = i.sub_id))
+                  and exists (select 1 from gro_cla gc where gc.cla_id = cla.id and gc.gro_id = i.gro_id)
+                  and (i.lec_id is null or exists (select 1 from lec_cla lc where lc.cla_id = cla.id and lc.lec_id = i.lec_id))
+                group by i.id)
+    select ${SELECT}, nvl(h.hours, 0) scheduled_now
+      from h, ${FROM}
+       and i.id in (select id from it)
+       and h.item_id (+) = i.id
      order by i.sort_order, sub.name, xfor.name, gro.abbreviation, 15`, binds);
   return { items: rows.map(item) };
 }
@@ -181,6 +200,51 @@ async function recalc(s, body) {
   return { ok: true };
 }
 
+// --- "Rozplanuj" -----------------------------------------------------------------------------------------------
+// the item (with permissions), hours still to be planned, rows of the grid of its period (own labels, hidden rows left out)
+async function itemOf(s, id) {
+  const r = (await db.query(s.pool, `
+    select ${SELECT}, spl_pkg.scheduled_hours_now(i.id) scheduled_now
+      from ${FROM} and i.id = :id and ${PERM}`, { id, pla: plaId(s) }))[0];
+  if (!r) throw httpError(404, 'Nie znaleziono pozycji planu lub brak uprawnień.');
+  return item(r);
+}
+
+// GET /api/spl/schedule-info?item -> { item, left, hours: [{ no, label }] }
+async function scheduleInfo(s, url) {
+  await requireEnabled(s);
+  const it = await itemOf(s, num(url.searchParams.get('item')));
+  const per = (await db.query(s.pool, `select hours_per_day, attribs_14, attribs_15 from periods where id = :id`, { id: it.perId }))[0] || {};
+  const labels = String(per.ATTRIBS_14 || '').split(',').filter(Boolean);
+  const hidden = String(per.ATTRIBS_15 || '');
+  const rows = await db.query(s.pool, `select no, caption, trim(hour_from) hour_from from grids where no between 1 and :n order by no`, { n: per.HOURS_PER_DAY || 0 });
+  const hours = rows
+    .filter(r => !hidden || hidden[(r.NO - 1) % hidden.length] !== '-')
+    .map(r => ({ no: r.NO, label: `${r.NO}.  ${(labels[r.NO - 1] || r.CAPTION || '').trim()}${r.HOUR_FROM ? '  (' + r.HOUR_FROM + ')' : ''}` }));
+  return { item: it, left: Math.max(it.planned - it.scheduled, 0), hours };
+}
+
+// GET /api/spl/propose?item&mode=FIRST|EVEN&weekday=0..7&from&to&block&lec&rom -> spl_pkg.propose (no DML)
+//   -> { status: OK|PART|DONE|ERR, total, left, message, terms: [{ date, hour, hours, meeting }] }
+async function propose(s, url) {
+  await requireEnabled(s);
+  const q = url.searchParams;
+  const it = await itemOf(s, num(q.get('item')));
+  const int = (v, min, max, def) => { const n = Number(v); return Number.isInteger(n) && n >= min && n <= max ? n : def; };
+  const r = (await db.query(s.pool, `select spl_pkg.propose(:pitem, :pmode, :pwd, :phf, :pht, :pblk, :plec, :prom) r from dual`, {
+    pitem: it.id, pmode: q.get('mode') === 'EVEN' ? 'EVEN' : 'FIRST', pwd: int(q.get('weekday'), 0, 7, 0),
+    phf: int(q.get('from'), 1, 99, null), pht: int(q.get('to'), 1, 99, null), pblk: int(q.get('block'), 1, 10, 1),
+    plec: num(q.get('lec')), prom: num(q.get('rom')),
+  }))[0];
+  const parts = String((r && r.R) || '').split('|');
+  const head = parts.shift().split(';');
+  if (head[0] === 'ERR') return { status: 'ERR', message: head.slice(1).join(';'), terms: [] };
+  return {
+    status: head[0], total: Number(head[1]) || 0, left: Number(head[2]) || 0,
+    terms: parts.filter(Boolean).map(e => { const [date, hour, hours, meeting] = e.split(';'); return { date, hour: Number(hour), hours: Number(hours), meeting: Number(meeting) }; }),
+  };
+}
+
 async function handle(req, res, s, url, readJson, send) {
   const path = url.pathname;
   if (!path.startsWith('/api/spl/')) return false;
@@ -191,6 +255,8 @@ async function handle(req, res, s, url, readJson, send) {
   else if (path === '/api/spl/save' && req.method === 'POST') send(res, 200, await save(s, await readJson(req)));
   else if (path === '/api/spl/delete' && req.method === 'POST') send(res, 200, await remove(s, await readJson(req)));
   else if (path === '/api/spl/recalc' && req.method === 'POST') send(res, 200, await recalc(s, await readJson(req)));
+  else if (path === '/api/spl/schedule-info' && req.method === 'GET') send(res, 200, await scheduleInfo(s, url));
+  else if (path === '/api/spl/propose' && req.method === 'GET') send(res, 200, await propose(s, url));
   else return false;
   return true;
 }

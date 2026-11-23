@@ -263,8 +263,8 @@ inherited FSettings: TFSettings
         OnClick = lhelpClick
       end
       object LHideEmptyRowsB: TSpeedButton
-        Left = 142
-        Top = 385
+        Left = 150
+        Top = 337
         Width = 48
         Height = 15
         Caption = 'Wi'#281'cej'
@@ -638,6 +638,19 @@ inherited FSettings: TFSettings
         State = cbChecked
         TabOrder = 99
       end
+      object LCurrentWeek: TCheckBox
+        Left = 16
+        Top = 378
+        Width = 174
+        Height = 17
+        Hint = 'Spis tre'#347'ci (index.html) otwiera grafiki z parametrem ?CurrentWeek=Y - zamiast grafiku semestralnego plan bie'#380#261'cego tygodnia (np. kody QR na drzwiach sal)'
+        Caption = 'Wy'#347'wietl bie'#380#261'cy tydzie'#324
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 100
+      end
       object LHideEmptyRows: TCheckBox
         Left = 0
         Top = 336
@@ -908,8 +921,8 @@ inherited FSettings: TFSettings
         OnClick = lhelpClick
       end
       object GHideEmptyRowsB: TSpeedButton
-        Left = 142
-        Top = 385
+        Left = 150
+        Top = 337
         Width = 41
         Height = 15
         Caption = 'Wi'#281'cej'
@@ -1281,6 +1294,19 @@ inherited FSettings: TFSettings
         State = cbChecked
         TabOrder = 99
       end
+      object GCurrentWeek: TCheckBox
+        Left = 16
+        Top = 378
+        Width = 174
+        Height = 17
+        Hint = 'Spis tre'#347'ci (index.html) otwiera grafiki z parametrem ?CurrentWeek=Y - zamiast grafiku semestralnego plan bie'#380#261'cego tygodnia (np. kody QR na drzwiach sal)'
+        Caption = 'Wy'#347'wietl bie'#380#261'cy tydzie'#324
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 100
+      end
       object GHideEmptyRows: TCheckBox
         Left = 0
         Top = 336
@@ -1551,8 +1577,8 @@ inherited FSettings: TFSettings
         OnClick = lhelpClick
       end
       object RHideEmptyRowsB: TSpeedButton
-        Left = 142
-        Top = 385
+        Left = 150
+        Top = 337
         Width = 41
         Height = 15
         Caption = 'Wi'#281'cej'
@@ -1924,6 +1950,19 @@ inherited FSettings: TFSettings
         State = cbChecked
         TabOrder = 99
       end
+      object RCurrentWeek: TCheckBox
+        Left = 16
+        Top = 378
+        Width = 174
+        Height = 17
+        Hint = 'Spis tre'#347'ci (index.html) otwiera grafiki z parametrem ?CurrentWeek=Y - zamiast grafiku semestralnego plan bie'#380#261'cego tygodnia (np. kody QR na drzwiach sal)'
+        Caption = 'Wy'#347'wietl bie'#380#261'cy tydzie'#324
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 100
+      end
       object RHideEmptyRows: TCheckBox
         Left = 0
         Top = 336
@@ -2126,8 +2165,8 @@ inherited FSettings: TFSettings
       Caption = 'Przedmiot'
       ImageIndex = 3
       object SHideEmptyRowsB: TSpeedButton
-        Left = 142
-        Top = 385
+        Left = 150
+        Top = 337
         Width = 41
         Height = 15
         Caption = 'Wi'#281'cej'
@@ -2574,6 +2613,19 @@ inherited FSettings: TFSettings
         ShowHint = True
         State = cbChecked
         TabOrder = 99
+      end
+      object SCurrentWeek: TCheckBox
+        Left = 16
+        Top = 378
+        Width = 174
+        Height = 17
+        Hint = 'Spis tre'#347'ci (index.html) otwiera grafiki z parametrem ?CurrentWeek=Y - zamiast grafiku semestralnego plan bie'#380#261'cego tygodnia (np. kody QR na drzwiach sal)'
+        Caption = 'Wy'#347'wietl bie'#380#261'cy tydzie'#324
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 100
       end
       object SHideEmptyRows: TCheckBox
         Left = 0

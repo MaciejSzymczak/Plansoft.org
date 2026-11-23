@@ -31,7 +31,7 @@ type
     TopPanel: TPanel;
     Upraw: TSpeedButton;
     LabelSortOrder: TLabel;
-    BFilter: TSpeedButton;
+    BFilter: TBitBtn;
     LAdvancedFilter: TLabel;
     LFind: TLabel;
     BNext: TBitBtn;
@@ -227,7 +227,7 @@ type
     BRefresh: TBitBtn;
     bexportpopup: TSpeedButton;
     SpeedButton1: TSpeedButton;
-    BSearchValue: TSpeedButton;
+    BSearchValue: TBitBtn;
     procedure BAddClick(Sender: TObject);
     procedure BEditClick(Sender: TObject);
     procedure BDeleteClick(Sender: TObject);
@@ -314,6 +314,7 @@ type
     procedure EFilterClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure BSearchValueClick(Sender: TObject);
+    procedure embedSearchButtons;
   private
    Bookmark        : String[30];
    HotKeys         : Array[1..20] Of Word;
@@ -1338,6 +1339,7 @@ procedure TFBrowseParent.bRefreshClick(Sender: TObject);
      LAdvancedFilter.Visible := False;
      BFilter.Visible := False;
    End;
+   embedSearchButtons; //2026-11: buttons inside ESearch (BFilter may have been shown / hidden)
   End;
   //----------------------------------
   Procedure SetSearch;
@@ -2977,6 +2979,32 @@ begin
   inherited;
   SearchCounter := 3;
   BCancelSearch.Visible := ESearch.Text <> ''; //2026-11: only when there is something to clear
+  embedSearchButtons;
+end;
+
+//2026-11: buttons inside ESearch, at the right edge - like FDetails.embedButtons; from the right:
+//  BSearchValue (value from the list), BFilter (advanced search), BCancelSearch (only when there is text).
+//The field gets a right margin (EM_SETMARGINS), so the text does not go under the buttons.
+procedure TFBrowseParent.embedSearchButtons;
+  const W = 20;
+  var ctrls : array[0..2] of TControl;
+      t, x : integer;
+begin
+  if csLoading in ComponentState then exit;
+  ctrls[0] := BSearchValue;
+  ctrls[1] := BFilter;
+  ctrls[2] := BCancelSearch;
+  x := ESearch.ClientWidth;
+  for t := 0 to High(ctrls) do begin
+    if ctrls[t].Parent <> ESearch then begin
+      ctrls[t].Parent  := ESearch;
+      ctrls[t].Anchors := [akTop, akRight];
+    end;
+    if not ctrls[t].Visible then continue;
+    x := x - W;
+    ctrls[t].SetBounds(x, 0, W, ESearch.ClientHeight);
+  end;
+  SendMessage(ESearch.Handle, EM_SETMARGINS, EC_RIGHTMARGIN, MakeLong(0, ESearch.ClientWidth - x + 2));
 end;
 
 //------------------------------------------------------------------

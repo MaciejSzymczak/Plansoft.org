@@ -1236,6 +1236,52 @@ inherited FWWWGenerator: TFWWWGenerator
           Height = 22
           TabOrder = 1
         end
+        object LTitleSuffix: TLabel
+          Left = 670
+          Top = 31
+          Width = 110
+          Height = 14
+          Caption = 'Tytu'#322': Przyrostek'
+          FocusControl = TitleSuffix
+        end
+        object TitleSuffix: TEdit
+          Tag = 67108864
+          Left = 786
+          Top = 26
+          Width = 200
+          Height = 22
+          Hint = 'Doklejany na ko'#324'cu tytu'#322'u (TITLE) ka'#380'dego tworzonego rozk'#322'adu zaj'#281#263' - semestralnego i tygodniowego'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          Text = '- Plansoft.org'
+        end
+        object GenQRCodes: TCheckBox
+          Tag = 67108864
+          Left = 670
+          Top = 55
+          Width = 268
+          Height = 17
+          Hint = 'Plik Barcody.docx w folderze witryny: kody QR sal (4 na stronie) do wydrukowania i naklejenia na drzwi - po zeskanowaniu telefonem otwiera si'#281' plan sali na bie'#380#261'cy tydzie'#324
+          Caption = 'Generuj barcody dla sal do pliku Barcody.docx'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 3
+          OnClick = GenQRCodesClick
+        end
+        object QRDomain: TEdit
+          Tag = 67108864
+          Left = 945
+          Top = 52
+          Width = 300
+          Height = 22
+          Hint = 'Adres witryny (z folderem), pod kt'#243'rym b'#281'dzie umieszczona zawarto'#347#263' folderu, np. https://plan.uczelnia.edu.pl/rozklady'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 4
+          Text = 'https://Tu_wpisz_domene_swojej_uczelni'
+          Visible = False
+        end
         object AddText: TEdit
           Tag = 67108864
           Left = 144
